@@ -24,7 +24,7 @@ class PasswordResetController extends Controller
         Password::sendResetLink(['email' => mb_strtolower(trim($request->input('email')))]);
 
         // The same answer whether or not the address has an account, so the form cannot be used to probe emails
-        return back()->with('success', 'اگر حسابی با این ایمیل وجود داشته باشد، پیوند بازیابی گذرواژه به آن فرستاده شد. صندوق ورودی (و پوشه‌ی هرزنامه) را ببینید.');
+        return back()->with('success', 'اگر حسابی با این ایمیل وجود داشته باشد، پیوند بازیابی گذرواژه به آن فرستاده شد. صندوق ورودی (و پوشۀ هرزنامه) را ببینید.');
     }
 
     public function reset(Request $request, string $token)
@@ -49,7 +49,7 @@ class PasswordResetController extends Controller
         });
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('info', 'گذرواژه‌ی شما تغییر کرد. اکنون با گذرواژه‌ی تازه وارد شوید.')
+            ? redirect()->route('login')->with('info', 'گذرواژۀ شما تغییر کرد. اکنون با گذرواژۀ تازه وارد شوید.')
             : back()->withInput($request->only('email'))->withErrors(['email' => 'پیوند بازیابی نامعتبر است یا منقضی شده. دوباره درخواست دهید.']);
     }
 }

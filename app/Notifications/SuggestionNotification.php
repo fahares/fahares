@@ -63,7 +63,7 @@ abstract class SuggestionNotification extends Notification implements ShouldQueu
 
         if ($notifiable instanceof User) {
             $unsubscribe = URL::signedRoute('notifications.unsubscribe', ['user' => $notifiable->id, 'type' => static::TYPE, 'channel' => 'mail']);
-            $mail->line("برای قطع این نوع ایمیل: [لغو اشتراک]({$unsubscribe}) — همه‌ی تنظیمات اعلان: " . route('notifications.settings'));
+            $mail->line("برای قطع این نوع ایمیل: [لغو اشتراک]({$unsubscribe}) — همۀ تنظیمات اعلان: " . route('notifications.settings'));
         }
 
         return $mail;

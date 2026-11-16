@@ -18,7 +18,7 @@ class ManuscriptFlagsDisplayTest extends TestCase
             'slug' => 'flags-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
 
         return Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
-            'library' => 'کتابخانه‌ی آزمایشی', 'city' => 'قم', 'shelfmark' => '۱۲', 'raw_text' => '1. قم؛ کتابخانه‌ی آزمایشی', ...$flags]);
+            'library' => 'کتابخانۀ آزمایشی', 'city' => 'قم', 'shelfmark' => '۱۲', 'raw_text' => '1. قم؛ کتابخانۀ آزمایشی', ...$flags]);
     }
 
     public function test_unset_marks_are_hidden_outside_suggestion_mode()

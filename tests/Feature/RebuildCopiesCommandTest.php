@@ -139,7 +139,7 @@ class RebuildCopiesCommandTest extends TestCase
         $id = $this->copy(null, "شماره نسخه: 90/4\nبی‌کا", null, $meta);
         DB::table('manuscripts')->where('id', $id)->update(['city' => null, 'library' => null, 'library_id' => null]);
         $library = $this->library = DB::table('libraries')->insertGetId([
-            'city' => 'تهران', 'name' => 'کتابخانه‌ی آزمایشی ' . uniqid(), 'slug' => 'test-rebuild-library-' . uniqid(), 'manuscripts_count' => 0,
+            'city' => 'تهران', 'name' => 'کتابخانۀ آزمایشی ' . uniqid(), 'slug' => 'test-rebuild-library-' . uniqid(), 'manuscripts_count' => 0,
         ]);
         file_put_contents($this->file, json_encode(['records' => [$this->record($id, null, [
             'city' => ['from' => null, 'to' => 'تهران'],

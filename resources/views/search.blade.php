@@ -45,7 +45,7 @@
                     <select name="scope" onchange="this.form.submit()" class="py-1 ps-2 pe-7 rounded-sm border border-line-strong bg-paper text-ink text-xs">
                         <option value="titles" @selected($scope === 'titles')>فقط عنوان‌ها</option>
                         <option value="titles_names" @selected($scope === 'titles_names')>عنوان‌ها و نام‌ها{{ $type === 'manuscripts' ? '، شماره و کتابخانه' : '' }}</option>
-                        <option value="all" @selected($scope === 'all')>همه‌ی اطلاعات</option>
+                        <option value="all" @selected($scope === 'all')>همۀ اطلاعات</option>
                         @if($fieldScopes = \App\Http\Controllers\SearchController::FIELD_SCOPES[$type] ?? [])
                             <optgroup label="فقط در">
                                 @foreach($fieldScopes as $key => [$scopeLabel])
@@ -95,7 +95,7 @@
                 <details class="text-xs" @if($fieldTerms) open @endif>
                     <summary class="cursor-pointer text-cinnabar hover:underline w-fit">جست‌وجو در چند فیلد با هم</summary>
                     <div class="mt-3 space-y-3">
-                        <p class="text-muted">هر عبارت فقط در فیلد خودش جست‌وجو می‌شود و نتیجه‌ها باید همه را داشته باشند، با عبارت جعبه‌ی بالا (اگر باشد).</p>
+                        <p class="text-muted">هر عبارت فقط در فیلد خودش جست‌وجو می‌شود و نتیجه‌ها باید همه را داشته باشند، با عبارت جعبۀ بالا (اگر باشد).</p>
                         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             @foreach($fieldScopes as $fieldKey => [$fieldLabel])
                                 <label class="flex flex-col gap-1">
@@ -109,7 +109,7 @@
                     </div>
                 </details>
                 @foreach($filters->broadFields() as $broadLabel)
-                    <p class="text-xs text-amber-700 dark:text-amber-300">عبارت «{{ $broadLabel }}» بیش از {{ Fa::num(\App\Support\FieldTerms::CAP) }} نتیجه دارد و فقط {{ Fa::num(\App\Support\FieldTerms::CAP) }} نتیجه‌ی نخستش به کار رفت؛ عبارت دقیق‌تری بنویسید.</p>
+                    <p class="text-xs text-amber-700 dark:text-amber-300">عبارت «{{ $broadLabel }}» بیش از {{ Fa::num(\App\Support\FieldTerms::CAP) }} نتیجه دارد و فقط {{ Fa::num(\App\Support\FieldTerms::CAP) }} نتیجۀ نخستش به کار رفت؛ عبارت دقیق‌تری بنویسید.</p>
                 @endforeach
             @endif
 
@@ -207,7 +207,7 @@
                             <a href="{{ $exportUrl('xlsx') }}" rel="nofollow" class="block px-2 py-1.5 hover:bg-paper hover:text-cinnabar">اکسل (xlsx)</a>
                             <a href="{{ $exportUrl('csv') }}" rel="nofollow" class="block px-2 py-1.5 hover:bg-paper hover:text-cinnabar">CSV</a>
                             <p class="px-2 pt-1 border-t border-line text-muted leading-5">
-                                {{ Fa::num(min($exportLimit, $results->total())) }} نتیجه‌ی نخست، با همین فیلترها و ترتیب.
+                                {{ Fa::num(min($exportLimit, $results->total())) }} نتیجۀ نخست، با همین فیلترها و ترتیب.
                                 @guest <a href="{{ route('login') }}" class="text-cinnabar hover:underline">با ورود</a> تا {{ Fa::num(\App\Support\SearchExport::MEMBER_LIMIT) }} نتیجه. @endguest
                             </p>
                             {{-- More than a file built here can hold: the whole list, built in the queue (backlog item 83) --}}
@@ -216,7 +216,7 @@
                                     <form method="POST" action="{{ route('search.export.queue', request()->except(['page', 'per_page'])) }}" class="px-2 pt-2 border-t border-line space-y-1.5">
                                         @csrf
                                         <input type="hidden" name="total" value="{{ $results->total() }}">
-                                        <p class="text-muted leading-5">همه‌ی {{ Fa::num(min($results->total(), \App\Support\SearchExport::QUEUED_LIMIT)) }} نتیجه در پس‌زمینه ساخته و پیوندش برایتان فرستاده می‌شود:</p>
+                                        <p class="text-muted leading-5">همۀ {{ Fa::num(min($results->total(), \App\Support\SearchExport::QUEUED_LIMIT)) }} نتیجه در پس‌زمینه ساخته و پیوندش برایتان فرستاده می‌شود:</p>
                                         <div class="flex gap-1.5">
                                             <x-ui.btn type="submit" size="sm" name="format" value="xlsx">اکسل کامل</x-ui.btn>
                                             <x-ui.btn type="submit" size="sm" name="format" value="csv">CSV کامل</x-ui.btn>
@@ -273,7 +273,7 @@
                         @foreach($results as $ms)
                             <li class="py-4 space-y-1.5" data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
                                 <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                                    <a href="{{ route('manuscripts.show', $ms) }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان', $query)</a>
+                                    <a href="{{ route('manuscripts.show', $ms) }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($ms->work?->primary_title ?? 'نسخۀ بی‌عنوان', $query)</a>
                                     @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
                                     @if($ms->century_text)<span class="ms-auto text-xs text-muted whitespace-nowrap">{{ Fa::digits($ms->century_text) }}</span>@endif
                                 </div>
@@ -284,7 +284,7 @@
                                         <span>از <span class="font-semibold text-ink">@highlight($ms->work->author_name, $query)</span></span>
                                     @endif
                                     <span><span class="font-semibold text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</span>@if($ms->city)، {{ $ms->city }}@endif</span>
-                                    <span>شماره‌ی <span dir="ltr" class="font-semibold text-cinnabar">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</span></span>
+                                    <span>شمارۀ <span dir="ltr" class="font-semibold text-cinnabar">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</span></span>
                                     @if($ms->scribe_name)
                                         <span>کاتب: @highlight($ms->scribe_name, $query) <x-ui.life :person="$ms->scribe" /></span>
                                     @elseif($ms->is_autograph)
@@ -313,7 +313,7 @@
                                         $ms->script_names ? 'خط ' . $ms->script_names : null,
                                         $ms->extentLabel(false),
                                         $ms->has_author_marginalia ? 'حواشی مؤلف' : null,
-                                        $ms->corrected_by_author ? 'تصحیح مؤلف' : ($ms->collated_with_author_copy ? 'مقابله با نسخه‌ی مؤلف' : ($ms->copied_from_author_copy ? 'از روی نسخه‌ی مؤلف' : null)),
+                                        $ms->corrected_by_author ? 'تصحیح مؤلف' : ($ms->collated_with_author_copy ? 'مقابله با نسخۀ مؤلف' : ($ms->copied_from_author_copy ? 'از روی نسخۀ مؤلف' : null)),
                                         (! empty($ms->ownership_and_seals_list) && count($ms->ownership_and_seals_list)) ? 'مهر و تملک (' . Fa::digits(count($ms->ownership_and_seals_list)) . ')' : null,
                                         $ms->is_illuminated ? 'مذهّب' : null,
                                         $ms->is_illustrated ? 'مصوّر' : null,
@@ -412,7 +412,7 @@
             @elseif($engineDown ?? false)
                 <div class="py-12 text-center space-y-3">
                     <p class="font-naskh text-2xl font-bold text-ink">جست‌وجو موقتاً در دسترس نیست</p>
-                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">موتور جست‌وجو پاسخ نداد یا نمایه‌ی آن در حال ساخت است. چند دقیقه‌ی دیگر دوباره امتحان کنید؛ مرور با فیلترها بی‌عبارت جست‌وجو کار می‌کند.</p>
+                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">موتور جست‌وجو پاسخ نداد یا نمایۀ آن در حال ساخت است. چند دقیقۀ دیگر دوباره امتحان کنید؛ مرور با فیلترها بی‌عبارت جست‌وجو کار می‌کند.</p>
                 </div>
             @elseif(($direct ?? null) && ! $direct->isEmpty())
                 {{-- The direct answer above is the result --}}
@@ -441,8 +441,8 @@
                         </p>
                     @endif
 
-                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">املای واژه‌ها را بازبینی کنید، یا دامنه‌ی جست‌وجو و پالایه‌ها را تغییر دهید.</p>
-                    <x-ui.btn :href="route('search', ['type' => $type])">همه‌ی موارد این بخش</x-ui.btn>
+                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">املای واژه‌ها را بازبینی کنید، یا دامنۀ جست‌وجو و پالایه‌ها را تغییر دهید.</p>
+                    <x-ui.btn :href="route('search', ['type' => $type])">همۀ موارد این بخش</x-ui.btn>
                 </div>
             @endif
 

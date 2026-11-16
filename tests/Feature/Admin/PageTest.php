@@ -32,12 +32,12 @@ class PageTest extends TestCase
         $this->get(route('about'))->assertSee('ویرایش این صفحه در پنل');
 
         $this->put(route('admin.pages.update', $page), [
-            'title' => 'درباره‌ی فهارس',
+            'title' => 'دربارۀ فهارس',
             'body' => "## بخش تازه\n\nمتن <script>alert(1)</script> تازه.",
         ])->assertRedirect()->assertSessionHas('success');
 
         $page->refresh();
-        $this->assertSame('درباره‌ی فهارس', $page->title);
+        $this->assertSame('دربارۀ فهارس', $page->title);
         $this->assertSame($admin->id, $page->user_id);
 
         $log = AuditLog::where('auditable_type', Page::class)->where('auditable_id', $page->id)->latest('id')->firstOrFail();

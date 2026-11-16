@@ -149,7 +149,8 @@ class EstimateDatesCommand extends Command
     {
         foreach ($s->bounded() as $var) {
             $documented = $engine->seedFrom($var) !== null && $engine->seedTo($var) !== null;
-            if ($documented || isset($s->quarantined[$var]) || $s->isEmpty($var)) {
+            // the periods of a life are documented dates of the person, never an estimate of their own
+            if ($documented || DateVar::isPeriod($var) || isset($s->quarantined[$var]) || $s->isEmpty($var)) {
                 continue;
             }
             $row = ['subject_type' => DateVar::type($var), 'subject_id' => DateVar::id($var), 'field' => DateVar::field($var),

@@ -26,10 +26,10 @@ class SourcePagesTest extends TestCase
         Artisan::call('sources:backfill', ['--only' => ['registry']]);
         $library = Library::create(['name' => 'مسجد اعظم', 'city' => 'قم', 'slug' => 'masjid-azam-' . uniqid()]);
         $this->work = Work::create(['primary_title' => 'دیوان قدسی', 'clean_title' => 'دیوان قدسی', 'slug' => 'work-pages-' . uniqid(),
-            'volume_number' => 15, 'page_start' => 120, 'raw_text' => 'ستون کهنه‌ی اثر', 'bibliography' => ['ستون کهنه‌ی مآخذ'],
+            'volume_number' => 15, 'page_start' => 120, 'raw_text' => 'ستون کهنۀ اثر', 'bibliography' => ['ستون کهنۀ مآخذ'],
             'description' => 'معرفی آزمایشی اثر']);
         $this->manuscript = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => '1939',
-            'volume_number' => 15, 'page_start' => 120, 'sequence_number' => 3, 'raw_text' => 'ستون کهنه‌ی نسخه']);
+            'volume_number' => 15, 'page_start' => 120, 'sequence_number' => 3, 'raw_text' => 'ستون کهنۀ نسخه']);
         $this->catalogue = Source::create(['code' => 'test-catalogue', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10,
             'title' => 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم', 'library_id' => $library->id]);
     }
@@ -63,7 +63,7 @@ class SourcePagesTest extends TestCase
             ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', 'متن مدخل فهرست', 'ش ۱۹۳۹، ۱۶۲ برگ', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'ج ۱۵، ص ۱۲۱، ردیف ۳', "متن فنخای نسخه \nادامه", 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن استدراک'])
             ->assertDontSee('ارجاع‌های دیگر')
             ->assertSee('catalogs/fankha/v15/p0121.webp', false)
-            ->assertDontSee('ستون کهنه‌ی نسخه')
+            ->assertDontSee('ستون کهنۀ نسخه')
             ->assertDontSee('<!-- page', false);
         $this->assertStringNotContainsString('data-stale-text', $this->get(route('manuscripts.show', $this->manuscript))->getContent());
 
@@ -101,6 +101,6 @@ class SourcePagesTest extends TestCase
             ->assertSeeInOrder(['معرفی اثر', 'به روایت فنخا', 'معرفی آزمایشی اثر'])
             ->assertSee('استدراک')
             // the suggestion desk still offers the bibliography column, which corrections write until step 13.3
-            ->assertDontSee('ستون کهنه‌ی اثر');
+            ->assertDontSee('ستون کهنۀ اثر');
     }
 }

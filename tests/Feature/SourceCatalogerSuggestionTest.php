@@ -44,7 +44,7 @@ class SourceCatalogerSuggestionTest extends TestCase
         Cache::flush();
         $this->admin = User::create(['name' => 'داور', 'email' => uniqid('vc-admin-') . '@example.test', 'password' => 'password123', 'role' => 'admin']);
         $this->researcher = User::create(['name' => 'پژوهشگر', 'email' => uniqid('vc-') . '@example.test', 'password' => 'password123', 'role' => 'user']);
-        $this->library = Library::create(['name' => 'کتابخانه‌ی آزمون فهرست‌نگار', 'city' => 'قم', 'slug' => 'vc-lib-' . uniqid()]);
+        $this->library = Library::create(['name' => 'کتابخانۀ آزمون فهرست‌نگار', 'city' => 'قم', 'slug' => 'vc-lib-' . uniqid()]);
         $this->wrong = Cataloger::create(['name' => 'فهرست‌نگار نادرست', 'slug' => 'vc-wrong-' . uniqid()]);
         $this->right = Cataloger::create(['name' => 'سید احمد حسینی اشکوری', 'slug' => 'vc-right-' . uniqid()]);
         $this->source = Source::create(['code' => 'vc-cat-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست آزمون فهرست‌نگار',
@@ -64,7 +64,7 @@ class SourceCatalogerSuggestionTest extends TestCase
     {
         return $this->actingAs($this->researcher)->postJson('/suggestions', $data + [
             'type' => 'source', 'id' => $this->source->id, 'kind' => 'relation', 'field_name' => 'cataloger_is', 'role' => 'cataloger',
-            'rationale_citation' => 'صفحه‌ی عنوان جلد یکم',
+            'rationale_citation' => 'صفحۀ عنوان جلد یکم',
         ]);
     }
 

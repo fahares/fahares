@@ -11,7 +11,7 @@
 @section('content')
 <div class="pb-6">
 
-    {{-- Header banner (admin → صفحه‌ی خانه → تصویر سربرگ); the search sheet sits on its lower edge --}}
+    {{-- Header banner (admin → صفحۀ خانه → تصویر سربرگ); the search sheet sits on its lower edge --}}
     @if($hero)
         <div class="relative h-[200px] sm:h-[330px] overflow-hidden bg-[#221C17]">
             <img src="{{ $hero->image_url }}" alt="{{ $hero->title }}" fetchpriority="high" class="w-full h-full object-cover object-[center_45%]">
@@ -38,7 +38,7 @@
             <h2 class="font-naskh text-lg sm:text-[22px] font-bold text-ink leading-[1.6] text-balance md:pt-2 !mb-0">{{ SiteSetting::get('home.headline') }}</h2>
 
             <div x-data="{ activeTab: 'works' }" class="max-w-3xl mx-auto text-right pt-1">
-                <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنه‌ی جست‌وجو">
+                <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنۀ جست‌وجو">
                     @foreach(['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان'] as $tab => $tabLabel)
                         <button type="button" role="tab" @click="activeTab = '{{ $tab }}'" :aria-selected="activeTab === '{{ $tab }}'"
                                 :class="activeTab === '{{ $tab }}' ? 'bg-paper text-ink border-line-strong' : 'text-muted border-transparent hover:text-ink'"
@@ -52,7 +52,7 @@
                     <label for="home-search" class="sr-only">جست‌وجو</label>
                     <div class="relative flex items-center">
                         <input type="text" name="q" id="home-search" autocomplete="off"
-                               placeholder="عنوان اثر، نام مؤلف، کاتب، آغاز و انجام، یا شماره‌ی نسخه"
+                               placeholder="عنوان اثر، نام مؤلف، کاتب، آغاز و انجام، یا شمارۀ نسخه"
                                class="w-full pr-12 pl-28 py-3.5 sm:py-4 bg-paper text-ink placeholder:text-muted text-base rounded-sm border border-line-strong focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 outline-none transition">
                         <svg class="absolute right-4 w-5 h-5 text-muted group-focus-within:text-cinnabar transition pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <button type="submit" class="absolute left-1.5 px-5 py-2.5 bg-cinnabar text-on-cinnabar font-semibold rounded-sm text-sm hover:opacity-90 transition flex items-center gap-1.5 cursor-pointer">
@@ -101,9 +101,9 @@
                 @endif
                 <span class="hidden sm:inline">
                     @if($contributions['waiting'])
-                        <a href="{{ route('contribute.index') }}" class="hover:text-cinnabar">{{ Fa::num($contributions['waiting']) }} داده‌ی ماشینی در «{{ config('contributions.review_title') }}» منتظر پاسخ شماست.</a>
+                        <a href="{{ route('contribute.index') }}" class="hover:text-cinnabar">{{ Fa::num($contributions['waiting']) }} دادۀ ماشینی در «{{ config('contributions.review_title') }}» منتظر پاسخ شماست.</a>
                     @else
-                        با پیشنهاد اصلاح در صفحه‌ی هر نسخه یا اثر، در درستی داده‌ها سهیم شوید.
+                        با پیشنهاد اصلاح در صفحۀ هر نسخه یا اثر، در درستی داده‌ها سهیم شوید.
                     @endif
                 </span>
             </p>
@@ -116,7 +116,7 @@
         <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14">
             <div class="flex items-baseline justify-between gap-3 mb-6">
                 <h2 class="rubric text-xl">{{ SiteSetting::get('home.catalogers_title') }}</h2>
-                <a href="{{ route('catalogers.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی فهرست‌نگاران</a>
+                <a href="{{ route('catalogers.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همۀ فهرست‌نگاران</a>
             </div>
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
                 @foreach($homeCatalogers as $c)
@@ -140,7 +140,7 @@
         </section>
     @endif
 
-    {{-- Slides (the journal's posts) below the catalogers (admin → صفحه‌ی خانه → اسلایدها) --}}
+    {{-- Slides (the journal's posts) below the catalogers (admin → صفحۀ خانه → اسلایدها) --}}
     @if($slides->isNotEmpty())
         <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14"
                  x-data="{
@@ -225,8 +225,8 @@
     <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 grid gap-12 md:grid-cols-2">
         <div>
             <div class="flex items-baseline justify-between gap-3 mb-4">
-                <h2 class="rubric text-xl">نمایه‌ی موضوعات</h2>
-                <a href="{{ route('subjects.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی موضوعات</a>
+                <h2 class="rubric text-xl">نمایۀ موضوعات</h2>
+                <a href="{{ route('subjects.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همۀ موضوعات</a>
             </div>
             <ul class="divide-y divide-transparent">
                 @foreach($topSubjects as $subject)
@@ -243,7 +243,7 @@
         <div>
             <div class="flex items-baseline justify-between gap-3 mb-4">
                 <h2 class="rubric text-xl">بزرگ‌ترین گنجینه‌ها</h2>
-                <a href="{{ route('libraries.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی {{ Fa::num($stats['libraries']) }} کتابخانه</a>
+                <a href="{{ route('libraries.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همۀ {{ Fa::num($stats['libraries']) }} کتابخانه</a>
             </div>
             <ul>
                 @foreach($topLibraries as $lib)

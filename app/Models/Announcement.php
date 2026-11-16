@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Storage;
 class Announcement extends Model
 {
     public const STYLES = [
-        'card' => 'کارت گوشه‌ی صفحه',
-        'modal' => 'پنجره‌ی میان صفحه',
+        'card' => 'کارت گوشۀ صفحه',
+        'modal' => 'پنجرۀ میان صفحه',
     ];
 
     public const AUDIENCES = [

@@ -24,7 +24,7 @@ class LibraryMerger
     public function merge(Library $source, Library $target, ?array $fields = null): array
     {
         if ($source->is($target)) {
-            throw new InvalidArgumentException('کتابخانه‌ی مبدأ و مقصد یکی است.');
+            throw new InvalidArgumentException('کتابخانۀ مبدأ و مقصد یکی است.');
         }
         $snapshot = $source->getAttributes();
 
@@ -90,13 +90,13 @@ class LibraryMerger
     {
         $snapshot = $old['source_snapshot'] ?? null;
         if (! $snapshot || ! ($sourceId = $old['source_id'] ?? null)) {
-            throw new InvalidArgumentException('اطلاعات کتابخانه‌ی حذف‌شده در این لاگ ثبت نشده است.');
+            throw new InvalidArgumentException('اطلاعات کتابخانۀ حذف‌شده در این لاگ ثبت نشده است.');
         }
         if (Library::find($sourceId)) {
-            throw new InvalidArgumentException("کتابخانه‌ای با شناسه‌ی #{$sourceId} هم‌اکنون وجود دارد.");
+            throw new InvalidArgumentException("کتابخانه‌ای با شناسۀ #{$sourceId} هم‌اکنون وجود دارد.");
         }
         if (Library::where('city', $snapshot['city'])->where('name', $snapshot['name'])->exists()) {
-            throw new InvalidArgumentException("کتابخانه‌ی دیگری با نام «{$snapshot['name']}» در {$snapshot['city']} ثبت شده است.");
+            throw new InvalidArgumentException("کتابخانۀ دیگری با نام «{$snapshot['name']}» در {$snapshot['city']} ثبت شده است.");
         }
         DB::table('libraries')->insert($snapshot);
         $source = Library::findOrFail($sourceId);
@@ -143,7 +143,7 @@ class LibraryMerger
             throw new InvalidArgumentException('نام تازه همان نام کنونی کتابخانه است.');
         }
         if ($other = Library::where('city', $library->city)->where('name', $name)->whereKeyNot($library->id)->first()) {
-            throw new InvalidArgumentException("کتابخانه‌ی دیگری با این نام در همین شهر ثبت شده است (#{$other->id}). اگر همان است، ادغام را پیشنهاد کنید.");
+            throw new InvalidArgumentException("کتابخانۀ دیگری با این نام در همین شهر ثبت شده است (#{$other->id}). اگر همان است، ادغام را پیشنهاد کنید.");
         }
 
         $old = ['name' => $library->name, 'aliases' => $library->aliases];

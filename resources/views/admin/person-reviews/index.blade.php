@@ -9,7 +9,7 @@
         if ($r === 'generic name') return 'نام عام است و به‌تنهایی کسی را مشخص نمی‌کند';
         if ($r === 'an author and a scribe with no dates to compare') return 'مؤلف و کاتبِ هم‌نام، بی‌تاریخ برای مقایسه';
         if (str_starts_with($r, 'different details in parentheses')) return 'توضیح داخل پرانتز در رکوردها فرق دارد';
-        if (str_starts_with($r, 'record #')) return 'یکی از رکوردها خودش نسخه‌هایی با فاصله‌ی چند نسل دارد';
+        if (str_starts_with($r, 'record #')) return 'یکی از رکوردها خودش نسخه‌هایی با فاصلۀ چند نسل دارد';
         if ($r === 'dates agree' || $r === 'same distinctive name, no dates') return 'نام متمایز است و تاریخ‌ها با هم می‌خوانند';
         if (preg_match('/^copies (\d+)–(\d+) \((\d+)\)$/', $r, $m)) return "تاریخ کتابتِ {$m[3]} نسخه از {$m[1]} تا {$m[2]} ق";
         return $r;
@@ -177,7 +177,7 @@
                                     </div>
                                     <div class="text-[11px] text-muted tabular-nums flex flex-wrap gap-x-3">
                                         <span>#{{ $fa($p->id) }}</span>
-                                        @if($p->death_year_hijri)<span>د. {{ $fa($p->death_year_hijri) }} ق</span>@elseif($p->century_hijri)<span>سده‌ی {{ $fa($p->century_hijri) }}</span>@endif
+                                        @if($p->death_year_hijri)<span>د. {{ $fa($p->death_year_hijri) }} ق</span>@elseif($p->century_hijri)<span>سدۀ {{ $fa($p->century_hijri) }}</span>@endif
                                         @if($m['span'])<span>کتابت {{ $fa($m['span'][0]) }}{{ $m['span'][1] !== $m['span'][0] ? '–' . $fa($m['span'][1]) : '' }} ق</span>@endif
                                         <span>{{ $num($p->manuscripts_count) }} نسخه</span>
                                         <span>{{ $num($p->works_count) }} اثر</span>

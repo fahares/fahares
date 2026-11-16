@@ -11,13 +11,13 @@
         <div class="mb-2">
             <p class="text-xs text-muted">
                 @if($volumes)
-                    مجلدهای همین اثر در همین کتابخانه که زیر شماره‌ی {{ $number }} آمده‌اند.
+                    مجلدهای همین اثر در همین کتابخانه که زیر شمارۀ {{ $number }} آمده‌اند.
                 @else
-                    این نسخه در مجموعه‌ی شماره‌ی <span dir="ltr">{{ \App\Support\Fa::digits($number) }}</span>{{ $manuscript->rangeLabel() ? '، ' . $manuscript->rangeLabel() : '' }}، همراه با این رساله‌ها{{ $siblings->contains(fn ($m) => $m->range_from) ? ' (به ترتیب برگ)' : '' }} صحافی شده است.
+                    این نسخه در مجموعۀ شمارۀ <span dir="ltr">{{ \App\Support\Fa::digits($number) }}</span>{{ $manuscript->rangeLabel() ? '، ' . $manuscript->rangeLabel() : '' }}، همراه با این رساله‌ها{{ $siblings->contains(fn ($m) => $m->range_from) ? ' (به ترتیب برگ)' : '' }} صحافی شده است.
                     @if(\App\Models\Manuscript::isRunKey($number))
-                        کتابخانه به هر رساله‌ی این مجلد شماره‌ای جداگانه داده است؛ پیوستگی برگ‌ها و اندازه‌ی یکسانشان نشان می‌دهد که با هم صحافی شده‌اند.
+                        کتابخانه به هر رسالۀ این مجلد شماره‌ای جداگانه داده است؛ پیوستگی برگ‌ها و اندازۀ یکسانشان نشان می‌دهد که با هم صحافی شده‌اند.
                     @elseif(! \App\Models\Manuscript::collectionKey($manuscript->shelfmark))
-                        فهرست شماره‌ی بخش رساله‌ها را نیاورده است؛ پیوستگی برگ‌هایشان نشان می‌دهد که در یک مجلدند.
+                        فهرست شمارۀ بخش رساله‌ها را نیاورده است؛ پیوستگی برگ‌هایشان نشان می‌دهد که در یک مجلدند.
                     @endif
                 @endif
             </p>
@@ -34,7 +34,7 @@
                         @else
                             <a href="{{ route('manuscripts.show', $m) }}" class="text-ink hover:text-cinnabar transition">{{ $m->work?->primary_title ?? 'نسخه' }}</a>
                         @endif
-                        @if($m->inMargin())<span class="text-[10px] text-cinnabar" title="به گفته‌ی فهرست، در هامش رساله‌ای دیگر نوشته شده است">(در حاشیه)</span>@endif
+                        @if($m->inMargin())<span class="text-[10px] text-cinnabar" title="به گفتۀ فهرست، در هامش رساله‌ای دیگر نوشته شده است">(در حاشیه)</span>@endif
                         @if($m->work?->author_name)<span class="text-[11px] text-muted"> · {{ $m->work->author_name }}</span>@endif
                     </span>
                     @if($m->extentLabel())<span class="shrink-0 text-[11px] text-muted">{{ $m->extentLabel() }}</span>@endif
@@ -42,7 +42,7 @@
             @endforeach
         </ol>
         @if($siblings->count() > 12)
-            <button type="button" x-show="!all" @click="all = true" class="text-[11px] font-bold text-cinnabar hover:underline cursor-pointer">نمایش همه‌ی {{ \App\Support\Fa::num($siblings->count()) }} {{ $volumes ? 'مجلد' : 'رساله' }}</button>
+            <button type="button" x-show="!all" @click="all = true" class="text-[11px] font-bold text-cinnabar hover:underline cursor-pointer">نمایش همۀ {{ \App\Support\Fa::num($siblings->count()) }} {{ $volumes ? 'مجلد' : 'رساله' }}</button>
         @endif
     </x-ui.section>
 @endif

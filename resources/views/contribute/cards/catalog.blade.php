@@ -2,10 +2,10 @@
      catalogue on the other, and the question between them. --}}
 @use('App\Support\Fa')
 <div class="space-y-1">
-    <h2 class="font-naskh text-lg sm:text-xl font-bold text-ink leading-relaxed m-0">آیا این نسخه همان است که در این برگه‌ی فهرست وصف شده؟</h2>
+    <h2 class="font-naskh text-lg sm:text-xl font-bold text-ink leading-relaxed m-0">آیا این نسخه همان است که در این برگۀ فهرست وصف شده؟</h2>
     <p class="text-xs sm:text-sm text-muted leading-6 m-0">
-        @if(! empty($facts['شماره‌ی نسخه']))
-            در برگه دنبال شماره‌ی <b class="text-ink">{{ $facts['شماره‌ی نسخه'] }}</b> بگردید و عنوان، آغاز و انجام، کاتب و تاریخ را با این نسخه بسنجید.
+        @if(! empty($facts['شمارۀ نسخه']))
+            در برگه دنبال شمارۀ <b class="text-ink">{{ $facts['شمارۀ نسخه'] }}</b> بگردید و عنوان، آغاز و انجام، کاتب و تاریخ را با این نسخه بسنجید.
         @else
             برگه را بخوانید و عنوان، آغاز و انجام، کاتب و تاریخ را با این نسخه بسنجید.
         @endif
@@ -42,7 +42,7 @@
         @if($viewer && $image)
             <button type="button" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})" class="block w-full group cursor-pointer text-right">
                 <span class="block aspect-[3/4] max-h-[60vh] overflow-hidden border border-line bg-white">
-                    <img src="{{ $image }}" alt="برگه‌ی {{ $place }} از {{ $catalog }}" class="w-full h-full object-cover object-top group-hover:opacity-90 transition"
+                    <img src="{{ $image }}" alt="برگۀ {{ $place }} از {{ $catalog }}" class="w-full h-full object-cover object-top group-hover:opacity-90 transition"
                          onerror="this.closest('button').outerHTML = '<p class=&quot;text-xs text-muted&quot;>تصویر این برگه در دسترس نیست.</p>'">
                 </span>
                 <span class="block mt-1.5 text-xs font-semibold text-cinnabar">بزرگ‌نمایی برگه</span>

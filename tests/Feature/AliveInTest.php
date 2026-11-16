@@ -22,7 +22,7 @@ class AliveInTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->library = Library::create(['name' => 'کتابخانه‌ی زندگی آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $this->library = Library::create(['name' => 'کتابخانۀ زندگی آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
     }
 
     private function person(string $name, ?int $death = null): Person
@@ -65,7 +65,7 @@ class AliveInTest extends TestCase
         $latest = $this->work('اثر پسین آزمایشی زنده', 1240, $author);
         $dead = $this->person('مؤلف آزمایشی درگذشته', 1250);
         $this->work('اثر مؤلف درگذشته', 1230, $dead);
-        $unknown = $this->person('شخص بی‌قرینه‌ی آزمایشی');
+        $unknown = $this->person('شخص بی‌قرینۀ آزمایشی');
 
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
 
@@ -83,7 +83,7 @@ class AliveInTest extends TestCase
 
     public function test_a_scribe_is_alive_in_the_year_of_a_copy_but_not_when_the_copies_span_generations()
     {
-        $work = $this->work('اثر کتابت‌شده‌ی آزمایشی', null, $this->person('مؤلف آزمایشی کتابت'));
+        $work = $this->work('اثر کتابت‌شدۀ آزمایشی', null, $this->person('مؤلف آزمایشی کتابت'));
         $scribe = $this->person('کاتب آزمایشی زنده');
         $this->copy($work, 1085, 1085, $scribe);
         // a copy dated by its century: alive at some time in it

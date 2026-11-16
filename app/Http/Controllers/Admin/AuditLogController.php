@@ -334,7 +334,7 @@ class AuditLogController extends Controller
         // 3. Library merge approved from a suggestion (see LibraryMerger)
         if ($log->auditable_type === \App\Models\Library::class) {
             $target = \App\Models\Library::find($log->auditable_id)
-                ?? throw new \Exception("کتابخانه‌ی مقصد با شناسه #{$log->auditable_id} یافت نشد.");
+                ?? throw new \Exception("کتابخانۀ مقصد با شناسه #{$log->auditable_id} یافت نشد.");
             $restored = app(\App\Suggestions\LibraryMerger::class)->undoMerge($target, $old);
 
             if ($suggestionId = $log->new_values['suggestion_id'] ?? null) {

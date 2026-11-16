@@ -21,14 +21,14 @@ class AuthorCopyFlagsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->work = Work::create(['primary_title' => 'اثر آزمایشی نسخه‌ی مؤلف', 'clean_title' => 'اثر آزمایشی نسخه‌ی مؤلف',
+        $this->work = Work::create(['primary_title' => 'اثر آزمایشی نسخۀ مؤلف', 'clean_title' => 'اثر آزمایشی نسخۀ مؤلف',
             'slug' => 'author-copy-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
-        $library = Library::create(['name' => 'کتابخانه‌ی آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
         // eleven copies, more than WorkCopyFilters::MIN_COPIES, so the work page offers its filters
         foreach (range(1, 11) as $i) {
             $this->copies[] = Manuscript::create(['work_id' => $this->work->id, 'sequence_number' => $i, 'volume_number' => 1,
                 'page_start' => 1, 'library_id' => $library->id, 'library' => $library->name, 'city' => $library->city,
-                'shelfmark' => 'ن' . \App\Support\Fa::digits($i) . 'ن', 'raw_text' => "{$i}. قم؛ کتابخانه‌ی آزمایشی؛ شماره نسخه: {$i}\nخط: نسخ، بی‌کا، بی‌تا؛ از روی نسخه مؤلف"]);
+                'shelfmark' => 'ن' . \App\Support\Fa::digits($i) . 'ن', 'raw_text' => "{$i}. قم؛ کتابخانۀ آزمایشی؛ شماره نسخه: {$i}\nخط: نسخ، بی‌کا، بی‌تا؛ از روی نسخه مؤلف"]);
         }
     }
 
@@ -53,11 +53,11 @@ class AuthorCopyFlagsTest extends TestCase
         $this->assertFalse($this->copies[3]->fresh()->copied_from_author_copy);
 
         $this->get(route('manuscripts.show', $this->copies[2]))->assertOk()->assertSee('مقابله یا تصحیح به دست مؤلف');
-        $this->get(route('manuscripts.show', $this->copies[0]))->assertOk()->assertSee('کتابت از روی نسخه‌ی مؤلف');
+        $this->get(route('manuscripts.show', $this->copies[0]))->assertOk()->assertSee('کتابت از روی نسخۀ مؤلف');
 
         // the work page filter keeps the three copies near the author's own
         $route = fn (array $q = []) => route('works.show', ['id' => $this->work->getRouteKey(), ...$q]);
-        $this->get($route())->assertOk()->assertSee('از روی نسخه‌ی مؤلف یا مقابله با آن (۳)');
+        $this->get($route())->assertOk()->assertSee('از روی نسخۀ مؤلف یا مقابله با آن (۳)');
         $this->get($route(['author_copy' => '1']))->assertOk()
             ->assertSee('ن۱ن')->assertSee('ن۳ن')->assertDontSee('ن۵ن');
     }

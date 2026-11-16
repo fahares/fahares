@@ -138,7 +138,7 @@ class SuggestionController extends Controller
         $user = $request->user();
         $files = empty(NoteTypes::TYPES[$noteType]['files']) ? [] : $request->file('files', []);
         if ($files && ! $request->boolean('rights_confirmed')) {
-            throw ValidationException::withMessages(['rights_confirmed' => 'تأیید کنید که تصویر را خودتان تهیه کرده‌اید یا اجازه‌ی انتشار آن را دارید.']);
+            throw ValidationException::withMessages(['rights_confirmed' => 'تأیید کنید که تصویر را خودتان تهیه کرده‌اید یا اجازۀ انتشار آن را دارید.']);
         }
         $values = NoteTypes::clean($noteType, (array) ($validated['note'] ?? []), (bool) $files);
 

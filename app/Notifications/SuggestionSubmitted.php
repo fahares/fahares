@@ -9,7 +9,7 @@ class SuggestionSubmitted extends SuggestionNotification
 
     protected function title(): string
     {
-        return ($this->suggestion->kind === 'feedback' ? 'بازخورد تازه درباره‌ی سایت: ' : 'پیشنهاد اصلاحی تازه: ') . $this->suggestion->field_label;
+        return ($this->suggestion->kind === 'feedback' ? 'بازخورد تازه دربارۀ سایت: ' : 'پیشنهاد اصلاحی تازه: ') . $this->suggestion->field_label;
     }
 
     protected function lines(object $notifiable): array

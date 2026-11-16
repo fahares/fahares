@@ -22,7 +22,7 @@ class AdminListsTest extends TestCase
     public function test_list_pages_render_without_english_headings(): void
     {
         $person = Person::create(['name' => 'شخص آزمایشی فهرست', 'normalized_name' => 'شخص آزمایشی فهرست', 'slug' => 'lists-person-' . uniqid(), 'is_author' => true, 'death_year_hijri' => 1091]);
-        Library::create(['name' => 'کتابخانه‌ی آزمایشی فهرست', 'city' => 'قم', 'slug' => 'lists-library-' . uniqid()]);
+        Library::create(['name' => 'کتابخانۀ آزمایشی فهرست', 'city' => 'قم', 'slug' => 'lists-library-' . uniqid()]);
 
         foreach (['/admin/people', '/admin/libraries', '/admin/catalogers', '/admin/users', '/admin/audit-logs'] as $uri) {
             $this->actingAs($this->admin)->get($uri)->assertOk()

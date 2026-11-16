@@ -66,7 +66,7 @@
     $seen = ['manuscript' => 'نسخه را خودم دیده‌ام', 'work' => 'نسخه یا چاپ اثر را خودم دیده‌ام', 'library' => 'از خود کتابخانه می‌دانم'][$typeKey] ?? null;
     $config['basis'] = array_values(array_filter([
         ['key' => 'typo', 'label' => 'غلط تایپی یا املایی است', 'fieldOnly' => true, 'detail' => 'optional', 'placeholder' => 'اگر توضیحی لازم است'],
-        $seen ? ['key' => 'seen', 'label' => $seen, 'detail' => 'optional', 'placeholder' => 'مثلاً: ترقیمه‌ی برگ آخر، یا مهر برگ نخست'] : null,
+        $seen ? ['key' => 'seen', 'label' => $seen, 'detail' => 'optional', 'placeholder' => 'مثلاً: ترقیمۀ برگ آخر، یا مهر برگ نخست'] : null,
         ['key' => 'catalog', 'label' => 'در فهرست یا منبع چاپی چنین آمده', 'detail' => 'optional', 'placeholder' => 'نام منبع، جلد و صفحه (اگر در دست دارید)'],
         ['key' => 'other', 'label' => 'دلیل یا منبع دیگر', 'detail' => 'required', 'placeholder' => 'در یک جمله بنویسید'],
     ]));
@@ -105,7 +105,7 @@
                 <div class="space-y-4">
                     <div class="p-4 rounded-sm bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold leading-relaxed" x-text="done"></div>
                     <p class="text-[13px] text-muted leading-relaxed">
-                        نتیجه‌ی بررسی به شما خبر داده می‌شود. وضعیت همه‌ی پیشنهادهایتان در
+                        نتیجۀ بررسی به شما خبر داده می‌شود. وضعیت همۀ پیشنهادهایتان در
                         <a href="{{ route('my.suggestions') }}" class="font-bold text-cinnabar hover:underline">«پیشنهادهای من»</a> هست.
                     </p>
                     @auth<x-web-push context="suggest" />@endauth
@@ -130,7 +130,7 @@
                                 </div>
                             </template>
                             <p x-show="!relationKey" class="text-xs text-muted leading-relaxed">
-                                هر نکته‌ای که در فیلدهای این صفحه نمی‌گنجد اینجا بنویسید. مثلاً: «این کاتب همان کسی است که در صفحه‌ی فلان آمده» یا «این دو کتابخانه یکی‌اند».
+                                هر نکته‌ای که در فیلدهای این صفحه نمی‌گنجد اینجا بنویسید. مثلاً: «این کاتب همان کسی است که در صفحۀ فلان آمده» یا «این دو کتابخانه یکی‌اند».
                             </p>
 
                             <!-- A person connected with the copy: role, then a person from the list or a name -->
@@ -149,9 +149,9 @@
                             <template x-if="relation && relation.target">
                                 <div class="space-y-1 relative">
                                     <label class="block text-[13px] font-bold text-ink"
-                                        x-text="relation.target === 'cataloger' ? 'فهرست‌نگار (اگر در فهارس ثبت شده است):' : relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر کتابخانه عوض شده است):' : relation.target === 'library' ? 'کتابخانه‌ی مقصد:' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')))"></label>
+                                        x-text="relation.target === 'cataloger' ? 'فهرست‌نگار (اگر در فهارس ثبت شده است):' : relation.apply === 'relocate' ? 'کتابخانۀ تازه (اگر کتابخانه عوض شده است):' : relation.target === 'library' ? 'کتابخانۀ مقصد:' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخۀ مقصد:')))"></label>
                                     <input type="text" x-model="targetQuery" @input="searchTargets()" autocomplete="off" class="{{ $inputClass }}"
-                                        :placeholder="relation.target === 'cataloger' ? 'نام فهرست‌نگار را بنویسید یا پیوند صفحه‌اش در فهارس را بچسبانید' : relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : (relation.target === 'library' ? 'نام کتابخانه یا شهر را بنویسید' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید')">
+                                        :placeholder="relation.target === 'cataloger' ? 'نام فهرست‌نگار را بنویسید یا پیوند صفحه‌اش در فهارس را بچسبانید' : relation.target === 'manuscript' ? 'پیوند یا شناسۀ نسخه در فهارس، مثلاً fahares.net/m/1234' : (relation.target === 'library' ? 'نام کتابخانه یا شهر را بنویسید' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید')">
                                     <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-white dark:bg-paper shadow-xl">
                                         <template x-for="r in targetResults" :key="r.id">
                                             <li>
@@ -171,7 +171,7 @@
                                     <p x-show="errors.target_id" x-text="errors.target_id" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
                                     <template x-if="['person_role', 'volume_cataloger'].includes(relation.apply) && !target">
                                         <div class="space-y-1 pt-1">
-                                            <label class="block text-[13px] font-bold text-ink" x-text="relation.apply === 'volume_cataloger' ? 'یا نام او، همان‌گونه که در صفحه‌ی عنوان یا دیباچه‌ی فهرست آمده:' : config.type === 'work' ? 'یا نام او، همان‌گونه که در فهرست یا دیباچه آمده:' : 'یا نام او، همان‌گونه که در نسخه آمده:'"></label>
+                                            <label class="block text-[13px] font-bold text-ink" x-text="relation.apply === 'volume_cataloger' ? 'یا نام او، همان‌گونه که در صفحۀ عنوان یا دیباچۀ فهرست آمده:' : config.type === 'work' ? 'یا نام او، همان‌گونه که در فهرست یا دیباچه آمده:' : 'یا نام او، همان‌گونه که در نسخه آمده:'"></label>
                                             <input type="text" x-model="roleName" class="{{ $inputClass }}" placeholder="مثلاً محمدحسین بن علی تبریزی">
                                             <p x-show="errors.role_name" x-text="errors.role_name" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
                                         </div>
@@ -184,7 +184,7 @@
                                 <div class="space-y-1">
                                     <label class="block text-[13px] font-bold text-ink">کدام جلد:</label>
                                     <select x-model="volumeId" class="{{ $inputClass }}">
-                                        <option value="">همه‌ی جلدها</option>
+                                        <option value="">همۀ جلدها</option>
                                         <template x-for="v in config.volumes" :key="v.id">
                                             <option :value="String(v.id)" x-text="v.label + (v.people ? ' — اکنون: ' + v.people : ' — فهرست‌نگار ثبت نشده')"></option>
                                         </template>
@@ -197,9 +197,9 @@
                             <!-- The copy moved or was renumbered: the new shelfmark (the library is picked above) -->
                             <template x-if="relation && relation.apply === 'relocate'">
                                 <div class="space-y-1">
-                                    <label class="block text-[13px] font-bold text-ink">شماره‌ی تازه‌ی نسخه (اگر شماره عوض شده است):</label>
-                                    <input type="text" x-model="newShelfmark" class="{{ $inputClass }}" :placeholder="'شماره‌ی کنونی: ' + (config.shelfmark ?? 'بی‌شماره')">
-                                    <p class="text-xs text-muted leading-relaxed">اگر کتابخانه‌ی تازه در فهرست نیست، نام و شهرش را در توضیح بنویسید. نشانی پیشین نسخه در شناسنامه‌اش می‌ماند.</p>
+                                    <label class="block text-[13px] font-bold text-ink">شمارۀ تازۀ نسخه (اگر شماره عوض شده است):</label>
+                                    <input type="text" x-model="newShelfmark" class="{{ $inputClass }}" :placeholder="'شمارۀ کنونی: ' + (config.shelfmark ?? 'بی‌شماره')">
+                                    <p class="text-xs text-muted leading-relaxed">اگر کتابخانۀ تازه در فهرست نیست، نام و شهرش را در توضیح بنویسید. نشانی پیشین نسخه در شناسنامه‌اش می‌ماند.</p>
                                     <p x-show="errors.shelfmark" x-text="errors.shelfmark" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
                                 </div>
                             </template>
@@ -252,11 +252,11 @@
                                             <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="pickFiles($event)" class="block w-full text-ink/80">
                                             <p class="text-xs text-muted">تصویرهای بزرگ پیش از ارسال کوچک می‌شوند.</p>
                                             <template x-if="noteFiles.length">
-                                                <p class="text-emerald-700 dark:text-emerald-400" x-text="noteFiles.length + ' تصویر آماده‌ی ارسال'"></p>
+                                                <p class="text-emerald-700 dark:text-emerald-400" x-text="noteFiles.length + ' تصویر آمادۀ ارسال'"></p>
                                             </template>
                                             <label x-show="noteFiles.length" class="flex items-start gap-2 cursor-pointer">
                                                 <input type="checkbox" x-model="rightsOk" class="mt-0.5 rounded border-stone-300 text-cinnabar">
-                                                <span>این تصویر را خودم تهیه کرده‌ام یا اجازه‌ی انتشار آن را دارم.</span>
+                                                <span>این تصویر را خودم تهیه کرده‌ام یا اجازۀ انتشار آن را دارم.</span>
                                             </label>
                                             <p x-show="errors.files || errors.rights_confirmed" x-text="errors.files || errors.rights_confirmed" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
                                         </div>
@@ -270,7 +270,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block text-[13px] font-bold text-ink"
-                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازه‌ی کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"
@@ -367,7 +367,7 @@
                         <div class="space-y-1">
                             <label class="{{ $labelClass }}">مستند یا منبع (اختیاری):</label>
                             <textarea x-model="rationale" rows="2" class="{{ $inputClass }}"
-                                placeholder="مثال: ترقیمه‌ی برگ آخر نسخه، یا فهرست کتابخانه‌ی ملی، ج ۴، ص ۱۲"></textarea>
+                                placeholder="مثال: ترقیمۀ برگ آخر نسخه، یا فهرست کتابخانۀ ملی، ج ۴، ص ۱۲"></textarea>
                             <p x-show="errors.rationale_citation" x-text="errors.rationale_citation" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
                         </div>
                     </template>
@@ -428,7 +428,7 @@
                 <h3 id="suggest-gate-title" class="font-naskh text-xl font-bold text-ink leading-relaxed" x-text="pendingSend ? 'یک گام تا ارسال' : 'ورود به فهارس'">ورود به فهارس</h3>
                 <button type="button" @click="close()" class="text-muted hover:text-ink text-lg cursor-pointer" aria-label="بازگشت به فرم">✕</button>
             </div>
-            <p class="text-sm text-ink leading-7">پیشنهاد شما آماده است. برای ثبت آن یک ایمیل و گذرواژه بگذارید، یا با حساب گوگل وارد شوید. با همین حساب نتیجه‌ی بررسی را هم می‌بینید.</p>
+            <p class="text-sm text-ink leading-7">پیشنهاد شما آماده است. برای ثبت آن یک ایمیل و گذرواژه بگذارید، یا با حساب گوگل وارد شوید. با همین حساب نتیجۀ بررسی را هم می‌بینید.</p>
 
             @include('auth.partials.google-button', ['label' => 'ورود با حساب گوگل', 'hrefExpr' => 'authUrl(config.googleUrl)'])
 

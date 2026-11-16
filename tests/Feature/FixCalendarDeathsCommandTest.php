@@ -23,8 +23,8 @@ class FixCalendarDeathsCommandTest extends TestCase
         $id = DB::table('people')->insertGetId(['name' => $name, 'normalized_name' => $name, 'slug' => 'calendar-' . md5($name)] + $cols);
         foreach (array_filter([$text, $second]) as $raw) {
             $n = ++$this->ordinal;
-            Work::create(['primary_title' => "رساله‌ی تقویم {$n}", 'clean_title' => "رساله‌ی تقویم {$n}", 'slug' => "test-calendar-v9-{$n}", 'volume_number' => 9, 'page_start' => $n, 'author_id' => $id]);
-            $this->works[] = ['key' => ['vol' => 9, 'ordinal' => $n], 'title' => "رساله‌ی تقویم {$n}", 'provenance' => ['page_start' => $n], 'author' => ['name' => $name, 'death_raw' => $raw]];
+            Work::create(['primary_title' => "رسالۀ تقویم {$n}", 'clean_title' => "رسالۀ تقویم {$n}", 'slug' => "test-calendar-v9-{$n}", 'volume_number' => 9, 'page_start' => $n, 'author_id' => $id]);
+            $this->works[] = ['key' => ['vol' => 9, 'ordinal' => $n], 'title' => "رسالۀ تقویم {$n}", 'provenance' => ['page_start' => $n], 'author' => ['name' => $name, 'death_raw' => $raw]];
         }
 
         return $id;

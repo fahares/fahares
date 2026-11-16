@@ -74,8 +74,8 @@ class WorkCopyFiltersTest extends TestCase
             ->assertSee('ملک آزمایشی (۴)')
             ->assertSee('رضوی آزمایشی (۲)')
             ->assertSee('تهران (۱۲)')
-            ->assertSee('سده‌ی ۱۱ (۵)')
-            ->assertSee('سده‌ی ۱۲ (۴)')
+            ->assertSee('سدۀ ۱۱ (۵)')
+            ->assertSee('سدۀ ۱۲ (۴)')
             ->assertSee('نسخ آزمایشی (۳)')
             ->assertSee('فقط دستخط مؤلف (۱)')
             ->assertSee('تاریخ‌دار (۹)')
@@ -118,7 +118,7 @@ class WorkCopyFiltersTest extends TestCase
     {
         $this->page(['library' => $this->malek->id, 'century' => 11])->assertOk()
             ->assertSee('هیچ نسخه‌ای با این فیلترها نیست.')
-            ->assertSee('سده‌ی ۱۱ (۰)');
+            ->assertSee('سدۀ ۱۱ (۰)');
 
         $this->page(['library' => 'x', 'century' => '99', 'dated' => 'maybe'])->assertOk()
             ->assertDontSee('حذف فیلترها')

@@ -27,7 +27,7 @@
 <div class="space-y-6 text-[13px] max-w-4xl">
     <x-admin.notice class="text-xs">
         این الگو می‌گوید «{{ $source->short_name ?: $source->title }}» در منبعی دیگر چگونه ارجاع داده می‌شود: با چه نام‌هایی، و جلد و صفحه‌اش چگونه خوانده می‌شود.
-        الگوی «هر منبع» در مآخذ آثار فنخا و در متن صفحه‌های همه‌ی منابع به کار می‌رود. الگوی ویژه‌ی یک منبع، فقط در همان منبع و بر الگوی «هر منبع» برتری دارد.
+        الگوی «هر منبع» در مآخذ آثار فنخا و در متن صفحه‌های همۀ منابع به کار می‌رود. الگوی ویژۀ یک منبع، فقط در همان منبع و بر الگوی «هر منبع» برتری دارد.
         هر تغییر را پیش از ذخیره با «پیش‌نمایش اثر» ببینید.
     </x-admin.notice>
 
@@ -82,7 +82,7 @@
                 <x-admin.field label="شمار جلد" for="volumes" error="volumes" :hint="'خالی: شمار جلدهای منبع (' . $fa($source->volumes_count) . ').'">
                     <input type="number" min="1" name="volumes" id="volumes" value="{{ $val('volumes', $o['volumes'] ?? null) }}" class="admin-field w-full" dir="ltr">
                 </x-admin.field>
-                <x-admin.field label="شماره‌ی سری جلدها" for="series_volumes" error="series_volumes" hint="شماره‌ای که منبع ارجاع‌دهنده می‌نویسد و جلد خود منبع، مانند «۳:۱، ۴:۲».">
+                <x-admin.field label="شمارۀ سری جلدها" for="series_volumes" error="series_volumes" hint="شماره‌ای که منبع ارجاع‌دهنده می‌نویسد و جلد خود منبع، مانند «۳:۱، ۴:۲».">
                     <input type="text" name="series_volumes" id="series_volumes" value="{{ $val('series_volumes', $series) }}" class="admin-field w-full" dir="ltr">
                 </x-admin.field>
                 <div class="space-y-2 pt-6">
@@ -105,7 +105,7 @@
             </div>
             <p class="text-xs text-muted leading-6 -mt-2">
                 ریخت‌های «صفحه/جلد» (۸۰۹/۱)، «ج ۱، ص ۱۸۵» و «ج ۲ ستون ۱۵۱۱» همیشه خوانده می‌شوند، و «جلد/صفحه» هم وقتی فقط همان جا بیفتد.
-                صفحه‌ی تنها پس از نام، در منبع یک‌جلدی یا منبعی که صفحه‌هایش در جلدها پیوسته است، جلدش را خودش می‌گوید.
+                صفحۀ تنها پس از نام، در منبع یک‌جلدی یا منبعی که صفحه‌هایش در جلدها پیوسته است، جلدش را خودش می‌گوید.
                 @if(! empty($o['other_edition'])) این الگو چاپ دیگری را هم کنار می‌گذارد (<span dir="ltr">{{ $o['other_edition'] }}</span>)، که از اینجا تغییر نمی‌کند. @endif
             </p>
 

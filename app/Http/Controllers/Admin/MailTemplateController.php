@@ -66,7 +66,7 @@ class MailTemplateController extends Controller
     public function preview()
     {
         return (new MailMessage)
-            ->greeting('نمونه‌ی ایمیل فهارس')
+            ->greeting('نمونۀ ایمیل فهارس')
             ->line('این یک ایمیل نمونه است تا سربرگ، امضا و پانویس ایمیل‌های سایت را پیش از فرستادن ببینید.')
             ->line('متن هر ایمیل از اعلان مربوط به آن می‌آید و این‌جا فقط قاب مشترک ایمیل‌ها تنظیم می‌شود.')
             ->action('رفتن به فهارس', url('/'))

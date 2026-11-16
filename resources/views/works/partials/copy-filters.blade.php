@@ -1,7 +1,7 @@
 {{-- Filters of the list of copies (backlog item 79, step 14.99): only the values of this work's copies, with their
      counts under the other filters. A GET form, so the filtered address can be shared; folded on phones. --}}
 @php
-    $selects = ['library' => 'کتابخانه', 'city' => 'شهر', 'century' => 'سده‌ی کتابت', 'script' => 'خط'];
+    $selects = ['library' => 'کتابخانه', 'city' => 'شهر', 'century' => 'سدۀ کتابت', 'script' => 'خط'];
     $active = ! $copyFilters->isEmpty();
     $clearUrl = route('works.show', array_merge(request()->except([...\App\Support\WorkCopyFilters::PARAMS, 'page']), ['id' => $work->getRouteKey()])) . '#manuscripts';
 @endphp

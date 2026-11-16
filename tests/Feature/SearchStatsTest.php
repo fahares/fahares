@@ -15,7 +15,7 @@ class SearchStatsTest extends TestCase
 
     public function test_a_search_is_logged_anonymously_with_its_filters(): void
     {
-        $library = Library::create(['name' => 'کتابخانه‌ی آزمایشی آمار', 'city' => 'قم', 'slug' => 'stats-library-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی آمار', 'city' => 'قم', 'slug' => 'stats-library-' . uniqid()]);
 
         $this->withHeaders(self::BROWSER)->get(route('search', ['type' => 'manuscripts', 'library_id' => $library->id, 'flag' => 'is_autograph']))
             ->assertOk();
@@ -55,13 +55,13 @@ class SearchStatsTest extends TestCase
     public function test_the_stats_page_shows_frequent_empty_and_unopened_searches(): void
     {
         $admin = User::create(['name' => 'مدیر آمار', 'email' => 'stats-admin@fahares.net', 'password' => 'password123', 'role' => 'admin']);
-        foreach ([['کافی', 40, 1], ['کافی', 40, null], ['واژه‌ی ناپیدا', 0, null], ['بی‌کلیک', 7, null], ['بی‌کلیک', 7, null]] as [$q, $n, $pos]) {
+        foreach ([['کافی', 40, 1], ['کافی', 40, null], ['واژۀ ناپیدا', 0, null], ['بی‌کلیک', 7, null], ['بی‌کلیک', 7, null]] as [$q, $n, $pos]) {
             SearchLog::create(['query' => $q, 'type' => 'works', 'scope' => 'titles_names', 'results_count' => $n, 'clicked_position' => $pos,
                 'filters' => $q === 'کافی' ? ['century' => '4'] : null]);
         }
 
         $this->actingAs($admin)->get(route('admin.search-stats.index'))->assertOk()
-            ->assertSeeInOrder(['پرتکرارترین جست‌وجوها', 'کافی', 'جست‌وجوهای بی‌نتیجه', 'واژه‌ی ناپیدا', 'نتیجه‌دار ولی بی‌کلیک', 'بی‌کلیک'])
+            ->assertSeeInOrder(['پرتکرارترین جست‌وجوها', 'کافی', 'جست‌وجوهای بی‌نتیجه', 'واژۀ ناپیدا', 'نتیجه‌دار ولی بی‌کلیک', 'بی‌کلیک'])
             ->assertSee('سده')->assertSee('۵');
 
         $editor = User::create(['name' => 'ویراستار آمار', 'email' => 'stats-editor@fahares.net', 'password' => 'password123', 'role' => 'editor']);
@@ -77,7 +77,7 @@ class SearchStatsTest extends TestCase
         $search();
         $this->assertSame($user->id, SearchLog::sole()->user_id);
 
-        $this->actingAs($user)->get(route('profile'))->assertOk()->assertSee('سابقه‌ی جست‌وجو')->assertSee('خاموش کردن');
+        $this->actingAs($user)->get(route('profile'))->assertOk()->assertSee('سابقۀ جست‌وجو')->assertSee('خاموش کردن');
         $this->actingAs($user)->post(route('profile.search-history'), ['search_history' => 0])->assertRedirect();
         $this->assertFalse($user->fresh()->search_history);
         $this->assertNull(SearchLog::sole()->user_id, 'turning it off detaches the searches kept so far');
@@ -94,7 +94,7 @@ class SearchStatsTest extends TestCase
         SearchLog::create(['query' => 'تجرید', 'type' => 'works', 'scope' => 'titles_names', 'results_count' => 90, 'user_id' => $user->id, 'is_member' => true, 'clicked_position' => 2]);
 
         $this->actingAs($admin)->get(route('admin.users.edit', $user))->assertOk()
-            ->assertSee('جست‌وجوهای اخیر')->assertSee('تجرید')->assertSee('رتبه‌ی ۲ باز شد');
+            ->assertSee('جست‌وجوهای اخیر')->assertSee('تجرید')->assertSee('رتبۀ ۲ باز شد');
         $this->actingAs($admin)->get(route('admin.search-stats.index'))->assertOk()->assertSee('۱ کاربر یکتا');
     }
 

@@ -43,7 +43,7 @@ class LifeDatesTest extends TestCase
     public function test_life_span_formats_and_shared_callers_agree()
     {
         $this->assertSame('ز. ۸۱۷ ق', (new Person(['birth_year_hijri' => 817]))->life_span);
-        $this->assertSame('سده‌ی ۷ ق', (new Person(['century_hijri' => 7]))->life_span);
+        $this->assertSame('سدۀ ۷ ق', (new Person(['century_hijri' => 7]))->life_span);
         $this->assertSame('د. ۶۷۲ ق', (new Person(['death_year_hijri' => 672, 'century_hijri' => 7]))->life_span);
 
         $p = new Person(['birth_year_hijri' => 597, 'death_year_hijri' => 672]);
@@ -89,7 +89,7 @@ class LifeDatesTest extends TestCase
 
         $this->get(route('works.show', $work))
             ->assertOk()
-            ->assertSeeInOrder(['کاتب سده‌دار آزمایشی', '(سده‌ی ۱۱ ق)'], false);
+            ->assertSeeInOrder(['کاتب سده‌دار آزمایشی', '(سدۀ ۱۱ ق)'], false);
 
         $this->get(route('people.show', $scribe))
             ->assertOk()
@@ -97,7 +97,7 @@ class LifeDatesTest extends TestCase
 
         $this->get(route('search', ['type' => 'manuscripts', 'century' => 11]))
             ->assertOk()
-            ->assertSeeInOrder(['مؤلف تاریخ‌دار آزمایشی', '(۵۹۷–۶۷۲ ق)', 'کاتب سده‌دار آزمایشی', '(سده‌ی ۱۱ ق)'], false);
+            ->assertSeeInOrder(['مؤلف تاریخ‌دار آزمایشی', '(۵۹۷–۶۷۲ ق)', 'کاتب سده‌دار آزمایشی', '(سدۀ ۱۱ ق)'], false);
 
         $this->getJson(route('search.api', ['type' => 'people', 'q' => 'مؤلف تاریخ‌دار آزمایشی']))
             ->assertOk()

@@ -39,7 +39,7 @@ class PushSubscriptionController extends Controller
         }
         $user->notifyNow(new PushTest);
 
-        return response()->json(['message' => 'اعلان آزمایشی فرستاده شد. اگر تا یک دقیقه نیامد، اجازه‌ی اعلان را در تنظیمات مرورگر و سیستم‌عامل ببینید.']);
+        return response()->json(['message' => 'اعلان آزمایشی فرستاده شد. اگر تا یک دقیقه نیامد، اجازۀ اعلان را در تنظیمات مرورگر و سیستم‌عامل ببینید.']);
     }
 
     public function destroy(Request $request)

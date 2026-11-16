@@ -14,12 +14,18 @@ use Illuminate\Support\Facades\DB;
  * person_periods rows with status «proposed» and origin «machine», shown to reviewers on the person's page and at
  * admin/period-proposals, never to readers. Nothing is proposed twice: a person who has a period of the same kind in
  * the same city, approved, proposed or rejected, gets no other. Without --apply it only counts.
+ *
+ * With --prune (step 14.227) the proposals a tighter reading no longer gives are taken back: a row that is still
+ * «proposed» and of origin «machine» is deleted when the biographies no longer yield its kind and city for the person,
+ * and the years and the quoted clause of one they still yield are read again. An approved or a rejected period is a
+ * reviewer's word and is never touched.
  */
 class ProposeLifePeriodsCommand extends Command
 {
     protected $signature = 'fahares:propose-life-periods
         {--apply : File the proposals; without it the command only counts}
         {--person= : Only this person}
+        {--prune : Take back the waiting proposals the reader no longer gives, and read the others again}
         {--show=10 : How many proposals to list}';
 
     protected $description = 'Propose periods of people\'s lives from the biographies in the sources';
@@ -28,6 +34,8 @@ class ProposeLifePeriodsCommand extends Command
     {
         $apply = (bool) $this->option('apply');
         $counts = ['entries' => 0, 'read' => 0, 'new' => 0, 'known' => 0, 'people' => 0, 'with_years' => 0];
+        // every reading of this run: "person|kind|city" => the columns a proposal of it holds
+        $yielded = [];
         $kinds = [];
         $shown = [];
         $people = [];
@@ -39,7 +47,7 @@ class ProposeLifePeriodsCommand extends Command
             ->where('se.citable_type', Person::class)->whereNotNull('si.text')
             ->when($this->option('person'), fn ($q, $id) => $q->where('se.citable_id', (int) $id))
             ->select(['se.id', 'se.citable_id as person_id', 's.title as source', 'se.volume_number as volume', 'se.page_start as page', 'si.text'])
-            ->orderBy('se.id')->chunkById(300, function ($entries) use ($apply, &$counts, &$kinds, &$shown, &$people, &$proposed) {
+            ->orderBy('se.id')->chunkById(300, function ($entries) use ($apply, &$counts, &$kinds, &$shown, &$people, &$proposed, &$yielded) {
                 // what each person of the chunk has already, of any status
                 $have = $proposed;
                 foreach (DB::table('person_periods')->whereIn('person_id', $entries->pluck('person_id')->unique())->get(['person_id', 'kind', 'city']) as $row) {
@@ -50,6 +58,8 @@ class ProposeLifePeriodsCommand extends Command
                     foreach (LifePeriodExtractor::extract($entry->text) as $found) {
                         $counts['read']++;
                         $key = "{$entry->person_id}|{$found['kind']}|{$found['city']}";
+                        $source = trim($entry->source . ($entry->volume ? ' ' . $entry->volume . ':' : '') . ($entry->page ? ' ' . $entry->page : ''));
+                        $yielded[$key] ??= self::columns($found, $source, (int) $entry->id);
                         if (isset($have[$key])) {
                             $counts['known']++;
                             continue;
@@ -59,24 +69,42 @@ class ProposeLifePeriodsCommand extends Command
                         $counts['with_years'] += $found['years'] ? 1 : 0;
                         $kinds[$found['kind']] = ($kinds[$found['kind']] ?? 0) + 1;
                         $people[$entry->person_id] = true;
-                        $source = trim($entry->source . ($entry->volume ? ' ' . $entry->volume . ':' : '') . ($entry->page ? ' ' . $entry->page : ''));
                         if (count($shown) < (int) $this->option('show')) {
                             $shown[] = sprintf('#%d %s · %s · %s · «%s» (%s)', $entry->person_id, PersonPeriod::KINDS[$found['kind']], $found['city'],
                                 implode('، ', $found['years']) ?: '—', mb_substr($found['snippet'], 0, 90), $source);
                         }
                         if ($apply) {
-                            // one year is that year; several are «some time between the first and the last», for the reviewer to settle
-                            $years = $found['years'];
-                            $date = $years === [] ? [] : PersonPeriod::dateColumns(count($years) === 1
-                                ? ['mode' => 'point', 'start' => $years[0]] : ['mode' => 'between', 'start' => min($years), 'end' => max($years)]);
-                            PersonPeriod::create(['person_id' => $entry->person_id, 'kind' => $found['kind'], 'status' => PersonPeriod::PROPOSED, 'origin' => 'machine',
-                                'place' => $found['city'], 'note' => mb_substr($found['snippet'], 0, 500), 'source_text' => mb_substr($source, 0, 500),
-                                'source_entry_id' => $entry->id] + (isset($date['error']) ? [] : $date));
+                            PersonPeriod::create(['person_id' => $entry->person_id, 'kind' => $found['kind'], 'status' => PersonPeriod::PROPOSED, 'origin' => 'machine']
+                                + $yielded[$key]);
                         }
                     }
                 }
             }, 'se.id', 'id');
         $counts['people'] = count($people);
+        if ($this->option('prune')) {
+            $counts += ['pruned' => 0, 'reread' => 0];
+            $dateColumns = array_keys((new \App\Support\DateSpan(null, null))->columns('period'));
+            $waiting = PersonPeriod::where('status', PersonPeriod::PROPOSED)->where('origin', 'machine')
+                ->when($this->option('person'), fn ($q, $id) => $q->where('person_id', (int) $id))->orderBy('id')->get();
+            foreach ($waiting as $row) {
+                $now = $yielded["{$row->person_id}|{$row->kind}|{$row->city}"] ?? null;
+                if ($now === null) {
+                    $counts['pruned']++;
+                    if ($apply) {
+                        $row->delete();
+                    }
+                    continue;
+                }
+                // a reading with no year clears the years of the earlier one
+                $now += array_fill_keys($dateColumns, null);
+                if (array_intersect_key($row->getAttributes(), $now) != $now) {
+                    $counts['reread']++;
+                    if ($apply) {
+                        $row->update($now);
+                    }
+                }
+            }
+        }
 
         $this->info($apply ? 'Proposals filed.' : 'Dry run: nothing written.');
         foreach ($counts as $kind => $n) {
@@ -90,5 +118,19 @@ class ProposeLifePeriodsCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The columns of a proposal: the city as its place, the clause as its note, the source, and the years: one year is
+     * that year, several are «some time between the first and the last», for the reviewer to settle.
+     */
+    private static function columns(array $found, string $source, int $entryId): array
+    {
+        $years = $found['years'];
+        $date = $years === [] ? [] : PersonPeriod::dateColumns(count($years) === 1
+            ? ['mode' => 'point', 'start' => $years[0]] : ['mode' => 'between', 'start' => min($years), 'end' => max($years)]);
+
+        return ['place' => $found['city'], 'note' => mb_substr($found['snippet'], 0, 500), 'source_text' => mb_substr($source, 0, 500),
+            'source_entry_id' => $entryId] + (isset($date['error']) ? [] : $date);
     }
 }

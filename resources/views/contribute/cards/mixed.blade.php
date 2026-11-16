@@ -3,7 +3,7 @@
 @use('App\Support\Fa')
 @php $p = $profile['person'] ?? null; $marked = array_map('intval', (array) old('copies', $previous?->payload['manuscript_ids'] ?? [])); @endphp
 <div class="space-y-1">
-    <h2 class="font-naskh text-lg sm:text-xl font-bold text-ink leading-relaxed m-0">آیا همه‌ی این نسخه‌ها را یک نفر نوشته است؟</h2>
+    <h2 class="font-naskh text-lg sm:text-xl font-bold text-ink leading-relaxed m-0">آیا همۀ این نسخه‌ها را یک نفر نوشته است؟</h2>
     <p class="text-xs sm:text-sm text-muted leading-6 m-0">
         این نسخه‌ها به نام یک کاتب ثبت شده‌اند، ولی تاریخ کتابتشان
         @if($profile['span'] ?? null) از {{ Fa::digits((string) $profile['span'][0]) }} تا {{ Fa::digits((string) $profile['span'][1]) }} ق @endif

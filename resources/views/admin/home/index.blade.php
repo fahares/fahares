@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'صفحه‌ی خانه')
-@section('page_title', 'صفحه‌ی خانه')
+@section('title', 'صفحۀ خانه')
+@section('page_title', 'صفحۀ خانه')
 @section('page_actions')
-    <x-ui.btn :href="route('home')" target="_blank" size="sm">دیدن صفحه‌ی خانه ↗</x-ui.btn>
+    <x-ui.btn :href="route('home')" target="_blank" size="sm">دیدن صفحۀ خانه ↗</x-ui.btn>
 @endsection
 
 @php
@@ -17,7 +17,7 @@
 @section('content')
 <div class="space-y-6 text-[13px]">
 
-    <p class="text-muted max-w-3xl leading-7">متن‌ها، اسلایدهای بنر، تصویرهای برگزیده و فهرست‌نگارانی که در صفحه‌ی خانه نمایش داده می‌شوند. تغییرها بی‌درنگ روی سایت دیده می‌شوند.</p>
+    <p class="text-muted max-w-3xl leading-7">متن‌ها، اسلایدهای بنر، تصویرهای برگزیده و فهرست‌نگارانی که در صفحۀ خانه نمایش داده می‌شوند. تغییرها بی‌درنگ روی سایت دیده می‌شوند.</p>
 
     {{-- Jumps to the page's sections --}}
     <nav class="flex flex-wrap gap-1.5 text-xs" aria-label="بخش‌های این صفحه">
@@ -51,8 +51,8 @@
                     @endif
                 </div>
             @endforeach
-            <p class="md:col-span-2 text-xs text-muted">خانه‌ی خالی یعنی متن پیش‌فرض (که کم‌رنگ نشان داده شده) به کار می‌رود.</p>
-            <div class="md:col-span-2"><button type="submit" class="{{ $btnPri }}">ذخیره‌ی متن‌ها</button></div>
+            <p class="md:col-span-2 text-xs text-muted">خانۀ خالی یعنی متن پیش‌فرض (که کم‌رنگ نشان داده شده) به کار می‌رود.</p>
+            <div class="md:col-span-2"><button type="submit" class="{{ $btnPri }}">ذخیرۀ متن‌ها</button></div>
         </form>
     </section>
 
@@ -64,9 +64,9 @@
                 <h2 class="rubric text-lg">{{ $sectionLabel }}</h2>
                 <span class="text-xs text-muted leading-6">
                     @if($section === 'hero')
-                        تصویر پهن بالای صفحه، پشت برگه‌ی جست‌وجو. فقط نخستین تصویر فعال نمایش داده می‌شود. دست‌کم ۱۲۰۰ پیکسل عرض، و بخش مهم تصویر در میانه باشد. حداکثر ۲ مگابایت.
+                        تصویر پهن بالای صفحه، پشت برگۀ جست‌وجو. فقط نخستین تصویر فعال نمایش داده می‌شود. دست‌کم ۱۲۰۰ پیکسل عرض، و بخش مهم تصویر در میانه باشد. حداکثر ۲ مگابایت.
                     @elseif($section === 'slides')
-                        زیر برگه‌ی جست‌وجو می‌چرخند. نسبت ۱۶ به ۵، مثلاً ۱۱۴۶×۳۵۸ یا ۱۲۸۰×۴۰۰ پیکسل؛ نوشته‌ها کمی دورتر از لبه باشند. حداکثر ۲ مگابایت.
+                        زیر برگۀ جست‌وجو می‌چرخند. نسبت ۱۶ به ۵، مثلاً ۱۱۴۶×۳۵۸ یا ۱۲۸۰×۴۰۰ پیکسل؛ نوشته‌ها کمی دورتر از لبه باشند. حداکثر ۲ مگابایت.
                     @else
                         نسبت پیشنهادی ۳ به ۴ (عمودی). حداکثر ۲ مگابایت. سه یا شش تصویر بهتر چیده می‌شود.
                     @endif
@@ -101,12 +101,12 @@
     {{-- Home catalogers --}}
     <section id="catalogers" class="{{ $box }} p-4 sm:p-5 space-y-5 scroll-mt-24">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="rubric text-lg">فهرست‌نگاران صفحه‌ی خانه</h2>
-            <span class="text-xs text-muted leading-6">به همین ترتیب نمایش داده می‌شوند. شش نفر در یک ردیف جا می‌گیرند. عکس هر فهرست‌نگار از <a href="{{ route('admin.catalogers.index') }}" class="text-cinnabar hover:underline">صفحه‌ی فهرست‌نگاران</a> عوض می‌شود.</span>
+            <h2 class="rubric text-lg">فهرست‌نگاران صفحۀ خانه</h2>
+            <span class="text-xs text-muted leading-6">به همین ترتیب نمایش داده می‌شوند. شش نفر در یک ردیف جا می‌گیرند. عکس هر فهرست‌نگار از <a href="{{ route('admin.catalogers.index') }}" class="text-cinnabar hover:underline">صفحۀ فهرست‌نگاران</a> عوض می‌شود.</span>
         </div>
 
         @if($homeCatalogers->isEmpty())
-            <p class="text-muted">هیچ فهرست‌نگاری انتخاب نشده و این بخش در صفحه‌ی خانه پنهان است.</p>
+            <p class="text-muted">هیچ فهرست‌نگاری انتخاب نشده و این بخش در صفحۀ خانه پنهان است.</p>
         @else
             <ol class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($homeCatalogers as $c)
@@ -121,7 +121,7 @@
                         </div>
                         <form action="{{ route('admin.home.catalogers.move', $c) }}" method="POST">@csrf<input type="hidden" name="direction" value="up"><button class="{{ $btn }}" title="جابه‌جایی به جلو" {{ $loop->first ? 'disabled' : '' }}>↑</button></form>
                         <form action="{{ route('admin.home.catalogers.move', $c) }}" method="POST">@csrf<input type="hidden" name="direction" value="down"><button class="{{ $btn }}" title="جابه‌جایی به عقب" {{ $loop->last ? 'disabled' : '' }}>↓</button></form>
-                        <form action="{{ route('admin.home.catalogers.remove', $c) }}" method="POST">@csrf @method('DELETE')<button class="{{ $btn }}" title="برداشتن از صفحه‌ی خانه">✕</button></form>
+                        <form action="{{ route('admin.home.catalogers.remove', $c) }}" method="POST">@csrf @method('DELETE')<button class="{{ $btn }}" title="برداشتن از صفحۀ خانه">✕</button></form>
                     </li>
                 @endforeach
             </ol>

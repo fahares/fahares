@@ -24,7 +24,7 @@ class LibraryLogoTest extends TestCase
 
     private function library(): Library
     {
-        return Library::create(['name' => 'آزمایشی' . uniqid(), 'full_name' => 'کتابخانه‌ی آزمایشی نشان', 'city' => 'شهر آزمایشی', 'slug' => 'lib-logo-' . uniqid()]);
+        return Library::create(['name' => 'آزمایشی' . uniqid(), 'full_name' => 'کتابخانۀ آزمایشی نشان', 'city' => 'شهر آزمایشی', 'slug' => 'lib-logo-' . uniqid()]);
     }
 
     /** A real 1×1 PNG: fake()->image() needs GD, which the app image does not have. */
@@ -49,7 +49,7 @@ class LibraryLogoTest extends TestCase
 
         $library->update(['logo_path' => 'libraries/logos/gone.png']);
         $this->assertNull($library->logo_url);
-        $this->get(route('libraries.show', $library))->assertOk()->assertDontSee('نشان کتابخانه‌ی آزمایشی نشان');
+        $this->get(route('libraries.show', $library))->assertOk()->assertDontSee('نشان کتابخانۀ آزمایشی نشان');
     }
 
     public function test_logo_shows_on_library_list_and_manuscript_pages()
@@ -60,7 +60,7 @@ class LibraryLogoTest extends TestCase
         $this->assertStringContainsString('storage/libraries/logos/library_' . $library->id . '_', $url);
 
         $this->get(route('libraries.show', $library))->assertOk()
-            ->assertSee('alt="نشان کتابخانه‌ی آزمایشی نشان"', false)
+            ->assertSee('alt="نشان کتابخانۀ آزمایشی نشان"', false)
             ->assertSee(e($url), false);
 
         $this->get(route('libraries.index', ['q' => $library->name]))->assertOk()->assertSee(e($url), false);

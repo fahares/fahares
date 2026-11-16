@@ -37,9 +37,9 @@
                 @endif
             @endif
             @if($link)
-                <x-ui.btn size="sm" href="{{ $link }}" title="صفحه‌ی همین مدخل در منبع">متن در منبع</x-ui.btn>
+                <x-ui.btn size="sm" href="{{ $link }}" title="صفحۀ همین مدخل در منبع">متن در منبع</x-ui.btn>
             @elseif($page)
-                <x-ui.btn size="sm" href="{{ $page }}" data-page-text title="متن کامل همین صفحه‌ی منبع">متن در منبع</x-ui.btn>
+                <x-ui.btn size="sm" href="{{ $page }}" data-page-text title="متن کامل همین صفحۀ منبع">متن در منبع</x-ui.btn>
             @endif
             <x-ui.btn size="sm" title="رونوشت متن" aria-label="رونوشت متن" x-on:click="navigator.clipboard.writeText([...$refs.text.querySelectorAll('[data-copy]')].map(e => e.innerText.trim()).join('\n\n') || $refs.text.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                 <svg x-show="!copied" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -51,7 +51,7 @@
         {{-- The printed leaf over its text (step 14.157): loaded when first opened; the viewer turns the pages --}}
         <template x-if="leaf">
             <figure class="m-0 mb-3 border border-line bg-white" data-leaf>
-                <img src="{{ $image }}" alt="تصویر برگه‌ی {{ $title }}@if($address)، {{ $address }}@endif" class="block w-full h-auto cursor-zoom-in" x-on:click="{{ $viewer }}">
+                <img src="{{ $image }}" alt="تصویر برگۀ {{ $title }}@if($address)، {{ $address }}@endif" class="block w-full h-auto cursor-zoom-in" x-on:click="{{ $viewer }}">
                 <figcaption class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-line bg-surface text-xs text-muted">
                     <span>{{ $title }}@if($address)، {{ $address }}@endif</span>
                     <span class="flex gap-2">

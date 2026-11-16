@@ -13,7 +13,7 @@
     </div>
     <div>
         <label for="{{ $key }}_credit" class="{{ $label }}">منبع تصویر</label>
-        <input type="text" name="credit" id="{{ $key }}_credit" value="{{ $item?->credit }}" class="{{ $input }}" placeholder="مثلاً: موزه‌ی والترز W.634">
+        <input type="text" name="credit" id="{{ $key }}_credit" value="{{ $item?->credit }}" class="{{ $input }}" placeholder="مثلاً: موزۀ والترز W.634">
     </div>
     <div class="sm:col-span-2">
         <label for="{{ $key }}_subtitle" class="{{ $label }}">توضیح</label>

@@ -61,7 +61,7 @@
         // addendum chip and the Fankha citation format
         $sources = $manuscript->sources();
         $fankha = $sources->primary();
-        $libraryName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'کتابخانه‌ی نامشخص';
+        $libraryName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'کتابخانۀ نامشخص';
         $formerLocations = (array) ($manuscript->metadata['former_locations'] ?? []);
         // A photograph's mother, and what the record does not say that the mother does (step 14.16)
         ['chain' => $photoChain, 'mother' => $mother] = $manuscript->facsimileChain();
@@ -69,7 +69,7 @@
         $possiblySame = $manuscript->possiblySame();
         $motherLabel = $mother ? trim(($mother->libraryRecord?->name ?? $mother->library ?? '') . ' ' . ($mother->shelfmark ?? '')) : null;
         $fromMother = fn (?string $value) => $value !== null && $value !== ''
-            ? '<span class="border-b border-dotted border-line-strong">' . e(Fa::digits($value)) . '</span> <span class="text-[11px] text-muted">از نسخه‌ی مادر</span>'
+            ? '<span class="border-b border-dotted border-line-strong">' . e(Fa::digits($value)) . '</span> <span class="text-[11px] text-muted">از نسخۀ مادر</span>'
             : null;
         $imageNote = ($researchNotes ?? collect())->firstWhere('field_name', 'image');
         // The parsed year adds nothing when the catalog text already shows it in digits
@@ -79,8 +79,8 @@
             'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
             'has_author_marginalia' => 'حواشی به خط مؤلف',
             'corrected_by_author' => 'مقابله یا تصحیح به دست مؤلف',
-            'collated_with_author_copy' => 'مقابله با نسخه‌ی مؤلف',
-            'copied_from_author_copy' => 'کتابت از روی نسخه‌ی مؤلف',
+            'collated_with_author_copy' => 'مقابله با نسخۀ مؤلف',
+            'copied_from_author_copy' => 'کتابت از روی نسخۀ مؤلف',
             'is_illuminated' => 'تذهیب و سرلوح',
             'is_illustrated' => 'نگاره و نقاشی',
             'is_corrected' => 'تصحیح‌شده',
@@ -88,7 +88,7 @@
             'is_ruled' => 'جدول‌کشی',
             'has_catchwords' => 'رکابه',
             'is_collated' => 'مقابله و بلاغ',
-            'is_facsimile' => 'نسخه‌ی عکسی یا میکروفیلم',
+            'is_facsimile' => 'نسخۀ عکسی یا میکروفیلم',
         ];
     @endphp
 
@@ -102,12 +102,12 @@
             <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-cinnabar truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
             <span aria-hidden="true">/</span>
         @endif
-        <span class="text-ink font-semibold">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else شناسنامه‌ی نسخه @endif</span>
+        <span class="text-ink font-semibold">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else شناسنامۀ نسخه @endif</span>
     </nav>
 
     <!-- MANUSCRIPT HEADER -->
     <header class="text-center grid justify-items-center gap-2 pb-6">
-        <p class="text-xs font-bold text-cinnabar">شناسنامه‌ی نسخه‌ی خطی</p>
+        <p class="text-xs font-bold text-cinnabar">شناسنامۀ نسخۀ خطی</p>
         @if($manuscript->work)
             <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">
                 <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-cinnabar transition">{{ $manuscript->work->primary_title }}</a>
@@ -122,7 +122,7 @@
         <p class="mt-1 text-base sm:text-lg text-ink">
             <span class="font-bold">{{ $libraryName }}</span>@if($manuscript->city)<span class="text-muted">، {{ $manuscript->city }}</span>@endif
             <span class="text-muted">·</span>
-            <span class="font-bold text-cinnabar">شماره‌ی @if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else — @endif</span>
+            <span class="font-bold text-cinnabar">شمارۀ @if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else — @endif</span>
         </p>
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">
             @if($manuscript->copy_date_raw)<x-ui.chip>کتابت {{ Fa::digits($manuscript->copy_date_raw) }}</x-ui.chip>@endif
@@ -132,7 +132,7 @@
             @if($manuscript->is_illustrated)<x-ui.chip tone="accent">مصوّر</x-ui.chip>@endif
             @if($manuscript->is_distinct_work)<x-ui.chip title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">اثر متمایز</x-ui.chip>@endif
             @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این نسخه در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
-            @if($manuscript->is_facsimile)<x-ui.chip title="نسخه‌ی عکسی یا میکروفیلم">عکسی</x-ui.chip>@endif
+            @if($manuscript->is_facsimile)<x-ui.chip title="نسخۀ عکسی یا میکروفیلم">عکسی</x-ui.chip>@endif
         </div>
     </header>
 
@@ -144,23 +144,23 @@
                     @if($photoChain)<span class="text-muted">(از راه عکسیِ <a href="{{ route('manuscripts.show', $photoChain[0]) }}" class="border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($photoChain[0]->library ?? '') . ' ' . ($photoChain[0]->shelfmark ?? ''))) }}</a>)</span>@endif
                     آنچه این نسخه ندارد و با خط نقطه‌چین آمده، از آن نسخه است.</p>
             @elseif($manuscript->is_facsimile)
-                <p>این نسخه عکسی یا میکروفیلم است. نسخه‌ی مادر: <span class="font-semibold">{{ $motherNote ? Fa::digits($motherNote) : 'نامعلوم' }}</span>
+                <p>این نسخه عکسی یا میکروفیلم است. نسخۀ مادر: <span class="font-semibold">{{ $motherNote ? Fa::digits($motherNote) : 'نامعلوم' }}</span>
                     @if($photoChain)<span class="text-muted">(همان مادرِ عکسیِ <a href="{{ route('manuscripts.show', $photoChain[0]) }}" class="border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($photoChain[0]->library ?? '') . ' ' . ($photoChain[0]->shelfmark ?? ''))) }}</a>)</span>@endif
                 </p>
                 @if($motherNote)
-                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation' })" class="text-[13px] font-bold text-cinnabar hover:underline cursor-pointer">این نسخه‌ی مادر را در سامانه یافته‌اید؟</button>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation' })" class="text-[13px] font-bold text-cinnabar hover:underline cursor-pointer">این نسخۀ مادر را در سامانه یافته‌اید؟</button>
                 @else
-                    <button type="button" @click="$dispatch('suggest-field', { general: true })" class="text-[13px] font-bold text-cinnabar hover:underline cursor-pointer">نسخه‌ی مادرش را می‌شناسید؟</button>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true })" class="text-[13px] font-bold text-cinnabar hover:underline cursor-pointer">نسخۀ مادرش را می‌شناسید؟</button>
                 @endif
             @endif
             @if($possiblySame)
-                <p>به گفته‌ی فنخا («همان نسخه بالا») این معرفی احتمالاً همان نسخه‌ی <a href="{{ route('manuscripts.show', $possiblySame) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($possiblySame->libraryRecord?->name ?? $possiblySame->library ?? '') . ' ' . ($possiblySame->shelfmark ?? ''))) }}</a> است. تا روشن شدن آن، دو رکورد جدا مانده‌اند.</p>
+                <p>به گفتۀ فنخا («همان نسخه بالا») این معرفی احتمالاً همان نسخۀ <a href="{{ route('manuscripts.show', $possiblySame) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($possiblySame->libraryRecord?->name ?? $possiblySame->library ?? '') . ' ' . ($possiblySame->shelfmark ?? ''))) }}</a> است. تا روشن شدن آن، دو رکورد جدا مانده‌اند.</p>
                 {{-- One step for a reader who knows: a suggestion with the other copy already chosen, for the reviewers --}}
                 @php $sameTarget = \App\Suggestions\SuggestionRegistry::describe($possiblySame) + ['id' => $possiblySame->id]; @endphp
                 <div class="flex flex-wrap items-center gap-2 text-[13px]" data-same-answer>
                     <span class="text-muted">شما می‌دانید؟</span>
                     <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'duplicate', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">یک نسخه‌اند</button>
-                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation', role: 'distinct_from', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">دو نسخه‌ی جدایند</button>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation', role: 'distinct_from', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">دو نسخۀ جدایند</button>
                 </div>
             @endif
         </div>
@@ -180,7 +180,7 @@
                     <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                     <span x-show="copiedKey === 'permalink'" x-cloak x-transition class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-sm bg-ink text-paper text-[10px] font-bold z-30 pointer-events-none">رونوشت شد</span>
                 </button>
-                <button type="button" @click="openQrModal()" class="p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رمزینه‌ی QR نسخه">
+                <button type="button" @click="openQrModal()" class="p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رمزینۀ QR نسخه">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                 </button>
             </div>
@@ -197,7 +197,7 @@
             @endif
             <x-suggest.toggle type="manuscript" />
         </div>
-        <span class="text-xs text-muted"><x-visit-count type="manuscript" :id="$manuscript->id" />شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $manuscript->id }}</span></span>
+        <span class="text-xs text-muted"><x-visit-count type="manuscript" :id="$manuscript->id" />شناسۀ فهارس: <span class="font-mono text-ink font-bold">#{{ $manuscript->id }}</span></span>
     </div>
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
@@ -221,7 +221,7 @@
                     @if($manuscript->city)<span class="block text-xs text-muted">{{ $manuscript->city }}</span>@endif
                 </div>
                 <div>
-                    <div class="text-xs text-muted">شماره‌ی نسخه</div>
+                    <div class="text-xs text-muted">شمارۀ نسخه</div>
                     <span class="font-naskh text-2xl font-bold text-cinnabar">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else بی‌شماره @endif</span>
                     <x-suggest.field name="shelfmark" class="ms-1" />
                 </div>
@@ -229,7 +229,7 @@
                     <!-- Where the copy was before it moved or was renumbered (older catalogs cite these) -->
                     <div class="pt-3 border-t border-line text-xs text-muted space-y-0.5">
                         @foreach($formerLocations as $former)
-                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span>@if($extent = \App\Support\FormerLocation::extent($former))<span>، {{ $extent }}</span>@endif @if(isset($former['catalog']))<span> (در {{ Fa::digits($former['catalog']) }})</span>@endif</div>
+                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شمارۀ @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span>@if($extent = \App\Support\FormerLocation::extent($former))<span>، {{ $extent }}</span>@endif @if(isset($former['catalog']))<span> (در {{ Fa::digits($former['catalog']) }})</span>@endif</div>
                         @endforeach
                     </div>
                 @endif
@@ -309,7 +309,7 @@
                                 <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }})</a>
                                 <x-ui.life :person="$autographPerson" />
                             @else
-                                <span class="font-semibold text-emerald-700 dark:text-emerald-400">مؤلف (نسخه‌ی اصل)</span>
+                                <span class="font-semibold text-emerald-700 dark:text-emerald-400">مؤلف (نسخۀ اصل)</span>
                             @endif
                         @elseif($manuscript->scribe_id)
                             <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $manuscript->scribe_name ?: 'دیدن کاتب' }}</a>
@@ -444,7 +444,7 @@
                                     <x-ui.quote :label="$itemLabel ?? $kind">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
                                     {{-- A pointer at one of the work's numbered or part incipits leads to it (backlog item 98) --}}
                                     @if(! empty($item['work_excerpt_id']) && $manuscript->work)
-                                        <a href="{{ route('works.show', $manuscript->work) }}#excerpt-{{ $item['work_excerpt_id'] }}" class="inline-block mt-1 text-[11px] text-cinnabar hover:underline">در صفحه‌ی اثر ←</a>
+                                        <a href="{{ route('works.show', $manuscript->work) }}#excerpt-{{ $item['work_excerpt_id'] }}" class="inline-block mt-1 text-[11px] text-cinnabar hover:underline">در صفحۀ اثر ←</a>
                                     @endif
                                 @endif
                             @endforeach
@@ -519,7 +519,7 @@
 
             <!-- MENTIONS: where the sources' texts cite this copy by its shelfmark, the reverse of their links to it (step 13.155) -->
             <x-source.mentions :mentions="\App\Support\SourceMentions::of($manuscript)" title="یادکرد در منابع"
-                note="این یادکردها را ماشین از روی کتابخانه، شماره‌ی نسخه و عنوان اثر یافته است، و ممکن است خطا داشته باشد." />
+                note="این یادکردها را ماشین از روی کتابخانه، شمارۀ نسخه و عنوان اثر یافته است، و ممکن است خطا داشته باشد." />
 
             <!-- READINGS: adopted, alternative and superseded readings from researchers -->
             <x-suggest.readings />

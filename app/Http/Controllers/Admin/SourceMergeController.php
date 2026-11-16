@@ -132,7 +132,7 @@ class SourceMergeController extends Controller
             $warnings[] = 'نوع دو منبع یکی نیست: ' . Source::KIND_LABELS[$keep->kind] . ' و ' . Source::KIND_LABELS[$fold->kind] . '. نوع منبع ماندنی می‌ماند.';
         }
         if ($keep->library_id !== $fold->library_id) {
-            $warnings[] = 'کتابخانه‌ی دو منبع یکی نیست. کتابخانه‌ی منبع ماندنی می‌ماند و جلدها کتابخانه‌ی خودشان را نگه می‌دارند.';
+            $warnings[] = 'کتابخانۀ دو منبع یکی نیست. کتابخانۀ منبع ماندنی می‌ماند و جلدها کتابخانۀ خودشان را نگه می‌دارند.';
         }
         if ($fold->edition_of_id === $keep->id || $keep->edition_of_id === $fold->id) {
             $warnings[] = 'یکی از این دو، چاپ دیگری از دیگری است. چاپ‌های دیگر معمولاً منبع جدا می‌مانند.';
