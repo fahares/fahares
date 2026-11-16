@@ -78,6 +78,10 @@ class PersonMerger
             $transferredWorkRoleIds = DB::table('work_people')->where('person_id', $source->id)->where('role', '!=', WorkPerson::AUTHOR)->pluck('id')->all();
             DB::table('work_people')->whereIn('id', $transferredWorkRoleIds)->update(['person_id' => $target->id]);
 
+            // ...and the periods of their life a reviewer entered (step 14.218)
+            $transferredPeriodIds = DB::table('person_periods')->where('person_id', $source->id)->pluck('id')->all();
+            DB::table('person_periods')->whereIn('id', $transferredPeriodIds)->update(['person_id' => $target->id]);
+
             $scribes()->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
             $scribes()->where('person_id', $source->id)->update(['person_id' => $target->id]);
             Manuscript::where('scribe_id', $source->id)->update(['scribe_id' => $target->id]);
@@ -143,6 +147,7 @@ class PersonMerger
                     'collapsed_manuscript_ids' => $collapsedManuscriptIds,
                     'transferred_role_ids' => $transferredRoleIds,
                     'transferred_work_role_ids' => $transferredWorkRoleIds,
+                    'transferred_period_ids' => $transferredPeriodIds,
                     'kept_printed_names' => $keepPrintedNames,
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),
