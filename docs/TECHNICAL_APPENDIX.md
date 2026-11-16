@@ -11809,3 +11809,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نشان:** [lives.blade.php](../resources/views/components/source/lives.blade.php) متن را از `SourceEntry::machineNote()` می‌گیرد (شاخه‌ی تازه برای `citable_type = Person`) و برای سطر در انتظار بازبینی `badgeReview()` را می‌دهد. هر سطر `data-machine-item` دارد تا پس از رد پنهان شود.
 - **دیگر:** `AdminNav` (گروه «داوری»، با شمار) و `notifications:unreviewed-data`.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php`.
+
+### گام ۱۴.۲۳۲: `scripts/dev/lives/` و `person_lives_step14_232_tabaqat.json`
+
+- **ابزارها ([scripts/dev/lives](../scripts/dev/lives/README.md)):** `export.sh` (خروجی TSV از `fahares_prod`)، `blocker.py` (نامزدها)، `batches.py` (دسته‌های ۵۰تایی)، `brief.txt` (دستور داوری)، `build.py` (وارسی پاسخ‌ها و ساخت فایل داده). فراخوان مدل در مخزن نیست: دسته‌ها را زیرعامل‌های Sonnet در Claude Code داوری کردند و سرور فقط فایل داده را بار می‌کند.
+- **صافی (`blocker.py`):**
+  - نام شخص به اسم، پدر و باقی (نسبت و لقب) شکسته می‌شود. نام‌های مرکب یک‌شکل می‌شوند: «عبدالملک» و «عبد الملك»، «ابوالحسن»، «محمدباقر»، «علینقی»، «نعمة الله».
+  - زنجیره‌ی نام صاحب مدخل: سرعنوان، و آغاز متن تا نخستین «بن». `name = 2`: اسم در شش واژه‌ی پیش از «بن» و پدر در سه واژه‌ی پس از آن. `name = 1`: اسم در سرعنوان و نام شخص بی پدر. پدر ناهمخوان: صفر.
+  - شرط ورود: عنوان اثری از شخص (۱۲ نویسه به بالا) در متن؛ یا `name = 2` با نسبت یا سال وفات (±۱)؛ یا `name = 1` با نسبت و سال وفات، یا با دو نسبت کمیاب. تاریخ ناسازگار (بیش از ۸۰ سال، یا بیرون از سده با ۴۰ سال حاشیه) نامزد را کنار می‌گذارد، مگر عنوان اثر بخواند.
+  - مدخل بی‌سال در جلدی که یک سده را دارد (چارک‌های سال‌های جلد در ۹۰ سال)، میانه‌ی سال‌های آن جلد را می‌گیرد.
+  - بازیابی روی پیوندهای موجود، چهار نامزد اول: کل ۲٬۸۵۱ از ۳٬۲۹۸ (۸۶٫۴٪)؛ طبقات ۲۹۱ از ۳۴۴.
+  - طبقات: از ۱۳٬۸۸۴ مدخل بی‌پیوندِ ۶۰ نویسه به بالا، ۴٬۸۰۵ مدخل نامزد دارند (میانگین ۲٫۰۵ نامزد). `batches.py` مدخل‌های ارجاعی («يأتي»، «راجع»، زیر ۱۷۰ نویسه) را کنار می‌گذارد: ۴٬۷۷۴ مدخل.
+- **داوری:** پاسخ هر مدخل `choice` (شماره‌ی نامزد یا ۰)، `chosen_name`، `confidence`، `evidence` (عبارت عیناً از متن) و `reason`. نتیجه: ۱٬۶۵۶ پیوند و ۳٬۱۱۸ «هیچ‌کدام»؛ ۱٬۶۵۵ شاهد عیناً در متن بود. هر زیرعامل حدود ۸۲ هزار توکن و ۷۵ ثانیه.
+- **`build.py`:** شماره و نام ناهمخوان: حذف (صفر مورد). شاهدِ نیافته در متن: اطمینان حداکثر ۸۵. دو مدخل برای یک شخص (۱۲۶ شخص، ۱۴۳ مدخل کنار رفت): مطمئن‌ترین، با اطمینان حداکثر ۸۹ و `other_entries`. خروجی ۱٬۵۱۳ پیوند: ۱٬۰۶۸ با ۹۰ به بالا، ۳۴۰ با ۸۰ تا ۸۹، ۱۰۵ زیر ۸۰.
+- **فایل:** `database/data/person_lives_step14_232_tabaqat.json`، قالب گام ۱۴.۱۱۶ با `method = name_llm`، `judged_by = sonnet`، `evidence`، `reason` و `heading`.
+- **کد:** `TiePersonLivesCommand` شاهد را در `notes` می‌نویسد («شاهد: …») و `--undo` دارد (سطر همان کلید و همان مدخل، با `reviewed_at` خالی). `SourceEntry::LIFE_SHOWN_FROM = 90` و `isUnsureLife()`؛ [lives.blade.php](../resources/views/components/source/lives.blade.php) چنین سطری را فقط به دارنده‌ی `catalog_refs.review` نشان می‌دهد.
+- **تمرین (`fahares_prod`):** `created 1490`، `exists 23`؛ اجرای دوم `exists 1513`؛ `--undo` بی `--apply`: `removed 1490`. در پایگاه: `name_llm` ۱٬۰۵۳ سطر با اطمینان ۹۰ به بالا و ۴۳۷ سطر زیر آن، همه با یادداشت شاهد. پیوندهای این تمرین در کپی محلی مانده‌اند.
+- **آزمون:** `tests/Feature/PersonLivesReviewTest.php` (دو آزمون تازه).
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای `source_entries` با `citable_type = Person` و `source_id` طبقات، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_232_tabaqat.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.

@@ -18,7 +18,8 @@ use Illuminate\Console\Command;
  * the person (role entry, origin match) under its own legacy type, so a later run of tie-lives-to-people never
  * removes it; running this again changes nothing. A person merged away since the list was judged is followed to the
  * person he was merged into (by the merge's audit log and the redirects), so his tie is not lost (step 14.134). Without
- * --apply it only reports.
+ * --apply it only reports. The quoted evidence of a tie is kept in its notes for the reviewer (step 14.232), and --undo
+ * takes a file's ties back: only those still unreviewed and still on the file's entry.
  */
 class TiePersonLivesCommand extends Command
 {
@@ -26,6 +27,7 @@ class TiePersonLivesCommand extends Command
 
     protected $signature = 'sources:tie-person-lives
         {--file=database/data/person_lives_step14_116.json : The judged ties}
+        {--undo : Remove the ties of the file that no person has reviewed, instead of making them}
         {--apply : Save them}';
 
     protected $description = 'Tie people to their lives in the books of lives from a judged list';
@@ -40,7 +42,7 @@ class TiePersonLivesCommand extends Command
             return self::FAILURE;
         }
         $sources = Source::where('kind', Source::KIND_BIOGRAPHICAL)->get()->keyBy('code');
-        $counts = ['created' => 0, 'exists' => 0, 'has_life' => 0, 'merged' => 0, 'missing_person' => 0, 'missing_life' => 0];
+        $counts = ['created' => 0, 'exists' => 0, 'has_life' => 0, 'merged' => 0, 'missing_person' => 0, 'missing_life' => 0, 'removed' => 0];
 
         foreach ($doc['ties'] as $t) {
             $person = Person::where('slug', $t['person_slug'])->first(['id', 'name']);
@@ -62,6 +64,17 @@ class TiePersonLivesCommand extends Command
                 continue;
             }
             $key = ['legacy_type' => self::LEGACY_TYPE, 'legacy_id' => $person->id * 1000000 + $source->id, 'legacy_index' => 0];
+            if ($this->option('undo')) {
+                $row = SourceEntry::where($key)->where('source_item_id', $item->id)->whereNull('reviewed_at')->first();
+                if ($row) {
+                    $counts['removed']++;
+                    if ($this->option('apply')) {
+                        $row->delete();
+                    }
+                }
+
+                continue;
+            }
             if (SourceEntry::where($key)->exists()) {
                 $counts['exists']++;
 
@@ -83,6 +96,7 @@ class TiePersonLivesCommand extends Command
                 'entry_number' => $item->entry_number, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => SourceEntry::ORIGIN_MATCH,
                 'match_method' => $t['method'], 'confidence' => (int) $t['confidence'], 'status' => SourceEntry::STATUS_UNVERIFIED,
                 'citation_text' => $source->title, 'text_status' => SourceEntry::TEXT_NONE,
+                'notes' => filled($t['evidence'] ?? null) ? 'شاهد: ' . $t['evidence'] : null,
             ]);
         }
 
