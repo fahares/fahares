@@ -31,6 +31,13 @@ final class ConflictRecords
             $records["person:{$p->id}"] = ['title' => $p->name, 'detail' => $p->life_dates_raw,
                 'dates' => ['birth' => $p->birth_year_hijri === null ? null : (string) $p->birth_year_hijri, 'death' => $date($p, 'death')]];
         }
+        // the years the approved periods of a person's life cover, for a conflict of the rule «period» (step 14.226)
+        foreach (DB::table('person_periods')->whereIn('person_id', $ids['person'] ?? [])->where('status', 'approved')->whereNull('period_certainty')
+            ->selectRaw('person_id, MIN(COALESCE(period_from, period_to)) AS first, MAX(COALESCE(period_to, period_from)) AS last')->groupBy('person_id')->get() as $span) {
+            if (isset($records["person:{$span->person_id}"])) {
+                $records["person:{$span->person_id}"]['dates']['period'] = $span->first === $span->last ? (string) $span->first : "{$span->first}–{$span->last}";
+            }
+        }
         $copies = DB::table('manuscripts')->whereIn('id', $ids['manuscript'] ?? [])
             ->get(['id', 'work_id', 'city', 'library', 'shelfmark', 'copy_date_raw', 'copy_date_from', 'copy_date_to', 'copy_date_kind', 'copy_date_start_to', 'copy_date_end_from', 'scribe_name']);
         $workIds = array_merge($ids['work'] ?? [], $copies->pluck('work_id')->filter()->all());
