@@ -48,7 +48,7 @@ class StructurePreview
                     $lead = $i === 0 ? 'اگر #' . Fa::digits($kept->id) . ' بماند (پیش‌فرض)' : 'اگر #' . Fa::digits($kept->id) . ' بماند';
                     $parts = [];
                     if ($source instanceof Work) {
-                        $parts[] = "{$n($p['moved'])} نسخه منتقل و {$n($p['folded'])} نسخه‌ی هم‌نشانی ادغام می‌شود";
+                        $parts[] = "{$n($p['moved'])} نسخه منتقل و {$n($p['folded'])} نسخۀ هم‌نشانی ادغام می‌شود";
                     }
                     $parts[] = self::fieldsLine(MergeComparison::rows($source, $kept));
                     $lines[] = $lead . ': ' . implode('؛ ', $parts) . '.';
@@ -66,7 +66,7 @@ class StructurePreview
                 if ($blockers) {
                     $warnings[] = 'این رکورد هنوز به ' . implode('، ', array_map(fn ($label, $count) => Fa::num($count) . ' ' . $label, array_keys($blockers), $blockers)) . ' پیوند دارد و تا آن‌ها منتقل نشوند حذف نمی‌شود.';
                 } else {
-                    $lines[] = 'رکورد #' . Fa::digits($record->id) . ' حذف می‌شود و نشانی‌اش صفحه‌ی «این رکورد حذف شده است» را نشان می‌دهد.';
+                    $lines[] = 'رکورد #' . Fa::digits($record->id) . ' حذف می‌شود و نشانی‌اش صفحۀ «این رکورد حذف شده است» را نشان می‌دهد.';
                 }
                 break;
             case 'split':
@@ -80,10 +80,10 @@ class StructurePreview
                 $lines[] = "«{$other->name}» به " . ($record instanceof Manuscript ? 'کاتبان' : 'پدیدآوران') . ' این رکورد افزوده می‌شود.';
                 break;
             case 'relocate':
-                $lines[] = 'نشانی کنونی نسخه «' . ($record->libraryRecord?->name ?? $record->library ?? '—') . '، شماره‌ی ' . ($record->shelfmark ?? 'بی‌شماره') . '» در «نشانی پیشین» می‌ماند.';
+                $lines[] = 'نشانی کنونی نسخه «' . ($record->libraryRecord?->name ?? $record->library ?? '—') . '، شمارۀ ' . ($record->shelfmark ?? 'بی‌شماره') . '» در «نشانی پیشین» می‌ماند.';
                 break;
             case 'merge_people':
-                $lines[] = 'ادغام اشخاص در ابزار ادغام اشخاص انجام می‌شود، با مقایسه‌ی کامل دو شخص.';
+                $lines[] = 'ادغام اشخاص در ابزار ادغام اشخاص انجام می‌شود، با مقایسۀ کامل دو شخص.';
                 break;
         }
 
@@ -122,7 +122,7 @@ class StructurePreview
                 'کاتب' => ManuscriptPerson::where('manuscript_id', $record->id)->where('role', ManuscriptPerson::SCRIBE)->count(),
                 'شخص مرتبط' => ManuscriptPerson::where('manuscript_id', $record->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->count(),
                 'مدخل مأخذ' => $entries(),
-                'رابطه با نسخه‌ی دیگر' => DB::table('manuscript_relations')->where('manuscript_id', $record->id)->orWhere('related_manuscript_id', $record->id)->count(),
+                'رابطه با نسخۀ دیگر' => DB::table('manuscript_relations')->where('manuscript_id', $record->id)->orWhere('related_manuscript_id', $record->id)->count(),
             ],
             $record instanceof Person => app(RecordRemover::class)->blockers($record) + [
                 'نقش در نسخه' => ManuscriptPerson::where('person_id', $record->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->count(),

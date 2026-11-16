@@ -46,8 +46,8 @@ class ConvertSuggestionTest extends TestCase
         $this->admin = User::create(['name' => 'داور تبدیل', 'email' => uniqid('cv-admin-') . '@example.test', 'password' => 'password123', 'role' => 'admin']);
         $this->researcher = User::create(['name' => 'پژوهشگر', 'email' => uniqid('cv-') . '@example.test', 'password' => 'password123', 'role' => 'user']);
 
-        $library = Library::create(['name' => 'کتابخانه‌ی تبدیل', 'city' => 'قم', 'slug' => 'cv-lib-' . uniqid()]);
-        $otherLibrary = Library::create(['name' => 'کتابخانه‌ی دیگر', 'city' => 'قم', 'slug' => 'cv-lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ تبدیل', 'city' => 'قم', 'slug' => 'cv-lib-' . uniqid()]);
+        $otherLibrary = Library::create(['name' => 'کتابخانۀ دیگر', 'city' => 'قم', 'slug' => 'cv-lib-' . uniqid()]);
         // A work citing a page of al-Dharia has a bibliography_page_* field
         $work = Work::create(['primary_title' => 'اثر تبدیل', 'clean_title' => 'اثر تبدیل', 'slug' => 'cv-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1, 'bibliography' => ['الذریعه 101/25']]);
         $otherWork = Work::create(['primary_title' => 'اثر دیگر', 'clean_title' => 'اثر دیگر', 'slug' => 'cv-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 2]);
@@ -57,7 +57,7 @@ class ConvertSuggestionTest extends TestCase
         $otherPerson = Person::create(['name' => 'شخص دیگر', 'normalized_name' => 'شخص دیگر', 'slug' => 'cv-p-' . uniqid()]);
 
         // The copy's entry in a library catalogue gives it a source_entry_N field (and catalog_reference_N, its name before step 13.3)
-        $source = Source::create(['code' => 'cv-edition-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست کتابخانه‌ی تبدیل', 'library_id' => $library->id]);
+        $source = Source::create(['code' => 'cv-edition-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست کتابخانۀ تبدیل', 'library_id' => $library->id]);
         $edition = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 2, 'edition_label' => '۱۳۸۸']);
         $this->entry = SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $manuscript->id, 'source_id' => $source->id, 'source_volume_id' => $edition->id,
             'volume_number' => 2, 'page_start' => 5, 'origin' => SourceEntry::ORIGIN_MATCH, 'legacy_type' => 'catalog_reference', 'legacy_id' => 987654]);

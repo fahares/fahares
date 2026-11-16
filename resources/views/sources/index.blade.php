@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'منابع و مراجع | فهارس')
-@section('meta_description', 'فهرستگان، فهرست‌های کتابخانه‌ها، کتاب‌شناسی‌ها و تراجمی که فهارس از آن‌ها ساخته شده یا رکوردهایش را به آن‌ها پیوند داده است، با متن و برگه‌ی چاپی آن‌ها')
+@section('meta_description', 'فهرستگان، فهرست‌های کتابخانه‌ها، کتاب‌شناسی‌ها و تراجمی که فهارس از آن‌ها ساخته شده یا رکوردهایش را به آن‌ها پیوند داده است، با متن و برگۀ چاپی آن‌ها')
 
 @php
     use App\Support\Fa;
@@ -25,7 +25,7 @@
         <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">منابع و مراجع</h1>
         <p class="text-sm text-muted max-w-2xl leading-relaxed">
             فهرستگان و فهرست‌های چاپی کتابخانه‌ها که نسخه‌ها از آن‌ها آمده‌اند، و کتاب‌شناسی‌ها و تراجمی که آثار و اشخاص به آن‌ها پیوند دارند.
-            هر منبع با جلدهایش، متن صفحه‌ها و برگه‌ی چاپی‌اش، هرجا که سایت آن را دارد.
+            هر منبع با جلدهایش، متن صفحه‌ها و برگۀ چاپی‌اش، هرجا که سایت آن را دارد.
         </p>
         <div class="relative w-full max-w-md mt-3">
             <label for="sources-q" class="sr-only">نام منبع</label>
@@ -60,7 +60,7 @@
                             @if($text || $images)
                                 <span class="flex gap-1.5">
                                     @if($text)<span class="px-1.5 text-[10px] font-bold text-gold border border-gold/50 rounded-sm" title="متن صفحه‌ها در سایت هست">متن</span>@endif
-                                    @if($images)<span class="px-1.5 text-[10px] font-bold text-muted border border-line-strong rounded-sm" title="برگه‌ی چاپی در سایت هست">برگه</span>@endif
+                                    @if($images)<span class="px-1.5 text-[10px] font-bold text-muted border border-line-strong rounded-sm" title="برگۀ چاپی در سایت هست">برگه</span>@endif
                                 </span>
                             @endif
                         </a>

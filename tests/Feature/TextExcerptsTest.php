@@ -57,7 +57,7 @@ class TextExcerptsTest extends TestCase
         $this->assertSame('برابر 2', $second->fresh()->incipit_text);
 
         // The copy's page shows the excerpt it points at, the work's page its numbered and part incipits
-        $this->get(route('manuscripts.show', $second))->assertOk()->assertSee('منطبق بر آغاز ۲ (دیباچه) اثر')->assertSee('سپاس بی‌حد دوم')->assertSee('در صفحه‌ی اثر');
+        $this->get(route('manuscripts.show', $second))->assertOk()->assertSee('منطبق بر آغاز ۲ (دیباچه) اثر')->assertSee('سپاس بی‌حد دوم')->assertSee('در صفحۀ اثر');
         $this->get(route('works.show', $work))->assertOk()->assertSee('آغاز ۱')->assertSee('سپاس بی‌حد دوم')->assertSee('آغاز جلد دوم')->assertSee('هذا الجزء الثانی')
             ->assertSee('آغاز ۲ (دیباچه)')->assertSee('id="excerpt-', false);
 

@@ -45,7 +45,7 @@
         <div class="space-y-2 {{ $hide('sources') }}">
             <label for="f-source" class="{{ $label }}">منبع</label>
             <select id="f-source" name="source_id" class="{{ $field }}">
-                <option value="">همه‌ی منابع</option>
+                <option value="">همۀ منابع</option>
                 @foreach($options['sources'] as $source)
                     <option value="{{ $source->id }}" @selected($v('source_id') === $source->id)>{{ $source->short_name ?: $source->title }}{{ $n($source->matching_count) }}</option>
                 @endforeach
@@ -55,7 +55,7 @@
             <div class="space-y-2 {{ $hide('volumes') }}">
                 <label for="f-volume" class="{{ $label }}">جلد</label>
                 <select id="f-volume" name="volume" class="{{ $field }}">
-                    <option value="">همه‌ی جلدها</option>
+                    <option value="">همۀ جلدها</option>
                     @foreach($options['volumes'] as $vol => $count)
                         <option value="{{ $vol }}" @selected($v('volume') === $vol)>جلد {{ Fa::digits($vol) }}{{ $n($count) }}</option>
                     @endforeach
@@ -68,26 +68,26 @@
         <div class="space-y-2 {{ $hide('roles') }}">
             <label for="f-role" class="{{ $label }}">نقش</label>
             <select id="f-role" name="role" class="{{ $field }}">
-                <option value="">همه‌ی نقش‌ها</option>
+                <option value="">همۀ نقش‌ها</option>
                 @foreach($options['roles'] as $role => [$roleLabel, $count])
                     <option value="{{ $role }}" @selected($v('role') === $role)>{{ $role === 'scribe' ? 'کاتب هم بوده' : $roleLabel }}{{ $n($count) }}</option>
                 @endforeach
             </select>
         </div>
         <div class="space-y-2 {{ $hide('centuries') }}">
-            <label for="f-century" class="{{ $label }}">سده‌ی وفات (قمری)</label>
+            <label for="f-century" class="{{ $label }}">سدۀ وفات (قمری)</label>
             <select id="f-century" name="century" class="{{ $field }}">
-                <option value="">همه‌ی سده‌ها</option>
+                <option value="">همۀ سده‌ها</option>
                 @foreach($options['centuries'] as $c => $count)
-                    <option value="{{ $c }}" @selected($v('century') === $c)>سده‌ی {{ Fa::digits($c) }}{{ $n($count) }}</option>
+                    <option value="{{ $c }}" @selected($v('century') === $c)>سدۀ {{ Fa::digits($c) }}{{ $n($count) }}</option>
                 @endforeach
             </select>
         </div>
         {{-- Those of no known century by the century a dated work or copy shows them alive in (step 14.198) --}}
         @if($type === 'authors')
-            <label class="flex items-start gap-2 text-xs text-ink/80 cursor-pointer" title="اشخاصِ بی‌تاریخ وفات با سده‌ای که اثر یا نسخه‌ی تاریخ‌دارشان نشان می‌دهد در آن زنده بوده‌اند می‌آیند، و در ترتیب «کهن‌ترین / تازه‌ترین وفات» با همان سال. شمار کنار سده‌ها این‌ها را ندارد.">
+            <label class="flex items-start gap-2 text-xs text-ink/80 cursor-pointer" title="اشخاصِ بی‌تاریخ وفات با سده‌ای که اثر یا نسخۀ تاریخ‌دارشان نشان می‌دهد در آن زنده بوده‌اند می‌آیند، و در ترتیب «کهن‌ترین / تازه‌ترین وفات» با همان سال. شمار کنار سده‌ها این‌ها را ندارد.">
                 <input type="checkbox" name="estimates" value="1" @checked($v('estimates')) class="mt-0.5 w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-line-strong">
-                <span>با سده‌ی فعالیت اشخاصِ بی‌تاریخ وفات <span class="text-muted">(تخمینی)</span></span>
+                <span>با سدۀ فعالیت اشخاصِ بی‌تاریخ وفات <span class="text-muted">(تخمینی)</span></span>
             </label>
         @endif
     @endif
@@ -95,11 +95,11 @@
     {{-- A scribe is narrowed by the copies, not by a date of death, which almost none has (step 14.155) --}}
     @if($type === 'scribes')
         <div class="space-y-2 {{ $hide('centuries') }}">
-            <label for="f-century" class="{{ $label }}">سده‌ی کتابت (قمری) <span class="font-normal text-muted">(دست‌کم یک نسخه)</span></label>
+            <label for="f-century" class="{{ $label }}">سدۀ کتابت (قمری) <span class="font-normal text-muted">(دست‌کم یک نسخه)</span></label>
             <select id="f-century" name="century" class="{{ $field }}">
-                <option value="">همه‌ی سده‌ها</option>
+                <option value="">همۀ سده‌ها</option>
                 @foreach($options['centuries'] as $c => $count)
-                    <option value="{{ $c }}" @selected($v('century') === $c)>سده‌ی {{ Fa::digits($c) }}{{ $n($count) }}</option>
+                    <option value="{{ $c }}" @selected($v('century') === $c)>سدۀ {{ Fa::digits($c) }}{{ $n($count) }}</option>
                 @endforeach
             </select>
         </div>
@@ -116,7 +116,7 @@
             <div class="space-y-2 {{ $hide('roles') }}">
                 <label for="f-role" class="{{ $label }}">نقش دیگر</label>
                 <select id="f-role" name="role" class="{{ $field }}">
-                    <option value="">همه‌ی کاتبان</option>
+                    <option value="">همۀ کاتبان</option>
                     @foreach($options['roles'] as $role => [$roleLabel, $count])
                         <option value="{{ $role }}" @selected($v('role') === $role)>{{ $roleLabel }} هم هست{{ $n($count) }}</option>
                     @endforeach
@@ -126,11 +126,11 @@
     @endif
 
     @if($type === 'works')
-        <x-search.combobox name="subject_id" label="موضوع" :items="$subjectItems()" :selected="$v('subject_id')" all="همه‌ی موضوعات" placeholder="مثلاً فقه، فلسفه…" unit="موضوع" />
+        <x-search.combobox name="subject_id" label="موضوع" :items="$subjectItems()" :selected="$v('subject_id')" all="همۀ موضوعات" placeholder="مثلاً فقه، فلسفه…" unit="موضوع" />
         <div class="space-y-2 {{ $hide('languages') }}">
             <label for="f-language" class="{{ $label }}">زبان</label>
             <select id="f-language" name="language_id" class="{{ $field }}">
-                <option value="">همه‌ی زبان‌ها</option>
+                <option value="">همۀ زبان‌ها</option>
                 @foreach($options['languages'] as $lang)
                     <option value="{{ $lang->id }}" @selected($v('language_id') === $lang->id)>{{ $lang->name }}{{ $n($lang->matching_count) }}</option>
                 @endforeach
@@ -139,9 +139,9 @@
         <div class="space-y-2 {{ $hide('centuries') }}">
             <label for="f-century" class="{{ $label }}">سده <span class="font-normal text-muted">(تألیف، یا وفات مؤلف)</span></label>
             <select id="f-century" name="century" class="{{ $field }}">
-                <option value="">همه‌ی سده‌ها</option>
+                <option value="">همۀ سده‌ها</option>
                 @foreach($options['centuries'] as $c => $count)
-                    <option value="{{ $c }}" @selected($v('century') === $c)>سده‌ی {{ Fa::digits($c) }}{{ $n($count) }}</option>
+                    <option value="{{ $c }}" @selected($v('century') === $c)>سدۀ {{ Fa::digits($c) }}{{ $n($count) }}</option>
                 @endforeach
             </select>
         </div>
@@ -153,7 +153,7 @@
         <div class="space-y-2 {{ $hide('workForms') }}">
             <label for="f-form" class="{{ $label }}">قالب اثر</label>
             <select id="f-form" name="work_form" class="{{ $field }}">
-                <option value="">همه‌ی قالب‌ها</option>
+                <option value="">همۀ قالب‌ها</option>
                 @foreach($options['workForms'] as $form => [$formLabel, $count])
                     <option value="{{ $form }}" @selected($v('work_form') === $form)>{{ $formLabel }}{{ $n($count) }}</option>
                 @endforeach
@@ -162,7 +162,7 @@
         <div class="space-y-2 {{ $hide('sources') }}">
             <label for="f-source" class="{{ $label }}">یادشده در</label>
             <select id="f-source" name="source_id" class="{{ $field }}">
-                <option value="">همه‌ی آثار</option>
+                <option value="">همۀ آثار</option>
                 @foreach($options['sources'] as $source)
                     <option value="{{ $source->id }}" @selected($v('source_id') === $source->id)>{{ $source->short_name ?: $source->title }}{{ $n($source->matching_count) }}</option>
                 @endforeach
@@ -171,25 +171,25 @@
         <label class="flex items-center justify-between gap-2 text-xs text-ink/80 cursor-pointer {{ $options['autographs'] === 0 && ! $v('has_autograph') ? 'hidden' : '' }}">
             <span class="flex items-center gap-2">
                 <input type="checkbox" name="has_autograph" value="1" @checked($v('has_autograph')) class="w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-line-strong">
-                دارای نسخه‌ی دستخط مؤلف
+                دارای نسخۀ دستخط مؤلف
             </span>
             @if($options['autographs'] !== null)<span class="text-[10px] text-muted">{{ Fa::num($options['autographs']) }}</span>@endif
         </label>
     @endif
 
     @if($type === 'manuscripts')
-        <x-search.combobox name="library_id" label="کتابخانه" :selected="$v('library_id') ?? []" multiple all="همه‌ی کتابخانه‌ها" placeholder="نام کتابخانه یا شهر؛ چند تا هم می‌شود…" unit="کتابخانه"
+        <x-search.combobox name="library_id" label="کتابخانه" :selected="$v('library_id') ?? []" multiple all="همۀ کتابخانه‌ها" placeholder="نام کتابخانه یا شهر؛ چند تا هم می‌شود…" unit="کتابخانه"
             :items="$options['libraries']->map(fn ($l) => ['id' => $l->id, 'name' => $l->short_name, 'count' => $l->matching_count, 'hint' => $l->city])->values()->all()" />
-        <x-search.combobox name="city" label="شهر کتابخانه" :selected="$v('city')" all="همه‌ی شهرها" placeholder="نام شهر…" unit="شهر"
+        <x-search.combobox name="city" label="شهر کتابخانه" :selected="$v('city')" all="همۀ شهرها" placeholder="نام شهر…" unit="شهر"
             :items="collect($options['cities'])->map(fn ($count, $city) => ['id' => $city, 'name' => $city, 'count' => $count, 'hint' => null])->values()->all()" />
-        <x-search.combobox name="subject_id" label="موضوع اثر" :items="$subjectItems()" :selected="$v('subject_id')" all="همه‌ی موضوعات" placeholder="مثلاً فقه، فلسفه…" unit="موضوع" />
+        <x-search.combobox name="subject_id" label="موضوع اثر" :items="$subjectItems()" :selected="$v('subject_id')" all="همۀ موضوعات" placeholder="مثلاً فقه، فلسفه…" unit="موضوع" />
 
         <div class="space-y-2">
-            <label for="f-century" class="{{ $label }}">سده‌ی کتابت (قمری)</label>
+            <label for="f-century" class="{{ $label }}">سدۀ کتابت (قمری)</label>
             <select id="f-century" name="century" class="{{ $field }}">
-                <option value="">همه‌ی سده‌ها</option>
+                <option value="">همۀ سده‌ها</option>
                 @foreach($options['centuries'] as $c => $count)
-                    <option value="{{ $c }}" @selected($v('century') === $c)>سده‌ی {{ Fa::digits($c) }}{{ $n($count) }}</option>
+                    <option value="{{ $c }}" @selected($v('century') === $c)>سدۀ {{ Fa::digits($c) }}{{ $n($count) }}</option>
                 @endforeach
             </select>
             <div class="flex items-center gap-2 text-xs text-muted">
@@ -202,7 +202,7 @@
         <div class="space-y-2 {{ $hide('scripts') }}">
             <label for="f-script" class="{{ $label }}">خط</label>
             <select id="f-script" name="script_id" class="{{ $field }}">
-                <option value="">همه‌ی خطوط</option>
+                <option value="">همۀ خطوط</option>
                 @foreach($options['scripts'] as $sc)
                     <option value="{{ $sc->id }}" @selected($v('script_id') === $sc->id)>{{ $sc->name }}{{ $n($sc->matching_count) }}</option>
                 @endforeach
@@ -231,7 +231,7 @@
                 <div class="space-y-2 {{ $hide('languages') }}">
                     <label for="f-language" class="{{ $label }}">زبان اثر</label>
                     <select id="f-language" name="language_id" class="{{ $field }}">
-                        <option value="">همه‌ی زبان‌ها</option>
+                        <option value="">همۀ زبان‌ها</option>
                         @foreach($options['languages'] as $lang)
                             <option value="{{ $lang->id }}" @selected($v('language_id') === $lang->id)>{{ $lang->name }}{{ $n($lang->matching_count) }}</option>
                         @endforeach
@@ -250,7 +250,7 @@
                     <label for="f-facsimile" class="{{ $label }}">اصل یا عکسی</label>
                     <select id="f-facsimile" name="facsimile" class="{{ $field }}">
                         <option value="">هر دو</option>
-                        <option value="0" @selected($v('facsimile') === '0')>فقط نسخه‌ی اصل{{ $n($options['facsimile']['0']) }}</option>
+                        <option value="0" @selected($v('facsimile') === '0')>فقط نسخۀ اصل{{ $n($options['facsimile']['0']) }}</option>
                         <option value="1" @selected($v('facsimile') === '1')>فقط عکسی و میکروفیلم{{ $n($options['facsimile']['1']) }}</option>
                     </select>
                 </div>

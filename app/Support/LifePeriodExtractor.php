@@ -4,7 +4,7 @@ namespace App\Support;
 
 /**
  * Reads a biography for the periods of a life it tells of (backlog item 139, step 14.220): «انتقل الى طهران و بقی فیها
- * نحوا من عشر سنین», «برای ادامه‌ی تحصیل به نجف رفته», «تولى القضاء بحلب سنة 730». What it finds is a proposal for a
+ * نحوا من عشر سنین», «برای ادامۀ تحصیل به نجف رفته», «تولى القضاء بحلب سنة 730». What it finds is a proposal for a
  * reviewer, never a fact: the kind is guessed from one word, and the years are those that stand in the same clause.
  *
  * A clause gives a proposal when it has a cue word of a kind (CUES) and, after it, a city of the list (CopyPlaces),

@@ -33,7 +33,7 @@
     @if($viewer)
         <button type="button" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $name }}">
             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
-                <img src="{{ $entry->thumbUrl() }}" alt="برگه‌ی {{ $label }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
+                <img src="{{ $entry->thumbUrl() }}" alt="برگۀ {{ $label }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
             </div>
             <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $name }}</span>
         </button>

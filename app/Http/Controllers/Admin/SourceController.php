@@ -130,7 +130,7 @@ class SourceController extends Controller
         $digits = array_combine(['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'], range(0, 9));
         $last = array_values(array_filter(array_map(fn ($l) => (int) strtr(trim($l), $digits), preg_split('/\R|[،,]/u', (string) ($v['last_pages'] ?? '')))));
         if ($last && count($last) !== (int) $v['volumes']) {
-            return back()->withInput()->withErrors(['last_pages' => 'برای هر جلد یک صفحه‌ی آخر لازم است، یا هیچ.']);
+            return back()->withInput()->withErrors(['last_pages' => 'برای هر جلد یک صفحۀ آخر لازم است، یا هیچ.']);
         }
 
         $source = DB::transaction(function () use ($v, $last, $request) {
@@ -378,7 +378,7 @@ class SourceController extends Controller
             'catalogers' => 'array|max:20',
             'catalogers.*' => 'nullable|integer|exists:catalogers,id',
         ], [
-            'page_last.gte' => 'صفحه‌ی پایان نباید پیش از صفحه‌ی آغاز باشد.',
+            'page_last.gte' => 'صفحۀ پایان نباید پیش از صفحۀ آغاز باشد.',
         ]);
 
         return [

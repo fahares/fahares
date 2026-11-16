@@ -330,7 +330,7 @@ class Person extends Model
 
     /**
      * Life dates for display next to the name, in Persian digits: «۸۱۷–۸۹۸ ق», «د. ۸۹۸ ق»
-     * or «سده‌ی ۱۰ ق». Null when nothing is known.
+     * or «سدۀ ۱۰ ق». Null when nothing is known.
      */
     public function getLifeSpanAttribute(): ?string
     {
@@ -341,7 +341,7 @@ class Person extends Model
             $birth && $death => "{$birth}–{$death} ق",
             (bool) $death => "د. {$death} ق",
             (bool) $birth => "ز. {$birth} ق",
-            (bool) $this->century_hijri => "سده‌ی {$this->century_hijri} ق",
+            (bool) $this->century_hijri => "سدۀ {$this->century_hijri} ق",
             default => null,
         };
 
@@ -435,7 +435,7 @@ class Person extends Model
 
     /**
      * When the person copied, beside the name in the scribes' tab: «کتابت ۱۰۸۵ ق» for one year, else the centuries
-     * («کتابت سده‌ی ۱۱ ق», «کتابت سده‌های ۱۱ تا ۱۲ ق»), since a copy dated by its century alone gives no year.
+     * («کتابت سدۀ ۱۱ ق», «کتابت سده‌های ۱۱ تا ۱۲ ق»), since a copy dated by its century alone gives no year.
      */
     public function getScribedSpanAttribute(): ?string
     {
@@ -447,7 +447,7 @@ class Person extends Model
         [$first, $last] = [intdiv($from - 1, 100) + 1, intdiv($to - 1, 100) + 1];
         $text = match (true) {
             $from === $to => "کتابت {$from} ق",
-            $first === $last => "کتابت سده‌ی {$first} ق",
+            $first === $last => "کتابت سدۀ {$first} ق",
             default => "کتابت سده‌های {$first} تا {$last} ق",
         };
 

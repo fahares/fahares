@@ -136,7 +136,7 @@
             @include('admin.partials.markdown-guide', ['images' => true])
 
             @if($exists)
-                <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return confirm('این یادداشت و همه‌ی تصویرهایش حذف شود؟ این کار برگشت‌پذیر نیست.')" class="{{ $box }} p-4 sm:p-5">
+                <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return confirm('این یادداشت و همۀ تصویرهایش حذف شود؟ این کار برگشت‌پذیر نیست.')" class="{{ $box }} p-4 sm:p-5">
                     @csrf @method('DELETE')
                     <button type="submit" class="text-cinnabar font-bold hover:underline cursor-pointer">حذف این یادداشت</button>
                 </form>

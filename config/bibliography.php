@@ -31,7 +31,7 @@ return [
             'url' => 'https://lib.eshia.ir/71602/{volume}/{page}',
             // volume 26 (the author's Mustadrakat, Dar al-Adwa' 1406) is not on eshia; its scan is noorlib's
             'url_volumes' => 25,
-            'site' => 'کتابخانه‌ی مدرسه‌ی فقاهت',
+            'site' => 'کتابخانۀ مدرسۀ فقاهت',
             'viewer' => [
                 'catalog' => 'dharia',
                 'name' => 'الذریعة',
@@ -54,7 +54,7 @@ return [
             'pattern' => 'ریحانه(?: الادب)?',
             'volumes' => 8,
             'url' => 'https://lib.eshia.ir/10984/{volume}/{page}',
-            'site' => 'کتابخانه‌ی مدرسه‌ی فقاهت',
+            'site' => 'کتابخانۀ مدرسۀ فقاهت',
             // Khayyam edition (scripts/facsimile/rayhana_page_mapping.json); the scan ends one page early in
             // volumes 2 and 6, whose last pages keep the url.
             'viewer' => [
@@ -186,7 +186,7 @@ return [
             'pairs_after_name' => true,
             'kind' => 'union_catalogue',
             'compiler' => 'احمد منزوی',
-            'publisher' => 'مؤسسه‌ی فرهنگی منطقه‌ای',
+            'publisher' => 'مؤسسۀ فرهنگی منطقه‌ای',
             'edition_label' => 'تهران، ۱۳۴۸–۱۳۵۳ش',
             'viewer' => [
                 'catalog' => 'monzavi-nuskhe',

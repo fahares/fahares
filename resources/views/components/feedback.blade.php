@@ -24,7 +24,7 @@
 
             <template x-if="!done">
                 <form @submit.prevent="submit()" class="space-y-4">
-                    <p class="text-stone-500 leading-relaxed">نشانی همین صفحه همراه گزارش فرستاده می‌شود. برای اصلاح اطلاعات یک نسخه، اثر، شخص یا کتابخانه، دکمه‌ی «پیشنهاد اصلاح» در صفحه‌ی همان رکورد دقیق‌تر است.</p>
+                    <p class="text-stone-500 leading-relaxed">نشانی همین صفحه همراه گزارش فرستاده می‌شود. برای اصلاح اطلاعات یک نسخه، اثر، شخص یا کتابخانه، دکمۀ «پیشنهاد اصلاح» در صفحۀ همان رکورد دقیق‌تر است.</p>
                     <div class="space-y-1.5">
                         <span class="block font-semibold text-ink">موضوع:</span>
                         @foreach(\App\Suggestions\SuggestionRegistry::FEEDBACK_CATEGORIES as $key => $label)

@@ -15,7 +15,7 @@
             @endif
         </dl>
         <div class="p-4 bg-paper border border-gold text-sm text-ink leading-relaxed whitespace-pre-line break-words">{{ $suggestion->suggested_value }}</div>
-        @foreach(['section' => 'درباره‌ی نمودار', 'question' => 'برای پاسخ به چه پرسشی', 'example' => 'نمونه یا توضیح'] as $key => $label)
+        @foreach(['section' => 'دربارۀ نمودار', 'question' => 'برای پاسخ به چه پرسشی', 'example' => 'نمونه یا توضیح'] as $key => $label)
             @if(! empty($payload[$key]))
                 <p class="text-ink leading-relaxed whitespace-pre-line break-words"><span class="font-bold text-muted">{{ $label }}:</span> {{ $payload[$key] }}</p>
             @endif
@@ -50,7 +50,7 @@
     </x-admin.decision>
 @else
     <x-ui.card class="space-y-2 !border-line-strong text-xs">
-        <h3 class="font-naskh text-lg font-bold text-ink">نتیجه‌ی داوری</h3>
+        <h3 class="font-naskh text-lg font-bold text-ink">نتیجۀ داوری</h3>
         <p><span class="font-bold">پاسخ به فرستنده:</span> <span class="whitespace-pre-line">{{ $suggestion->public_note ?: '—' }}</span></p>
         <p><span class="font-bold">یادداشت داخلی:</span> {{ $suggestion->admin_notes ?: '—' }}</p>
         <p class="text-muted">داوری به دست {{ $suggestion->reviewer?->name ?: 'سامانه' }}، @jdate($suggestion->reviewed_at, 'datetime')</p>

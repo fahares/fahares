@@ -33,8 +33,8 @@ class AuditLog extends Model
         'permissions' => 'تغییر دسترسی',
         'profile_correction' => 'اصلاح شناسنامه',
         'corpus_update' => 'به‌روزرسانی از پیکره',
-        'home_texts' => 'متن‌های صفحه‌ی خانه',
-        'home_item_delete' => 'حذف از صفحه‌ی خانه',
+        'home_texts' => 'متن‌های صفحۀ خانه',
+        'home_item_delete' => 'حذف از صفحۀ خانه',
         'home_cataloger_add' => 'افزودن فهرست‌نگار به خانه',
         'home_cataloger_remove' => 'برداشتن فهرست‌نگار از خانه',
         'post_delete' => 'حذف نوشته',
@@ -60,14 +60,14 @@ class AuditLog extends Model
         FieldSuggestion::class => 'پیشنهاد',
         Page::class => 'صفحه',
         Post::class => 'نوشته',
-        HomeItem::class => 'صفحه‌ی خانه',
+        HomeItem::class => 'صفحۀ خانه',
         SiteSetting::class => 'تنظیمات سایت',
         User::class => 'کاربر',
         MessageTemplate::class => 'قالب پیام',
         Role::class => 'نقش',
         // Operations of the system page, logged without a model
         'System' => 'سامانه',
-        'Meilisearch' => 'نمایه‌ی جست‌وجو',
+        'Meilisearch' => 'نمایۀ جست‌وجو',
     ];
 
     protected function casts(): array

@@ -26,17 +26,17 @@ class SourceLinkController extends Controller
     public const METHODS = [
         'ambiguous' => 'مبهم (چند مدخل هم‌عنوان)',
         'author_death' => 'مؤلف و سال وفات، بی عنوان',
-        'near' => 'در صفحه‌ی همسایه',
+        'near' => 'در صفحۀ همسایه',
         'title_only' => 'فقط عنوان',
         'title_in_text' => 'عنوان در متن مدخل دیگر',
         'author_in_entry' => 'مؤلف در متن مدخل دیگر',
-        'derivative_of_heading' => 'شرح یا ترجمه‌ی سرمدخل',
+        'derivative_of_heading' => 'شرح یا ترجمۀ سرمدخل',
         'llm' => 'مدل زبانی',
         'other_title' => 'عنوان دیگر اثر',
         'title_exact' => 'عنوان یکسان',
         'full_title' => 'عنوان کامل',
         'title_author' => 'عنوان و مؤلف',
-        'cited_number' => 'شماره‌ی مدخل',
+        'cited_number' => 'شمارۀ مدخل',
         'edition_address' => 'نشانی چاپ پیشین و عنوان',
         'edition_title' => 'عنوان، از ارجاع چاپ پیشین',
         'edition_place' => 'جای تخمینی از چاپ پیشین',
@@ -47,7 +47,7 @@ class SourceLinkController extends Controller
      * each let in only after a hand-checked sample. Monzavi's «نسخه‌ها» page with the work's heading: 37 of 40 right.
      */
     public const BULK = [
-        ['source' => 'monzavi', 'method' => 'edition_address', 'min' => 95, 'sample' => 'نمونه‌ی ۴۰تایی: ۳۷ درست'],
+        ['source' => 'monzavi', 'method' => 'edition_address', 'min' => 95, 'sample' => 'نمونۀ ۴۰تایی: ۳۷ درست'],
     ];
 
     public const BULK_QUEUE = 'source-links';
@@ -97,7 +97,7 @@ class SourceLinkController extends Controller
         }
         $batch = Entry::bulkVerify($query, $request->user(), ['queue' => self::BULK_QUEUE, 'min' => $rule['min']] + $this->query($filters), $request->ip());
 
-        return back()->with('success', Fa::num($batch->new_values['count']) . ' پیوند یک‌جا تأیید شد (دسته‌ی #' . Fa::digits($batch->id) . ').');
+        return back()->with('success', Fa::num($batch->new_values['count']) . ' پیوند یک‌جا تأیید شد (دستۀ #' . Fa::digits($batch->id) . ').');
     }
 
     public function revertBulk(Request $request, AuditLog $batch)

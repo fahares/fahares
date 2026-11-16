@@ -30,7 +30,7 @@
         <p class="font-bold text-ink">{{ \App\Support\Fa::digits($sourceVolume->title) }}</p>
         <p class="text-xs text-muted">
             {{ $fa($catalogVolume->manuscripts_count) }} نسخه
-            @if($parted) · {{ $fa($catalogVolume->parts->count()) }} بخش · {{ $fa($partless) }} نسخه‌ی بی‌بخش @endif
+            @if($parted) · {{ $fa($catalogVolume->parts->count()) }} بخش · {{ $fa($partless) }} نسخۀ بی‌بخش @endif
             @if($catalogVolume->publication_year) · چاپ {{ \App\Support\Fa::digits($catalogVolume->publication_year) }}@endif
             @if($catalogVolume->pages_count) · {{ $fa($catalogVolume->pages_count) }} صفحه@endif
             @if($catalogVolume->mtif_entry_id) · MTIF <span dir="ltr">{{ $catalogVolume->mtif_entry_id }}</span>@endif
@@ -50,8 +50,8 @@
                 @if(($preview['form'] ?? null) === 'volume')
                     @include('admin.sources.partials.effect', ['effect' => $preview['effect'], 'done' => false])
                 @endif
-                <x-admin.field label="کتابخانه‌ی جلد" for="library_id" error="library_id" class="max-w-xl"
-                               hint="جلدی که فهرست چند کتابخانه است کتابخانه ندارد و کتابخانه‌ی هر بخش را بخش می‌گوید.">
+                <x-admin.field label="کتابخانۀ جلد" for="library_id" error="library_id" class="max-w-xl"
+                               hint="جلدی که فهرست چند کتابخانه است کتابخانه ندارد و کتابخانۀ هر بخش را بخش می‌گوید.">
                     @include('admin.sources.partials.lazy-select', ['name' => 'library_id', 'id' => 'library_id', 'list' => 'libraries', 'value' => $val('volume', 'library_id', $catalogVolume->library_id), 'empty' => 'بی‌کتابخانه'])
                 </x-admin.field>
 
@@ -64,7 +64,7 @@
                     <p class="font-bold text-ink">فهرست‌نگاران جلد</p>
                     <p class="text-xs text-muted leading-6">
                         @if($parted)
-                            این جلد بخش دارد: نسخه‌ها از راه بخششان به فهرست‌نگار می‌رسند، و کسی که به خود جلد وصل است همه‌ی نسخه‌های جلد را «زیر نظر» دارد.
+                            این جلد بخش دارد: نسخه‌ها از راه بخششان به فهرست‌نگار می‌رسند، و کسی که به خود جلد وصل است همۀ نسخه‌های جلد را «زیر نظر» دارد.
                         @else
                             نخستین «فهرست‌نگار» جلد، فهرست‌نگار نسخه‌های جلد است. برای حذف، نام را روی «—» بگذارید.
                         @endif
@@ -91,7 +91,7 @@
     {{-- The parts --}}
     <x-ui.section title="بخش‌های جلد" :count="$catalogVolume->parts->count()">
         <x-admin.notice class="mb-3 text-xs">
-            بخش نسخه از روی کتابخانه‌ی نسخه گرفته می‌شود. اگر کتابخانه در این جلد بیش از یک بخش داشته باشد، صفحه‌ی ارجاع نسخه بخش را تعیین می‌کند. پس بازه‌ی صفحه فقط در این حالت نسخه‌ها را جابه‌جا می‌کند. در بقیه‌ی حالت‌ها، فقط شمار نسخه‌های «بیرون از بازه» را تغییر می‌دهد.
+            بخش نسخه از روی کتابخانۀ نسخه گرفته می‌شود. اگر کتابخانه در این جلد بیش از یک بخش داشته باشد، صفحۀ ارجاع نسخه بخش را تعیین می‌کند. پس بازۀ صفحه فقط در این حالت نسخه‌ها را جابه‌جا می‌کند. در بقیۀ حالت‌ها، فقط شمار نسخه‌های «بیرون از بازه» را تغییر می‌دهد.
             نسخه‌ای که کتابخانه‌اش در جلد بخشی ندارد، بی‌بخش می‌ماند. هر تغییر را پیش از ذخیره با «پیش‌نمایش اثر» ببینید.
         </x-admin.notice>
 
@@ -127,11 +127,11 @@
                                 'sort' => $val($form, 'sort', $part->sort), 'catalogers' => $partCatalogers]])
                             <div class="pt-3 flex flex-wrap items-center justify-end gap-2 border-t border-line">
                                 <x-ui.btn type="submit" name="preview" value="1">پیش‌نمایش اثر</x-ui.btn>
-                                <x-ui.btn type="submit" variant="primary">ذخیره‌ی بخش</x-ui.btn>
+                                <x-ui.btn type="submit" variant="primary">ذخیرۀ بخش</x-ui.btn>
                             </div>
                         </form>
                         <form action="{{ route('admin.sources.parts.destroy', [$source, $sourceVolume->id, $part]) }}" method="POST" class="mt-2 text-left"
-                              onsubmit="return confirm('بخش «{{ e($part->title) }}» حذف شود؟ {{ $fa($part->manuscripts_count) }} نسخه‌ی آن بی‌بخش می‌شوند، مگر آنکه کتابخانه‌شان بخش دیگری در این جلد داشته باشد.')">
+                              onsubmit="return confirm('بخش «{{ e($part->title) }}» حذف شود؟ {{ $fa($part->manuscripts_count) }} نسخۀ آن بی‌بخش می‌شوند، مگر آنکه کتابخانه‌شان بخش دیگری در این جلد داشته باشد.')">
                             @csrf
                             @method('DELETE')
                             <x-ui.btn type="submit" size="sm" variant="ghost">حذف بخش</x-ui.btn>

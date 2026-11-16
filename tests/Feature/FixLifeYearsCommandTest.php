@@ -25,8 +25,8 @@ class FixLifeYearsCommandTest extends TestCase
         $id = DB::table('people')->insertGetId(['name' => $name, 'normalized_name' => $name, 'slug' => 'years-' . md5($name)] + $cols);
         foreach ($texts as $raw) {
             $n = ++$this->ordinal;
-            Work::create(['primary_title' => "رساله‌ی سال {$n}", 'clean_title' => "رساله‌ی سال {$n}", 'slug' => "test-years-v8-{$n}", 'volume_number' => 8, 'page_start' => $n, 'author_id' => $id]);
-            $this->works[] = ['key' => ['vol' => 8, 'ordinal' => $n], 'title' => "رساله‌ی سال {$n}", 'provenance' => ['page_start' => $n], 'author' => ['name' => $name, 'death_raw' => $raw]];
+            Work::create(['primary_title' => "رسالۀ سال {$n}", 'clean_title' => "رسالۀ سال {$n}", 'slug' => "test-years-v8-{$n}", 'volume_number' => 8, 'page_start' => $n, 'author_id' => $id]);
+            $this->works[] = ['key' => ['vol' => 8, 'ordinal' => $n], 'title' => "رسالۀ سال {$n}", 'provenance' => ['page_start' => $n], 'author' => ['name' => $name, 'death_raw' => $raw]];
         }
 
         return $id;
@@ -96,11 +96,11 @@ class FixLifeYearsCommandTest extends TestCase
 
     public function test_saving_a_person_takes_a_lone_year_and_an_open_dash_as_no_death()
     {
-        $lone = Person::create(['name' => 'ذخیره‌ی سال تنها آزمایشی', 'normalized_name' => 'ذخیره‌ی سال تنها آزمایشی', 'slug' => 'years-lone', 'life_dates_raw' => '1360 قمری', 'death_year_hijri' => 1360]);
+        $lone = Person::create(['name' => 'ذخیرۀ سال تنها آزمایشی', 'normalized_name' => 'ذخیرۀ سال تنها آزمایشی', 'slug' => 'years-lone', 'life_dates_raw' => '1360 قمری', 'death_year_hijri' => 1360]);
         $this->assertSame(['1360 قمری', null, null, 14, null, null], $this->cols($lone->id));
-        $this->assertSame('سده‌ی ۱۴ ق', $lone->fresh()->life_span);
+        $this->assertSame('سدۀ ۱۴ ق', $lone->fresh()->life_span);
 
-        $open = Person::create(['name' => 'ذخیره‌ی خط تیره‌ی باز آزمایشی', 'normalized_name' => 'ذخیره‌ی خط تیره‌ی باز آزمایشی', 'slug' => 'years-open', 'life_dates_raw' => '1357 - قمری', 'death_year_hijri' => 1357]);
+        $open = Person::create(['name' => 'ذخیرۀ خط تیرۀ باز آزمایشی', 'normalized_name' => 'ذخیرۀ خط تیرۀ باز آزمایشی', 'slug' => 'years-open', 'life_dates_raw' => '1357 - قمری', 'death_year_hijri' => 1357]);
         $this->assertSame(['1357 - قمری', 1357, null, 14, null, null], $this->cols($open->id));
         $this->assertSame('ز. ۱۳۵۷ ق', $open->fresh()->life_span);
 

@@ -1,4 +1,4 @@
-@props(['cancel', 'submit' => 'ذخیره‌ی تغییرات'])
+@props(['cancel', 'submit' => 'ذخیرۀ تغییرات'])
 
 {{-- The foot of a panel form: back to the list, and save --}}
 <div class="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line">

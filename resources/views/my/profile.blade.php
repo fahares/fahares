@@ -20,7 +20,7 @@
                 <input type="text" id="affiliation" name="affiliation" value="{{ old('affiliation', $user->affiliation) }}" maxlength="255" class="{{ $field }}">
             </div>
             @include('auth.partials.phone-field', ['value' => $user->phone, 'inputClass' => $field])
-            <x-ui.btn type="submit" variant="primary">ذخیره‌ی مشخصات</x-ui.btn>
+            <x-ui.btn type="submit" variant="primary">ذخیرۀ مشخصات</x-ui.btn>
         </form>
     </x-ui.card>
 
@@ -37,7 +37,7 @@
                     @endswitch
                 </p>
                 <p class="m-0 text-muted text-xs">
-                    تصویر شما در صفحه‌های عمومی فقط کنار پیشنهادهایی می‌آید که اجازه‌ی نمایش نامتان را داده‌اید.
+                    تصویر شما در صفحه‌های عمومی فقط کنار پیشنهادهایی می‌آید که اجازۀ نمایش نامتان را داده‌اید.
                     تصویر به‌شکل مربع از میانه برش داده و کوچک می‌شود.
                 </p>
             </div>
@@ -64,10 +64,10 @@
     </x-ui.card>
 
     <x-ui.card id="search-history" class="space-y-3 scroll-mt-24">
-        <h2 class="rubric text-lg">سابقه‌ی جست‌وجو</h2>
+        <h2 class="rubric text-lg">سابقۀ جست‌وجو</h2>
         <p class="text-xs sm:text-sm text-ink/85 leading-6 m-0">
             جست‌وجوهایی که در فهارس می‌کنید، با حسابتان نگه داشته می‌شود تا ببینیم پژوهشگران چه می‌جویند و کجا جست‌وجو آن‌ها را به نتیجه نمی‌رساند، و جست‌وجو را بهتر کنیم.
-            این سابقه فقط در آمار مدیران سایت دیده می‌شود و هیچ‌جا منتشر نمی‌شود. اگر خاموشش کنید، جست‌وجوهایتان بی‌نام شمرده می‌شود و سابقه‌ی پیشین هم از حسابتان جدا می‌شود.
+            این سابقه فقط در آمار مدیران سایت دیده می‌شود و هیچ‌جا منتشر نمی‌شود. اگر خاموشش کنید، جست‌وجوهایتان بی‌نام شمرده می‌شود و سابقۀ پیشین هم از حسابتان جدا می‌شود.
         </p>
         <form action="{{ route('profile.search-history') }}" method="POST" class="flex flex-wrap items-center gap-3">
             @csrf

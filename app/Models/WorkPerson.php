@@ -28,7 +28,7 @@ class WorkPerson extends Model
         'original_author' => 'مؤلف متن اصلی',
         'dedicatee' => 'تقدیم‌شده به',
         'commissioner' => 'به سفارش یا درخواست',
-        'subject' => 'درباره‌ی (موضوع اثر)',
+        'subject' => 'دربارۀ (موضوع اثر)',
         'editor' => 'مصحح یا ویراستار',
         'other' => 'نقش دیگر',
     ];
@@ -39,7 +39,7 @@ class WorkPerson extends Model
         'original_author' => 'ترجمه‌های آثار او',
         'dedicatee' => 'آثار تقدیم‌شده به او',
         'commissioner' => 'آثار به سفارش او',
-        'subject' => 'آثار درباره‌ی او',
+        'subject' => 'آثار دربارۀ او',
         'editor' => 'آثار به تصحیح او',
         'other' => 'نقش‌های دیگر در آثار',
     ];

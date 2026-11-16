@@ -22,7 +22,7 @@ class EstimateDatesCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->library = Library::create(['name' => 'کتابخانه‌ی آزمایشی تاریخ', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $this->library = Library::create(['name' => 'کتابخانۀ آزمایشی تاریخ', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
     }
 
     private function person(string $name): Person
@@ -159,12 +159,12 @@ class EstimateDatesCommandTest extends TestCase
         $this->assertNull($this->estimate('work', $work->id, 'composition'));
 
         // a reviewer's dismissal survives the next run, and the changed year is taken up
-        DB::table('date_conflicts')->where('id', $conflict->id)->update(['dismissed_at' => now(), 'dismiss_note' => 'تاریخ نسخه‌ی اصل']);
+        DB::table('date_conflicts')->where('id', $conflict->id)->update(['dismissed_at' => now(), 'dismiss_note' => 'تاریخ نسخۀ اصل']);
         DB::table('manuscripts')->where('id', $copy)->update(['copy_date_from' => 1260, 'copy_date_to' => 1260]);
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
 
         $again = DB::table('date_conflicts')->sole();
-        $this->assertSame([$conflict->id, 'تاریخ نسخه‌ی اصل', 1260, 40], [$again->id, $again->dismiss_note, $again->b_to, $again->gap]);
+        $this->assertSame([$conflict->id, 'تاریخ نسخۀ اصل', 1260, 40], [$again->id, $again->dismiss_note, $again->b_to, $again->gap]);
 
         // mended: the conflict goes, and the dates give estimates again
         DB::table('manuscripts')->where('id', $copy)->update(['copy_date_from' => 1310, 'copy_date_to' => 1310]);

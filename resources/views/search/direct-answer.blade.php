@@ -4,13 +4,13 @@
     use App\Support\Fa;
 
     $lib = $direct->library;
-    $libName = $lib ? (str_starts_with($lib->display_name, 'کتابخانه') ? $lib->display_name : 'کتابخانه‌ی ' . $lib->display_name) : null;
+    $libName = $lib ? (str_starts_with($lib->display_name, 'کتابخانه') ? $lib->display_name : 'کتابخانۀ ' . $lib->display_name) : null;
     $place = fn ($l) => trim($l->name . ' ' . $l->city);
     $shown = 12;
 @endphp
 <x-ui.card framed class="space-y-3" x-data="{ more: false }">
     @if($direct->kind === DirectAnswer::NUMBER)
-        <h2 class="rubric text-base">نسخه‌ای با شماره‌ی <span dir="ltr">{{ Fa::digits($direct->number) }}</span> می‌جویید؟</h2>
+        <h2 class="rubric text-base">نسخه‌ای با شمارۀ <span dir="ltr">{{ Fa::digits($direct->number) }}</span> می‌جویید؟</h2>
         <p class="text-xs text-muted">این شماره در {{ Fa::num($direct->libraryCounts->count()) }} کتابخانه هست. کتابخانه را برگزینید:</p>
         <div class="flex flex-wrap gap-1.5 text-xs">
             @foreach($direct->libraryCounts->values() as $i => $row)
@@ -22,13 +22,13 @@
                 </a>
             @endforeach
             @if($direct->libraryCounts->count() > $shown)
-                <button type="button" x-show="!more" @click="more = true" class="px-2.5 py-1 text-cinnabar hover:underline">و {{ Fa::num($direct->libraryCounts->count() - $shown) }} کتابخانه‌ی دیگر</button>
+                <button type="button" x-show="!more" @click="more = true" class="px-2.5 py-1 text-cinnabar hover:underline">و {{ Fa::num($direct->libraryCounts->count() - $shown) }} کتابخانۀ دیگر</button>
             @endif
         </div>
     @else
         <h2 class="rubric text-base">
             @if($direct->kind === DirectAnswer::SHELFMARK)
-                شماره‌ی <span dir="ltr">{{ Fa::digits($direct->number) }}</span> در {{ $libName }}
+                شمارۀ <span dir="ltr">{{ Fa::digits($direct->number) }}</span> در {{ $libName }}
             @else
                 {{ $direct->source ? ($direct->source->short_name ?: $direct->source->title) : ($direct->fankha ? 'فنخا' : 'فهرست‌های ' . $libName) }}@if($direct->volume)، ج {{ Fa::digits($direct->volume) }}@endif، ص {{ Fa::digits($direct->page) }}
             @endif
@@ -72,7 +72,7 @@
                                 <a href="{{ route('manuscripts.show', $item) }}" dir="ltr" class="font-bold text-cinnabar hover:underline tabular-nums">{{ $item->shelfmark ?? 'بی‌شماره' }}</a>
                                 @if($direct->kind === DirectAnswer::CITATION)<span class="text-xs text-muted">{{ $item->libraryRecord?->short_name ?? $item->library }}</span>@endif
                             @endif
-                            <a href="{{ $list === 'works' ? route('works.show', $item) : route('manuscripts.show', $item) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar">{{ $work?->primary_title ?? 'نسخه‌ی بی‌عنوان' }}</a>
+                            <a href="{{ $list === 'works' ? route('works.show', $item) : route('manuscripts.show', $item) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar">{{ $work?->primary_title ?? 'نسخۀ بی‌عنوان' }}</a>
                             @if($work?->author ?? null)<span class="text-xs text-muted">{{ $work->author->name }}</span>@elseif($work?->author_name)<span class="text-xs text-muted">{{ $work->author_name }}</span>@endif
                         </li>
                     @endforeach
@@ -85,7 +85,7 @@
 
         @if($direct->alternatives->isNotEmpty())
             <p class="text-xs text-muted pt-2 border-t border-line">
-                کتابخانه‌ی دیگری با همین نام:
+                کتابخانۀ دیگری با همین نام:
                 @foreach($direct->alternatives as $alt)
                     <a href="{{ route('search', ['q' => $place($alt) . ' ' . ($direct->kind === DirectAnswer::SHELFMARK ? $direct->number : ($direct->volume ? 'ج ' . $direct->volume . ' ' : '') . 'ص ' . $direct->page), 'type' => 'manuscripts']) }}" class="text-cinnabar hover:underline">{{ $alt->display_name }}@if($alt->city) ({{ $alt->city }})@endif</a>@if(! $loop->last)، @endif
                 @endforeach

@@ -25,7 +25,7 @@ class CatalogMatchQueue extends ReviewQueue
     public const ANSWERS = [
         'yes' => 'آری، همین نسخه است',
         'no' => 'نه، این نسخه در این صفحه نیست',
-        'page' => 'در صفحه‌ی دیگری از همین فهرست است',
+        'page' => 'در صفحۀ دیگری از همین فهرست است',
     ];
 
     public function key(): string
@@ -40,7 +40,7 @@ class CatalogMatchQueue extends ReviewQueue
 
     public function blurb(): string
     {
-        return 'برگه‌ی فهرست چاپی کتابخانه را ببینید و بگویید این نسخه همان است که آنجا وصف شده یا نه.';
+        return 'برگۀ فهرست چاپی کتابخانه را ببینید و بگویید این نسخه همان است که آنجا وصف شده یا نه.';
     }
 
     public function open(): Builder
@@ -68,8 +68,8 @@ class CatalogMatchQueue extends ReviewQueue
             return [
                 'library' => ['label' => 'کتابخانه', 'options' => $libraries->sortDesc()
                     ->mapWithKeys(fn ($n, $id) => [$id => ($names[$id] ?? '#' . $id) . ' (' . Fa::num($n) . ')'])->all()],
-                'century' => ['label' => 'سده‌ی کتابت', 'options' => $centuries
-                    ->mapWithKeys(fn ($n, $c) => [(int) $c => 'سده‌ی ' . Fa::digits((string) (int) $c) . ' (' . Fa::num($n) . ')'])->all()],
+                'century' => ['label' => 'سدۀ کتابت', 'options' => $centuries
+                    ->mapWithKeys(fn ($n, $c) => [(int) $c => 'سدۀ ' . Fa::digits((string) (int) $c) . ' (' . Fa::num($n) . ')'])->all()],
                 'subject' => ['label' => 'موضوع', 'options' => $subjects->sortDesc()
                     ->mapWithKeys(fn ($n, $id) => [$id => ($subjectNames[$id] ?? '#' . $id) . ' (' . Fa::num($n) . ')'])->all()],
             ];
@@ -114,7 +114,7 @@ class CatalogMatchQueue extends ReviewQueue
             'text' => $item->cleanEntryText(),
             'facts' => array_filter([
                 'کتابخانه' => $copy?->libraryRecord?->name ?? $copy?->library,
-                'شماره‌ی نسخه' => $copy?->shelfmark ? Fa::digits($copy->shelfmark) : null,
+                'شمارۀ نسخه' => $copy?->shelfmark ? Fa::digits($copy->shelfmark) : null,
                 'کاتب' => $copy?->scribe_name,
                 'تاریخ کتابت' => $copy?->copy_date_raw ? Fa::digits($copy->copy_date_raw) : null,
                 'نوع خط' => $copy?->script_names,
@@ -188,7 +188,7 @@ class CatalogMatchQueue extends ReviewQueue
         $page = SuggestionRegistry::parseCatalogPage($latin)
             ?? (preg_match('/^(?:ص|ستون)?\s*\.?\s*(\d+)$/u', $latin, $m) ? ['volume' => $entry->volumeNumber() ?? 1, 'page' => (int) $m[1], 'row' => null] : null);
         if (! $page) {
-            throw ValidationException::withMessages(['page' => 'شماره‌ی صفحه را بنویسید، مثلاً ۴۵ یا «ج ۲، ص ۴۵».']);
+            throw ValidationException::withMessages(['page' => 'شمارۀ صفحه را بنویسید، مثلاً ۴۵ یا «ج ۲، ص ۴۵».']);
         }
         $value = SuggestionRegistry::formatCatalogPage($page['volume'], $page['page'], null, $entry->source?->unit === 'ستون' ? 'ستون' : 'ص');
         if ($value === $current) {
@@ -203,7 +203,7 @@ class CatalogMatchQueue extends ReviewQueue
         return match (true) {
             $opinion->review_answer === 'yes' => 'همین نسخه است (' . Fa::digits((string) $opinion->current_value) . ')',
             $opinion->review_answer === 'no' => 'این نسخه در آن صفحه نیست',
-            default => 'در صفحه‌ی دیگری است: ' . Fa::digits((string) $opinion->suggested_value),
+            default => 'در صفحۀ دیگری است: ' . Fa::digits((string) $opinion->suggested_value),
         };
     }
 

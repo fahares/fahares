@@ -57,7 +57,7 @@ class WorkPeopleTest extends TestCase
     {
         return $this->suggestJson($extra + [
             'type' => \App\Suggestions\SuggestionRegistry::typeKey($record::class), 'id' => $record->id, 'kind' => 'relation',
-            'field_name' => $key, 'target_id' => $other?->id, 'suggested_value' => '', 'rationale_citation' => 'دیباچه‌ی اثر',
+            'field_name' => $key, 'target_id' => $other?->id, 'suggested_value' => '', 'rationale_citation' => 'دیباچۀ اثر',
         ]);
     }
 

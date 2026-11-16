@@ -72,7 +72,7 @@ class CatalogReferenceController extends Controller
 
         $batch = Entry::bulkVerify($query, $request->user(), $this->filters($request), $request->ip());
 
-        return back()->with('success', Fa::num($batch->new_values['count']) . ' نشانی یک‌جا تأیید شد (دسته‌ی #' . Fa::digits($batch->id) . ').');
+        return back()->with('success', Fa::num($batch->new_values['count']) . ' نشانی یک‌جا تأیید شد (دستۀ #' . Fa::digits($batch->id) . ').');
     }
 
     public function revertBulk(Request $request, AuditLog $batch)
@@ -147,7 +147,7 @@ class CatalogReferenceController extends Controller
     private function reviewed(Request $request, Entry $reference, string $done)
     {
         $message = $reference->citable instanceof Manuscript
-            ? 'نشانی نسخه‌ی «' . Fa::digits($reference->citable->shelfmark) . "» {$done}."
+            ? 'نشانی نسخۀ «' . Fa::digits($reference->citable->shelfmark) . "» {$done}."
             : 'پیوند «' . $reference->citable?->primary_title . "» {$done}.";
         if (! $request->expectsJson()) {
             return back()->with('success', $message);

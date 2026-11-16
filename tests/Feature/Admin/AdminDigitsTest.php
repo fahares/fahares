@@ -38,7 +38,7 @@ class AdminDigitsTest extends TestCase
     public function test_menu_pages_and_review_desk_have_no_latin_digits(): void
     {
         $person = Person::create(['name' => 'شخص آزمایشی ارقام', 'normalized_name' => 'شخص آزمایشی ارقام', 'slug' => 'digits-person-' . uniqid(), 'is_author' => true, 'death_year_hijri' => 1091]);
-        $library = Library::create(['name' => 'کتابخانه‌ی آزمایشی ارقام', 'city' => 'قم', 'slug' => 'digits-library-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی ارقام', 'city' => 'قم', 'slug' => 'digits-library-' . uniqid()]);
         \App\Models\AuditLog::create(['auditable_type' => Library::class, 'auditable_id' => $library->id, 'action' => 'update', 'user_id' => $this->admin->id,
             'old_values' => ['name' => 'نام پیشین'], 'new_values' => ['name' => 'نام تازه'], 'created_at' => now()]);
         $work = Work::create(['primary_title' => 'اثر آزمایشی ٣٤', 'clean_title' => 'اثر آزمایشی', 'slug' => 'digits-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1, 'author_name' => 'نام ۱']);

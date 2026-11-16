@@ -71,7 +71,7 @@
                 </x-admin.field>
             </div>
             <p class="text-xs text-muted leading-6 -mt-2">
-                رتبه‌ی کمتر یعنی منبع معتبرتر، و در فهرست مأخذ یک رکورد زودتر می‌آید. پیش‌فرض هر نوع:
+                رتبۀ کمتر یعنی منبع معتبرتر، و در فهرست مأخذ یک رکورد زودتر می‌آید. پیش‌فرض هر نوع:
                 @foreach(\App\Models\Source::KIND_RANKS as $key => $rank){{ \App\Models\Source::KIND_LABELS[$key] }} {{ $fa($rank) }}@if(! $loop->last)، @endif @endforeach
             </p>
             <x-admin.field label="کتابخانه" for="library_id" error="library_id" hint="فهرستی که از یک کتابخانه است. فهرست چندکتابخانه‌ای کتابخانه ندارد؛ بخش‌هایش کتابخانه دارند.">
@@ -96,7 +96,7 @@
                     <x-admin.th>بخش</x-admin.th>
                     <x-admin.th>نسخه</x-admin.th>
                     <x-admin.th>مدخل</x-admin.th>
-                    <x-admin.th>صفحه‌ی متنی</x-admin.th>
+                    <x-admin.th>صفحۀ متنی</x-admin.th>
                     <x-admin.th><span class="sr-only">کنش‌ها</span></x-admin.th>
                 </x-slot:head>
                 @foreach($volumes as $volume)
@@ -119,7 +119,7 @@
                         <x-admin.cell label="بخش" class="tabular-nums">{{ $cv?->parts_count ? $fa($cv->parts_count) : '—' }}</x-admin.cell>
                         <x-admin.cell label="نسخه" class="tabular-nums">{{ $fa($cv?->manuscripts_count ?? 0) }}</x-admin.cell>
                         <x-admin.cell label="مدخل" class="tabular-nums">{{ $fa($entries[$volume->id] ?? 0) }}</x-admin.cell>
-                        <x-admin.cell label="صفحه‌ی متنی" class="tabular-nums">{{ isset($pages[$volume->id]) ? $fa($pages[$volume->id]) : '—' }}</x-admin.cell>
+                        <x-admin.cell label="صفحۀ متنی" class="tabular-nums">{{ isset($pages[$volume->id]) ? $fa($pages[$volume->id]) : '—' }}</x-admin.cell>
                         <x-admin.cell actions>
                             <x-ui.btn :href="route('admin.sources.volume', [$source, $volume->id])" size="sm">جلد و بخش‌ها</x-ui.btn>
                         </x-admin.cell>

@@ -46,7 +46,7 @@ class VisitStatsTest extends TestCase
 
     private function library(): Library
     {
-        return Library::create(['name' => 'کتابخانه‌ی آزمایشی بازدید', 'city' => 'قم', 'slug' => 'visit-library-' . uniqid()]);
+        return Library::create(['name' => 'کتابخانۀ آزمایشی بازدید', 'city' => 'قم', 'slug' => 'visit-library-' . uniqid()]);
     }
 
     public function test_a_page_view_is_noted_after_the_response_without_the_ip_and_loaded_later(): void

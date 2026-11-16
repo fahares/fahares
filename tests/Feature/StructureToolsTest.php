@@ -86,8 +86,8 @@ class StructureToolsTest extends TestCase
     {
         $editor = User::create(['name' => 'ویراستار', 'email' => uniqid('st-ed-') . '@example.test', 'password' => 'password123', 'role' => 'editor']);
         Permissions::save(['editor' => Permissions::defaults()['editor']]);
-        $library = $this->library('کتابخانه‌ی دسترسی');
-        $other = $this->library('کتابخانه‌ی دیگر');
+        $library = $this->library('کتابخانۀ دسترسی');
+        $other = $this->library('کتابخانۀ دیگر');
         $ms = $this->manuscript();
 
         $this->assertNotContains('structure.direct', Permissions::defaults()['editor']);
@@ -100,7 +100,7 @@ class StructureToolsTest extends TestCase
         Permissions::save(['editor' => array_merge(Permissions::defaults()['editor'], ['structure.direct'])]);
         $this->actingAs($editor)->get(route('admin.structure.show', ['manuscript', $ms->id]))->assertOk()
             ->assertSee('انتقال نسخه به اثر دیگر')->assertDontSee('حذف رکورد زائد');
-        $this->actingAs($editor)->get(route('admin.structure.show', ['library', $library->id]))->assertOk()->assertDontSee('ادغام کتابخانه‌ی تکراری');
+        $this->actingAs($editor)->get(route('admin.structure.show', ['library', $library->id]))->assertOk()->assertDontSee('ادغام کتابخانۀ تکراری');
         $this->apply($library, ['relation' => 'duplicate', 'target' => (string) $other->id], $editor)->assertForbidden();
         $this->apply($ms, ['relation' => 'redundant'], $editor)->assertForbidden();
         $this->assertTrue(Library::whereKey($library->id)->exists());
@@ -114,12 +114,12 @@ class StructureToolsTest extends TestCase
 
     public function test_a_duplicate_library_is_merged_directly_after_a_preview_and_the_merge_undone()
     {
-        $dup = $this->library('کتابخانه‌ی تکراری');
-        $kept = $this->library('کتابخانه‌ی ماندنی');
+        $dup = $this->library('کتابخانۀ تکراری');
+        $kept = $this->library('کتابخانۀ ماندنی');
         $m = $this->manuscript(['library_id' => $dup->id, 'library' => $dup->name, 'city' => 'قم', 'shelfmark' => '7']);
 
         $this->preview($dup, ['relation' => 'duplicate', 'target' => 'fahares.net/libraries/' . $kept->id])->assertOk()
-            ->assertSee('پیش‌نمایش: ادغام کتابخانه‌ی تکراری')->assertSee('۱ نسخه و ۰ جلد فهرست از «کتابخانه‌ی تکراری» منتقل می‌شوند')
+            ->assertSee('پیش‌نمایش: ادغام کتابخانۀ تکراری')->assertSee('۱ نسخه و ۰ جلد فهرست از «کتابخانۀ تکراری» منتقل می‌شوند')
             ->assertSee('کدام کتابخانه بماند؟')->assertSee(route('admin.structure.apply', ['library', $dup->id]), false);
         $this->assertSame(0, FieldSuggestion::count(), 'a preview files nothing');
 
@@ -143,7 +143,7 @@ class StructureToolsTest extends TestCase
     {
         $library = $this->library('نام قدیم');
         $this->manuscript(['library_id' => $library->id, 'library' => $library->name]);
-        $this->preview($library, ['relation' => 'renamed'])->assertOk()->assertSee('نام تازه‌ی کتابخانه را بنویسید');
+        $this->preview($library, ['relation' => 'renamed'])->assertOk()->assertSee('نام تازۀ کتابخانه را بنویسید');
         $this->preview($library, ['relation' => 'renamed', 'suggested_value' => 'نام تازه'])->assertOk()->assertSee('نام کتابخانه در ۱ نسخه‌اش هم به‌روز می‌شود');
         $this->apply($library, ['relation' => 'renamed', 'suggested_value' => 'نام تازه', 'name' => 'نام تازه', 'keep_former_name' => '1'])->assertSessionHasNoErrors();
         $this->assertSame(['نام تازه', 'نام تازه'], [$library->fresh()->name, Manuscript::where('library_id', $library->id)->value('library')]);
@@ -152,7 +152,7 @@ class StructureToolsTest extends TestCase
 
     public function test_a_duplicate_work_is_merged_directly_and_the_preview_names_what_moves()
     {
-        $library = $this->library('کتابخانه‌ی آثار');
+        $library = $this->library('کتابخانۀ آثار');
         $dup = $this->work(['primary_title' => 'اثر تکراری', 'description' => 'معرفی تکراری']);
         $kept = $this->work(['primary_title' => 'اثر ماندنی', 'description' => 'معرفی ماندنی']);
         $same = ['library_id' => $library->id, 'library' => $library->name, 'city' => 'قم', 'shelfmark' => '5'];
@@ -161,8 +161,8 @@ class StructureToolsTest extends TestCase
         $moved = $this->manuscript(['work_id' => $dup->id, 'shelfmark' => '6'] + $same);
 
         $this->preview($dup, ['relation' => 'duplicate', 'target' => (string) $kept->id])->assertOk()
-            ->assertSee('۱ نسخه منتقل و ۱ نسخه‌ی هم‌نشانی ادغام می‌شود')
-            ->assertSee('۱ مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند (پیش‌فرض: مقدار رکورد ماندنی، و مقدار دیگر «قول دیگر» یا پشت آن)')->assertSee('مقایسه‌ی فیلدها');
+            ->assertSee('۱ نسخه منتقل و ۱ نسخۀ هم‌نشانی ادغام می‌شود')
+            ->assertSee('۱ مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند (پیش‌فرض: مقدار رکورد ماندنی، و مقدار دیگر «قول دیگر» یا پشت آن)')->assertSee('مقایسۀ فیلدها');
         $this->apply($dup, ['relation' => 'duplicate', 'target' => (string) $kept->id, 'keep' => 'target'])->assertSessionHasNoErrors();
 
         $this->assertNull(Work::find($dup->id));
@@ -197,10 +197,10 @@ class StructureToolsTest extends TestCase
         $work = $this->work(['primary_title' => 'اثر خلط‌شده']);
         $this->manuscript(['work_id' => $work->id]);
         $go = $this->manuscript(['work_id' => $work->id, 'shelfmark' => 'دیگر']);
-        $query = ['relation' => 'conflated', 'suggested_value' => 'نسخه‌ی «دیگر» از رساله‌ی دیگری است'];
+        $query = ['relation' => 'conflated', 'suggested_value' => 'نسخۀ «دیگر» از رسالۀ دیگری است'];
         $this->preview($work, $query)->assertOk()->assertSee('عنوان اثر تازه')->assertSee('نسخه‌هایی که از اثر تازه‌اند');
-        $this->apply($work, $query + ['new_title' => 'رساله‌ی جدا', 'author' => 'none', 'manuscript_ids' => [$go->id]])->assertSessionHasNoErrors();
-        $created = Work::where('primary_title', 'رساله‌ی جدا')->sole();
+        $this->apply($work, $query + ['new_title' => 'رسالۀ جدا', 'author' => 'none', 'manuscript_ids' => [$go->id]])->assertSessionHasNoErrors();
+        $created = Work::where('primary_title', 'رسالۀ جدا')->sole();
         $this->assertSame($created->id, $go->fresh()->work_id);
         $this->assertDirectlyApplied($this->direct());
 
@@ -234,8 +234,8 @@ class StructureToolsTest extends TestCase
 
     public function test_people_scribes_relations_and_locations_are_linked_directly()
     {
-        $library = $this->library('کتابخانه‌ی نخست');
-        $newLibrary = $this->library('کتابخانه‌ی تازه');
+        $library = $this->library('کتابخانۀ نخست');
+        $newLibrary = $this->library('کتابخانۀ تازه');
         $ms = $this->manuscript(['library_id' => $library->id, 'library' => $library->name, 'shelfmark' => '1']);
         $other = $this->manuscript(['work_id' => $ms->work_id]);
         $scribe = $this->person('کاتب درست');

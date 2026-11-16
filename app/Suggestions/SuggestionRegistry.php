@@ -89,13 +89,13 @@ class SuggestionRegistry
     public const RELATIONS = [
         'manuscript' => [
             'move_to_work' => ['label' => 'این نسخه از اثر دیگری است', 'target' => 'work', 'action' => 'انتقال نسخه به اثر دیگر', 'apply' => 'move'],
-            'duplicate' => ['label' => 'این نسخه تکراری است (همان نسخه‌ی دیگری است)', 'target' => 'manuscript', 'action' => 'ادغام نسخه‌ی تکراری', 'apply' => 'merge'],
+            'duplicate' => ['label' => 'این نسخه تکراری است (همان نسخۀ دیگری است)', 'target' => 'manuscript', 'action' => 'ادغام نسخۀ تکراری', 'apply' => 'merge'],
             'scribe_is' => ['label' => 'کاتب این نسخه همان شخصی است که در فهارس ثبت شده', 'target' => 'person', 'action' => 'پیوند کاتب به این شخص', 'apply' => 'contributor_set'],
             'scribe_also' => ['label' => 'کاتب دیگری هم در کتابت این نسخه سهم داشته است', 'target' => 'person', 'action' => 'افزودن کاتب', 'apply' => 'contributor_add'],
             'person_role' => ['label' => 'شخص دیگری با این نسخه مرتبط است (مالک، واقف، مصحح، محشی…)', 'target' => 'person', 'target_optional' => true, 'action' => 'افزودن شخص مرتبط با نسخه', 'apply' => 'person_role'],
-            'manuscript_relation' => ['label' => 'این نسخه با نسخه‌ی دیگری رابطه دارد (استنساخ، مقابله، مجلد دیگر، نسخه‌ی عکسی یا میکروفیلم)', 'target' => 'manuscript', 'action' => 'ثبت رابطه‌ی دو نسخه', 'apply' => 'record_relation'],
+            'manuscript_relation' => ['label' => 'این نسخه با نسخۀ دیگری رابطه دارد (استنساخ، مقابله، مجلد دیگر، نسخۀ عکسی یا میکروفیلم)', 'target' => 'manuscript', 'action' => 'ثبت رابطۀ دو نسخه', 'apply' => 'record_relation'],
             // The new library is optional (only the number changed); payload.shelfmark carries the new number
-            'relocated' => ['label' => 'این نسخه به کتابخانه‌ی دیگری منتقل شده یا شماره‌اش تغییر کرده است', 'target' => 'library', 'target_optional' => true, 'action' => 'تغییر کتابخانه یا شماره‌ی نسخه', 'apply' => 'relocate'],
+            'relocated' => ['label' => 'این نسخه به کتابخانۀ دیگری منتقل شده یا شماره‌اش تغییر کرده است', 'target' => 'library', 'target_optional' => true, 'action' => 'تغییر کتابخانه یا شمارۀ نسخه', 'apply' => 'relocate'],
             'redundant' => ['label' => 'این رکورد زائد است (نسخه‌ای وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه نسخه ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
         ],
         'work' => [
@@ -105,13 +105,13 @@ class SuggestionRegistry
             'person_role' => ['label' => 'شخص دیگری با این اثر مرتبط است (مترجم، تقدیم‌شده به، به سفارش، مصحح…)', 'target' => 'person', 'target_optional' => true, 'action' => 'افزودن شخص مرتبط با اثر', 'apply' => 'person_role'],
             // remove: the reviewer picks the row to delete; role, person or name only point at it
             'person_role_removed' => ['label' => 'یکی از اشخاص مرتبط با این اثر نادرست ثبت شده است و باید حذف شود', 'target' => 'person', 'target_optional' => true, 'action' => 'حذف شخص مرتبط با اثر', 'apply' => 'person_role', 'remove' => true],
-            'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطه‌ی دو اثر', 'apply' => 'record_relation'],
+            'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطۀ دو اثر', 'apply' => 'record_relation'],
             'redundant' => ['label' => 'این رکورد زائد است (اثری وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه اثر ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
             'conflated' => ['label' => 'دو اثر متفاوت در این رکورد خلط شده‌اند (برخی نسخه‌ها از اثر دیگری‌اند)', 'target' => null, 'action' => 'تفکیک اثر', 'apply' => 'split', 'needs_text' => true],
         ],
         'library' => [
-            'duplicate' => ['label' => 'این کتابخانه تکراری است (همان کتابخانه‌ی دیگری است)', 'target' => 'library', 'action' => 'ادغام کتابخانه‌ی تکراری', 'apply' => 'merge_library'],
-            'merged_into' => ['label' => 'این کتابخانه با کتابخانه‌ی دیگری ادغام شده و نسخه‌هایش اکنون آنجاست', 'target' => 'library', 'action' => 'ادغام در کتابخانه‌ی دیگر', 'apply' => 'merge_library'],
+            'duplicate' => ['label' => 'این کتابخانه تکراری است (همان کتابخانۀ دیگری است)', 'target' => 'library', 'action' => 'ادغام کتابخانۀ تکراری', 'apply' => 'merge_library'],
+            'merged_into' => ['label' => 'این کتابخانه با کتابخانۀ دیگری ادغام شده و نسخه‌هایش اکنون آنجاست', 'target' => 'library', 'action' => 'ادغام در کتابخانۀ دیگر', 'apply' => 'merge_library'],
             'renamed' => ['label' => 'نام این کتابخانه تغییر کرده است', 'target' => null, 'action' => 'تغییر نام کتابخانه', 'apply' => 'rename_library', 'needs_text' => true],
         ],
         // The people of the source's volumes (step 14.58): a cataloger from the list, or only a name; the volume is
@@ -125,7 +125,7 @@ class SuggestionRegistry
             'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias', 'needs_text' => true],
             // A period of the person's life (item 139, step 14.219): the kind in payload.role, where, when and the source in
             // the text; the reviewer enters the place and the years on approval. no_direct: a reviewer adds one on the person's page.
-            'period' => ['label' => 'دوره‌ای از زندگی این شخص (اقامت، تحصیل، تدریس، سفر، منصب)', 'target' => null, 'action' => 'ثبت دوره‌ی زندگی', 'apply' => 'person_period', 'needs_text' => true, 'no_direct' => true],
+            'period' => ['label' => 'دوره‌ای از زندگی این شخص (اقامت، تحصیل، تدریس، سفر، منصب)', 'target' => null, 'action' => 'ثبت دورۀ زندگی', 'apply' => 'person_period', 'needs_text' => true, 'no_direct' => true],
             'redundant' => ['label' => 'این رکورد زائد است (شخصی با این نام وجود ندارد؛ مثلاً عنوان یا عبارتی که به‌اشتباه نام شخص ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
             'conflated' => ['label' => 'دو شخص متفاوت در این رکورد خلط شده‌اند (برخی آثار یا نسخه‌ها از شخص دیگری‌اند)', 'target' => null, 'action' => 'تفکیک شخص', 'apply' => 'split', 'needs_text' => true],
         ],
@@ -138,7 +138,7 @@ class SuggestionRegistry
     public const QUEUE_RELATIONS = [
         'person' => [
             'namesakes_apart' => ['label' => 'این اشخاص هم‌نام چند نفرند و جدا می‌مانند', 'target' => null, 'action' => 'جدا ماندن اشخاص هم‌نام', 'apply' => 'queue', 'queue_only' => true],
-            'one_person' => ['label' => 'همه‌ی نسخه‌های این رکورد از یک نفرند', 'target' => null, 'action' => 'یک نفر بودن رکورد', 'apply' => 'queue', 'queue_only' => true],
+            'one_person' => ['label' => 'همۀ نسخه‌های این رکورد از یک نفرند', 'target' => null, 'action' => 'یک نفر بودن رکورد', 'apply' => 'queue', 'queue_only' => true],
         ],
         'work' => [
             'author_not' => ['label' => 'پدیدآور این اثر آن شخص نیست', 'target' => null, 'action' => 'رد پیوند پدیدآور', 'apply' => 'queue', 'queue_only' => true],
@@ -215,8 +215,8 @@ class SuggestionRegistry
         'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
         'has_author_marginalia' => 'حواشی به خط مؤلف',
         'corrected_by_author' => 'مقابله یا تصحیح به دست مؤلف',
-        'collated_with_author_copy' => 'مقابله با نسخه‌ی مؤلف',
-        'copied_from_author_copy' => 'کتابت از روی نسخه‌ی مؤلف',
+        'collated_with_author_copy' => 'مقابله با نسخۀ مؤلف',
+        'copied_from_author_copy' => 'کتابت از روی نسخۀ مؤلف',
         'is_illuminated' => 'تذهیب و سرلوح',
         'is_illustrated' => 'نگاره و نقاشی',
         'is_corrected' => 'تصحیح‌شده (مصحح)',
@@ -280,7 +280,7 @@ class SuggestionRegistry
         }
         $page = self::parseCatalogPage($value);
         if (! $page) {
-            throw \Illuminate\Validation\ValidationException::withMessages(['suggested_value' => 'شماره‌ی جلد و صفحه را بنویسید.']);
+            throw \Illuminate\Validation\ValidationException::withMessages(['suggested_value' => 'شمارۀ جلد و صفحه را بنویسید.']);
         }
 
         return self::formatCatalogPage($page['volume'], $page['page'], $page['row'], $field['unit'] ?? 'ص');
@@ -546,8 +546,8 @@ class SuggestionRegistry
             'scribe_name' => ['label' => 'کاتب', 'input' => 'person', 'id_column' => 'scribe_id', 'role' => 'scribe', 'bit_column' => 'is_bika', 'bit_label' => 'بی‌کاتب', 'autograph_column' => 'is_autograph'],
             'copy_date_raw' => ['label' => 'تاریخ کتابت', 'input' => 'hijri_date', 'year_column' => 'copy_date_hijri_year', 'bit_column' => 'is_bita', 'bit_label' => 'بی‌تاریخ'],
             'copy_place' => ['label' => 'محل کتابت', 'input' => 'text'],
-            'commissioned_by' => ['label' => 'سفارش‌دهنده‌ی کتابت', 'input' => 'text'],
-            'shelfmark' => ['label' => 'شماره‌ی نسخه', 'input' => 'text'],
+            'commissioned_by' => ['label' => 'سفارش‌دهندۀ کتابت', 'input' => 'text'],
+            'shelfmark' => ['label' => 'شمارۀ نسخه', 'input' => 'text'],
             'script_names' => ['label' => 'نوع خط', 'input' => 'text'],
             'script_style' => ['label' => 'کیفیت خط', 'input' => 'text'],
             'folios' => ['label' => 'تعداد برگ', 'input' => 'integer'],
@@ -604,7 +604,7 @@ class SuggestionRegistry
             'birth_year_hijri' => ['label' => 'سال تولد (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_hijri' => ['label' => 'سال وفات (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_gregorian' => ['label' => 'سال وفات (میلادی)', 'input' => 'integer', 'min' => 500, 'max' => 2100],
-            'bio_notes' => ['label' => 'زندگی‌نامه‌ی کوتاه', 'input' => 'textarea'],
+            'bio_notes' => ['label' => 'زندگی‌نامۀ کوتاه', 'input' => 'textarea'],
         ];
     }
 

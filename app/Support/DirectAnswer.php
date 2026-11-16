@@ -23,7 +23,7 @@ class DirectAnswer
     public const CITATION = 'citation';
 
     /** Words around a shelfmark or a citation that name nothing */
-    private const FILLER = ['کتابخانه', 'کتابخانه ی', 'کتابخانه‌ی', 'ی', 'نسخه', 'نسخه ی', 'شماره', 'شماره ی', 'ش', 'شم', 'فهرست', 'ف', 'در', 'از', 'نسخ', 'خطی', 'مخطوط'];
+    private const FILLER = ['کتابخانه', 'کتابخانه ی', 'کتابخانه‌ی', 'کتابخانۀ', 'ی', 'نسخه', 'نسخه ی', 'نسخه‌ی', 'نسخۀ', 'شماره', 'شماره ی', 'شماره‌ی', 'شمارۀ', 'ش', 'شم', 'فهرست', 'ف', 'در', 'از', 'نسخ', 'خطی', 'مخطوط'];
 
     /** The union catalogue is cited by these, not by a library */
     private const FANKHA = ['فنخا', 'فهرستگان'];

@@ -36,12 +36,12 @@ class SearchAliveCenturyTest extends TestCase
             DB::table('works')->where('id', $w->id)->update(['composition_date_from' => $year, 'composition_date_to' => $year]);
             DB::table('work_people')->insert(['work_id' => $w->id, 'person_id' => $author->id, 'role' => 'author', 'position' => 0]);
         };
-        $this->dead = $person('مؤلف درگذشته‌ی سده‌ی نهم آزمایشی', 880);
+        $this->dead = $person('مؤلف درگذشتۀ سدۀ نهم آزمایشی', 880);
         $work($this->dead, 870);
         // no death year, a work of 859
-        $this->alive = $person('مؤلف زنده‌ی سده‌ی نهم آزمایشی', null);
+        $this->alive = $person('مؤلف زندۀ سدۀ نهم آزمایشی', null);
         $work($this->alive, 859);
-        $this->unknown = $person('مؤلف بی‌قرینه‌ی آزمایشی', null);
+        $this->unknown = $person('مؤلف بی‌قرینۀ آزمایشی', null);
         $work($this->unknown, null);
 
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
@@ -88,10 +88,10 @@ class SearchAliveCenturyTest extends TestCase
     {
         $base = ['type' => 'authors', 'century' => '9', 'sort' => 'oldest'];
 
-        $this->get(route('search', $base))->assertOk()->assertSee('مؤلف درگذشته‌ی سده‌ی نهم آزمایشی')->assertDontSee('مؤلف زنده‌ی سده‌ی نهم آزمایشی')
-            ->assertSee('با سده‌ی فعالیت اشخاصِ بی‌تاریخ وفات');
+        $this->get(route('search', $base))->assertOk()->assertSee('مؤلف درگذشتۀ سدۀ نهم آزمایشی')->assertDontSee('مؤلف زندۀ سدۀ نهم آزمایشی')
+            ->assertSee('با سدۀ فعالیت اشخاصِ بی‌تاریخ وفات');
         $this->get(route('search', $base + ['estimates' => '1']))->assertOk()
-            ->assertSeeInOrder(['مؤلف زنده‌ی سده‌ی نهم آزمایشی', 'زنده در ۸۵۹ ق (تخمینی)', 'مؤلف درگذشته‌ی سده‌ی نهم آزمایشی'])
-            ->assertDontSee('مؤلف بی‌قرینه‌ی آزمایشی');
+            ->assertSeeInOrder(['مؤلف زندۀ سدۀ نهم آزمایشی', 'زنده در ۸۵۹ ق (تخمینی)', 'مؤلف درگذشتۀ سدۀ نهم آزمایشی'])
+            ->assertDontSee('مؤلف بی‌قرینۀ آزمایشی');
     }
 }

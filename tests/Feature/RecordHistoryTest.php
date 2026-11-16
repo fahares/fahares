@@ -97,9 +97,9 @@ class RecordHistoryTest extends TestCase
 
         $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر، این نسخه از اثر «اثر نخستین» به اثر «خلق الاعمال» منتقل شد.', $this->text($this->page($ms)));
         $target = $this->text($this->page($to));
-        $this->assertStringContainsString('تاریخچه‌ی اصلاحات', $target);
-        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از اثر «اثر نخستین» به این اثر منتقل شد\./u', $target);
-        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از این اثر به اثر «خلق الاعمال» منتقل شد\./u', $this->text($this->page($from)));
+        $this->assertStringContainsString('تاریخچۀ اصلاحات', $target);
+        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخۀ «[^»]+» از اثر «اثر نخستین» به این اثر منتقل شد\./u', $target);
+        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخۀ «[^»]+» از این اثر به اثر «خلق الاعمال» منتقل شد\./u', $this->text($this->page($from)));
         $this->page($to)->assertSee(route('contributors.show', $this->researcher), false)->assertDontSee('نام حساب پژوهشگر');
     }
 
@@ -113,7 +113,7 @@ class RecordHistoryTest extends TestCase
             'suggested_value' => 'متن در انتظار داوری', 'status' => 'pending', 'user_id' => $this->researcher->id, 'credit_name' => 'نام در انتظار']);
 
         $text = $this->text($this->page($work));
-        $this->assertStringContainsString('به پیشنهاد ' . Contributions::ANONYMOUS_LABEL . '، نسخه‌ی', $text);
+        $this->assertStringContainsString('به پیشنهاد ' . Contributions::ANONYMOUS_LABEL . '، نسخۀ', $text);
         $this->assertStringNotContainsString('نام حساب پژوهشگر', $text);
         $this->assertStringNotContainsString('نام در انتظار', $text);
         $this->assertStringNotContainsString('متن در انتظار داوری', $text);
@@ -121,20 +121,20 @@ class RecordHistoryTest extends TestCase
 
     public function test_the_editors_own_change_reads_as_theirs_and_a_record_without_corrections_has_no_section()
     {
-        $kept = $this->library('کتابخانه‌ی ماندنی');
-        $duplicate = $this->library('کتابخانه‌ی تکراری');
+        $kept = $this->library('کتابخانۀ ماندنی');
+        $duplicate = $this->library('کتابخانۀ تکراری');
         $this->apply($duplicate, ['relation' => 'duplicate', 'target' => (string) $kept->id, 'keep' => 'target']);
 
         $text = $this->text($this->page($kept->fresh()));
-        $this->assertStringContainsString('به دست ' . Contributions::STAFF_LABEL . '، رکورد تکراری «کتابخانه‌ی تکراری» در این رکورد ادغام شد.', $text);
-        $this->page($this->library('کتابخانه‌ی بی‌اصلاح'))->assertDontSee('تاریخچه‌ی اصلاحات');
+        $this->assertStringContainsString('به دست ' . Contributions::STAFF_LABEL . '، رکورد تکراری «کتابخانۀ تکراری» در این رکورد ادغام شد.', $text);
+        $this->page($this->library('کتابخانۀ بی‌اصلاح'))->assertDontSee('تاریخچۀ اصلاحات');
     }
 
     public function test_a_relocated_copy_keeps_its_earlier_place_and_shows_on_both_libraries()
     {
         // a name starting with «د», whose first byte is that of «،» (production suggestion 46, «دیانی»)
         $old = $this->library('دیانی پیشین');
-        $new = $this->library('کتابخانه‌ی تازه');
+        $new = $this->library('کتابخانۀ تازه');
         $ms = $this->manuscript($this->work('اثر جابه‌جا'), ['library_id' => $old->id, 'library' => $old->name, 'shelfmark' => '12']);
 
         $this->apply($ms, ['relation' => 'relocated', 'target' => (string) $new->id, 'shelfmark' => '99', 'library_choice' => 'target']);
@@ -142,7 +142,7 @@ class RecordHistoryTest extends TestCase
         $this->assertSame([$old->id, '12', $new->id, '99'], [$s->resolution['from_library_id'], $s->resolution['from_shelfmark'], $s->resolution['library_id'], $s->resolution['shelfmark']]);
 
         foreach ([$old, $new] as $library) {
-            $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از «دیانی پیشین، ش 12» به «کتابخانه‌ی تازه، ش 99» منتقل شد\./u', $this->text($this->page($library)));
+            $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخۀ «[^»]+» از «دیانی پیشین، ش 12» به «کتابخانۀ تازه، ش 99» منتقل شد\./u', $this->text($this->page($library)));
         }
         $this->assertStringContainsString('این نسخه از «دیانی پیشین، ش 12»', $this->text($this->page($ms)));
     }
@@ -160,7 +160,7 @@ class RecordHistoryTest extends TestCase
             $text = $this->text($page);
             $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر، رابطه ثبت شد:', $text);
             // the relation itself carries the name too
-            $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر', strip_tags(explode('تاریخچه‌ی اصلاحات', $page->getContent())[0]));
+            $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر', strip_tags(explode('تاریخچۀ اصلاحات', $page->getContent())[0]));
         }
 
         $author = $this->person('مؤلف درست');
@@ -182,7 +182,7 @@ class RecordHistoryTest extends TestCase
         AuditLog::create(['action' => 'verify', 'auditable_type' => Manuscript::class, 'auditable_id' => $ms->id,
             'old_values' => ['work_id' => $from->id], 'new_values' => ['work_id' => $to->id, 'suggestion_id' => $s->id]]);
 
-        $this->page($from)->assertDontSee('تاریخچه‌ی اصلاحات');
+        $this->page($from)->assertDontSee('تاریخچۀ اصلاحات');
         $this->artisan('fahares:backfill-suggestion-resolution')->expectsOutputToContain('Would write: 1 of 1')->assertSuccessful();
         $this->assertArrayNotHasKey('from_work_id', $s->fresh()->resolution);
 
@@ -190,13 +190,13 @@ class RecordHistoryTest extends TestCase
         $this->assertSame($from->id, $s->fresh()->resolution['from_work_id']);
         $this->artisan('fahares:backfill-suggestion-resolution')->expectsOutputToContain('Would write: 0 of 0')->assertSuccessful();
 
-        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از این اثر به اثر «اثر مقصد قدیمی» منتقل شد\./u', $this->text($this->page($from)));
+        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخۀ «[^»]+» از این اثر به اثر «اثر مقصد قدیمی» منتقل شد\./u', $this->text($this->page($from)));
     }
 
     public function test_a_reading_a_merge_kept_names_the_catalogue_not_a_submitter_and_is_not_a_researchers_correction()
     {
         $ms = $this->manuscript($this->work('اثر دو معرفی'), ['folios' => '37']);
-        $library = $this->library('کتابخانه‌ی قمر');
+        $library = $this->library('کتابخانۀ قمر');
         $reading = fn ($record, string $field, string $value, array $resolution, string $credit) => FieldSuggestion::create([
             'suggestable_type' => $record::class, 'suggestable_id' => $record->id, 'kind' => 'field', 'field_name' => $field,
             'current_value' => 'مقدار ماندنی', 'suggested_value' => $value, 'credit_name' => $credit, 'status' => 'approved',
@@ -281,7 +281,7 @@ class RecordHistoryTest extends TestCase
         $this->assertSame($folios->id, json_decode(file_get_contents($backup), true)['copies'][0]['readings'][0]['id']);
 
         $text = $this->text($this->page($ms));
-        $this->assertStringContainsString('نشانی پیشین: شیخ علی حیدر، مشهد، شماره‌ی ۴۶۵/۴، برگ ۲۱۳پ تا ۲۴۶پ (۳۴ برگ) (در مؤید: ۱-۳۷۵)', $text);
+        $this->assertStringContainsString('نشانی پیشین: شیخ علی حیدر، مشهد، شمارۀ ۴۶۵/۴، برگ ۲۱۳پ تا ۲۴۶پ (۳۴ برگ) (در مؤید: ۱-۳۷۵)', $text);
         $this->assertStringContainsString('معرفی «شیخ علی حیدر، ش 465/4»، برگ ۲۱۳پ تا ۲۴۶پ (۳۴ برگ) (مؤید: 1-375) در این رکورد ادغام شد.', $text);
         @unlink($run);
         @unlink($backup);

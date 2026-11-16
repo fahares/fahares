@@ -80,7 +80,7 @@ export default (config) => ({
     },
 
     get countLabel() {
-        return this.last ? `صفحه‌ی ${fa(this.page)} از ${fa(this.last)}` : `صفحه‌ی ${fa(this.page)}`;
+        return this.last ? `صفحۀ ${fa(this.page)} از ${fa(this.last)}` : `صفحۀ ${fa(this.page)}`;
     },
 
     get zoomLabel() {

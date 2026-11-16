@@ -131,7 +131,7 @@ class PersonReviewController extends Controller
             return back()->withInput()->withErrors(['new_name' => $e->getMessage()]);
         }
 
-        return back()->with('success', sprintf('%d نسخه به شخص تازه‌ی «%s» (#%d) منتقل شد.', count($result['manuscript_ids']), $validated['new_name'], $result['created_id']));
+        return back()->with('success', sprintf('%d نسخه به شخص تازۀ «%s» (#%d) منتقل شد.', count($result['manuscript_ids']), $validated['new_name'], $result['created_id']));
     }
 
     /** distinct (namesakes, keep apart), dismissed (one person after all), deferred, or reopen */

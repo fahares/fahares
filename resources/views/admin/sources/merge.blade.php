@@ -17,8 +17,8 @@
 <div class="space-y-5 text-[13px] max-w-5xl">
     <x-admin.notice class="text-xs">
         دو منبعی را که در واقع یک کتاب‌اند یکی کنید، مانند دو املای یک فهرست یا فهرستی که هر جلدش منبع جدایی شده است.
-        جلدها با شناسه‌ی خودشان به منبع ماندنی می‌روند و شماره‌ای را می‌گیرند که عنوانشان می‌گوید. اگر دو جلد یک شماره داشته باشند، مدخل‌ها، نسخه‌ها، بخش‌ها و فهرست‌نگاران جلد تکراری به جلد ماندنی می‌روند و جلد تکراری حذف می‌شود.
-        کد منبع ادغام‌شده به منبع ماندنی هدایت می‌شود. همه‌ی ردیف‌های تغییرکرده در لاگ ممیزی نگه داشته می‌شوند و ادغام برگشت‌پذیر است.
+        جلدها با شناسۀ خودشان به منبع ماندنی می‌روند و شماره‌ای را می‌گیرند که عنوانشان می‌گوید. اگر دو جلد یک شماره داشته باشند، مدخل‌ها، نسخه‌ها، بخش‌ها و فهرست‌نگاران جلد تکراری به جلد ماندنی می‌روند و جلد تکراری حذف می‌شود.
+        کد منبع ادغام‌شده به منبع ماندنی هدایت می‌شود. همۀ ردیف‌های تغییرکرده در لاگ ممیزی نگه داشته می‌شوند و ادغام برگشت‌پذیر است.
     </x-admin.notice>
 
     <x-ui.card>
@@ -54,7 +54,7 @@
         <x-ui.section title="آنچه جابه‌جا می‌شود">
             <dl class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line border border-line text-center">
                 @foreach(['volumes' => 'جلد منتقل‌شونده', 'drops' => 'جلد تکراری', 'entries' => 'مدخل', 'copies' => 'نسخه',
-                    'parts' => 'بخش', 'catalogers' => 'فهرست‌نگار', 'items' => 'مدخل چاپی', 'pages' => 'صفحه‌ی متنی'] as $key => $name)
+                    'parts' => 'بخش', 'catalogers' => 'فهرست‌نگار', 'items' => 'مدخل چاپی', 'pages' => 'صفحۀ متنی'] as $key => $name)
                     <div class="bg-surface px-3 py-3">
                         <dt class="text-xs text-muted">{{ $name }}</dt>
                         <dd class="text-lg font-bold tabular-nums text-ink">{{ $fa($counts[$key]) }}</dd>
@@ -107,11 +107,11 @@
         @if($counts['entries'] <= \App\Sources\SourceMerger::PANEL_LIMIT)
             <x-ui.card>
                 <form method="POST" action="{{ route('admin.sources.merge.store') }}" class="space-y-4"
-                      onsubmit="return confirm('دو منبع ادغام شوند؟ از سابقه‌ی منبع ماندنی برگشت‌پذیر است.')">
+                      onsubmit="return confirm('دو منبع ادغام شوند؟ از سابقۀ منبع ماندنی برگشت‌پذیر است.')">
                     @csrf
                     <input type="hidden" name="keep" value="{{ $keep->id }}">
                     <input type="hidden" name="fold" value="{{ $fold->id }}">
-                    <x-admin.field label="عنوان منبع پس از ادغام" for="title" error="title" hint="پیشنهاد: عنوان منبع ماندنی، بدون شماره‌ی جلد.">
+                    <x-admin.field label="عنوان منبع پس از ادغام" for="title" error="title" hint="پیشنهاد: عنوان منبع ماندنی، بدون شمارۀ جلد.">
                         <input type="text" name="title" id="title" value="{{ old('title', $plan['title']) }}" required class="admin-field w-full font-bold">
                     </x-admin.field>
                     <label class="flex items-start gap-2 cursor-pointer">

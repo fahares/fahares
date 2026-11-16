@@ -15,16 +15,16 @@
     $searches = (int) $totals->searches;
     $answered = (int) $totals->answered;
     $pct = fn ($part, $whole) => $whole ? Fa::digits(round(100 * $part / $whole)) . '٪' : '—';
-    $tabLabels = ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان', 'sources' => 'منابع', 'people' => 'اشخاص (زبانه‌ی پیشین)'];
-    $scopeLabels = ['titles' => 'فقط عنوان', 'titles_names' => 'عنوان و نام', 'all' => 'همه‌ی اطلاعات'];
+    $tabLabels = ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان', 'sources' => 'منابع', 'people' => 'اشخاص (زبانۀ پیشین)'];
+    $scopeLabels = ['titles' => 'فقط عنوان', 'titles_names' => 'عنوان و نام', 'all' => 'همۀ اطلاعات'];
     $maxDay = max(1, ...array_column($daily, 'n'));
     $searchUrl = fn ($row) => route('search', ['q' => $row->query, 'type' => $row->type]);
     $tiles = [
         ['جست‌وجو', Fa::num($searches), Fa::num((int) $totals->queries) . ' عبارت متفاوت'],
         ['بی‌نتیجه', $pct((int) $totals->empty, $searches), Fa::num((int) $totals->empty) . ' جست‌وجو'],
         ['نتیجه‌ای باز شد', $pct((int) $totals->clicked, $answered), 'از جست‌وجوهای نتیجه‌دار'],
-        ['نتیجه‌ی اول باز شد', $pct((int) $totals->first_clicked, (int) $totals->clicked), $totals->avg_position ? 'میانگین رتبه ' . Fa::digits(round($totals->avg_position, 1)) : 'از نتیجه‌های بازشده'],
-        ['کاربران واردشده', $pct((int) $totals->members, $searches), Fa::num((int) $totals->users) . ' کاربر یکتا با سابقه‌ی روشن'],
+        ['نتیجۀ اول باز شد', $pct((int) $totals->first_clicked, (int) $totals->clicked), $totals->avg_position ? 'میانگین رتبه ' . Fa::digits(round($totals->avg_position, 1)) : 'از نتیجه‌های بازشده'],
+        ['کاربران واردشده', $pct((int) $totals->members, $searches), Fa::num((int) $totals->users) . ' کاربر یکتا با سابقۀ روشن'],
     ];
 @endphp
 
@@ -32,7 +32,7 @@
 
 <div class="space-y-6 text-[13px]">
     <x-admin.notice>
-        جست‌وجوهای نخستین صفحه‌ی نتایج ثبت می‌شوند. جست‌وجوی مهمان بی‌نام است. جست‌وجوی کاربر واردشده با حسابش نگه داشته می‌شود، مگر آنکه در «حساب من» خاموشش کرده باشد؛ جست‌وجوهای هر کاربر در صفحه‌ی او در «کاربران» دیده می‌شود. ربات‌ها و جست‌وجوی فوری سربرگ شمرده نمی‌شوند.
+        جست‌وجوهای نخستین صفحۀ نتایج ثبت می‌شوند. جست‌وجوی مهمان بی‌نام است. جست‌وجوی کاربر واردشده با حسابش نگه داشته می‌شود، مگر آنکه در «حساب من» خاموشش کرده باشد؛ جست‌وجوهای هر کاربر در صفحۀ او در «کاربران» دیده می‌شود. ربات‌ها و جست‌وجوی فوری سربرگ شمرده نمی‌شوند.
         «باز شد» یعنی کاربر از همان صفحه نتیجه‌ای را گشود.
     </x-admin.notice>
 
@@ -68,7 +68,7 @@
 
         @foreach([
             ['پرتکرارترین جست‌وجوها', $top, 'جست‌وجویی ثبت نشده است.'],
-            ['جست‌وجوهای بی‌نتیجه', $empty, 'همه‌ی جست‌وجوها نتیجه داشته‌اند.'],
+            ['جست‌وجوهای بی‌نتیجه', $empty, 'همۀ جست‌وجوها نتیجه داشته‌اند.'],
             ['نتیجه‌دار ولی بی‌کلیک', $unopened, 'جست‌وجوی تکراری بی‌کلیکی نیست.'],
         ] as [$title, $rows, $none])
             <section class="space-y-2">
@@ -102,9 +102,9 @@
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             @foreach([
                 ['تب جست‌وجو', $tabs->mapWithKeys(fn ($n, $k) => [$tabLabels[$k] ?? $k => $n])],
-                ['دامنه‌ی جست‌وجو', $scopes->mapWithKeys(fn ($n, $k) => [$scopeLabels[$k] ?? $k => $n])],
+                ['دامنۀ جست‌وجو', $scopes->mapWithKeys(fn ($n, $k) => [$scopeLabels[$k] ?? $k => $n])],
                 ['فیلترهای به‌کاررفته', $filters->mapWithKeys(fn ($n, $k) => [Stats::FILTER_LABELS[$k] ?? $k => $n])],
-                ['رتبه‌ی نتیجه‌ی بازشده', collect([1 => 'اول', 2 => 'دوم', 3 => 'سوم', 4 => '۴ تا ۱۰', 11 => 'پس از ۱۰'])->mapWithKeys(fn ($l, $b) => [$l => $positions[$b] ?? 0])],
+                ['رتبۀ نتیجۀ بازشده', collect([1 => 'اول', 2 => 'دوم', 3 => 'سوم', 4 => '۴ تا ۱۰', 11 => 'پس از ۱۰'])->mapWithKeys(fn ($l, $b) => [$l => $positions[$b] ?? 0])],
             ] as [$title, $counts])
                 <x-ui.card class="space-y-2">
                     <h2 class="rubric text-base">{{ $title }}</h2>

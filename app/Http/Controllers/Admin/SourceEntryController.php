@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
  */
 class SourceEntryController extends Controller
 {
-    /** Pages shown around the entry at most, and added by «صفحه‌ی بعد» or «صفحه‌ی پیش». */
+    /** Pages shown around the entry at most, and added by «صفحۀ بعد» or «صفحۀ پیش». */
     private const MAX_PAGES = 12;
 
     public function text(Request $request, SourceEntry $entry)

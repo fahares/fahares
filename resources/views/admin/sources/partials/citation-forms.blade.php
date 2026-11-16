@@ -9,7 +9,7 @@
             ($o['unit'] ?? null) === 'ستون' ? 'ستونی' : null,
             ! empty($o['pairs_after_name']) ? 'جلد پیش از صفحه، با «:» یا «-»' : null,
             ! empty($o['pairs_by_fit']) ? 'جفت «:» یا «-» به ترتیبی که با جلدها جور است' : null,
-            ! empty($o['series_volumes']) ? 'شماره‌ی سری: ' . collect($o['series_volumes'])->map(fn ($to, $from) => \App\Support\Fa::digits("{$from}→{$to}"))->implode('، ') : null,
+            ! empty($o['series_volumes']) ? 'شمارۀ سری: ' . collect($o['series_volumes'])->map(fn ($to, $from) => \App\Support\Fa::digits("{$from}→{$to}"))->implode('، ') : null,
             ! empty($o['other_edition']) ? 'چاپ دیگر را کنار می‌گذارد' : null,
         ])->filter()->implode(' · ');
     };
@@ -22,8 +22,8 @@
         </x-slot:actions>
     @endcan
     <p class="text-xs text-muted leading-6 mb-2">
-        هر الگو می‌گوید منبعی دیگر (یا «هر منبع») این منبع را با چه نامی و چگونه ارجاع می‌دهد. الگوی ویژه‌ی یک منبع بر الگوی «هر منبع» برتری دارد.
-        @if($bibliography) اکنون {{ $fa($bibliography) }} رشته‌ی مأخذ آثار به این منبع وصل است. @endif
+        هر الگو می‌گوید منبعی دیگر (یا «هر منبع») این منبع را با چه نامی و چگونه ارجاع می‌دهد. الگوی ویژۀ یک منبع بر الگوی «هر منبع» برتری دارد.
+        @if($bibliography) اکنون {{ $fa($bibliography) }} رشتۀ مأخذ آثار به این منبع وصل است. @endif
     </p>
     @if($cited->isEmpty())
         <x-admin.notice tone="warn" class="text-xs">هیچ الگویی ندارد. پس هیچ مأخذی به این منبع وصل نمی‌شود.</x-admin.notice>

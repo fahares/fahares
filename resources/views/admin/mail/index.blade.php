@@ -11,7 +11,7 @@
 @section('content')
 <div class="space-y-6 text-[13px]">
 
-    <p class="text-muted max-w-3xl leading-7">سربرگ (شمسه و نام فهارس)، امضا و پانویسی که همه‌ی ایمیل‌های سایت (تأیید ایمیل، بازیابی گذرواژه، اعلان‌ها و پیام‌ها) با آن فرستاده می‌شوند. متن خود هر ایمیل از اعلان مربوط به آن می‌آید.</p>
+    <p class="text-muted max-w-3xl leading-7">سربرگ (شمسه و نام فهارس)، امضا و پانویسی که همۀ ایمیل‌های سایت (تأیید ایمیل، بازیابی گذرواژه، اعلان‌ها و پیام‌ها) با آن فرستاده می‌شوند. متن خود هر ایمیل از اعلان مربوط به آن می‌آید.</p>
 
     @if($errors->any())
         <x-admin.notice tone="error" class="space-y-1">
@@ -39,7 +39,7 @@
                     </div>
                 @endif
             @endforeach
-            <p class="md:col-span-2 text-xs text-muted">خانه‌ی خالی یعنی متن پیش‌فرض (که کم‌رنگ نشان داده شده) به کار می‌رود. در پانویس می‌توان پیوند را به شکل <code dir="ltr">[متن](https://…)</code> نوشت.</p>
+            <p class="md:col-span-2 text-xs text-muted">خانۀ خالی یعنی متن پیش‌فرض (که کم‌رنگ نشان داده شده) به کار می‌رود. در پانویس می‌توان پیوند را به شکل <code dir="ltr">[متن](https://…)</code> نوشت.</p>
             <div class="md:col-span-2"><x-ui.btn type="submit" variant="primary">ذخیره</x-ui.btn></div>
         </form>
     </x-ui.card>
@@ -47,7 +47,7 @@
     <x-ui.card class="space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="rubric text-base">پیش‌نمایش</h2>
-            <x-ui.btn :href="route('admin.mail.preview')" target="_blank" size="sm">باز کردن در زبانه‌ی تازه ↗</x-ui.btn>
+            <x-ui.btn :href="route('admin.mail.preview')" target="_blank" size="sm">باز کردن در زبانۀ تازه ↗</x-ui.btn>
         </div>
         <iframe src="{{ route('admin.mail.preview') }}" title="پیش‌نمایش ایمیل" class="w-full h-[640px] border border-line bg-white"></iframe>
     </x-ui.card>

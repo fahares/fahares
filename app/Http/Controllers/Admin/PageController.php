@@ -42,6 +42,6 @@ class PageController extends Controller
             ]);
         }
 
-        return back()->with('success', "صفحه‌ی «{$page->title}» ذخیره شد.");
+        return back()->with('success', "صفحۀ «{$page->title}» ذخیره شد.");
     }
 }

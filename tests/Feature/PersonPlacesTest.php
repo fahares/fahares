@@ -22,7 +22,7 @@ class PersonPlacesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->library = Library::create(['name' => 'کتابخانه‌ی مکان آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $this->library = Library::create(['name' => 'کتابخانۀ مکان آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
     }
 
     private function person(string $name): Person

@@ -51,8 +51,8 @@
                         @foreach($grid['centuries'] as $col)
                             @php
                                 $cell = $row['cells'][$col['century']];
-                                $tip = $row['name'] . '، سده‌ی ' . Fa::digits($col['century']) . ': ' . Fa::num($cell['count']) . ' از ' . Fa::num($col['count']) . ' نسخه (' . $pct($cell['share']) . ')'
-                                    . ($col['count'] < $firm ? '؛ سده‌ی کم‌نسخه' : '');
+                                $tip = $row['name'] . '، سدۀ ' . Fa::digits($col['century']) . ': ' . Fa::num($cell['count']) . ' از ' . Fa::num($col['count']) . ' نسخه (' . $pct($cell['share']) . ')'
+                                    . ($col['count'] < $firm ? '؛ سدۀ کم‌نسخه' : '');
                                 $toneCount = $cell['count'] ? round(8 + 72 * $cell['count'] / $topCount) : 0;
                                 $toneShare = $cell['count'] && $col['count'] >= $firm ? round(8 + 72 * $cell['share'] / $topShare) : 0;
                             @endphp
@@ -77,8 +77,8 @@
         </table>
     </div>
     <p class="mt-2 text-[11px] text-muted leading-relaxed">
-        <span x-show="mode === 'count'">هر خانه شمار نسخه‌های آن ردیف در آن سده است؛ پررنگ‌ترین خانه‌ی هر ردیف سده‌ای است که بیشترین نسخه‌های آن ردیف را دارد.</span>
-        <span x-show="mode === 'share'" x-cloak>هر خانه سهم ردیف از نسخه‌های آن سده است، به درصد؛ پررنگ‌ترین خانه‌ی هر ردیف بیشترین سهم آن است. سده‌هایی که کمتر از {{ Fa::num($firm) }} نسخه دارند رنگ نگرفته‌اند، چون سهمِ چند نسخه گواه چیزی نیست.</span>
+        <span x-show="mode === 'count'">هر خانه شمار نسخه‌های آن ردیف در آن سده است؛ پررنگ‌ترین خانۀ هر ردیف سده‌ای است که بیشترین نسخه‌های آن ردیف را دارد.</span>
+        <span x-show="mode === 'share'" x-cloak>هر خانه سهم ردیف از نسخه‌های آن سده است، به درصد؛ پررنگ‌ترین خانۀ هر ردیف بیشترین سهم آن است. سده‌هایی که کمتر از {{ Fa::num($firm) }} نسخه دارند رنگ نگرفته‌اند، چون سهمِ چند نسخه گواه چیزی نیست.</span>
         سده‌هایی که کمتر از {{ Fa::digits($min) }} نسخه دارند خالی مانده‌اند.
     </p>
 </div>

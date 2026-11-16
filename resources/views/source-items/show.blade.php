@@ -52,7 +52,7 @@
             </x-ui.source-text>
 
             @if($item->children->isNotEmpty())
-                <x-ui.section title="مدخل‌های بی‌شماره‌ی ذیل آن">
+                <x-ui.section title="مدخل‌های بی‌شمارۀ ذیل آن">
                     <ul class="space-y-1 text-sm">
                         @foreach($item->children as $child)
                             <li><a href="{{ $child->url() }}" class="text-cinnabar hover:underline">{{ $child->title }}</a></li>
@@ -96,21 +96,21 @@
 
             @if($item->viewer())
                 <x-ui.card class="space-y-4">
-                    <div class="text-xs text-muted">برگه‌ی چاپی</div>
+                    <div class="text-xs text-muted">برگۀ چاپی</div>
                     @foreach(range($item->page_start, $item->page_end) as $page)
                         @php $v = $item->viewer($page); $thumb = asset('storage/catalogs/' . $v['catalog'] . '/v' . str_pad($v['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($page, 4, '0', STR_PAD_LEFT) . '.webp'); @endphp
                         <button type="button" @click="$dispatch('open-catalog-viewer', @js($v))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $sourceName }}" data-viewer-card>
                             <div class="aspect-[4/3] overflow-hidden border border-line bg-white">
-                                <img src="{{ $thumb }}" alt="{{ Fa::digits('برگه‌ی ص ' . $page) }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
+                                <img src="{{ $thumb }}" alt="{{ Fa::digits('برگۀ ص ' . $page) }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
                             </div>
-                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">{{ Fa::digits('دیدن برگه‌ی ص ' . $page) }}</span>
+                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">{{ Fa::digits('دیدن برگۀ ص ' . $page) }}</span>
                         </button>
                         <a href="{{ $item->pageUrl($page) }}" class="block -mt-2 text-xs text-muted hover:text-cinnabar" data-text-page>{{ Fa::digits('متن کامل ص ' . $page) }}</a>
                     @endforeach
                 </x-ui.card>
             @else
                 <x-ui.card class="space-y-2">
-                    <div class="text-xs text-muted">صفحه‌ی چاپی</div>
+                    <div class="text-xs text-muted">صفحۀ چاپی</div>
                     @foreach(range($item->page_start, $item->page_end) as $page)
                         <a href="{{ $item->pageUrl($page) }}" class="block text-sm font-semibold text-cinnabar hover:underline" data-text-page>{{ Fa::digits('متن کامل ' . ($item->source->unit === 'ستون' ? 'ستون ' : 'ص ') . $page) }} ←</a>
                     @endforeach

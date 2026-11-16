@@ -9,7 +9,7 @@
     $lines = fn (array $values) => $values ? implode("\n", $values) : '—';
 @endphp
 <div class="space-y-2">
-    <p class="font-bold text-ink">مقایسه‌ی فیلدها: سرنوشت داده‌ی {{ $removedLabel }}</p>
+    <p class="font-bold text-ink">مقایسۀ فیلدها: سرنوشت دادۀ {{ $removedLabel }}</p>
     @if(! $rows)
         <p class="text-muted">{{ $removedLabel }} داده‌ای ندارد که در {{ $keptLabel }} نباشد یا با آن فرق کند.</p>
     @else

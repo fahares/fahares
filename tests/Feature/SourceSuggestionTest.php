@@ -31,7 +31,7 @@ class SourceSuggestionTest extends TestCase
         Cache::flush();
         $this->admin = User::create(['name' => 'داور منبع', 'email' => uniqid('ss-admin-') . '@example.test', 'password' => 'password123', 'role' => 'admin']);
         $this->researcher = User::create(['name' => 'پژوهشگر منبع', 'email' => uniqid('ss-') . '@example.test', 'password' => 'password123', 'role' => 'user']);
-        $this->library = Library::create(['name' => 'کتابخانه‌ی آزمون منبع', 'city' => 'قم', 'slug' => 'ss-lib-' . uniqid()]);
+        $this->library = Library::create(['name' => 'کتابخانۀ آزمون منبع', 'city' => 'قم', 'slug' => 'ss-lib-' . uniqid()]);
         $this->source = Source::create(['code' => 'ss-cat-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست آزمون منبع',
             'library_id' => $this->library->id, 'volumes_count' => 2]);
         SourceVolume::create(['source_id' => $this->source->id, 'volume_number' => 1]);
@@ -53,7 +53,7 @@ class SourceSuggestionTest extends TestCase
     {
         $this->actingAs($this->researcher)->postJson('/suggestions', [
             'type' => 'source', 'id' => $this->source->id, 'kind' => 'field', 'field_name' => 'compiler',
-            'suggested_value' => 'سید احمد حسینی اشکوری', 'rationale_citation' => 'صفحه‌ی عنوان جلد یکم',
+            'suggested_value' => 'سید احمد حسینی اشکوری', 'rationale_citation' => 'صفحۀ عنوان جلد یکم',
         ])->assertOk();
         $s = FieldSuggestion::where('suggestable_type', Source::class)->where('suggestable_id', $this->source->id)->sole();
         $this->assertSame(['field', 'compiler', null], [$s->kind, $s->field_name, $s->current_value]);
@@ -76,7 +76,7 @@ class SourceSuggestionTest extends TestCase
     {
         $this->actingAs($this->researcher)->postJson('/suggestions', [
             'type' => 'source', 'id' => $this->source->id, 'kind' => 'note', 'field_name' => 'link',
-            'note' => ['title' => 'نسخه‌ی برخط فهرست', 'url' => 'https://example.org/catalogue'],
+            'note' => ['title' => 'نسخۀ برخط فهرست', 'url' => 'https://example.org/catalogue'],
         ])->assertOk();
         $this->assertSame('note', FieldSuggestion::where('suggestable_type', Source::class)->sole()->kind);
     }

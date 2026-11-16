@@ -61,7 +61,7 @@ class MultipleContributorsTest extends TestCase
             'page_start' => 1,
             'scribe_id' => $scribe->id,
             'scribe_name' => $scribe->name,
-            'raw_text' => 'نسخه‌ی آزمایشی',
+            'raw_text' => 'نسخۀ آزمایشی',
         ]);
     }
 

@@ -61,7 +61,7 @@ export default (context = 'settings') => ({
         try {
             this.permission = await Notification.requestPermission();
             if (this.permission !== 'granted') {
-                this.message = 'مرورگر اجازه‌ی اعلان نداد. اگر خواستید، از تنظیمات مرورگر برای این سایت اجازه دهید.';
+                this.message = 'مرورگر اجازۀ اعلان نداد. اگر خواستید، از تنظیمات مرورگر برای این سایت اجازه دهید.';
                 return;
             }
             const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
