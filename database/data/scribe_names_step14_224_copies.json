@@ -1,0 +1,4567 @@
+{
+ "source": "a scribe's name cut before the glued date, or completed with its bracketed part, from v2 (reports/fankha_v2_db_review14), 2026-11-16; fahares step 14.224",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 12445,
+   "shelfmark": "6238",
+   "category": "rebuild",
+   "v2": "v1-704",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن محمد ابراهیم",
+     "to": "محمد علی بن محمد ابراهیم [کرهرودی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12747,
+   "shelfmark": "683/2",
+   "category": "rebuild",
+   "v2": "v1-811",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن محمد کاظم، بیتا",
+     "to": "محمد علی بن محمد کاظم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 13548,
+   "shelfmark": "7141",
+   "category": "rebuild",
+   "v2": "v1-929",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مظفر حسین بن درویش محمد قصه خوان سمرقندی، بیتا",
+     "to": "مظفر حسین بن درویش محمد قصه خوان سمرقندی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15919,
+   "shelfmark": "8975/13",
+   "category": "rebuild",
+   "v2": "v1-1489",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابراهیم بن محمد حرفوشی کرکی عاملی، تا چهارشنبه 22 ذیقعده 1070 ق",
+     "to": "ابراهیم بن محمد حرفوشی کرکی عاملی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 22 ذیقعده 1070 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17094,
+   "shelfmark": "419/2",
+   "category": "rebuild",
+   "v2": "v1-2053",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالله بن يحيى بن عبدالله بن ناصر بن محمد بن ابطال، بیتا",
+     "to": "عبدالله بن يحيى بن عبدالله بن ناصر بن محمد بن ابطال"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18132,
+   "shelfmark": "106/13",
+   "category": "rebuild",
+   "v2": "v1-2304",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "زین العابدین گلپایگانی، بیتا",
+     "to": "زین العابدین گلپایگانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18850,
+   "shelfmark": "608/4",
+   "category": "rebuild",
+   "v2": "v2-4",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن حسین بن عبدالرحمن بن عبدان، تا دارای سماع با اصل به سال 441ق",
+     "to": "علی بن حسین بن عبدالرحمن بن عبدان"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دارای سماع با اصل به سال 441ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19501,
+   "shelfmark": "11174/4",
+   "category": "rebuild",
+   "v2": "v2-64",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد باقر، حسینی",
+     "to": "محمد باقر، حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19912,
+   "shelfmark": "116/4",
+   "category": "rebuild",
+   "v2": "v2-116",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عطاء الله بن محمد بن نظام حسینی بخاری، بی‌تا",
+     "to": "عطاء الله بن محمد بن نظام حسینی بخاری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20353,
+   "shelfmark": "8720/3",
+   "category": "rebuild",
+   "v2": "v2-207",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "اسدالله آصفی شوشتری، بیتا",
+     "to": "اسدالله آصفی شوشتری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21665,
+   "shelfmark": "81",
+   "category": "rebuild",
+   "v2": "v2-803",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد بن محمد بن احمد بخاری، تا سه‌شنبه ربیع الثانی 677ق",
+     "to": "احمد بن محمد بن احمد بخاری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه ربیع الثانی 677ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21907,
+   "shelfmark": "829",
+   "category": "rebuild",
+   "v2": "v2-862",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسنی دزفولی، تا شنبه 5 جمادی الاول 1238ق",
+     "to": "حسنی دزفولی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 5 جمادی الاول 1238ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23983,
+   "shelfmark": "440/10 کر",
+   "category": "rebuild",
+   "v2": "v2-1237",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حاج مصطفی بن حاج",
+     "to": "حاج مصطفی بن حاج [افلانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24163,
+   "shelfmark": "3108",
+   "category": "rebuild",
+   "v2": "v2-1341",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمدباقر خلخالی، بیتا",
+     "to": "محمدباقر خلخالی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24459,
+   "shelfmark": "2222",
+   "category": "rebuild",
+   "v2": "v2-1405",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "میرزا احمد نیریزی، بیتا",
+     "to": "میرزا احمد نیریزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24621,
+   "shelfmark": "211/1",
+   "category": "rebuild",
+   "v2": "v2-1405",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد بن زین الدین بن ابراهیم",
+     "to": "احمد بن زین الدین بن ابراهیم [احسایی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25730,
+   "shelfmark": "138",
+   "category": "rebuild",
+   "v2": "v2-1407",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [بن] محمد مهدی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28159,
+   "shelfmark": "12122/1",
+   "category": "rebuild",
+   "v2": "v2-1886",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شیخ علوان فرزند حسن",
+     "to": "شیخ علوان فرزند حسن [آل] یاسین نجفی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28270,
+   "shelfmark": "1497/56عکسی",
+   "category": "rebuild",
+   "v2": "v2-1910",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید احمد بن محمد رضا حسینی",
+     "to": "سید احمد بن محمد رضا حسینی [صفایی خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29320,
+   "shelfmark": "536",
+   "category": "rebuild",
+   "v2": "v3-119",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محیی الدین بن احمد بن محیی الدین علی",
+     "to": "محیی الدین بن احمد بن محیی الدین علی [بن ایوب] بصری اصلا بحرانی مسکنا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29438,
+   "shelfmark": "11174/3",
+   "category": "rebuild",
+   "v2": "v3-125",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر",
+     "to": "محمد کریم بن محمد باقر [حسینی طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29503,
+   "shelfmark": "2153",
+   "category": "rebuild",
+   "v2": "v3-146",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن بن آغا محمد تبریزی، بیتا",
+     "to": "حسن بن آغا محمد تبریزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30902,
+   "shelfmark": "1497/17عکسی",
+   "category": "rebuild",
+   "v2": "v3-485",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید احمد بن محمد رضا حسینی",
+     "to": "سید احمد بن محمد رضا حسینی [صفایی خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 31728,
+   "shelfmark": "452/6",
+   "category": "rebuild",
+   "v2": "v3-760",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد فاضل بن محمد مشهدی، تا: 1078 و 1081ق",
+     "to": "محمد فاضل بن محمد مشهدی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1078 و 1081ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32627,
+   "shelfmark": "513/3",
+   "category": "rebuild",
+   "v2": "v3-1018",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی، تا شب پنج‌شنبه 12 جمادی الثانی 1224ق",
+     "to": "محمد علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شب پنج‌شنبه 12 جمادی الثانی 1224ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33733,
+   "shelfmark": "4353/29",
+   "category": "rebuild",
+   "v2": "v3-1377",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد مهدی بن علینقی حسینی قمی مشهور به توحید، بیتا",
+     "to": "محمد مهدی بن علینقی حسینی قمی مشهور به توحید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34474,
+   "shelfmark": "2779",
+   "category": "rebuild",
+   "v2": "v3-1469",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن حاج منصور بن حاج حسین بن علی بن صالح بحرانی شیعی اثنا عشری، تا رجب 1288ق",
+     "to": "علی بن حاج منصور بن حاج حسین بن علی بن صالح بحرانی شیعی اثنا عشری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1288ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34613,
+   "shelfmark": "7478",
+   "category": "rebuild",
+   "v2": "v3-1469",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسینعلی، بیتا",
+     "to": "حسینعلی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35552,
+   "shelfmark": "3458-17/238",
+   "category": "rebuild",
+   "v2": "v3-1470",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی محمد، تا: سلخ جمادی الثانی قرن 13",
+     "to": "علی محمد"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سلخ جمادی الثانی قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 36772,
+   "shelfmark": "493/2-3/113",
+   "category": "rebuild",
+   "v2": "v3-1470",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی اکبر",
+     "to": "علی اکبر [حسینی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38469,
+   "shelfmark": "12",
+   "category": "rebuild",
+   "v2": "v4-193",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ذوالفقار بن جعفر قره باغی، تا پنج شنبه 8 رجب 1234ق",
+     "to": "ذوالفقار بن جعفر قره باغی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 8 رجب 1234ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38582,
+   "shelfmark": "657/2",
+   "category": "rebuild",
+   "v2": "v4-203",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالرضا بن احمد جزائری، تا یک‌شنبه 11 صفر",
+     "to": "عبدالرضا بن احمد جزائری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 11 صفر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38682,
+   "shelfmark": "13926/8",
+   "category": "rebuild",
+   "v2": "v4-212",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین اهری، تا پنج‌شنبه 13 رجب 1336ق",
+     "to": "حسین اهری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 13 رجب 1336ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39876,
+   "shelfmark": "18810",
+   "category": "rebuild",
+   "v2": "v4-494",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "قاسم بن الحسن، بیتا",
+     "to": "قاسم بن الحسن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39936,
+   "shelfmark": "11604/2",
+   "category": "rebuild",
+   "v2": "v4-532",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد فرزند عبدالحسین، آل حسینی نجفی نخعی، تا حدود 1078ق",
+     "to": "محمد فرزند عبدالحسین، آل حسینی نجفی نخعی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "حدود 1078ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43095,
+   "shelfmark": "1497/44عکسی",
+   "category": "rebuild",
+   "v2": "v4-1414",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید احمد بن محمد رضا حسینی",
+     "to": "سید احمد بن محمد رضا حسینی [صفایی خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43863,
+   "shelfmark": "2948",
+   "category": "rebuild",
+   "v2": "v4-1652",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محسن متولی، تا جمعه 7 رجب 1070ق، به‌دستور امیر سید محمدا",
+     "to": "محسن متولی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 7 رجب 1070ق، به‌دستور امیر سید محمدا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43876,
+   "shelfmark": "2130",
+   "category": "rebuild",
+   "v2": "v4-1652",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حکیم بن محمد معصوم رضوی دلیجانی، تا: رجب 1079ق",
+     "to": "محمد حکیم بن محمد معصوم رضوی دلیجانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1079ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 47127,
+   "shelfmark": "4051/19",
+   "category": "rebuild",
+   "v2": "v5-133",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالله",
+     "to": "عبدالله [بن] زین الدین بهبهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48768,
+   "shelfmark": "112",
+   "category": "rebuild",
+   "v2": "v5-296",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسین",
+     "to": "محمد حسین [امین الضرب] بن حاج محمد حسن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 50615,
+   "shelfmark": "80",
+   "category": "rebuild",
+   "v2": "v5-712",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالعلی بن محمد تقی، بیتا",
+     "to": "عبدالعلی بن محمد تقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 50771,
+   "shelfmark": "8556/15",
+   "category": "rebuild",
+   "v2": "v5-759",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حاجی عبدالله بن سید طه عرب، بیتا",
+     "to": "حاجی عبدالله بن سید طه عرب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51107,
+   "shelfmark": "295/1",
+   "category": "rebuild",
+   "v2": "v5-829",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سرايا ابن حامد بن علوان، بیتا",
+     "to": "سرايا ابن حامد بن علوان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51209,
+   "shelfmark": "2466/2",
+   "category": "rebuild",
+   "v2": "v5-839",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن سعد بن سعید بن صالح، بیتا",
+     "to": "علی بن سعد بن سعید بن صالح"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53084,
+   "shelfmark": "37813",
+   "category": "rebuild",
+   "v2": "v5-1107",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابوالقاسم",
+     "to": "ابوالقاسم [بن محمد حسین]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53553,
+   "shelfmark": "1210",
+   "category": "rebuild",
+   "v2": "v5-1157",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی اکبر مشهور به آقا بزرگ قزوینی خلف آقا محمد ابراهیم کدخدا، بیتا",
+     "to": "علی اکبر مشهور به آقا بزرگ قزوینی خلف آقا محمد ابراهیم کدخدا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56195,
+   "shelfmark": "11174/9",
+   "category": "rebuild",
+   "v2": "v6-45",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر، حسینی",
+     "to": "محمد کریم بن محمد باقر، حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56418,
+   "shelfmark": "3084",
+   "category": "rebuild",
+   "v2": "v6-120",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد شریف بن حجی",
+     "to": "محمد شریف بن حجی [حاجی] علی محمد خراسانی الاصل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56430,
+   "shelfmark": "5426/2",
+   "category": "rebuild",
+   "v2": "v6-120",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد بن علی بن احمد بن علی",
+     "to": "احمد بن علی بن احمد بن علی [بحرانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59642,
+   "shelfmark": "1830/27",
+   "category": "rebuild",
+   "v2": "v6-855",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد میر حسین استرابادی، بیتا",
+     "to": "محمد میر حسین استرابادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59643,
+   "shelfmark": "364/26",
+   "category": "rebuild",
+   "v2": "v6-855",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن احمد رشتی، بیتا",
+     "to": "علی بن احمد رشتی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60700,
+   "shelfmark": "6574",
+   "category": "rebuild",
+   "v2": "v6-1228",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن حاجی محمد قلی قزوینی عاشوری، تا: جمعه غدیر 1303ق",
+     "to": "محمد بن حاجی محمد قلی قزوینی عاشوری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه غدیر 1303ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60759,
+   "shelfmark": "1664",
+   "category": "rebuild",
+   "v2": "v6-1263",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد رزق شبولی شافعی، تا یک‌شنبه 29 شعبان 1062ق",
+     "to": "محمد رزق شبولی شافعی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 29 شعبان 1062ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61449,
+   "shelfmark": "7",
+   "category": "rebuild",
+   "v2": "v6-1464",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد تقی بن محمد کاظم همدانی، تا پنج شنبه 25 ذیقعده 1245ق",
+     "to": "محمد تقی بن محمد کاظم همدانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 25 ذیقعده 1245ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61450,
+   "shelfmark": "1541",
+   "category": "rebuild",
+   "v2": "v6-1464",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابوطالب، تا 21 جمادی الاول 1249ق برای کتابخانه شهریاری",
+     "to": "ابوطالب"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "21 جمادی الاول 1249ق برای کتابخانه شهریاری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61537,
+   "shelfmark": "42",
+   "category": "rebuild",
+   "v2": "v6-1502",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن جعفر طیب، بیتا",
+     "to": "علی بن جعفر طیب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65256,
+   "shelfmark": "25270",
+   "category": "rebuild",
+   "v2": "v7-196",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن علاء حسینی استرآبادی، تا شنبه 5 جمادی الاول 1097ق",
+     "to": "حسین بن علاء حسینی استرآبادی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 5 جمادی الاول 1097ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 66929,
+   "shelfmark": "11174/2",
+   "category": "rebuild",
+   "v2": "v7-304",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر حسینی",
+     "to": "محمد کریم بن محمد باقر حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67400,
+   "shelfmark": "5329",
+   "category": "rebuild",
+   "v2": "v7-384",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی گیلانی، تا پایان شوال 1244ق، به خواهش ملا عبدالرزاق گیلانی",
+     "to": "محمد علی گیلانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پایان شوال 1244ق، به خواهش ملا عبدالرزاق گیلانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68426,
+   "shelfmark": "7503",
+   "category": "rebuild",
+   "v2": "v7-622",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "دوست محمد ککرکم، بیتا",
+     "to": "دوست محمد ککرکم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 69352,
+   "shelfmark": "150",
+   "category": "rebuild",
+   "v2": "v7-815",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "آقا بابا بن ملا محمد مهدی شهمیرزائی",
+     "to": "آقا بابا بن ملا محمد مهدی شهمیرزائی [سمنانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70295,
+   "shelfmark": "26",
+   "category": "rebuild",
+   "v2": "v7-1027",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابن غیاث الدین کرمانی زینل براکوهی =",
+     "to": "ابن غیاث الدین کرمانی زینل براکوهی = [ابرکوهی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71187,
+   "shelfmark": "8173/158",
+   "category": "rebuild",
+   "v2": "v7-1356",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "صحبت الله خان ملقب به دبیر همایون، تا: آغاز قرن 14",
+     "to": "صحبت الله خان ملقب به دبیر همایون"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "آغاز قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73126,
+   "shelfmark": "1249ط",
+   "category": "rebuild",
+   "v2": "v8-24",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن مبارک فهرجی، تا 982ق، به جهت ناصر الدوله عمر",
+     "to": "علی بن مبارک فهرجی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "982ق، به جهت ناصر الدوله عمر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73637,
+   "shelfmark": "266",
+   "category": "rebuild",
+   "v2": "v8-106",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن بن ابراهیم نوری همدانی، بیتا",
+     "to": "حسن بن ابراهیم نوری همدانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 74438,
+   "shelfmark": "976",
+   "category": "rebuild",
+   "v2": "v8-326",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "کمال الدین بن فخرالدین، تا یک‌شنبه 28 شعبان 970ق",
+     "to": "کمال الدین بن فخرالدین"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 28 شعبان 970ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 76178,
+   "shelfmark": "78/6",
+   "category": "rebuild",
+   "v2": "v8-865",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن علی نقی، بیتا",
+     "to": "حسین بن علی نقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78233,
+   "shelfmark": "7507/2",
+   "category": "rebuild",
+   "v2": "v8-1556",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "میر هاشم بن جعفر حسینی قزوینی، بیتا",
+     "to": "میر هاشم بن جعفر حسینی قزوینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78241,
+   "shelfmark": "994/1-6/84",
+   "category": "rebuild",
+   "v2": "v8-1558",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "نظر بن رضا، تا یک‌شنبه شوال 1087ق",
+     "to": "نظر بن رضا"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه شوال 1087ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78259,
+   "shelfmark": "6376",
+   "category": "rebuild",
+   "v2": "v8-1558",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی اکبر مراغی، تا چهارشنبه 28 ربیع الثانی 1202ق",
+     "to": "علی اکبر مراغی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 28 ربیع الثانی 1202ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78261,
+   "shelfmark": "25990",
+   "category": "rebuild",
+   "v2": "v8-1558",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شیخ یوسف بن شیخ احمد اشرفی، تا دهه اول صفر 1224ق",
+     "to": "شیخ یوسف بن شیخ احمد اشرفی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دهه اول صفر 1224ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78360,
+   "shelfmark": "6222/5",
+   "category": "rebuild",
+   "v2": "v8-1590",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالرزاق گیلانی، تا پنج شنبه 9 جمادی الاول 1034ق",
+     "to": "عبدالرزاق گیلانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 9 جمادی الاول 1034ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78481,
+   "shelfmark": "1497/62عکسی",
+   "category": "rebuild",
+   "v2": "v8-1613",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید احمد بن محمد رضا حسینی",
+     "to": "سید احمد بن محمد رضا حسینی [صفایی خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79460,
+   "shelfmark": "1490/3",
+   "category": "rebuild",
+   "v2": "v8-1869",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابراهیم بن محمد، بیتا",
+     "to": "ابراهیم بن محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79930,
+   "shelfmark": "3575/2",
+   "category": "rebuild",
+   "v2": "v8-1965",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "غیاث الدین ابومحمد سلیمان، بیتا",
+     "to": "غیاث الدین ابومحمد سلیمان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80100,
+   "shelfmark": "2550/4",
+   "category": "rebuild",
+   "v2": "v8-2012",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد نبی",
+     "to": "محمد نبی [بن] مرتضی نوری مازندرانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82020,
+   "shelfmark": "8611/22",
+   "category": "rebuild",
+   "v2": "v9-27",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبرت، تا دوشنبه 15 اردیبهشت جلالی 1313ق",
+     "to": "عبرت"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 15 اردیبهشت جلالی 1313ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82261,
+   "shelfmark": "7195-36/195",
+   "category": "rebuild",
+   "v2": "v9-126",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "خسرو خدا بخش پارسی، بیتا",
+     "to": "خسرو خدا بخش پارسی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84735,
+   "shelfmark": "3059-16/69",
+   "category": "rebuild",
+   "v2": "v9-571",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن محمد علی منجم",
+     "to": "حسین بن محمد علی منجم [بن] مظفر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84815,
+   "shelfmark": "6332/5",
+   "category": "rebuild",
+   "v2": "v9-573",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی کرمانشاهی، بیتا",
+     "to": "محمد علی کرمانشاهی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 86953,
+   "shelfmark": "6778-34/148",
+   "category": "rebuild",
+   "v2": "v9-1026",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "میر عطاء حسینی، بی‌تا",
+     "to": "میر عطاء حسینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87519,
+   "shelfmark": "40",
+   "category": "rebuild",
+   "v2": "v9-1085",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد باقر، تا: 16 محرم 1055ق",
+     "to": "محمد باقر"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "16 محرم 1055ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 88389,
+   "shelfmark": "5748/2-29/88",
+   "category": "rebuild",
+   "v2": "v9-1124",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمدصادق ولد محمد مهدی ولد محمد صادق",
+     "to": "محمدصادق ولد محمد مهدی ولد محمد صادق [ولد] آخوند ملاعلی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 88856,
+   "shelfmark": "2615",
+   "category": "rebuild",
+   "v2": "v9-1179",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محیی الدین",
+     "to": "محیی الدین [بن] بدرالدین الاناری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91241,
+   "shelfmark": "15/2",
+   "category": "rebuild",
+   "v2": "v9-1611",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حاج عباسقلی خان همایونی خمینی کمره یی، بی‌تا",
+     "to": "حاج عباسقلی خان همایونی خمینی کمره یی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91449,
+   "shelfmark": "403",
+   "category": "rebuild",
+   "v2": "v9-1656",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن بن آغا",
+     "to": "حسن بن آغا [محمد تبریزی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91452,
+   "shelfmark": "404",
+   "category": "rebuild",
+   "v2": "v9-1656",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن",
+     "to": "حسن [بن آغا محمد تبریزی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91473,
+   "shelfmark": "412",
+   "category": "rebuild",
+   "v2": "v9-1656",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن",
+     "to": "حسن [بن آغا محمد تبریزی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91474,
+   "shelfmark": "413",
+   "category": "rebuild",
+   "v2": "v9-1656",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن",
+     "to": "حسن [بن آغا محمد تبریزی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91804,
+   "shelfmark": "23/1",
+   "category": "rebuild",
+   "v2": "v9-1664",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابراهیم بن علی بن عبدالعال، بی‌تا",
+     "to": "ابراهیم بن علی بن عبدالعال"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92844,
+   "shelfmark": "2321",
+   "category": "rebuild",
+   "v2": "v10-285",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالعلی بن نورالدین (فرزند مؤلف)، تا جمعه 18 شعبان 918ق",
+     "to": "عبدالعلی بن نورالدین (فرزند مؤلف)"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 18 شعبان 918ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 94214,
+   "shelfmark": "7703",
+   "category": "rebuild",
+   "v2": "v10-545",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد هادی بن اسماعیل",
+     "to": "محمد هادی بن اسماعیل [بن] یعقوب استرآبادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95333,
+   "shelfmark": "538/3",
+   "category": "rebuild",
+   "v2": "v10-807",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد شفیع بن حاج محمد سعید، تا: سه‌شنبه 1 صفر 1268ق",
+     "to": "محمد شفیع بن حاج محمد سعید"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 1 صفر 1268ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95463,
+   "shelfmark": "944",
+   "category": "rebuild",
+   "v2": "v10-822",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن جعفر",
+     "to": "محمد بن جعفر [بن] علی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95592,
+   "shelfmark": "584",
+   "category": "rebuild",
+   "v2": "v10-822",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمود بن حاج خلیل، تا دوشنبه 5 جمادی الاول",
+     "to": "محمود بن حاج خلیل"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 5 جمادی الاول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96387,
+   "shelfmark": "162",
+   "category": "rebuild",
+   "v2": "v10-1286",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد مقیم، تا جمعه آخر شوال 1029ق",
+     "to": "محمد مقیم"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه آخر شوال 1029ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99501,
+   "shelfmark": "163",
+   "category": "rebuild",
+   "v2": "v11-59",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن اسماعیل گیلانی یزدی، تا سه شنبه 29 محرم 1244ق",
+     "to": "محمد علی بن اسماعیل گیلانی یزدی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 29 محرم 1244ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99881,
+   "shelfmark": "2822",
+   "category": "rebuild",
+   "v2": "v11-136",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن زین العابدین موسوی، بیتا",
+     "to": "محمد بن زین العابدین موسوی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 100658,
+   "shelfmark": "24580",
+   "category": "rebuild",
+   "v2": "v11-165",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مرمل محمد، بیتا",
+     "to": "مرمل محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101248,
+   "shelfmark": "518/1",
+   "category": "rebuild",
+   "v2": "v11-280",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عوض علی بن ملا اسماعیل خلخالی براغوشی، تا: سه‌شنبه 20 شعبان 1244ق",
+     "to": "عوض علی بن ملا اسماعیل خلخالی براغوشی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 20 شعبان 1244ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101825,
+   "shelfmark": "804/6",
+   "category": "rebuild",
+   "v2": "v11-446",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن حسن تنکابنی، تا پنج‌شنبه 21 ربیع الاول 982ق",
+     "to": "علی بن حسن تنکابنی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 21 ربیع الاول 982ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102366,
+   "shelfmark": "2722/1",
+   "category": "rebuild",
+   "v2": "v11-578",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد اکمل بن اسمعیل، تا دوشنبه 27 جمادی الاول 1086ق",
+     "to": "محمد اکمل بن اسمعیل"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 27 جمادی الاول 1086ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102774,
+   "shelfmark": "1181-7/81",
+   "category": "rebuild",
+   "v2": "v11-658",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مشايخ الهاشمی، بیتا",
+     "to": "مشايخ الهاشمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106865,
+   "shelfmark": "10048",
+   "category": "rebuild",
+   "v2": "v11-1025",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالله بن احمد بن منصور ابن محمد بن ناصر بن حسين الشهير ... (ساییده شده)، تا دوشنبه غره ذیقعده 1040ق",
+     "to": "عبدالله بن احمد بن منصور ابن محمد بن ناصر بن حسين الشهير ... (ساییده شده)"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه غره ذیقعده 1040ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106875,
+   "shelfmark": "165",
+   "category": "rebuild",
+   "v2": "v11-1025",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عیسی بن علی اردبیلی، تا عید فطر 1065ق",
+     "to": "عیسی بن علی اردبیلی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "عید فطر 1065ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107603,
+   "shelfmark": "447",
+   "category": "rebuild",
+   "v2": "v11-1248",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن ملا نصرالله، تا: 1263ق",
+     "to": "حسین بن ملا نصرالله"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1263ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 108988,
+   "shelfmark": "1935",
+   "category": "rebuild",
+   "v2": "v11-1445",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "كلب على بن محمد ربیع، تا پنج شنبه ذیقعده 1116ق",
+     "to": "كلب على بن محمد ربیع"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه ذیقعده 1116ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 108989,
+   "shelfmark": "1647",
+   "category": "rebuild",
+   "v2": "v11-1445",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "كلب على بن محمد ربیع، تا پنج شنبه از ذیقعده 1116ق",
+     "to": "كلب على بن محمد ربیع"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه از ذیقعده 1116ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 109283,
+   "shelfmark": "5361",
+   "category": "rebuild",
+   "v2": "v11-1502",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حاجی محمد، تا: 996ق",
+     "to": "حاجی محمد"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "996ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110124,
+   "shelfmark": "52ح",
+   "category": "rebuild",
+   "v2": "v12-45",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد هادی بن حاجی ابراهیم خاتون آبادی، تا: 1097ق",
+     "to": "محمد هادی بن حاجی ابراهیم خاتون آبادی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1097ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 112796,
+   "shelfmark": "412/1",
+   "category": "rebuild",
+   "v2": "v12-563",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "رفیع الدین احمد بن محمد امین فیروز آبادی، تا: پنج‌شنبه اوایل صفر 1029ق",
+     "to": "رفیع الدین احمد بن محمد امین فیروز آبادی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه اوایل صفر 1029ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 115680,
+   "shelfmark": "3955",
+   "category": "rebuild",
+   "v2": "v12-913",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "جلال الدین حمزة بن ابوطالب حسینی، تا: صفر 1071ق",
+     "to": "جلال الدین حمزة بن ابوطالب حسینی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "صفر 1071ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116109,
+   "shelfmark": "147/2",
+   "category": "rebuild",
+   "v2": "v12-1055",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "= مؤلف، تا از اوایل قرن 13",
+     "to": "= مؤلف"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "از اوایل قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 117098,
+   "shelfmark": "24",
+   "category": "rebuild",
+   "v2": "v12-1204",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسين بن محمد رفیع دهکردی، تا چهارشنبه 23 شوال 1235ق",
+     "to": "محمد حسين بن محمد رفیع دهکردی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 23 شوال 1235ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 117871,
+   "shelfmark": "8864/1-59/84",
+   "category": "rebuild",
+   "v2": "v12-1336",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "الله وردی بن حاجی رجب، تا چهارشنبه شوال 1036ق",
+     "to": "الله وردی بن حاجی رجب"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه شوال 1036ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 118000,
+   "shelfmark": "39671",
+   "category": "rebuild",
+   "v2": "v12-1405",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن علی اصغر جرفادقانی",
+     "to": "محمد بن علی اصغر جرفادقانی [گلپایگانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121640,
+   "shelfmark": "104",
+   "category": "rebuild",
+   "v2": "v13-251",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عناية الله بن نعمة الله سامغانی کازرونی، بیتا",
+     "to": "عناية الله بن نعمة الله سامغانی کازرونی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121677,
+   "shelfmark": "12- عنقا",
+   "category": "rebuild",
+   "v2": "v13-268",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "صفاء السلطنه عباس نایینی، بیتا",
+     "to": "صفاء السلطنه عباس نایینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121678,
+   "shelfmark": "6703",
+   "category": "rebuild",
+   "v2": "v13-269",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبیدالله بن عبدالرزاق بن حسین اردبیلی، تا پایان رجب 819ق",
+     "to": "عبیدالله بن عبدالرزاق بن حسین اردبیلی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پایان رجب 819ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 122627,
+   "shelfmark": "1128",
+   "category": "rebuild",
+   "v2": "v13-682",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "اسعد بن جعفر",
+     "to": "اسعد بن جعفر [حیدر] بن ابی المعالی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 123328,
+   "shelfmark": "72/8",
+   "category": "rebuild",
+   "v2": "v13-858",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "میرحسین بن شاه رضا سنکچاره پشتی، تا: 1152ق",
+     "to": "میرحسین بن شاه رضا سنکچاره پشتی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1152ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124853,
+   "shelfmark": "485/1",
+   "category": "rebuild",
+   "v2": "v13-1108",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شعبان بن عثمان الفهدی، تا یک‌شنبه سه شب مانده از رجب 1081ق",
+     "to": "شعبان بن عثمان الفهدی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه سه شب مانده از رجب 1081ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125165,
+   "shelfmark": "58000",
+   "category": "rebuild",
+   "v2": "v13-1212",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدا",
+     "to": "عبدا [الله] بن جواد بن عقیل علوی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128379,
+   "shelfmark": "13676",
+   "category": "rebuild",
+   "v2": "v13-1955",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "امام الدین احمد",
+     "to": "امام الدین احمد [طالب العلم]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129237,
+   "shelfmark": "4596/2",
+   "category": "rebuild",
+   "v2": "v13-2019",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد صادق ترشیزی، تا چهارشنبه 3 ربیع الثانی 1062ق",
+     "to": "محمد صادق ترشیزی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 3 ربیع الثانی 1062ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129953,
+   "shelfmark": "1625/13",
+   "category": "rebuild",
+   "v2": "v13-2108",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عودی، احمد بن حسین، تا پنج‌شنبه 24 ذیحجه 742ق",
+     "to": "عودی، احمد بن حسین"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 24 ذیحجه 742ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133331,
+   "shelfmark": "560",
+   "category": "rebuild",
+   "v2": "v14-1043",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد صادق مصحح پسر حاج محمد حافظ، تا پایان جمادی الاول 1042ق",
+     "to": "محمد صادق مصحح پسر حاج محمد حافظ"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پایان جمادی الاول 1042ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 134449,
+   "shelfmark": "202",
+   "category": "rebuild",
+   "v2": "v14-1275",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "رودباری، بیتا",
+     "to": "رودباری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135009,
+   "shelfmark": "1920",
+   "category": "rebuild",
+   "v2": "v14-1448",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مطهر بن اسلام محمد، تا پنج شنبه 26 شعبان 969ق",
+     "to": "مطهر بن اسلام محمد"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 26 شعبان 969ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 138401,
+   "shelfmark": "5606/3",
+   "category": "rebuild",
+   "v2": "v14-2595",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمود بن محمد علی، تا: 1321ق",
+     "to": "محمود بن محمد علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1321ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 138528,
+   "shelfmark": "302 تا 305 بخش 3",
+   "category": "rebuild",
+   "v2": "v14-2644",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالرحمان بن احمد بن عباس، تا دوشنبه 27 ذیقعده 651ق",
+     "to": "عبدالرحمان بن احمد بن عباس"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 27 ذیقعده 651ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 139674,
+   "shelfmark": "4378",
+   "category": "rebuild",
+   "v2": "v14-2835",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن محمد تقی شریف",
+     "to": "محمد علی بن محمد تقی شریف [نائینی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 141159,
+   "shelfmark": "28",
+   "category": "rebuild",
+   "v2": "v15-267",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالرحیم",
+     "to": "عبدالرحیم [انیسی یعقوبی خوارزمی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143009,
+   "shelfmark": "8173/213",
+   "category": "rebuild",
+   "v2": "v15-709",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "صحبت الله خان ملقب به دبیر همایون، تا: آغاز قرن 14",
+     "to": "صحبت الله خان ملقب به دبیر همایون"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "آغاز قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 147379,
+   "shelfmark": "578/2",
+   "category": "rebuild",
+   "v2": "v15-1518",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شمس الدین سیستانی، بیتا",
+     "to": "شمس الدین سیستانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150097,
+   "shelfmark": "5223",
+   "category": "rebuild",
+   "v2": "v15-2184",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد جعفر پسر خود وقاری، تا دوشنبه 3 ذیحجه 1084ق",
+     "to": "محمد جعفر پسر خود وقاری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 3 ذیحجه 1084ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150515,
+   "shelfmark": "11174/10",
+   "category": "rebuild",
+   "v2": "v16-16",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر، حسینی",
+     "to": "محمد کریم بن محمد باقر، حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150703,
+   "shelfmark": "2024/1",
+   "category": "rebuild",
+   "v2": "v16-80",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "صفی بن محمد امین رستمداری، تا دهه سوم شوال 1055ق",
+     "to": "صفی بن محمد امین رستمداری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دهه سوم شوال 1055ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150704,
+   "shelfmark": "4984/1",
+   "category": "rebuild",
+   "v2": "v16-80",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن محمد حسینی، تا رجب 1119ق",
+     "to": "حسین بن محمد حسینی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1119ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150912,
+   "shelfmark": "209",
+   "category": "rebuild",
+   "v2": "v16-81",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد تقی بن مهدی، تا چهارشنبه 3 ربیع الثانی 1256ق",
+     "to": "محمد تقی بن مهدی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 3 ربیع الثانی 1256ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151194,
+   "shelfmark": "20185",
+   "category": "rebuild",
+   "v2": "v16-126",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "میرزا بابا بن عبدالمحمد خوانساری، تا شنبه 24 صفر 1262ق",
+     "to": "میرزا بابا بن عبدالمحمد خوانساری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 24 صفر 1262ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152203,
+   "shelfmark": "12070/2",
+   "category": "rebuild",
+   "v2": "v16-486",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید محمد فرزند حسین طباطبائی، تا: سه‌شنبه 2 جمادی الاول 1106ق",
+     "to": "سید محمد فرزند حسین طباطبائی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 2 جمادی الاول 1106ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152753,
+   "shelfmark": "36089",
+   "category": "rebuild",
+   "v2": "v16-568",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد",
+     "to": "محمد [یار محمد]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 155410,
+   "shelfmark": "4419/1",
+   "category": "rebuild",
+   "v2": "v16-1614",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "میرزا محمد علی شریف یزدی شاهرودی، بیتا",
+     "to": "میرزا محمد علی شریف یزدی شاهرودی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 156411,
+   "shelfmark": "13964/1",
+   "category": "rebuild",
+   "v2": "v16-1861",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "کمال الدین حسن بن محمدشاه ابوعلی کفه کیلوی",
+     "to": "کمال الدین حسن بن محمدشاه ابوعلی کفه کیلوی [کهه کیلوی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 156637,
+   "shelfmark": "39933",
+   "category": "rebuild",
+   "v2": "v16-1903",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "اسدالله بن اسماعیل",
+     "to": "اسدالله بن اسماعیل [شوشتری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157653,
+   "shelfmark": "127 و 1727ف",
+   "category": "rebuild",
+   "v2": "v16-2176",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "نظرعلی، تا چهارشنبه دهه نخستین رجب 1060ق",
+     "to": "نظرعلی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه دهه نخستین رجب 1060ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 158429,
+   "shelfmark": "1471/2",
+   "category": "rebuild",
+   "v2": "v16-2426",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "یدالله",
+     "to": "یدالله [نظر پاک]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 158503,
+   "shelfmark": "1333",
+   "category": "rebuild",
+   "v2": "v16-2430",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن عوض نیشابو",
+     "to": "محمد بن عوض نیشابو[ر]ی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159341,
+   "shelfmark": "37",
+   "category": "rebuild",
+   "v2": "v17-53",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد طاهر بن محمد مؤمن خوانساری، تا: شنبه دهه آخر ذیحجه 1113ق",
+     "to": "محمد طاهر بن محمد مؤمن خوانساری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه دهه آخر ذیحجه 1113ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160041,
+   "shelfmark": "138",
+   "category": "rebuild",
+   "v2": "v17-53",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن حسین بن حاج عبدالله لاری، تا: 1267ق",
+     "to": "محمد بن حسین بن حاج عبدالله لاری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1267ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161350,
+   "shelfmark": "3520",
+   "category": "rebuild",
+   "v2": "v17-150",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن علی بن نصرالله در ایادی اردبیلی، تا: دوشنبه 13 شعبان 1279ق",
+     "to": "حسن علی بن نصرالله در ایادی اردبیلی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 13 شعبان 1279ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161572,
+   "shelfmark": "478/4",
+   "category": "rebuild",
+   "v2": "v17-233",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد جعفر بن مولی محمد شفیعی نائینی، تا رجب 1122ق",
+     "to": "محمد جعفر بن مولی محمد شفیعی نائینی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1122ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161957,
+   "shelfmark": "35483",
+   "category": "rebuild",
+   "v2": "v17-339",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد احسن قادری، تا یک شنبه 2 رجب 1222ق",
+     "to": "محمد احسن قادری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک شنبه 2 رجب 1222ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164603,
+   "shelfmark": "2151/2",
+   "category": "rebuild",
+   "v2": "v17-528",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد صادق ورنو سفادرانی پسر محمد تقی، تا: 9 ذیقعده 1259ق",
+     "to": "محمد صادق ورنو سفادرانی پسر محمد تقی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "9 ذیقعده 1259ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164869,
+   "shelfmark": "60",
+   "category": "rebuild",
+   "v2": "v17-625",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "زین العابدین طریح، تا جمعه نیمه ربیع الثانی 1079ق",
+     "to": "زین العابدین طریح"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه نیمه ربیع الثانی 1079ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166765,
+   "shelfmark": "39262",
+   "category": "rebuild",
+   "v2": "v17-1036",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "امانقلی بن حسین قلی بن حسن",
+     "to": "امانقلی بن حسین قلی بن حسن [گرایلی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166992,
+   "shelfmark": "2150",
+   "category": "rebuild",
+   "v2": "v17-1093",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد، بیتا",
+     "to": "احمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167447,
+   "shelfmark": "1244",
+   "category": "rebuild",
+   "v2": "v17-1195",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابن میرزا محمد اصفهانی، تا جمعه 20 صفر 1237ق",
+     "to": "ابن میرزا محمد اصفهانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 20 صفر 1237ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167455,
+   "shelfmark": "4032",
+   "category": "rebuild",
+   "v2": "v17-1195",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن عبدالله بن جعفر ساکن طالخانی از قرای سمیرم، تا یک‌شنبه 15 محرم 1255ق به دستور آقا محمد صادق",
+     "to": "محمد بن عبدالله بن جعفر ساکن طالخانی از قرای سمیرم"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 15 محرم 1255ق به دستور آقا محمد صادق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167622,
+   "shelfmark": "15506/8",
+   "category": "rebuild",
+   "v2": "v17-1256",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد طاهر بن حسن اراسنچی",
+     "to": "محمد طاهر بن حسن اراسنچی [قزوینی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168428,
+   "shelfmark": "8214/2-56/64",
+   "category": "rebuild",
+   "v2": "v17-1416",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابن مرحوم حاج میرزا حسن کربلائی زنجانی، تا: غره ذیحجه 1323ق",
+     "to": "ابن مرحوم حاج میرزا حسن کربلائی زنجانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "غره ذیحجه 1323ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168503,
+   "shelfmark": "4137/3",
+   "category": "rebuild",
+   "v2": "v17-1440",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد المدعو بالتقى بن ابوالحسن، بیتا",
+     "to": "محمد المدعو بالتقى بن ابوالحسن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 169041,
+   "shelfmark": "10593",
+   "category": "rebuild",
+   "v2": "v17-1676",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد امین بن محمد علی شریف استرآبادی (شاگرد مؤلف)، تا سه‌شنبه 29 ربیع الاول 1107ق",
+     "to": "محمد امین بن محمد علی شریف استرآبادی (شاگرد مؤلف)"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 29 ربیع الاول 1107ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172392,
+   "shelfmark": "22214",
+   "category": "rebuild",
+   "v2": "v18-1049",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "زکریا بن محمد محلی شافعی، تا چهارشنبه 22 جمادی الثانی 1060ق",
+     "to": "زکریا بن محمد محلی شافعی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 22 جمادی الثانی 1060ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174852,
+   "shelfmark": "11174/11",
+   "category": "rebuild",
+   "v2": "v18-1901",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر، حسینی",
+     "to": "محمد کریم بن محمد باقر، حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181103,
+   "shelfmark": "80/2",
+   "category": "rebuild",
+   "v2": "v19-480",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "زکریاء استرآبادی، تا دوشنبه 19 شوال 1110ق",
+     "to": "زکریاء استرآبادی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 19 شوال 1110ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183240,
+   "shelfmark": "29011",
+   "category": "rebuild",
+   "v2": "v19-1195",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شیرازی، عبدالحمید بن ابوطالب، تا: 1289ق",
+     "to": "شیرازی، عبدالحمید بن ابوطالب"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1289ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 185616,
+   "shelfmark": "15809",
+   "category": "rebuild",
+   "v2": "v19-1796",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عباس بن علی کرزکانی",
+     "to": "عباس بن علی کرزکانی [بحرانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 186036,
+   "shelfmark": "38",
+   "category": "rebuild",
+   "v2": "v19-1894",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حمزة بن كربلایی ابوالحسن بن ملا محمد اسماعیل بشروی خراسانی، تا چهارشنبه از ربیع الثانی 1289ق",
+     "to": "حمزة بن كربلایی ابوالحسن بن ملا محمد اسماعیل بشروی خراسانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه از ربیع الثانی 1289ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 186531,
+   "shelfmark": "15181",
+   "category": "rebuild",
+   "v2": "v19-1984",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد شریف بن",
+     "to": "محمد شریف بن [رجبعلی] مازندرانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 188520,
+   "shelfmark": "2559/1",
+   "category": "rebuild",
+   "v2": "v20-200",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالحسین بن ناصر بن عبدالحسین سعید آبادی، تا: 1235ق",
+     "to": "عبدالحسین بن ناصر بن عبدالحسین سعید آبادی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1235ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 188578,
+   "shelfmark": "15164/1",
+   "category": "rebuild",
+   "v2": "v20-200",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد نبی بن حمزه فراهانی مجد آبادی",
+     "to": "محمد نبی بن حمزه فراهانی مجد آبادی [اراکی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189041,
+   "shelfmark": "435/4",
+   "category": "rebuild",
+   "v2": "v20-269",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن بن عبدالکریم بن عبدالاحد بن عبدالجلیل",
+     "to": "حسن بن عبدالکریم بن عبدالاحد بن عبدالجلیل [کرمانشاهی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190282,
+   "shelfmark": "7730/3",
+   "category": "rebuild",
+   "v2": "v20-470",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ملا مسیح، بیتا",
+     "to": "ملا مسیح"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 191006,
+   "shelfmark": "18210",
+   "category": "rebuild",
+   "v2": "v20-603",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "خورشید ولد عبدالهادی (متوطن قصبه کهب)، بیتا",
+     "to": "خورشید ولد عبدالهادی (متوطن قصبه کهب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 191788,
+   "shelfmark": "4366",
+   "category": "rebuild",
+   "v2": "v20-810",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد تقی شریف",
+     "to": "محمد تقی شریف [نائینی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192177,
+   "shelfmark": "8404/2",
+   "category": "rebuild",
+   "v2": "v20-855",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالظهیر بن معصوم كره رودی، تا چهارشنبه 29 شعبان 1084ق",
+     "to": "عبدالظهیر بن معصوم كره رودی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 29 شعبان 1084ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192178,
+   "shelfmark": "59",
+   "category": "rebuild",
+   "v2": "v20-855",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن عباس تویسرکانی، تا سه شنبه 16 ذیقعده 1085ق",
+     "to": "محمد علی بن عباس تویسرکانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 16 ذیقعده 1085ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192581,
+   "shelfmark": "12768",
+   "category": "rebuild",
+   "v2": "v20-873",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد",
+     "to": "محمد [حسین] ابن یحیی خطی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192673,
+   "shelfmark": "1218",
+   "category": "rebuild",
+   "v2": "v20-879",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شعیب خاقان بن محمد، تا پنج‌شنبه 28 رجب 1108ق",
+     "to": "شعیب خاقان بن محمد"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 28 رجب 1108ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 194918,
+   "shelfmark": "2913/6",
+   "category": "rebuild",
+   "v2": "v20-1495",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد باقر بن زین العابدین الوانشانی جرفادقانی، تا شنبه 29 جمادی الثانی 1205ق",
+     "to": "محمد باقر بن زین العابدین الوانشانی جرفادقانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 29 جمادی الثانی 1205ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 199411,
+   "shelfmark": "32",
+   "category": "rebuild",
+   "v2": "v21-491",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد",
+     "to": "محمد [اسماعیل] سبزواری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201662,
+   "shelfmark": "11174/5",
+   "category": "rebuild",
+   "v2": "v21-810",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر، حسینی",
+     "to": "محمد کریم بن محمد باقر، حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202435,
+   "shelfmark": "36",
+   "category": "rebuild",
+   "v2": "v21-876",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی رضا",
+     "to": "علی رضا [بن] عباس تبریزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203705,
+   "shelfmark": "15864",
+   "category": "rebuild",
+   "v2": "v21-953",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مرعشی",
+     "to": "مرعشی [شوشتری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 204669,
+   "shelfmark": "663",
+   "category": "rebuild",
+   "v2": "v21-1179",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبد الکریم بن ملا محمد حسین (فرزند مترجم ارجوزه)، تا رجب 1268ق",
+     "to": "عبد الکریم بن ملا محمد حسین (فرزند مترجم ارجوزه)"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1268ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 204954,
+   "shelfmark": "بدون شماره/5",
+   "category": "rebuild",
+   "v2": "v21-1209",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد سامع ابن محمد نصیر، بیتا",
+     "to": "محمد سامع ابن محمد نصیر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205505,
+   "shelfmark": "17169",
+   "category": "rebuild",
+   "v2": "v21-1357",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ظهیر بن معصوم کرهرودی، تا یک‌شنبه 25 شوال 1086ق",
+     "to": "ظهیر بن معصوم کرهرودی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 25 شوال 1086ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205690,
+   "shelfmark": "596",
+   "category": "rebuild",
+   "v2": "v21-1458",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "یوسف ولد قسیس میخائیل صاجاتی، بیتا",
+     "to": "یوسف ولد قسیس میخائیل صاجاتی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206339,
+   "shelfmark": "13973",
+   "category": "rebuild",
+   "v2": "v21-1783",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابوالفتح بن عبدالرزاق",
+     "to": "ابوالفتح بن عبدالرزاق [حسینی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206391,
+   "shelfmark": "65/2",
+   "category": "rebuild",
+   "v2": "v21-1815",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمدحسین بن محمد علی، تا: 18 ذیقعده 1334ق",
+     "to": "محمدحسین بن محمد علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "18 ذیقعده 1334ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207804,
+   "shelfmark": "13990",
+   "category": "rebuild",
+   "v2": "v21-2154",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عمر بن",
+     "to": "عمر بن [يحيى] بن علی داود"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208144,
+   "shelfmark": "240/2 - ج",
+   "category": "rebuild",
+   "v2": "v22-92",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید حسین حلبی حسینی، تا رجب 1235ق",
+     "to": "سید حسین حلبی حسینی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1235ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209493,
+   "shelfmark": "2488",
+   "category": "rebuild",
+   "v2": "v22-394",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "جبرئیل بن مولا اسمعیل بن مولانا جبر",
+     "to": "جبرئیل بن مولا اسمعیل بن مولانا جبر [ئیل]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209696,
+   "shelfmark": "15246/8",
+   "category": "rebuild",
+   "v2": "v22-475",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد مهند بن میرزا ابوالقاسم حسینی موسوی",
+     "to": "محمد مهند بن میرزا ابوالقاسم حسینی موسوی [نطنزی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209765,
+   "shelfmark": "8932/10",
+   "category": "rebuild",
+   "v2": "v22-498",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن علی بن حسن جباعی، تا شنبه 18 شوال 852ق",
+     "to": "محمد بن علی بن حسن جباعی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 18 شوال 852ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211170,
+   "shelfmark": "3430/1 و 6898-عکس",
+   "category": "rebuild",
+   "v2": "v22-949",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شرف، تا پنج شنبه 26 شوال 984ق",
+     "to": "شرف"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 26 شوال 984ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211287,
+   "shelfmark": "35155",
+   "category": "rebuild",
+   "v2": "v22-986",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "اسدالله بن اسماعیل",
+     "to": "اسدالله بن اسماعیل [شوشتری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211593,
+   "shelfmark": "6714",
+   "category": "rebuild",
+   "v2": "v22-1090",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد مسعود بن محمد سعید جیلانی ساکن دارالمومنین قم، تا چهارشنبه 5 ربیع الاول 1030ق",
+     "to": "محمد مسعود بن محمد سعید جیلانی ساکن دارالمومنین قم"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 5 ربیع الاول 1030ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214276,
+   "shelfmark": "665/9",
+   "category": "rebuild",
+   "v2": "v22-1748",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن محمد",
+     "to": "حسین بن محمد [بن محسن بن] شمس الدین"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214512,
+   "shelfmark": "1482/2عکسی",
+   "category": "rebuild",
+   "v2": "v22-1850",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالملک",
+     "to": "عبدالملک [بن] علی [بن] اسماعیل قاضی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215769,
+   "shelfmark": "15609",
+   "category": "rebuild",
+   "v2": "v22-2326",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مهر علی اطلسی، بیتا",
+     "to": "مهر علی اطلسی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 216563,
+   "shelfmark": "16044",
+   "category": "rebuild",
+   "v2": "v22-2610",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن خوشنویس",
+     "to": "حسن خوشنویس [همدانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 219016,
+   "shelfmark": "11174/12",
+   "category": "rebuild",
+   "v2": "v23-324",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر، حسینی",
+     "to": "محمد کریم بن محمد باقر، حسینی [طیب تنکابنی ]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 220006,
+   "shelfmark": "584/2-طباطبائی",
+   "category": "rebuild",
+   "v2": "v23-442",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی بن سعد ... سهلانی، تا: 1101ق",
+     "to": "علی بن سعد ... سهلانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1101ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 220284,
+   "shelfmark": "4379",
+   "category": "rebuild",
+   "v2": "v23-482",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی زارجی",
+     "to": "محمد علی زارجی [زارچی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223414,
+   "shelfmark": "9006",
+   "category": "rebuild",
+   "v2": "v23-1255",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد طاهر کجوری، تا چهارشنبه ذیقعده 1108ق",
+     "to": "محمد طاهر کجوری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه ذیقعده 1108ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223417,
+   "shelfmark": "1103",
+   "category": "rebuild",
+   "v2": "v23-1255",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی قلی پسر احمد تبریزی، تا جمعه 2 رجب (179 شاید 1079ق)",
+     "to": "علی قلی پسر احمد تبریزی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 2 رجب (179 شاید 1079ق)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 224018,
+   "shelfmark": "18493/1",
+   "category": "rebuild",
+   "v2": "v23-1372",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مقدمه ظاهراً به خط سید احمد بن سید مرتضی، بیتا",
+     "to": "مقدمه ظاهراً به خط سید احمد بن سید مرتضی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 224233,
+   "shelfmark": "6207/2",
+   "category": "rebuild",
+   "v2": "v23-1429",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حیدر بن علی بن اسمعیل بن عبدالعالی",
+     "to": "حیدر بن علی بن اسمعیل بن عبدالعالی [بن علی] هاشمی کرکی عاملی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226180,
+   "shelfmark": "398",
+   "category": "rebuild",
+   "v2": "v23-1841",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی محمد بن ابی الحسن کنی تهرانی، تا: 169/1204",
+     "to": "علی محمد بن ابی الحسن کنی تهرانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "169/1204"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226613,
+   "shelfmark": "5147/2",
+   "category": "rebuild",
+   "v2": "v23-1893",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بابای خوقندی، بیتا",
+     "to": "محمد بابای خوقندی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228507,
+   "shelfmark": "8625",
+   "category": "rebuild",
+   "v2": "v24-515",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "فتح الله بن محمود بن اسماعیل حافظ",
+     "to": "فتح الله بن محمود بن اسماعیل حافظ [حنفی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230102,
+   "shelfmark": "35719",
+   "category": "rebuild",
+   "v2": "v24-889",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "اسدالله بن اسماعیل",
+     "to": "اسدالله بن اسماعیل [شوشتری] شاگرد مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230276,
+   "shelfmark": "16073/2",
+   "category": "rebuild",
+   "v2": "v24-890",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمدعلی بن اسماعیل گیلانی",
+     "to": "محمدعلی بن اسماعیل گیلانی [جیلانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230361,
+   "shelfmark": "7707/8",
+   "category": "rebuild",
+   "v2": "v24-890",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عیسی استرآبادی، تا شنبه 22 رمضان 1231ق",
+     "to": "عیسی استرآبادی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 22 رمضان 1231ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233123,
+   "shelfmark": "19928",
+   "category": "rebuild",
+   "v2": "v24-1467",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید احمد بن محمدرضا مصطفی حسینی",
+     "to": "سید احمد بن محمدرضا مصطفی حسینی [خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233535,
+   "shelfmark": "3063-16/73",
+   "category": "rebuild",
+   "v2": "v24-1617",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن حاجی اکبر تفرشی وطر خورانی ملقب به عارفعلی نعمت اللهی، تا سه‌شنبه 26 رمضان 1313ق-1315ق",
+     "to": "محمد بن حاجی اکبر تفرشی وطر خورانی ملقب به عارفعلی نعمت اللهی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 26 رمضان 1313ق-1315ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233536,
+   "shelfmark": "327/1",
+   "category": "rebuild",
+   "v2": "v24-1617",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مهدی شمس الشعراء گواری، تا شنبه 24 شعبان 1328ق",
+     "to": "مهدی شمس الشعراء گواری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 24 شعبان 1328ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235413,
+   "shelfmark": "156",
+   "category": "rebuild",
+   "v2": "v24-2013",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمود بن مقلة بن سليمان كاتب، تا شعبان 590ق، و او جز ابوعلی محمد بن علی بن حسن بن مقله درگذشته 328 است",
+     "to": "محمود بن مقلة بن سليمان كاتب"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شعبان 590ق، و او جز ابوعلی محمد بن علی بن حسن بن مقله درگذشته 328 است"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239399,
+   "shelfmark": "72",
+   "category": "rebuild",
+   "v2": "v25-233",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی نقی بن محمد کاظم کومنی جاجرمی، تا دوشنبه 17 محرم 1274ق",
+     "to": "علی نقی بن محمد کاظم کومنی جاجرمی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 17 محرم 1274ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 240845,
+   "shelfmark": "6301-32/1",
+   "category": "rebuild",
+   "v2": "v25-747",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد بن محمد رضا حسینی",
+     "to": "احمد بن محمد رضا حسینی [خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 242504,
+   "shelfmark": "713/1",
+   "category": "rebuild",
+   "v2": "v25-1030",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [خان اعتماد السلطنه]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 242567,
+   "shelfmark": "605",
+   "category": "rebuild",
+   "v2": "v25-1061",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "= مؤلف، بیتا",
+     "to": "= مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 244345,
+   "shelfmark": "15295",
+   "category": "rebuild",
+   "v2": "v25-1435",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شامحمد",
+     "to": "شامحمد [شاه محمد]بن محمد رضای بانصر کلای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 245019,
+   "shelfmark": "104-بهار",
+   "category": "rebuild",
+   "v2": "v25-1477",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسن بن عبدالرزاق",
+     "to": "حسن بن عبدالرزاق [گیلانی قمی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 247317,
+   "shelfmark": "5748/1-209/88",
+   "category": "rebuild",
+   "v2": "v25-1573",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد صادق ولد محمد مهدی ولد محمد صادق",
+     "to": "محمد صادق ولد محمد مهدی ولد محمد صادق [ولد] آخوند ملا علی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250249,
+   "shelfmark": "15863",
+   "category": "rebuild",
+   "v2": "v26-294",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمود بن",
+     "to": "محمود بن [سینا ناجی نهریاجی] مدعو عبدالکرام حميد سبعى"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250610,
+   "shelfmark": "9075/14",
+   "category": "rebuild",
+   "v2": "v26-315",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مهر علی، تا1224ق",
+     "to": "مهر علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1224ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 252149,
+   "shelfmark": "4096",
+   "category": "rebuild",
+   "v2": "v26-608",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن",
+     "to": "محمد بن [شمس] الدین یحیی بن [جوینی حنفی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 252277,
+   "shelfmark": "3056",
+   "category": "rebuild",
+   "v2": "v26-626",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالرسول موسوی ساروی، بیتا",
+     "to": "عبدالرسول موسوی ساروی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 253490,
+   "shelfmark": "2021-عکسی",
+   "category": "rebuild",
+   "v2": "v26-857",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالعلی بن کریم بن ابراهیم",
+     "to": "عبدالعلی بن کریم بن ابراهیم [کرمانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254361,
+   "shelfmark": "2143/4-عکسی",
+   "category": "rebuild",
+   "v2": "v26-1138",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [بن محمد حسین] سردرودی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257592,
+   "shelfmark": "1497/30عکسی",
+   "category": "rebuild",
+   "v2": "v26-1767",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید احمد بن محمد رضا حسینی",
+     "to": "سید احمد بن محمد رضا حسینی [صفایی خوانساری]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257733,
+   "shelfmark": "331/7",
+   "category": "rebuild",
+   "v2": "v26-1819",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن آخوند ملا احمد، تا چهارشنبه 29 رمضان 1264ق",
+     "to": "محمد علی بن آخوند ملا احمد"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 29 رمضان 1264ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 261411,
+   "shelfmark": "6",
+   "category": "rebuild",
+   "v2": "v27-686",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "نظام الدین احمد بن حسین بن محمد شاه بن حیدر بن بایزید بن حسین بن علی بن سلام الله بن عتیق الله بن ابی غانم محمود بن ابی الفضل بن ابی راشد بن هاشم بن ابی الفضایل فاضل بن مفضل بن ابوالکرم یحیی بن عقیل بن زکریا",
+     "to": "نظام الدین احمد بن حسین بن محمد شاه بن حیدر بن بایزید بن حسین بن علی بن سلام الله بن عتیق الله بن ابی غانم محمود بن ابی الفضل بن ابی راشد بن هاشم بن ابی الفضایل فاضل بن مفضل بن ابوالکرم یحیی بن عقیل بن زکریا [بن] یحیی بن زین ابی ذر غفاری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 261987,
+   "shelfmark": "24530",
+   "category": "rebuild",
+   "v2": "v27-853",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "مبارک علی، تا چهارشنبه 17 شعبان 1280ق",
+     "to": "مبارک علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 17 شعبان 1280ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262063,
+   "shelfmark": "1831/8",
+   "category": "rebuild",
+   "v2": "v27-889",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "شمسا اصفهانی",
+     "to": "شمسا اصفهانی [شمس الدین محمد]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 263560,
+   "shelfmark": "528",
+   "category": "rebuild",
+   "v2": "v27-1164",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "زین العابدین بن میرزا ولی الله بن ملا نورالله طبر",
+     "to": "زین العابدین بن میرزا ولی الله بن ملا نورالله طبر[ی] کلارستارقی کلاردشتی کرکی من طایفه با نج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265289,
+   "shelfmark": "621/8",
+   "category": "rebuild",
+   "v2": "v27-1355",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابوالقاسم بن محمد غریب تبریزی قراجه‌داغی، تا: قرن 13",
+     "to": "ابوالقاسم بن محمد غریب تبریزی قراجه‌داغی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265426,
+   "shelfmark": "2306/6",
+   "category": "rebuild",
+   "v2": "v27-1376",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "نعمت الله، بیتا",
+     "to": "نعمت الله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268944,
+   "shelfmark": "6972",
+   "category": "rebuild",
+   "v2": "v28-153",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد یوسف بن عبدالخالق ... مشهدی، تا: 1041ق",
+     "to": "محمد یوسف بن عبدالخالق ... مشهدی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1041ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 269253,
+   "shelfmark": "13911/2",
+   "category": "rebuild",
+   "v2": "v28-196",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن محمد بن حسن جویانی",
+     "to": "حسین بن محمد بن حسن جویانی[عاملی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270290,
+   "shelfmark": "430",
+   "category": "rebuild",
+   "v2": "v28-392",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حاجی محمد امین بن حاجی درویش محمد، تا یک شنبه 4 جمادی الاول 1060ق",
+     "to": "حاجی محمد امین بن حاجی درویش محمد"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک شنبه 4 جمادی الاول 1060ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270586,
+   "shelfmark": "6229",
+   "category": "rebuild",
+   "v2": "v28-403",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد ابراهیم بن محمد حسین کهرودی، بیتا",
+     "to": "محمد ابراهیم بن محمد حسین کهرودی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 271411,
+   "shelfmark": "13805/7",
+   "category": "rebuild",
+   "v2": "v28-653",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید الحکماء یحیی",
+     "to": "سید الحکماء یحیی [بن میرزا علیمحمد حسینی] لاریجانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273972,
+   "shelfmark": "1919/2-عکسی",
+   "category": "rebuild",
+   "v2": "v28-1239",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابن حاج محمد اکبر جعفر، تا چهارشنبه 8 ذیحجه 1122ق",
+     "to": "ابن حاج محمد اکبر جعفر"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 8 ذیحجه 1122ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 278777,
+   "shelfmark": "713/3",
+   "category": "rebuild",
+   "v2": "v29-79",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [خان اعتماد السلطنه]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 278781,
+   "shelfmark": "713/4",
+   "category": "rebuild",
+   "v2": "v29-83",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [خان اعتماد السلطنه]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 278787,
+   "shelfmark": "713/5",
+   "category": "rebuild",
+   "v2": "v29-89",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [خان اعتماد السلطنه]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281143,
+   "shelfmark": "11174/6",
+   "category": "rebuild",
+   "v2": "v29-687",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد کریم بن محمد باقر، حسینی",
+     "to": "محمد کریم بن محمد باقر، حسینی [طیب تنکابنی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281753,
+   "shelfmark": "11708",
+   "category": "rebuild",
+   "v2": "v29-710",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عیسی فرزند لطفعلی فرزند کربلایی هادی، لنکرانی، تا یک‌شنبه 23 جمادی الاول 1247ق",
+     "to": "عیسی فرزند لطفعلی فرزند کربلایی هادی، لنکرانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 23 جمادی الاول 1247ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 283639,
+   "shelfmark": "15941",
+   "category": "rebuild",
+   "v2": "v29-1170",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد ... بن",
+     "to": "محمد ... بن [شیخ] علی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 284039,
+   "shelfmark": "38012",
+   "category": "rebuild",
+   "v2": "v29-1301",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد روضه خوان بن مشهد",
+     "to": "محمد روضه خوان بن مشهد [ی] ابراهیم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 284176,
+   "shelfmark": "13805/8",
+   "category": "rebuild",
+   "v2": "v29-1329",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید الحکماء سید یحیی",
+     "to": "سید الحکماء سید یحیی [بن میرزا علیمحمد حسینی] لاریجانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 284864,
+   "shelfmark": "3808/6",
+   "category": "rebuild",
+   "v2": "v29-1407",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "زین العابدین بن محمد علی نجفی، بیتا",
+     "to": "زین العابدین بن محمد علی نجفی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 285663,
+   "shelfmark": "1482/1عکسی",
+   "category": "rebuild",
+   "v2": "v29-1542",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالملک",
+     "to": "عبدالملک [بن] علی [بن] اسماعیل قاضی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286548,
+   "shelfmark": "713/2",
+   "category": "rebuild",
+   "v2": "v29-1714",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن",
+     "to": "محمد حسن [خان اعتماد السلطنه]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286630,
+   "shelfmark": "12277",
+   "category": "rebuild",
+   "v2": "v29-1723",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد باقر فرزند محمد جعفر",
+     "to": "محمد باقر فرزند محمد جعفر [فرزند محمد کافی] بهاری همدانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287617,
+   "shelfmark": "15257",
+   "category": "rebuild",
+   "v2": "v30-58",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن شیخ سلیمان",
+     "to": "حسین بن شیخ سلیمان [فتلانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288119,
+   "shelfmark": "247",
+   "category": "rebuild",
+   "v2": "v30-58",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "رمضان ابن علی، تا سه شنبه 25 شعبان 1273ق",
+     "to": "رمضان ابن علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 25 شعبان 1273ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288128,
+   "shelfmark": "12",
+   "category": "rebuild",
+   "v2": "v30-58",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمدبن رضا موسوی فیارمی، تا دوشنبه 12 جمادی الاول 1304ق",
+     "to": "محمدبن رضا موسوی فیارمی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 12 جمادی الاول 1304ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 289936,
+   "shelfmark": "1407",
+   "category": "rebuild",
+   "v2": "v30-320",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد بن عبا",
+     "to": "احمد بن عبا[س] بن تقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290552,
+   "shelfmark": "4593/3",
+   "category": "rebuild",
+   "v2": "v30-452",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد سعید بن محمد صالح کاشانی، تا شب یک‌شنبه 8 ربیع الثانی 1040ق",
+     "to": "محمد سعید بن محمد صالح کاشانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شب یک‌شنبه 8 ربیع الثانی 1040ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 293517,
+   "shelfmark": "831",
+   "category": "rebuild",
+   "v2": "v30-1444",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حکیم محمد باقر پسر حاجی محمد زمان شیرازی، تا: قرن 12",
+     "to": "حکیم محمد باقر پسر حاجی محمد زمان شیرازی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294853,
+   "shelfmark": "154",
+   "category": "rebuild",
+   "v2": "v30-1500",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن حسین",
+     "to": "محمد بن حسین [بن] حاج عبد الله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295449,
+   "shelfmark": "15951",
+   "category": "rebuild",
+   "v2": "v30-1598",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد بن نورالدین محمد",
+     "to": "محمد بن نورالدین محمد [اصفهانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298125,
+   "shelfmark": "4872/8",
+   "category": "rebuild",
+   "v2": "v31-154",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "همدم بن العذب، بیتا",
+     "to": "همدم بن العذب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298136,
+   "shelfmark": "13805/5",
+   "category": "rebuild",
+   "v2": "v31-164",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید الحکماء",
+     "to": "سید الحکماء [یحیی بن میرزا علیمحمد حسینی] لاریجانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 299787,
+   "shelfmark": "15504/1",
+   "category": "rebuild",
+   "v2": "v31-628",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد علی بن محمد حسین مازندرانی ساروی، تا: صفر1234ق",
+     "to": "محمد علی بن محمد حسین مازندرانی ساروی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "صفر1234ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302115,
+   "shelfmark": "15594/5",
+   "category": "rebuild",
+   "v2": "v31-1347",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حافد صدیق، بیتا",
+     "to": "حافد صدیق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302116,
+   "shelfmark": "1625/1-9/175",
+   "category": "rebuild",
+   "v2": "v31-1347",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "علی رضا بن حاج علی اکبر القمی، بیتا",
+     "to": "علی رضا بن حاج علی اکبر القمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303710,
+   "shelfmark": "5735",
+   "category": "rebuild",
+   "v2": "v31-1890",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسن بن رجبعلی قاری کاشانی، بیتا",
+     "to": "محمد حسن بن رجبعلی قاری کاشانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304763,
+   "shelfmark": "7800-53/10",
+   "category": "rebuild",
+   "v2": "v31-2255",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "هادی بن میرزا ملایری، بیتا",
+     "to": "هادی بن میرزا ملایری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304764,
+   "shelfmark": "981/2-6/71",
+   "category": "rebuild",
+   "v2": "v31-2255",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ناجی بن علی، بیتا",
+     "to": "ناجی بن علی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 308872,
+   "shelfmark": "12",
+   "category": "rebuild",
+   "v2": "v32-546",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محی الدین بن قاضی عابد، بیتا",
+     "to": "محی الدین بن قاضی عابد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311056,
+   "shelfmark": "13911/1",
+   "category": "rebuild",
+   "v2": "v32-1079",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسین بن محمد بن حسن جویانی",
+     "to": "حسین بن محمد بن حسن جویانی[عاملی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 317928,
+   "shelfmark": "7171",
+   "category": "rebuild",
+   "v2": "v33-627",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "لطف الله، تا سه شنبه 20 رجب 1092ق، حسب فرمان طالب خان ملک",
+     "to": "لطف الله"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 20 رجب 1092ق، حسب فرمان طالب خان ملک"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 318132,
+   "shelfmark": "8404",
+   "category": "rebuild",
+   "v2": "v33-651",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "معنوی تهرانی، تا: قرن 13",
+     "to": "معنوی تهرانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 318435,
+   "shelfmark": "5155/1",
+   "category": "rebuild",
+   "v2": "v33-727",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ابوالمحجن محمد علی، تا چهارشنبه 12 ذیقعده 897ق",
+     "to": "ابوالمحجن محمد علی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 12 ذیقعده 897ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320657,
+   "shelfmark": "5426/1",
+   "category": "rebuild",
+   "v2": "v33-1417",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "احمد بن علی بن احمد بن علی",
+     "to": "احمد بن علی بن احمد بن علی [بحرانی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322684,
+   "shelfmark": "147",
+   "category": "rebuild",
+   "v2": "v33-1930",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "ناصرالدین حسینی",
+     "to": "ناصرالدین حسینی [نجف آبادی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323698,
+   "shelfmark": "3674-19/4",
+   "category": "rebuild",
+   "v2": "v33-2156",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد حسین بن طالب ابهری اصفهانی، تا: 9شعبان 1095ق",
+     "to": "محمد حسین بن طالب ابهری اصفهانی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "9شعبان 1095ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323945,
+   "shelfmark": "38399",
+   "category": "rebuild",
+   "v2": "v33-2177",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید علی بن سید ضامن",
+     "to": "سید علی بن سید ضامن [صادق] ملایری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 324905,
+   "shelfmark": "8/4مشهد",
+   "category": "rebuild",
+   "v2": "v34-61",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "جواد بن علی حسینی میبدی (فرزند ناظم)، تا: 1303ق",
+     "to": "جواد بن علی حسینی میبدی (فرزند ناظم)"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1303ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 326611,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v34-208",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "حسینی، محسن بن حسین، تا پنج شنبه 3 ذیحجه 1260ق",
+     "to": "حسینی، محسن بن حسین"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 3 ذیحجه 1260ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 327283,
+   "shelfmark": "15246/9",
+   "category": "rebuild",
+   "v2": "v34-425",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "محمد مهند بن میرزا ابوالقاسم حسینی موسوی",
+     "to": "محمد مهند بن میرزا ابوالقاسم حسینی موسوی [نطنزی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 327599,
+   "shelfmark": "ض 17697",
+   "category": "rebuild",
+   "v2": "v34-492",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "اسماعیل بن محمد یوسف چهار افرائی، تا: دوشنبه 27 صفر 1297ق",
+     "to": "اسماعیل بن محمد یوسف چهار افرائی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 27 صفر 1297ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328008,
+   "shelfmark": "16013/7",
+   "category": "rebuild",
+   "v2": "v34-527",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "سید علی حسینی همدانی",
+     "to": "سید علی حسینی همدانی [نجفی]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328917,
+   "shelfmark": "436/12ف",
+   "category": "rebuild",
+   "v2": "v34-858",
+   "scribe": "rename",
+   "changes": {
+    "scribe_name": {
+     "from": "عبدالرزاق بن عبدالکریم، بی‌تا",
+     "to": "عبدالرزاق بن عبدالکریم"
+    }
+   }
+  }
+ ]
+}

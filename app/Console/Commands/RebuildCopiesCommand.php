@@ -78,7 +78,8 @@ class RebuildCopiesCommand extends Command
         }
 
         $note = basename($path);
-        DB::transaction(function () use ($writes, $rows, $note) {
+        $renames = $this->scribeRenames($writes, $rows);
+        DB::transaction(function () use ($writes, $rows, $note, $renames) {
             foreach ($writes as $rec) {
                 $row = $rows[$rec['id']];
                 $new = [];
@@ -113,7 +114,7 @@ class RebuildCopiesCommand extends Command
                 if (array_key_exists('copy_date_raw', $new) && ! array_key_exists('copy_date_hijri_year', $new)) {
                     $extra['copy_date_hijri_year'] = HijriYear::parse($new['copy_date_raw']);
                 }
-                if (array_key_exists('scribe_name', $new)) {
+                if (array_key_exists('scribe_name', $new) && ! isset($renames[$row->scribe_id])) {
                     $extra['scribe_id'] = null;
                     DB::table('manuscript_people')->where('manuscript_id', $rec['id'])->where('role', ManuscriptPerson::SCRIBE)->delete();
                 }
@@ -132,6 +133,18 @@ class RebuildCopiesCommand extends Command
                 ]);
             }
         });
+        // the scribe whose name the copies only spell out better keeps them, under the corrected name (step 14.224)
+        foreach ($renames as $personId => $name) {
+            $person = \App\Models\Person::find($personId);
+            AuditLog::create(['user_id' => null, 'auditable_type' => \App\Models\Person::class, 'auditable_id' => $personId, 'action' => 'corpus_update',
+                'old_values' => ['name' => $person->name], 'new_values' => ['name' => $name, 'corpus_fix' => $note]]);
+            $person->update(['name' => $name]);
+            $person->recountContributions();
+            $person->searchable();
+        }
+        if ($renames) {
+            $this->info(count($renames) . ' scribes renamed.');
+        }
         // a copy given its library (step 14.30) counts there, and no longer where it was
         $libraries = collect($writes)->filter(fn ($r) => isset($r['changes']['library_id']))
             ->flatMap(fn ($r) => [$r['changes']['library_id']['from'], $r['changes']['library_id']['to']])->filter()->unique();
@@ -146,6 +159,40 @@ class RebuildCopiesCommand extends Command
         $this->info("Done ({$relinked} copies relinked to a catalogue volume). Now run catalogs:link-volumes and fahares:rebuild-scripts.");
 
         return 0;
+    }
+
+    /**
+     * The people to rename instead of unlinking (step 14.224): a record with `"scribe": "rename"` says its new
+     * scribe_name is the same scribe's name read right («محمد [اسماعیل] سبزواری» for «محمد», a date cut off the name).
+     * The person keeps the copies when it carries the old name, every copy it wrote is in this file with the same new
+     * name, and no other person has that name; otherwise the copy is unlinked as before.
+     *
+     * @return array<int, string> person id => new name
+     */
+    private function scribeRenames(array $writes, $rows): array
+    {
+        $byPerson = [];
+        foreach ($writes as $rec) {
+            $pid = $rows[$rec['id']]->scribe_id ?? null;
+            if ($pid && ($rec['scribe'] ?? null) === 'rename' && isset($rec['changes']['scribe_name']['to'])) {
+                $byPerson[$pid][$rec['id']] = $rec['changes']['scribe_name'];
+            }
+        }
+        $renames = [];
+        foreach ($byPerson as $pid => $changes) {
+            $names = array_unique(array_column($changes, 'to'));
+            $person = DB::table('people')->where('id', $pid)->first(['name']);
+            $copies = DB::table('manuscripts')->where('scribe_id', $pid)->pluck('id')->all();
+            if (count($names) !== 1 || ! $person || array_diff($copies, array_keys($changes))
+                || array_filter($changes, fn ($c) => $c['from'] !== $person->name)
+                || DB::table('works')->where('author_id', $pid)->exists()
+                || DB::table('people')->where('id', '!=', $pid)->where('normalized_name', mb_substr(\App\Helpers\TextNormalizer::normalize(reset($names)), 0, 600))->exists()) {
+                continue;
+            }
+            $renames[$pid] = reset($names);
+        }
+
+        return $renames;
     }
 
     private function check(array $rec, ?object $row, ProtectedColumns $guard): string
