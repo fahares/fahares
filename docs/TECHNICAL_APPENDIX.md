@@ -11390,6 +11390,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-place-cities --apply`.
 - **تست:** `PersonPlacesTest::test_the_city_of_a_place_text_is_stored_beside_it_and_kept_in_step`.
 
+### گام ۱۴.۲۱۰: `scripts/dev/reserve-backlog`
+
+- **کار:** شماره‌ی بعدی = یکی بیش از بزرگ‌ترین شماره‌ی دفتر (`~/.fahares/backlog.tsv`، ستون نخست) و بزرگ‌ترین `### N.` در `docs/BACKLOG.md` شاخه‌ی `origin/main` (ارقام فارسی به لاتین برگردانده می‌شوند). زیر `flock` روی `backlog.tsv.lock`. سطر دفتر: شماره، زمان، جلسه، عنوان.
+- **`--list [N]`:** آخرین N رزرو.
+- **آغاز دفتر:** ۱۳۹ («دوره‌های زندگی شخص»، `claude/date-range-places`) و ۱۴۰ (گلپایگانی پس از ۱۴.۲۰۶، که در انتشار ۱۳۹ از ۱۳۷ به ۱۴۰ رفت).
+- **CLAUDE.md:** بخش «Backlog item numbers» پیش از «Push and deploy».
+
 ### گام ۱۴.۲۱۱: `copy_region` و `composition_region`، و `CopyPlaces::regionOf`
 
 - **فهرست (`config/insights.php`، `copy_regions`):** نام ← `kind` (`country` یا `region`) و نام‌های دیگر. کشورها: ایران، هند (هندوستان)، ترکیه (عثمانی، بلاد روم)، عراق (عتبات)، مصر، یمن، افغانستان، لبنان (جبل عامل)، بحرین. ناحیه‌ها: شام (سوریه)، حجاز، خراسان، گیلان، مازندران (طبرستان)، کردستان، آذربایجان، فارس، خوزستان، لرستان، سیستان، گجرات، دکن، کشمیر، بنگاله، پنجاب، ماوراءالنهر، ترکستان، بدخشان، قفقاز، داغستان. «روم» نیست، چون «ارز روم» شهر است.
@@ -11400,9 +11407,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **هنوز بی‌کد (حدود ۱۵٪ نسخه‌ها):** نام مدرسه و خانه بی نام شهر («مدرسه صادقیه»، «دولت سرای …»)، و شهرهایی که در فهرست نیستند («ساوج»، «ادرنه»، «لندن»، «موصل»).
 - **`PersonPlaces`:** کلید گروه: شهر، وگرنه کشور یا ناحیه، وگرنه خود متن؛ `kind` برچسب را می‌دهد.
 - **تست:** حالت‌های تازه در `PersonPlacesTest`.
-### گام ۱۴.۲۱۰: `scripts/dev/reserve-backlog`
-
-- **کار:** شماره‌ی بعدی = یکی بیش از بزرگ‌ترین شماره‌ی دفتر (`~/.fahares/backlog.tsv`، ستون نخست) و بزرگ‌ترین `### N.` در `docs/BACKLOG.md` شاخه‌ی `origin/main` (ارقام فارسی به لاتین برگردانده می‌شوند). زیر `flock` روی `backlog.tsv.lock`. سطر دفتر: شماره، زمان، جلسه، عنوان.
-- **`--list [N]`:** آخرین N رزرو.
-- **آغاز دفتر:** ۱۳۹ («دوره‌های زندگی شخص»، `claude/date-range-places`) و ۱۴۰ (گلپایگانی پس از ۱۴.۲۰۶، که در انتشار ۱۳۹ از ۱۳۷ به ۱۴۰ رفت).
-- **CLAUDE.md:** بخش «Backlog item numbers» پیش از «Push and deploy».
