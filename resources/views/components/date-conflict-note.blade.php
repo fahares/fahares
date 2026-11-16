@@ -15,8 +15,9 @@
             <button type="button" class="font-bold text-cinnabar hover:underline cursor-pointer" @click="open = ! open" :aria-expanded="open ? 'true' : 'false'">کدام نادرست است؟</button>
             <div class="mt-1.5 flex flex-wrap gap-1.5" x-show="open" x-cloak>
                 @foreach($note['choices'] as $choice)
+                    {{-- an answer about the other record is a link to its page, and says so: a bare arrow read as pointing at nothing --}}
                     @if($choice['url'])
-                        <a href="{{ $choice['url'] }}" class="px-2 py-0.5 border border-line-strong rounded-sm bg-surface text-ink hover:border-cinnabar hover:text-cinnabar">{{ $choice['label'] }} ←</a>
+                        <a href="{{ $choice['url'] }}" class="px-2 py-0.5 border border-line-strong rounded-sm bg-surface text-ink hover:border-cinnabar hover:text-cinnabar" title="پیشنهاد در {{ $choice['page'] }} باز می‌شود">{{ $choice['label'] }} <span class="text-muted">(در {{ $choice['page'] }})</span></a>
                     @else
                         <button type="button" class="px-2 py-0.5 border border-line-strong rounded-sm bg-surface text-ink text-start hover:border-cinnabar hover:text-cinnabar cursor-pointer"
                             @click="open = false; $dispatch('suggest-field', @js($choice['detail']))">{{ $choice['label'] }}</button>

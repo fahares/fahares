@@ -11989,3 +11989,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - تمرین نخست با متن چاپی دو اهدا اجرا شد؛ پس از بازنویسی آن دو در پرونده، ردیف‌های نقش دو اثر روی رونوشت محلی دستی پاک و `backfill-work-dedications --only=` دوباره اجرا شد.
 - **اجرا در تولید (پس از انتشار و تأیید):** پشتیبان از ردیف‌های `people` این ۱۰۱ نام، و از `author_id`، `author_name`، `composition_date_raw`، ستون‌های بازه، `description`، `dedication`، `bibliography` و ردیف‌های `work_people` آثارشان، و `scribe_id` سه نسخه. سپس `php artisan fahares:remove-pseudo-people --apply` و اجرای دوباره.
 - **مانده:** ۴ نام با «(؟)» یا «(شاید)» در کمانک (تردید باید به `certainty` برود)؛ کاتبانی که نامشان جمله است («تحریر عنوانها درحواشی محمد موسوی») شمرده نشدند؛ تاریخ و اهدایی که پارسر 2.3.1 از شرح ۲۴۱ و ۷ اثر دیگر می‌خواند (مورد ۱۴۸).
+
+### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
+- **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
+- **`components/date-conflict-note.blade.php`:** پیوند پاسخ به‌جای « ←» برچسب را با `<span class="text-muted">(در {{ $choice['page'] }})</span>` و `title="پیشنهاد در … باز می‌شود"` نشان می‌دهد.
+- **آزمون:** `DateConflictNotesTest` «(در صفحۀ شخص)» و «(در صفحۀ اثر)» و نبود «» ←» را می‌سنجد.

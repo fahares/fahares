@@ -28,6 +28,9 @@ class DateConflictNote extends Component
 
     private const OF_THIS = ['person' => 'این شخص', 'work' => 'این اثر', 'manuscript' => 'این نسخه'];
 
+    /** Where an answer about the other record leads: its page, named on the answer (step 14.238). */
+    private const PAGE_OF = ['person' => 'صفحۀ شخص', 'work' => 'صفحۀ اثر', 'manuscript' => 'صفحۀ نسخه'];
+
     /** The tie a rule rests on: the record whose page takes the report, and what the report says. */
     public const TIES = [
         Loader::RULE_AUTHOR => ['work', 'این اثر از این شخص نیست'],
@@ -122,12 +125,12 @@ class DateConflictNote extends Component
     private function choice(string $label, string $type, int $id, DateConflict $c, array $detail): array
     {
         if ($type === $this->type && $id === $this->id) {
-            return ['label' => $label, 'detail' => $detail + ['conflict' => $c->id], 'url' => null];
+            return ['label' => $label, 'detail' => $detail + ['conflict' => $c->id], 'url' => null, 'page' => null];
         }
         $query = ['suggest' => isset($detail['field']) ? 'field.' . $detail['field'] : 'general', 'conflict' => $c->id]
             + (isset($detail['value']) ? ['prefill' => $detail['value']] : []);
 
-        return ['label' => $label, 'detail' => null, 'url' => route(self::ROUTES[$type], ['id' => $id] + $query)];
+        return ['label' => $label, 'detail' => null, 'url' => route(self::ROUTES[$type], ['id' => $id] + $query), 'page' => self::PAGE_OF[$type]];
     }
 
     public function shouldRender(): bool
