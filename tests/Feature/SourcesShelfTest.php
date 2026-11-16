@@ -241,7 +241,11 @@ class SourcesShelfTest extends TestCase
             ->assertSee(route('sources.show', $edition->code), false)->assertDontSee('چاپ‌های دیگر');
         $this->get('/sources/' . $edition->code)->assertOk()->assertSee('data-source-unprinted', false)
             ->assertSee(route('sources.show', $catalogue->code), false)->assertDontSee('چاپی از');
-        $this->get('/sources')->assertOk()->assertDontSee('۲ چاپ');
+        // «منابع و مراجع» and the library's page show the printed catalogue, the unprinted one after it
+        $this->get('/sources')->assertOk()->assertDontSee('۲ چاپ')
+            ->assertSee('data-source="' . $edition->code . '"', false)->assertDontSee('data-source="' . $catalogue->code . '"', false);
+        $this->get(route('libraries.show', $catalogue->library))->assertOk()
+            ->assertSeeInOrder([route('sources.show', $edition->code), route('sources.show', $catalogue->code), 'data-library-unprinted'], false);
     }
 
     /** A library's catalogue with one volume, page 17 of its text and a copy made from it. */

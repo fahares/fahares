@@ -45,17 +45,22 @@
                         $text = $sum($source, 'pages') + $sum($source, 'items') > 0;
                         $images = collect([$source, ...$source->editions])->contains(fn ($e) => SourceShelf::hasImages($e));
                         $haystack = mb_strtolower($source->title . ' ' . $source->short_name . ' ' . $source->library?->display_name . ' ' . $source->compiler);
+                        // an unprinted catalogue is shown by the library's printed one, the book a reader can open,
+                        // with that book's own volumes and counts (step 14.240)
+                        $printed = $source->isUnpublished() ? $source->editions->first() : null;
+                        $card = $printed ?? $source;
+                        $count = fn (string $key) => $printed ? ($counts[$printed->id][$key] ?? 0) : $sum($source, $key);
                     @endphp
-                    <li x-show="! q || @js($haystack).includes(q.toLowerCase())" data-source="{{ $source->code }}">
-                        <a href="{{ route('sources.show', $source->code) }}" class="group grid gap-2 content-start">
-                            <x-source.cover :source="$source" class="w-full group-hover:-translate-y-1 transition duration-300 motion-reduce:transition-none" />
-                            <span class="text-sm font-bold text-ink leading-6 group-hover:text-cinnabar transition">{{ $source->title }}</span>
+                    <li x-show="! q || @js($haystack).includes(q.toLowerCase())" data-source="{{ $card->code }}">
+                        <a href="{{ route('sources.show', $card->code) }}" class="group grid gap-2 content-start">
+                            <x-source.cover :source="$card" class="w-full group-hover:-translate-y-1 transition duration-300 motion-reduce:transition-none" />
+                            <span class="text-sm font-bold text-ink leading-6 group-hover:text-cinnabar transition">{{ $card->title }}</span>
                             <span class="text-[11px] text-muted leading-5">
-                                {{ $source->library?->display_name ?? $source->compiler }}
-                                @if($source->editions->isNotEmpty() && ! $source->isUnpublished())· {{ Fa::num($source->editions->count() + 1) }} چاپ@endif
-                                @if(($source->volumes_count ?? $source->volumes->count()) > 1)· {{ Fa::num($source->volumes_count ?? $source->volumes->count()) }} جلد@endif
-                                @if($n = $sum($source, 'manuscripts'))· {{ Fa::num($n) }} نسخه@endif
-                                @if($n = $sum($source, 'works'))· {{ Fa::num($n) }} اثر@endif
+                                {{ $card->library?->display_name ?? $source->library?->display_name ?? $card->compiler }}
+                                @if($source->editions->isNotEmpty() && ! $printed)· {{ Fa::num($source->editions->count() + 1) }} چاپ@endif
+                                @if(($card->volumes_count ?? $card->volumes->count()) > 1)· {{ Fa::num($card->volumes_count ?? $card->volumes->count()) }} جلد@endif
+                                @if($n = $count('manuscripts'))· {{ Fa::num($n) }} نسخه@endif
+                                @if($n = $count('works'))· {{ Fa::num($n) }} اثر@endif
                             </span>
                             @if($text || $images)
                                 <span class="flex gap-1.5">
