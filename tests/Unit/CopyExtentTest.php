@@ -67,6 +67,15 @@ class CopyExtentTest extends TestCase
         // the «،» set before the binding's last word, and lines «12-15-20 سطر» glued after the count
         $this->assertSame([null, 38, '486', '523'], $this->extent('جلد تیماج ،مشکی 38 ص (486-523) [سنا: ف: 2 - 159]'));
         $this->assertSame([null, 6, '174', '179'], $this->extent('جلد: تیماج مشکی، 6ص (174-179) 12-15-20 سطر، اندازه: 10×18/5سم'));
+        // «صفحه» and «ورق», the place or way of writing beside the count, two closing citations (step 14.217)
+        $this->assertSame([null, 35, '189', '224'], $this->extent('35صفحه (189-224)، 21سطر، اندازه: 14×21سم [ف: 44 - 88]'));
+        $this->assertSame([null, 9, null, null], $this->extent('خط: نستعلیق، بی‌کا، تا: قرن 13؛ 9 ص در متن و هامش [نشریه: 7 - 252]'));
+        $this->assertSame([null, 1, '155', '155'], $this->extent('بی‌کا، بی‌تا؛ 1ص (155) (در جنگ) [ف: 2/23-585]'));
+        $this->assertSame([null, 2, '173', '174'], $this->extent('بی‌کا، بی‌تا؛ 2ص (173-174) (قهقرا)، 27-28سطر'));
+        $this->assertSame([null, 21, '37', '57'], $this->extent('بی‌کا، بی‌تا؛ 21ص (37-57) [ف: 9-1329] و [فیلمها ف: 3-18]'));
+        $this->assertSame([34, null, null, null], $this->extent('جلد: گالینگور، 34گ یک رو، اندازه: 13/5×20سم'));
+        // a count inside a sentence is still none
+        $this->assertSame([null, null, null, null], $this->extent('ضمیمه: ضمن 2 برگ منظومه‌ای است عربی'));
         // an edition's page count inside a bracket is not the copy's
         $this->assertSame([106, null, null, null], $this->extent('[چاپ شده، تهران، 1390شمسی، 259ص، با عنوان «تشیع»]؛ خط: نسخ؛ 106گ'));
     }
