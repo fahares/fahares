@@ -11913,6 +11913,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **دیگر:** `AdminNav` (گروه «داوری»، با شمار) و `notifications:unreviewed-data`.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php`.
 
+### گام ۱۴.۲۳۱: «ۀ» به‌جای «ه‌ی»
+
+- **جایگزینی:** الگوی `ه\u200cی(?![\u0600-\u06FF\u200c])` (هٔ بی حرف پس از آن) با «ۀ»، در `app`، `config`، `resources/views`، `resources/js`، `resources/css`، `lang`، `tests`، `routes` و `database/seeders`. پیش از آن وارسی شد که «ه‌ی» در هیچ الگوی regex یا پرس‌وجوی پایگاه داده نیست.
+- **استثنا:** `App\Support\DirectAnswer::FILLER` واژه‌های پرکنندۀ پرسش کاربر است. «کتابخانه‌ی»، «نسخه‌ی» و «شماره‌ی» در آن ماندند و «کتابخانۀ»، «نسخۀ» و «شمارۀ» کنارشان آمدند. صورت‌های با فاصله («نسخه ی») در `DirectAnswer` و `FixAutographManuscriptsCommand` هم ماندند، چون صورت ورودی‌اند.
+- **دست‌نخورده:** متن منابع (`source_pages`، `raw_text`)، پرونده‌های داده (`database/data`) و مستندات پیشین (`docs`، حدود ۱۰٬۵۰۰ «ه‌ی»)، که بازنویسیِ یکجای آن‌ها در ادغام union شاخه‌های جلسه‌ها سطرهای تکراری می‌سازد. نوشته‌های تازه «ۀ» می‌گیرند.
+- **محتوای ویرایشی پایگاه داده** (صفحه‌ها، نوشته‌ها، اعلان‌ها): جدا، پس از این انتشار و با پشتیبان.
+
 ### گام ۱۴.۲۳۲: `scripts/dev/lives/` و `person_lives_step14_232_tabaqat.json`
 
 - **ابزارها ([scripts/dev/lives](../scripts/dev/lives/README.md)):** `export.sh` (خروجی TSV از `fahares_prod`)، `blocker.py` (نامزدها)، `batches.py` (دسته‌های ۵۰تایی)، `brief.txt` (دستور داوری)، `build.py` (وارسی پاسخ‌ها و ساخت فایل داده). فراخوان مدل در مخزن نیست: دسته‌ها را زیرعامل‌های Sonnet در Claude Code داوری کردند و سرور فقط فایل داده را بار می‌کند.
@@ -11930,21 +11937,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 1490`، `exists 23`؛ اجرای دوم `exists 1513`؛ `--undo` بی `--apply`: `removed 1490`. در پایگاه: `name_llm` ۱٬۰۵۳ سطر با اطمینان ۹۰ به بالا و ۴۳۷ سطر زیر آن، همه با یادداشت شاهد. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php` (دو آزمون تازه).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای `source_entries` با `citable_type = Person` و `source_id` طبقات، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_232_tabaqat.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
-
-### گام ۱۴.۲۳۷: `person_lives_step14_237_ayan.json`
-
-- **صافی (`blocker.py . ayan`):** ۱۱٬۱۶۰ مدخل بی‌پیوندِ ۶۰ نویسه به بالا؛ ۲٬۶۹۱ با نامزد (۱٬۶۷۹ با یک نامزد، ۵۴۲ با دو، ۲۷۵ با سه، ۵۲۵ با چهار) و پس از کنار رفتن ارجاع‌ها ۲٬۶۴۵ مدخل. أعیان الفبایی است و جلدهایش سده ندارند، پس پیش‌فرض سال جلد به کار نمی‌رود. بازیابی روی پیوندهای موجود همان ۸۶٫۴٪ است.
-- **`export.sh`:** پیوندهای `match_method = name_llm` در سنجه‌ی بازیابی نمی‌آیند، چون خود همین روش آن‌ها را ساخته است.
-- **داوری:** ۵۳ زیرعامل Sonnet، دستور `brief.txt` با نام «أعیان الشیعة». ۱٬۰۴۲ پیوند، ۱٬۵۹۵ «هیچ‌کدام».
-- **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
-- **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
-- **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
-### گام ۱۴.۲۳۱: «ۀ» به‌جای «ه‌ی»
-
-- **جایگزینی:** الگوی `ه\u200cی(?![\u0600-\u06FF\u200c])` (هٔ بی حرف پس از آن) با «ۀ»، در `app`، `config`، `resources/views`، `resources/js`، `resources/css`، `lang`، `tests`، `routes` و `database/seeders`. پیش از آن وارسی شد که «ه‌ی» در هیچ الگوی regex یا پرس‌وجوی پایگاه داده نیست.
-- **استثنا:** `App\Support\DirectAnswer::FILLER` واژه‌های پرکنندۀ پرسش کاربر است. «کتابخانه‌ی»، «نسخه‌ی» و «شماره‌ی» در آن ماندند و «کتابخانۀ»، «نسخۀ» و «شمارۀ» کنارشان آمدند. صورت‌های با فاصله («نسخه ی») در `DirectAnswer` و `FixAutographManuscriptsCommand` هم ماندند، چون صورت ورودی‌اند.
-- **دست‌نخورده:** متن منابع (`source_pages`، `raw_text`)، پرونده‌های داده (`database/data`) و مستندات پیشین (`docs`، حدود ۱۰٬۵۰۰ «ه‌ی»)، که بازنویسیِ یکجای آن‌ها در ادغام union شاخه‌های جلسه‌ها سطرهای تکراری می‌سازد. نوشته‌های تازه «ۀ» می‌گیرند.
-- **محتوای ویرایشی پایگاه داده** (صفحه‌ها، نوشته‌ها، اعلان‌ها): جدا، پس از این انتشار و با پشتیبان.
 
 ### گام ۱۴.۲۳۳: `FixLifeYearsCommand::SOLAR` از منابع تراجمی سایت
 
@@ -12015,3 +12007,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - تمرین نخست با متن چاپی دو اهدا اجرا شد؛ پس از بازنویسی آن دو در پرونده، ردیف‌های نقش دو اثر روی رونوشت محلی دستی پاک و `backfill-work-dedications --only=` دوباره اجرا شد.
 - **اجرا در تولید (پس از انتشار و تأیید):** پشتیبان از ردیف‌های `people` این ۱۰۱ نام، و از `author_id`، `author_name`، `composition_date_raw`، ستون‌های بازه، `description`، `dedication`، `bibliography` و ردیف‌های `work_people` آثارشان، و `scribe_id` سه نسخه. سپس `php artisan fahares:remove-pseudo-people --apply` و اجرای دوباره.
 - **مانده:** ۴ نام با «(؟)» یا «(شاید)» در کمانک (تردید باید به `certainty` برود)؛ کاتبانی که نامشان جمله است («تحریر عنوانها درحواشی محمد موسوی») شمرده نشدند؛ تاریخ و اهدایی که پارسر 2.3.1 از شرح ۲۴۱ و ۷ اثر دیگر می‌خواند (مورد ۱۴۸).
+
+### گام ۱۴.۲۳۷: `person_lives_step14_237_ayan.json`
+
+- **صافی (`blocker.py . ayan`):** ۱۱٬۱۶۰ مدخل بی‌پیوندِ ۶۰ نویسه به بالا؛ ۲٬۶۹۱ با نامزد (۱٬۶۷۹ با یک نامزد، ۵۴۲ با دو، ۲۷۵ با سه، ۵۲۵ با چهار) و پس از کنار رفتن ارجاع‌ها ۲٬۶۴۵ مدخل. أعیان الفبایی است و جلدهایش سده ندارند، پس پیش‌فرض سال جلد به کار نمی‌رود. بازیابی روی پیوندهای موجود همان ۸۶٫۴٪ است.
+- **`export.sh`:** پیوندهای `match_method = name_llm` در سنجه‌ی بازیابی نمی‌آیند، چون خود همین روش آن‌ها را ساخته است.
+- **داوری:** ۵۳ زیرعامل Sonnet، دستور `brief.txt` با نام «أعیان الشیعة». ۱٬۰۴۲ پیوند، ۱٬۵۹۵ «هیچ‌کدام».
+- **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
+- **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
