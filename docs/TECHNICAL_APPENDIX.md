@@ -11812,3 +11812,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `ConflictRecords`: `dates['period']` بازه‌ی سال‌های دوره‌های تأییدشده‌ی شخص، برای فهرست پنل و کارت صف.
 - **سنجش:** `fahares_prod` محلی ۱٬۲۰۴ دوره‌ی پیشنهادی و هیچ دوره‌ی تأییدشده ندارد، پس `Loader::periods` آن‌جا قیدی نمی‌سازد. (اجرای خشکِ دوباره با گام ۱۴.۲۲۲ عدد به عدد نمی‌خواند، چون نشست‌های دیگر در این فاصله رونوشت محلی را عوض کرده‌اند.)
 - **تست:** `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
+  - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
+  - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
+  - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
