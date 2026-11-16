@@ -11766,22 +11766,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` محلی:** `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`. اجرای دوم: `Would rebuild 0 copies`. نمونه: #192178 کاتب «محمد علی بن عباس تویسرکانی» (شخص 45656) و تاریخ «سه شنبه 16 ذیقعده 1085ق»، سال ۱۰۸۵.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از `scribe_name`، `scribe_id`، `copy_date_raw`، ستون‌های بازه و `is_bita` این ۲۹۱ نسخه، و از `id`، `name`، `normalized_name` اشخاص پیوندخورده. سپس فرمان و اجرای دوباره.
 
-### گام ۱۴.۲۲۶: قاعده‌ی `period` و `DateVar::periodStart()` / `periodEnd()`
-
-- **متغیرها:** برای هر شخص دو عدد، `DateVar::periodStart($id) = end(of(BIRTH, $id))` و `periodEnd($id) = end(of(DEATH, $id))`؛ «پایانِ» تولد و وفات را چیز دیگری به کار نمی‌برد. `type` آن‌ها `person` و `field` آن‌ها `period` (`DateVar::PERIOD`) است.
-- **`Loader::periods`:** ردیف‌های `person_periods` با `status = approved` و `period_certainty` تهی. برای هر دوره:
-  - دیرترین سالِ ممکنِ آغاز: در `span`، `start_to ?? from` (و اگر آغاز باز است `to`)؛ در «یک سال» و «بین»، سال بیرونیِ دیرتر.
-  - زودترین سالِ ممکنِ پایان: در `span`، `end_from ?? to` (و اگر پایان باز است `from`)؛ در بقیه، سال بیرونیِ زودتر.
-  - `periodStart` با کمینه‌ی اولی‌ها و `periodEnd` با بیشینه‌ی دومی‌ها بذر می‌شود؛ قید: `BIRTH ≤ periodStart` و `periodEnd ≤ DEATH`، قاعده‌ی `Loader::RULE_PERIOD`.
-- **خروجی:**
-  - تخمین تولد و وفات با `to_rule`/`from_rule = period` و شاهدِ `person` (خود شخص). برای خودِ دوره‌ها ردیف تخمین ساخته نمی‌شود (`DateVar::isPeriod` در `estimateRows`).
-  - تناقض: `birth>period` «دوره‌ای از زندگی پیش از تولد» و `period>death` «دوره‌ای از زندگی پس از وفات» (`DateConflict::LABELS`، `RULE_LABELS`، `FIELD_LABELS['period'] = 'دوره‌ی زندگی'`).
-- **نمایش:**
-  - `EstimateText::aliveIn`: برای `from_rule = period` بی خواندن شاهد، «زنده در ‹سال›» و «دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.»؛ `reason()` برای تخمین تولد و وفات.
-  - `DateConflictNote`: تناقضِ `period>death` زیر وفات می‌آید (قاعده‌ی «تناقض تولد و وفاتِ یک شخص فقط یک بار» آن را کنار نمی‌گذارد)، و پاسخِ «دوره‌ی زندگی این شخص» چون فیلدی در فرم ندارد یک پیشنهاد کلی باز می‌کند.
-  - `ConflictRecords`: `dates['period']` بازه‌ی سال‌های دوره‌های تأییدشده‌ی شخص، برای فهرست پنل و کارت صف.
-- **سنجش:** اجرای خشک روی `fahares_prod` با این شاخه همان خروجی گام ۱۴.۲۲۲ را داد (دوره‌ی تأییدشده‌ای نیست).
-- **تست:** `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
 ### گام ۱۴.۲۲۵: `Person::lifeYear` و `fahares:fix-life-years`
 
 - **شواهد (`fahares_prod` پس از گام ۱۴.۲۱۴):** برای هر شخص: سال‌های تألیف آثارش، سال نسخه‌هایی که کاتبشان است، و متن‌های دیگر آثارش در `fankha_v2_deaths_20261031.json`.
@@ -11811,3 +11795,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
 - **پس از اجرا در پروداکشن:** `fahares:estimate-dates --apply`، و برای سند جستجوی اشخاص `fahares:reindex-work-estimates --people --all`.
 - **مانده:** ۴۰ شخص گروه سوم (بازبینی با منبع زندگی‌نامه)؛ شبه‌شخص‌ها (مورد ۱۴۵).
+
+### گام ۱۴.۲۲۶: قاعده‌ی `period` و `DateVar::periodStart()` / `periodEnd()`
+
+- **متغیرها:** برای هر شخص دو عدد، `DateVar::periodStart($id) = end(of(BIRTH, $id))` و `periodEnd($id) = end(of(DEATH, $id))`؛ «پایانِ» تولد و وفات را چیز دیگری به کار نمی‌برد. `type` آن‌ها `person` و `field` آن‌ها `period` (`DateVar::PERIOD`) است.
+- **`Loader::periods`:** ردیف‌های `person_periods` با `status = approved` و `period_certainty` تهی. برای هر دوره:
+  - دیرترین سالِ ممکنِ آغاز: در `span`، `start_to ?? from` (و اگر آغاز باز است `to`)؛ در «یک سال» و «بین»، سال بیرونیِ دیرتر.
+  - زودترین سالِ ممکنِ پایان: در `span`، `end_from ?? to` (و اگر پایان باز است `from`)؛ در بقیه، سال بیرونیِ زودتر.
+  - `periodStart` با کمینه‌ی اولی‌ها و `periodEnd` با بیشینه‌ی دومی‌ها بذر می‌شود؛ قید: `BIRTH ≤ periodStart` و `periodEnd ≤ DEATH`، قاعده‌ی `Loader::RULE_PERIOD`.
+- **خروجی:**
+  - تخمین تولد و وفات با `to_rule`/`from_rule = period` و شاهدِ `person` (خود شخص). برای خودِ دوره‌ها ردیف تخمین ساخته نمی‌شود (`DateVar::isPeriod` در `estimateRows`).
+  - تناقض: `birth>period` «دوره‌ای از زندگی پیش از تولد» و `period>death` «دوره‌ای از زندگی پس از وفات» (`DateConflict::LABELS`، `RULE_LABELS`، `FIELD_LABELS['period'] = 'دوره‌ی زندگی'`).
+- **نمایش:**
+  - `EstimateText::aliveIn`: برای `from_rule = period` بی خواندن شاهد، «زنده در ‹سال›» و «دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.»؛ `reason()` برای تخمین تولد و وفات.
+  - `DateConflictNote`: تناقضِ `period>death` زیر وفات می‌آید (قاعده‌ی «تناقض تولد و وفاتِ یک شخص فقط یک بار» آن را کنار نمی‌گذارد)، و پاسخِ «دوره‌ی زندگی این شخص» چون فیلدی در فرم ندارد یک پیشنهاد کلی باز می‌کند.
+  - `ConflictRecords`: `dates['period']` بازه‌ی سال‌های دوره‌های تأییدشده‌ی شخص، برای فهرست پنل و کارت صف.
+- **سنجش:** `fahares_prod` محلی ۱٬۲۰۴ دوره‌ی پیشنهادی و هیچ دوره‌ی تأییدشده ندارد، پس `Loader::periods` آن‌جا قیدی نمی‌سازد. (اجرای خشکِ دوباره با گام ۱۴.۲۲۲ عدد به عدد نمی‌خواند، چون نشست‌های دیگر در این فاصله رونوشت محلی را عوض کرده‌اند.)
+- **تست:** `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
