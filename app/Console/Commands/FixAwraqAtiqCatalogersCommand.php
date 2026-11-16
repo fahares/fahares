@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  *  - دفتر ۱، خادم حسینی تبریز (ص ۸۳–۱۲۱) and ملا علی خوئی / جواد شریف (ص ۱۲۲–۱۴۳): «نگارش صدرائی خویی»
  *  - دفتر ۱، ثامنی شیراز (ص ۲۶۵–۲۸۳): «نگارش محمد برکت»
- *  - دفتر ۱، مدرسه‌ی آیة‌الله خوئی مشهد (ص ۲۴۱–۲۶۶): «نگارش عبدالله غفرانی», who had no cataloger record
+ *  - دفتر ۱، مدرسۀ آیة‌الله خوئی مشهد (ص ۲۴۱–۲۶۶): «نگارش عبدالله غفرانی», who had no cataloger record
  *
  * The other copies (دفتر ۱: ادبیات اصفهان, دانشگاه بوعلی, whose citations are of دفتر ۳; all of دفتر ۲) have an
  * article whose author no source at hand names, so they are left without a cataloger rather than a wrong one.
@@ -91,9 +91,9 @@ class FixAwraqAtiqCatalogersCommand extends Command
         DB::transaction(function () use ($volumes, $catalogers) {
             $ghofrani = Cataloger::firstOrCreate(['slug' => self::GHOFRANI_SLUG], [
                 'name' => 'عبدالله غفرانی',
-                'bio' => 'نگارنده‌ی فهرست نسخه‌های خطی کتابخانه‌ی مدرسه‌ی آیة‌الله خوئی مشهد در «اوراق عتیق»، دفتر اول (به کوشش سید محمد حسین حکیم، کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی، تهران، ۱۳۸۹، ص ۲۴۱–۲۶۶).',
+                'bio' => 'نگارندۀ فهرست نسخه‌های خطی کتابخانۀ مدرسۀ آیة‌الله خوئی مشهد در «اوراق عتیق»، دفتر اول (به کوشش سید محمد حسین حکیم، کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی، تهران، ۱۳۸۹، ص ۲۴۱–۲۶۶).',
                 // after Fankha's table of catalogues, row 520: «نگارش عبداهلل غفرانی»
-                'metadata' => ['major_catalogs' => ['اوراق عتیق، دفتر اول: مدرسه‌ی آیة‌الله خوئی مشهد']],
+                'metadata' => ['major_catalogs' => ['اوراق عتیق، دفتر اول: مدرسۀ آیة‌الله خوئی مشهد']],
             ]);
             $authors = $catalogers->put(self::GHOFRANI_SLUG, $ghofrani);
             $touched = collect([$catalogers[self::HAKIM]]);

@@ -107,7 +107,7 @@ class CitationFormsTest extends TestCase
             ->assertSessionHas('citation_preview', fn ($p) => $p['gained'] === 1 && $p['unread'] === 2 && $p['works'] === 1 && $p['read'] === 3);
         $this->assertSame(0, SourceCitationForm::count());
         $this->actingAs($this->admin)->get(route('admin.sources.citations.create', $dena))->assertOk()
-            ->assertSee('پیش‌نمایش: هنوز چیزی ذخیره نشده است.')->assertSee('۱ رشته‌ی مأخذ به این منبع وصل می‌شود');
+            ->assertSee('پیش‌نمایش: هنوز چیزی ذخیره نشده است.')->assertSee('۱ رشتۀ مأخذ به این منبع وصل می‌شود');
 
         $this->actingAs($this->admin)->post($url, $form)->assertRedirect(route('admin.sources.show', $dena));
         $made = SourceCitationForm::sole();
@@ -117,7 +117,7 @@ class CitationFormsTest extends TestCase
         $this->assertNull($this->entry($work, 3)->source_id);
         $this->assertStringNotContainsString('<a', (string) BibliographyLinks::html('دنا 994/2'), 'a source the site shows nothing of is read, not linked');
         $this->actingAs($this->admin)->get(route('admin.sources.show', $dena))->assertOk()
-            ->assertSee('ارجاع به این منبع در منابع دیگر')->assertSee('هر منبع')->assertSee('۱ رشته‌ی تازه‌وصل');
+            ->assertSee('ارجاع به این منبع در منابع دیگر')->assertSee('هر منبع')->assertSee('۱ رشتۀ تازه‌وصل');
 
         // its long name only: «دنا» is no longer read and the string comes away; then «دنا» only, and it is back
         $update = route('admin.sources.citations.update', [$dena, $made]);

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class DateConflict extends Model
 {
-    public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت', 'period' => 'دوره‌ی زندگی'];
+    public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت', 'period' => 'دورۀ زندگی'];
 
     /** What is wrong, by the rule and the two dates it ties: rule => [a_field > b_field => label]. */
     public const LABELS = [
@@ -25,7 +25,7 @@ class DateConflict extends Model
         Loader::RULE_TRANSLATOR => ['composition>death' => 'ترجمه پس از وفات مترجم', 'birth>composition' => 'مترجم هنگام ترجمه کمتر از ۱۵ ساله'],
         Loader::RULE_DEDICATEE => ['composition>death' => 'تألیف پس از وفات مُهدی‌الیه', 'birth>composition' => 'تألیف پیش از تولد مُهدی‌الیه'],
         Loader::RULE_COPY => ['composition>copy' => 'کتابت نسخه پیش از تألیف اثر'],
-        Loader::RULE_AUTOGRAPH => ['copy>death' => 'نسخه‌ی خط مؤلف پس از وفات مؤلف'],
+        Loader::RULE_AUTOGRAPH => ['copy>death' => 'نسخۀ خط مؤلف پس از وفات مؤلف'],
         Loader::RULE_SCRIBE => ['copy>death' => 'کتابت پس از وفات کاتب', 'birth>copy' => 'کاتب هنگام کتابت کمتر از ۱۰ ساله'],
         Loader::RULE_PATRON => ['copy>death' => 'کتابت پس از وفات بانی', 'birth>copy' => 'کتابت پیش از تولد بانی'],
         Loader::RULE_DERIVED => ['composition>composition' => 'اثر وابسته پیش از اثر اصلی'],
@@ -44,7 +44,7 @@ class DateConflict extends Model
         Loader::RULE_PATRON => 'بانی',
         Loader::RULE_LIFE => 'عمر',
         Loader::RULE_DERIVED => 'اثر وابسته',
-        Loader::RULE_PERIOD => 'دوره‌ی زندگی',
+        Loader::RULE_PERIOD => 'دورۀ زندگی',
     ];
 
     public $timestamps = false;

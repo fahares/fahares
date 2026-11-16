@@ -42,7 +42,7 @@ class UserNotices
         if (in_array($user->role, [Permissions::SUPER_ROLE, 'editor'], true)) {
             $lines[] = 'این نقش به پنل مدیریت دسترسی دارد.';
         }
-        NotificationPreferences::broadcast('user.role_changed', new Notice('user.role_changed', 'تغییر نقش کاربر', $lines, route('admin.users.edit', $user), 'صفحه‌ی کاربر در پنل'));
+        NotificationPreferences::broadcast('user.role_changed', new Notice('user.role_changed', 'تغییر نقش کاربر', $lines, route('admin.users.edit', $user), 'صفحۀ کاربر در پنل'));
 
         $this->notifyUser($user, 'account.role', 'نقش حساب شما تغییر کرد', ["نقش حساب شما در فهارس از «{$from}» به «{$to}» تغییر کرد."], route('notifications.settings'));
     }

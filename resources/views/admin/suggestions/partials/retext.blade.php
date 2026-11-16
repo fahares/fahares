@@ -9,7 +9,7 @@
 @if($candidates)
     <div class="space-y-3 p-4 bg-paper border border-line" data-retext>
         <div class="font-bold text-ink">متن مأخذ در جای تازه</div>
-        <p class="text-muted">پیش‌نمایش بر پایه‌ی مقدار پیشنهادی است. اگر مقدار نهایی را تغییر دهید، متن هنگام تأیید از همان جای تازه برداشته می‌شود.</p>
+        <p class="text-muted">پیش‌نمایش بر پایۀ مقدار پیشنهادی است. اگر مقدار نهایی را تغییر دهید، متن هنگام تأیید از همان جای تازه برداشته می‌شود.</p>
         @foreach($candidates as $c)
             @php
                 $entry = $c['entry'];
@@ -29,7 +29,7 @@
                         @else
                             <div class="p-3 rounded-sm border border-amber-600/50 bg-surface text-amber-800 dark:text-amber-300 leading-7">
                                 این نسخه در صفحه‌های مأخذ در جای تازه پیدا نشد. متن کنونی با نشان «از نشانی پیشین» می‌ماند و پس از تأیید می‌توانید آن را
-                                از <a href="{{ route('admin.source-entries.text', $entry) }}" target="_blank" class="font-bold text-cinnabar hover:underline">صفحه‌ی متن این مدخل</a> اصلاح کنید.
+                                از <a href="{{ route('admin.source-entries.text', $entry) }}" target="_blank" class="font-bold text-cinnabar hover:underline">صفحۀ متن این مدخل</a> اصلاح کنید.
                             </div>
                         @endif
                     </div>

@@ -87,8 +87,8 @@
     </form>
 
     <div class="flex flex-wrap items-center justify-between gap-3">
-        <x-ui.btn type="submit" form="matrix-form" variant="primary">ذخیره‌ی دسترسی‌ها</x-ui.btn>
-        <form action="{{ route('admin.roles.reset') }}" method="POST" onsubmit="return confirm('دسترسی همه‌ی نقش‌ها به مقدار پیش‌فرض بازگردد؟')">
+        <x-ui.btn type="submit" form="matrix-form" variant="primary">ذخیرۀ دسترسی‌ها</x-ui.btn>
+        <form action="{{ route('admin.roles.reset') }}" method="POST" onsubmit="return confirm('دسترسی همۀ نقش‌ها به مقدار پیش‌فرض بازگردد؟')">
             @csrf
             <x-ui.btn type="submit" variant="ghost">بازگشت به پیش‌فرض</x-ui.btn>
         </form>

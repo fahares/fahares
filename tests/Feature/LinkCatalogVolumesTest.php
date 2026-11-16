@@ -79,7 +79,7 @@ class LinkCatalogVolumesTest extends TestCase
     {
         $library = Library::create(['name' => 'رضوی آزمایشی', 'city' => 'مشهد', 'slug' => 'rz-parts-' . uniqid()]);
         $surname = Cataloger::create(['name' => 'قاسمی', 'slug' => 'ghasemi-' . uniqid()]);
-        $first = Cataloger::create(['name' => 'نگارنده‌ی بخش یک', 'slug' => 'part-one-' . uniqid()]);
+        $first = Cataloger::create(['name' => 'نگارندۀ بخش یک', 'slug' => 'part-one-' . uniqid()]);
         $wrong = CatalogVolume::create(['title' => 'جلد نادرست', 'volume_number' => 1, 'library_id' => $library->id]);
         $duplicate = CatalogVolume::create(['title' => 'جلد نادرست', 'volume_number' => 1, 'library_id' => $library->id]);
         $vol10 = $this->manuscript($library, '[اهدائی رهبر: 10 - 33]', null, $wrong->id);
@@ -94,10 +94,10 @@ class LinkCatalogVolumesTest extends TestCase
             'release_volumes' => ['جلد نادرست'],
             'volumes' => [
                 ['number' => 2, 'part' => 1, 'pages' => [1, 475], 'title' => 'ج ۲ بخش ۱', 'catalogers' => [
-                    ['slug' => $first->slug, 'name' => 'نگارنده‌ی بخش یک'], ['slug' => $surname->slug, 'name' => 'حسین قاسمی', 'rename' => true],
+                    ['slug' => $first->slug, 'name' => 'نگارندۀ بخش یک'], ['slug' => $surname->slug, 'name' => 'حسین قاسمی', 'rename' => true],
                 ]],
                 ['number' => 2, 'part' => 2, 'pages' => [488, 940], 'title' => 'ج ۲ بخش ۲', 'catalogers' => [
-                    ['slug' => $newSlug, 'name' => 'نگارنده‌ی بخش دو', 'new' => true],
+                    ['slug' => $newSlug, 'name' => 'نگارندۀ بخش دو', 'new' => true],
                 ]],
             ],
         ]]);
@@ -245,7 +245,7 @@ class LinkCatalogVolumesTest extends TestCase
         $main = Library::create(['name' => 'کتابخانه اصلی', 'city' => 'کاشان', 'slug' => 'main-lib-' . uniqid()]);
         $second = Library::create(['name' => 'کتابخانه دوم', 'city' => 'کاشان', 'slug' => 'second-lib-' . uniqid()]);
         $unrelated = CatalogVolume::create(['title' => 'جلد دیگر بی‌شناسه', 'volume_number' => 1, 'library_id' => $main->id]);
-        $known = Cataloger::create(['name' => 'نگارنده‌ی موجود', 'slug' => 'known-' . uniqid()]);
+        $known = Cataloger::create(['name' => 'نگارندۀ موجود', 'slug' => 'known-' . uniqid()]);
         $inMain = $this->manuscript($main, '[ف مخ: -12]');
         $inSecond = $this->manuscript($second, '[ف مخ]');
         $newSlug = 'new-no-mtif-' . uniqid();
@@ -255,8 +255,8 @@ class LinkCatalogVolumesTest extends TestCase
             'volume_library' => $main->slug,
             'volumes' => [['number' => 1, 'title' => 'فهرست مخطوط آزمایشی']],
             'catalogers' => [
-                ['mtif_entry_id' => 990011, 'slug' => $known->slug, 'name' => 'نگارنده‌ی موجود'],
-                ['slug' => $newSlug, 'name' => 'نگارنده‌ی بی‌شناسه', 'new' => true],
+                ['mtif_entry_id' => 990011, 'slug' => $known->slug, 'name' => 'نگارندۀ موجود'],
+                ['slug' => $newSlug, 'name' => 'نگارندۀ بی‌شناسه', 'new' => true],
             ],
         ];
         $this->writeData([$link($main), $link($second)]);
@@ -269,7 +269,7 @@ class LinkCatalogVolumesTest extends TestCase
         $this->assertSame([$volume->id, $known->id], [$inMain->fresh()->catalog_volume_id, $inMain->fresh()->cataloger_id]);
         $this->assertSame($volume->id, $inSecond->fresh()->catalog_volume_id);
         $this->assertSame(990011, (int) $known->fresh()->mtif_entry_id);
-        $this->assertSame(1, Cataloger::where('name', 'نگارنده‌ی بی‌شناسه')->count());
+        $this->assertSame(1, Cataloger::where('name', 'نگارندۀ بی‌شناسه')->count());
         $this->assertSame(0, $unrelated->fresh()->manuscripts_count);
     }
 

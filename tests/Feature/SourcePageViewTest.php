@@ -34,7 +34,7 @@ class SourcePageViewTest extends TestCase
             // the entry that runs on from p. 360, its label leading to that page; then the three that start here,
             // whose headings link no work yet and so are not links: the entry's own page is only beside the sheet
             ->assertSee('href="' . url('/sources/monzavi/6/page/360') . '" class="book-sheet__cont"', false)
-            ->assertSee('ادامه‌ی «تحفة الامیر» از ص ۳۶۰', false)
+            ->assertSee('ادامۀ «تحفة الامیر» از ص ۳۶۰', false)
             ->assertSee('<span class="book-sheet__heading" data-entry-heading>*تحفة الایادی.</span>', false)
             ->assertSee('href="' . $items['361#2']->url() . '" class="flex', false)
             ->assertDontSee('data-work-link', false)
@@ -89,7 +89,7 @@ class SourcePageViewTest extends TestCase
         $item('1448', 2, 403, 403, '( 1448 : التحفة ) أرجوزة في المبدأ والمعاد .');
 
         $response = $this->get('/sources/dharia-test/3/page/403')->assertOk()
-            ->assertSee('ادامه‌ی «التحفة» از ص ۴۰۲', false)
+            ->assertSee('ادامۀ «التحفة» از ص ۴۰۲', false)
             ->assertSee('من مجرباته', false)
             ->assertSee('أرجوزة في المبدأ والمعاد', false)
             ->assertDontSee('في الطب وكثير', false)
@@ -322,7 +322,7 @@ class SourcePageViewTest extends TestCase
         $text = "قال \u{E020}ayah 18:46\u{E021}(وَ الْبٰاقِيٰاتُ)\u{E022} و \u{E020}latin\u{E021}A. Storey 1927\u{E022} و \u{E020}hadith\u{E021}قال \u{E020}FB\u{E021}النبي ص\u{E022}\nلا\u{E022} تم";
         $html = (string) \App\Support\PrintedPage::text($text);
 
-        $this->assertStringContainsString('<span class="book-ayah" title="سوره‌ی کهف، آیه‌ی ۴۶" data-ayah="18:46">(وَ الْبٰاقِيٰاتُ)</span>', $html);
+        $this->assertStringContainsString('<span class="book-ayah" title="سورۀ کهف، آیۀ ۴۶" data-ayah="18:46">(وَ الْبٰاقِيٰاتُ)</span>', $html);
         // a passage in Latin letters keeps its own digits
         $this->assertStringContainsString('<bdi dir="ltr" class="book-latin">A. Storey 1927</bdi>', $html);
         // the hadith runs over the line break: closed at the line's end, opened again on the next

@@ -18,9 +18,9 @@
 @endphp
 
 <p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">
-    هوشواره این مدخل‌های کتاب‌های تراجم را زندگی‌نامه‌ی این اشخاص دانسته است. نام، تاریخ‌ها و آثار شخص را با سرعنوان و آغاز مدخل بسنجید:
+    هوشواره این مدخل‌های کتاب‌های تراجم را زندگی‌نامۀ این اشخاص دانسته است. نام، تاریخ‌ها و آثار شخص را با سرعنوان و آغاز مدخل بسنجید:
     پدر و پسر هم‌نام، و سال تولد یا تألیف به جای سال وفات، خطاهای رایج‌اند. پیوندهای نامطمئن‌تر نخست می‌آیند.
-    با تأیید، نشان ⓘ از صفحه‌ی شخص برداشته می‌شود و با رد، زندگی‌نامه از آن صفحه پنهان می‌شود.
+    با تأیید، نشان ⓘ از صفحۀ شخص برداشته می‌شود و با رد، زندگی‌نامه از آن صفحه پنهان می‌شود.
 </p>
 
 <x-admin.tabs :options="$tabs" />
@@ -28,13 +28,13 @@
 <x-admin.filters :action="route('admin.person-lives.index')" :total="$lives->total()" noun="پیوند">
     <input type="hidden" name="status" value="{{ $status }}">
     <select name="source" aria-label="مأخذ" class="admin-field max-w-xs">
-        <option value="">همه‌ی مأخذها</option>
+        <option value="">همۀ مأخذها</option>
         @foreach($sources as $s)
             <option value="{{ $s->code }}" @selected(($filters['source'] ?? null)?->id === $s->id)>{{ $s->short_name ?: $s->title }}</option>
         @endforeach
     </select>
     <select name="method" aria-label="روش" class="admin-field">
-        <option value="">همه‌ی روش‌ها</option>
+        <option value="">همۀ روش‌ها</option>
         @foreach(Queue::METHODS as $key => $label)
             <option value="{{ $key }}" @selected(($filters['method'] ?? null) === $key)>{{ $label }}</option>
         @endforeach
@@ -62,7 +62,7 @@
                     @if($person->life_dates_raw || $person->death_year_hijri)
                         <span class="block text-xs text-ink mt-0.5">{{ Fa::digits($person->life_dates_raw ?: 'د. ' . $person->death_year_hijri) }}</span>
                     @elseif($person->century_hijri)
-                        <span class="block text-xs text-muted mt-0.5">سده‌ی {{ Fa::digits($person->century_hijri) }}</span>
+                        <span class="block text-xs text-muted mt-0.5">سدۀ {{ Fa::digits($person->century_hijri) }}</span>
                     @endif
                     @foreach(array_filter((array) $person->aliases, 'is_string') as $alias)
                         <span class="block text-xs text-muted">{{ $alias }}</span>

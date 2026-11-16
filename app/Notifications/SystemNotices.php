@@ -33,7 +33,7 @@ class SystemNotices
     {
         self::throttled('system.search_failed', fn (int $count) => new Notice(
             'system.search_failed',
-            'خطای نمایه‌ی جست‌وجو',
+            'خطای نمایۀ جست‌وجو',
             array_filter([
                 class_basename($e) . ': ' . Str::limit($e->getMessage(), 300),
                 $count > 1 ? "شمار خطاها از اعلان پیشین: {$count}" : null,
@@ -62,7 +62,7 @@ class SystemNotices
         foreach (['level', 'sent', 'count', 'last'] as $key) {
             Cache::forget("notice-{$key}:{$type}");
         }
-        NotificationPreferences::broadcast($type, new Notice($type, 'جست‌وجو دوباره کار می‌کند', ['نمایه‌ی جست‌وجو (Meilisearch) پاسخ می‌دهد و در ده دقیقه‌ی گذشته خطایی نداشته است.'], route('admin.dashboard')));
+        NotificationPreferences::broadcast($type, new Notice($type, 'جست‌وجو دوباره کار می‌کند', ['نمایۀ جست‌وجو (Meilisearch) پاسخ می‌دهد و در ده دقیقۀ گذشته خطایی نداشته است.'], route('admin.dashboard')));
     }
 
     /**

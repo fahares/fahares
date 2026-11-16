@@ -20,7 +20,7 @@
 @endphp
 
 @section('title', $source->title . ' | منابع و مراجع فهارس')
-@section('meta_description', $kind . ': ' . $source->title . ($about ? '، ' . implode('، ', $about) : '') . '. جلدها، متن صفحه‌ها و برگه‌ی چاپی آن در فهارس.')
+@section('meta_description', $kind . ': ' . $source->title . ($about ? '، ' . implode('، ', $about) : '') . '. جلدها، متن صفحه‌ها و برگۀ چاپی آن در فهارس.')
 
 @section('content')
 {{-- One source (step 13.80): what it is, what the site has of it, and each volume with where to start reading its text
@@ -63,7 +63,7 @@
                 @if($counts['manuscripts'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['manuscripts']) }}</span> نسخه</span>@endif
                 @if($counts['works'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['works']) }}</span> اثر</span>@endif
                 @if($counts['items'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['items']) }}</span> مدخل چاپی</span>@endif
-                @if($counts['pages'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['pages']) }}</span> صفحه‌ی متن</span>@endif
+                @if($counts['pages'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['pages']) }}</span> صفحۀ متن</span>@endif
             </div>
             @php $singleParts = $single && $single['volume']->relationLoaded('parts') ? $single['volume']->parts : collect(); @endphp
             @if($single && $singleParts->isNotEmpty() && $single['volume']->catalogers->isNotEmpty())
@@ -98,7 +98,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-3">
         <x-suggest.toggle type="source" />
-        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $source->id }}</span></span>
+        <span class="text-xs text-muted">شناسۀ فهارس: <span class="font-mono text-ink font-bold">#{{ $source->id }}</span></span>
     </div>
 
     @if($source->editions->isNotEmpty())
@@ -147,7 +147,7 @@
                     <span class="flex-1 min-w-40 text-xs text-muted">
                         @if($v->title && $v->title !== $source->title){{ Fa::digits($v->title) }} · @endif
                         @if($row['manuscripts'])<a href="{{ route('search', ['type' => 'manuscripts', 'source_volume_id' => $v->id]) }}" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar" data-volume-manuscripts>{{ Fa::num($row['manuscripts']) }} نسخه</a> · @endif
-                        @if($row['pages']){{ Fa::num($row['pages']) }} صفحه‌ی متن @elseif($row['items']){{ Fa::num($row['items']) }} مدخل @endif
+                        @if($row['pages']){{ Fa::num($row['pages']) }} صفحۀ متن @elseif($row['items']){{ Fa::num($row['items']) }} مدخل @endif
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
                         @if($parts->isNotEmpty())
                             {{-- a volume of several libraries' catalogues: its own people are its editors, each part has its own (step 13.150) --}}
@@ -201,7 +201,7 @@
                        class="flex-1 min-w-[12rem] max-w-sm px-2.5 py-1.5 rounded-sm border border-line-strong bg-paper text-ink text-xs focus:border-cinnabar focus:ring-2 focus:ring-cinnabar/15 outline-none">
                 @if($volumes->count() > 1)
                     <select name="volume" aria-label="جلد" class="px-2 py-1.5 rounded-sm border border-line-strong bg-paper text-ink text-xs" onchange="this.form.requestSubmit()">
-                        <option value="">همه‌ی جلدها</option>
+                        <option value="">همۀ جلدها</option>
                         @foreach($volumes as $row)
                             <option value="{{ $row['volume']->volume_number }}" @selected($linked['volume'] === $row['volume']->volume_number)>{{ Fa::digits('ج ' . $row['volume']->volume_number) }}</option>
                         @endforeach

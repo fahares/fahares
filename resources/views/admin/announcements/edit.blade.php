@@ -50,7 +50,7 @@
             @elseif($status === 'running')
                 این اعلان روشن است و تا @jdate($announcement->ends_at, 'long') نشان داده می‌شود.
             @elseif($status === 'ended')
-                دوره‌ی نمایش این اعلان در @jdate($announcement->ends_at, 'long') پایان یافت.
+                دورۀ نمایش این اعلان در @jdate($announcement->ends_at, 'long') پایان یافت.
             @else
                 این اعلان خاموش است و کسی آن را نمی‌بیند.
             @endif
@@ -87,7 +87,7 @@
             <x-admin.field label="پیوند دکمه (اختیاری)" for="link_url" hint="نشانی صفحه‌ای از همین سایت، مانند ‎/posts/12‎، یا نشانی کامل با https://">
                 <input type="text" name="link_url" id="link_url" dir="ltr" x-model="link" maxlength="500" class="{{ $input }}" placeholder="/posts/12">
             </x-admin.field>
-            <x-admin.field label="نوشته‌ی دکمه" for="link_label" hint="اگر خالی بماند: «بیشتر».">
+            <x-admin.field label="نوشتۀ دکمه" for="link_label" hint="اگر خالی بماند: «بیشتر».">
                 <input type="text" name="link_label" id="link_label" x-model="label" maxlength="40" class="{{ $input }}" placeholder="بیشتر">
             </x-admin.field>
         </div>
@@ -117,7 +117,7 @@
                     @endforeach
                 </select>
             </x-admin.field>
-            <x-admin.field label="مدت نمایش (روز)" for="days" hint="از لحظه‌ی روشن شدن شمرده می‌شود.">
+            <x-admin.field label="مدت نمایش (روز)" for="days" hint="از لحظۀ روشن شدن شمرده می‌شود.">
                 <input type="number" name="days" id="days" min="1" max="365" value="{{ old('days', $announcement->days) }}" required class="{{ $input }}" dir="ltr">
             </x-admin.field>
         </div>
@@ -135,7 +135,7 @@
                 </label>
                 <p class="text-xs text-muted leading-6">
                     @if($posted)
-                        پست این اعلان در کانال هست. با ذخیره‌ی تغییر متن، همان پست ویرایش می‌شود؛ تصویر آن عوض نمی‌شود و با خاموش یا حذف شدن اعلان، پست می‌ماند.
+                        پست این اعلان در کانال هست. با ذخیرۀ تغییر متن، همان پست ویرایش می‌شود؛ تصویر آن عوض نمی‌شود و با خاموش یا حذف شدن اعلان، پست می‌ماند.
                     @else
                         یک بار، هنگامی که اعلان نخستین بار روشن می‌شود، به کانال می‌رود. پست کانال برگشت‌پذیر نیست؛ پیش از روشن کردن، پیش‌نمایش پایین را بخوانید.
                     @endif
@@ -164,11 +164,11 @@
                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', $status === 'running') ? 'checked' : '' }} class="size-4 accent-cinnabar">
                 روشن باشد
             </label>
-            <p class="text-xs text-muted leading-6" x-show="!only">با روشن شدن، دوره‌ی نمایش از همین لحظه آغاز می‌شود. کسی که اعلان را پیش‌تر دیده، با روشن شدنِ دوباره آن را نمی‌بیند.</p>
+            <p class="text-xs text-muted leading-6" x-show="!only">با روشن شدن، دورۀ نمایش از همین لحظه آغاز می‌شود. کسی که اعلان را پیش‌تر دیده، با روشن شدنِ دوباره آن را نمی‌بیند.</p>
             <p class="text-xs text-muted leading-6" x-show="only" x-cloak>با روشن شدن، پست به کانال تلگرام می‌رود.</p>
         </div>
 
-        <x-admin.form-actions :cancel="route('admin.announcements.index')" :submit="$exists ? 'ذخیره‌ی تغییرات' : 'ذخیره'" />
+        <x-admin.form-actions :cancel="route('admin.announcements.index')" :submit="$exists ? 'ذخیرۀ تغییرات' : 'ذخیره'" />
     </form>
 
     @if($exists)

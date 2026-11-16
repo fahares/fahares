@@ -73,7 +73,7 @@ class StructureController extends Controller
         $record = self::record($type, $id);
         ['suggestion' => $suggestion, 'relation' => $relation] = self::draft($request, $type, $record);
         abort_if(($relation['apply'] ?? null) === 'merge_people', 422, 'ادغام اشخاص از ابزار ادغام اشخاص انجام می‌شود.');
-        abort_if(! empty($relation['no_direct']), 422, 'این کار از صفحه‌ی خود رکورد انجام می‌شود.');
+        abort_if(! empty($relation['no_direct']), 422, 'این کار از صفحۀ خود رکورد انجام می‌شود.');
 
         $suggestion->save();
         try {
@@ -137,7 +137,7 @@ class StructureController extends Controller
         $ref = trim((string) ($input['target'] ?? ''));
         $targetId = $relation && $relation['target'] && $ref !== '' ? SuggestionController::recordId($relation['target'], $ref) : null;
         if ($relation && $relation['target'] && $ref !== '' && ! $targetId) {
-            throw ValidationException::withMessages(['target' => 'پیوند یا شناسه‌ی رکورد مقصد خوانا نیست.']);
+            throw ValidationException::withMessages(['target' => 'پیوند یا شناسۀ رکورد مقصد خوانا نیست.']);
         }
         $value = trim(str_replace(["\r\n", "\r"], "\n", (string) ($input['suggested_value'] ?? '')));
         try {

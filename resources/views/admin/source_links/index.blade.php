@@ -19,8 +19,8 @@
 
 <p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">
     هوشواره این آثار را با سنجیدن عنوان و مؤلف به مدخلی از صفحه‌ای که فنخا نشانی داده پیوند داده است. پیوندهای نامطمئن‌تر نخست می‌آیند:
-    مبهم، مؤلف و سال وفات، صفحه‌ی همسایه، فقط عنوان و یادکرد در متن. با «بررسی» متن مدخل و متن صفحه‌ها را می‌بینید و می‌توانید پیوند را به مدخل دیگری از همان صفحه یا صفحه‌ی همسایه ببرید.
-    با تأیید، نشان ⓘ از صفحه‌ی اثر برداشته می‌شود و با رد، پیوند پنهان می‌شود.
+    مبهم، مؤلف و سال وفات، صفحۀ همسایه، فقط عنوان و یادکرد در متن. با «بررسی» متن مدخل و متن صفحه‌ها را می‌بینید و می‌توانید پیوند را به مدخل دیگری از همان صفحه یا صفحۀ همسایه ببرید.
+    با تأیید، نشان ⓘ از صفحۀ اثر برداشته می‌شود و با رد، پیوند پنهان می‌شود.
 </p>
 
 <x-admin.tabs :options="$tabs" />
@@ -28,21 +28,21 @@
 <x-admin.filters :action="route('admin.source-links.index')" :total="$links->total()" noun="پیوند">
     <input type="hidden" name="status" value="{{ $status }}">
     <select name="source" aria-label="مأخذ" class="admin-field max-w-xs" onchange="this.form.volume && (this.form.volume.value = '')">
-        <option value="all">همه‌ی مأخذها</option>
+        <option value="all">همۀ مأخذها</option>
         @foreach($sources as $s)
             <option value="{{ $s->code }}" @selected($source?->id === $s->id)>{{ $s->short_name ?: $s->title }}</option>
         @endforeach
     </select>
     @if($volumes->isNotEmpty())
         <select name="volume" aria-label="جلد" class="admin-field">
-            <option value="">همه‌ی جلدها</option>
+            <option value="">همۀ جلدها</option>
             @foreach($volumes as $volume)
                 <option value="{{ $volume->id }}" @selected(($filters['volume'] ?? null) === $volume->id)>ج {{ Fa::digits($volume->volume_number) }}</option>
             @endforeach
         </select>
     @endif
     <select name="method" aria-label="روش" class="admin-field">
-        <option value="">همه‌ی روش‌ها</option>
+        <option value="">همۀ روش‌ها</option>
         @foreach(Queue::METHODS as $key => $label)
             @if(isset($methods[$key]) || ($filters['method'] ?? null) === $key)
                 <option value="{{ $key }}" @selected(($filters['method'] ?? null) === $key)>{{ $label }} ({{ Fa::num($methods[$key] ?? 0) }})</option>
@@ -70,7 +70,7 @@
             <p class="flex-1 min-w-64 text-ink">
                 <b>تأیید گروهی:</b>
                 {{ Queue::methodLabel($bulk['method']) }}، اطمینان {{ Fa::digits($bulk['min']) }} به بالا ({{ $bulk['sample'] }}).
-                چند نمونه را با «بررسی» ببینید و سپس همه‌ی پیوندهای این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
+                چند نمونه را با «بررسی» ببینید و سپس همۀ پیوندهای این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
             </p>
             @php $count = Fa::num($bulkCount); @endphp
             <form method="POST" action="{{ route('admin.source-links.bulk-verify') }}" onsubmit="return confirm(@js($count . ' پیوند تأیید شود؟'))">
@@ -79,21 +79,21 @@
                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                 @endforeach
                 <input type="hidden" name="expected" value="{{ $bulkCount }}">
-                <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همه‌ی {{ $count }} پیوند این پالایه</button>
+                <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همۀ {{ $count }} پیوند این پالایه</button>
             </form>
         </x-admin.notice>
     @elseif($status === SourceEntry::STATUS_UNVERIFIED && $source && collect(Queue::BULK)->contains('source', $source->code))
         @foreach(collect(Queue::BULK)->where('source', $source->code) as $rule)
             <x-admin.notice class="flex flex-wrap items-center gap-3">
                 <p class="flex-1 min-w-64 text-muted">تأیید گروهی فقط برای دسته‌هایی است که نمونه‌شان دستی سنجیده شده است. دیگر پیوندها هر کدام جداگانه داوری می‌شوند.</p>
-                <x-ui.btn :href="route('admin.source-links.index', ['source' => $rule['source'], 'method' => $rule['method']])">پالایه‌ی پیشنهادی: {{ Queue::methodLabel($rule['method']) }}</x-ui.btn>
+                <x-ui.btn :href="route('admin.source-links.index', ['source' => $rule['source'], 'method' => $rule['method']])">پالایۀ پیشنهادی: {{ Queue::methodLabel($rule['method']) }}</x-ui.btn>
             </x-admin.notice>
         @endforeach
     @endif
     @if($lastBulk)
         <x-admin.notice class="flex flex-wrap items-center gap-3">
             <p class="flex-1 min-w-64">
-                آخرین تأیید گروهی (دسته‌ی #{{ Fa::digits($lastBulk->id) }}): {{ Fa::num($lastBulk->new_values['count'] ?? 0) }} پیوند،
+                آخرین تأیید گروهی (دستۀ #{{ Fa::digits($lastBulk->id) }}): {{ Fa::num($lastBulk->new_values['count'] ?? 0) }} پیوند،
                 به دست {{ $lastBulk->user?->name ?? '—' }}، {{ \App\Support\Jalali::format($lastBulk->created_at, 'datetime') }}.
             </p>
             <form method="POST" action="{{ route('admin.source-links.bulk-revert', $lastBulk) }}" onsubmit="return confirm('پیوندهای این دسته به صف داوری برگردند؟ آن‌هایی که از آن پس جداگانه داوری شده‌اند دست نمی‌خورند.')">

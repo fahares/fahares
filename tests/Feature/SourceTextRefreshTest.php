@@ -51,7 +51,7 @@ class SourceTextRefreshTest extends TestCase
         $this->manuscript = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => '2967/7', 'volume_number' => 1, 'page_start' => 801, 'sequence_number' => 1]);
         $this->entry = SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $this->manuscript->id, 'source_id' => $this->volume->source_id,
             'source_volume_id' => $this->volume->id, 'volume_number' => 4, 'page_start' => 595, 'entry_number' => 7, 'origin' => SourceEntry::ORIGIN_MATCH,
-            'match_method' => 'shelfmark_single_page', 'confidence' => 40, 'entry_text' => 'متن رساله‌ی هفتم', 'copy_text' => 'یادداشت‌های مجموعه',
+            'match_method' => 'shelfmark_single_page', 'confidence' => 40, 'entry_text' => 'متن رسالۀ هفتم', 'copy_text' => 'یادداشت‌های مجموعه',
             'text_volume_number' => 4, 'text_page' => 595, 'text_status' => SourceEntry::TEXT_AUTO]);
     }
 
@@ -66,7 +66,7 @@ class SourceTextRefreshTest extends TestCase
     protected function suggest(string $field, string $value): FieldSuggestion
     {
         $this->suggestJson(['type' => 'manuscript', 'id' => $this->manuscript->id, 'kind' => 'field', 'field_name' => $field,
-            'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم'])->assertOk();
+            'suggested_value' => $value, 'rationale_citation' => 'برگۀ چاپی را دیدم'])->assertOk();
 
         return FieldSuggestion::latest('id')->firstOrFail();
     }
@@ -99,7 +99,7 @@ class SourceTextRefreshTest extends TestCase
         $s = $this->suggest("source_entry_{$this->entry->id}", 'ج ۴، ص ۵۹۶');
 
         $this->actingAs($this->admin())->get("/admin/suggestions/{$s->id}")->assertOk()
-            ->assertSeeInOrder(['متن مأخذ در جای تازه', 'متن رساله‌ی هفتم', 'متن در جای تازه (ص ۵۹۶، مدخل ۹)', '۹ ـ اجوبة مسائل الاصفهانی', 'متن را هم به متن جای تازه تغییر بده'])
+            ->assertSeeInOrder(['متن مأخذ در جای تازه', 'متن رسالۀ هفتم', 'متن در جای تازه (ص ۵۹۶، مدخل ۹)', '۹ ـ اجوبة مسائل الاصفهانی', 'متن را هم به متن جای تازه تغییر بده'])
             ->assertSee('name="retext[]" value="' . $this->entry->id . '"', false);
 
         $this->approve($s, ['retext' => [$this->entry->id]])->assertSessionHasNoErrors();
@@ -112,7 +112,7 @@ class SourceTextRefreshTest extends TestCase
         $log = AuditLog::where('action', 'verify')->latest('id')->firstOrFail();
         $this->actingAs($this->admin())->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
         $entry = $this->entry->fresh();
-        $this->assertSame(['متن رساله‌ی هفتم', 595, 7, 595, SourceEntry::ORIGIN_MATCH], [$entry->entry_text, $entry->page_start, $entry->entry_number, $entry->text_page, $entry->origin]);
+        $this->assertSame(['متن رسالۀ هفتم', 595, 7, 595, SourceEntry::ORIGIN_MATCH], [$entry->entry_text, $entry->page_start, $entry->entry_number, $entry->text_page, $entry->origin]);
     }
 
     public function test_an_address_approved_without_the_text_leaves_it_marked()
@@ -121,7 +121,7 @@ class SourceTextRefreshTest extends TestCase
         $this->approve($this->suggest("source_entry_{$this->entry->id}", 'ج ۴، ص ۵۹۶'))->assertSessionHasNoErrors();
 
         $entry = $this->entry->fresh();
-        $this->assertSame(['متن رساله‌ی هفتم', 596, SourceEntry::TEXT_STALE], [$entry->entry_text, $entry->page_start, $entry->text_status]);
+        $this->assertSame(['متن رسالۀ هفتم', 596, SourceEntry::TEXT_STALE], [$entry->entry_text, $entry->page_start, $entry->text_status]);
         $this->actingAs($this->admin())->get(route('manuscripts.show', $this->manuscript))
             ->assertSee('data-stale-text', false)->assertSee(route('admin.source-entries.text', $entry));
     }
@@ -146,8 +146,8 @@ class SourceTextRefreshTest extends TestCase
 
         $this->actingAs($this->admin())->get(route('admin.source-entries.text', $this->entry))->assertOk()
             ->assertSeeInOrder(['صفحه‌های مأخذ در نشانی کنونی این متن را نشان می‌دهند', '۹ ـ اجوبة مسائل الاصفهانی', 'همین متن را بگذار', 'ویرایش دستی', 'متن صفحه‌های مأخذ', 'ص ۵۹۶ تا ۵۹۶'])
-            ->assertSee('صفحه‌ی بعد');
-        // the entry runs over two pages: «صفحه‌ی بعد» adds the next
+            ->assertSee('صفحۀ بعد');
+        // the entry runs over two pages: «صفحۀ بعد» adds the next
         $this->actingAs($this->admin())->get(route('admin.source-entries.text', ['entry' => $this->entry, 'from' => 596, 'to' => 597]))
             ->assertSeeInOrder(['ص ۵۹۶', 'ص ۵۹۷', 'رساله نهم بدون تاریخ']);
 
@@ -174,7 +174,7 @@ class SourceTextRefreshTest extends TestCase
             'entry_text' => 'متن دستی', 'text_volume_number' => 4, 'text_page' => 595, 'text_status' => SourceEntry::TEXT_EDITED]);
 
         $this->artisan('sources:retext', ['--dry-run' => true])->expectsOutputToContain('entry 9, p. 596')->assertSuccessful();
-        $this->assertSame('متن رساله‌ی هفتم', $this->entry->fresh()->entry_text);
+        $this->assertSame('متن رسالۀ هفتم', $this->entry->fresh()->entry_text);
 
         $this->artisan('sources:retext')->assertSuccessful();
         $entry = $this->entry->fresh();

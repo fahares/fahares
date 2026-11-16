@@ -33,7 +33,7 @@ class DirectAnswerTest extends TestCase
     private function manuscript(Library $library, string $shelfmark, array $attrs = []): Manuscript
     {
         return Manuscript::create($attrs + ['work_id' => $this->work->id, 'library_id' => $library->id, 'library' => $library->name,
-            'shelfmark' => $shelfmark, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1, 'raw_text' => 'نسخه‌ی آزمایشی']);
+            'shelfmark' => $shelfmark, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1, 'raw_text' => 'نسخۀ آزمایشی']);
     }
 
     public function test_a_library_and_number_list_the_shelfmark_its_parts_and_marks_but_not_longer_numbers(): void
@@ -45,8 +45,8 @@ class DirectAnswerTest extends TestCase
         $this->manuscript($this->majlis, '11890');
         $this->manuscript($this->qom, '1189');
 
-        $this->get(route('search', ['q' => 'کتابخانه‌ی مجلس، شماره‌ی ۱۱۸۹']))->assertOk()
-            ->assertSeeInOrder(['شماره‌ی', 'کتابخانه مجلس (تهران)', '1189/1', '1189/2', '1189 ط', '1189ع', 'کتابخانه‌ی دیگری با همین نام', 'کتابخانه مجلس (قم)'])
+        $this->get(route('search', ['q' => 'کتابخانۀ مجلس، شمارۀ ۱۱۸۹']))->assertOk()
+            ->assertSeeInOrder(['شمارۀ', 'کتابخانه مجلس (تهران)', '1189/1', '1189/2', '1189 ط', '1189ع', 'کتابخانۀ دیگری با همین نام', 'کتابخانه مجلس (قم)'])
             ->assertDontSee('11890');
 
         // The city picks the other library of the same name
@@ -74,11 +74,11 @@ class DirectAnswerTest extends TestCase
         $this->manuscript($this->qom, '1189');
 
         $this->get(route('search', ['q' => '۱۱۸۹']))->assertOk()
-            ->assertSee('نسخه‌ای با شماره‌ی')->assertSee('در ۲ کتابخانه هست')
+            ->assertSee('نسخه‌ای با شمارۀ')->assertSee('در ۲ کتابخانه هست')
             ->assertSee(e(route('search', ['q' => 'مجلس تهران 1189', 'type' => 'manuscripts'])), false);
 
         // A number inside a title is not a shelfmark
-        $this->get(route('search', ['q' => '۱۰۰ کلمه']))->assertOk()->assertDontSee('نسخه‌ای با شماره‌ی');
+        $this->get(route('search', ['q' => '۱۰۰ کلمه']))->assertOk()->assertDontSee('نسخه‌ای با شمارۀ');
     }
 
     public function test_a_catalogue_page_finds_its_entries(): void

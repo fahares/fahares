@@ -5,7 +5,7 @@ namespace App\Support;
 /**
  * Extracts a sortable Hijri year from a free-text catalog date such as
  * «یک‌شنبه ۲۳ ربیع الاول ۱۲۳۶ق». Returns null when there is no year
- * («سده‌ی ۱۳»). A date whose only year is solar or Gregorian («۱۳۵۰ش», «۱۸۲۰م») gives the first Hijri year that
+ * («سدۀ ۱۳»). A date whose only year is solar or Gregorian («۱۳۵۰ش», «۱۸۲۰م») gives the first Hijri year that
  * year spans (otherCalendar, step 14.181).
  */
 class HijriYear

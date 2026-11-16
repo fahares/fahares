@@ -63,7 +63,7 @@
         <x-admin.decision :suggestion="$suggestion" approve-label="انتشار">
             <x-slot:approve>
                 @if($editable)
-                    @include('admin.suggestions.partials.note-form', ['button' => 'تأیید و انتشار در صفحه‌ی رکورد'])
+                    @include('admin.suggestions.partials.note-form', ['button' => 'تأیید و انتشار در صفحۀ رکورد'])
                 @endif
             </x-slot:approve>
             <x-slot:reject>
@@ -71,17 +71,17 @@
                     @csrf
                     <textarea name="public_note" rows="3" placeholder="علت رد (پیشنهاددهنده می‌بیند)" aria-label="علت رد" class="{{ $input }}"></textarea>
                     <textarea name="admin_notes" rows="2" placeholder="یادداشت داخلی (فقط داوران)" aria-label="یادداشت داخلی" class="{{ $input }}"></textarea>
-                    <p class="text-xs text-muted">تصاویر بارگذاری‌شده‌ی یادداشت ردشده از سرور پاک می‌شوند.</p>
+                    <p class="text-xs text-muted">تصاویر بارگذاری‌شدۀ یادداشت ردشده از سرور پاک می‌شوند.</p>
                     <button type="submit" onclick="return confirm('این یادداشت رد شود؟')" class="w-full py-2.5 px-4 rounded-sm border border-cinnabar text-cinnabar hover:bg-cinnabar/5 font-bold transition cursor-pointer">رد یادداشت</button>
                 </form>
             </x-slot:reject>
         </x-admin.decision>
     @else
         <x-ui.card class="space-y-3 !border-line-strong">
-            <h3 class="font-naskh text-lg font-bold text-ink">نتیجه‌ی داوری</h3>
+            <h3 class="font-naskh text-lg font-bold text-ink">نتیجۀ داوری</h3>
             <p class="text-xs text-muted">داوری به دست {{ $suggestion->reviewer?->name ?: 'سامانه' }}، @jdate($suggestion->reviewed_at, 'datetime')</p>
             @if($editable)
-                @include('admin.suggestions.partials.note-form', ['button' => $suggestion->status === 'withdrawn' ? 'ذخیره و انتشار دوباره' : 'ذخیره‌ی ویرایش'])
+                @include('admin.suggestions.partials.note-form', ['button' => $suggestion->status === 'withdrawn' ? 'ذخیره و انتشار دوباره' : 'ذخیرۀ ویرایش'])
             @else
                 <p><span class="font-bold">یادداشت عمومی:</span> <span class="whitespace-pre-line">{{ $suggestion->public_note ?: '—' }}</span></p>
                 <p><span class="font-bold">یادداشت داخلی:</span> {{ $suggestion->admin_notes ?: '—' }}</p>
@@ -94,7 +94,7 @@
                 <form action="{{ route('admin.suggestions.withdraw', $suggestion) }}" method="POST" class="space-y-3">
                     @csrf
                     <input type="text" name="admin_notes" placeholder="علت (یادداشت داخلی)" aria-label="علت برداشتن" class="{{ $input }}">
-                    <button type="submit" onclick="return confirm('این یادداشت از صفحه‌ی رکورد برداشته شود؟')" class="w-full py-2.5 px-4 rounded-sm border border-line-strong text-ink hover:border-cinnabar hover:text-cinnabar font-bold transition cursor-pointer">برداشتن از صفحه</button>
+                    <button type="submit" onclick="return confirm('این یادداشت از صفحۀ رکورد برداشته شود؟')" class="w-full py-2.5 px-4 rounded-sm border border-line-strong text-ink hover:border-cinnabar hover:text-cinnabar font-bold transition cursor-pointer">برداشتن از صفحه</button>
                 </form>
             </x-ui.card>
         @endif
@@ -104,7 +104,7 @@
                 <h3 class="rubric text-base">بازگشت به صف داوری</h3>
                 <p class="text-muted">
                     @if($suggestion->status === 'approved')
-                        یادداشت تا داوری دوباره از صفحه‌ی رکورد برداشته می‌شود و می‌توان از پیشنهاددهنده پرسید. پیام قبلی به پیشنهاددهنده پس گرفته نمی‌شود.
+                        یادداشت تا داوری دوباره از صفحۀ رکورد برداشته می‌شود و می‌توان از پیشنهاددهنده پرسید. پیام قبلی به پیشنهاددهنده پس گرفته نمی‌شود.
                     @else
                         اگر رد به اشتباه بوده، یادداشت دوباره در انتظار داوری قرار می‌گیرد. پرونده‌های پیوست هنگام رد حذف شده‌اند.
                     @endif

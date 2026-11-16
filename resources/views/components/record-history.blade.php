@@ -5,7 +5,7 @@
     $shown = 10;
 @endphp
 @if($history->isNotEmpty())
-<x-ui.section id="correction-history" title="تاریخچه‌ی اصلاحات" :count="$history->count()" x-data="{ all: false }">
+<x-ui.section id="correction-history" title="تاریخچۀ اصلاحات" :count="$history->count()" x-data="{ all: false }">
     <ol class="space-y-2.5 text-sm leading-7">
         @foreach($history as $i => $item)
             @php $c = $item['contributor']; @endphp

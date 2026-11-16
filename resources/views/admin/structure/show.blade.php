@@ -53,7 +53,7 @@
 
                 <template x-if="relation && relation.options">
                     <label class="block space-y-1">
-                        <span class="block font-bold text-ink" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطه‌ی دو رکورد:'"></span>
+                        <span class="block font-bold text-ink" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطۀ دو رکورد:'"></span>
                         <select name="role" class="{{ $input }}">
                             <option value="">انتخاب کنید…</option>
                             <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label" :selected="key === @js(request('role'))"></option></template>
@@ -63,8 +63,8 @@
                 <template x-if="relation && relation.target">
                     <div class="space-y-1 relative">
                         <span class="block font-bold text-ink"
-                            x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:'})[relation.target])"></span>
-                        <input type="text" name="target" x-model="targetQuery" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جست‌وجوی عنوان و نام" class="{{ $input }}">
+                            x-text="relation.apply === 'relocate' ? 'کتابخانۀ تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانۀ مقصد:', manuscript: 'نسخۀ مقصد:'})[relation.target])"></span>
+                        <input type="text" name="target" x-model="targetQuery" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسۀ فهارس، یا جست‌وجوی عنوان و نام" class="{{ $input }}">
                         <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-surface shadow-lg">
                             <template x-for="r in targetResults" :key="r.id">
                                 <li>
@@ -90,13 +90,13 @@
                 </template>
                 <template x-if="relation && relation.apply === 'relocate'">
                     <label class="block space-y-1">
-                        <span class="block font-bold text-ink">شماره‌ی تازه‌ی نسخه (اگر عوض شده است):</span>
+                        <span class="block font-bold text-ink">شمارۀ تازۀ نسخه (اگر عوض شده است):</span>
                         <input type="text" name="shelfmark" value="{{ request('shelfmark') }}" class="{{ $input }}">
                     </label>
                 </template>
                 <template x-if="relation">
                     <label class="block space-y-1">
-                        <span class="block font-bold text-ink" x-text="relation.needs_text ? ({rename_library: 'نام تازه‌ی کتابخانه:', split: 'چه چیزی از رکورد دیگری است:', alias: 'نام دیگر:'})[relation.apply] : 'توضیح (اختیاری؛ در تاریخچه‌ی اصلاحات می‌آید):'"></span>
+                        <span class="block font-bold text-ink" x-text="relation.needs_text ? ({rename_library: 'نام تازۀ کتابخانه:', split: 'چه چیزی از رکورد دیگری است:', alias: 'نام دیگر:'})[relation.apply] : 'توضیح (اختیاری؛ در تاریخچۀ اصلاحات می‌آید):'"></span>
                         <textarea name="suggested_value" rows="2" class="{{ $input }}">{{ request('suggested_value') }}</textarea>
                     </label>
                 </template>
@@ -134,7 +134,7 @@
                     @foreach($preview['lines'] as $line)<li>{{ $line }}</li>@endforeach
                 </ul>
             @endif
-            <x-admin.notice tone="warn">با اجرا، این اقدام به نام شما و با برچسب «ویراستار فهارس» در تاریخچه‌ی اصلاحات ثبت می‌شود و از صفحه‌ی آن یا از لاگ ممیزی بازگرداندنی است.</x-admin.notice>
+            <x-admin.notice tone="warn">با اجرا، این اقدام به نام شما و با برچسب «ویراستار فهارس» در تاریخچۀ اصلاحات ثبت می‌شود و از صفحۀ آن یا از لاگ ممیزی بازگرداندنی است.</x-admin.notice>
 
             @include('admin.suggestions.partials.relation-approve', [
                 'suggestion' => $draft['suggestion'],

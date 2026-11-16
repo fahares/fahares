@@ -37,7 +37,7 @@
                 <x-admin.field label="نام کوتاه" for="short_name" error="short_name" hint="برای نمایش، مانند «دنا».">
                     <input type="text" name="short_name" id="short_name" value="{{ old('short_name') }}" class="admin-field w-full">
                 </x-admin.field>
-                <x-admin.field label="کد" for="code" error="code" hint="کد یکتا و پایدار، در نشانی صفحه‌ی منبع: حرف کوچک لاتین، رقم و خط تیره.">
+                <x-admin.field label="کد" for="code" error="code" hint="کد یکتا و پایدار، در نشانی صفحۀ منبع: حرف کوچک لاتین، رقم و خط تیره.">
                     <input type="text" name="code" id="code" value="{{ old('code') }}" required dir="ltr" class="admin-field w-full" placeholder="dena">
                 </x-admin.field>
                 <x-admin.field label="نوع" for="kind" error="kind">
@@ -96,8 +96,8 @@
                     صفحه‌ها در جلدها پیوسته است
                 </label>
             </div>
-            <x-admin.field label="صفحه‌ی آخر هر جلد (اختیاری)" for="last_pages" error="last_pages"
-                           hint="به ترتیب جلدها، هر کدام در یک سطر یا با «،». با آن، ارجاعی که صفحه‌اش بیرون از جلد است پذیرفته نمی‌شود، و صفحه‌ی تنها جلدش را خودش می‌گوید.">
+            <x-admin.field label="صفحۀ آخر هر جلد (اختیاری)" for="last_pages" error="last_pages"
+                           hint="به ترتیب جلدها، هر کدام در یک سطر یا با «،». با آن، ارجاعی که صفحه‌اش بیرون از جلد است پذیرفته نمی‌شود، و صفحۀ تنها جلدش را خودش می‌گوید.">
                 <textarea name="last_pages" id="last_pages" rows="3" dir="ltr" class="admin-field w-full">{{ old('last_pages') }}</textarea>
             </x-admin.field>
 

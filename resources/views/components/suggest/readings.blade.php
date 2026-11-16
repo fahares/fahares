@@ -30,7 +30,7 @@
 
                 @if($r['history']->isNotEmpty())
                     <details class="group">
-                        <summary class="cursor-pointer text-[11px] font-bold text-muted hover:text-cinnabar select-none">سابقه‌ی اصلاحات ({{ $r['history']->count() }})</summary>
+                        <summary class="cursor-pointer text-[11px] font-bold text-muted hover:text-cinnabar select-none">سابقۀ اصلاحات ({{ $r['history']->count() }})</summary>
                         <div class="mt-3 space-y-3 ps-3 border-s-2 border-line">
                             @foreach($r['history'] as $s)
                                 <x-suggest.reading :s="$s" :tag="$s->standing_label" />

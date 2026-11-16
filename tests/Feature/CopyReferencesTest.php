@@ -67,7 +67,7 @@ class CopyReferencesTest extends TestCase
 
         // The work page lists the handwritten copies with their photographs and repeated descriptions under them
         $this->get(route('works.show', $this->work))->assertOk()
-            ->assertSeeText('۲ نسخه‌ی خطی · ۲ عکسی از همین نسخه‌ها · ۱ عکسیِ دیگر · ۱ معرفیِ احتمالاً تکراری')
+            ->assertSeeText('۲ نسخۀ خطی · ۲ عکسی از همین نسخه‌ها · ۱ عکسیِ دیگر · ۱ معرفیِ احتمالاً تکراری')
             ->assertSee('data-linked-copy="' . $film->id . '"', false)
             ->assertSee('data-linked-copy="' . $marashi->id . '"', false)
             ->assertSeeText('مادر: اسکوریال - مادرید ش ۱۳۲۴');
@@ -75,10 +75,10 @@ class CopyReferencesTest extends TestCase
         // The film's page names its mother and shows what it does not say from there
         $this->get(route('manuscripts.show', $film))->assertOk()
             ->assertSeeText('این نسخه عکسی یا میکروفیلمِ')
-            ->assertSee('هرات</span> <span class="text-[11px] text-muted">از نسخه‌ی مادر</span>', false);
-        $this->get(route('manuscripts.show', $marashi))->assertOk()->assertSeeText('احتمالاً همان نسخه‌ی')
-            ->assertSee('data-same-answer', false)->assertSeeText('دو نسخه‌ی جدایند');
-        $this->get(route('manuscripts.show', $outside))->assertOk()->assertSeeText('نسخه‌ی مادر: اسکوریال - مادرید ش ۱۳۲۴')->assertSeeText('این نسخه‌ی مادر را در سامانه یافته‌اید؟');
+            ->assertSee('هرات</span> <span class="text-[11px] text-muted">از نسخۀ مادر</span>', false);
+        $this->get(route('manuscripts.show', $marashi))->assertOk()->assertSeeText('احتمالاً همان نسخۀ')
+            ->assertSee('data-same-answer', false)->assertSeeText('دو نسخۀ جدایند');
+        $this->get(route('manuscripts.show', $outside))->assertOk()->assertSeeText('نسخۀ مادر: اسکوریال - مادرید ش ۱۳۲۴')->assertSeeText('این نسخۀ مادر را در سامانه یافته‌اید؟');
         $this->get(route('manuscripts.show', $mowlavi->id))->assertRedirect();
 
         // Run again: nothing more to do

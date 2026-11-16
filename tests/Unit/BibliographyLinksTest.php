@@ -156,7 +156,7 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([], $this->links('کشف الظنون 23/2؛ 1544/1'));
 
         $html = (string) BibliographyLinks::html('کشف الظنون: 1075/2');
-        $this->assertStringContainsString('href="#" title="دیدن برگه‌ی کشف الظنون، ج ۲، ستون ۱۰۷۵"', $html);
+        $this->assertStringContainsString('href="#" title="دیدن برگۀ کشف الظنون، ج ۲، ستون ۱۰۷۵"', $html);
         $this->assertStringContainsString('&quot;catalog&quot;:&quot;kashf&quot;', $html);
     }
 
@@ -201,7 +201,7 @@ class BibliographyLinksTest extends TestCase
 
         // the other sources keep reading a colon or a dash only as before
         $this->assertSame([], $this->links('الذریعة 13-15'));
-        $this->assertStringContainsString('href="#" title="دیدن برگه‌ی معجم المؤلفین، ج ۳، ص ۱۰۵"', (string) BibliographyLinks::html('کحاله 105/3'));
+        $this->assertStringContainsString('href="#" title="دیدن برگۀ معجم المؤلفین، ج ۳، ص ۱۰۵"', (string) BibliographyLinks::html('کحاله 105/3'));
     }
 
     public function test_zirikli_opens_the_viewer_under_all_its_names_and_not_for_other_alam_books()
@@ -385,7 +385,7 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([['monzavi', 5, 3366]], $cites('فهرستواره منزوی 3366/5'));
 
         $html = (string) BibliographyLinks::html('نسخه‌های منزوی 3298/2');
-        $this->assertStringContainsString('title="دیدن برگه‌ی فهرست نسخه‌های خطی فارسی، ج ۴، ص ۳۲۹۸"', $html);
+        $this->assertStringContainsString('title="دیدن برگۀ فهرست نسخه‌های خطی فارسی، ج ۴، ص ۳۲۹۸"', $html);
         $this->assertStringContainsString('&quot;catalog&quot;:&quot;monzavi-nuskhe&quot;', $html);
     }
 

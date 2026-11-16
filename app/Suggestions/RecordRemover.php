@@ -85,7 +85,7 @@ class RecordRemover
     {
         $attributes = $old['snapshot']['attributes'] ?? throw new InvalidArgumentException('اطلاعات رکورد حذف‌شده در این لاگ ثبت نشده است.');
         if ($class::find($attributes['id'])) {
-            throw new InvalidArgumentException("رکوردی با شناسه‌ی #{$attributes['id']} هم‌اکنون وجود دارد.");
+            throw new InvalidArgumentException("رکوردی با شناسۀ #{$attributes['id']} هم‌اکنون وجود دارد.");
         }
         if ($class === Manuscript::class && ! Work::find($attributes['work_id'])) {
             throw new InvalidArgumentException("اثر این نسخه (#{$attributes['work_id']}) دیگر وجود ندارد.");
@@ -122,8 +122,9 @@ class RecordRemover
     }
 
     /**
-     * The response at the former address of a removed record: a removed manuscript leads to its work,
-     * anything else gets the "removed" page (410). Null when the record was not removed.
+     * The response at the former address of a removed record: a removed manuscript leads to its work, a removed
+     * person whose log names a work to that work, anything else gets the "removed" page (410). Null when the
+     * record was not removed.
      */
     public static function goneResponse(string $class, int $id)
     {
@@ -134,6 +135,10 @@ class RecordRemover
         $attributes = $log->old_values['snapshot']['attributes'] ?? [];
         if ($class === Manuscript::class && ($work = Work::find($attributes['work_id'] ?? 0))) {
             return redirect()->route('works.show', $work);
+        }
+        // A person row that was a line of a work's entry leads to that work (fahares:remove-pseudo-people, step 14.235)
+        if ($class === Person::class && ($work = Work::find($log->new_values['redirect_work_id'] ?? 0))) {
+            return redirect()->route('works.show', $work, 301);
         }
         [$label, $title] = match ($class) {
             Manuscript::class => ['نسخه', $attributes['shelfmark'] ?? ('#' . $id)],

@@ -32,7 +32,7 @@ class DateConflictsTest extends TestCase
         $this->work = Work::create(['primary_title' => 'اثر متناقض‌نمای آزمایشی', 'clean_title' => 'اثر متناقض‌نمای آزمایشی', 'slug' => 'conflict-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         DB::table('works')->where('id', $this->work->id)->update(['composition_date_from' => 1300, 'composition_date_to' => 1300]);
         DB::table('work_people')->insert(['work_id' => $this->work->id, 'person_id' => $author->id, 'role' => 'author', 'position' => 0]);
-        $library = Library::create(['name' => 'کتابخانه‌ی تناقض آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ تناقض آزمایشی', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
         $copy = Manuscript::create(['work_id' => $this->work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
             'library_id' => $library->id, 'library' => $library->name, 'city' => 'قم', 'shelfmark' => 'تناقض ۱', 'raw_text' => '1. قم']);
         DB::table('manuscripts')->where('id', $copy->id)->update(['copy_date_from' => 1250, 'copy_date_to' => 1250, 'copy_date_raw' => '1250ق']);
@@ -57,7 +57,7 @@ class DateConflictsTest extends TestCase
         // the work of 1300 against its copy of 1250 (50 years) and its author's death in 1280 (20 years)
         $this->actingAs($this->editor)->get(route('admin.date-conflicts.index'))->assertOk()
             ->assertSeeInOrder(['کتابت نسخه پیش از تألیف اثر', 'تألیف پس از وفات مؤلف'])
-            ->assertSee('اثر متناقض‌نمای آزمایشی')->assertSee('مؤلف آزمایشی تناقض‌نما')->assertSee('کتابخانه‌ی تناقض آزمایشی')
+            ->assertSee('اثر متناقض‌نمای آزمایشی')->assertSee('مؤلف آزمایشی تناقض‌نما')->assertSee('کتابخانۀ تناقض آزمایشی')
             ->assertSee(route('manuscripts.permalink', $this->copy))->assertSee('«۱۲۵۰ق»', false);
 
         $this->actingAs($this->editor)->get(route('admin.date-conflicts.index', ['sort' => 'small']))
@@ -73,14 +73,14 @@ class DateConflictsTest extends TestCase
     {
         $conflict = DateConflict::where('rule', Loader::RULE_COPY)->sole();
 
-        $this->actingAs($this->editor)->post(route('admin.date-conflicts.dismiss', $conflict), ['note' => 'تاریخ نسخه‌ی اصل است'])->assertRedirect();
+        $this->actingAs($this->editor)->post(route('admin.date-conflicts.dismiss', $conflict), ['note' => 'تاریخ نسخۀ اصل است'])->assertRedirect();
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
 
         $conflict->refresh();
-        $this->assertSame([$this->editor->id, 'تاریخ نسخه‌ی اصل است'], [$conflict->dismissed_by, $conflict->dismiss_note]);
+        $this->assertSame([$this->editor->id, 'تاریخ نسخۀ اصل است'], [$conflict->dismissed_by, $conflict->dismiss_note]);
         $this->actingAs($this->editor)->get(route('admin.date-conflicts.index'))->assertDontSee('کتابت نسخه پیش از تألیف اثر');
         $this->actingAs($this->editor)->get(route('admin.date-conflicts.index', ['view' => 'dismissed']))
-            ->assertSee('کتابت نسخه پیش از تألیف اثر')->assertSee('تاریخ نسخه‌ی اصل است')->assertSee('داور آزمایشی');
+            ->assertSee('کتابت نسخه پیش از تألیف اثر')->assertSee('تاریخ نسخۀ اصل است')->assertSee('داور آزمایشی');
 
         $this->actingAs($this->editor)->post(route('admin.date-conflicts.reopen', $conflict))->assertRedirect();
         $this->assertNull($conflict->refresh()->dismissed_at);

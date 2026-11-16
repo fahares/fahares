@@ -21,7 +21,7 @@
 <x-admin.filters :action="route('admin.audit-logs.index')" :reset="$type ? route('admin.audit-logs.index', array_filter(['action' => $action])) : null" :total="$logs->total()" noun="رخداد">
     @if($action)<input type="hidden" name="action" value="{{ $action }}">@endif
     <select name="type" aria-label="نوع رکورد" class="admin-field">
-        <option value="">همه‌ی رکوردها</option>
+        <option value="">همۀ رکوردها</option>
         @foreach($types as $class => $label)
             <option value="{{ class_basename($class) }}" @selected($type === class_basename($class))>{{ $label }}</option>
         @endforeach

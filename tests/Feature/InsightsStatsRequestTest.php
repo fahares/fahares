@@ -24,7 +24,7 @@ class InsightsStatsRequestTest extends TestCase
             ->assertSee('برای پاسخ به چه پرسشی؟')
             ->assertSee('نمونه یا توضیح')
             ->assertSee('کاتبان پرکار هر شهر')
-            ->assertSee('پیشنهاد درباره‌ی این نمودار')
+            ->assertSee('پیشنهاد دربارۀ این نمودار')
             ->assertSee("body.append('category', 'stats')", false);
     }
 
@@ -36,7 +36,7 @@ class InsightsStatsRequestTest extends TestCase
 
         $this->postJson(route('feedback.store'), [
             'category' => 'stats', 'message' => 'سهم نسخه‌های مذهّب در هر سده',
-            'question' => 'آیا تذهیب در دوره‌ی صفوی رایج‌تر شد؟', 'example' => 'نموداری مانند خط زمانی کتابت',
+            'question' => 'آیا تذهیب در دورۀ صفوی رایج‌تر شد؟', 'example' => 'نموداری مانند خط زمانی کتابت',
             'section' => 'خط زمانی کتابت', 'page_url' => '/insights?century=11&script=نستعلیق', 'page_title' => 'آمار',
         ])->assertOk();
 
@@ -46,15 +46,15 @@ class InsightsStatsRequestTest extends TestCase
         $this->assertSame('درخواست آمار یا نمودار تازه', $request->field_label);
         $this->assertSame('/insights?century=11&script=نستعلیق', $request->payload['url']);
         $this->assertSame('خط زمانی کتابت', $request->payload['section']);
-        $this->assertSame('آیا تذهیب در دوره‌ی صفوی رایج‌تر شد؟', $request->payload['question']);
+        $this->assertSame('آیا تذهیب در دورۀ صفوی رایج‌تر شد؟', $request->payload['question']);
         Notification::assertSentTo($admin, SuggestionSubmitted::class);
 
         $this->actingAs($admin)->get('/admin/suggestions?type=feedback')->assertOk()->assertSee('درخواست آمار یا نمودار تازه');
         $this->get("/admin/suggestions/{$request->id}")->assertOk()
             ->assertSee('بازخورد سایت: درخواست آمار یا نمودار تازه')
-            ->assertSee('آیا تذهیب در دوره‌ی صفوی رایج‌تر شد؟')
+            ->assertSee('آیا تذهیب در دورۀ صفوی رایج‌تر شد؟')
             ->assertSee('نموداری مانند خط زمانی کتابت')
-            ->assertSee('درباره‌ی نمودار:');
+            ->assertSee('دربارۀ نمودار:');
     }
 
     public function test_a_request_needs_its_text_and_the_honeypot_stays_empty()

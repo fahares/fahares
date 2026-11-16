@@ -17,7 +17,7 @@
 <div class="flex items-end gap-1 sm:gap-2 h-56 border-b border-line-strong" role="list" aria-label="{{ $label }}">
     @foreach($rows as $row)
         @php
-            $tip = 'سده‌ی ' . Fa::digits($row['century']) . ': ' . Fa::num($row['count']) . ' ' . $unit;
+            $tip = 'سدۀ ' . Fa::digits($row['century']) . ': ' . Fa::num($row['count']) . ' ' . $unit;
             foreach ($layers as $key => [$name]) {
                 if ($row[$key] > 0) {
                     $tip .= ' · ' . $name . ' ' . Fa::num($row[$key]);
@@ -44,7 +44,7 @@
         <span class="flex-1 text-center text-xs text-ink tabular-nums">{{ Fa::digits($row['century']) }}</span>
     @endforeach
 </div>
-<p class="text-center text-[11px] text-muted mt-0.5">سده‌ی هجری</p>
+<p class="text-center text-[11px] text-muted mt-0.5">سدۀ هجری</p>
 <ul class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-muted" aria-label="راهنمای نمودار">
     @foreach($layers as $key => [$name, $class])
         @if(array_sum(array_column($rows, $key)) > 0)

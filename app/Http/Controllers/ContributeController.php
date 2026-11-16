@@ -57,7 +57,7 @@ class ContributeController extends Controller
         $open = $queue->find($item);
         if (! $open) {
             return redirect()->route('contribute.next', [$queue->key()] + $filters)
-                ->with('info', 'داوران درباره‌ی این مورد تصمیم گرفته‌اند. مورد دیگری آمد.');
+                ->with('info', 'داوران دربارۀ این مورد تصمیم گرفته‌اند. مورد دیگری آمد.');
         }
 
         $validated = $request->validate([
@@ -78,7 +78,7 @@ class ContributeController extends Controller
         CollectiveReview::answer($queue, $open, $user, $validated['answer'], $validated + ['credit_name' => $request->boolean('credit') ? FieldSuggestion::creditNameFor($user) : null]);
 
         return redirect()->route('contribute.next', [$queue->key()] + $filters)
-            ->with('success', $replaced ? 'پاسخ تازه‌ی شما جای پاسخ پیشین نشست. سپاس.' : 'پاسخ شما ثبت شد و به داوران رسید. سپاس.');
+            ->with('success', $replaced ? 'پاسخ تازۀ شما جای پاسخ پیشین نشست. سپاس.' : 'پاسخ شما ثبت شد و به داوران رسید. سپاس.');
     }
 
     public function skip(Request $request, string $queue, int $item)

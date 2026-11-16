@@ -31,7 +31,7 @@
 
     // The record: its real title, not only «اثر #id»
     $recordTitle = match (true) {
-        $kind === 'feedback' => $payload['title'] ?? $payload['url'] ?? 'صفحه‌ی نامشخص',
+        $kind === 'feedback' => $payload['title'] ?? $payload['url'] ?? 'صفحۀ نامشخص',
         (bool) $recordInfo => $recordInfo['label'],
         default => $suggestion->place_label,
     };
@@ -109,13 +109,13 @@
         @endif
         <div class="flex flex-wrap gap-x-4 gap-y-1">
             @if($recordUrl)
-                <a href="{{ $recordUrl }}" target="_blank" class="font-bold text-cinnabar hover:underline">{{ $kind === 'feedback' ? 'صفحه‌ی گزارش‌شده' : 'دیدن رکورد در سایت' }} ↗</a>
+                <a href="{{ $recordUrl }}" target="_blank" class="font-bold text-cinnabar hover:underline">{{ $kind === 'feedback' ? 'صفحۀ گزارش‌شده' : 'دیدن رکورد در سایت' }} ↗</a>
             @endif
             @if($printedPage)
                 @if(isset($printedPage['viewer']))
-                    <a href="#" @click.prevent="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($printedPage['viewer']) }})" class="font-bold text-cinnabar hover:underline" data-printed-page>برگه‌ی فهرست چاپی ({{ $printedPage['label'] }})</a>
+                    <a href="#" @click.prevent="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($printedPage['viewer']) }})" class="font-bold text-cinnabar hover:underline" data-printed-page>برگۀ فهرست چاپی ({{ $printedPage['label'] }})</a>
                 @else
-                    <a href="{{ $printedPage['url'] }}" target="_blank" class="font-bold text-cinnabar hover:underline" data-printed-page>متن صفحه‌ی فهرست چاپی ({{ $printedPage['label'] }})</a>
+                    <a href="{{ $printedPage['url'] }}" target="_blank" class="font-bold text-cinnabar hover:underline" data-printed-page>متن صفحۀ فهرست چاپی ({{ $printedPage['label'] }})</a>
                 @endif
             @endif
         </div>
@@ -137,7 +137,7 @@
                                 پیشنهاد می‌کند برای <b>{{ $suggestion->field_label }}</b> این {{ $typeLabel }} مقدار <b>{{ $quote($suggestion->suggested_value) }}</b> ثبت شود@if($suggestedPerson) و به شخص <span class="tabular-nums">#{{ $fa($suggestedPerson) }}</span> پیوند بخورد@endif.
                             @elseif(mb_strlen($current) > 80 || mb_strlen((string) $suggestion->suggested_value) > 80)
                                 {{-- two long texts look alike in a sentence; the comparison below shows the change --}}
-                                پیشنهاد می‌کند متن <b>{{ $suggestion->field_label }}</b> این {{ $typeLabel }} را تغییر دهد، چنان‌که در مقایسه‌ی زیر آمده است@if($suggestedPerson) و به شخص <span class="tabular-nums">#{{ $fa($suggestedPerson) }}</span> پیوند بخورد@endif.
+                                پیشنهاد می‌کند متن <b>{{ $suggestion->field_label }}</b> این {{ $typeLabel }} را تغییر دهد، چنان‌که در مقایسۀ زیر آمده است@if($suggestedPerson) و به شخص <span class="tabular-nums">#{{ $fa($suggestedPerson) }}</span> پیوند بخورد@endif.
                             @else
                                 پیشنهاد می‌کند <b>{{ $suggestion->field_label }}</b> این {{ $typeLabel }} از <b>{{ $quote($current) }}</b> به <b>{{ $quote($suggestion->suggested_value) }}</b> تغییر کند@if($suggestedPerson) و به شخص <span class="tabular-nums">#{{ $fa($suggestedPerson) }}</span> پیوند بخورد@endif.
                             @endif
@@ -149,10 +149,10 @@
                             یادداشتی از نوع <b>«{{ $suggestion->field_label }}»</b> برای این {{ $typeLabel }} فرستاده است.
                             @break
                         @case('feedback')
-                            درباره‌ی صفحه‌ی <b>{{ $quote($recordTitle) }}</b> بازخورد فرستاده است: <b>{{ $suggestion->field_label }}</b>.
+                            دربارۀ صفحۀ <b>{{ $quote($recordTitle) }}</b> بازخورد فرستاده است: <b>{{ $suggestion->field_label }}</b>.
                             @break
                         @default
-                            پیشنهادی کلی درباره‌ی این {{ $typeLabel }} فرستاده است.
+                            پیشنهادی کلی دربارۀ این {{ $typeLabel }} فرستاده است.
                     @endswitch
                 </p>
 
@@ -169,7 +169,7 @@
                         @if(! $diff['changed'])
                             مقدار پیشنهادی جز در فاصله‌ها با مقدار کنونی یکی است.
                         @else
-                            افزوده‌ها سبز و حذف‌شده‌ها خط‌خورده‌اند؛ در متن بلند فقط بخش‌های تغییرکرده با چند کلمه‌ی پیرامونشان آمده است.
+                            افزوده‌ها سبز و حذف‌شده‌ها خط‌خورده‌اند؛ در متن بلند فقط بخش‌های تغییرکرده با چند کلمۀ پیرامونشان آمده است.
                         @endif
                         {{ $currentIsLive ? 'مقدار کنونی از پایگاه داده خوانده شد (هنگام ثبت پیشنهاد ذخیره نشده بود).' : '' }}
                     </p>
@@ -187,7 +187,7 @@
                 @elseif($kind === 'relation')
                     {{-- The two records the suggestion connects --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        @foreach(array_filter([['این رکورد', $target], $relation && (! $relation['target'] || (! empty($relation['target_optional']) && ! $relationTarget)) ? null : [$relation && $relation['key'] === 'move_to_work' ? 'اثر پیشنهادی' : ($relation && $relation['target'] === 'person' ? 'شخص' : ($relation && $relation['target'] === 'cataloger' ? 'فهرست‌نگار پیشنهادی' : ($relation && $relation['target'] === 'library' ? (($relation['apply'] ?? null) === 'relocate' ? 'کتابخانه‌ی پیشنهادی' : 'کتابخانه‌ی مقصد') : 'رکورد مقصد'))), $relationTarget]]) as [$caption, $record])
+                        @foreach(array_filter([['این رکورد', $target], $relation && (! $relation['target'] || (! empty($relation['target_optional']) && ! $relationTarget)) ? null : [$relation && $relation['key'] === 'move_to_work' ? 'اثر پیشنهادی' : ($relation && $relation['target'] === 'person' ? 'شخص' : ($relation && $relation['target'] === 'cataloger' ? 'فهرست‌نگار پیشنهادی' : ($relation && $relation['target'] === 'library' ? (($relation['apply'] ?? null) === 'relocate' ? 'کتابخانۀ پیشنهادی' : 'کتابخانۀ مقصد') : 'رکورد مقصد'))), $relationTarget]]) as [$caption, $record])
                             <div class="p-3 bg-paper border border-line space-y-1">
                                 <h4 class="text-xs font-bold text-muted">{{ $caption }}</h4>
                                 @if($record)
@@ -204,12 +204,12 @@
                         <div class="whitespace-pre-line leading-7 text-ink"><span class="text-xs text-muted">متن پیشنهاددهنده:</span> {{ $suggestion->suggested_value }}</div>
                     @endif
                     @if(! empty($payload['shelfmark']))
-                        <p>شماره‌ی تازه‌ی پیشنهادی: <b>{{ $payload['shelfmark'] }}</b></p>
+                        <p>شمارۀ تازۀ پیشنهادی: <b>{{ $payload['shelfmark'] }}</b></p>
                     @endif
                     @if(($relation['apply'] ?? null) === 'volume_cataloger')
                         {{-- what the submitter chose for a source's cataloger (step 14.58) --}}
                         @php $vcVolume = collect($target ? \App\Suggestions\VolumeCatalogers::volumes($target) : [])->firstWhere('id', $payload['volume_id'] ?? null); @endphp
-                        <p>جلد: <b>{{ $fa($vcVolume['label'] ?? 'همه‌ی جلدها') }}</b> · نقش: <b>{{ \App\Suggestions\VolumeCatalogers::ROLES[$payload['role'] ?? ''] ?? '—' }}</b>
+                        <p>جلد: <b>{{ $fa($vcVolume['label'] ?? 'همۀ جلدها') }}</b> · نقش: <b>{{ \App\Suggestions\VolumeCatalogers::ROLES[$payload['role'] ?? ''] ?? '—' }}</b>
                             @if(! empty($payload['name'])) · نام: <b>{{ $payload['name'] }}</b>@endif</p>
                     @endif
                 @elseif(in_array($kind, ['field', 'general'], true))
@@ -260,7 +260,7 @@
                 @endif
                 @unless($kind === 'feedback')
                     <p class="text-xs">
-                        <span class="text-muted">نام در صفحه‌ی عمومی:</span>
+                        <span class="text-muted">نام در صفحۀ عمومی:</span>
                         @if($suggestion->credit_name)
                             <b class="text-emerald-800 dark:text-emerald-300">{{ $suggestion->credit_name }}</b>
                             <span class="text-muted">{{ $suggestion->status === 'approved' ? '(نمایش داده می‌شود)' : '(پس از تأیید نمایش داده می‌شود)' }}</span>
@@ -283,11 +283,11 @@
                 @unless($kind === 'feedback')
                     <form action="{{ route('admin.suggestions.credit', $suggestion) }}" method="POST" class="space-y-1.5 pt-3">
                         @csrf
-                        <label for="credit_name" class="block font-bold text-ink">نام در صفحه‌ی عمومی</label>
+                        <label for="credit_name" class="block font-bold text-ink">نام در صفحۀ عمومی</label>
                         <div class="flex flex-wrap items-center gap-2">
                             <input id="credit_name" type="text" name="credit_name" value="{{ old('credit_name', $suggestion->credit_name) }}" maxlength="150"
                                 placeholder="فقط با رضایت پیشنهاددهنده؛ خالی یعنی بدون نام" class="admin-field flex-1 basis-60">
-                            <x-ui.btn type="submit">ذخیره‌ی نام</x-ui.btn>
+                            <x-ui.btn type="submit">ذخیرۀ نام</x-ui.btn>
                         </div>
                     </form>
                 @endunless
@@ -314,7 +314,7 @@
 
                 @if($fieldHistory->isNotEmpty())
                     <div class="space-y-1.5" data-field-history>
-                        <h4 class="font-bold text-ink">سابقه‌ی این فیلد: پیشنهادهای دیگر</h4>
+                        <h4 class="font-bold text-ink">سابقۀ این فیلد: پیشنهادهای دیگر</h4>
                         <ul class="space-y-1 m-0 p-0 list-none">
                             @foreach($fieldHistory as $h)
                                 <li class="flex flex-wrap items-baseline gap-x-2">
@@ -342,7 +342,7 @@
                         @if(in_array($suggestion->review_queue, \App\Review\CollectiveReview::DECIDED_IN_QUEUE, true))
                             {{-- People are merged or kept apart in the panel's queue, which settles every answer on the item --}}
                             <x-admin.notice>
-                                این پاسخی در «{{ config('contributions.review_title') }}» است. درباره‌ی این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ همه‌ی پاسخ‌های آن با همان تصمیم بسته می‌شوند.
+                                این پاسخی در «{{ config('contributions.review_title') }}» است. دربارۀ این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ همۀ پاسخ‌های آن با همان تصمیم بسته می‌شوند.
                                 <a href="{{ \App\Review\CollectiveReview::queue($suggestion->review_queue)->reviewUrl((int) $suggestion->review_item_id) }}" class="text-cinnabar font-bold hover:underline">رفتن به مورد</a>
                             </x-admin.notice>
                         @elseif($toolPermission && ! auth()->user()->can($toolPermission))
@@ -370,7 +370,7 @@
                             @csrf
                             <div class="space-y-1">
                                 <label for="reject_public_note" class="block font-bold text-ink">علت رد <span class="font-normal text-xs text-muted">(یادداشت عمومی؛ پیشنهاددهنده آن را می‌بیند)</span></label>
-                                <textarea id="reject_public_note" name="public_note" rows="3" placeholder="مثال: در ترقیمه‌ی نسخه تاریخ دیگری آمده است." class="admin-field w-full"></textarea>
+                                <textarea id="reject_public_note" name="public_note" rows="3" placeholder="مثال: در ترقیمۀ نسخه تاریخ دیگری آمده است." class="admin-field w-full"></textarea>
                             </div>
                             <div class="space-y-1">
                                 <label for="reject_admin_notes" class="block font-bold text-ink">یادداشت داخلی <span class="font-normal text-xs text-muted">(فقط داوران)</span></label>
@@ -386,7 +386,7 @@
             @else
                 {{-- Already reviewed: the outcome takes the decision's place --}}
                 <x-ui.card class="space-y-3 !border-line-strong" data-outcome-summary>
-                    <h3 class="font-naskh text-lg font-bold text-ink">نتیجه‌ی داوری</h3>
+                    <h3 class="font-naskh text-lg font-bold text-ink">نتیجۀ داوری</h3>
                     @include('admin.suggestions.partials.outcome')
                 </x-ui.card>
                 @if($promoting)

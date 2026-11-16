@@ -33,7 +33,7 @@ class UserRegistered extends SiteNotification
             $lines[] = 'وابستگی سازمانی: ' . $this->user->affiliation;
         }
         if ($this->user->phone && $notifiable instanceof User && $notifiable->hasPermission('users.contact')) {
-            $lines[] = 'شماره‌ی تماس: ' . $this->user->phone;
+            $lines[] = 'شمارۀ تماس: ' . $this->user->phone;
         }
 
         return $lines;
@@ -46,6 +46,6 @@ class UserRegistered extends SiteNotification
 
     protected function actionLabel(): string
     {
-        return 'صفحه‌ی کاربر در پنل';
+        return 'صفحۀ کاربر در پنل';
     }
 }

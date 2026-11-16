@@ -22,19 +22,19 @@
 <x-admin.filters :action="route('admin.sources.index')" :reset="$filtered ? route('admin.sources.index') : null" :total="$sources->total()" noun="منبع">
     <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="عنوان، نام کوتاه، کد یا شناسه" aria-label="جست‌وجوی منبع" class="admin-field flex-1 basis-48">
     <select name="kind" aria-label="نوع" class="admin-field">
-        <option value="">همه‌ی نوع‌ها</option>
+        <option value="">همۀ نوع‌ها</option>
         @foreach(\App\Models\Source::KIND_LABELS as $key => $label)
             <option value="{{ $key }}" @selected($sel('kind', $key))>{{ $label }}</option>
         @endforeach
     </select>
     <select name="rank" aria-label="رتبه" class="admin-field">
-        <option value="">همه‌ی رتبه‌ها</option>
+        <option value="">همۀ رتبه‌ها</option>
         @foreach($ranks as $rank)
-            <option value="{{ $rank }}" @selected($sel('rank', $rank))>رتبه‌ی {{ $fa($rank) }}</option>
+            <option value="{{ $rank }}" @selected($sel('rank', $rank))>رتبۀ {{ $fa($rank) }}</option>
         @endforeach
     </select>
     <select name="library" aria-label="کتابخانه" class="admin-field max-w-56">
-        <option value="">همه‌ی کتابخانه‌ها</option>
+        <option value="">همۀ کتابخانه‌ها</option>
         @foreach($libraries as $lib)
             <option value="{{ $lib->id }}" @selected($sel('library', $lib->id))>{{ $lib->name }} ({{ $lib->city }})</option>
         @endforeach

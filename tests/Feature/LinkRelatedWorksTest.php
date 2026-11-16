@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Person;
 use App\Models\Work;
+use App\Support\WorkRelationLinker;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -71,5 +73,60 @@ class LinkRelatedWorksTest extends TestCase
 
         // the base titles feed the search: the relation's and the text's
         $this->assertSame(['نهج البلاغة', 'خطب علی'], $sharh->fresh()->baseTitles());
+    }
+
+    /** Step 14.229: the same title and author written another way, and an entry with no author that is named back */
+    public function test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back()
+    {
+        $person = fn (string $name, array $more = []) => Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'rel-p-' . uniqid(), 'is_author' => true] + $more);
+
+        // the author after the title with no «؛», and after another title
+        $tahdhib = $this->work('تهذیب المنطق', 'تفتازانی، مسعود بن عمر');
+        $glued = $this->work('حاشیة تهذیب المنطق', 'یزدی، عبدالله بن حسین', ['related_work' => 'تهذیب المنطق تفتازانی، مسعود بن عمر (722-792)']);
+        $tajrid = $this->work('شرح تجرید الاعتقاد', 'قوشچی، علی بن محمد');
+        $after = $this->work('تحقیق التقابل', 'دوانی، محمد بن اسعد', ['related_work' => 'شرح تجرید الاعتقاد = شرح التجرید قوشچی، علی بن محمد (-879)']);
+
+        // another name of the author's record; another form of the name with the same year of death, not with another year
+        $burhan = $this->work('البرهان فی علم المیزان', 'گلنبوی، اسماعیل بن مصطفی', ['author_id' => $person('گلنبوی، اسماعیل بن مصطفی', ['aliases' => ['گلبنوی، اسماعیل بن مصطفی']])->id]);
+        $alias = $this->work('حاشیة البرهان', 'کسی، چهارم', ['related_work' => 'البرهان فی علم المیزان؛ گلبنوی، اسماعیل بن مصطفی (1143-1205)']);
+        $qanun = $this->work('القانون فی الطب', 'ابن سینا، حسین بن عبدالله', ['author_id' => $person('ابن سینا، حسین بن عبدالله', ['death_year_hijri' => 428])->id]);
+        $died = $this->work('شرح القانون', 'کسی، پنجم', ['related_work' => 'القانون فی الطب؛ ابن سینا، حسین بن علی (370-428)']);
+        $this->work('شرح دیگر قانون', 'کسی، ششم', ['related_work' => 'القانون فی الطب؛ ابن سینا، حسین بن علی (370-430)']);
+
+        // no author in the text: the one work of the title that names this work back. Two works of one title that both name
+        // their base are each linked from their own text
+        $ashura = $this->work('زیارت عاشورا', 'محمد بن علی (ع)، امام پنجم', ['commentaries_and_glosses' => ['شرح زیارت عاشورا', 'زیارت عاشورا (ترجمه)']]);
+        $back = $this->work('شرح زیارت عاشورا', '', ['related_work' => 'زیارت عاشورا']);
+        $this->work('شرح زیارت عاشورا', 'کسی، هفتم');
+        $first = $this->work('زیارت عاشورا', 'کسی، هشتم', ['related_work' => 'زیارت عاشورا', 'work_form' => 'translation']);
+        $second = $this->work('زیارت عاشورا', 'کسی، نهم', ['related_work' => 'زیارت عاشورا', 'work_form' => 'translation']);
+        // left: the entry stands for several works; and one work two works of one title both list
+        $this->work('دعای صباح', 'کسی، دهم', ['commentaries_and_glosses' => ['شرح دعای صباح (2 عنوان)']]);
+        $this->work('شرح دعای صباح', '', ['related_work' => 'دعای صباح؛ کسی، دیگر (-900)']);
+        $this->work('دعای کمیل', 'کسی، یازدهم', ['commentaries_and_glosses' => ['شرح دعای کمیل']]);
+        $this->work('دعای کمیل', 'کسی، دوازدهم', ['commentaries_and_glosses' => ['شرح دعای کمیل']]);
+        $this->work('شرح دعای کمیل', '', ['related_work' => 'دعای کمیل']);
+
+        $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
+        $this->assertEqualsCanonicalizing([
+            [$glued->id, $tahdhib->id, 'gloss', 'auto', 85],
+            [$after->id, $tajrid->id, 'related', 'auto', 65],
+            [$alias->id, $burhan->id, 'related', 'auto', 65],
+            [$died->id, $qanun->id, 'related', 'auto', 65],
+            [$back->id, $ashura->id, 'commentary', 'auto', 85],
+            [$first->id, $ashura->id, 'translation', 'auto', 85],
+            [$second->id, $ashura->id, 'translation', 'auto', 85],
+        ], $this->relations());
+
+        // of two entries of one title, the page links the work from the one that names its author
+        $base = $this->work('الشمسیة', 'کاتبی، علی بن عمر', ['commentaries_and_glosses' => ['شرح الشمسیة', 'شرح الشمسیة؛ قطب الدین رازی، محمد بن محمد (694-766)']]);
+        $qutb = $this->work('شرح الشمسیة', 'قطب الدین رازی، محمد بن محمد');
+        $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
+        $this->assertSame([1], array_keys(WorkRelationLinker::linkedEntries($base)['children']));
+        $this->assertSame($qutb->id, WorkRelationLinker::linkedEntries($base)['children'][1][0][1]->id);
+
+        // the page links the title alone, and leaves the author after it as text
+        $this->followingRedirects()->get(route('works.show', $glued))->assertOk()
+            ->assertSee('>تهذیب المنطق</a> تفتازانی، مسعود بن عمر (۷۲۲-۷۹۲)', false);
     }
 }

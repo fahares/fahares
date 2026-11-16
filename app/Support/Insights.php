@@ -20,7 +20,9 @@ class Insights
     // v4: scribes, libraries, sizes, languages and scripts per century, sources (backlog item 107, charts 5-9)
     // v5: the map, the scribes and the libraries read the range of the copy date (step 14.115)
     // v6: patrons and facsimile copies (step 14.117)
-    private const CACHE_KEY = 'insights.v8';
+    // v9: copies per work, the works of each century, works with no note of a printing, bound volumes and the
+    // catalogues that describe one copy (backlog item 146, step 14.228)
+    private const CACHE_KEY = 'insights.v9';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -121,6 +123,11 @@ class Insights
             'dedications' => self::dedications($scope, $totals['works']),
             'patrons' => self::patrons($scope, $totals['manuscripts']),
             'facsimiles' => self::facsimiles($scope, $totals['manuscripts']),
+            'copies_per_work' => self::copiesPerWork($scope),
+            'century_works' => self::centuryWorks(),
+            'unprinted' => self::unprinted($scope, $totals['works']),
+            'collections' => self::collections($scope, $totals['manuscripts']),
+            'source_overlap' => self::sourceOverlap($scope, $totals['manuscripts']),
         ];
     }
 
@@ -1073,6 +1080,251 @@ class Insights
         });
 
         return ['items' => $works, 'skipped' => $skipped];
+    }
+
+    /** Whether a work is an author-less record whose title names a kind of text, not one work (generic_titles) */
+    private static function isGeneric(Work $work): bool
+    {
+        static $generic;
+        $generic ??= collect(config('insights.generic_titles'))->map(fn ($t) => TextNormalizer::normalize($t))->all();
+
+        return ! $work->author_id && in_array(TextNormalizer::normalize($work->primary_title), $generic, true);
+    }
+
+    /** A work as a row of a table: its page, title and author, with a count */
+    private static function workRow(Work $work, int $count): array
+    {
+        return [
+            'id' => $work->id, 'key' => $work->getRouteKey(), 'title' => $work->primary_title, 'count' => $count,
+            'author' => $work->author?->name ?? $work->author_name, 'author_key' => $work->author?->getRouteKey(),
+        ];
+    }
+
+    private static function worksById(iterable $ids): \Illuminate\Support\Collection
+    {
+        return Work::query()->with('author:id,name,slug')->whereIn('id', collect($ids)->unique()->values())
+            ->get(['id', 'slug', 'primary_title', 'author_id', 'author_name'])->keyBy('id');
+    }
+
+    /**
+     * How many copies a work has (backlog item 146): the works in each band of copies with the copies they hold, and
+     * the share of all copies that the most-copied hundredth and tenth of the works hold. A work counts by its
+     * copies in the scope.
+     */
+    private static function copiesPerWork(InsightsScope $scope): array
+    {
+        $counts = $scope->manuscripts()->whereNotNull('work_id')
+            ->selectRaw('COUNT(*) AS n')->groupBy('work_id')->orderByDesc('n')->pluck('n')->map(fn ($n) => (int) $n)->all();
+        $works = count($counts);
+        $copies = array_sum($counts);
+
+        $edges = config('insights.copy_bands');
+        $bands = [];
+        foreach (range(0, count($edges)) as $i) {
+            $bands[] = ['above' => $edges[$i - 1] ?? 0, 'upto' => $edges[$i] ?? null, 'works' => 0, 'copies' => 0];
+        }
+        foreach ($counts as $n) {
+            $i = 0;
+            while (isset($edges[$i]) && $n > $edges[$i]) {
+                $i++;
+            }
+            $bands[$i]['works']++;
+            $bands[$i]['copies'] += $n;
+        }
+
+        $top = [];
+        foreach ([1, 10] as $percent) {
+            $k = (int) ceil($works * $percent / 100);
+            $held = array_sum(array_slice($counts, 0, $k));
+            $top[] = ['percent' => $percent, 'works' => $k, 'copies' => $held, 'share' => self::share($held, $copies)];
+        }
+
+        return ['bands' => $bands, 'works' => $works, 'copies' => $copies, 'single' => $bands[0]['works'], 'top' => $top];
+    }
+
+    /**
+     * The most-copied works of each century (backlog item 146), by the copies dated within that century
+     * (WORK_CENTURIES), so the table shows which texts were in demand when.
+     */
+    private static function centuryWorks(): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $shown = (int) config('insights.century_works');
+        // Three times the rows shown, as the generic titles among them are dropped
+        $ranked = DB::table(self::WORK_CENTURIES)->selectRaw('work_id, c, n, ROW_NUMBER() OVER (PARTITION BY c ORDER BY n DESC, work_id) AS r');
+        $rows = DB::query()->fromSub($ranked, 'ranked')->where('r', '<=', $shown * 3)->orderBy('c')->orderBy('r')->get();
+        $totals = DB::table(self::WORK_CENTURIES)->selectRaw('c, SUM(n) AS n')->groupBy('c')->pluck('n', 'c');
+        $works = self::worksById($rows->pluck('work_id'));
+
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $items = [];
+            foreach ($rows->where('c', $c) as $row) {
+                $work = $works[$row->work_id] ?? null;
+                if ($work && ! self::isGeneric($work) && count($items) < $shown) {
+                    $items[] = self::workRow($work, (int) $row->n);
+                }
+            }
+            $centuries[] = ['century' => $c, 'count' => (int) ($totals[$c] ?? 0), 'items' => $items];
+        }
+
+        return ['centuries' => $centuries, 'counted' => (int) $totals->sum()];
+    }
+
+    /**
+     * The much-copied works of a known author with no note of a printing (backlog item 146): no `print_info`, and
+     * the word «چاپ» nowhere in the record's text. An empty `print_info` alone does not say a work was never
+     * printed (Golestan has none), so the page calls these «بی نشانی چاپ», not unprinted.
+     */
+    private static function unprinted(InsightsScope $scope, int $totalWorks): array
+    {
+        $limit = (int) config('insights.unprinted_shown');
+        $counts = $scope->manuscripts()->join($scope->worksTable(), 'works.id', '=', 'manuscripts.work_id')
+            ->where('works.printed', false)->whereNotNull('works.author_id')
+            ->selectRaw('manuscripts.work_id, COUNT(*) AS n')->groupBy('manuscripts.work_id')->orderByDesc('n')->orderBy('manuscripts.work_id')
+            ->limit($limit * 4)->pluck('n', 'work_id');
+        $mentioned = DB::table('works')->whereIn('id', $counts->keys())
+            ->where(fn ($q) => $q->where('raw_text', 'like', '%چاپ%')->orWhere('description', 'like', '%چاپ%')->orWhere('bibliography', 'like', '%چاپ%'))
+            ->pluck('id')->flip();
+        $works = self::worksById($counts->keys());
+
+        $items = [];
+        foreach ($counts as $id => $n) {
+            // A work of one copy is not a much-copied one, in however small a scope
+            if (count($items) < $limit && $n > 1 && isset($works[$id]) && ! isset($mentioned[$id])) {
+                $items[] = self::workRow($works[$id], (int) $n);
+            }
+        }
+        $printed = $scope->works()->where('printed', true)->count();
+
+        return ['items' => $items, 'printed' => $printed, 'coverage' => self::share($printed, $totalWorks)];
+    }
+
+    /**
+     * The bound volumes (backlog item 146): copies of one library with one `collection_key` are treatises of one
+     * volume. How many treatises the volumes hold, and the pairs of works most often bound together. A volume
+     * counts by its treatises in the scope; a key with one treatise there is counted apart.
+     */
+    private static function collections(InsightsScope $scope, int $total): array
+    {
+        $keyed = fn () => $scope->manuscripts()->whereNotNull('library_id')->whereNotNull('collection_key');
+        $sizes = $keyed()->selectRaw('COUNT(*) AS n')->groupBy('library_id', 'collection_key')->pluck('n')->map(fn ($n) => (int) $n)->all();
+
+        $edges = config('insights.collection_bands');
+        $bands = [];
+        foreach (range(0, count($edges)) as $i) {
+            $bands[] = ['above' => $edges[$i - 1] ?? 0, 'upto' => $edges[$i] ?? null, 'volumes' => 0, 'copies' => 0];
+        }
+        foreach ($sizes as $n) {
+            $i = 0;
+            while (isset($edges[$i]) && $n > $edges[$i]) {
+                $i++;
+            }
+            $bands[$i]['volumes']++;
+            $bands[$i]['copies'] += $n;
+        }
+        $lone = array_shift($bands);
+        $volumes = count($sizes) - $lone['volumes'];
+        $copies = array_sum($sizes) - $lone['copies'];
+
+        return [
+            'bands' => $bands,
+            'volumes' => $volumes,
+            'copies' => $copies,
+            'lone' => $lone['volumes'],
+            'largest' => $sizes ? max($sizes) : 0,
+            'mean' => $volumes ? round($copies / $volumes, 1) : null,
+            'coverage' => self::share($copies, $total),
+            'pairs' => $volumes ? self::boundPairs($keyed()) : [],
+        ];
+    }
+
+    /**
+     * The pairs of works found together in the most volumes. The works of each volume go into a temporary table
+     * and its copy, as a temporary table cannot be joined to itself.
+     */
+    private static function boundPairs(\Illuminate\Database\Query\Builder $keyed): array
+    {
+        $limit = (int) config('insights.collection_pairs');
+        $volumeWorks = $keyed->whereNotNull('work_id')->distinct()->select('library_id', 'collection_key', 'work_id');
+        try {
+            // Only a work of two volumes or more can be in a pair counted twice, which leaves a quarter of the rows out
+            DB::statement('CREATE TEMPORARY TABLE insights_volume_works_all (KEY (work_id)) ' . $volumeWorks->toSql(), $volumeWorks->getBindings());
+            DB::statement('CREATE TEMPORARY TABLE insights_volume_works_twice (PRIMARY KEY (work_id)) SELECT work_id FROM insights_volume_works_all GROUP BY work_id HAVING COUNT(*) > 1');
+            DB::statement('CREATE TEMPORARY TABLE insights_volume_works (KEY (library_id, collection_key)) SELECT v.* FROM insights_volume_works_all v JOIN insights_volume_works_twice USING (work_id)');
+            DB::statement('CREATE TEMPORARY TABLE insights_volume_works_b (KEY (library_id, collection_key)) SELECT * FROM insights_volume_works');
+            $rows = DB::table('insights_volume_works as a')
+                ->join('insights_volume_works_b as b', fn ($j) => $j->on('b.library_id', '=', 'a.library_id')
+                    ->on('b.collection_key', '=', 'a.collection_key')->on('b.work_id', '>', 'a.work_id'))
+                ->selectRaw('a.work_id AS w1, b.work_id AS w2, COUNT(*) AS n')->groupBy('a.work_id', 'b.work_id')
+                ->havingRaw('COUNT(*) > 1')->orderByDesc('n')->orderBy('w1')->orderBy('w2')->limit($limit * 3)->get();
+        } finally {
+            DB::statement('DROP TEMPORARY TABLE IF EXISTS insights_volume_works_all, insights_volume_works_twice, insights_volume_works, insights_volume_works_b');
+        }
+        $works = self::worksById($rows->pluck('w1')->concat($rows->pluck('w2')));
+
+        $pairs = [];
+        foreach ($rows as $row) {
+            [$a, $b] = [$works[$row->w1] ?? null, $works[$row->w2] ?? null];
+            if (count($pairs) < $limit && $a && $b && ! self::isGeneric($a) && ! self::isGeneric($b)) {
+                $pairs[] = ['count' => (int) $row->n, 'works' => [self::workRow($a, (int) $row->n), self::workRow($b, (int) $row->n)]];
+            }
+        }
+
+        return $pairs;
+    }
+
+    /**
+     * The library catalogues that describe one copy (backlog item 146): how many copies are described in none, one,
+     * two or more of them, and the pairs of catalogues with the most copies in common. The union catalogue (Fankha)
+     * describes every copy, so it is left out.
+     */
+    private static function sourceOverlap(InsightsScope $scope, int $total): array
+    {
+        // The catalogues by their ids: a join to the sources table takes four times as long. A scope's copies are read
+        // first, each with its own entries; left to itself the database reads all the entries of the catalogues.
+        $entries = $scope->isEmpty() ? DB::table('source_entries')
+            : $scope->manuscripts()->straightJoin('source_entries', 'source_entries.citable_id', '=', 'manuscripts.id');
+        $perCopy = $entries
+            ->whereIn('source_entries.source_id', \App\Models\Source::where('kind', \App\Models\Source::KIND_LIBRARY_CATALOGUE)->pluck('id'))
+            ->where('source_entries.citable_type', \App\Models\Manuscript::class)
+            ->where('source_entries.status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)
+            ->selectRaw('COUNT(DISTINCT source_entries.source_id) AS k, GROUP_CONCAT(DISTINCT source_entries.source_id ORDER BY source_entries.source_id) AS s')
+            ->groupBy('source_entries.citable_id');
+        $sets = DB::query()->fromSub($perCopy, 'per_copy')->selectRaw('k, s, COUNT(*) AS n')->groupBy('k', 's')->get();
+
+        $counts = [1 => 0, 2 => 0, 3 => 0];
+        $shared = [];
+        foreach ($sets as $set) {
+            $counts[min(3, (int) $set->k)] += (int) $set->n;
+            $ids = array_map('intval', explode(',', $set->s));
+            foreach ($ids as $i => $a) {
+                foreach (array_slice($ids, $i + 1) as $b) {
+                    $shared["{$a}|{$b}"] = ($shared["{$a}|{$b}"] ?? 0) + (int) $set->n;
+                }
+            }
+        }
+        arsort($shared);
+        $shown = array_slice($shared, 0, (int) config('insights.source_pairs'), true);
+        $ids = collect(array_keys($shown))->flatMap(fn ($key) => explode('|', $key))->unique();
+        $sources = \App\Models\Source::whereIn('id', $ids)->get()->keyBy('id');
+        $pairs = [];
+        foreach ($shown as $key => $n) {
+            [$a, $b] = array_map('intval', explode('|', $key));
+            if (isset($sources[$a], $sources[$b])) {
+                $pairs[] = ['count' => $n, 'sources' => array_map(fn ($s) => ['id' => $s->id, 'key' => $s->code, 'title' => $s->title], [$sources[$a], $sources[$b]])];
+            }
+        }
+        $described = array_sum($counts);
+
+        return [
+            'counts' => [0 => max(0, $total - $described)] + $counts,
+            'described' => $described,
+            'several' => $counts[2] + $counts[3],
+            'coverage' => self::share($described, $total),
+            'pairs' => $pairs,
+            'pair_kinds' => count($shared),
+        ];
     }
 
     /** @return array{0: float, 1: float} SVG coordinates on the map frame */
