@@ -11489,6 +11489,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **هنوز بی‌کد (حدود ۱۵٪ نسخه‌ها):** نام مدرسه و خانه بی نام شهر («مدرسه صادقیه»، «دولت سرای …»)، و شهرهایی که در فهرست نیستند («ساوج»، «ادرنه»، «لندن»، «موصل»).
 - **`PersonPlaces`:** کلید گروه: شهر، وگرنه کشور یا ناحیه، وگرنه خود متن؛ `kind` برچسب را می‌دهد.
 - **تست:** حالت‌های تازه در `PersonPlacesTest`.
+
 ### گام ۱۴.۲۱۲: `App\Review\DateConflictQueue`، صف `date` در «تصحیح جمعی»
 
 - **ثبت صف:** `CollectiveReview::QUEUES['date']`. نشانی‌ها `/contribute/date` و `/contribute/date/{id}`؛ `review_item_id` شناسه‌ی `date_conflicts` است.
