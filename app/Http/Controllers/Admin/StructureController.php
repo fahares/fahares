@@ -73,6 +73,7 @@ class StructureController extends Controller
         $record = self::record($type, $id);
         ['suggestion' => $suggestion, 'relation' => $relation] = self::draft($request, $type, $record);
         abort_if(($relation['apply'] ?? null) === 'merge_people', 422, 'ادغام اشخاص از ابزار ادغام اشخاص انجام می‌شود.');
+        abort_if(! empty($relation['no_direct']), 422, 'این کار از صفحه‌ی خود رکورد انجام می‌شود.');
 
         $suggestion->save();
         try {
@@ -103,7 +104,7 @@ class StructureController extends Controller
     /** The tools of a record type the user may run: those whose approval permission they hold. */
     public static function choices(User $user, string $type): array
     {
-        return array_values(array_filter(SuggestionRegistry::relationChoices($type), fn (array $r) => self::allowed($user, $r)));
+        return array_values(array_filter(SuggestionRegistry::relationChoices($type), fn (array $r) => empty($r['no_direct']) && self::allowed($user, $r)));
     }
 
     private static function allowed(User $user, array $relation): bool

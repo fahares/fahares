@@ -56,6 +56,46 @@ class EstimateDatesCommandTest extends TestCase
         return DB::table('date_estimates')->where(['subject_type' => $type, 'subject_id' => $id, 'field' => $field])->first();
     }
 
+    public function test_a_copying_or_a_composition_that_lasted_is_a_start_and_an_end()
+    {
+        // a copy written from 1052 to 1057 (step 14.222): the work was there by 1052, the scribe alive in 1057
+        $author = $this->person('مؤلف آزمایشی مدت');
+        $work = $this->work('اثر بی‌تاریخ آزمایشی مدت', null, $author);
+        $copy = $this->copy($work, 1052);
+        DB::table('manuscripts')->where('id', $copy)->update(['copy_date_to' => 1057, 'copy_date_kind' => 'span']);
+        $scribe = $this->person('کاتب آزمایشی مدت');
+        DB::table('manuscript_people')->insert(['manuscript_id' => $copy, 'person_id' => $scribe->id, 'role' => 'scribe', 'position' => 0]);
+        // the same years with no known kind: one date somewhere in them, as before
+        $other = $this->work('اثر بی‌تاریخ آزمایشی نامعلوم', null, $this->person('مؤلف آزمایشی نامعلوم'));
+        $plain = $this->copy($other, 1052);
+        DB::table('manuscripts')->where('id', $plain)->update(['copy_date_to' => 1057]);
+        $plainScribe = $this->person('کاتب آزمایشی نامعلوم');
+        DB::table('manuscript_people')->insert(['manuscript_id' => $plain, 'person_id' => $plainScribe->id, 'role' => 'scribe', 'position' => 0]);
+        // a work written from 1100 to 1110: its author was alive in 1110 and fifteen by 1100
+        $lasting = $this->person('مؤلف آزمایشی تألیف مدت');
+        $long = $this->work('اثر آزمایشی تألیف مدت', 1100, $lasting);
+        DB::table('works')->where('id', $long->id)->update(['composition_date_to' => 1110, 'composition_date_kind' => 'span']);
+        // a scribe who died before the copying ended: a conflict, though he outlived its start
+        $early = $this->person('کاتب آزمایشی زودمرده');
+        DB::table('people')->where('id', $early->id)->update(['death_year_hijri' => 1055, 'death_from' => 1055, 'death_to' => 1055]);
+        // (on a copy of its own: two dates that conflict give no bound to anything else)
+        $late = $this->copy($work, 1052);
+        DB::table('manuscripts')->where('id', $late)->update(['copy_date_to' => 1057, 'copy_date_kind' => 'span']);
+        DB::table('manuscript_people')->insert(['manuscript_id' => $late, 'person_id' => $early->id, 'role' => 'scribe', 'position' => 0]);
+
+        $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
+
+        $this->assertSame(1052, (int) $this->estimate('work', $work->id, 'composition')->year_to);
+        $this->assertSame(1057, (int) $this->estimate('work', $other->id, 'composition')->year_to);
+        $this->assertSame([1057, 1042], [(int) $this->estimate('person', $scribe->id, 'death')->year_from, (int) $this->estimate('person', $scribe->id, 'birth')->year_to]);
+        $this->assertSame([1052, 1047], [(int) $this->estimate('person', $plainScribe->id, 'death')->year_from, (int) $this->estimate('person', $plainScribe->id, 'birth')->year_to]);
+        $this->assertSame([1110, 1085], [(int) $this->estimate('person', $lasting->id, 'death')->year_from, (int) $this->estimate('person', $lasting->id, 'birth')->year_to]);
+        // a documented date gets no estimate, whether it is one date or two
+        $this->assertNull($this->estimate('manuscript', $copy, 'copy'));
+        $conflict = DB::table('date_conflicts')->where('rule', Loader::RULE_SCRIBE)->where('b_id', $early->id)->sole();
+        $this->assertSame(['manuscript', $late, 'copy', 1057, 'death', 1055, 2], [$conflict->a_type, (int) $conflict->a_id, $conflict->a_field, (int) $conflict->a_from, $conflict->b_field, (int) $conflict->b_to, (int) $conflict->gap]);
+    }
+
     public function test_it_only_counts_without_apply()
     {
         $this->work('اثر تاریخ‌دار آزمایشی', 1200, $this->person('مؤلف آزمایشی شمارش'));

@@ -318,6 +318,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/people/{person}/periods', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'store'])->name('people.periods.store');
         Route::put('/people/{person}/periods/{period}', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'update'])->name('people.periods.update');
         Route::delete('/people/{person}/periods/{period}', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'destroy'])->name('people.periods.destroy');
+        // Proposals read from the biographies in the sources (step 14.220)
+        Route::post('/people/{person}/periods/{period}/reject', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'reject'])->name('people.periods.reject');
+        Route::get('/period-proposals', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'proposals'])->name('people.periods.proposals');
     });
 
     // Person review queues: namesakes to merge, records holding several people to split (backlog item 78); each action checks its own permission

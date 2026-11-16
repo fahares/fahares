@@ -286,6 +286,12 @@ class StructureToolsTest extends TestCase
         foreach (array_intersect_key(\App\Suggestions\SuggestionRegistry::RELATIONS, array_flip(\App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES)) as $type => $relations) {
             $page = $this->actingAs($this->admin)->get(route('admin.structure.show', [$type, $records[$type]->id]))->assertOk();
             foreach ($relations as $relation) {
+                // a period of a person's life is entered on the person's own page, not here (step 14.219)
+                if (! empty($relation['no_direct'])) {
+                    $page->assertDontSee($relation['action']);
+
+                    continue;
+                }
                 $page->assertSee($relation['action']);
             }
         }

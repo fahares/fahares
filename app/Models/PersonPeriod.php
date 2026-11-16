@@ -24,6 +24,13 @@ class PersonPeriod extends Model
         'office' => 'منصب',
     ];
 
+    public const APPROVED = 'approved';
+
+    /** A reading of a biography that waits for a reviewer (step 14.220); REJECTED stays, so that it is not proposed again. */
+    public const PROPOSED = 'proposed';
+
+    public const REJECTED = 'rejected';
+
     /** How the date was entered: a duration, one event at an unknown time, or one year. */
     public const MODES = ['span' => 'از … تا … (طول مدت)', 'between' => 'زمانی میان … و …', 'point' => 'در سال …'];
 
