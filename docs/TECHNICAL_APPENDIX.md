@@ -11642,3 +11642,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ماکروی `dateSpan`:** دیگر `dateSpanKind` را صدا نمی‌زند، چون `after` در `CREATE TABLE` خطای SQL می‌دهد.
 - **آنچه نیست:** فرم پیشنهاد دوره برای اعضا (فعلاً «پیشنهاد کلی»)، قید موتور تخمین از دوره‌ها (گام ۴ مورد ۱۳۴)، و پیشنهاد ماشینی از زندگی‌نامه‌ها (گام ۳ مورد ۱۳۹).
 - **تست:** `PersonPeriodDateTest` (۲) و `PersonPeriodsTest` (۲).
+
+### گام ۱۴.۲۱۹: پیشنهاد رابطه‌ی `period` (`apply = person_period`)
+
+- **`SuggestionRegistry::RELATIONS['person']['period']`:** بی مقصد، `needs_text`، گزینه‌ها `PersonPeriod::KINDS` (در `payload.role`)، و `no_direct`: در ابزارهای ساختاری مستقیم (`StructureController::choices`) نمی‌آید، چون بازبین در صفحه‌ی شخص ثبت می‌کند.
+- **`RelationInput::validate`:** نوع دوره باید از `KINDS` باشد؛ متن خالی پیام «بنویسید کجا، از کی تا کی، و به استناد کدام مأخذ.» می‌دهد.
+- **دسترسی:** `Permissions::FOR_APPLY['person_period'] = people.edit`.
+- **تأیید (`SuggestionController::approvePersonPeriod`):** فیلدهای فرم دوره را با `PersonPeriodController::columns` (اکنون `public static`) می‌سنجد، دوره را می‌سازد، لاگ `verify` با `person_period`، `person_period_change = create` و `suggestion_id` می‌نویسد و `resolution` را با `person_period_id` و متن دوره پر می‌کند.
+- **فرم داوری:** `relation-approve.blade.php` همان `people/partials/period-form.blade.php` را با `defaults` (نوع از `payload.role`، مأخذ از متن پیشنهاد)، `submitLabel`، `formKey` و `extra` (یادداشت عمومی و داخلی) می‌آورد.
+- **فرم عمومی (`suggest/desk.blade.php`):** برچسب گزینه «نوع دوره:» و برچسب متن «کجا، از کی تا کی، و به استناد کدام مأخذ؟».
+- **`Contributions`:** نتیجه‌ی پیشنهاد در فهرست مشارکت‌های عضو، متن دوره‌ی ساخته‌شده است.
+- **تست:** `PersonPeriodsTest::test_a_member_suggests_a_period_and_a_reviewer_enters_it_on_approval`.

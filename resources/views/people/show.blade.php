@@ -129,8 +129,17 @@
 
             {{-- The periods of the person's life a reviewer entered: residence, study, teaching, travel, office (item 139, step 14.218) --}}
             @php $periods = $person->periods; @endphp
+            {{-- Empty, and no reviewer: a row of the contribution box, where a member suggests one (step 14.219) --}}
+            @if($periods->isEmpty() && ! auth()->user()?->can('people.edit'))
+                <x-suggest.contribute-item title="دوره‌های زندگی" label="افزودن اقامت، تحصیل، تدریس، سفر یا منصب…" :payload="['general' => true, 'relation' => 'period']"
+                    hint="اگر در منبعی دیده‌اید که این شخص از چه سالی تا چه سالی در شهری اقامت، تحصیل یا تدریس داشته، سفری کرده یا منصبی داشته است، با ذکر مأخذ بنویسید." />
+            @endif
             @if($periods->isNotEmpty() || auth()->user()?->can('people.edit'))
                 <x-ui.section title="دوره‌های زندگی" :count="$periods->count() ?: null" id="periods">
+                    <x-slot:actions>
+                        <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'period' })"
+                            class="font-bold text-cinnabar hover:underline cursor-pointer">+ پیشنهاد دوره</button>
+                    </x-slot:actions>
                     @if($periods->isNotEmpty())
                         <ul class="divide-y divide-line border-y border-line text-sm">
                             @foreach($periods as $period)

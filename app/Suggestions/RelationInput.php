@@ -30,6 +30,7 @@ class RelationInput
                 throw ValidationException::withMessages(['suggested_value' => match ($apply) {
                     'rename_library' => 'نام تازه‌ی کتابخانه را بنویسید.',
                     'split' => 'بنویسید کدام بخش‌ها از رکورد دیگری‌اند.',
+                    'person_period' => 'بنویسید کجا، از کی تا کی، و به استناد کدام مأخذ.',
                     default => 'نام دیگر را بنویسید.',
                 }]);
             }
@@ -53,6 +54,9 @@ class RelationInput
         // A person connected with the copy: a role, and a person from the list or only a name
         if ($apply === 'record_relation' && ! array_key_exists($input['role'] ?? '', RecordRelations::options($type))) {
             throw ValidationException::withMessages(['role' => 'نوع رابطه را انتخاب کنید.']);
+        }
+        if ($apply === 'person_period' && ! array_key_exists($input['role'] ?? '', \App\Models\PersonPeriod::KINDS)) {
+            throw ValidationException::withMessages(['role' => 'نوع دوره را انتخاب کنید.']);
         }
         if ($apply === 'person_role') {
             if (! array_key_exists($input['role'] ?? '', SuggestionRegistry::personRoles($type))) {
@@ -81,7 +85,7 @@ class RelationInput
 
         return ['relation' => $relation, 'payload' => array_filter([
             'target_id' => $target?->id,
-            'role' => in_array($apply, ['person_role', 'record_relation', 'volume_cataloger'], true) ? $input['role'] : null,
+            'role' => in_array($apply, ['person_role', 'record_relation', 'volume_cataloger', 'person_period'], true) ? $input['role'] : null,
             'name' => in_array($apply, ['person_role', 'volume_cataloger'], true) ? (trim($input['role_name'] ?? '') ?: null) : null,
             'volume_id' => $apply === 'volume_cataloger' && ! empty($input['volume_id']) ? (int) $input['volume_id'] : null,
             // The row a removal points at, when it was sent from that row's own button

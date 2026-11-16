@@ -20,7 +20,7 @@ class PersonPeriodController extends Controller
 {
     public function store(Request $request, Person $person): RedirectResponse
     {
-        $period = $person->periods()->create($this->columns($request) + ['created_by' => $request->user()->id]);
+        $period = $person->periods()->create(self::columns($request) + ['created_by' => $request->user()->id]);
         $this->log($person, 'create', null, $period);
 
         return redirect()->to(route('people.show', $person) . '#periods')->with('success', 'دوره ثبت شد.');
@@ -30,7 +30,7 @@ class PersonPeriodController extends Controller
     {
         abort_unless($period->person_id === $person->id, 404);
         $old = $period->toArray();
-        $period->update($this->columns($request));
+        $period->update(self::columns($request));
         $this->log($person, 'update', $old, $period);
 
         return redirect()->to(route('people.show', $person) . '#periods')->with('success', 'دوره ویرایش شد.');
@@ -46,8 +46,8 @@ class PersonPeriodController extends Controller
         return redirect()->to(route('people.show', $person) . '#periods')->with('success', 'دوره حذف شد.');
     }
 
-    /** The validated columns of the form; a period says a place or a note, and at least one year. */
-    private function columns(Request $request): array
+    /** The validated columns of the form; a period says a place or a note, and at least one year. The approval of a suggested period reads it too. */
+    public static function columns(Request $request): array
     {
         $year = ['nullable', 'integer', 'min:1', 'max:' . HijriYear::MAX];
         $data = $request->validate([

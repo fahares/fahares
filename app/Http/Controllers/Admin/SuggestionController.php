@@ -363,6 +363,9 @@ class SuggestionController extends Controller
         if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role', 'record_relation'], true)) {
             return $this->approveContributor($request, $suggestion, $relation, $record);
         }
+        if ($relation && ($relation['apply'] ?? null) === 'person_period') {
+            return $this->approvePersonPeriod($request, $suggestion, $relation, $record);
+        }
         if ($relation && ($relation['apply'] ?? null) === 'relocate') {
             return $this->approveRelocation($request, $suggestion, $relation, $record);
         }
@@ -606,6 +609,43 @@ class SuggestionController extends Controller
         $suggestion->update(['status' => 'withdrawn', 'admin_notes' => ($validated['admin_notes'] ?? null) ?: $suggestion->admin_notes]);
 
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت #{$suggestion->id} از صفحه‌ی رکورد برداشته شد.");
+    }
+
+    /**
+     * A period of a person's life a member suggested (item 139, step 14.219): the reviewer enters the place and the
+     * years in the period's own form, and the period is made as on the person's page. Logged as "verify".
+     */
+    private function approvePersonPeriod(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        if (! $record instanceof \App\Models\Person) {
+            return back()->withErrors(['applied_value' => 'شخص این پیشنهاد دیگر وجود ندارد.']);
+        }
+        $notes = $request->validate(['public_note' => 'nullable|string|max:2000', 'admin_notes' => 'nullable|string|max:1000']);
+        $columns = PersonPeriodController::columns($request);
+        DB::transaction(function () use ($suggestion, $record, $columns, $notes, $request) {
+            $period = $record->periods()->create($columns + ['created_by' => auth()->id()]);
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'auditable_type' => $record::class,
+                'auditable_id' => $record->id,
+                'action' => 'verify',
+                'old_values' => null,
+                'new_values' => ['person_period' => $period->toArray(), 'person_period_change' => 'create', 'suggestion_id' => $suggestion->id],
+                'ip_address' => $request->ip(),
+            ]);
+            $suggestion->update([
+                'status' => 'approved',
+                'admin_notes' => $notes['admin_notes'] ?? null,
+                'public_note' => trim($notes['public_note'] ?? '') ?: null,
+                'resolution' => ['applied' => true, 'person_period_id' => $period->id, 'text' => trim($period->kind_label . ' ' . ($period->place_name ?? '') . ' ' . $period->date_text)],
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+            ]);
+        });
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
     }
 
     /**

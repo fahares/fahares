@@ -39,7 +39,8 @@ class PersonPeriodsTest extends TestCase
         // only a reviewer may write; a member and a guest see no form
         $this->post(route('admin.people.periods.store', $person->id), $form)->assertRedirect(route('login'));
         $this->actingAs($this->member)->post(route('admin.people.periods.store', $person->id), $form)->assertForbidden();
-        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertDontSee('دوره‌های زندگی');
+        // a member sees no form, only the invitation to suggest a period (step 14.219)
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertDontSee('افزودن دوره')->assertDontSee('دوره‌ای ثبت نشده است');
 
         $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), $form)->assertRedirect();
         $period = PersonPeriod::where('person_id', $person->id)->sole();
@@ -75,6 +76,39 @@ class PersonPeriodsTest extends TestCase
 
         $this->actingAs($this->admin)->delete(route('admin.people.periods.destroy', [$person->id, $period->id]))->assertRedirect();
         $this->assertSame(0, PersonPeriod::where('person_id', $person->id)->count());
+    }
+
+    public function test_a_member_suggests_a_period_and_a_reviewer_enters_it_on_approval()
+    {
+        $person = $this->person('شخص آزمایشی پیشنهاد دوره');
+        $text = 'از حدود 1000 تا 1030 در اصفهان می‌زیست (ریاض العلماء 3: 120).';
+        $send = fn (array $data) => $this->actingAs($this->member)->postJson('/suggestions', $data + ['type' => 'person', 'id' => $person->id, 'kind' => 'relation', 'field_name' => 'period', 'rationale_citation' => 'ریاض العلماء 3: 120']);
+
+        // the kind of period and the text are both needed
+        $send(['suggested_value' => $text])->assertStatus(422)->assertJsonValidationErrors('role');
+        $send(['role' => 'residence', 'suggested_value' => ''])->assertStatus(422);
+        $send(['role' => 'residence', 'suggested_value' => $text])->assertSuccessful();
+        $suggestion = \App\Models\FieldSuggestion::where('suggestable_type', Person::class)->where('suggestable_id', $person->id)->sole();
+        $this->assertSame(['relation', 'period', 'residence', 'pending'], [$suggestion->kind, $suggestion->field_name, $suggestion->payload['role'], $suggestion->status]);
+        // the page invites a suggestion while there is no period, and a reviewer's direct tools do not list it
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('افزودن اقامت، تحصیل، تدریس، سفر یا منصب');
+        $this->assertNotContains('period', array_column(\App\Http\Controllers\Admin\StructureController::choices($this->admin, 'person'), 'key'));
+
+        // the reviewer sees the period's form with the kind chosen and the text as the source, and enters place and years
+        $this->actingAs($this->admin)->get(route('admin.suggestions.show', $suggestion))->assertOk()->assertSee('ثبت دوره‌ی زندگی')->assertSee('ریاض العلماء 3: 120');
+        $this->actingAs($this->member)->post(route('admin.suggestions.approve', $suggestion), ['kind' => 'residence', 'place' => 'اصفهان', 'mode' => 'span', 'start' => 1000, 'end' => 1030])->assertForbidden();
+        $this->actingAs($this->admin)->post(route('admin.suggestions.approve', $suggestion), ['kind' => 'residence', 'place' => 'اصفهان', 'mode' => 'span', 'start' => 1030, 'end' => 1000])->assertSessionHasErrors('start');
+        $this->assertSame('pending', $suggestion->fresh()->status);
+        $this->actingAs($this->admin)->post(route('admin.suggestions.approve', $suggestion),
+            ['kind' => 'residence', 'place' => 'اصفهان', 'mode' => 'span', 'start' => 1000, 'start_to' => 1005, 'end' => 1030, 'source_text' => 'ریاض العلماء 3: 120', 'public_note' => 'سپاس'])->assertRedirect();
+
+        $period = PersonPeriod::where('person_id', $person->id)->sole();
+        $this->assertSame(['residence', 'اصفهان', 1000, 1005, 1030, 'span'], [$period->kind, $period->city, $period->period_from, $period->period_start_to, $period->period_to, $period->period_kind]);
+        $suggestion->refresh();
+        $this->assertSame(['approved', $period->id, 'سپاس'], [$suggestion->status, $suggestion->resolution['person_period_id'], $suggestion->public_note]);
+        $log = AuditLog::where('auditable_type', Person::class)->where('auditable_id', $person->id)->where('action', 'verify')->latest('id')->first();
+        $this->assertSame([$suggestion->id, 'create'], [$log->new_values['suggestion_id'], $log->new_values['person_period_change']]);
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('از میان ۱۰۰۰ و ۱۰۰۵ تا ۱۰۳۰ ق')->assertSee('پیشنهاد دوره');
     }
 
     public function test_periods_follow_a_merged_person_and_come_back_with_a_rollback()
