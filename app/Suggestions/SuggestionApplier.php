@@ -86,7 +86,7 @@ class SuggestionApplier
                 $year = $input['hijri_year'] ?? null;
                 $year = $year === null || $year === '' ? null : (int) $year;
                 if ($year !== null && ($year < HijriYear::MIN || $year > HijriYear::MAX)) {
-                    throw new InvalidArgumentException('سال هجری خارج از بازه‌ی مجاز است.');
+                    throw new InvalidArgumentException('سال هجری خارج از بازۀ مجاز است.');
                 }
                 $record->{$name} = $value;
                 // Set explicitly so the model's saving hook keeps the reviewer's year
@@ -195,7 +195,7 @@ class SuggestionApplier
     {
         $action = $input['person_action'] ?? 'text';
         if (! in_array($action, self::PERSON_ACTIONS, true)) {
-            throw new InvalidArgumentException('گزینه‌ی پیوند شخص نامعتبر است.');
+            throw new InvalidArgumentException('گزینۀ پیوند شخص نامعتبر است.');
         }
 
         if ($action === 'link') {

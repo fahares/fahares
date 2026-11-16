@@ -21,7 +21,7 @@
 @endphp
 <div class="max-w-5xl space-y-4 text-[13px]" x-data>
     <div class="flex flex-wrap items-center justify-between gap-3">
-        <p class="text-muted">{{ $fa($rootSubjects->count()) }} شاخه‌ی اصلی و {{ $fa($total) }} موضوع در دو سطح. هر شاخه را برای دیدن زیرشاخه‌هایش باز کنید.</p>
+        <p class="text-muted">{{ $fa($rootSubjects->count()) }} شاخۀ اصلی و {{ $fa($total) }} موضوع در دو سطح. هر شاخه را برای دیدن زیرشاخه‌هایش باز کنید.</p>
         <span class="flex gap-1.5">
             <x-ui.btn size="sm" variant="ghost" @click="$dispatch('tree-toggle', true)">باز کردن همه</x-ui.btn>
             <x-ui.btn size="sm" variant="ghost" @click="$dispatch('tree-toggle', false)">بستن همه</x-ui.btn>

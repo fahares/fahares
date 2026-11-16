@@ -37,13 +37,13 @@
                 @endphp
                 <p class="text-xs text-muted leading-6">
                     به شکل «ج ۲، ص ۷»@if(! empty($field['with_row']))، و «، ردیف ۳» اگر ردیف هم تغییر کرده است@endif.
-                    @if(! empty($field['can_be_absent'])) «نیست» یعنی نسخه در این فهرست نیامده است و پیوندش از صفحه‌ی نسخه برداشته می‌شود. با تأیید، نشانی «دستی و بازبینی‌شده» می‌شود و نشان ⓘ برداشته می‌شود.@endif
+                    @if(! empty($field['can_be_absent'])) «نیست» یعنی نسخه در این فهرست نیامده است و پیوندش از صفحۀ نسخه برداشته می‌شود. با تأیید، نشانی «دستی و بازبینی‌شده» می‌شود و نشان ⓘ برداشته می‌شود.@endif
                 </p>
                 @if($pageRef && ($viewer = $pageRef->viewer()))
                     <div class="flex flex-wrap gap-2 pt-1">
-                        <x-ui.btn size="sm" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">برگه‌ی فعلی (ص {{ $fa($viewer['page']) }})</x-ui.btn>
+                        <x-ui.btn size="sm" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">برگۀ فعلی (ص {{ $fa($viewer['page']) }})</x-ui.btn>
                         @if($suggestedPage)
-                            <x-ui.btn size="sm" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from(['volume' => $suggestedPage['volume'], 'page' => $suggestedPage['page']] + $viewer) }})">برگه‌ی پیشنهادی (ص {{ $fa($suggestedPage['page']) }})</x-ui.btn>
+                            <x-ui.btn size="sm" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from(['volume' => $suggestedPage['volume'], 'page' => $suggestedPage['page']] + $viewer) }})">برگۀ پیشنهادی (ص {{ $fa($suggestedPage['page']) }})</x-ui.btn>
                         @endif
                     </div>
                 @endif
@@ -81,8 +81,8 @@
 
                 <label class="flex flex-wrap items-center gap-2 py-1">
                     <input type="radio" name="person_pick" value="manual" @checked($defaultPick === 'manual') class="accent-cinnabar">
-                    <span>پیوند به شخص با شناسه‌ی</span>
-                    <input type="number" name="person_manual_id" value="{{ old('person_manual_id') }}" placeholder="مثلاً ۱۲۳۴" aria-label="شناسه‌ی شخص" class="admin-field w-28 tabular-nums">
+                    <span>پیوند به شخص با شناسۀ</span>
+                    <input type="number" name="person_manual_id" value="{{ old('person_manual_id') }}" placeholder="مثلاً ۱۲۳۴" aria-label="شناسۀ شخص" class="admin-field w-28 tabular-nums">
                 </label>
                 <label class="flex items-center gap-2 py-1">
                     <input type="radio" name="person_pick" value="create" @checked($defaultPick === 'create') class="accent-cinnabar">
@@ -90,7 +90,7 @@
                 </label>
                 <label class="flex items-center gap-2 py-1">
                     <input type="radio" name="person_pick" value="text" @checked($defaultPick === 'text') class="accent-cinnabar">
-                    <span>فقط ذخیره‌ی متن نام{{ $people['current'] ? ' (پیوند فعلی دست نمی‌خورد)' : ' (بدون پیوند)' }}</span>
+                    <span>فقط ذخیرۀ متن نام{{ $people['current'] ? ' (پیوند فعلی دست نمی‌خورد)' : ' (بدون پیوند)' }}</span>
                 </label>
                 <label class="flex items-center gap-2 py-1">
                     <input type="radio" name="person_pick" value="clear" @checked($defaultPick === 'clear') class="accent-cinnabar">
@@ -121,7 +121,7 @@
                     <span class="text-xs text-muted">(تغییر)</span>
                 </summary>
                 <fieldset class="space-y-1.5 pt-2">
-                    <legend class="sr-only">نتیجه‌ی داوری</legend>
+                    <legend class="sr-only">نتیجۀ داوری</legend>
                     @foreach($outcomes as $value => [$label, $hint])
                         <label class="flex items-start gap-2 py-0.5 cursor-pointer">
                             <input type="radio" name="outcome" value="{{ $value }}" x-model="outcome" class="mt-1.5 accent-cinnabar">
@@ -151,11 +151,11 @@
         <div class="space-y-1">
             <label for="approve_public_note" class="block font-bold text-ink">
                 یادداشت عمومی
-                <span class="font-normal text-xs text-muted">(پیشنهاددهنده آن را می‌بیند؛ برای «قول دیگر» و «منسوخ» در صفحه‌ی عمومی هم نمایش داده می‌شود)</span>
+                <span class="font-normal text-xs text-muted">(پیشنهاددهنده آن را می‌بیند؛ برای «قول دیگر» و «منسوخ» در صفحۀ عمومی هم نمایش داده می‌شود)</span>
                 @if($previousAdopted)<span x-show="outcome === 'adopt'" class="text-cinnabar">الزامی</span>@endif
                 <span x-show="outcome === 'alternative'" class="text-cinnabar">الزامی</span>
             </label>
-            <textarea id="approve_public_note" name="public_note" rows="2" placeholder="مثال: مقدار منتخب به استناد ترقیمه‌ی رساله‌ی هشتم همین مجموعه ترجیح داده شد." class="admin-field w-full">{{ old('public_note', $promoting ? $suggestion->public_note : '') }}</textarea>
+            <textarea id="approve_public_note" name="public_note" rows="2" placeholder="مثال: مقدار منتخب به استناد ترقیمۀ رسالۀ هشتم همین مجموعه ترجیح داده شد." class="admin-field w-full">{{ old('public_note', $promoting ? $suggestion->public_note : '') }}</textarea>
         </div>
     @endif
 

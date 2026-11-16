@@ -68,10 +68,10 @@ class HomePageTest extends TestCase
     public function test_home_shows_admin_content_and_live_counts_in_persian_digits()
     {
         HomeItem::query()->update(['is_active' => false]);
-        $this->slide(['title' => 'نگاره‌ی آزمایشی بنر']);
+        $this->slide(['title' => 'نگارۀ آزمایشی بنر']);
         $this->slide(['section' => 'hero', 'title' => 'سرلوح آزمایشی سربرگ', 'credit' => 'منبع آزمایشی سربرگ']);
         $this->slide(['title' => 'اسلاید پنهان', 'is_active' => false]);
-        $this->slide(['section' => 'treasures', 'title' => 'گنجینه‌ی آزمایشی']);
+        $this->slide(['section' => 'treasures', 'title' => 'گنجینۀ آزمایشی']);
         Cataloger::query()->update(['home_order' => null]);
         $cataloger = $this->cataloger('فهرست‌نگار آزمایشی خانه');
         $cataloger->update(['home_order' => 1]);
@@ -80,7 +80,7 @@ class HomePageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk()
-            ->assertSeeInOrder(['سرلوح آزمایشی سربرگ', 'منبع آزمایشی سربرگ', 'عنوان آزمایشی خانه', 'فهرست‌نگار آزمایشی خانه', 'نگاره‌ی آزمایشی بنر', 'گنجینه‌ی آزمایشی'])
+            ->assertSeeInOrder(['سرلوح آزمایشی سربرگ', 'منبع آزمایشی سربرگ', 'عنوان آزمایشی خانه', 'فهرست‌نگار آزمایشی خانه', 'نگارۀ آزمایشی بنر', 'گنجینۀ آزمایشی'])
             ->assertDontSee('اسلاید پنهان')
             ->assertSee('راهنمای جست‌وجو')
             ->assertSee('مجلس ۱۱۸۹')

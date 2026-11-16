@@ -23,7 +23,7 @@ class InsightsScopeTest extends TestCase
 
     private function library(string $city = 'تهران'): Library
     {
-        return Library::create(['name' => 'کتابخانه‌ی آزمایشی دامنه ' . uniqid(), 'city' => $city, 'slug' => 'lib-scope-' . uniqid()]);
+        return Library::create(['name' => 'کتابخانۀ آزمایشی دامنه ' . uniqid(), 'city' => $city, 'slug' => 'lib-scope-' . uniqid()]);
     }
 
     private function work(array $attributes = []): Work
@@ -358,19 +358,19 @@ class InsightsScopeTest extends TestCase
     public function test_the_scoped_page_names_its_scope_and_carries_it_into_search_links()
     {
         $library = $this->library('شیراز');
-        $work = $this->work(['primary_title' => 'اثر آزمایشی صفحه‌ی دامنه']);
+        $work = $this->work(['primary_title' => 'اثر آزمایشی صفحۀ دامنه']);
         $this->copies($work, 12, ['library_id' => $library->id, 'city' => 'شیراز', 'copy_date_raw' => '1100ق', 'copy_place' => 'هرات', 'is_illuminated' => true]);
 
         $this->get(route('insights', ['library' => $library->id]))->assertOk()
-            ->assertSee('آمار نسخه‌های کتابخانه‌ی ' . $library->name . ' (شیراز)')
+            ->assertSee('آمار نسخه‌های کتابخانۀ ' . $library->name . ' (شیراز)')
             ->assertSee('۱۲ نسخه از ۱ اثر')
             ->assertSee('<meta name="robots" content="noindex, follow">', false)
             ->assertSee('بازگشت به آمار کل')
-            ->assertSee('نمونه‌ی کوچک')
+            ->assertSee('نمونۀ کوچک')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'century' => 11, 'library_id' => $library->id])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات', 'library_id' => $library->id])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'flags' => ['is_illuminated'], 'century' => 11, 'library_id' => $library->id])), false)
-            ->assertSee('از جای کتابت تا کتابخانه‌ی امروز')
+            ->assertSee('از جای کتابت تا کتابخانۀ امروز')
             ->assertSee('ویژگی‌های نسخه‌ها در گذر سده‌ها')
             // The scope has one work: no table of its most-copied works
             ->assertDontSee('آثار پرنسخه در این دامنه');
@@ -383,7 +383,7 @@ class InsightsScopeTest extends TestCase
 
         $this->get(route('insights', ['author' => $author->id]))->assertOk()
             ->assertSee('آمار نسخه‌های آثار ' . $author->name)
-            ->assertSee('در این دامنه تنها ۱ نسخه‌ی تاریخ‌دار هست که برای این نمودار بسنده نیست.')
+            ->assertSee('در این دامنه تنها ۱ نسخۀ تاریخ‌دار هست که برای این نمودار بسنده نیست.')
             ->assertDontSee('را با خود نمی‌برد');
     }
 

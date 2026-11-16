@@ -81,7 +81,7 @@ final class Loader
         self::RULE_TRANSLATOR => 'ترجمه پس از وفات مترجم، یا پیش از ۱۵ سالگی او',
         self::RULE_DEDICATEE => 'تألیف پس از وفات مُهدی‌الیه، یا پیش از تولد او',
         self::RULE_COPY => 'کتابت نسخه پیش از تألیف اثر',
-        self::RULE_AUTOGRAPH => 'نسخه‌ی خط مؤلف پس از وفات مؤلف',
+        self::RULE_AUTOGRAPH => 'نسخۀ خط مؤلف پس از وفات مؤلف',
         self::RULE_SCRIBE => 'کتابت پس از وفات کاتب، یا پیش از ۱۰ سالگی او',
         self::RULE_PATRON => 'کتابت پس از وفات بانی، یا پیش از تولد او',
         self::RULE_DERIVED => 'اثر وابسته پیش از اثر اصلی',

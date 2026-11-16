@@ -77,7 +77,7 @@
             @endforeach
         </div>
 
-        <x-admin.field label="زیست‌نامه و کارنامه‌ی فهرست‌نگاری" for="bio" error="bio">
+        <x-admin.field label="زیست‌نامه و کارنامۀ فهرست‌نگاری" for="bio" error="bio">
             <textarea name="bio" id="bio" rows="6" class="admin-field w-full leading-7">{{ old('bio', $cataloger->bio) }}</textarea>
         </x-admin.field>
 
@@ -120,7 +120,7 @@
             </div>
         </x-admin.field>
 
-        <x-admin.form-actions :cancel="route('admin.catalogers.index')" :submit="$creating ? 'ساخت فهرست‌نگار' : 'ذخیره‌ی تغییرات'" />
+        <x-admin.form-actions :cancel="route('admin.catalogers.index')" :submit="$creating ? 'ساخت فهرست‌نگار' : 'ذخیرۀ تغییرات'" />
     </form>
 </x-ui.card>
 @endsection

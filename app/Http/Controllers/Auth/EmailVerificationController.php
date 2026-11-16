@@ -39,6 +39,6 @@ class EmailVerificationController extends Controller
         }
         $request->user()->sendEmailVerificationNotification();
 
-        return back()->with('success', 'پیوند تأیید به ' . $request->user()->email . ' فرستاده شد. صندوق ورودی (و پوشه‌ی هرزنامه) را ببینید.');
+        return back()->with('success', 'پیوند تأیید به ' . $request->user()->email . ' فرستاده شد. صندوق ورودی (و پوشۀ هرزنامه) را ببینید.');
     }
 }

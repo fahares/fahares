@@ -136,7 +136,7 @@ class AdminSourcesTest extends TestCase
         $this->actingAs($this->admin)->put("/admin/sources/{$source->id}", ['title' => '', 'kind' => 'nothing', 'rank' => 'a'])
             ->assertSessionHasErrors(['title', 'kind', 'rank']);
 
-        $this->actingAs($this->admin)->get("/admin/sources/{$source->id}")->assertSee('سابقه‌ی تغییرها')->assertSee('عنوان، نام کوتاه، نوع، رتبه');
+        $this->actingAs($this->admin)->get("/admin/sources/{$source->id}")->assertSee('سابقۀ تغییرها')->assertSee('عنوان، نام کوتاه، نوع، رتبه');
         $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
         $this->assertSame(['فهرست پیش از ویرایش', 'library_catalogue', 10], [$source->fresh()->title, $source->fresh()->kind, $source->fresh()->rank]);
     }

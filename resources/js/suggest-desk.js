@@ -312,7 +312,7 @@ export default (config) => ({
 
     get title() {
         if (this.mode === 'note') return 'افزودن یادداشت یا منبع پژوهشی';
-        return this.mode === 'general' ? 'پیشنهاد کلی درباره‌ی این ' + this.config.typeLabel : 'پیشنهاد اصلاح «' + this.field.label + '»';
+        return this.mode === 'general' ? 'پیشنهاد کلی دربارۀ این ' + this.config.typeLabel : 'پیشنهاد اصلاح «' + this.field.label + '»';
     },
 
     get relation() {

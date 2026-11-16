@@ -43,7 +43,7 @@ class CatalogueTwinsTest extends TestCase
 
     public function test_a_copy_described_twice_is_merged_and_two_copies_are_left_apart_and_a_run_reverts()
     {
-        $this->library = 'کتابخانه‌ی آزمون دوقلو ' . uniqid();
+        $this->library = 'کتابخانۀ آزمون دوقلو ' . uniqid();
         // Razavi's list and its printed catalogue: one copy, a year a little off
         $work = $this->work();
         $printed = $this->copy($work, '12460', '[ف: 15-2]', ['folios' => 128, 'dimensions' => '13/5×21سم', 'lines' => 12, 'copy_date_raw' => '1322ق', 'copy_date_from' => 1322, 'copy_date_to' => 1322,

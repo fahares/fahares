@@ -23,7 +23,7 @@
         <p class="text-xs font-bold text-cinnabar">طبقه‌بندی موضوعی</p>
         <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">موضوعات و شاخه‌های دانش</h1>
         <p class="text-sm text-muted max-w-2xl leading-relaxed">
-            {{ Fa::num($totalRootSubjects) }} رده‌ی اصلی و {{ Fa::num($totalSubSubjects) }} زیرشاخه، دربرگیرنده‌ی {{ Fa::num($totalWorks) }} اثر. هر موضوع شناسنامه‌ای با زیرشاخه‌ها و آثار خود دارد.
+            {{ Fa::num($totalRootSubjects) }} ردۀ اصلی و {{ Fa::num($totalSubSubjects) }} زیرشاخه، دربرگیرندۀ {{ Fa::num($totalWorks) }} اثر. هر موضوع شناسنامه‌ای با زیرشاخه‌ها و آثار خود دارد.
         </p>
         <div class="relative w-full max-w-xl mt-3">
             <label for="subject-filter" class="sr-only">پالایش موضوعات</label>

@@ -18,8 +18,8 @@
 @endphp
 
 <p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">
-    هوشواره این نسخه‌ها را با شماره‌ی نسخه در چاپ دیگری از فهرست کتابخانه پیدا کرده است. هر نشانی را با برگه بسنجید:
-    نمایشگر صفحه‌ی آغاز مدخل را باز می‌کند، و شماره‌ی نسخه ممکن است در صفحه‌ی بعد باشد. با تأیید، نشان ⓘ از صفحه‌ی نسخه برداشته می‌شود و با رد، پیوند پنهان می‌شود.
+    هوشواره این نسخه‌ها را با شمارۀ نسخه در چاپ دیگری از فهرست کتابخانه پیدا کرده است. هر نشانی را با برگه بسنجید:
+    نمایشگر صفحۀ آغاز مدخل را باز می‌کند، و شمارۀ نسخه ممکن است در صفحۀ بعد باشد. با تأیید، نشان ⓘ از صفحۀ نسخه برداشته می‌شود و با رد، پیوند پنهان می‌شود.
 </p>
 
 <x-admin.tabs :options="$tabs" />
@@ -27,13 +27,13 @@
 <x-admin.filters :action="route('admin.catalog-references.index')" :reset="$filters ? route('admin.catalog-references.index', ['status' => $status]) : null" :total="$references->total()" noun="نشانی">
     <input type="hidden" name="status" value="{{ $status }}">
     <select name="volume" aria-label="جلد" class="admin-field max-w-xs">
-        <option value="">همه‌ی جلدها</option>
+        <option value="">همۀ جلدها</option>
         @foreach($volumes as $volume)
             <option value="{{ $volume->id }}" @selected(request()->integer('volume') === $volume->id)>{{ $volume->title }}@if($volume->edition_label) (چاپ {{ $volume->edition_label }})@endif</option>
         @endforeach
     </select>
     <select name="method" aria-label="روش" class="admin-field">
-        <option value="">همه‌ی روش‌ها</option>
+        <option value="">همۀ روش‌ها</option>
         @foreach($methods as $key => $label)
             <option value="{{ $key }}" @selected(request('method') === $key)>{{ $label }}</option>
         @endforeach
@@ -53,7 +53,7 @@
             @if($bulkAllowed)
                 <p class="flex-1 min-w-64 text-ink">
                     <b>تأیید گروهی:</b>
-                    شماره‌ی نسخه و عنوان اثر هر دو با مدخل چاپ همخوان‌اند. نمونه‌ها را با برگه بسنجید و سپس همه‌ی نشانی‌های این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
+                    شمارۀ نسخه و عنوان اثر هر دو با مدخل چاپ همخوان‌اند. نمونه‌ها را با برگه بسنجید و سپس همۀ نشانی‌های این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
                 </p>
                 @php $count = Fa::num($references->total()); @endphp
                 <form method="POST" action="{{ route('admin.catalog-references.bulk-verify') }}" onsubmit="return confirm(@js($count . ' تطبیق تأیید شود؟'))">
@@ -62,20 +62,20 @@
                     <input type="hidden" name="method" value="{{ request('method') }}">
                     <input type="hidden" name="confidence" value="{{ request('confidence') }}">
                     <input type="hidden" name="expected" value="{{ $references->total() }}">
-                    <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همه‌ی {{ $count }} نشانی این پالایه</button>
+                    <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همۀ {{ $count }} نشانی این پالایه</button>
                 </form>
             @else
                 <p class="flex-1 min-w-64 text-muted">
                     تأیید گروهی فقط برای روش «شماره و عنوان» است. در روش‌های «شماره، عنوان نزدیک»، «فقط شماره» و «مبهم» عنوان شماره را تأیید نمی‌کند و هر نشانی باید جداگانه با برگه سنجیده شود.
                 </p>
-                <x-ui.btn :href="route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\ManuscriptCatalogReference::BULK_METHOD, 'confidence' => 'high']))">پالایه‌ی پیشنهادی: شماره و عنوان، اطمینان بالا</x-ui.btn>
+                <x-ui.btn :href="route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\ManuscriptCatalogReference::BULK_METHOD, 'confidence' => 'high']))">پالایۀ پیشنهادی: شماره و عنوان، اطمینان بالا</x-ui.btn>
             @endif
         </x-admin.notice>
     @endif
     @if($lastBulk)
         <x-admin.notice class="flex flex-wrap items-center gap-3">
             <p class="flex-1 min-w-64">
-                آخرین تأیید گروهی (دسته‌ی #{{ Fa::digits($lastBulk->id) }}): {{ Fa::num($lastBulk->new_values['count'] ?? 0) }} نشانی،
+                آخرین تأیید گروهی (دستۀ #{{ Fa::digits($lastBulk->id) }}): {{ Fa::num($lastBulk->new_values['count'] ?? 0) }} نشانی،
                 به دست {{ $lastBulk->user?->name ?? '—' }}، {{ \App\Support\Jalali::format($lastBulk->created_at, 'datetime') }}.
             </p>
             <form method="POST" action="{{ route('admin.catalog-references.bulk-revert', $lastBulk) }}" onsubmit="return confirm('نشانی‌های این دسته به صف داوری برگردند؟ آن‌هایی که از آن پس جداگانه داوری شده‌اند دست نمی‌خورند.')">
@@ -103,7 +103,7 @@
             <x-admin.cell main class="md:min-w-48">
                 @if($ref->citable)
                     <a href="{{ route('manuscripts.show', $ref->citable) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $ref->citable->work?->primary_title ?? 'بی‌عنوان' }}</a>
-                    <span class="block text-xs text-muted">شماره‌ی <span dir="ltr">{{ Fa::digits($ref->citable->shelfmark) }}</span></span>
+                    <span class="block text-xs text-muted">شمارۀ <span dir="ltr">{{ Fa::digits($ref->citable->shelfmark) }}</span></span>
                 @endif
             </x-admin.cell>
             <x-admin.cell class="basis-full md:min-w-72">

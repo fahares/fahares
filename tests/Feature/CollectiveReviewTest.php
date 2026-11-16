@@ -167,7 +167,7 @@ class CollectiveReviewTest extends TestCase
 
         $opinion = FieldSuggestion::where('review_item_id', $agreed->id)->where('review_answer', 'no')->sole();
         $this->actingAs($admin)->get(route('admin.suggestions.show', $opinion))->assertOk()
-            ->assertSee('نظرهای پژوهشگران درباره‌ی همین مورد')->assertSee('همین نسخه است')->assertSee('وزن ۳', false)->assertSee('پژوهشگر تأییدشده');
+            ->assertSee('نظرهای پژوهشگران دربارۀ همین مورد')->assertSee('همین نسخه است')->assertSee('وزن ۳', false)->assertSee('پژوهشگر تأییدشده');
     }
 
     public function test_a_reviewer_decision_in_the_queue_settles_the_opinions()
@@ -237,7 +237,7 @@ class CollectiveReviewTest extends TestCase
     protected function copyBy(Person $scribe, int $year): Manuscript
     {
         return Manuscript::create(['work_id' => $this->work->id, 'volume_number' => 1, 'page_start' => 1, 'scribe_id' => $scribe->id,
-            'scribe_name' => $scribe->name, 'copy_date_hijri_year' => $year, 'raw_text' => 'نسخه‌ی آزمایشی']);
+            'scribe_name' => $scribe->name, 'copy_date_hijri_year' => $year, 'raw_text' => 'نسخۀ آزمایشی']);
     }
 
     public function test_namesakes_are_answered_without_merging_and_settled_by_the_panel()
@@ -281,7 +281,7 @@ class CollectiveReviewTest extends TestCase
         $late = $this->copyBy($p, 1250);
         $review = PersonReview::create(['type' => 'mixed', 'key' => 'person:' . $p->id, 'person_ids' => [$p->id], 'status' => 'open', 'reason' => 'test']);
 
-        $this->get(route('contribute.show', ['mixed', $review->id]))->assertOk()->assertSee('آیا همه‌ی این نسخه‌ها را یک نفر نوشته است؟')
+        $this->get(route('contribute.show', ['mixed', $review->id]))->assertOk()->assertSee('آیا همۀ این نسخه‌ها را یک نفر نوشته است؟')
             ->assertSee('name="copies[]" value="' . $late->id . '"', false)->assertDontSee('تفکیک');
         $user = $this->user('یک');
         $this->actingAs($user)->post(route('contribute.answer', ['mixed', $review->id]), ['answer' => 'split'])->assertSessionHasErrors('copies');

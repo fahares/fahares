@@ -291,13 +291,13 @@ class InsightsScope
                 'subject' => [$param, 'موضوع ' . $r->name, route('subjects.show', $r)],
                 'language' => [$param, 'به زبان ' . $r->name, null],
                 'scribe' => [$param, 'کتابت ' . $r->name, route('people.show', $r)],
-                'library' => [$param, 'کتابخانه‌ی ' . $r->name . ' (' . $r->city . ')', route('libraries.show', $r)],
+                'library' => [$param, 'کتابخانۀ ' . $r->name . ' (' . $r->city . ')', route('libraries.show', $r)],
                 'city' => [$param, 'کتابخانه‌های ' . $value, null],
                 'copy_city' => [$param, 'کتابت‌شده در ' . $value, null],
                 'script' => [$param, 'به خط ' . $r->name, null],
                 'catalog' => [$param, (str_starts_with($r->title, 'فهرست') ? '' : 'فهرست ') . $r->title . ($r->volume_number ? ' ج ' . Fa::digits($r->volume_number) : ''), null],
                 'facsimile' => [$param, $value === '1' ? 'عکسی' : 'اصل (بی نسخه‌های عکسی)', null],
-                'century' => [$param, $value[0] === $value[1] ? 'سده‌ی ' . Fa::digits($value[0]) : 'سده‌های ' . Fa::digits($value[0]) . ' تا ' . Fa::digits($value[1]), null],
+                'century' => [$param, $value[0] === $value[1] ? 'سدۀ ' . Fa::digits($value[0]) : 'سده‌های ' . Fa::digits($value[0]) . ' تا ' . Fa::digits($value[1]), null],
             };
         }
 

@@ -29,11 +29,11 @@
             <a href="{{ route('profile') }}" title="تصویر کاربر"><x-ui.avatar :user="auth()->user()" size="lg" /></a>
             <div class="min-w-0">
                 <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">پیشنهادهای من</h1>
-                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشده‌ی همه‌ی پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">{{ config('contributions.title') }}</a> آمده است.</p>
+                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشدۀ همۀ پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">{{ config('contributions.title') }}</a> آمده است.</p>
             </div>
         </div>
         <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            @foreach([['total', 'همه‌ی پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'مقدار منتخب'], ['pending', 'در انتظار داوری']] as [$key, $label])
+            @foreach([['total', 'همۀ پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'مقدار منتخب'], ['pending', 'در انتظار داوری']] as [$key, $label])
                 <div class="p-3 rounded-sm bg-paper border border-line">
                     <dd class="text-xl font-bold text-cinnabar">{{ \App\Support\Fa::num($stats[$key]) }}</dd>
                     <dt class="text-[11px] text-muted">{{ $label }}</dt>
@@ -102,7 +102,7 @@
             @if(in_array($s->kind, ['field', 'note'], true) && $s->status !== 'rejected')
                 <form action="{{ route('my.suggestions.credit', $s) }}" method="POST" class="flex flex-wrap items-center gap-2 pt-2 border-t border-line text-xs">
                     @csrf
-                    <label class="text-muted" for="credit-{{ $s->id }}">نام در صفحه‌ی عمومی:</label>
+                    <label class="text-muted" for="credit-{{ $s->id }}">نام در صفحۀ عمومی:</label>
                     <input id="credit-{{ $s->id }}" type="text" name="credit_name" value="{{ $s->credit_name ?? $s->held_credit_name }}" maxlength="150" placeholder="خالی: بدون نام"
                         class="flex-1 min-w-40 p-2 rounded-lg border border-line-strong bg-paper text-ink">
                     <button type="submit" class="px-3 py-2 rounded-sm bg-cinnabar text-on-cinnabar hover:opacity-90 font-bold">ذخیره</button>
@@ -114,7 +114,7 @@
         </article>
     @empty
         <div class="p-8 rounded-sm bg-surface border border-line text-center text-sm text-muted">
-            هنوز پیشنهادی با این حساب نفرستاده‌اید. در صفحه‌ی هر نسخه، اثر یا شخص، «پیشنهاد اصلاح» را بزنید.
+            هنوز پیشنهادی با این حساب نفرستاده‌اید. در صفحۀ هر نسخه، اثر یا شخص، «پیشنهاد اصلاح» را بزنید.
         </div>
     @endforelse
 

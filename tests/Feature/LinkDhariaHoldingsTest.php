@@ -39,7 +39,7 @@ class LinkDhariaHoldingsTest extends TestCase
         $this->assertSame(0, DB::table('source_page_links')->where('target_id', $malek->id)->count());
 
         $html = $this->get('/sources/dharia/19/page/170')->assertOk()->getContent();
-        $this->assertStringContainsString('<a href="' . route('libraries.show', $majlis) . '" id="m1" class="book-sheet__mark book-sheet__mark--library" title="کتابخانه‌ی مجلس، تهران (پیوند ماشینی)" data-noor="OB" data-record-link="library">مكتبة (المجلس)</a>', $html);
+        $this->assertStringContainsString('<a href="' . route('libraries.show', $majlis) . '" id="m1" class="book-sheet__mark book-sheet__mark--library" title="کتابخانۀ مجلس، تهران (پیوند ماشینی)" data-noor="OB" data-record-link="library">مكتبة (المجلس)</a>', $html);
         $this->assertStringContainsString('<span data-noor="OB">عند (الملك)</span>', $html);
         $this->assertSame($page, DB::table('source_page_links')->value('source_page_id'));
     }

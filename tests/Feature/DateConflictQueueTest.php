@@ -37,7 +37,7 @@ class DateConflictQueueTest extends TestCase
             'volume_number' => 1, 'page_start' => 1, 'composition_date_raw' => 'تألیف 1300ق', 'composition_year_hijri' => 1300]);
         DB::table('works')->where('id', $this->work->id)->update(['composition_date_from' => 1300, 'composition_date_to' => 1300]);
         DB::table('work_people')->insert(['work_id' => $this->work->id, 'person_id' => $this->author->id, 'role' => 'author', 'position' => 0]);
-        $library = Library::create(['name' => 'کتابخانه‌ی آزمایشی صف', 'city' => 'قم', 'slug' => 'dq-lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی صف', 'city' => 'قم', 'slug' => 'dq-lib-' . uniqid()]);
         $this->copy = Manuscript::create(['work_id' => $this->work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
             'library_id' => $library->id, 'library' => $library->name, 'city' => 'قم', 'shelfmark' => 'صف ۱', 'raw_text' => '1. قم', 'copy_date_raw' => '1299ق']);
         // a copy one year before the work: a conflict, but within the rounding between calendars

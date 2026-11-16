@@ -7,7 +7,7 @@
     @can('subjects.merge')
         <x-ui.btn :href="route('admin.subjects.merge')" size="sm">ادغام موضوعات</x-ui.btn>
     @endcan
-    <form action="{{ route('admin.subjects.recount') }}" method="POST" onsubmit="return confirm('شمار آثار همه‌ی موضوعات دوباره حساب شود؟')">
+    <form action="{{ route('admin.subjects.recount') }}" method="POST" onsubmit="return confirm('شمار آثار همۀ موضوعات دوباره حساب شود؟')">
         @csrf
         <x-ui.btn type="submit" size="sm" title="شمار آثار هر موضوع دوباره حساب می‌شود">بازشماری آثار</x-ui.btn>
     </form>
@@ -22,7 +22,7 @@
 <x-admin.table :paginator="$subjects" :is-empty="$subjects->isEmpty()" empty="موضوعی یافت نشد.">
     <x-slot:head>
         <x-admin.th>نام</x-admin.th>
-        <x-admin.th>شاخه‌ی بالاتر</x-admin.th>
+        <x-admin.th>شاخۀ بالاتر</x-admin.th>
         <x-admin.th>زیرشاخه‌ها</x-admin.th>
         <x-admin.th>آثار</x-admin.th>
         <x-admin.th><span class="sr-only">کنش‌ها</span></x-admin.th>
@@ -34,11 +34,11 @@
                 <span class="text-xs text-muted tabular-nums">#{{ \App\Support\Fa::digits($subj->id) }}</span>
                 <span class="block text-xs text-muted" dir="ltr">{{ $subj->slug }}</span>
             </x-admin.cell>
-            <x-admin.cell label="شاخه‌ی بالاتر">
+            <x-admin.cell label="شاخۀ بالاتر">
                 @if($subj->parent)
                     <x-ui.chip>{{ $subj->parent->name }}</x-ui.chip>
                 @else
-                    <span class="text-gold font-bold">شاخه‌ی اصلی</span>
+                    <span class="text-gold font-bold">شاخۀ اصلی</span>
                 @endif
             </x-admin.cell>
             <x-admin.cell label="زیرشاخه‌ها" class="tabular-nums">{{ \App\Support\Fa::num($subj->children->count()) }}</x-admin.cell>

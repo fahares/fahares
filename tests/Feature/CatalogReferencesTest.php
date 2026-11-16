@@ -416,7 +416,7 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript(['raw_text' => 'متن فنخا برای این نسخه']);
         $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
             'confidence' => 90, 'entry_text' => "607- دیوان قدسی (فارسی)\nاز: قدسی", 'copy_text' => 'ش 1939، 207 برگ، نستعلیق. این نسخه جلد چهارم است.']);
-        $note = 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
+        $note = 'این متن را هوشواره با تطبیق شمارۀ نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
 
         $html = $this->get(route('manuscripts.show', $ms))->assertOk()
             // one «متن مأخذ» heading: the library's printed catalogue first, then Fankha
@@ -462,7 +462,7 @@ class CatalogReferencesTest extends TestCase
     {
         $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);
         $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
-        $note = 'این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
+        $note = 'این نشانی را هوشواره با تطبیق شمارۀ نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
 
         $this->get(route('manuscripts.show', $ms))->assertOk()
             // the library catalogues first (the page seen before the one Fankha cites), Fankha last
@@ -560,7 +560,7 @@ class CatalogReferencesTest extends TestCase
 
         // JSON for the badge; the review and its undo are in the audit log
         $this->actingAs($admin)->postJson($verify)->assertOk()->assertExactJson([
-            'status' => SourceEntry::STATUS_VERIFIED, 'message' => 'نشانی نسخه‌ی «۳۰۱۰» تأیید شد.', 'undo' => route('admin.catalog-references.reopen', $ref),
+            'status' => SourceEntry::STATUS_VERIFIED, 'message' => 'نشانی نسخۀ «۳۰۱۰» تأیید شد.', 'undo' => route('admin.catalog-references.reopen', $ref),
         ]);
         $this->assertSame([SourceEntry::STATUS_VERIFIED, $admin->id], [$ref->fresh()->status, $ref->fresh()->reviewed_by]);
         $review = AuditLog::where('auditable_type', SourceEntry::class)->where('auditable_id', $ref->id)->where('action', Ref::ACTION_REVIEW)->sole();
@@ -606,9 +606,9 @@ class CatalogReferencesTest extends TestCase
 
         // The queue offers the button only for title matches, with the count to confirm
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id, 'method' => 'shelfmark_only']))->assertOk()
-            ->assertSee('۴۰۰۵')->assertDontSee('۴۰۰۱')->assertDontSee('تأیید همه‌ی')->assertSee('پالایه‌ی پیشنهادی');
+            ->assertSee('۴۰۰۵')->assertDontSee('۴۰۰۱')->assertDontSee('تأیید همۀ')->assertSee('پالایۀ پیشنهادی');
         $this->actingAs($admin)->get(route('admin.catalog-references.index', $filters))->assertOk()
-            ->assertSee('تأیید همه‌ی ۳ نشانی این پالایه')->assertSee('۳ تطبیق تأیید شود؟', false);
+            ->assertSee('تأیید همۀ ۳ نشانی این پالایه')->assertSee('۳ تطبیق تأیید شود؟', false);
 
         // Only reviewers, only title matches, and only the count the reviewer saw
         $this->actingAs($user)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 3])->assertForbidden();
@@ -662,7 +662,7 @@ class CatalogReferencesTest extends TestCase
     private function suggestAddress(Manuscript $ms, string $field, string $value)
     {
         return $this->suggestJson(['type' => 'manuscript', 'id' => $ms->id, 'kind' => 'field', 'field_name' => $field,
-            'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی فهرست را دیدم']);
+            'suggested_value' => $value, 'rationale_citation' => 'برگۀ چاپی فهرست را دیدم']);
     }
 
     private function approveLatest(Manuscript $ms, array $data = [])
@@ -754,7 +754,7 @@ class CatalogReferencesTest extends TestCase
         $work = Work::create(['primary_title' => 'اثر مآخذدار', 'clean_title' => 'اثر مآخذدار', 'slug' => 'work-bib-' . uniqid(),
             'volume_number' => 3, 'page_start' => 10, 'page_end' => 11, 'bibliography' => ['منزوی 977/2', 'الذریعه 101/25']]);
         $suggest = fn (string $field, string $value) => $this->suggestJson(['type' => 'work', 'id' => $work->id, 'kind' => 'field',
-            'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم']);
+            'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگۀ چاپی را دیدم']);
         $approve = function () use ($work) {
             $s = FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $work->id)->where('status', 'pending')->latest('id')->firstOrFail();
 

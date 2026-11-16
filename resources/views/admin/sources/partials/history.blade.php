@@ -2,10 +2,10 @@
 @php
     $fa = fn ($n) => \App\Support\Fa::num($n);
     $fields = ['title' => 'عنوان', 'short_name' => 'نام کوتاه', 'kind' => 'نوع', 'rank' => 'رتبه', 'library_id' => 'کتابخانه',
-        'page_first' => 'صفحه‌ی آغاز', 'page_last' => 'صفحه‌ی پایان', 'sort' => 'ترتیب', 'catalogers' => 'فهرست‌نگاران', 'people' => 'فهرست‌نگاران جلد'];
-    $effectLabels = ['changed' => 'نسخه‌ی تغییرکرده', 'moved' => 'به بخش دیگر', 'joined' => 'بخش‌دار شد', 'left' => 'بی‌بخش شد', 'cataloger' => 'فهرست‌نگار تازه'];
+        'page_first' => 'صفحۀ آغاز', 'page_last' => 'صفحۀ پایان', 'sort' => 'ترتیب', 'catalogers' => 'فهرست‌نگاران', 'people' => 'فهرست‌نگاران جلد'];
+    $effectLabels = ['changed' => 'نسخۀ تغییرکرده', 'moved' => 'به بخش دیگر', 'joined' => 'بخش‌دار شد', 'left' => 'بی‌بخش شد', 'cataloger' => 'فهرست‌نگار تازه'];
 @endphp
-<x-ui.section title="سابقه‌ی تغییرها" :count="$history->count()">
+<x-ui.section title="سابقۀ تغییرها" :count="$history->count()">
     @if($history->isEmpty())
         <p class="text-xs text-muted">هنوز از پنل تغییری داده نشده است.</p>
     @else
@@ -29,7 +29,7 @@
                     @elseif($isForm)
                         <span>{{ implode('، ', (array) ($new['names'] ?? $old['names'] ?? [])) ?: 'عبارت باقاعده' }}</span>
                         @if($formEffect)
-                            <span class="text-muted">· {{ collect(['gained' => 'رشته‌ی تازه‌وصل', 'lost' => 'رشته‌ی جداشده', 'moved' => 'جای تازه'])->filter(fn ($l, $k) => ! empty($formEffect[$k]))->map(fn ($l, $k) => $fa($formEffect[$k]) . ' ' . $l)->implode('، ') ?: 'بی اثر بر مآخذ' }}@if(! empty($formEffect['queued'])) (در صف)@endif</span>
+                            <span class="text-muted">· {{ collect(['gained' => 'رشتۀ تازه‌وصل', 'lost' => 'رشتۀ جداشده', 'moved' => 'جای تازه'])->filter(fn ($l, $k) => ! empty($formEffect[$k]))->map(fn ($l, $k) => $fa($formEffect[$k]) . ' ' . $l)->implode('، ') ?: 'بی اثر بر مآخذ' }}@if(! empty($formEffect['queued'])) (در صف)@endif</span>
                         @endif
                     @elseif($changed)
                         <span class="text-muted">{{ collect($changed)->map(fn ($k) => $fields[$k])->implode('، ') }}</span>

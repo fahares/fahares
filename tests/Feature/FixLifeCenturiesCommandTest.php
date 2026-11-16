@@ -59,9 +59,9 @@ class FixLifeCenturiesCommandTest extends TestCase
 
     public function test_saving_a_person_reads_the_century_of_the_life_and_drops_the_middle_year()
     {
-        $person = Person::create(['name' => 'ذخیره‌ی سده آزمایشی', 'normalized_name' => 'ذخیره‌ی سده آزمایشی', 'slug' => 'life-save', 'life_dates_raw' => 'ق 13 قمری', 'death_year_hijri' => 1250]);
+        $person = Person::create(['name' => 'ذخیرۀ سده آزمایشی', 'normalized_name' => 'ذخیرۀ سده آزمایشی', 'slug' => 'life-save', 'life_dates_raw' => 'ق 13 قمری', 'death_year_hijri' => 1250]);
         $this->assertSame([null, 13, null, null, null], $this->cols($person->id));
-        $this->assertSame('سده‌ی ۱۳ ق', $person->fresh()->life_span);
+        $this->assertSame('سدۀ ۱۳ ق', $person->fresh()->life_span);
 
         $person->update(['death_year_hijri' => 1262]);
         $this->assertSame([1262, 13, 1262, 1262, null], $this->cols($person->id));
@@ -69,7 +69,7 @@ class FixLifeCenturiesCommandTest extends TestCase
 
     public function test_the_engine_takes_the_century_as_bounds_that_no_later_copy_breaks()
     {
-        $library = Library::create(['name' => 'کتابخانه‌ی آزمایشی سده', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی سده', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
         $author = Person::create(['name' => 'معاصر آزمایشی', 'normalized_name' => 'معاصر آزمایشی', 'slug' => 'life-author', 'life_dates_raw' => 'ق 14 قمری']);
         $scribe = Person::create(['name' => 'کاتب معاصر آزمایشی', 'normalized_name' => 'کاتب معاصر آزمایشی', 'slug' => 'life-scribe', 'life_dates_raw' => 'ق 14 قمری']);
         $work = function (string $title, ?int $year) use ($author) {
@@ -101,8 +101,8 @@ class FixLifeCenturiesCommandTest extends TestCase
 
     public function test_the_lists_order_and_filter_by_the_middle_of_the_century()
     {
-        $person = Person::create(['name' => 'مؤلف سده‌ی سیزده آزمایشی', 'normalized_name' => 'مؤلف سده‌ی سیزده آزمایشی', 'slug' => 'life-era', 'life_dates_raw' => 'ق 13 قمری', 'is_author' => true]);
-        $work = Work::create(['primary_title' => 'اثر سده‌ی سیزده آزمایشی', 'clean_title' => 'اثر سده‌ی سیزده آزمایشی', 'slug' => 'life-era-work', 'volume_number' => 1, 'page_start' => 1,
+        $person = Person::create(['name' => 'مؤلف سدۀ سیزده آزمایشی', 'normalized_name' => 'مؤلف سدۀ سیزده آزمایشی', 'slug' => 'life-era', 'life_dates_raw' => 'ق 13 قمری', 'is_author' => true]);
+        $work = Work::create(['primary_title' => 'اثر سدۀ سیزده آزمایشی', 'clean_title' => 'اثر سدۀ سیزده آزمایشی', 'slug' => 'life-era-work', 'volume_number' => 1, 'page_start' => 1,
             'author_id' => $person->id]);
 
         $document = $person->fresh()->toSearchableArray();

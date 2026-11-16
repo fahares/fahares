@@ -34,7 +34,7 @@ class PersonPeriodsTest extends TestCase
     {
         $person = $this->person('شخص آزمایشی دوره');
         $form = ['kind' => 'residence', 'place' => 'دارالسلطنه اصفهان', 'mode' => 'span', 'start' => 1000, 'start_to' => 1010, 'end' => 1020, 'end_to' => 1030,
-            'note' => 'در محله‌ی عباس‌آباد', 'source_text' => 'ریاض العلماء 3: 120', 'period_form' => 'new'];
+            'note' => 'در محلۀ عباس‌آباد', 'source_text' => 'ریاض العلماء 3: 120', 'period_form' => 'new'];
 
         // only a reviewer may write; a member and a guest see no form
         $this->post(route('admin.people.periods.store', $person->id), $form)->assertRedirect(route('login'));
@@ -95,7 +95,7 @@ class PersonPeriodsTest extends TestCase
         $this->assertNotContains('period', array_column(\App\Http\Controllers\Admin\StructureController::choices($this->admin, 'person'), 'key'));
 
         // the reviewer sees the period's form with the kind chosen and the text as the source, and enters place and years
-        $this->actingAs($this->admin)->get(route('admin.suggestions.show', $suggestion))->assertOk()->assertSee('ثبت دوره‌ی زندگی')->assertSee('ریاض العلماء 3: 120');
+        $this->actingAs($this->admin)->get(route('admin.suggestions.show', $suggestion))->assertOk()->assertSee('ثبت دورۀ زندگی')->assertSee('ریاض العلماء 3: 120');
         $this->actingAs($this->member)->post(route('admin.suggestions.approve', $suggestion), ['kind' => 'residence', 'place' => 'اصفهان', 'mode' => 'span', 'start' => 1000, 'end' => 1030])->assertForbidden();
         $this->actingAs($this->admin)->post(route('admin.suggestions.approve', $suggestion), ['kind' => 'residence', 'place' => 'اصفهان', 'mode' => 'span', 'start' => 1030, 'end' => 1000])->assertSessionHasErrors('start');
         $this->assertSame('pending', $suggestion->fresh()->status);

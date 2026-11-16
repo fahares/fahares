@@ -21,7 +21,7 @@ class WorkCopyFilters
     /** yes/no flags: param => [label, «yes» label, «no» label] */
     public const FLAGS = [
         'autograph' => ['دستخط مؤلف', 'فقط دستخط مؤلف', null],
-        'author_copy' => ['نسخه‌ی مؤلف', 'از روی نسخه‌ی مؤلف یا مقابله با آن', null],
+        'author_copy' => ['نسخۀ مؤلف', 'از روی نسخۀ مؤلف یا مقابله با آن', null],
         'dated' => ['تاریخ کتابت', 'تاریخ‌دار', 'بی‌تاریخ'],
         'scribe' => ['کاتب', 'کاتب‌دار', 'بی‌کاتب'],
         'facsimile' => ['اصل یا عکسی', 'عکسی یا میکروفیلم', 'اصل'],
@@ -149,7 +149,7 @@ class WorkCopyFilters
         $options['century'] = $this->apply($this->base(), 'century')
             ->selectRaw('(' . self::CENTURY . ') AS v, COUNT(*) AS n')
             ->groupByRaw('v')->havingRaw('v IS NOT NULL')->orderBy('v')->get()
-            ->map(fn ($r) => [(int) $r->v, 'سده‌ی ' . Fa::num((int) $r->v), (int) $r->n])->all();
+            ->map(fn ($r) => [(int) $r->v, 'سدۀ ' . Fa::num((int) $r->v), (int) $r->n])->all();
 
         $options['script'] = $this->apply($this->base(), 'script')
             ->join('manuscript_script', 'manuscript_script.manuscript_id', '=', 'manuscripts.id')
@@ -190,9 +190,9 @@ class WorkCopyFilters
     public function label(string $param, int|string $value): string
     {
         return match ($param) {
-            'library' => (string) (DB::table('libraries')->where('id', $value)->value('name') ?? 'کتابخانه‌ی #' . $value),
+            'library' => (string) (DB::table('libraries')->where('id', $value)->value('name') ?? 'کتابخانۀ #' . $value),
             'script' => (string) (DB::table('scripts')->where('id', $value)->value('name') ?? 'خط #' . $value),
-            'century' => 'سده‌ی ' . Fa::num((int) $value),
+            'century' => 'سدۀ ' . Fa::num((int) $value),
             'city' => (string) $value,
             default => (string) (self::FLAGS[$param][$value === '1' ? 1 : 2] ?? $value),
         };

@@ -65,7 +65,7 @@ class DerivedDataTest extends TestCase
 
     public function test_a_copy_date_naming_the_authors_time_is_ranged_from_the_authors_death()
     {
-        $author = DB::table('people')->insertGetId(['name' => 'مؤلف آزمایشی بازه‌ی نسبی', 'normalized_name' => 'مولف ازمایشی بازه ی نسبی', 'slug' => 'test-relative-' . uniqid(), 'death_year_hijri' => 1050]);
+        $author = DB::table('people')->insertGetId(['name' => 'مؤلف آزمایشی بازۀ نسبی', 'normalized_name' => 'مولف ازمایشی بازه ی نسبی', 'slug' => 'test-relative-' . uniqid(), 'death_year_hijri' => 1050]);
         try {
             $work = $this->work(['author_id' => $author]);
             // Saved as a model: the hook ranges it
@@ -245,8 +245,8 @@ class DerivedDataTest extends TestCase
         $this->assertSame('9102', $model->fresh()->collection_key);
 
         // Written with DB::table: the fillers key them; part 2 has no range and keeps its place, 3 and 4 swap by leaf
-        $lib = 'کتابخانه‌ی آزمایشی مجموعه ' . uniqid();
-        $part = fn (string $shelfmark, ?array $range = null, array $columns = []) => $this->copy($this->work(['primary_title' => "رساله‌ی {$shelfmark}"]), $columns + [
+        $lib = 'کتابخانۀ آزمایشی مجموعه ' . uniqid();
+        $part = fn (string $shelfmark, ?array $range = null, array $columns = []) => $this->copy($this->work(['primary_title' => "رسالۀ {$shelfmark}"]), $columns + [
             'library' => $lib, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark, 'folios' => $range ? $range[3] - $range[2] + 1 : null,
             'range_from' => $range[0] ?? null, 'range_to' => $range[1] ?? null, 'range_from_number' => $range[2] ?? null, 'range_to_number' => $range[3] ?? null]);
         $one = $part('9101/1', ['1پ', '33ر', 1, 33]);
@@ -268,10 +268,10 @@ class DerivedDataTest extends TestCase
         $this->assertSame([$one, $two, $four, $three], Manuscript::find($four)->collectionSiblings()->pluck('id')->all());
         $this->get(route('manuscripts.show', Manuscript::find($four)))->assertOk()
             ->assertSee('برگ‌های ۳۴پ تا ۴۳ر، همراه با این رساله‌ها (به ترتیب برگ)', false)
-            ->assertSeeInOrder(['رساله‌ی 9101/1', 'رساله‌ی 9101/2', 'رساله‌ی 9101/4', 'رساله‌ی 9101/3'])
+            ->assertSeeInOrder(['رسالۀ 9101/1', 'رسالۀ 9101/2', 'رسالۀ 9101/4', 'رسالۀ 9101/3'])
             ->assertSee('(در حاشیه)')
-            ->assertDontSee('رساله‌ی 9101/5-طباطبائی')
-            ->assertDontSee('رساله‌ی 9101/6');
+            ->assertDontSee('رسالۀ 9101/5-طباطبائی')
+            ->assertDontSee('رسالۀ 9101/6');
         $this->assertTrue(Manuscript::find($three)->inMargin());
         $this->assertFalse(Manuscript::find($one)->inMargin());
         $this->assertFalse((new Manuscript(['raw_text' => 'خط: نستعلیق؛ ابیاتی در هامش نوشته شده؛ 3گ']))->inMargin());
@@ -293,8 +293,8 @@ class DerivedDataTest extends TestCase
             Manuscript::plainVolumeKeyOf('791', 'تهران؛ مجلس؛ شماره نسخه: 791 [سنا: ف: 2-61]')]);
         $this->assertSame([null, null, null], [Manuscript::plainVolumeKeyOf('4824/3'), Manuscript::plainVolumeKeyOf('بدون شماره'), Manuscript::plainVolumeKeyOf('39و40د')]);
 
-        $lib = 'کتابخانه‌ی آزمایشی شماره‌ی ساده ' . uniqid();
-        $copy = fn (string $shelfmark, ?array $range = null, string $size = '13×20', ?int $work = null) => $this->copy($work ?? $this->work(['primary_title' => "رساله‌ی {$shelfmark} " . uniqid()]), [
+        $lib = 'کتابخانۀ آزمایشی شمارۀ ساده ' . uniqid();
+        $copy = fn (string $shelfmark, ?array $range = null, string $size = '13×20', ?int $work = null) => $this->copy($work ?? $this->work(['primary_title' => "رسالۀ {$shelfmark} " . uniqid()]), [
             'library' => $lib, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark, 'raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: {$shelfmark}\nخط: نستعلیق، اندازه: {$size}سم",
             'range_from' => isset($range) ? "{$range[0]}پ" : null, 'range_to' => isset($range) ? "{$range[1]}ر" : null,
             'range_from_number' => $range[0] ?? null, 'range_to_number' => $range[1] ?? null]);
@@ -383,9 +383,9 @@ class DerivedDataTest extends TestCase
         $this->assertSame([$a2, $a1, $a3], Manuscript::find($a1)->collectionSiblings()->pluck('id')->all());
         $this->assertSame([$r1, $r2, $r3, $r5], Manuscript::find($r5)->collectionSiblings()->pluck('id')->all());
         $this->get(route('manuscripts.show', Manuscript::find($r5)))->assertOk()
-            ->assertSee('مجموعه‌ی شماره‌ی <span dir="ltr">۷۲۰۱–۷۲۰۷</span>', false)
-            ->assertSee('کتابخانه به هر رساله‌ی این مجلد شماره‌ای جداگانه داده است');
-        $this->get(route('manuscripts.show', Manuscript::find($a1)))->assertOk()->assertSee('فهرست شماره‌ی بخش رساله‌ها را نیاورده است');
+            ->assertSee('مجموعۀ شمارۀ <span dir="ltr">۷۲۰۱–۷۲۰۷</span>', false)
+            ->assertSee('کتابخانه به هر رسالۀ این مجلد شماره‌ای جداگانه داده است');
+        $this->get(route('manuscripts.show', Manuscript::find($a1)))->assertOk()->assertSee('فهرست شمارۀ بخش رساله‌ها را نیاورده است');
 
         // The fillers and the save hook keep a linked key while it fits the shelfmark, and drop it when it no longer does
         $this->artisan('fahares:fill-collection-keys', ['--apply' => true])->assertSuccessful();

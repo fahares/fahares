@@ -35,7 +35,7 @@ class AccessMatrixTest extends TestCase
     private function adminOnlyRoutes(): array
     {
         $log = AuditLog::create(['auditable_type' => Library::class, 'auditable_id' => 1, 'action' => 'update', 'old_values' => ['name' => 'الف'], 'new_values' => ['name' => 'ب']]);
-        $post = Post::create(['title' => 'نوشته‌ی آزمایشی', 'slug' => 'matrix-post-' . uniqid(), 'body' => 'متن']);
+        $post = Post::create(['title' => 'نوشتۀ آزمایشی', 'slug' => 'matrix-post-' . uniqid(), 'body' => 'متن']);
 
         return [
             ['get', '/admin/users'],
@@ -186,8 +186,8 @@ class AccessMatrixTest extends TestCase
 
     public function test_structural_tools_in_suggestions_need_their_own_permission()
     {
-        $a = Library::create(['name' => 'کتابخانه‌ی الف', 'city' => 'قم', 'slug' => 'matrix-lib-a-' . uniqid()]);
-        $b = Library::create(['name' => 'کتابخانه‌ی ب', 'city' => 'قم', 'slug' => 'matrix-lib-b-' . uniqid()]);
+        $a = Library::create(['name' => 'کتابخانۀ الف', 'city' => 'قم', 'slug' => 'matrix-lib-a-' . uniqid()]);
+        $b = Library::create(['name' => 'کتابخانۀ ب', 'city' => 'قم', 'slug' => 'matrix-lib-b-' . uniqid()]);
         $suggestion = FieldSuggestion::create([
             'suggestable_type' => Library::class, 'suggestable_id' => $a->id, 'kind' => 'relation', 'field_name' => 'duplicate',
             'payload' => ['target_id' => $b->id], 'suggested_value' => '', 'rationale_citation' => 'مقایسه', 'guest_name' => 'پژوهشگر', 'status' => 'pending',
@@ -232,7 +232,7 @@ class AccessMatrixTest extends TestCase
 
     public function test_dashboard_queue_counts_waiting_work_and_follows_the_matrix()
     {
-        $library = Library::create(['name' => 'کتابخانه‌ی صف', 'city' => 'قم', 'slug' => 'matrix-queue-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ صف', 'city' => 'قم', 'slug' => 'matrix-queue-' . uniqid()]);
         foreach (['field' => 'name', 'general' => 'general', 'relation' => 'duplicate', 'feedback' => 'bug'] as $kind => $field) {
             FieldSuggestion::create(['kind' => $kind, 'field_name' => $field, 'suggested_value' => 'y', 'rationale_citation' => 'z', 'guest_name' => 'مهمان', 'status' => 'pending']
                 + ($kind === 'feedback' ? ['payload' => ['url' => '/search']] : ['suggestable_type' => Library::class, 'suggestable_id' => $library->id]));

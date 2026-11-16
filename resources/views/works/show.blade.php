@@ -78,7 +78,7 @@
 
     <!-- WORK HEADER -->
     <header class="text-center grid justify-items-center gap-2 pb-6">
-        <p class="text-xs font-bold text-cinnabar">شناسنامه‌ی اثر</p>
+        <p class="text-xs font-bold text-cinnabar">شناسنامۀ اثر</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
             {{ $work->primary_title }}
             <x-suggest.field name="primary_title" class="ms-1 align-middle" />
@@ -118,7 +118,7 @@
                 <x-ui.chip :href="route('subjects.show', $subj)">{{ $subj->title }}</x-ui.chip>
             @endforeach
             @if($status = \App\Models\Work::ENTRY_STATUSES[$work->entry_status] ?? null)<x-ui.chip tone="accent" :title="$status[1]">{{ $status[0] }}</x-ui.chip>@endif
-            @if($work->has_autograph)<x-ui.chip tone="good">نسخه‌ی اصل (دستخط مؤلف)</x-ui.chip>@endif
+            @if($work->has_autograph)<x-ui.chip tone="good">نسخۀ اصل (دستخط مؤلف)</x-ui.chip>@endif
             @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
         </div>
     </header>
@@ -137,7 +137,7 @@
                     <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                     <span x-show="copiedKey === 'permalink'" x-cloak x-transition class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-sm bg-ink text-paper text-[10px] font-bold z-30 pointer-events-none">رونوشت شد</span>
                 </button>
-                <button type="button" @click="openQrModal()" class="p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رمزینه‌ی QR اثر">
+                <button type="button" @click="openQrModal()" class="p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رمزینۀ QR اثر">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                 </button>
             </div>
@@ -147,7 +147,7 @@
             </x-ui.btn>
             <x-suggest.toggle type="work" />
         </div>
-        <span class="text-xs text-muted"><x-visit-count type="work" :id="$work->id" />شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $work->id }}</span></span>
+        <span class="text-xs text-muted"><x-visit-count type="work" :id="$work->id" />شناسۀ فهارس: <span class="font-mono text-ink font-bold">#{{ $work->id }}</span></span>
     </div>
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
@@ -156,15 +156,15 @@
         <aside class="space-y-4 lg:order-last">
             <x-ui.card :framed="true" class="text-center sm:text-right">
                 <div class="font-naskh text-4xl font-bold text-cinnabar leading-tight tabular-nums">{{ Fa::num($work->manuscripts_count) }}</div>
-                <div class="text-sm text-ink">نسخه‌ی ثبت‌شده</div>
+                <div class="text-sm text-ink">نسخۀ ثبت‌شده</div>
                 @if(! empty($work->copy_century_text))
                     <div class="text-xs text-muted mt-0.5">{{ Fa::digits($work->copy_century_text) }}</div>
                 @endif
                 @if($earliest)
                     <a href="{{ route('manuscripts.show', $earliest) }}" class="block mt-3 pt-3 border-t border-line text-xs text-right group">
-                        <span class="block text-muted">کهن‌ترین نسخه‌ی تاریخ‌دار</span>
+                        <span class="block text-muted">کهن‌ترین نسخۀ تاریخ‌دار</span>
                         <span class="block font-bold text-ink group-hover:text-cinnabar transition" title="{{ $earliest->libraryRecord?->display_name }}">
-                            {{ $earliest->libraryRecord?->short_name ?? $earliest->library ?? 'کتابخانه‌ی نامشخص' }}@if($earliest->shelfmark)، <span dir="ltr">{{ Fa::digits($earliest->shelfmark) }}</span>@endif
+                            {{ $earliest->libraryRecord?->short_name ?? $earliest->library ?? 'کتابخانۀ نامشخص' }}@if($earliest->shelfmark)، <span dir="ltr">{{ Fa::digits($earliest->shelfmark) }}</span>@endif
                         </span>
                         <span class="block text-muted">{{ Fa::digits($earliest->copy_date_raw ?: $earliest->copy_date_hijri_year . ' ق') }}</span>
                     </a>
@@ -190,7 +190,7 @@
                         <div class="text-sm font-bold text-ink">{{ $vp['catalogName'] }}، {{ $vpRef }} <x-suggest.field :name="\App\Suggestions\SuggestionRegistry::bibliographyPageName($vp)" class="ms-1" /></div>
                         <button type="button" @click="$dispatch('open-catalog-viewer', @js($vp))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $vp['catalogName'] }}">
                             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
-                                <img src="{{ $vpThumb }}" alt="برگه‌ی {{ $vpRef }} در {{ $vp['catalogName'] }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
+                                <img src="{{ $vpThumb }}" alt="برگۀ {{ $vpRef }} در {{ $vp['catalogName'] }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
                             </div>
                             <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $vp['catalogName'] }}</span>
                         </button>
@@ -315,7 +315,7 @@
                             </li>
                         @endforeach
                         @if(count($work->commentaries_and_glosses) > 12)
-                            <li x-show="! all"><button type="button" @click="all = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش همه‌ی {{ Fa::num(count($work->commentaries_and_glosses)) }} مدخل</button></li>
+                            <li x-show="! all"><button type="button" @click="all = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش همۀ {{ Fa::num(count($work->commentaries_and_glosses)) }} مدخل</button></li>
                         @endif
                     </ul>
                 </x-ui.section>
@@ -340,7 +340,7 @@
                                 <span class="text-ink">یاد شده در {{ $entry->sourceName() }}، {{ \App\Support\Fa::digits('ج ' . $entry->volumeNumber() . '، ' . ($entry->source?->unit === 'ستون' ? 'ستون ' : 'ص ') . $entry->sourceItem->page_start) }}، ذیل
                                     <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">«{{ $entry->sourceItem->title }}»</a>@if($entry->sourceItem->entry_number) ({{ $entry->itemLabel() }})@endif
                                     @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
-                                    @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>به نوشته‌ی {{ $fankha?->sourceName() ?: 'فنخا' }}: {{ \App\Support\Fa::digits($note) }}</span>@endforeach
+                                    @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>به نوشتۀ {{ $fankha?->sourceName() ?: 'فنخا' }}: {{ \App\Support\Fa::digits($note) }}</span>@endforeach
                                 </span>
                             </li>
                             @continue
@@ -356,7 +356,7 @@
                                 @if($entry->sourceItem)، <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $entry->itemLabel() }}</a>
                                     @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
                                 @endif
-                                @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>به نوشته‌ی {{ $fankha?->sourceName() ?: 'فنخا' }}: {{ \App\Support\Fa::digits($note) }}</span>@endforeach</span>
+                                @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>به نوشتۀ {{ $fankha?->sourceName() ?: 'فنخا' }}: {{ \App\Support\Fa::digits($note) }}</span>@endforeach</span>
                         </li>
                     @endforeach
                 </ul>
@@ -417,7 +417,7 @@
         {{-- The handwritten copies apart from the photographs and the descriptions possibly of a copy already listed (step 14.16) --}}
         @if(($copyCounts['photos_linked'] ?? 0) + ($copyCounts['photos_other'] ?? 0) + ($copyCounts['possibly_same'] ?? 0) > 0)
             <p class="mb-2 text-[13px] text-muted" data-copy-counts>
-                <span class="font-bold text-ink">{{ Fa::num($copyCounts['copies']) }}</span> نسخه‌ی خطی
+                <span class="font-bold text-ink">{{ Fa::num($copyCounts['copies']) }}</span> نسخۀ خطی
                 @if($copyCounts['photos_linked']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['photos_linked']) }}</span> عکسی از همین نسخه‌ها@endif
                 @if($copyCounts['photos_other']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['photos_other']) }}</span> عکسیِ دیگر@endif
                 @if($copyCounts['possibly_same']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['possibly_same']) }}</span> معرفیِ احتمالاً تکراری@endif
@@ -510,7 +510,7 @@
                                         <span aria-hidden="true">↲</span>
                                         <span class="px-1.5 rounded-sm border border-line text-[10px] font-semibold">{{ $isPhoto ? 'عکسی' : 'احتمالاً همان نسخه' }}</span>
                                         <a href="{{ route('manuscripts.show', $child) }}" class="font-semibold text-ink hover:text-cinnabar">{{ $child->libraryRecord?->short_name ?? $child->library ?? 'نامشخص' }}@if($child->city)، {{ $child->city }}@endif</a>
-                                        · شماره‌ی @if($child->shelfmark)<span dir="ltr">{{ Fa::digits($child->shelfmark) }}</span>@else — @endif
+                                        · شمارۀ @if($child->shelfmark)<span dir="ltr">{{ Fa::digits($child->shelfmark) }}</span>@else — @endif
                                         @if($child->catalog_citation) · {{ Fa::digits(trim($child->catalog_citation, '[] ')) }}@endif
                                         @if($link['note'])<span class="block text-[11px]">{{ $link['note'] }}</span>@endif
                                     </td>

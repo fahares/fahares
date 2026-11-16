@@ -12,7 +12,7 @@
     ['label' => 'همه', 'url' => route('admin.messages.index'), 'active' => ! $filter],
     ['label' => 'گزارش‌شده به دست کاربر', 'url' => route('admin.messages.index', ['filter' => 'reported']), 'active' => $filter === 'reported'],
 ]" />
-<p class="mb-3 text-xs text-muted">پیام‌های مستقیم مدیریت فهارس به کاربران و پاسخ‌هایشان. پرسش‌های داوران درباره‌ی پیشنهادها در صفحه‌ی هر پیشنهاد آمده است.</p>
+<p class="mb-3 text-xs text-muted">پیام‌های مستقیم مدیریت فهارس به کاربران و پاسخ‌هایشان. پرسش‌های داوران دربارۀ پیشنهادها در صفحۀ هر پیشنهاد آمده است.</p>
 
 <x-admin.table :paginator="$threads" :is-empty="$threads->isEmpty()" empty="پیامی فرستاده نشده است.">
     <x-slot:head>

@@ -697,7 +697,7 @@ class SearchController extends Controller
             'scribe' => ['کاتب', ['scribe_name']],
             'commissioned' => ['سفارش‌دهنده', ['commissioned_by']],
             'texts' => ['آغاز و انجام', ['incipit_text', 'explicit_text']],
-            'shelfmark' => ['شماره‌ی نسخه', ['shelfmark', 'shelfmark_key']],
+            'shelfmark' => ['شمارۀ نسخه', ['shelfmark', 'shelfmark_key']],
             'place' => ['محل کتابت', ['copy_place']],
         ],
         'authors' => [],

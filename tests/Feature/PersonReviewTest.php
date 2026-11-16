@@ -60,7 +60,7 @@ class PersonReviewTest extends TestCase
 
         return Manuscript::create([
             'work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
-            'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name, 'copy_date_hijri_year' => $year, 'raw_text' => 'نسخه‌ی آزمایشی',
+            'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name, 'copy_date_hijri_year' => $year, 'raw_text' => 'نسخۀ آزمایشی',
         ]);
     }
 
@@ -129,10 +129,10 @@ class PersonReviewTest extends TestCase
         $this->actingAs($this->admin)->get(route('admin.person-reviews.index', ['type' => 'mixed']))->assertOk()->assertSee($p->name);
 
         $this->actingAs($this->admin)->post(route('admin.person-reviews.split', $review), [
-            'new_name' => 'آزمونکصف محمد علی تفرشی (سده‌ی ۱۴)', 'manuscript_ids' => [$late->id],
+            'new_name' => 'آزمونکصف محمد علی تفرشی (سدۀ ۱۴)', 'manuscript_ids' => [$late->id],
         ])->assertSessionHas('success');
 
-        $created = Person::where('name', 'آزمونکصف محمد علی تفرشی (سده‌ی ۱۴)')->firstOrFail();
+        $created = Person::where('name', 'آزمونکصف محمد علی تفرشی (سدۀ ۱۴)')->firstOrFail();
         $this->assertSame($created->id, $late->fresh()->scribe_id);
         $this->assertSame($p->id, $early->fresh()->scribe_id);
         $this->assertSame('split', $review->fresh()->status);

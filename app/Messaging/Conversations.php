@@ -29,7 +29,7 @@ class Conversations
     /** A reviewer asks the submitter of a pending suggestion; returns the thread */
     public static function ask(FieldSuggestion $suggestion, User $staff, string $body, ?string $token = null): MessageThread
     {
-        abort_unless($suggestion->status === 'pending' && $suggestion->user_id, 422, 'فقط درباره‌ی پیشنهاد در انتظار یک کاربر واردشده می‌توان پرسید.');
+        abort_unless($suggestion->status === 'pending' && $suggestion->user_id, 422, 'فقط دربارۀ پیشنهاد در انتظار یک کاربر واردشده می‌توان پرسید.');
 
         return self::once($token, fn () => self::doAsk($suggestion, $staff, $body, $token), fn (Message $m) => $m->thread);
     }
@@ -42,7 +42,7 @@ class Conversations
                 'kind' => MessageThread::KIND_SUGGESTION,
                 'user_id' => $suggestion->user_id,
                 'field_suggestion_id' => $suggestion->id,
-                'subject' => 'پرسش درباره‌ی پیشنهاد #' . \App\Support\Fa::digits($suggestion->id) . ' (' . $suggestion->field_label . ')',
+                'subject' => 'پرسش دربارۀ پیشنهاد #' . \App\Support\Fa::digits($suggestion->id) . ' (' . $suggestion->field_label . ')',
                 'started_by' => $staff->id,
                 'reply_token' => self::token(),
             ]);
@@ -54,7 +54,7 @@ class Conversations
         });
 
         self::notify($thread->user, new ThreadNotice($thread, 'suggestion.question',
-            'پرسش داور درباره‌ی پیشنهاد شما',
+            'پرسش داور دربارۀ پیشنهاد شما',
             ['رکورد: ' . self::recordLabel($suggestion), 'پیشنهاد شما: ' . Str::limit((string) $suggestion->suggested_value, 200), 'پرسش داور: ' . $body,
                 'پیشنهاد تا پاسخ شما در انتظار می‌ماند؛ اگر تا ' . \App\Support\Fa::num((int) config('notifications.question_deadline_days')) . ' روز پاسخی نرسد، داور بی‌پاسخ درباره‌اش تصمیم می‌گیرد.'],
             route('my.messages.show', $thread)), $message);
@@ -89,7 +89,7 @@ class Conversations
                 'kind' => MessageThread::KIND_SUGGESTION,
                 'user_id' => $suggestion->user_id,
                 'field_suggestion_id' => $suggestion->id,
-                'subject' => 'درباره‌ی پیشنهاد #' . \App\Support\Fa::digits($suggestion->id) . ' (' . $suggestion->field_label . ')',
+                'subject' => 'دربارۀ پیشنهاد #' . \App\Support\Fa::digits($suggestion->id) . ' (' . $suggestion->field_label . ')',
                 'started_by' => $staff->id,
                 'reply_token' => self::token(),
             ]);
@@ -100,7 +100,7 @@ class Conversations
         });
 
         self::notify($thread->user, new ThreadNotice($thread, 'suggestion.question',
-            'پیام داور درباره‌ی پیشنهاد شما',
+            'پیام داور دربارۀ پیشنهاد شما',
             ['رکورد: ' . self::recordLabel($suggestion), 'پیشنهاد شما: ' . Str::limit((string) $suggestion->suggested_value, 200), 'پیام داور: ' . $body,
                 'این پیشنهاد پیش‌تر داوری شده است و این پیام وضعیت آن را تغییر نمی‌دهد. اگر خواستید، پاسخ دهید.'],
             route('my.messages.show', $thread)), $message);
@@ -224,8 +224,8 @@ class Conversations
                 continue;
             }
             $last = $s->thread->messages()->where('is_staff', true)->reorder()->latest('id')->value('body');
-            self::notify($s->thread->user, new ThreadNotice($s->thread, 'suggestion.question', 'یادآوری: پرسش داور درباره‌ی پیشنهاد شما',
-                ['رکورد: ' . self::recordLabel($s), 'پرسش داور: ' . $last, 'اگر تا ' . \App\Support\Fa::num((int) config('notifications.question_deadline_days') - (int) config('notifications.question_reminder_days')) . ' روز دیگر پاسخی نرسد، داور بی‌پاسخ درباره‌ی پیشنهاد تصمیم می‌گیرد.'],
+            self::notify($s->thread->user, new ThreadNotice($s->thread, 'suggestion.question', 'یادآوری: پرسش داور دربارۀ پیشنهاد شما',
+                ['رکورد: ' . self::recordLabel($s), 'پرسش داور: ' . $last, 'اگر تا ' . \App\Support\Fa::num((int) config('notifications.question_deadline_days') - (int) config('notifications.question_reminder_days')) . ' روز دیگر پاسخی نرسد، داور بی‌پاسخ دربارۀ پیشنهاد تصمیم می‌گیرد.'],
                 route('my.messages.show', $s->thread)));
             $reminded++;
         }

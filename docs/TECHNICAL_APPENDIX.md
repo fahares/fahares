@@ -11847,3 +11847,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** دو اجرا (میان دو دور قاعده): ۱۱۸ تازه، ۲۸۱ پس‌گرفته، ۶۶ بازخوانی؛ سپس ۸ تازه، ۲۲ پس‌گرفته، ۲ بازخوانی. مانده: ۱٬۰۲۷ پیشنهاد، ۶۵۷ نفر (اقامت ۵۰۸، سفر ۲۴۰، تحصیل ۱۷۰، منصب ۹۰، تدریس ۱۹). اجرای سوم صفر.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر، پشتیبان `person_periods`، زیر `prod-run`):** `fahares:propose-life-periods --prune --apply`.
 - **تست:** `LifePeriodExtractorTest::test_the_errors_a_sample_of_proposals_showed_are_left_out` و حالت `--prune` در `PersonPeriodsTest`.
+### گام ۱۴.۲۳۱: «ۀ» به‌جای «ه‌ی»
+
+- **جایگزینی:** الگوی `ه\u200cی(?![\u0600-\u06FF\u200c])` (هٔ بی حرف پس از آن) با «ۀ»، در `app`، `config`، `resources/views`، `resources/js`، `resources/css`، `lang`، `tests`، `routes` و `database/seeders`. پیش از آن وارسی شد که «ه‌ی» در هیچ الگوی regex یا پرس‌وجوی پایگاه داده نیست.
+- **استثنا:** `App\Support\DirectAnswer::FILLER` واژه‌های پرکنندۀ پرسش کاربر است. «کتابخانه‌ی»، «نسخه‌ی» و «شماره‌ی» در آن ماندند و «کتابخانۀ»، «نسخۀ» و «شمارۀ» کنارشان آمدند. صورت‌های با فاصله («نسخه ی») در `DirectAnswer` و `FixAutographManuscriptsCommand` هم ماندند، چون صورت ورودی‌اند.
+- **دست‌نخورده:** متن منابع (`source_pages`، `raw_text`)، پرونده‌های داده (`database/data`) و مستندات پیشین (`docs`، حدود ۱۰٬۵۰۰ «ه‌ی»)، که بازنویسیِ یکجای آن‌ها در ادغام union شاخه‌های جلسه‌ها سطرهای تکراری می‌سازد. نوشته‌های تازه «ۀ» می‌گیرند.
+- **محتوای ویرایشی پایگاه داده** (صفحه‌ها، نوشته‌ها، اعلان‌ها): جدا، پس از این انتشار و با پشتیبان.
+

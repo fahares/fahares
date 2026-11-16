@@ -14,7 +14,7 @@
     @endphp
     @if($apply === 'person_period' && $target)
         {{-- A suggested period of a person's life (step 14.219): the reviewer reads the text and enters the place and the years --}}
-        <p class="leading-relaxed text-ink">مکان و سال‌ها را از متن پیشنهاد در فرم بنویسید. دوره در صفحه‌ی «{{ $target->name }}» نمایش داده می‌شود و از همان‌جا ویرایش‌شدنی است.</p>
+        <p class="leading-relaxed text-ink">مکان و سال‌ها را از متن پیشنهاد در فرم بنویسید. دوره در صفحۀ «{{ $target->name }}» نمایش داده می‌شود و از همان‌جا ویرایش‌شدنی است.</p>
         @php
             ob_start();
         @endphp
@@ -30,7 +30,7 @@
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
-            <p class="leading-relaxed text-ink">رابطه در صفحه‌ی هر دو رکورد نمایش داده می‌شود. «این» یعنی رکورد #{{ \App\Support\Fa::digits($target->id) }} و «انتخاب‌شده» یعنی #{{ \App\Support\Fa::digits($relationTarget->id) }}. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            <p class="leading-relaxed text-ink">رابطه در صفحۀ هر دو رکورد نمایش داده می‌شود. «این» یعنی رکورد #{{ \App\Support\Fa::digits($target->id) }} و «انتخاب‌شده» یعنی #{{ \App\Support\Fa::digits($relationTarget->id) }}. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نوع رابطه:</span>
                 <select name="role" class="{{ $relInput }}">
@@ -56,7 +56,7 @@
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
-            <p class="leading-relaxed text-ink">سطری که انتخاب می‌کنید از بخش «اشخاص مرتبط با اثر» حذف می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است و سطر با همه‌ی اطلاعاتش برمی‌گردد.</p>
+            <p class="leading-relaxed text-ink">سطری که انتخاب می‌کنید از بخش «اشخاص مرتبط با اثر» حذف می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است و سطر با همۀ اطلاعاتش برمی‌گردد.</p>
             @if($removeRows->isEmpty())
                 <p class="text-muted">این اثر اکنون شخص مرتبطی ندارد؛ پیشنهاد را رد یا بایگانی کنید.</p>
             @else
@@ -81,7 +81,7 @@
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             @php $roleRecord = $target instanceof \App\Models\Work ? 'اثر' : 'نسخه'; @endphp
-            <p class="leading-relaxed text-ink">شخص با نقشی که تعیین می‌کنید در بخش «اشخاص مرتبط با {{ $roleRecord }}» در صفحه‌ی {{ $roleRecord }}، و اگر به جدول اشخاص پیوند بخورد در صفحه‌ی آن شخص هم، نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            <p class="leading-relaxed text-ink">شخص با نقشی که تعیین می‌کنید در بخش «اشخاص مرتبط با {{ $roleRecord }}» در صفحۀ {{ $roleRecord }}، و اگر به جدول اشخاص پیوند بخورد در صفحۀ آن شخص هم، نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نقش:</span>
                 <select name="role" class="{{ $roleInput }}">
@@ -95,7 +95,7 @@
                 @if($relationTarget)
                     <label class="flex items-center gap-2"><input type="radio" name="role_link" value="target" @checked($defaultLink === 'target') class="accent-cinnabar"> پیوند به «<a href="{{ route('people.show', $relationTarget) }}" target="_blank" class="text-cinnabar hover:underline">{{ $relationTarget->name }}</a>» (انتخاب پیشنهاددهنده)</label>
                 @endif
-                <label class="flex items-center gap-2"><input type="radio" name="role_link" value="manual" @checked($defaultLink === 'manual') class="accent-cinnabar"> پیوند به شخص با شناسه‌ی <input type="number" name="role_person_id" value="{{ old('role_person_id') }}" class="admin-field w-28 tabular-nums"></label>
+                <label class="flex items-center gap-2"><input type="radio" name="role_link" value="manual" @checked($defaultLink === 'manual') class="accent-cinnabar"> پیوند به شخص با شناسۀ <input type="number" name="role_person_id" value="{{ old('role_person_id') }}" class="admin-field w-28 tabular-nums"></label>
                 <label class="flex items-center gap-2"><input type="radio" name="role_link" value="name" @checked($defaultLink === 'name') class="accent-cinnabar"> فقط نام، بدون پیوند:</label>
                 <input type="text" name="role_name" value="{{ old('role_name', $payload['name'] ?? $relationTarget?->name) }}" class="{{ $roleInput }}">
             </div>
@@ -166,8 +166,8 @@
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">
-                نشانی کنونی: <strong>{{ $target->libraryRecord?->name ?? $target->library ?? '—' }}</strong>{{ $target->city ? '، ' . $target->city : '' }}، شماره‌ی <strong>{{ $target->shelfmark ?? 'بی‌شماره' }}</strong>.
-                نشانی پیشین در شناسنامه‌ی نسخه با عنوان «نشانی پیشین» می‌ماند و شمار نسخه‌های هر دو کتابخانه به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
+                نشانی کنونی: <strong>{{ $target->libraryRecord?->name ?? $target->library ?? '—' }}</strong>{{ $target->city ? '، ' . $target->city : '' }}، شمارۀ <strong>{{ $target->shelfmark ?? 'بی‌شماره' }}</strong>.
+                نشانی پیشین در شناسنامۀ نسخه با عنوان «نشانی پیشین» می‌ماند و شمار نسخه‌های هر دو کتابخانه به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
             </p>
             <div class="space-y-1.5 p-3 bg-paper border border-line">
                 <span class="block font-bold text-ink">کتابخانه:</span>
@@ -175,8 +175,8 @@
                     <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="target" @checked($choice === 'target') class="accent-cinnabar"> «<a href="{{ route('libraries.show', $relationTarget) }}" target="_blank" class="text-cinnabar hover:underline">{{ $relationTarget->name }}</a>»، {{ $relationTarget->city }} (انتخاب پیشنهاددهنده)</label>
                 @endif
                 <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="keep" @checked($choice === 'keep') class="accent-cinnabar"> کتابخانه عوض نشده است (فقط شماره)</label>
-                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="manual" @checked($choice === 'manual') class="accent-cinnabar"> کتابخانه با شناسه‌ی <input type="number" name="library_id" value="{{ old('library_id') }}" class="admin-field w-28 tabular-nums"></label>
-                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="new" @checked($choice === 'new') class="accent-cinnabar"> کتابخانه‌ی تازه (در فهارس نیست):</label>
+                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="manual" @checked($choice === 'manual') class="accent-cinnabar"> کتابخانه با شناسۀ <input type="number" name="library_id" value="{{ old('library_id') }}" class="admin-field w-28 tabular-nums"></label>
+                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="new" @checked($choice === 'new') class="accent-cinnabar"> کتابخانۀ تازه (در فهارس نیست):</label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <input type="text" name="library_name" value="{{ old('library_name') }}" placeholder="نام کتابخانه" class="{{ $locInput }}">
                     <input type="text" name="library_city" value="{{ old('library_city') }}" placeholder="شهر" class="{{ $locInput }}">
@@ -184,7 +184,7 @@
                 </div>
             </div>
             <label class="block space-y-1">
-                <span class="block font-bold text-ink">شماره‌ی نسخه:</span>
+                <span class="block font-bold text-ink">شمارۀ نسخه:</span>
                 <input type="text" name="shelfmark" value="{{ old('shelfmark', $suggestion->payload['shelfmark'] ?? $target->shelfmark) }}" class="{{ $locInput }} font-bold">
             </label>
             <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $locInput }}">
@@ -226,7 +226,7 @@
                 @if($relationTarget)
                     <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="target" @checked($vcChoice === 'target') class="accent-cinnabar"> «<a href="{{ route('catalogers.show', $relationTarget->getRouteKey()) }}" target="_blank" class="text-cinnabar hover:underline">{{ $relationTarget->name }}</a>» (انتخاب پیشنهاددهنده)</label>
                 @endif
-                <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="manual" @checked($vcChoice === 'manual') class="accent-cinnabar"> فهرست‌نگار با شناسه‌ی <input type="number" name="cataloger_id" value="{{ old('cataloger_id') }}" class="admin-field w-28 tabular-nums"></label>
+                <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="manual" @checked($vcChoice === 'manual') class="accent-cinnabar"> فهرست‌نگار با شناسۀ <input type="number" name="cataloger_id" value="{{ old('cataloger_id') }}" class="admin-field w-28 tabular-nums"></label>
                 <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="new" @checked($vcChoice === 'new') class="accent-cinnabar"> فهرست‌نگار تازه (در فهارس نیست):</label>
                 <input type="text" name="cataloger_name" value="{{ old('cataloger_name', $suggestion->payload['name'] ?? '') }}" placeholder="نام فهرست‌نگار" class="{{ $vcInput }}">
             </div>
@@ -277,7 +277,7 @@
                 <div class="space-y-1.5 p-3 bg-paper border border-line">
                     <span class="block font-bold text-ink">پدیدآور اثر تازه:</span>
                     <label class="flex items-center gap-2"><input type="radio" name="author" value="same" @checked(old('author', 'same') === 'same') class="accent-cinnabar"> همان پدیدآور اثر کنونی ({{ $target->author_name ?? '—' }})</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="author" value="person" @checked(old('author') === 'person') class="accent-cinnabar"> شخص با شناسه‌ی <input type="number" name="author_id" value="{{ old('author_id') }}" class="admin-field w-28 tabular-nums"></label>
+                    <label class="flex items-center gap-2"><input type="radio" name="author" value="person" @checked(old('author') === 'person') class="accent-cinnabar"> شخص با شناسۀ <input type="number" name="author_id" value="{{ old('author_id') }}" class="admin-field w-28 tabular-nums"></label>
                     <label class="flex items-center gap-2"><input type="radio" name="author" value="none" @checked(old('author') === 'none') class="accent-cinnabar"> بدون پدیدآور</label>
                 </div>
                 <label class="flex items-center gap-2"><input type="hidden" name="copy_subjects" value="0"><input type="checkbox" name="copy_subjects" value="1" @checked(old('copy_subjects', '1') === '1') class="accent-cinnabar"> موضوع‌ها و زبان‌های اثر کنونی به اثر تازه هم داده شود</label>
@@ -331,7 +331,7 @@
                 @csrf
                 @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
                 <div class="px-4 py-3 bg-surface border border-s-4 border-amber-600/50 text-amber-800 dark:text-amber-300 leading-relaxed">
-                    رکورد #{{ \App\Support\Fa::digits($target->id) }} حذف می‌شود و نشانی‌اش صفحه‌ی «این رکورد حذف شده است» را نشان می‌دهد{{ $target instanceof \App\Models\Manuscript ? '، و به صفحه‌ی اثرش هدایت می‌شود' : '' }}.
+                    رکورد #{{ \App\Support\Fa::digits($target->id) }} حذف می‌شود و نشانی‌اش صفحۀ «این رکورد حذف شده است» را نشان می‌دهد{{ $target instanceof \App\Models\Manuscript ? '، و به صفحۀ اثرش هدایت می‌شود' : '' }}.
                     اطلاعات کامل آن در گزارش ممیزی می‌ماند و از همان‌جا با همان شناسه بازگرداندنی است.
                 </div>
                 <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $removeInput }}">
@@ -347,7 +347,7 @@
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">
                 نام کنونی: <strong>{{ $target->name }}</strong>، {{ $target->city }}.
-                نام کتابخانه در همه‌ی {{ \App\Support\Fa::num($target->manuscripts_count) }} نسخه‌اش هم به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
+                نام کتابخانه در همۀ {{ \App\Support\Fa::num($target->manuscripts_count) }} نسخه‌اش هم به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
             </p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نام تازه:</span>
@@ -370,8 +370,8 @@
                 <label class="flex items-center gap-2"><input type="radio" name="keep" value="source" x-model="keep" @checked(old('keep') === 'source') class="accent-cinnabar"> «{{ $target->name }}»، {{ $target->city }} (#{{ \App\Support\Fa::digits($target->id) }}، {{ \App\Support\Fa::num($target->manuscripts_count) }} نسخه) بماند</label>
             </div>
             <div class="px-4 py-3 bg-surface border border-s-4 border-amber-600/50 text-amber-800 dark:text-amber-300 leading-relaxed">
-                نسخه‌ها و جلدهای فهرست کتابخانه‌ی حذف‌شونده به کتابخانه‌ی ماندنی منتقل می‌شوند و نام و شهر کتابخانه‌ی ماندنی را می‌گیرند.
-                نام کتابخانه‌ی حذف‌شونده در «نام‌های دیگر» کتابخانه‌ی ماندنی می‌ماند و نشانی‌اش با ریدایرکت دائمی به آن می‌رود.
+                نسخه‌ها و جلدهای فهرست کتابخانۀ حذف‌شونده به کتابخانۀ ماندنی منتقل می‌شوند و نام و شهر کتابخانۀ ماندنی را می‌گیرند.
+                نام کتابخانۀ حذف‌شونده در «نام‌های دیگر» کتابخانۀ ماندنی می‌ماند و نشانی‌اش با ریدایرکت دائمی به آن می‌رود.
                 این ادغام از «گزارش ممیزی» بازگرداندنی است.
             </div>
             @include('admin.suggestions.partials.merge-directions')
@@ -384,7 +384,7 @@
         <p class="px-4 py-3 bg-surface border border-s-4 border-cinnabar/50 text-cinnabar font-bold">یکی از دو رکورد وجود ندارد و این پیشنهاد قابل اعمال نیست. آن را رد کنید.</p>
     @elseif($apply === 'merge_people')
         <p class="leading-relaxed text-ink">
-            ادغام اشخاص با ابزار ادغام اشخاص انجام می‌شود. در آنجا مقایسه‌ی کامل دو شخص را می‌بینید و می‌توانید جای مبدأ و مقصد را عوض کنید. با انجام ادغام، این پیشنهاد خودکار «تأییدشده» ثبت می‌شود و با بازگردانی ادغام، دوباره «در انتظار» می‌شود.
+            ادغام اشخاص با ابزار ادغام اشخاص انجام می‌شود. در آنجا مقایسۀ کامل دو شخص را می‌بینید و می‌توانید جای مبدأ و مقصد را عوض کنید. با انجام ادغام، این پیشنهاد خودکار «تأییدشده» ثبت می‌شود و با بازگردانی ادغام، دوباره «در انتظار» می‌شود.
         </p>
         <a href="{{ route('admin.people.merge', ['source_id' => $target->id, 'target_id' => $relationTarget->id, 'suggestion_id' => $suggestion->id ?: null]) }}"
            class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer flex items-center justify-center gap-2">
@@ -409,7 +409,7 @@
                     @if($relation['target'] === 'work')
                         نسخه‌های اثر حذف‌شونده به اثر ماندنی منتقل می‌شوند و نسخه‌هایی که با همان کتابخانه و شماره در اثر ماندنی هست، ادغام می‌شوند. عنوان اثر حذف‌شونده به عناوین دیگر، و موضوع‌ها و زبان‌هایش به اثر ماندنی افزوده می‌شود.
                     @else
-                        کاتبان و اشخاص مرتبط نسخه‌ی حذف‌شونده به نسخه‌ی ماندنی افزوده می‌شوند.
+                        کاتبان و اشخاص مرتبط نسخۀ حذف‌شونده به نسخۀ ماندنی افزوده می‌شوند.
                     @endif
                     ارجاع مأخذ رکورد حذف‌شونده روی رکورد ماندنی ثبت می‌شود و نشانی‌اش با ریدایرکت دائمی به آن می‌رود.
                     این ادغام از «گزارش ممیزی» بازگرداندنی است: رکورد حذف‌شده با همان شناسه بازمی‌گردد.

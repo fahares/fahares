@@ -8,7 +8,7 @@
     $record = $suggestion?->suggestable ? \App\Suggestions\SuggestionRegistry::describe($suggestion->suggestable) : null;
 @endphp
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4 text-xs sm:text-sm">
-    <a href="{{ route('my.messages') }}" class="text-xs text-cinnabar hover:underline">→ همه‌ی پیام‌ها</a>
+    <a href="{{ route('my.messages') }}" class="text-xs text-cinnabar hover:underline">→ همۀ پیام‌ها</a>
     <div class="bg-surface p-5 sm:p-6 rounded-sm border border-line shadow-sm space-y-3">
         <h1 class="font-naskh text-xl sm:text-2xl font-bold text-ink leading-relaxed">{{ $thread->subject }}</h1>
         @if($suggestion)
@@ -35,7 +35,7 @@
                 <button type="submit" class="px-4 py-2 rounded-sm bg-cinnabar text-on-cinnabar hover:opacity-90 font-bold">فرستادن پاسخ</button>
             </form>
         @else
-            <p class="pt-3 border-t border-line text-xs text-muted">{{ $suggestion && $suggestion->status !== 'pending' ? 'این پیشنهاد داوری شده است و گفت‌وگو درباره‌ی آن بسته است.' : 'این گفت‌وگو بسته شده است.' }}</p>
+            <p class="pt-3 border-t border-line text-xs text-muted">{{ $suggestion && $suggestion->status !== 'pending' ? 'این پیشنهاد داوری شده است و گفت‌وگو دربارۀ آن بسته است.' : 'این گفت‌وگو بسته شده است.' }}</p>
         @endif
     </div>
 

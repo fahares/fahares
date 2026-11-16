@@ -32,7 +32,7 @@
             <x-ui.card>
                 <div class="flex items-baseline justify-between gap-3 mb-2">
                     <h2 class="rubric text-base">تازه‌ترین پیشنهادها</h2>
-                    <a href="{{ route('admin.suggestions.index') }}" class="text-xs text-cinnabar hover:underline">همه‌ی پیشنهادها</a>
+                    <a href="{{ route('admin.suggestions.index') }}" class="text-xs text-cinnabar hover:underline">همۀ پیشنهادها</a>
                 </div>
                 <div class="divide-y divide-line">
                     @forelse($pendingSuggestions as $sug)
