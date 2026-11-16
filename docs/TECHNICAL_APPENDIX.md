@@ -11289,3 +11289,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان از `incipit_text`، `explicit_text` و `bibliography` ۳۴۵ اثر، و از ستون‌های آغاز، انجام، کاتب، تاریخ، `is_bita`، `is_autograph` و `metadata` ۵۶ نسخه.
   2. اجرای دو فرمان بالا.
   3. وارسی با اجرای دوباره.
+
+### گام ۱۴.۲۰۵: ارتقای سرور، کش InnoDB، Meilisearch و php-fpm
+
+- **پیش از ارتقا (۲۴ آبان، خواندنی با `ssh fahares-server`):** ۲ هسته، ۵٫۳ GB حافظه و ۲ GB swap در کار، دیسک ۸۲٪ پر. `/proc/pressure/cpu` some avg10=۹۰، `/proc/pressure/io` some حدود ۶۰ و full تا ۱۴. steal در `vmstat` ۱۱ تا ۲۴٪. `@@innodb_buffer_pool_size` = ۱۲۸ MB و پایگاه `default` ۳٬۶۳۷ MB. در لاگ php-fpm: «server reached pm.max_children setting (6)».
+- **ارتقا (کاربر):** `nproc` ۳ (`lscpu`: سه socket، هر کدام یک هسته)، `free` ۱۱ GiB، `/` ۲۳۵ GB و ۴۱٪ پر.
+- **قفل نگهداری:** `~/.fahares/task-mgmt/upgrade-hold.sh` قفل `~/.fahares/prod.lock` را جدا از هر جلسه‌ی Claude نگه می‌دارد و pid خود را در `upgrade-hold.pid` می‌نویسد. برداشتن: `kill $(cat ~/.fahares/task-mgmt/upgrade-hold.pid)`. با ریستارت لپ‌تاپ از میان می‌رود و باید دوباره گرفته شود.
+- **Meilisearch:** `docker update --memory 3g --memory-swap 3g fahares-meilisearch`، بی ریستارت (پیش از آن ۱٫۵ GB و swap تا ۳ GB).
+- **MariaDB:** در Coolify، `StandaloneMariadb` با uuid `ywghcqimp5628ge4tygusi8q`، فیلد `mariadb_conf` را گرفت: `[mysqld]` و `innodb_buffer_pool_size = 4G`. این فیلد تنها با ریستارت پایگاه داده در Coolify اعمال می‌شود.
+- **php-fpm (`docker/php-fpm.conf`):** `pm.max_children` ۶ به ۱۲، `start_servers` ۴، `min_spare_servers` ۳ و `max_spare_servers` ۶. هر کارگر حدود ۱۰۰ MB، پس ۱۲ کارگر حدود ۱٫۲ GB.
+- **بودجه‌ی حافظه:** InnoDB ۴ GB، Meilisearch تا ۳ GB، php-fpm حدود ۱٫۲ GB، Coolify و سرویس‌های دیگر حدود ۱ GB؛ دست‌کم ۲ GB برای کش سیستم‌عامل می‌ماند.
+
