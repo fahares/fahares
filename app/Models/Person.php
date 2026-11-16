@@ -20,6 +20,12 @@ class Person extends Model
             if ($person->isDirty('name') && ! $person->isDirty('normalized_name') && $person->exists) {
                 $person->normalized_name = mb_substr(\App\Helpers\TextNormalizer::normalize($person->name), 0, 600);
             }
+            // The middle of a century that an import sets as the death year of «ق 13» is no year (step 14.213)
+            if (($person->isDirty('life_dates_raw') || $person->isDirty('death_year_hijri')) && $person->death_year_hijri
+                && self::isCenturyMiddle($person->life_dates_raw, (int) $person->death_year_hijri)) {
+                $person->century_hijri ??= self::lifeCentury($person->life_dates_raw);
+                $person->death_year_hijri = null;
+            }
             if ($person->isDirty('death_year_hijri') && ! $person->isDirty('century_hijri') && $person->death_year_hijri) {
                 $person->century_hijri = (int) ceil($person->death_year_hijri / 100);
             }
@@ -31,6 +37,11 @@ class Person extends Model
                 if (! $person->death_year_hijri && $person->death_from !== null && $person->death_from === $person->death_to) {
                     $person->death_year_hijri = $person->death_from;
                     $person->century_hijri = (int) ceil($person->death_from / 100);
+                }
+                // ...and life dates that only name the century the person lived in give that century
+                if (! $person->death_year_hijri && $person->death_from === null && ! $person->isDirty('century_hijri')
+                    && ($century = self::lifeCentury($person->life_dates_raw)) !== null) {
+                    $person->century_hijri = $century;
                 }
             }
         });
@@ -56,10 +67,148 @@ class Person extends Model
     /** The highest number that a lone number in the life dates may be as a century («- 13» is «قرن 13»). */
     public const LAST_CENTURY = 15;
 
+    private const DIGITS = ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9'];
+
+    public const SOLAR = 'solar';
+
+    public const GREGORIAN = 'gregorian';
+
+    public const BEFORE = 'before';
+
+    /**
+     * The calendar life dates are written in when it is not the Hijri one: SOLAR («1250 - 1312 شمسی», «-1313ش»),
+     * GREGORIAN («1884 - 1967 میلادی», «46؟ - 120 ؟ م») or BEFORE, a time before Christ or before the Hijra, which has
+     * no Hijri year («384 - 322؟ق.م», «ق 6 قبل میلاد»). Null for Hijri dates and for no dates.
+     */
+    public static function lifeCalendar(?string $lifeDates): ?string
+    {
+        $text = (string) $lifeDates;
+
+        return match (true) {
+            preg_match('/(?:قبل|پیش)\s*(?:از\s*)?میلاد|ق\.\s*م(?!\p{L})|هجرت/u', $text) === 1 => self::BEFORE,
+            preg_match('/شمسی|خورشیدی|(?<![\p{L}])ش(?!\p{L})/u', $text) === 1 => self::SOLAR,
+            preg_match('/میلاد|(?<![\p{L}])م(?!\p{L})/u', $text) === 1 => self::GREGORIAN,
+            default => null,
+        };
+    }
+
+    /**
+     * What life dates of another calendar say, in Hijri years (step 14.214; HijriYear::otherCalendar, as a copy's date):
+     *   - death: the Hijri years the year after the dash spans («1250 - 1312 شمسی» is 1351-1352), or the century
+     *     after it («1284-ق14 شمسی», the solar years 1301 to 1400, is 1340-1443);
+     *   - birth: the same for the year before the dash; a year with «ق» is Hijri as it stands («1270ق-14 شمسی»);
+     *   - life: with no dash, the century the person lived in («ق 14 شمسی»), or the years one year spans («1272 شمسی»,
+     *     which the catalogue writes for the living and the dead alike, so it is neither a birth nor a death);
+     *   - gregorian: the death as a Gregorian year («1312 شمسی» is 1933).
+     * A year with no Hijri year (before Christ, before the Hijra, a solar year outside 1200-1500) gives null; so
+     * does every part of a BEFORE text. Null when the dates are Hijri.
+     *
+     * «numbers» are the text's own: the birth and death years, the lone «year», the century and a year marked
+     * Hijri («hijri»); «dash» says whether the text has one.
+     *
+     * @return array{calendar: string, birth: ?array{0: int, 1: int}, death: ?array{0: int, 1: int}, life: ?array{0: int, 1: int}, gregorian: ?int, hedge: ?string, numbers: array<string, ?int>, dash: bool}|null
+     */
+    public static function otherCalendarLife(?string $lifeDates): ?array
+    {
+        $calendar = self::lifeCalendar($lifeDates);
+        if ($calendar === null) {
+            return null;
+        }
+        $found = ['calendar' => $calendar, 'birth' => null, 'death' => null, 'life' => null, 'gregorian' => null, 'hedge' => null,
+            'numbers' => ['birth' => null, 'death' => null, 'year' => null, 'century' => null, 'hijri' => null], 'dash' => false];
+        $before = $calendar === self::BEFORE;
+        $mark = $calendar === self::SOLAR ? 'ش' : 'م';
+        $span = fn (int $year) => $before ? null : \App\Support\HijriYear::otherCalendar("{$year}{$mark}");
+        $parts = preg_split('/\s*[-–]\s*/u', strtr((string) $lifeDates, self::DIGITS));
+        $dash = $found['dash'] = count($parts) > 1;
+        // «ق.م» is the calendar's mark, not a century's «ق»
+        $last = preg_replace('/ق\.\s*م(?!\p{L})/u', ' ', end($parts));
+        $range = null;
+        if (preg_match('/' . self::CENTURY . '\s*(\d{1,2})(?!\d)/u', $last, $m) || ($dash && ! $before && preg_match('/^\s*(\d{1,2})(?!\d)/u', $last, $m))) {
+            $found['numbers']['century'] = (int) $m[1];
+            [$first, $end] = [$span(((int) $m[1] - 1) * 100 + 1), $span((int) $m[1] * 100)];
+            $range = $first && $end ? [$first[0], $end[1]] : null;
+        } elseif (preg_match('/(?<!\d)(\d{' . ($before ? '2' : '3') . ',4})(?!\d)(?!\s*ق(?![\p{L}.]))/u', $last, $m)) {
+            $found['numbers'][$dash ? 'death' : 'year'] = (int) $m[1];
+            $range = $span((int) $m[1]);
+            // a Gregorian death year stands as it is, a solar one only where the calendar holds it
+            $found['gregorian'] = match (true) {
+                ! $dash, $before => null,
+                $calendar === self::GREGORIAN => (int) $m[1],
+                default => $range ? (int) $m[1] + 621 : null,
+            };
+        }
+        $found[$dash ? 'death' : 'life'] = $range;
+        $found['hedge'] = $dash && $range && str_contains($last, '؟') ? '؟' : null;
+        if ($dash && preg_match('/(?<!\d)(\d{' . ($before ? '2' : '3') . ',4})(?!\d)(\s*ق(?![\p{L}.]))?/u', $parts[0], $m)) {
+            $found['numbers']['birth'] = isset($m[2]) ? null : (int) $m[1];
+            $found['birth'] = isset($m[2]) ? [(int) $m[1], (int) $m[1]] : $span((int) $m[1]);
+        }
+        // a Hijri year before the rest: «1297ق 14 شمسی», «1270ق-14 شمسی»
+        if (preg_match('/(?<!\d)(\d{3,4})\s*ق(?![\p{L}.])/u', $parts[0], $m)) {
+            $found['numbers']['hijri'] = (int) $m[1];
+        }
+
+        return $found;
+    }
+
+    /**
+     * The Hijri century the person lived in, when the life dates say no more of the death (step 14.213): a century
+     * with no dash before it («ق 13 قمری», «قرن 9», «1307 ق 14 قمری») is the century of the life, not of the death, and
+     * so is a century or a lone year of another calendar («ق 14 شمسی», «1272 شمسی»), by the middle of the Hijri years
+     * it spans. After a dash the century is the death's («- قرن 13 قمری») and this is null.
+     */
+    public static function lifeCentury(?string $lifeDates): ?int
+    {
+        $other = self::otherCalendarLife($lifeDates);
+        if ($other !== null) {
+            return $other['life'] ? (int) ceil(intdiv($other['life'][0] + $other['life'][1], 2) / 100) : null;
+        }
+        $text = strtr((string) $lifeDates, self::DIGITS);
+        if (trim($text) === '' || preg_match('/[-–]/u', $text)) {
+            return null;
+        }
+        $range = \App\Support\CopyDateRange::parse(preg_replace('/(?<![\p{L}\d])ق\s*(\d{1,2})(?!\d)/u', 'قرن $1', $text));
+
+        return $range['to'] !== null && $range['to'] % 100 === 0 && $range['from'] === $range['to'] - 99 ? intdiv($range['to'], 100) : null;
+    }
+
+    /**
+     * Whether a death year is only the middle of the century the life dates name («ق 13 قمری» with 1250, «ق 14 شمسی»
+     * with 1350): the number an import makes to sort by, which is no year of death.
+     */
+    public static function isCenturyMiddle(?string $lifeDates, int $deathYear): bool
+    {
+        if ($deathYear % 100 !== 50) {
+            return false;
+        }
+        // the century of the life, or after a dash that of the death («-قرن 11ق» with 1050)
+        $parts = preg_split('/\s*[-–]\s*/u', strtr((string) $lifeDates, self::DIGITS));
+
+        return preg_match('/' . self::CENTURY . '\s*(\d{1,2})(?!\d)/u', end($parts), $m) === 1 && (int) $m[1] * 100 - 50 === $deathYear;
+    }
+
+    /** «قرن 13», «ق 13», and the «14» of «1297ق 14 شمسی». */
+    private const CENTURY = '(?:قرن|سده|(?<![\p{L}\d])ق|(?<=\dق)\s)';
+
+    /** The year the lists order and filter a person by: the death year, else the middle of the person's century. */
+    public const ERA_YEAR_SQL = 'COALESCE(people.death_year_hijri, people.century_hijri * 100 - 50)';
+
+    public function eraYear(): ?int
+    {
+        return match (true) {
+            (bool) $this->death_year_hijri => (int) $this->death_year_hijri,
+            (bool) $this->century_hijri => (int) $this->century_hijri * 100 - 50,
+            default => null,
+        };
+    }
+
     /**
      * The death range columns (CopyDateRange) of the catalogue's life dates: the death is what follows the dash
-     * («1040 - 1124 ؟ قمری» is 1124 with «؟», «730؟ - 834» a certain 834) and «ق13» is «قرن 13». Solar, Gregorian and
-     * BC dates give no range. After a dash, one or two digits are a year of the first century («- 40 قمری»), or the
+     * («1040 - 1124 ؟ قمری» is 1124 with «؟», «730؟ - 834» a certain 834) and «ق13» is «قرن 13». With no dash a century
+     * is the one the person lived in and gives no range (lifeCentury, step 14.213), nor does the middle of that
+     * century as a death year. Solar and Gregorian dates give the Hijri years they span (otherCalendarLife, step
+     * 14.214); dates before Christ give none. After a dash, one or two digits are a year of the first century («- 40 قمری»), or the
      * century when they are less than the birth year («1297-14 ق»). A number of 15 or less is the century as well
      * («- 13 ؟ قمری», «13ق - 13 قمری» are 1201-1300; step 14.173): the catalogue writes both the same way, and nearly
      * all of its people lived after year 15. It is the year only when the person's death year says so («- 11 قمری» of
@@ -71,8 +220,18 @@ class Person extends Model
     {
         // death_kind is not among them: deathKind() gives it, so that the commands that compare these four stay as they are
         $range = ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => null];
-        $text = strtr((string) $lifeDates, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
-        if (trim($text) !== '' && ! preg_match('/میلاد|شمسی|خورشیدی|هجرت|(?<!\p{L})(?:م|ش|ق\.\s*م)(?!\p{L})/u', $text)) {
+        $text = strtr((string) $lifeDates, self::DIGITS);
+        $other = self::otherCalendarLife($lifeDates);
+        if ($deathYear && self::isCenturyMiddle($lifeDates, $deathYear)) {
+            $deathYear = null;
+        }
+        if ($other !== null) {
+            if ($other['death']) {
+                $range = ['from' => $other['death'][0], 'to' => $other['death'][1], 'certainty' => \App\Support\PersonNameMatcher::certainty($other['hedge']), 'hedge' => $other['hedge']];
+            }
+        } elseif (self::lifeCentury($lifeDates) !== null) {
+            // the century of the life: nothing is said of the death
+        } elseif (trim($text) !== '') {
             $parts = preg_split('/\s*[-–]\s*/u', $text);
             $death = preg_replace('/(?<![\p{L}\d])ق\s*(\d{1,2})(?!\d)/u', 'قرن $1', end($parts));
             if (count($parts) > 1 && preg_match('/^\s*(\d{1,2})\s*(؟)?\s*(?:ق|قمری)?\s*(؟)?\s*$/u', $death, $m) && (int) $m[1] > 0) {
@@ -299,7 +458,9 @@ class Person extends Model
             // The century a person of no known century was last seen alive in, for readers who ask for estimates
             // too, and the year the order by death falls back on (step 14.198)
             'alive_century' => ! $this->century_hijri && ($alive = $this->aliveYear()) ? intdiv($alive - 1, 100) + 1 : null,
-            'death_sort_year' => $this->death_year_hijri ? (int) $this->death_year_hijri : $this->aliveYear(),
+            'death_sort_year' => $this->death_year_hijri ? (int) $this->death_year_hijri : ($this->aliveYear() ?? $this->eraYear()),
+            // The year the plain order by death uses: the death year, else the middle of the person's century (step 14.213)
+            'era_year' => $this->eraYear(),
             'death_year_gregorian' => $this->death_year_gregorian ? (int) $this->death_year_gregorian : null,
             'is_author' => (bool) $this->is_author,
             'is_scribe' => (bool) $this->is_scribe,

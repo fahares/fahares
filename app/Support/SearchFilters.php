@@ -374,15 +374,17 @@ class SearchFilters
             if ($this->type === 'works') {
                 // The year of composition, or else the author's death (the work's «era», as in the index); written
                 // so both halves can use an index, rather than a lookup of the author for every work
-                $between = fn ($q, string $column) => $q->when($from !== null, fn ($q) => $q->where($column, '>=', $from))
+                $between = fn ($q, $column) => $q->when($from !== null, fn ($q) => $q->where($column, '>=', $from))
                     ->when($to !== null, fn ($q) => $q->where($column, '<=', $to));
                 $estimates = (bool) $this->get('estimates');
+                // an author known by the century alone counts by its middle, as in the index (Person::eraYear)
+                $era = \App\Models\Person::ERA_YEAR_SQL;
                 $query->where(fn ($q) => $q->where(fn ($q) => $between($q, 'works.composition_year_hijri')->whereNotNull('works.composition_year_hijri'))
                     ->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
-                        ->whereIn('works.author_id', $between(DB::table('people')->whereNotNull('death_year_hijri'), 'death_year_hijri')->select('id')))
+                        ->whereIn('works.author_id', $between(DB::table('people')->whereRaw($era . ' IS NOT NULL'), DB::raw($era))->select('id')))
                     // ...or, having no era, an estimated composition that reaches into the years (as in the index)
                     ->when($estimates, fn ($q) => $q->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
-                        ->where(fn ($q) => $q->whereNull('works.author_id')->orWhereNotIn('works.author_id', DB::table('people')->whereNotNull('death_year_hijri')->select('id')))
+                        ->where(fn ($q) => $q->whereNull('works.author_id')->orWhereNotIn('works.author_id', DB::table('people')->whereRaw($era . ' IS NOT NULL')->select('id')))
                         ->whereExists(fn ($e) => \App\Support\DateEstimates\EstimateText::placedCompositions($e)->whereColumn('date_estimates.subject_id', 'works.id')
                             ->when($to !== null, fn ($e) => $e->where('date_estimates.year_from', '<=', $to))
                             ->when($from !== null, fn ($e) => $e->where('date_estimates.year_to', '>=', $from))))));
