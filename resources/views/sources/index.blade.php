@@ -52,7 +52,7 @@
                             <span class="text-sm font-bold text-ink leading-6 group-hover:text-cinnabar transition">{{ $source->title }}</span>
                             <span class="text-[11px] text-muted leading-5">
                                 {{ $source->library?->display_name ?? $source->compiler }}
-                                @if($source->editions->isNotEmpty())· {{ Fa::num($source->editions->count() + 1) }} چاپ@endif
+                                @if($source->editions->isNotEmpty() && ! $source->isUnpublished())· {{ Fa::num($source->editions->count() + 1) }} چاپ@endif
                                 @if(($source->volumes_count ?? $source->volumes->count()) > 1)· {{ Fa::num($source->volumes_count ?? $source->volumes->count()) }} جلد@endif
                                 @if($n = $sum($source, 'manuscripts'))· {{ Fa::num($n) }} نسخه@endif
                                 @if($n = $sum($source, 'works'))· {{ Fa::num($n) }} اثر@endif

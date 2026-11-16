@@ -223,6 +223,26 @@ class SourcesShelfTest extends TestCase
             @rmdir(dirname($dir));
         }
     }
+    public function test_a_printed_catalogue_tied_to_an_unprinted_one_is_not_called_a_printing_of_it()
+    {
+        [$catalogue, $volume] = $this->catalogue();
+        $edition = Source::create(['code' => $catalogue->code . '-e', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'فهرست چاپی آزمون',
+            'edition_of_id' => $catalogue->id, 'edition_label' => '۱۳۸۸']);
+
+        // another printing of a printed book
+        $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('چاپ‌های دیگر')->assertDontSee('data-source-printed', false);
+        $this->get('/sources/' . $edition->code)->assertOk()->assertSee('چاپی از')->assertDontSee('data-source-unprinted', false);
+        $this->get('/sources')->assertOk()->assertSee('۲ چاپ');
+
+        // the cited catalogue was never printed
+        $volume->update(['publication_year' => Source::UNPUBLISHED]);
+        $this->assertTrue($catalogue->fresh()->isUnpublished());
+        $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('فهرست چاپی همین کتابخانه')->assertSee('data-source-printed', false)
+            ->assertSee(route('sources.show', $edition->code), false)->assertDontSee('چاپ‌های دیگر');
+        $this->get('/sources/' . $edition->code)->assertOk()->assertSee('data-source-unprinted', false)
+            ->assertSee(route('sources.show', $catalogue->code), false)->assertDontSee('چاپی از');
+        $this->get('/sources')->assertOk()->assertDontSee('۲ چاپ');
+    }
 
     /** A library's catalogue with one volume, page 17 of its text and a copy made from it. */
     private function catalogue(): array
