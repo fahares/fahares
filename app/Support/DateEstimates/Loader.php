@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
  *
  * | rule      | holds                                                        | from                                      |
  * | life      | birth ≤ death ≤ birth + LIFE                                 | every person                              |
+ * | century   | death ≥ the century's first year, birth ≤ its last (seeds)   | century_hijri of a person with no death range (step 14.213) |
  * | author    | composition ≤ author's death; birth ≤ composition − AUTHOR_AGE | work_people «author»                    |
  * | translator| the same, for the translator                                 | work_people «translator»                  |
  * | dedicatee | composition ≤ his death; his birth ≤ composition             | work_people «dedicatee», «commissioner»   |
@@ -68,11 +69,18 @@ final class Loader
         $engine = new Engine;
         $int = fn ($v) => $v === null ? null : (int) $v;
 
-        foreach (DB::table('people')->select(['id', 'birth_year_hijri', 'death_from', 'death_to'])->orderBy('id')->lazyById(20000) as $p) {
+        foreach (DB::table('people')->select(['id', 'birth_year_hijri', 'death_from', 'death_to', 'century_hijri'])->orderBy('id')->lazyById(20000) as $p) {
             $birth = DateVar::of(DateVar::BIRTH, $p->id);
             $death = DateVar::of(DateVar::DEATH, $p->id);
             $engine->seed($birth, $int($p->birth_year_hijri), $int($p->birth_year_hijri));
             $engine->seed($death, $int($p->death_from), $int($p->death_to));
+            // The century of the life (step 14.213): the death is no earlier than its first year, the birth no later than its last
+            if ($p->death_from === null && $p->death_to === null && $p->century_hijri) {
+                $engine->seed($death, ((int) $p->century_hijri - 1) * 100 + 1, null);
+                if ($p->birth_year_hijri === null) {
+                    $engine->seed($birth, null, (int) $p->century_hijri * 100);
+                }
+            }
             $engine->constrain($birth, $death, 0, self::RULE_LIFE);
             $engine->constrain($death, $birth, self::LIFE, self::RULE_LIFE);
         }

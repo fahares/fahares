@@ -359,8 +359,9 @@ class Work extends Model
             'manuscripts_count' => (int) $this->manuscripts_count,
             // Search filters and orders of backlog item 83, phase 5: the work's era is its composition, or else its
             // author's death, which only 14% of works lack against 86% without a composition year
-            'author_death_year' => $this->author?->death_year_hijri ? (int) $this->author->death_year_hijri : null,
-            'era_year' => ($era = $this->composition_year_hijri ?: $this->author?->death_year_hijri) ? (int) $era : null,
+            // an author known by the century alone counts by its middle (Person::eraYear, step 14.213)
+            'author_death_year' => $this->author?->eraYear(),
+            'era_year' => ($era = $this->composition_year_hijri ?: $this->author?->eraYear()) ? (int) $era : null,
             // A work with no era may be found by its estimated composition, when the reader asks for estimates
             // (step 14.197); and the order by composition may fall back on the middle of the estimate
             'era_estimate_from' => $era ? null : ($this->compositionEstimate()[0] ?? null),

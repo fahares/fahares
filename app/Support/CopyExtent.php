@@ -12,8 +12,9 @@ use App\Suggestions\ProtectedColumns;
  */
 class CopyExtent
 {
-    // the count's place in the volume, beside its leaves or pages: «(هامش)», «(حاشیه)»
-    private const MARGIN = '\((?:هامش|حاشیه|در\s+هامش|در\s+حاشیه)\)';
+    // the count's place in the volume or the way it is written, beside its leaves or pages: «(هامش)», «(در جنگ)»,
+    // «در متن و هامش», «(قهقرا)», «یک رو» (steps 14.204 and 14.217)
+    private const MARGIN = '(?:\(\s*)?(?:در\s*)?(?:متن\s+و\s+(?:هامش|حاشیه)|هامش|حاشیه(?:\s+یکم)?|متن|جنگ|زیر\s*سطور|قهقرا|دفتر|عکسی|مورب|یک\s+رو)(?:\s*\))?';
 
     private const DIGITS = ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9'];
 
@@ -36,9 +37,11 @@ class CopyExtent
                 $piece = trim(strtr($piece, self::DIGITS));
                 // «2گ [ف: 3-1233]»: the catalogue's citation can close the line
                 // and «3ص (55-57) (عکسی ف: 4-222]», the bracket opened as a parenthesis
-                $piece = trim(preg_replace('/\s*(?:\[[^\[\]]*\]|\([^()\[\]]*ف\s*:[^()\[\]]*\])\s*\.?\s*$/u', '', $piece));
+                // or two of them, «[ف: 9-1329] و [فیلمها ف: 3-18]»
+                $piece = trim(preg_replace('/(?:\s*(?:و\s*)?(?:\[[^\[\]]*\]|\([^()\[\]]*ف\s*:[^()\[\]]*\]))+\s*\.?\s*$/u', '', $piece));
                 // «8ص (220-227)(هامش)», «36ص (حاشیه) (180-215)», «5ص (947-948) و (954-956)» (step 14.204)
-                if (! preg_match('/^(\d+)\s*(گ|برگ|ص)(?=\s|\(|$)\s*(?:' . self::MARGIN . '\s*)?(?:\(([^()]*)\))?(?:\s*' . self::MARGIN . ')?(?:\s*و\s*(?:از\s*)?\([^()]*\))*\s*\.?$/u', $piece, $m)) {
+                // «35صفحه (189-224)», «7 ورق» (step 14.217)
+                if (! preg_match('/^(\d+)\s*(گ|برگ|ورق|صفحه|ص)(?=\s|\(|$)\s*(?:' . self::MARGIN . '\s*)*(?:\(([^()]*)\))?(?:\s*' . self::MARGIN . ')*(?:\s*و\s*(?:از\s*)?\([^()]*\))*\s*\.?$/u', $piece, $m)) {
                     continue;
                 }
                 $count = (int) $m[1];
@@ -48,7 +51,7 @@ class CopyExtent
                     $inner = trim(strtr($pieces[$i + 1], self::DIGITS), '() ');
                     $piece .= ' (' . $inner . ')';
                 }
-                if ($m[2] === 'ص') {
+                if ($m[2] === 'ص' || $m[2] === 'صفحه') {
                     $result['pages'] = $count;
                     $pageCounts = ($pageCounts ?? 0) + 1;
                 } else {
@@ -90,7 +93,7 @@ class CopyExtent
         $line = preg_replace_callback('/\[[^\[\]]*\]/u', fn ($m) => strtr($m[0], ['،' => "\u{E000}", '؛' => "\u{E001}"]), $line);
         // the «،» set before the binding's or paper's last word instead of after it: «جلد تیماج ،مشکی 38 ص»
         $line = preg_replace('/(?<=\S)\s+،(\S+)\s+(?=[\d۰-۹]+\s*(?:گ|برگ|ص)(?=\s|\(|[،؛]|$))/u', ' $1، ', $line);
-        $count = '[\d۰-۹]+\s*(?:گ|برگ|ص)(?=\s|\(|[،؛]|$)(?:\s*\([^()]*\)){0,2}';
+        $count = '[\d۰-۹]+\s*(?:گ|برگ|ورق|صفحه|ص)(?=\s|\(|[،؛]|$)(?:\s*\([^()]*\)){0,2}';
         // the count glued to the binding or paper: a piece that starts with «جلد» or «کاغذ» and has no other number
         $line = preg_replace('/((?:^|[،؛])\s*(?:جلد|کاغذ)[^،؛\d۰-۹\[\]()]*?)\s+(' . $count . ')(?=\s*(?:[،؛]|\[|$|اندازه|قطع|[\d۰-۹]+\s*سطر|سطر))/u', '$1، $2', $line);
         // the size, format or lines glued after the count

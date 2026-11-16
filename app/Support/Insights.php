@@ -135,8 +135,8 @@ class Insights
         // A range is a known year (its middle) or the whole range: [earliest, latest]
         $ends = fn (?int $f, ?int $t) => $t - $f <= $span ? [intdiv($f + $t, 2), intdiv($f + $t, 2)] : [$f, $t];
         $deaths = $scope->works()->join('people', 'people.id', '=', 'works.author_id')
-            ->whereNotNull('people.death_from')->whereNotNull('people.death_to')
-            ->select('works.id', 'people.death_from', 'people.death_to', 'people.death_certainty')
+            ->whereRaw(self::DEATH_FROM . ' IS NOT NULL')->whereRaw(self::DEATH_TO . ' IS NOT NULL')
+            ->select('works.id', 'people.death_certainty')->selectRaw(self::DEATH_FROM . ' AS death_from, ' . self::DEATH_TO . ' AS death_to')
             ->get()
             ->mapWithKeys(fn ($r) => [$r->id => [...$ends((int) $r->death_from, (int) $r->death_to), $r->death_certainty !== null]])
             ->all();
@@ -176,14 +176,19 @@ class Insights
         return $layers + ['coverage' => self::share($layers['shown'], $total)];
     }
 
+    /** The death range, or the century of a person known by the century of the life alone (step 14.213). */
+    private const DEATH_FROM = 'COALESCE(people.death_from, people.century_hijri * 100 - 99)';
+
+    private const DEATH_TO = 'COALESCE(people.death_to, people.century_hijri * 100)';
+
     /** Authors (people with a work) per century of death, from the death range (death_from/to, step 13.101). */
     private static function authors(InsightsScope $scope): array
     {
         [$from, $to] = config('insights.author_centuries');
         $rows = DB::table('people')
-            ->where(fn ($q) => $q->whereNotNull('death_from')->orWhereNotNull('death_to'))
+            ->whereRaw('(' . self::DEATH_FROM . ' IS NOT NULL OR ' . self::DEATH_TO . ' IS NOT NULL)')
             ->whereExists(fn ($q) => $q->from($scope->worksTable())->whereColumn('works.author_id', 'people.id'))
-            ->selectRaw('death_from AS f, death_to AS t, death_certainty IS NOT NULL AS d, COUNT(*) AS n')
+            ->selectRaw(self::DEATH_FROM . ' AS f, ' . self::DEATH_TO . ' AS t, death_certainty IS NOT NULL AS d, COUNT(*) AS n')
             ->groupBy('f', 't', 'd')
             ->get();
         $authors = $scope->works()->whereNotNull('author_id')->distinct()->count('author_id');
