@@ -313,6 +313,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
     });
     Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update'])->middleware('can:people.edit');
+    // The periods of a person's life, entered on the person's page (backlog item 139, step 14.218)
+    Route::middleware('can:people.edit')->group(function () {
+        Route::post('/people/{person}/periods', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'store'])->name('people.periods.store');
+        Route::put('/people/{person}/periods/{period}', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'update'])->name('people.periods.update');
+        Route::delete('/people/{person}/periods/{period}', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'destroy'])->name('people.periods.destroy');
+    });
 
     // Person review queues: namesakes to merge, records holding several people to split (backlog item 78); each action checks its own permission
     Route::get('/person-reviews', [AdminPersonReviewController::class, 'index'])->name('person-reviews.index');

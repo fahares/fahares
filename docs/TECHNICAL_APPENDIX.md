@@ -11621,3 +11621,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `fill-extents`: `changed 72`، `pages_out_of_folios 28`.
   - `rebuild-copies` این گام: ۱۵۷ نسخه.
   - اجرای دوم هر سه: `Would rebuild 0 copies`، `kept:no_count_in_text 188` بی `changed`.
+
+### گام ۱۴.۲۱۸: `person_periods`، `App\Models\PersonPeriod` و `Admin\PersonPeriodController`
+
+- **جدول (`2026_11_16_300001_create_person_periods_table`):** `person_id` (حذف آبشاری)، `kind`، `place` (۱۵۰)، `city` و `region` (از `CopyPlaces`، در قلاب `saving`)، ستون‌های `period_*` با `$table->dateSpan('period')`، `note`، `source_text`، `source_entry_id` (برای پیوند آینده به مدخل زندگی‌نامه؛ هنوز پر نمی‌شود)، `created_by`.
+- **نوع‌ها (`PersonPeriod::KINDS`، پذیرفته‌ی کاربر):** `residence` اقامت، `study` تحصیل، `teaching` تدریس، `travel` سفر، `office` منصب.
+- **تاریخ از فرم (`PersonPeriod::dateColumns`):** فیلدهای `mode`، `start`، `start_to`، `end`، `end_to`.
+
+| حالت | ورودی | ستون‌ها |
+|---|---|---|
+| `point` | `start` | `from = to = start` |
+| `between` | `start`، `end` | `from`، `to`، `kind = between` |
+| `span` | `start` [`start_to`]، `end` [`end_to`] | `from = start`، `start_to`، `end_from = end` اگر `end_to` هست، `to = end_to` یا `end`، `kind = span`؛ نبودِ آغاز یا پایان همان سر را باز می‌گذارد |
+
+- سال‌ها باید به ترتیب باشند و دست‌کم یکی لازم است. `dateInput()` وارون همین است، برای پر کردن فرم ویرایش.
+- **مسیرها (زیر `can:people.edit`):** `POST admin/people/{person}/periods`، `PUT …/{period}`، `DELETE …/{period}`. دوره‌ی شخص دیگر ۴۰۴ می‌دهد. دوره یا مکان می‌خواهد یا توضیح.
+- **لاگ ممیزی:** روی `Person` با `action = update`، `new_values.person_period_change` (`create`، `update`، `delete`) و خود ردیف در `person_period`.
+- **ادغام اشخاص:** `PersonMerger` شناسه‌ی دوره‌های منتقل‌شده را در `transferred_period_ids` می‌نویسد و بازگردانی (`AuditLogController`) آن‌ها را برمی‌گرداند.
+- **نمایش:** `people/show.blade.php` (بخش `#periods`، پیش از «حضور در شهرها») و `people/partials/period-form.blade.php`. نام مکان: شهر، وگرنه کشور یا ناحیه، وگرنه متن؛ متن مأخذ اگر فرق دارد در گیومه. `date_text`: «از 1000 تا 1030 ق»، «از 1252 ق به بعد».
+- **ماکروی `dateSpan`:** دیگر `dateSpanKind` را صدا نمی‌زند، چون `after` در `CREATE TABLE` خطای SQL می‌دهد.
+- **آنچه نیست:** فرم پیشنهاد دوره برای اعضا (فعلاً «پیشنهاد کلی»)، قید موتور تخمین از دوره‌ها (گام ۴ مورد ۱۳۴)، و پیشنهاد ماشینی از زندگی‌نامه‌ها (گام ۳ مورد ۱۳۹).
+- **تست:** `PersonPeriodDateTest` (۲) و `PersonPeriodsTest` (۲).
