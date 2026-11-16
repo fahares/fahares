@@ -375,6 +375,7 @@ return [
                 'sortableAttributes' => [
                     'death_year_hijri',
                     'death_sort_year',
+                    'era_year',
                     'works_count',
                     'manuscripts_count',
                     'scribed_from',

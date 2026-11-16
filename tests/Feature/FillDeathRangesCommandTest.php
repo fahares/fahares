@@ -63,7 +63,8 @@ class FillDeathRangesCommandTest extends TestCase
 
         $this->artisan('fahares:fill-death-ranges', ['--file' => $file, '--apply' => true])->assertSuccessful();
         $this->assertSame(['life_dates_raw' => '1166 - 1241؟ ق', 'death_from' => 1241, 'death_to' => 1241, 'death_certainty' => 'doubtful', 'death_hedge_raw' => '؟'], $this->cols($ahsai));
-        $this->assertSame(['life_dates_raw' => 'ق13 قمری', 'death_from' => 1201, 'death_to' => 1300, 'death_certainty' => null, 'death_hedge_raw' => null], $this->cols($naini));
+        // the century of the life: no range, and 1250, the middle of it, is no death year (step 14.213)
+        $this->assertSame(['life_dates_raw' => 'ق13 قمری', 'death_from' => null, 'death_to' => null, 'death_certainty' => null, 'death_hedge_raw' => null], $this->cols($naini));
         $this->assertSame(['life_dates_raw' => null, 'death_from' => 900, 'death_to' => 900, 'death_certainty' => null, 'death_hedge_raw' => null], $this->cols($other));
         // Life dates already on the site are kept
         $this->assertSame('- 1100 قمری', $this->cols($edited)['life_dates_raw']);

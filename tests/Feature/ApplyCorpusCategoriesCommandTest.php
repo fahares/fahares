@@ -342,7 +342,7 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertNull(DB::table('manuscripts')->where('id', $ids['43/1'])->value('copy_date_kind'));
         Work::find($w)->update(['composition_date_raw' => 'آغاز 1054ق و پایان 1055ق']);
         $this->assertSame('span', DB::table('works')->where('id', $w)->value('composition_date_kind'));
-        $person = \App\Models\Person::create(['name' => 'شخص آزمایشی بازه', 'normalized_name' => 'شخص آزمایشی بازه', 'slug' => 'test-date-kind-' . uniqid(), 'life_dates_raw' => 'ق13 قمری']);
+        $person = \App\Models\Person::create(['name' => 'شخص آزمایشی بازه', 'normalized_name' => 'شخص آزمایشی بازه', 'slug' => 'test-date-kind-' . uniqid(), 'life_dates_raw' => '- قرن 13 قمری']);
         $this->assertSame('between', DB::table('people')->where('id', $person->id)->value('death_kind'));
         $person->update(['life_dates_raw' => '1166 - 1241 ق']);
         $this->assertNull(DB::table('people')->where('id', $person->id)->value('death_kind'));

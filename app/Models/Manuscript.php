@@ -113,8 +113,8 @@ class Manuscript extends Model
     }
 
     /**
-     * The death year of each work's author (its Hijri death year, else an end of its death range), for the copy
-     * dates that name the author's time.
+     * The death year of each work's author (its Hijri death year, else an end of its death range, else the middle of
+     * the century the author lived in), for the copy dates that name the author's time.
      *
      * @return array<int, int> work id => year
      */
@@ -126,7 +126,7 @@ class Manuscript extends Model
         }
 
         return DB::table('works')->join('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
-            ->selectRaw('works.id AS id, COALESCE(people.death_year_hijri, people.death_to, people.death_from) AS year')
+            ->selectRaw('works.id AS id, COALESCE(people.death_year_hijri, people.death_to, people.death_from, people.century_hijri * 100 - 50) AS year')
             ->pluck('year', 'id')->filter()->map(fn ($y) => (int) $y)->all();
     }
 
@@ -157,7 +157,7 @@ class Manuscript extends Model
         $life = \App\Support\DateEstimates\Loader::LIFE;
 
         return DB::table('works')->leftJoin('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
-            ->selectRaw("works.id AS id, GREATEST(COALESCE(works.composition_date_from, 0), COALESCE(people.birth_year_hijri, COALESCE(people.death_from, people.death_year_hijri) - {$life}, 0)) AS year")
+            ->selectRaw("works.id AS id, GREATEST(COALESCE(works.composition_date_from, 0), COALESCE(people.birth_year_hijri, COALESCE(people.death_from, people.death_year_hijri, people.century_hijri * 100 - 99) - {$life}, 0)) AS year")
             ->pluck('year', 'id')->map(fn ($y) => (int) $y)->filter(fn (int $y) => $y > 0)->all();
     }
 
