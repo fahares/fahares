@@ -96,6 +96,48 @@ class EstimateDatesCommandTest extends TestCase
         $this->assertSame(['manuscript', $late, 'copy', 1057, 'death', 1055, 2], [$conflict->a_type, (int) $conflict->a_id, $conflict->a_field, (int) $conflict->a_from, $conflict->b_field, (int) $conflict->b_to, (int) $conflict->gap]);
     }
 
+    public function test_the_approved_periods_of_a_life_bound_the_birth_and_the_death()
+    {
+        $period = fn (Person $person, array $date, array $more = []) => \App\Models\PersonPeriod::create(array_merge(['person_id' => $person->id, 'kind' => 'residence', 'place' => 'اصفهان'],
+            \App\Models\PersonPeriod::dateColumns($date), $more));
+        // two periods: born by the start of the first, alive at the end of the last (step 14.226)
+        $person = $this->person('شخص آزمایشی دوره و تخمین');
+        $period($person, ['mode' => 'span', 'start' => 1000, 'start_to' => 1005, 'end' => 1030]);
+        $period($person, ['mode' => 'point', 'start' => 1040]);
+        // what says nothing: a proposal, a rejected reading, a period marked uncertain
+        $period($person, ['mode' => 'point', 'start' => 1090], ['status' => 'proposed']);
+        $period($person, ['mode' => 'point', 'start' => 900], ['status' => 'rejected']);
+        $period($person, ['mode' => 'point', 'start' => 1095], ['period_certainty' => 'probable']);
+        // a period after the death, and one before the birth: conflicts of the person's own dates
+        $dead = $this->person('شخص آزمایشی دوره پس از وفات');
+        DB::table('people')->where('id', $dead->id)->update(['death_year_hijri' => 1020, 'death_from' => 1020, 'death_to' => 1020, 'birth_year_hijri' => 1010]);
+        $period($dead, ['mode' => 'span', 'start' => 1000, 'end' => 1030]);
+
+        $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
+
+        $death = $this->estimate('person', $person->id, 'death');
+        $birth = $this->estimate('person', $person->id, 'birth');
+        $this->assertSame([1040, 'period', 'person', $person->id], [(int) $death->year_from, $death->from_rule, $death->from_evidence_type, (int) $death->from_evidence_id]);
+        $this->assertSame([1005, 'period'], [(int) $birth->year_to, $birth->to_rule]);
+        // the periods themselves are documented: no estimate is written of them
+        $this->assertSame(0, DB::table('date_estimates')->where('field', 'period')->count());
+        $this->assertSame(['زنده در 1040 ق', 'دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.'],
+            [\App\Support\DateEstimates\EstimateText::aliveIn($person->id)['text'], \App\Support\DateEstimates\EstimateText::aliveIn($person->id)['reasons'][0]['text']]);
+
+        $conflicts = DB::table('date_conflicts')->where('rule', Loader::RULE_PERIOD)->where('a_id', $dead->id)->orderBy('a_field')->get();
+        $this->assertSame([['birth', 1010, 'period', 1000, 10], ['period', 1030, 'death', 1020, 10]],
+            $conflicts->map(fn ($c) => [$c->a_field, (int) $c->a_from, $c->b_field, (int) $c->b_to, (int) $c->gap])->all());
+        $this->assertSame(['دوره‌ای از زندگی پیش از تولد', 'دوره‌ای از زندگی پس از وفات'], \App\Models\DateConflict::whereIn('id', $conflicts->pluck('id'))->orderBy('a_field')->get()->map->label->all());
+
+        // the pages that show a conflict take the new field: the person's own page, and the panel's list and queue
+        $this->get(route('people.show', $person))->assertOk()->assertSee('زنده در ۱۰۴۰ ق');
+        $this->get(route('people.show', $dead))->assertOk()->assertSee('دوره‌ای از زندگی پس از وفات')->assertSee('دوره‌ای از زندگی پیش از تولد');
+        $admin = \App\Models\User::create(['name' => 'Admin Tester', 'email' => 'period-engine-' . uniqid() . '@fahares.net', 'password' => 'password123', 'role' => 'admin']);
+        $this->actingAs($admin)->get(route('admin.date-conflicts.index', ['rule' => Loader::RULE_PERIOD]))->assertOk()->assertSee('دوره‌ی زندگی')->assertSee('۱۰۰۰–۱۰۳۰');
+        $card = (new \App\Review\DateConflictQueue)->card(\App\Models\DateConflict::find($conflicts[1]->id));
+        $this->assertSame(['دوره‌ی زندگی', '1000–1030', 'وفات'], [$card['sides']['a']['field'], $card['sides']['a']['date'], $card['sides']['b']['field']]);
+    }
+
     public function test_it_only_counts_without_apply()
     {
         $this->work('اثر تاریخ‌دار آزمایشی', 1200, $this->person('مؤلف آزمایشی شمارش'));

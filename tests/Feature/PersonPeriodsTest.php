@@ -149,6 +149,19 @@ class PersonPeriodsTest extends TestCase
         $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('از ۱۲۵۰ تا ۱۲۶۰ ق')->assertDontSee('حلب');
         $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true])->assertSuccessful();
         $this->assertSame(2, PersonPeriod::where('person_id', $person->id)->count());
+        // --prune takes back a waiting proposal the reader no longer gives, and reads again one it still gives (step 14.227);
+        // what a reviewer approved or rejected stays
+        $stale = PersonPeriod::create(['person_id' => $person->id, 'kind' => 'study', 'status' => 'proposed', 'origin' => 'machine', 'place' => 'نجف', 'note' => 'خوانش پیشین']);
+        $byHand = PersonPeriod::create(['person_id' => $person->id, 'kind' => 'travel', 'status' => 'proposed', 'place' => 'مکه']);
+        \App\Models\SourceItem::whereKey($item)->update(['text' => 'فقيه اصولي. ثم انتقل الى طهران، و بقى فيها. و سكن اصفهان سنة 1270.']);
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--prune' => true])->assertSuccessful();
+        $this->assertNotNull($stale->fresh());
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--prune' => true, '--apply' => true])->assertSuccessful();
+        $this->assertNull($stale->fresh());
+        $this->assertSame([['residence', 'تهران', 'approved', 1250], ['office', 'حلب', 'rejected', null], ['travel', 'مکه', 'proposed', null], ['residence', 'اصفهان', 'proposed', 1270]],
+            PersonPeriod::where('person_id', $person->id)->orderBy('id')->get()->map(fn ($p) => [$p->kind, $p->city, $p->status, $p->period_from])->all());
+        $byHand->delete();
+        PersonPeriod::where('person_id', $person->id)->where('city', 'اصفهان')->delete();
         // an approved period is not rejected through the proposals' door
         $this->actingAs($this->admin)->post(route('admin.people.periods.reject', [$person->id, $proposals[0]->id]))->assertNotFound();
     }

@@ -11765,6 +11765,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_a_scribe_whose_name_is_only_read_right_keeps_the_copy_under_the_new_name` در `RebuildCopiesCommandTest`. یک شخص تک‌نسخه‌ای نام می‌گیرد، و شخصی که نسخه‌ی دیگری بیرون از پرونده دارد دست نمی‌خورد.
 - **تمرین روی `fahares_prod` محلی:** `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`. اجرای دوم: `Would rebuild 0 copies`. نمونه: #192178 کاتب «محمد علی بن عباس تویسرکانی» (شخص 45656) و تاریخ «سه شنبه 16 ذیقعده 1085ق»، سال ۱۰۸۵.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از `scribe_name`، `scribe_id`، `copy_date_raw`، ستون‌های بازه و `is_bita` این ۲۹۱ نسخه، و از `id`، `name`، `normalized_name` اشخاص پیوندخورده. سپس فرمان و اجرای دوباره.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
+  - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
+  - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
+  - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
 
 ### گام ۱۴.۲۲۵: `Person::lifeYear` و `fahares:fix-life-years`
 
@@ -11795,6 +11800,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
 - **پس از اجرا در پروداکشن:** `fahares:estimate-dates --apply`، و برای سند جستجوی اشخاص `fahares:reindex-work-estimates --people --all`.
 - **مانده:** ۴۰ شخص گروه سوم (بازبینی با منبع زندگی‌نامه)؛ شبه‌شخص‌ها (مورد ۱۴۵).
+
+### گام ۱۴.۲۲۶: قاعده‌ی `period` و `DateVar::periodStart()` / `periodEnd()`
+
+- **متغیرها:** برای هر شخص دو عدد، `DateVar::periodStart($id) = end(of(BIRTH, $id))` و `periodEnd($id) = end(of(DEATH, $id))`؛ «پایانِ» تولد و وفات را چیز دیگری به کار نمی‌برد. `type` آن‌ها `person` و `field` آن‌ها `period` (`DateVar::PERIOD`) است.
+- **`Loader::periods`:** ردیف‌های `person_periods` با `status = approved` و `period_certainty` تهی. برای هر دوره:
+  - دیرترین سالِ ممکنِ آغاز: در `span`، `start_to ?? from` (و اگر آغاز باز است `to`)؛ در «یک سال» و «بین»، سال بیرونیِ دیرتر.
+  - زودترین سالِ ممکنِ پایان: در `span`، `end_from ?? to` (و اگر پایان باز است `from`)؛ در بقیه، سال بیرونیِ زودتر.
+  - `periodStart` با کمینه‌ی اولی‌ها و `periodEnd` با بیشینه‌ی دومی‌ها بذر می‌شود؛ قید: `BIRTH ≤ periodStart` و `periodEnd ≤ DEATH`، قاعده‌ی `Loader::RULE_PERIOD`.
+- **خروجی:**
+  - تخمین تولد و وفات با `to_rule`/`from_rule = period` و شاهدِ `person` (خود شخص). برای خودِ دوره‌ها ردیف تخمین ساخته نمی‌شود (`DateVar::isPeriod` در `estimateRows`).
+  - تناقض: `birth>period` «دوره‌ای از زندگی پیش از تولد» و `period>death` «دوره‌ای از زندگی پس از وفات» (`DateConflict::LABELS`، `RULE_LABELS`، `FIELD_LABELS['period'] = 'دوره‌ی زندگی'`).
+- **نمایش:**
+  - `EstimateText::aliveIn`: برای `from_rule = period` بی خواندن شاهد، «زنده در ‹سال›» و «دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.»؛ `reason()` برای تخمین تولد و وفات.
+  - `DateConflictNote`: تناقضِ `period>death` زیر وفات می‌آید (قاعده‌ی «تناقض تولد و وفاتِ یک شخص فقط یک بار» آن را کنار نمی‌گذارد)، و پاسخِ «دوره‌ی زندگی این شخص» چون فیلدی در فرم ندارد یک پیشنهاد کلی باز می‌کند.
+  - `ConflictRecords`: `dates['period']` بازه‌ی سال‌های دوره‌های تأییدشده‌ی شخص، برای فهرست پنل و کارت صف.
+- **سنجش:** `fahares_prod` محلی ۱٬۲۰۴ دوره‌ی پیشنهادی و هیچ دوره‌ی تأییدشده ندارد، پس `Loader::periods` آن‌جا قیدی نمی‌سازد. (اجرای خشکِ دوباره با گام ۱۴.۲۲۲ عدد به عدد نمی‌خواند، چون نشست‌های دیگر در این فاصله رونوشت محلی را عوض کرده‌اند.)
+- **تست:** `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
 - **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
   - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
@@ -11841,3 +11863,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **«الزايرجة»:** #3969 «الأدوار العنصرية المستخرجة من الزايرجة السبتية» مدخل «الزايرجة؛ سبتی، ابوالعباس احمد بن جعفر (524-601)» دارد، و #34346 «الزایرجة» در چاپ از «خزرجی، احمد بن مسعود، - 601؟» است و همین #3969 را در «شرح و حواشی» خود نام برده است. این دو نام دو کس‌اند: ابوالعباس احمد بن جعفر خزرجی سبتی (۵۲۴-۶۰۱، مراکش) و ابوالعباس احمد بن مسعود قرطبی خزرجی (درگذشته‌ی ۶۰۱ در دنیسر). زایرجه را به سبتی نسبت داده‌اند. پیوند دو اثر درست است و رکورد شخصی برای ادغام نیست؛ نام پدیدآور #34346 جای بازبینی دارد.
 - **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back` و `test_two_works_of_one_title_and_the_one_of_several_works_of_a_title_and_author`.
 - **اجرا در تولید، پس از استقرار:** پشتیبان `work_relations`، سپس `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`.
+### گام ۱۴.۲۲۷: قاعده‌های تازه‌ی `LifePeriodExtractor` و `--prune`
+
+- **روش سنجش:** نمونه با `ORDER BY CRC32(CONCAT(id, نمک))` از `person_periods` پیشنهادی روی `fahares_prod` محلی. هر پیشنهاد «درست» شمرده شد اگر نوع دوره و شهر درباره‌ی خودِ صاحب زندگی‌نامه درست بود.
+
+| نمونه | درست | غلط | فقط سال غلط / نوع نادقیق |
+|---|---:|---:|---:|
+| ۶۰ پیشنهاد، پیش از این گام | ۴۰ (۶۷٪) | ۱۶ | ۴ |
+| ۵۰ پیشنهاد تازه، پس از قاعده‌ها (در تنظیم به کار نرفته) | ۴۲ (۸۴٪) | ۶ | ۲ |
+
+- **قاعده‌ها:**
+  - `OTHERS`: جمله‌ای با «ابوه»، «والده»، «آبائه»، «ولده»، «اولاده»، «پدر»، «اجدادش»، «فرزند»، «شاگردان» … کنار می‌رود.
+  - `HEADED`: «نزيل»، «مقيم»، «ساكن»، «مجاورا» فقط در سه واژه‌ی نخست جمله (`HEAD`).
+  - `CUE_BY`: نشانه باید در ۱۸ واژه‌ی نخست جمله باشد.
+  - `NEEDS`: «حضر» فقط با «على/عند/درس/بحث/مجلس/في» و «اخذ» فقط با «عن/العلم/الفقه/في» در سه واژه‌ی پس از آن.
+  - نشانه‌های منصب: «القضاء»، «قضاء»، «قاضي»، «متولي» و «افتاء» برداشته شد («اصحاب فتوى و قضاء»)؛ «ناب» افزوده شد.
+  - «درس» بی تشدید تحصیل است؛ «درّس» تدریس.
+  - «مدينه» فقط با «ال» مدینه است؛ «الشام» شهر نیست (ناحیه است)؛ همزه‌ی پایانی برداشته می‌شود («كربلاء»).
+  - فارسی: مکان در چهار واژه‌ی پیش از فعل (`BACK`)، و از دو نامِ کنار هم اولی («بجهرم شیراز مهاجرت کرد» ← جهرم).
+  - سال: فقط در پنج واژه‌ی دو سوی مکان (`YEAR_NEAR`).
+- **خطاهای مانده در نمونه‌ی تازه:** خبر درباره‌ی شخص نام‌برده‌ی دیگری («لمّا استوطن البخاري نيسابور»، «لما توجه أبو نواس إلى مصر»)؛ «بمکه رفت» که سفر حج است و اقامت گرفته می‌شود؛ «رحل … فاستقر في نيسابور» که سفر گرفته می‌شود و اقامت است.
+- **`--prune`:** پس از خواندن همه‌ی مدخل‌ها، برای هر ردیف `status = proposed` و `origin = machine`: اگر کلید «شخص|نوع|شهر» در خوانش این اجرا نیست حذف می‌شود (`pruned`)، وگرنه `place`، `note`، `source_text`، `source_entry_id` و ستون‌های تاریخ از خوانش تازه نوشته می‌شود اگر فرق دارد (`reread`).
+- **تمرین روی `fahares_prod`:** دو اجرا (میان دو دور قاعده): ۱۱۸ تازه، ۲۸۱ پس‌گرفته، ۶۶ بازخوانی؛ سپس ۸ تازه، ۲۲ پس‌گرفته، ۲ بازخوانی. مانده: ۱٬۰۲۷ پیشنهاد، ۶۵۷ نفر (اقامت ۵۰۸، سفر ۲۴۰، تحصیل ۱۷۰، منصب ۹۰، تدریس ۱۹). اجرای سوم صفر.
+- **فرمان پروداکشن پس از انتشار (با تأیید کاربر، پشتیبان `person_periods`، زیر `prod-run`):** `fahares:propose-life-periods --prune --apply`.
+- **تست:** `LifePeriodExtractorTest::test_the_errors_a_sample_of_proposals_showed_are_left_out` و حالت `--prune` در `PersonPeriodsTest`.

@@ -9,6 +9,10 @@ namespace App\Support\DateEstimates;
  * A composition or a copying that lasted from one year to another (DateSpan::SPAN) is two dates, its start and its
  * end (step 14.222). The start keeps the date's own number, so the keys of the conflicts there are do not change; the
  * end is end() of it, a negative number. Both name the same record and the same field.
+ *
+ * The periods of a person's life a reviewer approved (step 14.226) are two dates of the person: the start of the
+ * earliest and the end of the latest, periodStart() and periodEnd(). They are the «ends» of the person's birth and
+ * death, numbers nothing else uses, and their field is PERIOD.
  */
 final class DateVar
 {
@@ -27,6 +31,23 @@ final class DateVar
     public static function of(int $kind, int $id): int
     {
         return $id * 4 + $kind;
+    }
+
+    public const PERIOD = 'period';
+
+    public static function periodStart(int $personId): int
+    {
+        return self::end(self::of(self::BIRTH, $personId));
+    }
+
+    public static function periodEnd(int $personId): int
+    {
+        return self::end(self::of(self::DEATH, $personId));
+    }
+
+    public static function isPeriod(int $var): bool
+    {
+        return $var < 0 && self::kind($var) <= self::DEATH;
     }
 
     /** The end of a date that lasted: another number for the same record and field. */
@@ -58,7 +79,7 @@ final class DateVar
 
     public static function field(int $var): string
     {
-        return self::FIELDS[self::base($var) % 4];
+        return self::isPeriod($var) ? self::PERIOD : self::FIELDS[self::base($var) % 4];
     }
 
     public static function type(int $var): string

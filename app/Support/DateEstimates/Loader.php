@@ -40,6 +40,11 @@ use Illuminate\Support\Facades\DB;
  * | derived    | the START of the base work ≤ the END of the work that rests on it              |
  *
  * A date of any other kind, a century or a range of no known kind, is one date as before.
+ *
+ * The periods of a person's life a reviewer approved (person_periods, step 14.226) bound the life: the person was
+ * born before the first of them began and died after the last of them ended. They are two dates of the person, the
+ * start of the earliest period and the end of the latest (DateVar::periodStart, periodEnd), under the rule «period».
+ * A proposed or a rejected period, and one the reviewer marked uncertain, says nothing.
  */
 final class Loader
 {
@@ -67,6 +72,8 @@ final class Loader
 
     public const RULE_DERIVED = 'derived';
 
+    public const RULE_PERIOD = 'period';
+
     /** What a broken rule says, for the reports. */
     public const CONFLICT_LABELS = [
         self::RULE_LIFE => 'عمر بیش از ۱۰۰ سال، یا وفات پیش از تولد',
@@ -78,6 +85,7 @@ final class Loader
         self::RULE_SCRIBE => 'کتابت پس از وفات کاتب، یا پیش از ۱۰ سالگی او',
         self::RULE_PATRON => 'کتابت پس از وفات بانی، یا پیش از تولد او',
         self::RULE_DERIVED => 'اثر وابسته پیش از اثر اصلی',
+        self::RULE_PERIOD => 'دوره‌ای از زندگی پیش از تولد یا پس از وفات',
     ];
 
     public static function load(): Engine
@@ -100,6 +108,8 @@ final class Loader
             $engine->constrain($birth, $death, 0, self::RULE_LIFE);
             $engine->constrain($death, $birth, self::LIFE, self::RULE_LIFE);
         }
+
+        self::periods($engine);
 
         // the end of each composition that lasted: work id => its number; any other work's end is its one date
         $workEnds = [];
@@ -182,6 +192,39 @@ final class Loader
         }
 
         return $engine;
+    }
+
+    /**
+     * The approved periods of each person as two dates: the latest year the earliest period may have begun in, which
+     * the birth comes before, and the earliest year the latest period may have ended in, which the death comes after.
+     * A period of one year, or of some time between two years, begins and ends somewhere in its years.
+     */
+    private static function periods(Engine $engine): void
+    {
+        $bounds = [];
+        $rows = DB::table('person_periods')->where('status', \App\Models\PersonPeriod::APPROVED)->whereNull('period_certainty')
+            ->orderBy('id')->get(['person_id', 'period_from', 'period_to', 'period_kind', 'period_start_to', 'period_end_from']);
+        foreach ($rows as $row) {
+            $date = DateSpan::fromColumns($row, 'period');
+            if ($date->isEmpty()) {
+                continue;
+            }
+            // of a duration the start's own latest year and the end's own earliest; of anything else the outer years
+            $startBy = $date->isSpan() ? ($date->start()[1] ?? $date->to) : ($date->to ?? $date->from);
+            $endFrom = $date->isSpan() ? ($date->end()[0] ?? $date->from) : ($date->from ?? $date->to);
+            $bound = &$bounds[(int) $row->person_id];
+            $bound['start'] = min($bound['start'] ?? PHP_INT_MAX, $startBy);
+            $bound['end'] = max($bound['end'] ?? PHP_INT_MIN, $endFrom);
+            unset($bound);
+        }
+        foreach ($bounds as $personId => $bound) {
+            $start = DateVar::periodStart($personId);
+            $end = DateVar::periodEnd($personId);
+            $engine->seed($start, $bound['start'], $bound['start']);
+            $engine->seed($end, $bound['end'], $bound['end']);
+            $engine->constrain(DateVar::of(DateVar::BIRTH, $personId), $start, 0, self::RULE_PERIOD);
+            $engine->constrain($end, DateVar::of(DateVar::DEATH, $personId), 0, self::RULE_PERIOD);
+        }
     }
 
     /**
