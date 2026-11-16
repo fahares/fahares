@@ -114,6 +114,11 @@ class PersonPlacesTest extends TestCase
         // saving keeps the city in step
         Manuscript::find($a)->update(['copy_place' => 'مشهد رضوی مدرسه میرزا جعفر']);
         $this->assertSame('مشهد', $city($a));
+        // cities added to the list and other forms of a name (step 14.221); a school named like a city is none
+        foreach (['کربلای معلی' => 'کربلا', 'بلوک بلده ساوج' => 'ساوه', 'عظیم آباد هند' => 'پتنه', 'تفت یزد' => 'تفت', 'بروسه' => 'بورسا', 'اشرف مازندران' => 'بهشهر',
+            'مدرسه سلیمانیه' => null, 'از محلات جوباره' => null] as $text => $expected) {
+            $this->assertSame($expected, \App\Support\CopyPlaces::cityOf($text), $text);
+        }
         Manuscript::find($a)->update(['copy_place' => 'احمد نگر دکن هند']);
         $this->assertSame(['احمدنگر', 'دکن'], [$city($a), $region($a)]);
         Manuscript::find($a)->update(['copy_place' => null]);
