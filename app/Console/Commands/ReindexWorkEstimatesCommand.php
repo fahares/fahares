@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\DB;
 /**
  * Reindexes the records whose search document has the estimate fields: the works with a year of composition or a
  * placed estimate of it (era_estimate_from, era_estimate_to, composition_sort_year; step 14.197), or with --people the
- * people with a death year or a year they were last seen alive (alive_century, death_sort_year; step 14.198). The
- * other documents need nothing: the fields are null there. Run once after scout:sync-index-settings made the fields
+ * people with a death year, a century or a year they were last seen alive (alive_century, death_sort_year; step
+ * 14.198; era_year, step 14.213). The other documents need nothing: the fields are null there. --all takes every
+ * person, for a change that emptied such a field (a death year that was no Hijri year, step 14.214). Run once after scout:sync-index-settings made the fields
  * filterable and sortable; from then on fahares:estimate-dates refreshes what changed.
  *
  * The first run on production (step 14.201) sent 35 batches in ten minutes while Meilisearch was rebuilding the index
@@ -24,6 +25,7 @@ class ReindexWorkEstimatesCommand extends Command
 {
     protected $signature = 'fahares:reindex-work-estimates
         {--people : Reindex the people instead of the works}
+        {--all : With --people, every person, whatever the document holds}
         {--chunk=100 : Records per batch}
         {--from=0 : The first id to reindex (to resume an interrupted run)}
         {--to=0 : The last id to reindex; 0 for no end}
@@ -39,7 +41,8 @@ class ReindexWorkEstimatesCommand extends Command
         $within = fn ($query, string $column) => $query->where($column, '>=', $from)->when($to > 0, fn ($q) => $q->where($column, '<=', $to));
 
         $ids = $people
-            ? $within(DB::table('people'), 'id')->where(fn ($q) => $q->whereNotNull('death_year_hijri')->orWhereRaw(EstimateText::ALIVE_YEAR_SQL . ' IS NOT NULL'))->pluck('id')
+            ? $within(DB::table('people'), 'id')->when(! $this->option('all'), fn ($q) => $q->where(fn ($q) => $q->whereNotNull('death_year_hijri')
+                ->orWhereNotNull('century_hijri')->orWhereRaw(EstimateText::ALIVE_YEAR_SQL . ' IS NOT NULL')))->pluck('id')
             : $within(DB::table('works'), 'id')->whereNotNull('composition_year_hijri')->pluck('id')
                 ->merge($within(EstimateText::placedCompositions(DB::query()), 'date_estimates.subject_id')->pluck('date_estimates.subject_id'));
         $ids = $ids->map(fn ($id) => (int) $id)->unique()->sort()->values();
