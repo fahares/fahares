@@ -11798,7 +11798,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ناسازگاری مستقیم پس از `estimate-dates --apply`: ۲٬۸۳۵ ← ۲٬۶۶۰ (با موتور پیش از گام ۱۴.۲۲۲). با موتور گام ۱۴.۲۲۲ همین داده ۲٬۶۷۲ مستقیم و ۹٬۷۵۵ غیرمستقیم دارد.
   - نمونه‌ها: قاضی سعید قمی «1049-»: وفات ۱۰۴۹ ← تولد ۱۰۴۹؛ حکیمی «1357 - قمری»: وفات ۱۳۵۷ ← تولد ۱۳۵۷؛ عبرت نائینی: ۱۳۲۱ ← ۱۳۶۱ تا ۱۳۶۲.
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
-- **پس از اجرا در پروداکشن:** `fahares:estimate-dates --apply`، و برای سند جستجوی اشخاص `fahares:reindex-work-estimates --people --all`.
+- **اجرای پروداکشن (۲۶ آبان ۱۴۰۵، پس از انتشار ۱۴۶، با تأیید کاربر، هر فرمان جدا زیر `prod-run`):**
+  - پشتیبان: `../fahares-sources/backups/step13/step14_225_people_before.jsonl.gz` (۶۶٬۵۱۲ ردیف، md5 `a149227a…`).
+  - `fahares:fix-life-years`: آزمایشی و `--apply` هر دو «3 fuller texts, 5 birth years, 61 years alive, 6 open dashes, 53 mid-century years, 2 solar»؛ اجرای دوم «75 already right».
+  - `fahares:estimate-dates --apply`: ۸۷ ثانیه؛ ۲۲۵٬۳۴۳ تخمین و ۱۲٬۴۲۷ ناسازگاری (۲٬۶۷۲ مستقیم، ۹٬۷۵۵ غیرمستقیم)، همان عددهای تمرین با موتور گام ۱۴.۲۲۲؛ ۳۴۱ سند اثر و ۵۶۴ سند شخص تازه شد.
+  - بار سرور پس از استقرار و `estimate-dates` تا ۱۱٫۷ رفت؛ بازنمایه پس از رسیدن آن به ۶ آغاز شد.
+  - `fahares:reindex-work-estimates --people --all` (با `nohup`): ۱۳:۳۵ تا ۱۴:۰۳، «Reindexed 66512 of 66512 people (up to #74735)»، بی خطا؛ اتصال ssh میان راه بسته شد و فرمان ادامه یافت. صف Meilisearch پس از آن خالی، کار ناموفق ۰.
+  - وارسی: قاضی سعید قمی «ز. ۱۰۴۹ ق» (پیش‌تر «د. ۱۰۴۹ ق»)، عبرت نائینی «۱۲۸۲–۱۳۶۱ ق»، اشکوری «د. ۱۳۲۵ ق». فایل‌های `/tmp` کانتینر پاک شد.
 - **مانده:** ۴۰ شخص گروه سوم (بازبینی با منبع زندگی‌نامه)؛ شبه‌شخص‌ها (مورد ۱۴۵).
 
 ### گام ۱۴.۲۲۶: قاعده‌ی `period` و `DateVar::periodStart()` / `periodEnd()`
