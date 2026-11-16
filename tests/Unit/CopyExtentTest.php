@@ -54,5 +54,21 @@ class CopyExtentTest extends TestCase
         $this->assertSame([null, null, null, null], $this->extent('جلد 2 از 3 جلد، 12 سطر'));
         $this->assertSame([null, null, null, null], $this->extent('رساله‌ای در 12 صفحه و تفسیر آیه نور 6برگ ضمیمه اند؛ 13 سطر'));
     }
+
+    public function test_a_count_in_more_of_the_catalogue_forms_is_read()
+    {
+        // a «؛» inside the closing citation (step 14.204)
+        $this->assertSame([null, 2, '227', '228'], $this->extent('نامه به قاضی جیوه؛ بی‌کا، بی‌تا؛ 2ص (227-228)[ف: 10/2-795؛ فهرست رایانه‌ای ج4-1033]'));
+        // the margin beside the range, a second range, and the citation opened as a parenthesis
+        $this->assertSame([null, 8, '220', '227'], $this->extent('واقف: نایینی؛ 8ص (220-227)(هامش)، 20سطر، اندازه: 12/7×21/5سم [ف: 7-767]'));
+        $this->assertSame([null, 36, '180', '215'], $this->extent('جلد: تیماج، 36ص (حاشیه) (180-215)، اندازه: 15×21سم [ف: 9-199]'));
+        $this->assertSame([null, 5, '947', '948'], $this->extent('کاغذ ابر پر طاووسی، 5ص (947-948) و (954-956)، اندازه: 11×32/5سم'));
+        $this->assertSame([null, 3, '55', '57'], $this->extent('بی‌کا، بی‌تا؛ 3ص (55-57) (عکسی ف: 4-222]'));
+        // the «،» set before the binding's last word, and lines «12-15-20 سطر» glued after the count
+        $this->assertSame([null, 38, '486', '523'], $this->extent('جلد تیماج ،مشکی 38 ص (486-523) [سنا: ف: 2 - 159]'));
+        $this->assertSame([null, 6, '174', '179'], $this->extent('جلد: تیماج مشکی، 6ص (174-179) 12-15-20 سطر، اندازه: 10×18/5سم'));
+        // an edition's page count inside a bracket is not the copy's
+        $this->assertSame([106, null, null, null], $this->extent('[چاپ شده، تهران، 1390شمسی، 259ص، با عنوان «تشیع»]؛ خط: نسخ؛ 106گ'));
+    }
 }
 
