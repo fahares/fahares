@@ -11542,6 +11542,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - افزایش غیرمستقیم‌ها: فعالیتی که بیش از یک عمر از سده دور است، دیگر با بازه‌ی وفات مستقیم نمی‌خورد و از راه قید سده ناسازگار می‌ماند.
   - تخمین وفات ۷٬۱۰۱ شخص بیشتر شد؛ موتور ۳٬۲۶۳ سند شخص و ۱٬۲۸۶ سند اثر را تازه کرد.
 - **ترتیب در پروداکشن (با تأیید کاربر):** پشتیبان ستون‌های تاریخ `people`، سپس `fahares:fix-life-centuries --apply`، `fahares:fix-calendar-deaths --apply`، `fahares:estimate-dates --apply`، `scout:sync-index-settings` و `scout:import "App\Models\Person"`. آثار بازنمایه نمی‌خواهند، چون `era_year` و `author_death_year` همان عدد می‌مانند (جز آثار اشخاص گام ۱۴.۲۱۴، که `estimate-dates` بخشی را تازه می‌کند و بقیه با `scout:import "App\Models\Work"`).
+- **پس از انتشار ۱۴۲ (۲۵ آبان ۱۴۰۵):** تا `era_year` در نمایه‌ی اشخاص نباشد، ترتیب «کهن‌ترین وفات» از پایگاه داده پاسخ می‌گیرد و کند است (روی سایت ۵ ثانیه، با واژه ۱۸ ثانیه). `fahares:reindex-work-estimates --people` اشخاصِ دارای `century_hijri` را هم می‌گیرد و گزینه‌ی `--all` همه‌ی اشخاص را، چون گام ۱۴.۲۱۴ سال وفات برخی را خالی می‌کند و سندشان باید تازه شود. به‌جای `scout:import` همین فرمان مهارشده به کار رود (درس گام ۱۴.۲۰۱).
 - **مانده:** ۵۳ شخص بی‌متن با سال میانه‌ی سده؛ ۶۹ متن سال تنهای قمری بی خط تیره («1360 قمری»)، که برای معاصران سال تولد است و برای برخی سال وفات.
 
 ### گام ۱۴.۲۱۴: تقویم تاریخ زندگی (`Person::otherCalendarLife`) و `fahares:fix-calendar-deaths`
@@ -11614,6 +11615,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `fill-extents --apply`.
   3. `rebuild-copies` با این پرونده.
   4. اجرای دوباره‌ی هر دو برای وارسی.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۱۵ و ۱۴.۲۱۷):**
+  - پشتیبان: ستون‌های ۱۳۴ نسخه‌ی گام ۱۴.۲۱۵ و ستون‌های شمار ۳۲۳٬۲۴۹ نسخه در `step14_217_backup.json` (md5 `373dad19…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `rebuild-copies` گام ۱۴.۲۱۵: ۱۳۴ نسخه.
+  - `fill-extents`: `changed 72`، `pages_out_of_folios 28`.
+  - `rebuild-copies` این گام: ۱۵۷ نسخه.
+  - اجرای دوم هر سه: `Would rebuild 0 copies`، `kept:no_count_in_text 188` بی `changed`.
 
 ### گام ۱۴.۲۱۸: `person_periods`، `App\Models\PersonPeriod` و `Admin\PersonPeriodController`
 

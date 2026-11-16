@@ -109,6 +109,12 @@ class SearchEstimatesTest extends TestCase
         $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--from' => $dead->id, '--sleep' => 0])
             ->expectsOutputToContain("Reindexed 1 of 1 people (up to #{$dead->id})")->assertSuccessful();
         $this->assertGreaterThan($dead->id, $unknown->id);
+        // a person known by the century alone has a year to order by (step 14.213); --all takes the others too
+        $century = Person::create(['name' => 'سده‌ی نمایه‌ی آزمایشی', 'normalized_name' => 'سده‌ی نمایه‌ی آزمایشی', 'slug' => 'se-' . uniqid(), 'life_dates_raw' => 'ق 13 قمری']);
+        $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--from' => $dead->id, '--sleep' => 0])
+            ->expectsOutputToContain("Reindexed 2 of 2 people (up to #{$century->id})")->assertSuccessful();
+        $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--all' => true, '--from' => $dead->id, '--sleep' => 0])
+            ->expectsOutputToContain("Reindexed 3 of 3 people (up to #{$century->id})")->assertSuccessful();
     }
 
     public function test_the_page_orders_by_the_estimate_and_marks_it()
