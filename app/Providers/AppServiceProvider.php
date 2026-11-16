@@ -41,7 +41,10 @@ class AppServiceProvider extends ServiceProvider
             /** @var Blueprint $this */
             $this->unsignedSmallInteger("{$prefix}_from")->nullable();
             $this->unsignedSmallInteger("{$prefix}_to")->nullable();
-            $this->dateSpanKind($prefix);
+            // not dateSpanKind: «after» has no place in the making of a table (step 14.218)
+            $this->string("{$prefix}_kind", 8)->nullable();
+            $this->unsignedSmallInteger("{$prefix}_start_to")->nullable();
+            $this->unsignedSmallInteger("{$prefix}_end_from")->nullable();
             $this->string("{$prefix}_certainty", 20)->nullable();
             $this->string("{$prefix}_hedge_raw", 60)->nullable();
         });

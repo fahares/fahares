@@ -70,6 +70,7 @@ final class Permissions
         'contributor_add' => 'structure.link',
         'alias' => 'structure.link',
         'person_role' => 'structure.link',
+        'person_period' => 'people.edit',
         'record_relation' => 'structure.link',
         'move' => 'structure.move',
         'relocate' => 'structure.move',

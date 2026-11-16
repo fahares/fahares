@@ -12,7 +12,20 @@
         $formAction ??= route('admin.suggestions.approve', $suggestion);
         $directFields ??= [];
     @endphp
-    @if($apply === 'record_relation' && $target && $relationTarget)
+    @if($apply === 'person_period' && $target)
+        {{-- A suggested period of a person's life (step 14.219): the reviewer reads the text and enters the place and the years --}}
+        <p class="leading-relaxed text-ink">مکان و سال‌ها را از متن پیشنهاد در فرم بنویسید. دوره در صفحه‌ی «{{ $target->name }}» نمایش داده می‌شود و از همان‌جا ویرایش‌شدنی است.</p>
+        @php
+            ob_start();
+        @endphp
+        <label class="grid gap-1 sm:col-span-2"><span class="text-xs text-muted">یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)</span><input type="text" name="public_note" value="{{ old('public_note') }}" class="admin-field w-full"></label>
+        <label class="grid gap-1 sm:col-span-2"><span class="text-xs text-muted">یادداشت داخلی (فقط داوران)</span><input type="text" name="admin_notes" value="{{ old('admin_notes') }}" class="admin-field w-full"></label>
+        @php
+            $periodExtra = new \Illuminate\Support\HtmlString(ob_get_clean());
+        @endphp
+        @include('people.partials.period-form', ['action' => $formAction, 'period' => null, 'formKey' => 's' . $suggestion->id, 'submitLabel' => $relation['action'], 'extra' => $periodExtra,
+            'defaults' => ['kind' => $suggestion->payload['role'] ?? null, 'source_text' => mb_substr((string) $suggestion->suggested_value, 0, 500)]])
+    @elseif($apply === 'record_relation' && $target && $relationTarget)
         @php $relInput = 'admin-field w-full'; @endphp
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf

@@ -127,6 +127,83 @@
             </x-ui.section>
             </div>
 
+            {{-- The periods of the person's life a reviewer entered: residence, study, teaching, travel, office (item 139, step 14.218) --}}
+            @php $periods = $person->periods; @endphp
+            {{-- Empty, and no reviewer: a row of the contribution box, where a member suggests one (step 14.219) --}}
+            @if($periods->isEmpty() && ! auth()->user()?->can('people.edit'))
+                <x-suggest.contribute-item title="دوره‌های زندگی" label="افزودن اقامت، تحصیل، تدریس، سفر یا منصب…" :payload="['general' => true, 'relation' => 'period']"
+                    hint="اگر در منبعی دیده‌اید که این شخص از چه سالی تا چه سالی در شهری اقامت، تحصیل یا تدریس داشته، سفری کرده یا منصبی داشته است، با ذکر مأخذ بنویسید." />
+            @endif
+            @if($periods->isNotEmpty() || auth()->user()?->can('people.edit'))
+                <x-ui.section title="دوره‌های زندگی" :count="$periods->count() ?: null" id="periods">
+                    <x-slot:actions>
+                        <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'period' })"
+                            class="font-bold text-cinnabar hover:underline cursor-pointer">+ پیشنهاد دوره</button>
+                    </x-slot:actions>
+                    @if($periods->isNotEmpty())
+                        <ul class="divide-y divide-line border-y border-line text-sm">
+                            @foreach($periods as $period)
+                                <li class="py-2">
+                                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                        <span class="text-xs font-bold text-cinnabar">{{ $period->kind_label }}</span>
+                                        @if($period->place_name)<span class="font-semibold text-ink">{{ $period->place_name }}</span>@endif
+                                        <span class="tabular-nums text-ink">{{ Fa::digits($period->date_text) }}@if($period->period_certainty) <span class="text-xs text-muted">({{ \App\Models\PersonPeriod::CERTAINTIES[$period->period_certainty] ?? '' }})</span>@endif</span>
+                                        @if($period->place && $period->place !== $period->place_name)<span class="text-xs text-muted">«{{ $period->place }}»</span>@endif
+                                    </div>
+                                    @if($period->note || $period->source_text)
+                                        <p class="text-[13px] text-muted mt-0.5">{{ implode(' · ', array_filter([$period->note, $period->source_text ? 'مأخذ: ' . $period->source_text : null])) }}</p>
+                                    @endif
+                                    @can('people.edit')
+                                        <details class="mt-1" @if(old('period_form') === 'p' . $period->id) open @endif>
+                                            <summary class="text-xs text-muted cursor-pointer hover:text-cinnabar">ویرایش</summary>
+                                            <div class="mt-2 space-y-2">
+                                                @include('people.partials.period-form', ['action' => route('admin.people.periods.update', [$person->id, $period->id]), 'period' => $period])
+                                                <form method="POST" action="{{ route('admin.people.periods.destroy', [$person->id, $period->id]) }}" onsubmit="return confirm('این دوره حذف شود؟')">
+                                                    @csrf @method('DELETE')
+                                                    <x-ui.btn type="submit" size="sm" variant="ghost">حذف این دوره</x-ui.btn>
+                                                </form>
+                                            </div>
+                                        </details>
+                                    @endcan
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-sm text-muted">دوره‌ای ثبت نشده است.</p>
+                    @endif
+                    {{-- What the machine read in the biographies of the sources, for a reviewer to approve or reject (step 14.220) --}}
+                    @can('people.edit')
+                        @php $proposed = $person->proposedPeriods; @endphp
+                        @if($proposed->isNotEmpty())
+                            <div class="mt-4 border border-dashed border-line-strong p-3 space-y-3">
+                                <p class="text-xs font-bold text-muted">پیشنهادهای هوشواره از زندگی‌نامه‌های منابع ({{ Fa::num($proposed->count()) }}): خوانندگان این‌ها را نمی‌بینند. مکان و سال‌ها را با متن بسنجید، درست کنید و ذخیره کنید، یا رد کنید.</p>
+                                @foreach($proposed as $proposal)
+                                    <div class="space-y-1.5 text-sm">
+                                        <p><span class="text-xs font-bold text-cinnabar">{{ $proposal->kind_label }}</span> <span class="font-semibold">{{ $proposal->place_name }}</span>
+                                            @if($proposal->date_text)<span class="tabular-nums">{{ Fa::digits($proposal->date_text) }}</span>@endif</p>
+                                        <p class="text-[13px] text-muted leading-6">«{{ $proposal->note }}» <span class="text-xs">({{ $proposal->source_text }})</span></p>
+                                        <details @if(old('period_form') === 'p' . $proposal->id) open @endif>
+                                            <summary class="text-xs font-bold text-cinnabar cursor-pointer">بازبینی و تأیید</summary>
+                                            <div class="mt-2">@include('people.partials.period-form', ['action' => route('admin.people.periods.update', [$person->id, $proposal->id]), 'period' => $proposal, 'submitLabel' => 'تأیید و ثبت دوره'])</div>
+                                        </details>
+                                        <form method="POST" action="{{ route('admin.people.periods.reject', [$person->id, $proposal->id]) }}">
+                                            @csrf
+                                            <x-ui.btn type="submit" size="sm" variant="ghost">نادرست است، رد شود</x-ui.btn>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    @endcan
+                    @can('people.edit')
+                        <details class="mt-3" @if(old('period_form') === 'new') open @endif>
+                            <summary class="text-sm font-semibold text-cinnabar cursor-pointer">افزودن دوره</summary>
+                            <div class="mt-2">@include('people.partials.period-form', ['action' => route('admin.people.periods.store', $person->id), 'period' => null])</div>
+                        </details>
+                    @endcan
+                </x-ui.section>
+            @endif
+
             {{-- Where the person was and when, read from their dated copies and works that name a place (item 139, step 14.207) --}}
             @php $places = \App\Support\PersonPlaces::for($person); @endphp
             @if($places)

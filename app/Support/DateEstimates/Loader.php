@@ -2,6 +2,7 @@
 
 namespace App\Support\DateEstimates;
 
+use App\Support\DateSpan;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -24,6 +25,21 @@ use Illuminate\Support\Facades\DB;
  * translator, since the work's date is then the translation's; and a copy date that names the author's time
  * (CopyDateRange::relative), which was made from the author's death and documents nothing; and a three-digit copy
  * year read again from the work's date (CopyDateRange::reread), for the same reason.
+ *
+ * A composition or a copying that lasted from one year to another (DateSpan::SPAN, with both outer years) is two
+ * dates, its start and its end (step 14.222): what must come before it comes before its start, and who must have lived
+ * through it was alive at its end.
+ *
+ * | rule       | with a start and an end                                                        |
+ * | author     | the END of the composition ≤ his death; his birth ≤ its START − AUTHOR_AGE     |
+ * | dedicatee  | its START ≤ his death; his birth ≤ its END                                     |
+ * | copy       | the START of the composition ≤ the START of the copying (its END, an autograph) |
+ * | autograph  | the END of the copying ≤ the author's death                                    |
+ * | scribe     | the END of the copying ≤ his death; his birth ≤ its START − SCRIBE_AGE         |
+ * | patron     | the START of the copying ≤ his death; his birth ≤ its START                    |
+ * | derived    | the START of the base work ≤ the END of the work that rests on it              |
+ *
+ * A date of any other kind, a century or a range of no known kind, is one date as before.
  */
 final class Loader
 {
@@ -85,10 +101,16 @@ final class Loader
             $engine->constrain($death, $birth, self::LIFE, self::RULE_LIFE);
         }
 
-        foreach (DB::table('works')->select(['id', 'composition_date_from', 'composition_date_to'])
+        // the end of each composition that lasted: work id => its number; any other work's end is its one date
+        $workEnds = [];
+        foreach (DB::table('works')->select(['id', 'composition_date_from', 'composition_date_to', 'composition_date_kind', 'composition_date_start_to', 'composition_date_end_from'])
             ->where(fn ($q) => $q->whereNotNull('composition_date_from')->orWhereNotNull('composition_date_to'))->orderBy('id')->lazyById(20000) as $w) {
-            $engine->seed(DateVar::of(DateVar::COMPOSITION, $w->id), $int($w->composition_date_from), $int($w->composition_date_to));
+            $var = DateVar::of(DateVar::COMPOSITION, $w->id);
+            if (self::seedSpan($engine, $var, DateSpan::fromColumns($w, 'composition_date'))) {
+                $workEnds[$w->id] = DateVar::end($var);
+            }
         }
+        $workEnd = fn (int $workId) => $workEnds[$workId] ?? DateVar::of(DateVar::COMPOSITION, $workId);
 
         $ties = DB::table('work_people')->whereNotNull('person_id')->whereNull('certainty')
             ->whereIn('role', ['author', 'translator', 'dedicatee', 'commissioner'])->orderBy('id')->get(['work_id', 'person_id', 'role']);
@@ -114,24 +136,34 @@ final class Loader
                 'translator' => [self::RULE_TRANSLATOR, self::AUTHOR_AGE],
                 default => [self::RULE_DEDICATEE, 0],
             };
-            $engine->constrain($work, $death, 0, $rule);
-            $engine->constrain($birth, $work, -$age, $rule);
+            if ($rule === self::RULE_DEDICATEE) {
+                $engine->constrain($work, $death, 0, $rule);
+                $engine->constrain($birth, $workEnd((int) $t->work_id), 0, $rule);
+            } else {
+                $engine->constrain($workEnd((int) $t->work_id), $death, 0, $rule);
+                $engine->constrain($birth, $work, -$age, $rule);
+            }
         }
         unset($ties, $translated);
 
-        $copies = DB::table('manuscripts')->select(['id', 'work_id', 'copy_date_from', 'copy_date_to', 'copy_date_hedge_raw', 'is_autograph'])
-            ->orderBy('id')->lazyById(20000);
+        $copies = DB::table('manuscripts')->select(['id', 'work_id', 'copy_date_from', 'copy_date_to', 'copy_date_kind', 'copy_date_start_to', 'copy_date_end_from',
+            'copy_date_hedge_raw', 'is_autograph'])->orderBy('id')->lazyById(20000);
+        // the end of each copying that lasted: copy id => its number
+        $copyEnds = [];
         foreach ($copies as $m) {
             $copy = DateVar::of(DateVar::COPY, $m->id);
-            if (! self::namesAuthorsTime($m->copy_date_hedge_raw) && \App\Support\CopyDateRange::rereadYear($m->copy_date_hedge_raw) === null) {
-                $engine->seed($copy, $int($m->copy_date_from), $int($m->copy_date_to));
+            if (! self::namesAuthorsTime($m->copy_date_hedge_raw) && \App\Support\CopyDateRange::rereadYear($m->copy_date_hedge_raw) === null
+                && self::seedSpan($engine, $copy, DateSpan::fromColumns($m, 'copy_date'))) {
+                $copyEnds[$m->id] = DateVar::end($copy);
             }
             if ($m->work_id === null) {
                 continue;
             }
-            $engine->constrain(DateVar::of(DateVar::COMPOSITION, $m->work_id), $copy, 0, self::RULE_COPY);
+            $copyEnd = $copyEnds[$m->id] ?? $copy;
+            // an autograph is written while the work is: the work's start is before its end, no more
+            $engine->constrain(DateVar::of(DateVar::COMPOSITION, $m->work_id), $m->is_autograph ? $copyEnd : $copy, 0, self::RULE_COPY);
             if ($m->is_autograph && count($authors[$m->work_id] ?? []) === 1) {
-                $engine->constrain($copy, DateVar::of(DateVar::DEATH, $authors[$m->work_id][0]), 0, self::RULE_AUTOGRAPH);
+                $engine->constrain($copyEnd, DateVar::of(DateVar::DEATH, $authors[$m->work_id][0]), 0, self::RULE_AUTOGRAPH);
             }
         }
         unset($authors);
@@ -140,15 +172,34 @@ final class Loader
             ->select(['id', 'manuscript_id', 'person_id', 'role'])->orderBy('id')->lazyById(20000) as $t) {
             $copy = DateVar::of(DateVar::COPY, $t->manuscript_id);
             [$rule, $age] = $t->role === 'scribe' ? [self::RULE_SCRIBE, self::SCRIBE_AGE] : [self::RULE_PATRON, 0];
-            $engine->constrain($copy, DateVar::of(DateVar::DEATH, $t->person_id), 0, $rule);
+            // the scribe was alive when the copying ended; the patron, for all we know, when it began
+            $engine->constrain($t->role === 'scribe' ? ($copyEnds[$t->manuscript_id] ?? $copy) : $copy, DateVar::of(DateVar::DEATH, $t->person_id), 0, $rule);
             $engine->constrain(DateVar::of(DateVar::BIRTH, $t->person_id), $copy, -$age, $rule);
         }
 
         foreach (DB::table('work_relations')->whereNotIn('type', ['related', 'part'])->orderBy('id')->get(['work_id', 'related_work_id']) as $r) {
-            $engine->constrain(DateVar::of(DateVar::COMPOSITION, $r->related_work_id), DateVar::of(DateVar::COMPOSITION, $r->work_id), 0, self::RULE_DERIVED);
+            $engine->constrain(DateVar::of(DateVar::COMPOSITION, $r->related_work_id), $workEnd((int) $r->work_id), 0, self::RULE_DERIVED);
         }
 
         return $engine;
+    }
+
+    /**
+     * Seeds a date. A duration with both outer years is seeded as two dates, its start under $var and its end under
+     * DateVar::end($var), each with the years it may lie in (DateSpan::start, DateSpan::end); the answer says so. Any
+     * other date is one, with its outer years.
+     */
+    private static function seedSpan(Engine $engine, int $var, DateSpan $date): bool
+    {
+        if (! $date->isSpan() || $date->from === null || $date->to === null) {
+            $engine->seed($var, $date->from, $date->to);
+
+            return false;
+        }
+        $engine->seed($var, ...$date->start());
+        $engine->seed(DateVar::end($var), ...$date->end());
+
+        return true;
     }
 
     /** A copy date made from the author's death («در عصر مؤلف», «در حیات مؤلف», «در عصر تألیف»). */

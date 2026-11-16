@@ -136,7 +136,7 @@
                             <!-- A person connected with the copy: role, then a person from the list or a name -->
                             <template x-if="relation && relation.options">
                                 <div class="space-y-1">
-                                    <label class="block text-[13px] font-bold text-ink" x-text="['person_role', 'volume_cataloger'].includes(relation.apply) ? 'نقش:' : 'نوع رابطه:'"></label>
+                                    <label class="block text-[13px] font-bold text-ink" x-text="['person_role', 'volume_cataloger'].includes(relation.apply) ? 'نقش:' : (relation.apply === 'person_period' ? 'نوع دوره:' : 'نوع رابطه:')"></label>
                                     <select x-model="roleKey" class="{{ $inputClass }}">
                                         <option value="">انتخاب کنید…</option>
                                         <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label"></option></template>
@@ -270,7 +270,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block text-[13px] font-bold text-ink"
-                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازه‌ی کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : 'نام دیگر:')) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازه‌ی کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"

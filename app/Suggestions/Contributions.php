@@ -186,6 +186,7 @@ class Contributions
             ],
             'contributor_add' => ['after' => self::recordLink('person', $resolution['person_id'] ?? null)],
             'alias' => ['after' => self::plain($resolution['alias'] ?? $s->suggested_value)],
+            'person_period' => ['after' => self::plain($resolution['text'] ?? $s->suggested_value)],
             'person_role' => [
                 (! empty($resolution['removed']) ? 'before' : 'after') => self::recordLink('person', $resolution['person_id'] ?? null) ?? self::plain($resolution['name'] ?? $s->payload['name'] ?? null),
                 'text' => ($role = $resolution['role'] ?? $s->payload['role'] ?? null)

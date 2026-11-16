@@ -83,7 +83,8 @@ class SuggestionRegistry
      * remove (no target: the record should not exist and is deleted; see RecordRemover),
      * split (no target: two works or people were catalogued as one; the reviewer creates the second; see RecordSplitter).
      * needs_text: the submitted text is the value itself (another name, a new name) and may not be empty.
-     * Relations with options (person_role, record_relation) carry the chosen option in payload.role.
+     * person_period (a period of the person's life: its kind, and in the text where, when and the source; see PersonPeriod).
+     * Relations with options (person_role, record_relation, person_period) carry the chosen option in payload.role.
      */
     public const RELATIONS = [
         'manuscript' => [
@@ -122,6 +123,9 @@ class SuggestionRegistry
         'person' => [
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],
             'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias', 'needs_text' => true],
+            // A period of the person's life (item 139, step 14.219): the kind in payload.role, where, when and the source in
+            // the text; the reviewer enters the place and the years on approval. no_direct: a reviewer adds one on the person's page.
+            'period' => ['label' => 'دوره‌ای از زندگی این شخص (اقامت، تحصیل، تدریس، سفر، منصب)', 'target' => null, 'action' => 'ثبت دوره‌ی زندگی', 'apply' => 'person_period', 'needs_text' => true, 'no_direct' => true],
             'redundant' => ['label' => 'این رکورد زائد است (شخصی با این نام وجود ندارد؛ مثلاً عنوان یا عبارتی که به‌اشتباه نام شخص ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
             'conflated' => ['label' => 'دو شخص متفاوت در این رکورد خلط شده‌اند (برخی آثار یا نسخه‌ها از شخص دیگری‌اند)', 'target' => null, 'action' => 'تفکیک شخص', 'apply' => 'split', 'needs_text' => true],
         ],
@@ -172,6 +176,7 @@ class SuggestionRegistry
             'person_role' => self::personRoles($type),
             'record_relation' => RecordRelations::options($type),
             'volume_cataloger' => VolumeCatalogers::ROLES,
+            'person_period' => \App\Models\PersonPeriod::KINDS,
             default => null,
         };
     }

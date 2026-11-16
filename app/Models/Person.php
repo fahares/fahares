@@ -526,6 +526,18 @@ class Person extends Model
         return $this->authoredWorks();
     }
 
+    /** The periods of the person's life a reviewer entered, in the order of their years (item 139, step 14.218). */
+    public function periods(): HasMany
+    {
+        return $this->hasMany(PersonPeriod::class)->where('status', PersonPeriod::APPROVED)->orderByRaw('COALESCE(period_from, period_to)')->orderBy('id');
+    }
+
+    /** The periods read from the biographies in the sources that wait for a reviewer (step 14.220). */
+    public function proposedPeriods(): HasMany
+    {
+        return $this->hasMany(PersonPeriod::class)->where('status', PersonPeriod::PROPOSED)->orderBy('id');
+    }
+
     /**
      * Manuscripts this person copied, alone or with others.
      */
