@@ -11506,3 +11506,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲۱ یادداشت افزوده شد و ۱ `is_illuminated` روشن شد.
 - **تمرین روی `fahares_prod` محلی:** `fahares:rebuild-copies --file=database/data/glued_notes_step14_215_copies.json --apply` ۱۳۴ نسخه نوشت. اجرای دوم: `Would rebuild 0 copies`.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از آغاز، انجام، کاتب، تاریخ، جا، `is_ruled`، `is_illuminated` و `metadata` ۱۳۴ نسخه. سپس همان فرمان و اجرای دوباره.
+
+### گام ۱۴.۲۱۷: `CopyExtent` با «صفحه» و قید، و `prose_folios_step14_217_copies.json`
+
+- **فهرست ۴۱۶ نسخه:** نسخه‌هایی که `CopyExtent::columns()` برایشان `kept:no_count_in_text` می‌دهد (`fahares_prod` محلی، پس از گام ۱۴.۲۰۴). برای هر کدام تا سه پاره‌ی متن کنار عدد `folios` (از «،»، «؛» یا سطر پیش تا ۵۰ نویسه پس از عدد) گرفته شد.
+- **برچسب:** زیرعامل Sonnet از روی پاره‌ها برچسب زد: `COUNT_LEAVES` ۱۶۶، `COUNT_PAGES` ۵۷، `PROSE` ۱۶۰، `UNSURE` ۳۳. Claude همه‌ی `PROSE` و `COUNT_PAGES` را خواند.
+  - در ۱۰ نسخه پاره‌ی نخست شماره‌ی ردیف بود («2. مشهد؛ رضوی…»). برچسب از پاره‌ی دیگر آمده بود و درست بود.
+  - سه نسخه‌ی چندبخشی کنار رفتند: 82348 («اولی و سومی 16 و دومی 18 ورق»)، 223838 و 270547.
+- **`CopyExtent`:**
+  - واحد `گ|برگ|ورق|صفحه|ص` شد. «صفحه» صفحه است و «ورق» برگ. همین در `$count` در `separate()` هم آمد.
+  - `MARGIN` پیش و پس از بازه، هر چند بار، می‌پذیرد: «متن و هامش/حاشیه»، «هامش»، «حاشیه (یکم)»، «متن»، «جنگ»، «زیر سطور»، «قهقرا»، «دفتر»، «عکسی»، «مورب» و «یک رو». هر کدام می‌تواند با «در» یا در کمانک بیاید.
+  - برداشتن ارجاع پایانی تکرار می‌شود، با «و» میان دو ارجاع.
+- **آزمون:** ۷ بند تازه در `test_a_count_in_more_of_the_catalogue_forms_is_read`.
+- **`prose_folios_step14_217_copies.json`:** ۱۵۷ رکورد `rebuild-copies` با `folios: N → null`. در هر رکورد `note` (دلیل برچسب و پاره‌ی متن) آمده است.
+- **تمرین روی `fahares_prod` محلی:**
+  - `fill-extents --apply`: `changed 72`، که `pages_out_of_folios` ۲۸ از آن بود. ۴۳ تای دیگر شمار برگ قیددار بودند و `extent_raw` و بازه گرفتند. یکی هم #93691 بود که «784 صفحه» گرفت.
+  - سپس `rebuild-copies --file=database/data/prose_folios_step14_217_copies.json --apply` ۱۵۷ نسخه را نوشت.
+  - اجرای دوم هر دو چیزی نیافت. `kept:no_count_in_text` از ۴۱۶ به ۱۸۸ رسید.
+- **اجرا در تولید (پس از تأیید):**
+  1. پشتیبان از ستون‌های شمار همه‌ی نسخه‌ها.
+  2. `fill-extents --apply`.
+  3. `rebuild-copies` با این پرونده.
+  4. اجرای دوباره‌ی هر دو برای وارسی.
