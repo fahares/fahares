@@ -1,5 +1,5 @@
 {{-- An answer of «تصحیح جمعی» (backlog item 80): every pending opinion on the same item side by side, with the weighted
-     count of each answer (a verified scholar's weighs more). Approving one settles the others with it. --}}
+     count of each answer (a verified scholar's weighs more, and so does a researcher's with a good track record). Approving one settles the others with it. --}}
 @php
     $collectiveQueue = \App\Review\CollectiveReview::queue($suggestion->review_queue);
     $collective = \App\Review\CollectiveReview::opinionsFor([$suggestion], true)[$suggestion->review_queue . ':' . $suggestion->review_item_id] ?? null;
@@ -27,6 +27,7 @@
                                 <span class="min-w-0">
                                     <a href="{{ route('admin.suggestions.show', $opinion) }}" class="font-bold {{ $opinion->id === $suggestion->id ? 'text-cinnabar' : 'text-ink hover:text-cinnabar' }}">{{ $opinion->user?->name ?? $opinion->guest_name }}</a>
                                     @if($opinion->user?->is_verified_scholar)<span class="text-emerald-700 dark:text-emerald-300">· پژوهشگر تأییدشده</span>@endif
+                                    @if(($answer['weights'][$opinion->id] ?? 1) > 1)<span class="text-muted tabular-nums" data-opinion-weight>· وزن {{ \App\Support\Fa::num($answer['weights'][$opinion->id]) }}</span>@endif
                                     @if($opinion->rationale_citation)<span class="block text-muted leading-6 break-words">{{ \Illuminate\Support\Str::limit($opinion->rationale_citation, 240) }}</span>@endif
                                 </span>
                             </li>

@@ -11492,3 +11492,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پنل «تناقض‌های تاریخی»:** شمار و وزن پاسخ‌های هر مورد (`CollectiveReview::opinionsOn`)، و ترتیب نخست با `agreement` نزولی.
 - **محدودیت:** اگر رکورد بیرون از این مسیر اصلاح شود و اجرای شبانه سطر `date_conflicts` را حذف کند، پاسخ‌های مانده `pending` می‌مانند (با `date_conflict_id` تهی) و در میز پیشنهادها دیده می‌شوند.
 - **تست:** `DateConflictQueueTest` (۷ آزمون: قاعده‌ی ورود، کارت، پاسخ، آستانه، تأیید در میز، «خطا نیست»).
+
+### گام ۱۴.۲۱۶: وزن از روی سابقه در `CollectiveReview`
+
+- **سابقه (`trackRecords()`):** از `field_suggestions` با `review_queue` پر و `status` در `approved` یا `rejected`، به تفکیک `user_id`: `settled` (شمار) و `agreed` (شمار `approved`). `pending`، `converted` و پس‌گرفته شمرده نمی‌شوند. همه‌ی صف‌ها با هم.
+- **ثابت‌ها:** `RECORD_MIN = 10`؛ `RECORD_WEIGHTS = [80 => 3, 60 => 2]` (درصد پذیرفته ← وزن). `SCHOLAR_WEIGHT = 2` و `ENOUGH = 3` بی‌تغییر.
+- **وزن:** `max(وزن پژوهشگر تأییدشده یا ۱، وزن سابقه)`. `weightOf(bool, settled, agreed)` در PHP و `weightSql('u', 'tr')` در SQL (با `GREATEST`) یک قاعده‌اند؛ `pendingOpinions()` زیرپرس‌وجوی سابقه را با نام `tr` پیوند می‌دهد، پس `agreement()`، `settledEnough()` و `waiting()` همه‌ی صف‌ها از آن می‌خوانند.
+- **بی ستون و بی فرمان:** سابقه هنگام شمارش حساب می‌شود؛ بازگشایی یک تصمیم خودبه‌خود در آن دیده می‌شود. روی `fahares_prod` پاسخ تصمیم‌گرفته‌ای در صف‌ها نیست (۱ سطر `converted`)، پس هزینه‌ی پرس‌وجو ناچیز است؛ اگر شمار پاسخ‌ها به ده‌ها هزار برسد، ستون شمارنده روی `users` جای زیرپرس‌وجو را می‌گیرد.
+- **نمایش:** `opinionsOn()` برای هر پاسخ `weights` (شناسه‌ی نظر ← وزن) می‌دهد؛ `admin/suggestions/partials/collective.blade.php` وزن بیش از ۱ را کنار نام می‌آورد. `contributionsOf()` کلید `weight` دارد و `contributions/review.blade.php` «وزن نظر شما» را برای وزن بیش از ۱ نشان می‌دهد.
+- **پیامد:** کاربری با وزن ۳ به‌تنهایی به `ENOUGH` می‌رسد و مورد از صف عمومی بیرون می‌رود. داده عوض نمی‌شود.
+- **تست:** `DateConflictQueueTest::test_the_weight_follows_the_track_record_over_every_queue` و `test_one_trusted_researcher_alone_reaches_enough`.
