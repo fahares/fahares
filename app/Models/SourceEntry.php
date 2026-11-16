@@ -350,6 +350,11 @@ class SourceEntry extends Model
     /** What the machine did, under the ⓘ badge: matched a copy by its shelfmark, or a work by its title and author. */
     public function machineNote(): string
     {
+        if ($this->citable_type === Person::class) {
+            return $this->match_method === 'via_works'
+                ? 'این پیوند را هوشواره از روی آثار این شخص و نام او در سرعنوان زندگی‌نامه یافته است، و هنوز به دست انسان بازبینی نشده است.'
+                : 'هوشواره این زندگی‌نامه را از روی نام و تاریخ‌های این شخص یافته و یک مدل زبانی آن را با متن مدخل سنجیده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
+        }
         if ($this->source_item_id && $this->match_method === 'llm') {
             return 'یک مدل زبانی این پیوند را با خواندن متن مدخل‌های صفحه‌ای که مآخذ اثر نشانی داده‌اند پیشنهاد کرده، و عبارتی که از متن مدخل شاهد آورده وارسی شده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
         }

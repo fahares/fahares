@@ -23,8 +23,10 @@ use Illuminate\Support\Facades\File;
  *     text becomes the life dates and the year the birth year;
  *   - middle: no life dates, and a death year that is the middle of the person's century (1250 with century 13), the
  *     corpus's sorting number. It is emptied; a work's «ق 13 قمری» becomes the life dates where there is one;
- *   - solar: the people of SOLAR, whose «قمری» dates are solar by their biographies. The text is corrected and the
- *     years converted (FixCalendarDeathsCommand::columns).
+ *   - solar: the people of SOLAR, whose «قمری» dates are solar by their biographies: two by outside sources, and nine
+ *     by the lives in the site's biographical sources, found by reading every such person's numbers as solar years and
+ *     looking for a life of the same name with those Hijri years (step 14.233). The text is corrected and the years
+ *     converted (FixCalendarDeathsCommand::columns).
  * People are found by their life dates, names and works, never by id; a run only writes what differs and can be
  * repeated.
  */
@@ -43,6 +45,25 @@ class FixLifeYearsCommand extends Command
         'عبرت نائینی، محمد علی' => ['1245؟ - 1321 قمری', '1245؟ - 1321 شمسی'],
         // born Tir 1253 or 1254, died 11 Tir 1319
         'ارباب کیخسرو بن شاهرخ' => ['1253 – 1319 ق', '1253 – 1319 شمسی'],
+        // By the site's own books of lives (step 14.233): the Hijri years they give are the ones these numbers span
+        // as solar years. معجم المؤلفین 8/84, مؤلفین کتب چاپی 4/875, طبقات أعلام الشیعة 17/43: 1285-1360
+        'زنجانی، فیاض' => ['1247 - 1319 قمری', '1247 - 1319 شمسی'],
+        // أعیان الشیعة 9/401: born 1292, died 1367; طبقات أعلام الشیعة 17/68: 1290-1367
+        'شیرازی، محمد کاظم' => ['1253-1326 قمری', '1253-1326 شمسی'],
+        // مؤلفین کتب چاپی 4/27: 1296-1356
+        'گلشن ایرانپور، عبد الوهاب' => ['1257 - 1315 قمری', '1257 - 1315 شمسی'],
+        // مؤلفین کتب چاپی 2/223: 1274-1345
+        'شوریده شیرازی، محمد تقی' => ['1236 - 1305 قمری', '1236 - 1305 شمسی'],
+        // طبقات أعلام الشیعة 16/1599: 1278-1369
+        'نهاوندی، علی اکبر' => ['1240 - 1328 قمری', '1240 - 1328 شمسی'],
+        // معجم المؤلفین 13/126, موسوعة طبقات الفقهاء 14/469, أعیان الشیعة 10/232: 1297-1368
+        'حائری خراسانی، هادی' => ['1259 - 1327 قمری', '1259 - 1327 شمسی'],
+        // مؤلفین کتب چاپی 4/424: died 1346 (1345 by his son's word)
+        'لاهیجی حائری، علی بن مهدی' => ['-1306 قمری', '-1306 شمسی'],
+        // مؤلفین کتب چاپی 4/5: born 1268, died 1305 solar; طبقات أعلام الشیعة 17/103: died 1345
+        'مجدی کردستانی، عبدالمجید' => ['1230 - 1306 قمری', '1230 - 1306 شمسی'],
+        // مؤلفین کتب چاپی 6/894: born 1320, living when the book was written
+        'شعار، یوسف' => ['1281 - 1351 قمری', '1281 - 1351 شمسی'],
     ];
 
     /** A work or a copy this long after a lone year shows that year to be the birth. */

@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\DB;
  * عیسی»): by the user's decision, only such pairs are linked, and weaker matches (title only, several works, another
  * author) and pairs whose two works have one title (most likely one work twice) are left.
  *
+ * Step 14.229 adds the entries the same title and author are in, written another way (byRule): the author after the
+ * title with no «؛» («تهذیب المنطق تفتازانی، مسعود بن عمر (722-792)»), or after another title («شرح التجرید
+ * قوشچی، علی بن محمد»); the author under another name of his person's record, or under another form of the name
+ * with the same year of death; and an entry naming no author, when one work of its title names this work back in its
+ * own text. Where a rule finds several works, the one that names this work back is taken.
+ *
  * The type is read from the title of the work made on the other («شرح X», «X (ترجمه)», work_form translation) when
  * the base it names is the other's title; else, a commentary on another's commentary listed under the base text
  * («حاشية الروضة البهية» among the commentaries of «اللمعة») or a title naming no type, the pair is «related».
@@ -34,6 +40,24 @@ class WorkRelationLinker
     /** @var array<int, array{title: string, form: ?string}> */
     private array $works = [];
 
+    /** @var array<int, array{keys: list<string>, died: ?int}> work id => its author's record: every name's key, the death year */
+    private array $person = [];
+
+    /** @var array<int, string> work id => its author as written */
+    private array $author = [];
+
+    /** @var array{related: array<int, array<string, true>>, children: array<int, array<string, true>>} the title keys each work's texts name */
+    private array $named = ['related' => [], 'children' => []];
+
+    /** Taken off the confidence of a pair a rule of step 14.229 found */
+    public const CONFIDENCE_RULE_LESS = 5;
+
+    /** The shortest author's key that may end a longer one («… قوشچی، علی بن محمد») */
+    private const SUFFIX_MIN = 8;
+
+    /** Parts of a name that say nothing of who it is */
+    private const NAME_WORDS = ['بن', 'ابن', 'ابو', 'ابی', 'بنت', 'ملا', 'مولی', 'شیخ', 'سید', 'میرزا', 'حاج', 'حاجی', 'آقا', 'محمد', 'علی', 'حسن', 'حسین', 'احمد', 'الدین', 'الله', 'عبد'];
+
     public static function key(?string $title): string
     {
         // «الرجعة (منتخب)»: the mark after the title is the type, not the title
@@ -47,7 +71,7 @@ class WorkRelationLinker
 
     public function __construct()
     {
-        foreach (DB::table('works')->select('id', 'clean_title', 'primary_title', 'alternative_titles', 'author_name', 'work_form')->lazyById(5000) as $w) {
+        foreach (DB::table('works')->select('id', 'clean_title', 'primary_title', 'alternative_titles', 'author_name', 'author_id', 'work_form')->lazyById(5000) as $w) {
             $titles = [$w->clean_title, $w->primary_title];
             foreach (json_decode($w->alternative_titles ?? '[]', true) ?: [] as $alt) {
                 $titles[] = is_array($alt) ? ($alt['title'] ?? '') : (string) $alt;
@@ -56,10 +80,52 @@ class WorkRelationLinker
             $this->titles[$w->id] = $titles;
             $this->works[$w->id] = ['title' => (string) $w->clean_title, 'form' => $w->work_form];
             $author = self::authorKey($w->author_name);
+            $this->author[$w->id] = (string) $w->author_name;
+            if ($w->author_id) {
+                $authorOf[$w->id] = $w->author_id;
+            }
             foreach (array_unique(array_filter(array_map(fn ($t) => self::key($t), $titles))) as $k) {
                 $this->byTitle[$k][$w->id] = $author;
             }
         }
+        $people = [];
+        foreach (DB::table('people')->select('id', 'name', 'aliases', 'death_year_hijri')->lazyById(5000) as $p) {
+            $names = [$p->name, ...array_filter(json_decode($p->aliases ?? '[]', true) ?: [], 'is_string')];
+            $people[$p->id] = ['keys' => array_values(array_unique(array_filter(array_map(fn ($n) => self::authorKey($n), $names)))),
+                'died' => $p->death_year_hijri ? (int) $p->death_year_hijri : null];
+        }
+        foreach ($authorOf ?? [] as $id => $personId) {
+            if (isset($people[$personId])) {
+                $this->person[$id] = $people[$personId];
+            }
+        }
+    }
+
+    /**
+     * The starts of a title that may be the title itself, the rest being its author written after it with no «؛»:
+     * [the start as written, the rest], longest start first.
+     *
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function heads(string $title): array
+    {
+        $heads = [];
+        preg_match_all('/\s+/u', $title, $m, PREG_OFFSET_CAPTURE);
+        foreach (array_reverse($m[0]) as [$space, $at]) {
+            if ($at > 0 && ($rest = trim(substr($title, $at + strlen($space)))) !== '') {
+                $heads[] = [substr($title, 0, $at), $rest];
+            }
+        }
+
+        return $heads;
+    }
+
+    /** @return list<string> the parts of a name that tell it from another */
+    private static function nameWords(?string $name): array
+    {
+        $words = preg_split('/[\s،,()]+/u', TextNormalizer::normalize((string) $name), -1, PREG_SPLIT_NO_EMPTY);
+
+        return array_values(array_unique(array_filter($words, fn ($w) => mb_strlen($w) >= 3 && ! in_array($w, self::NAME_WORDS, true))));
     }
 
     /**
@@ -76,25 +142,49 @@ class WorkRelationLinker
             ->where(fn ($q) => $q->where(fn ($q) => $q->whereNotNull('related_work')->where('related_work', '<>', ''))
                 ->orWhere(fn ($q) => $q->whereNotNull('commentaries_and_glosses')->whereNotIn('commentaries_and_glosses', ['', '[]'])))
             ->select('id', 'related_work', 'commentaries_and_glosses');
+        $rows = [];
         foreach ($works->lazyById(2000) as $w) {
             $sides = ['related' => $w->related_work ? [$w->related_work] : [], 'children' => json_decode($w->commentaries_and_glosses ?? '[]', true) ?: []];
             foreach ($sides as $side => $texts) {
                 foreach ($texts as $text) {
                     foreach (WorkRelationParser::parseEntries((string) $text) as $entry) {
-                        [$how, $pair] = $this->match((int) $w->id, $side, $entry);
-                        $count["{$side}: {$how}"] = ($count["{$side}: {$how}"] ?? 0) + 1;
-                        if ($each) {
-                            $each((int) $w->id, $side, $how, $entry);
-                        }
-                        if ($pair) {
-                            $k = "{$pair['child']}>{$pair['parent']}";
-                            // the same pair from both sides: a type read on one side wins over «related»
-                            if (! isset($pairs[$k]) || ($pairs[$k]['type'] === 'related' && $pair['type'] !== 'related')) {
-                                $pair['sides'] = array_values(array_unique([...($pairs[$k]['sides'] ?? []), $side]));
-                                $pairs[$k] = $pair;
-                            } else {
-                                $pairs[$k]['sides'] = array_values(array_unique([...$pairs[$k]['sides'], $side]));
+                        $rows[$w->id][$side][] = $entry;
+                        foreach ($entry['titles'] as $title) {
+                            $this->named[$side][$w->id][self::key($title)] = true;
+                            // the author perhaps written after the title: every start of it is named too
+                            foreach ($entry['author'] === null && str_contains($title, '،') ? self::heads($title) : [] as [$head]) {
+                                $this->named[$side][$w->id][self::key($head)] = true;
                             }
+                        }
+                    }
+                }
+            }
+        }
+        foreach ($rows as $id => $sides) {
+            foreach ($sides as $side => $entries) {
+                // the entries one work has the title and author of first: a work they take is no other entry's
+                $found = array_map(fn ($entry) => $this->match($id, $side, $entry), $entries);
+                $taken = [];
+                foreach ($found as [, $pair]) {
+                    if ($pair) {
+                        $taken[$side === 'related' ? $pair['parent'] : $pair['child']] = true;
+                    }
+                }
+                foreach ($entries as $n => $entry) {
+                    [$how, $pair] = $found[$n][1] ? $found[$n] : $this->match($id, $side, $entry, $taken);
+                    $count["{$side}: {$how}"] = ($count["{$side}: {$how}"] ?? 0) + 1;
+                    if ($each) {
+                        $each($id, $side, $how, $entry, $pair);
+                    }
+                    if ($pair) {
+                        $k = "{$pair['child']}>{$pair['parent']}";
+                        // the same pair from both sides: a type read on one side wins over «related», then the plain match over a rule
+                        if (! isset($pairs[$k]) || ($pairs[$k]['type'] === 'related' && $pair['type'] !== 'related')
+                            || ($pairs[$k]['type'] === $pair['type'] && $pair['confidence'] > $pairs[$k]['confidence'])) {
+                            $pair['sides'] = array_values(array_unique([...($pairs[$k]['sides'] ?? []), $side]));
+                            $pairs[$k] = $pair;
+                        } else {
+                            $pairs[$k]['sides'] = array_values(array_unique([...$pairs[$k]['sides'], $side]));
                         }
                     }
                 }
@@ -118,7 +208,7 @@ class WorkRelationLinker
      * @param  string  $side  related: the entry is what the work is made on; children: made on the work
      * @return array{0: string, 1: ?array}
      */
-    private function match(int $workId, string $side, array $entry): array
+    private function match(int $workId, string $side, array $entry, ?array $taken = null): array
     {
         $candidates = [];
         foreach ($entry['titles'] as $title) {
@@ -130,13 +220,19 @@ class WorkRelationLinker
         }
         $author = $entry['author'] ? self::authorKey($entry['author']) : null;
         $same = $author ? array_keys(array_filter($candidates, fn ($a) => $a !== '' && $a === $author)) : [];
+        $how = 'title+author';
         if (count($same) !== 1) {
-            return [match (true) {
+            $left = match (true) {
                 ! $candidates => 'no work of the title',
                 count($same) > 1 => 'several works of the title and author',
                 ! $author => 'no author in the text',
                 default => 'another author',
-            }, null];
+            };
+            // the rules run once every entry of the work has had its plain match: $taken is given then
+            [$how, $same] = ($taken === null ? null : $this->byRule($workId, $side, $entry, $candidates, $author, $same, $taken)) ?? [$left, []];
+            if (count($same) !== 1) {
+                return [$how, null];
+            }
         }
 
         [$child, $parent] = $side === 'related' ? [$workId, $same[0]] : [$same[0], $workId];
@@ -158,9 +254,91 @@ class WorkRelationLinker
             default => 'related',
         };
 
-        return ['title+author', ['child' => $child, 'parent' => $parent, 'type' => $type,
-            'confidence' => $type === 'related' ? self::CONFIDENCE_RELATED : self::CONFIDENCE_TYPED,
+        return [$how, ['child' => $child, 'parent' => $parent, 'type' => $type, 'how' => $how,
+            'confidence' => ($type === 'related' ? self::CONFIDENCE_RELATED : self::CONFIDENCE_TYPED) - ($how === 'title+author' ? 0 : self::CONFIDENCE_RULE_LESS),
             'text' => implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] : '')]];
+    }
+
+    /**
+     * The entry's work by the rules of step 14.229, for an entry the plain match left: [the rule, the one work], or
+     * null when no rule finds one. A rule that finds several works keeps the one naming this work back in its own text.
+     *
+     * @param  array<int, string>  $candidates  the works of the entry's titles => their author keys
+     * @param  list<int>  $same  the candidates of the entry's author, when several
+     * @param  array<int, true>  $taken  the works the work's other entries are matched to
+     * @return array{0: string, 1: list<int>}|null
+     */
+    private function byRule(int $workId, string $side, array $entry, array $candidates, ?string $author, array $same, array $taken): ?array
+    {
+        $candidates = array_diff_key($candidates, $taken);
+        $mine = array_fill_keys(array_filter(array_map(fn ($t) => self::key($t), $this->titles[$workId] ?? [])), true);
+        $back = $side === 'children' ? 'related' : 'children';
+        // a work is made on one work: when another work of this one's title lists it too, which of them it names is not told
+        $listedElsewhere = function (int $id, array $named) use ($workId) {
+            $its = array_fill_keys(array_filter(array_map(fn ($t) => self::key($t), $this->titles[$id] ?? [])), true);
+            foreach (array_keys($named) as $key) {
+                foreach (array_keys($this->byTitle[$key] ?? []) as $other) {
+                    if ($other !== $workId && $other !== $id && array_intersect_key($this->named['children'][$other] ?? [], $its)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
+        $namesBack = fn (array $ids) => array_values(array_filter($ids, fn ($id) => ($named = array_intersect_key($this->named[$back][$id] ?? [], $mine))
+            && ! ($side === 'children' && $listedElsewhere($id, $named))));
+        $one = function (string $rule, array $ids) use ($namesBack) {
+            if (count($ids) > 1) {
+                [$rule, $ids] = ["{$rule}, named back", $namesBack($ids)];
+            }
+
+            return count($ids) === 1 ? [$rule, array_values($ids)] : null;
+        };
+
+        if (count($same) > 1) {
+            return $one('title+author', array_values(array_diff($same, array_keys($taken))));
+        }
+        if ($author) {
+            $words = self::nameWords($entry['author']);
+            $rules = [
+                // «شرح التجرید قوشچی، علی بن محمد»: another title before the author
+                'author after another title' => fn ($a, $id) => mb_strlen($a) >= self::SUFFIX_MIN && str_ends_with($author, $a),
+                'another name of the person' => fn ($a, $id) => in_array($author, $this->person[$id]['keys'] ?? [], true),
+                'same year of death' => fn ($a, $id) => $entry['died'] && $entry['died'] === ($this->person[$id]['died'] ?? null)
+                    && array_intersect($words, self::nameWords($this->author[$id])),
+            ];
+            foreach ($rules as $rule => $is) {
+                if ($ids = array_keys(array_filter($candidates, $is, ARRAY_FILTER_USE_BOTH))) {
+                    return $one($rule, $ids);
+                }
+            }
+
+            return null;
+        }
+
+        // «حاشية رياض المسائل (4عنوان)» stands for several works, and no one of them is the entry's
+        if (preg_grep('/\(\s*\d+\s*عنوان\s*\)/u', $entry['titles'])) {
+            return null;
+        }
+        // «تهذیب المنطق تفتازانی، مسعود بن عمر (722-792)»: the author after the title, with no «؛»
+        $ids = [];
+        foreach ($entry['titles'] as $title) {
+            foreach (str_contains($title, '،') ? self::heads($title) : [] as [$head, $rest]) {
+                $name = self::authorKey(preg_replace('/\s*\([^()]*\d[^()]*\)\s*$/u', '', $rest));
+                foreach ($name === '' ? [] : array_diff_key(($this->byTitle[self::key($head)] ?? []) + $candidates, $taken) as $id => $a) {
+                    if ($id !== $workId && $a === $name) {
+                        $ids[$id] = true;
+                    }
+                }
+            }
+        }
+        if ($ids) {
+            return $one('author in the title', array_keys($ids));
+        }
+        $ids = $namesBack(array_keys($candidates));
+
+        return count($ids) === 1 ? ['named back', $ids] : null;
     }
 
     /**
@@ -202,24 +380,44 @@ class WorkRelationLinker
             return $out;
         }
         $others = \App\Models\Work::whereIn('id', $rows->flatMap(fn ($r) => [$r->work_id, $r->related_work_id])->reject(fn ($id) => $id == $work->id))
-            ->get(['id', 'clean_title', 'primary_title', 'alternative_titles', 'slug'])->keyBy('id');
+            ->get(['id', 'clean_title', 'primary_title', 'alternative_titles', 'author_name', 'slug'])->keyBy('id');
         $keys = fn (\App\Models\Work $w) => collect([$w->clean_title, $w->primary_title, ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : $a)])
             ->map(fn ($t) => self::key($t))->filter()->unique()->all();
         $find = function (array $entry, iterable $ids) use ($others, $keys) {
             $want = array_filter(array_map(fn ($t) => self::key($t), $entry['titles']));
-            $hits = collect($ids)->map(fn ($id) => $others->get($id))->filter()->filter(fn ($w) => array_intersect($want, $keys($w)))->unique('id');
+            $works = collect($ids)->map(fn ($id) => $others->get($id))->filter()->unique('id');
+            $hits = $works->filter(fn ($w) => array_intersect($want, $keys($w)));
+            if ($hits->count() === 1) {
+                return [$entry['titles'][0], $hits->first()];
+            }
+            // the author written after the title with no «؛» (step 14.229): the start that is the work's title
+            foreach ($hits->isEmpty() && $entry['author'] === null ? $entry['titles'] : [] as $title) {
+                foreach (str_contains($title, '،') ? self::heads($title) : [] as [$head]) {
+                    $hits = $works->filter(fn ($w) => in_array(self::key($head), $keys($w), true));
+                    if ($hits->count() === 1) {
+                        return [$head, $hits->first()];
+                    }
+                }
+            }
 
-            return $hits->count() === 1 ? $hits->first() : null;
+            return null;
         };
         foreach (WorkRelationParser::parseEntries($work->related_work) as $entry) {
             if ($hit = $find($entry, $rows->where('work_id', $work->id)->pluck('related_work_id'))) {
-                $out['related'][] = [$entry['titles'][0], $hit];
+                $out['related'][] = $hit;
             }
         }
+        // a work is one entry's: of two entries of one title, the one naming its author, else the first
+        $entryOf = [];
         foreach (array_values($work->commentaries_and_glosses ?? []) as $i => $text) {
             $entry = WorkRelationParser::parseEntries((string) $text)[0] ?? null;
             if ($entry && ($hit = $find($entry, $rows->where('related_work_id', $work->id)->pluck('work_id')))) {
-                $out['children'][$i] = [[$entry['titles'][0], $hit]];
+                $names = $entry['author'] !== null && self::authorKey($entry['author']) === self::authorKey($hit[1]->author_name);
+                if (! isset($entryOf[$hit[1]->id]) || ($names && ! $entryOf[$hit[1]->id][1])) {
+                    unset($out['children'][$entryOf[$hit[1]->id][0] ?? -1]);
+                    $out['children'][$i] = [$hit];
+                    $entryOf[$hit[1]->id] = [$i, $names];
+                }
             }
         }
 

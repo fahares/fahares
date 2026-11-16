@@ -87,6 +87,19 @@ return [
     // The people works were dedicated to or written for (step 14.119): the names shown
     'dedications_shown' => 20,
 
+    // Five more figures (backlog item 146, step 14.228)
+    // Bands of copies per work: a band runs from just above one edge up to the next
+    'copy_bands' => [1, 2, 5, 10, 50, 100],
+    // The most-copied works named under each century
+    'century_works' => 5,
+    // Rows of the table of much-copied works with no note of a printing
+    'unprinted_shown' => 20,
+    // Bands of treatises per bound volume, and the pairs of works bound together that are listed
+    'collection_bands' => [1, 2, 5, 10, 20, 50],
+    'collection_pairs' => 20,
+    // Pairs of catalogues that describe the same copies
+    'source_pairs' => 12,
+
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],
         'تهران' => ['lat' => 35.69, 'lon' => 51.39, 'aliases' => ['طهران']],

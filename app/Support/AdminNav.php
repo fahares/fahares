@@ -25,6 +25,8 @@ class AdminNav
                     'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Manuscript::class)->count()],
                 ['label' => 'پیوندهای خودکار آثار', 'route' => 'admin.source-links.index', 'active' => 'admin.source-links.*', 'can' => 'catalog_refs.review',
                     'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Work::class)->whereNotNull('source_item_id')->count()],
+                ['label' => 'زندگی‌نامه‌های خودکار اشخاص', 'route' => 'admin.person-lives.index', 'active' => 'admin.person-lives.*', 'can' => 'catalog_refs.review',
+                    'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Person::class)->whereNotNull('source_item_id')->count()],
                 ['label' => 'اعلان‌های من', 'route' => 'notifications.index', 'active' => 'notifications.*', 'can' => 'panel.access',
                     'count' => fn () => $user->unreadNotifications()->count(), 'soft' => true],
             ]],

@@ -133,9 +133,9 @@ class EstimateDatesCommandTest extends TestCase
         $this->get(route('people.show', $person))->assertOk()->assertSee('زنده در ۱۰۴۰ ق');
         $this->get(route('people.show', $dead))->assertOk()->assertSee('دوره‌ای از زندگی پس از وفات')->assertSee('دوره‌ای از زندگی پیش از تولد');
         $admin = \App\Models\User::create(['name' => 'Admin Tester', 'email' => 'period-engine-' . uniqid() . '@fahares.net', 'password' => 'password123', 'role' => 'admin']);
-        $this->actingAs($admin)->get(route('admin.date-conflicts.index', ['rule' => Loader::RULE_PERIOD]))->assertOk()->assertSee('دوره‌ی زندگی')->assertSee('۱۰۰۰–۱۰۳۰');
+        $this->actingAs($admin)->get(route('admin.date-conflicts.index', ['rule' => Loader::RULE_PERIOD]))->assertOk()->assertSee('دورۀ زندگی')->assertSee('۱۰۰۰–۱۰۳۰');
         $card = (new \App\Review\DateConflictQueue)->card(\App\Models\DateConflict::find($conflicts[1]->id));
-        $this->assertSame(['دوره‌ی زندگی', '1000–1030', 'وفات'], [$card['sides']['a']['field'], $card['sides']['a']['date'], $card['sides']['b']['field']]);
+        $this->assertSame(['دورۀ زندگی', '1000–1030', 'وفات'], [$card['sides']['a']['field'], $card['sides']['a']['date'], $card['sides']['b']['field']]);
     }
 
     public function test_it_only_counts_without_apply()
