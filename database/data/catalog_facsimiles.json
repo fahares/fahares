@@ -2794,6 +2794,806 @@
      "step": "14.192"
     }
    }
+  },
+  {
+   "library_slug": "mshhd-alhyat-38",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه دانشکده الهیات مشهد - جلد اول",
+   "facsimile_code": "mashhad-ilahiyat",
+   "page_first": 2,
+   "page_last": 676,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8259 - فهرست نسخ خطی کتابخانه الهیات مشهد محمود فاضل V001.pdf"
+     ],
+     "leaf_maps": [
+      "mashhad-ilahiyat/v01.map.json"
+     ],
+     "note": "خزانه‌ها 8259",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد اول: کتب فارسی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 526,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3528 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد اول.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v01.map.json"
+     ],
+     "note": "خزانه‌ها 3528",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد دوم: کتب فارسی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 609,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3529 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد دوم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v02.map.json"
+     ],
+     "note": "خزانه‌ها 3529",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد سوم: کتب فارسی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 612,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3530 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد سوم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v03.map.json"
+     ],
+     "note": "خزانه‌ها 3530",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 4,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد چهارم: کتب فارسی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 548,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3531 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد چهارم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v04.map.json"
+     ],
+     "note": "خزانه‌ها 3531",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 5,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد پنجم: کتب فارسی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 720,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3532 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد پنجم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v05.map.json"
+     ],
+     "note": "خزانه‌ها 3532",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 7,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد هفتم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 450,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3534 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد هفتم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v07.map.json"
+     ],
+     "note": "خزانه‌ها 3534",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 8,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد هشتم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 3,
+   "page_last": 532,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3535 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد هشتم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v08.map.json"
+     ],
+     "note": "خزانه‌ها 3535",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 9,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد نهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 595,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3536 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد نهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v09.map.json"
+     ],
+     "note": "خزانه‌ها 3536",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 12,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد دوازدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 620,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3539 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد دوازدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v12.map.json"
+     ],
+     "note": "خزانه‌ها 3539",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 10,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد دهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 736,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3537 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد دهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v10.map.json"
+     ],
+     "note": "خزانه‌ها 3537",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 6,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد ششم: کتب فارسی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 919,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3533 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد ششم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v06.map.json"
+     ],
+     "note": "خزانه‌ها 3533",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 11,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد یازدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 853,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3538 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد یازدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v11.map.json"
+     ],
+     "note": "خزانه‌ها 3538",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 14,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد چهاردهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 331,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3540 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد چهاردهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v14.map.json"
+     ],
+     "note": "خزانه‌ها 3540",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 15,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد پانزدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 335,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3541 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد پانزدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v15.map.json"
+     ],
+     "note": "خزانه‌ها 3541",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 16,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد شانزدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 6,
+   "page_last": 491,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3542 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد شانزدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v16.map.json"
+     ],
+     "note": "خزانه‌ها 3542",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 17,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد هفدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 6,
+   "page_last": 483,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3543 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد هفدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v17.map.json"
+     ],
+     "note": "خزانه‌ها 3543",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 18,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد هیجدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 6,
+   "page_last": 410,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3544 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد هجدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v18.map.json"
+     ],
+     "note": "خزانه‌ها 3544",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 19,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد نوزدهم: کتب عربی",
+   "facsimile_code": "melli",
+   "page_first": 6,
+   "page_last": 410,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3545 - فهرست نسخه‌های خطی کتابخانه ملی ایران، تهران - ایران، جلد نوزدهم.pdf"
+     ],
+     "leaf_maps": [
+      "melli/v19.map.json"
+     ],
+     "note": "خزانه‌ها 3545",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mly-11",
+   "volume_number": 22,
+   "title": "فهرست نسخه‌های خطی کتابخانه ملی ایران - جلد بیست و دوم: کتب عربی (قرآن‌ها)",
+   "facsimile_code": "melli",
+   "page_first": 1,
+   "page_last": 398,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/فهرست نسخ خطي کتابخانه ملي جمهوري اسلامي ايران؛ کتب عربي قرآن ها - جلد بیست و دوم - 1383 [1170604].pdf"
+     ],
+     "leaf_maps": [
+      "melli/v22.map.json"
+     ],
+     "note": "داکی‌باکس 1170604",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "asfhan-mdrsh-sdr-bazar-107",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه مدرسه صدر بازار - دفتر دوم",
+   "facsimile_code": "sadr-bazar",
+   "page_first": 250,
+   "page_last": 511,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/معرفي ميراث مخطوط 20 - فهرست نسخه های خطی کتابخانه مدرسه صدر بازار (اصفهان - ايران) دفتر - 1384 [1440635].pdf"
+     ],
+     "leaf_maps": [
+      "sadr-bazar/v02.map.json"
+     ],
+     "note": "داکی‌باکس 1440635",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "asfhan-mdrsh-sdr-bazar-107",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی کتابخانه مدرسه صدر بازار - دفتر سوم",
+   "facsimile_code": "sadr-bazar",
+   "page_first": 520,
+   "page_last": 808,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/معرفي ميراث مخطوط 20 فهرست نسخه هاي خطي کتابخانه مدرسه صدر بازار (اصفهان _ ايران) دفتر - 1385 [1440634].pdf"
+     ],
+     "leaf_maps": [
+      "sadr-bazar/v03.map.json"
+     ],
+     "note": "داکی‌باکس 1440634",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 7,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 7",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 2,
+   "page_last": 811,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی - ج 7 - 7 - 1353 [1075503].pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-nashriyye/v07.map.json"
+     ],
+     "note": "داکی‌باکس 1075503",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "آشنایی با چند نسخه خطی (مدارس و کتابخانه‌های قم)",
+   "facsimile_code": "ashnayi-qom",
+   "page_first": 4,
+   "page_last": 448,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/آشنايي با چند نسخه خطي - اول - 1335 [1172623].pdf"
+     ],
+     "leaf_maps": [
+      "ashnayi-qom/v01.map.json"
+     ],
+     "note": "داکی‌باکس 1172623",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-norbkhsh-18",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد دوم",
+   "facsimile_code": "nurbakhsh",
+   "page_first": 2,
+   "page_last": 296,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/1931 - فهرست نسخه هاي خطي كتابخانه نوربخش ج2.pdf"
+     ],
+     "leaf_maps": [
+      "nurbakhsh/v02.map.json"
+     ],
+     "note": "خزانه‌ها 1931",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 4,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 4",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 3,
+   "page_last": 694,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی - ج 4 - 4 - 1344 [1075500].pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-nashriyye/v04.map.json"
+     ],
+     "note": "داکی‌باکس 1075500",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 5,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 5",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 2,
+   "page_last": 755,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی - ج 5 - 5 - 1346 [1075501].pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-nashriyye/v05.map.json"
+     ],
+     "note": "داکی‌باکس 1075501",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 9,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 9",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 1,
+   "page_last": 450,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/2185 - نشریه کتابخانه مرکزی نسخه های خطی (نشریه کتابخانه مرکزی دانشگاه تهران نسخه های خطی جلد نهم pdf ).pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-nashriyye/v09.map.json"
+     ],
+     "note": "خزانه‌ها 2185",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "kzoyn-amam-sadk-83",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه امام صادق قزوین - جلد اول",
+   "facsimile_code": "qazvin-imam-sadiq",
+   "page_first": 10,
+   "page_last": 491,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "qazvin-imam-sadiq/v01.pdf"
+     ],
+     "leaf_maps": [
+      "qazvin-imam-sadiq/v01.map.json"
+     ],
+     "note": "خزانه‌ها 3500 (RAR عکس‌ها، بی بازفشرده‌سازی در PDF)",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "kzoyn-amam-sadk-83",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه امام صادق قزوین - جلد دوم",
+   "facsimile_code": "qazvin-imam-sadiq",
+   "page_first": 1,
+   "page_last": 592,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "qazvin-imam-sadiq/v02.pdf"
+     ],
+     "leaf_maps": [
+      "qazvin-imam-sadiq/v02.map.json"
+     ],
+     "note": "خزانه‌ها 3501 (RAR عکس‌ها، بی بازفشرده‌سازی در PDF)",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "khoy-nmazy-19",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله نمازی خوی",
+   "facsimile_code": "namazi-khoy",
+   "page_first": 7,
+   "page_last": 539,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/358 - فهرست کتابخانه نمازی خوی در فهرست حاضر ۷۹۳نسخه از نسخه‌های خطی این کتابخانه معرفی شده است ولی در فنخا مجموعه.pdf"
+     ],
+     "leaf_maps": [
+      "namazi-khoy/v01.map.json"
+     ],
+     "note": "خزانه‌ها 358",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-sltnty-39",
+   "volume_number": 2,
+   "title": "فهرست مرقعات کتابخانه سلطنتی",
+   "facsimile_code": "saltanati",
+   "page_first": 1,
+   "page_last": 408,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/1979 - فهرست مرقعات كتابخانه سلطنتی. بدری کامروز( آتابای). تهران بی نا، 1353.pdf"
+     ],
+     "leaf_maps": [
+      "saltanati/v02.map.json"
+     ],
+     "note": "خزانه‌ها 1979",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-sltnty-39",
+   "volume_number": 7,
+   "title": "فهرست کتب ادبی عرفانی خطی کاخ گلستان",
+   "facsimile_code": "saltanati",
+   "page_first": 1,
+   "page_last": 823,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3572 - فهرست کتب ادبی و عرفانی ـ کاخ گلستان سلطنتی ـ تهران.pdf"
+     ],
+     "leaf_maps": [
+      "saltanati/v07.map.json"
+     ],
+     "note": "خزانه‌ها 3572",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "shyraz-mly-91",
+   "volume_number": 1,
+   "title": "فهرست کتب خطی کتابخانه ملی فارس - 1",
+   "facsimile_code": "melli-fars",
+   "page_first": 1,
+   "page_last": 416,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/1372 - فهرست نسخ خطی كتابخانه ي ملي فارس ج1.pdf"
+     ],
+     "leaf_maps": [
+      "melli-fars/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1372",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "shyraz-mly-91",
+   "volume_number": 2,
+   "title": "فهرست کتب خطی کتابخانه ملی فارس - 2",
+   "facsimile_code": "melli-fars",
+   "page_first": 1,
+   "page_last": 400,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/1373 - فهرست نسخ خطی كتابخانه ي ملي فارس ج2.pdf"
+     ],
+     "leaf_maps": [
+      "melli-fars/v02.map.json"
+     ],
+     "note": "خزانه‌ها 1373",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mozh-mly-47",
+   "volume_number": 1,
+   "title": "فهرست میکروفیلم‌ها و نسخ خطی موزه ملی ایران",
+   "facsimile_code": "muze-melli",
+   "page_first": 12,
+   "page_last": 223,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/فهرست ميکروفيلمها و نسخ خطي موزه ملي ايران - 1374 [1209431].pdf"
+     ],
+     "leaf_maps": [
+      "muze-melli/v01.map.json"
+     ],
+     "note": "داکی‌باکس 1209431",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "khoy-nmazy-19",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی مدرسه نمازی خوی",
+   "facsimile_code": "namazi-khoy-madrese",
+   "page_first": 7,
+   "page_last": 539,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/340 - فهرست نسخة هاي خطي مدرسة علمية نمازي.pdf"
+     ],
+     "leaf_maps": [
+      "namazi-khoy-madrese/v01.map.json"
+     ],
+     "note": "خزانه‌ها 340",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-ozart-amor-khargh-168",
+   "volume_number": 1,
+   "title": "بررسی کتب خطی یا قدیمه وزارت امور خارجه جمهوری اسلامی ایران",
+   "facsimile_code": "kharejeh",
+   "page_first": 3,
+   "page_last": 227,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/261 - بررسی کتب خطی یا قدیمه وزارت امور خارجه جمهوری اسلامی ایران. علیرضا سالاری. تهران وزارت امور خارجه، موسسه چاپ.pdf"
+     ],
+     "leaf_maps": [
+      "kharejeh/v01.map.json"
+     ],
+     "note": "خزانه‌ها 261",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی چهار کتابخانه مشهد - جلد 1",
+   "facsimile_code": "mashhad-4lib",
+   "page_first": 4,
+   "page_last": 435,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/فهرست نسخه هاي خطي چهار کتابخانه مشهد (مدرسه سليمان خان، مدرسه ميرزا جعفر، کتابخانه فرهنگ، جامع گوهرشاد) - 1351 [1232094].pdf"
+     ],
+     "leaf_maps": [
+      "mashhad-4lib/v01.map.json"
+     ],
+     "note": "داکی‌باکس 1232094",
+     "step": "14.208"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 35,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و پنجم",
+   "facsimile_code": "majlis",
+   "page_first": 9,
+   "page_last": 494,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/فهرست نسخه های خطی کتابخانه مجلس شورای اسلامی (12001-12500) - 1376 [1297135].pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v35.map.json"
+     ],
+     "note": "داکی‌باکس 1297135",
+     "step": "14.208"
+    }
+   }
   }
  ]
 }
