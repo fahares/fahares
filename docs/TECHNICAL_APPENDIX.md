@@ -11813,16 +11813,31 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - `named back`: یگانه نامزدی که `named[سوی دیگر]` آن یکی از کلیدهای عنوان این اثر را دارد.
     - مدخل «(N عنوان)» به هیچ‌کدام نمی‌رسد.
   - **چند نامزد در یک قاعده** (و چند اثر هم‌عنوان و هم‌پدیدآور): همان که نام برده، با برچسب «…, named back».
+  - **چند اثر هم‌عنوان و هم‌پدیدآور** (`count($same) > 1`)، به ترتیب:
+    - `title+author, every title`: یگانه نامزدی که `markKey` همه‌ی عنوان‌های مدخل را دارد. `markKey` کمانک پایانی را نگه می‌دارد، بر خلاف `key`.
+    - `title+author, the base` (فقط سوی `related`، مدخل بی‌نشان): یگانه نامزدی که `work_form` ندارد، عنوان نشان‌دار ندارد و «وابسته به» خودش این عنوان را نام نبرده است.
+    - سپس `named back`، مانند پیش.
+  - **`twoWorks()` به جای کنار گذاشتن «one title on both sides»:** جفت پیوند می‌خورد اگر پدیدآور دو اثر دو کس باشد (هر دو نام دارند و نه کلید برابر، نه رکورد شخص یکی، نه یکی پایان دیگری، نه دو واژه‌ی مشترک `nameWords`)، یا `work_form` اثر فرعی یکی از `MADE_FORMS` باشد و با اثر اصلی فرق کند، یا اثر فرعی عنوان نشان‌دار داشته باشد (`markType`). برچسب «one title, two works» یا «…, one title». نوع: نشان عنوان، وگرنه `MADE_FORMS` (`selection` ← `abridgment`، `verse` ← `versification`، `commentary`)، وگرنه `related`. ترجمه مانند پیش است.
   - **`listedElsewhere`:** در سوی `children`، اگر اثر دیگری با همان کلید عنوان این اثر، عنوان نامزد را در فهرست خودش داشته باشد، نامزد «نام‌برده» شمرده نمی‌شود. اثر فرعی یک متن مادر دارد. در سوی `related` این شرط نیست: دو ترجمه‌ی هم‌عنوان هر کدام از متن خودشان به یگانه متن مادر می‌رسند.
   - **اطمینان:** `CONFIDENCE_RULE_LESS = 5` از ۹۰ و ۷۰ کم می‌شود (۸۵ و ۶۵). جفتی که یک سو ساده و سوی دیگر با قاعده یافته، اطمینان بالاتر را می‌گیرد.
   - **`linkedEntries()`:** اگر عنوان کامل مدخل بی‌نام به هیچ اثر رابطه‌داری نرسد، آغازهای عنوان آزموده می‌شوند و همان آغاز لینک می‌شود. در `children`، هر اثر یک مدخل می‌گیرد: مدخلی که `authorKey` پدیدآورش با اثر برابر است، وگرنه نخستین.
 - **[LinkRelatedWorksCommand](../app/Console/Commands/LinkRelatedWorksCommand.php):** `--by-rule=file.tsv` مدخل‌های پیوندخورده با قاعده را با اثر یافته می‌نویسد. `--unmatched` اکنون مدخل‌های بی‌جفت را می‌نویسد، نه هر چه برچسبش «title+author» نیست.
 - **تمرین روی `fahares_prod` (۲۵ آبان ۱۴۰۵):**
   - پیش از تغییر، dry run: ۸٬۱۸۰ مدخل بی‌پیوند، «9577 relations: 7 to add».
-  - پس از تغییر: «10090 relations: 585 to add, 65 to remove, 9505 kept»، «Indexed 579 works again». اجرای دوم: «0 to add, 0 to remove».
-  - مدخل‌ها به قاعده (فرعی + وابسته): `named back` ۱٬۱۷۷ + ۴۲۰؛ `title+author, named back` ۴۸ + ۲۶۹؛ `author after another title` ۴۲ + ۲۵۷ (و ۲ با named back)؛ `author in the title` ۶۹ + ۱۶۱ (و ۱)؛ `same year of death` ۳۸ + ۲۸ (و ۲)؛ `another name of the person` ۸ + ۹. جمع ۲٬۵۳۱.
+  - پس از قاعده‌های نخست: «10090 relations: 585 to add, 65 to remove, 9505 kept»، «Indexed 579 works again». اجرای دوم: «0 to add, 0 to remove».
+  - پس از دو قاعده‌ی «every title / the base» و `twoWorks`: «10680 relations: 593 to add, 3 to remove, 10087 kept»، «Indexed 581 works again». اجرای دوم صفر. نوع‌ها: related ۵٬۵۷۱، commentary ۲٬۱۴۳، gloss ۱٬۲۹۱، translation ۹۵۵، abridgment ۵۸۹، supplement ۷۶، versification ۳۶، refutation ۱۹.
+  - مدخل‌های با قاعده، در پایان ۳٬۴۹۲: `named back` ۱٬۷۱۶، `one title, two works` ۶۰۲، `title+author, every title` ۳۵۳، `author after another title` ۳۲۴، `author in the title` ۲۵۳، `title+author, the base` ۹۰، `same year of death` ۷۱، `title+author, named back` ۶۴، `another name of the person` ۱۹. از این‌ها ۸۲۲ مدخل «one title» دارند.
+  - جفت‌های «one title» به نوع، قالب اثر فرعی و پدیدآور: abridgment/selection/دو کس ۵۳۸، related/بی‌قالب/دو کس ۱۷۴، abridgment/selection/یک کس ۳۹، translation ۳۳، abridgment با نشان عنوان ۱۴، versification ۹، related/compilation/یک کس ۹، دیگر ۶.
+  - مدخل‌ها به قاعده پس از قاعده‌های نخست (فرعی + وابسته): `named back` ۱٬۱۷۷ + ۴۲۰؛ `title+author, named back` ۴۸ + ۲۶۹؛ `author after another title` ۴۲ + ۲۵۷ (و ۲ با named back)؛ `author in the title` ۶۹ + ۱۶۱ (و ۱)؛ `same year of death` ۳۸ + ۲۸ (و ۲)؛ `another name of the person` ۸ + ۹. جمع ۲٬۵۳۱.
   - از این‌ها مدخل‌هایی که جفتشان پیش از این ثبت نبود (یک جفت تازه گاه از هر دو سو شمرده می‌شود): `named back` ۳۱۸، `author after another title` ۱۴۳، `title+author, named back` ۱۱۸، `author in the title` ۹۲، `same year of death` ۲۴، `another name of the person` ۱۱. نوع‌روشن‌شده: ۷۶. بقیه جفتی‌اند که از سوی دیگر ثبت بود.
-  - مانده، ۵٬۶۴۹ مدخل: بی‌اثر در پایگاه ۲٬۳۰۰، بی‌پدیدآور ۱٬۹۴۳، هم‌عنوان در دو سو ۸۶۸، با پدیدآور دیگر ۳۳۵، چند اثر هم‌عنوان و هم‌پدیدآور ۲۰۳.
+  - مانده پس از قاعده‌های نخست، ۵٬۶۴۹ مدخل: بی‌اثر در پایگاه ۲٬۳۰۰، بی‌پدیدآور ۱٬۹۴۳، هم‌عنوان در دو سو ۸۶۸، با پدیدآور دیگر ۳۳۵، چند اثر هم‌عنوان و هم‌پدیدآور ۲۰۳.
+  - مانده در پایان، ۴٬۶۸۸ مدخل: بی‌اثر در پایگاه ۲٬۳۰۰، بی‌پدیدآور ۱٬۹۴۳، با پدیدآور دیگر ۳۳۵، هم‌عنوان در دو سو ۶۶، چند اثر هم‌عنوان و هم‌پدیدآور ۴۴.
   - `linkedEntries` روی همه‌ی آثار دارای فهرست شروح: پیش از تغییر ۱۴۱ اثر یک اثر را از دو مدخل لینک می‌کردند (۲۰۴ لینک افزوده)، پس از آن صفر.
-- **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back`.
+- **سنجش مدل (Sonnet، ۲۵ مدخل برای هر عامل، بی نوشتن در پایگاه):**
+  - نامزدها برای هر مدخل: اثرهای هم‌کلید عنوان، عنوان نزدیک (هم‌پوشانی واژه‌ها با وزن idf، دست‌کم ۰٫۴۵)، اثرهای همان پدیدآور و اثرهایی که میزبان را نام برده‌اند.
+  - آزمون ساخته از پیوندهای موجود (۲۵۳ مدخل، ۱۱ عامل، ۱٫۱۵ میلیون توکن): نام پدیدآور برداشته (۹۸ پاسخ: ۷۶ درست، ۲۲ نامطمئن)، عنوان جورشده برداشته (۵۲: ۴۷ درست، ۵ نامطمئن)، خود اثر برداشته (۹۸: ۷۸ «نیست»، ۱۶ نامطمئن، ۴ پیوند نادرست). پیوندهای «high»: ۱۱۶ درست از ۱۱۸. پنج مدخل بی‌پاسخ ماند.
+  - آزمایش روی مانده‌ی واقعی (۲۵۰ مدخل، ۵۰ از هر دسته، شش نامزد، ۱۰ عامل، ۸۴۰ هزار توکن)، پیوند «high» از ۵۰: هم‌عنوان در دو سو ۴۸، چند اثر هم‌عنوان و هم‌پدیدآور ۳۴، بی‌اثر در پایگاه ۱۶، بی‌پدیدآور ۱۶، با پدیدآور دیگر ۱۰. هر ۱۲۴ خوانده شد: نادرست روشن صفر.
+  - در دسته‌ی «بی‌اثر در پایگاه» حدود یک‌سوم مدخل‌ها نامزد دارند (۵۰ از ۱۵۱ مدخل نخست).
+  - **«الزايرجة»:** #3969 «الأدوار العنصرية المستخرجة من الزايرجة السبتية» مدخل «الزايرجة؛ سبتی، ابوالعباس احمد بن جعفر (524-601)» دارد، و #34346 «الزایرجة» در چاپ از «خزرجی، احمد بن مسعود، - 601؟» است و همین #3969 را در «شرح و حواشی» خود نام برده است. این دو نام دو کس‌اند: ابوالعباس احمد بن جعفر خزرجی سبتی (۵۲۴-۶۰۱، مراکش) و ابوالعباس احمد بن مسعود قرطبی خزرجی (درگذشته‌ی ۶۰۱ در دنیسر). زایرجه را به سبتی نسبت داده‌اند. پیوند دو اثر درست است و رکورد شخصی برای ادغام نیست؛ نام پدیدآور #34346 جای بازبینی دارد.
+- **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back` و `test_two_works_of_one_title_and_the_one_of_several_works_of_a_title_and_author`.
 - **اجرا در تولید، پس از استقرار:** پشتیبان `work_relations`، سپس `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`.
