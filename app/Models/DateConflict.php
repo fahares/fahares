@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class DateConflict extends Model
 {
-    public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت'];
+    public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت', 'period' => 'دوره‌ی زندگی'];
 
     /** What is wrong, by the rule and the two dates it ties: rule => [a_field > b_field => label]. */
     public const LABELS = [
@@ -29,6 +29,8 @@ class DateConflict extends Model
         Loader::RULE_SCRIBE => ['copy>death' => 'کتابت پس از وفات کاتب', 'birth>copy' => 'کاتب هنگام کتابت کمتر از ۱۰ ساله'],
         Loader::RULE_PATRON => ['copy>death' => 'کتابت پس از وفات بانی', 'birth>copy' => 'کتابت پیش از تولد بانی'],
         Loader::RULE_DERIVED => ['composition>composition' => 'اثر وابسته پیش از اثر اصلی'],
+        // a period of the person's life a reviewer approved (step 14.226)
+        Loader::RULE_PERIOD => ['birth>period' => 'دوره‌ای از زندگی پیش از تولد', 'period>death' => 'دوره‌ای از زندگی پس از وفات'],
     ];
 
     /** The rules' short names, for the filter. */
@@ -42,6 +44,7 @@ class DateConflict extends Model
         Loader::RULE_PATRON => 'بانی',
         Loader::RULE_LIFE => 'عمر',
         Loader::RULE_DERIVED => 'اثر وابسته',
+        Loader::RULE_PERIOD => 'دوره‌ی زندگی',
     ];
 
     public $timestamps = false;
