@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\DB;
  *
  * Places are grouped by their city (copy_city, composition_city; step 14.209), so «طهران», «دارالخلافه طهران» and
  * «تهران مدرسه سپهسالار» are one row, تهران; each record keeps the catalogue's own text of the place. A text that names
- * no city of the list («ییلاق لیمرا») is a row of its own. A place with a hedge («تهران (احتمالا)», «؟») is left out,
+ * no city but a country or a region («هندوستان», copy_region; step 14.211) is a row of that, marked as one; a text that names
+ * neither («ییلاق لیمرا») is a row of its own. A place with a hedge («تهران (احتمالا)», «؟») is left out,
  * and so is a record dated after the person's death or before their birth: that is a namesake's.
  */
 final class PersonPlaces
@@ -33,7 +34,7 @@ final class PersonPlaces
     /**
      * The places in the order the person is first seen in them.
      *
-     * @return list<array{place: string, city: bool, from: int, to: int, count: int, items: list<array{years: string, what: string, title: string, url: string, text: ?string}>}>
+     * @return list<array{place: string, city: bool, kind: ?string, from: int, to: int, count: int, items: list<array{years: string, what: string, title: string, url: string, text: ?string}>}>
      */
     public static function for(Person $person): array
     {
@@ -45,10 +46,10 @@ final class PersonPlaces
                 ->where('mp.person_id', $person->id)->where('mp.role', 'scribe')->where('m.is_facsimile', 0)
                 ->whereNotNull('m.copy_place')->where('m.copy_place', '<>', '')->whereNull('m.copy_date_certainty')
                 ->where(fn ($q) => self::dated($q, 'm.copy_date'))
-                ->get(['m.id', 'm.copy_place as place', 'm.copy_city as city', 'm.copy_date_from', 'm.copy_date_to', 'm.copy_date_kind', 'm.copy_date_start_to',
+                ->get(['m.id', 'm.copy_place as place', 'm.copy_city as city', 'm.copy_region as region', 'm.copy_date_from', 'm.copy_date_to', 'm.copy_date_kind', 'm.copy_date_start_to',
                     'm.copy_date_end_from', 'w.primary_title as title', 'm.library', 'm.shelfmark']);
             foreach ($copies as $c) {
-                $rows[] = ['place' => $c->place, 'city' => $c->city, 'date' => DateSpan::fromColumns($c, 'copy_date'), 'what' => 'کتابت',
+                $rows[] = ['place' => $c->place, 'city' => $c->city, 'region' => $c->region, 'date' => DateSpan::fromColumns($c, 'copy_date'), 'what' => 'کتابت',
                     'title' => implode('، ', array_filter([$c->title, $c->library, $c->shelfmark ? 'ش ' . $c->shelfmark : null])) ?: 'نسخه',
                     'url' => route('manuscripts.show', $c->id)];
             }
@@ -57,10 +58,10 @@ final class PersonPlaces
             ->where('wp.person_id', $person->id)->where('wp.role', 'author')->whereNull('wp.certainty')
             ->whereNotNull('w.composition_place')->where('w.composition_place', '<>', '')->whereNull('w.composition_date_certainty')
             ->where(fn ($q) => self::dated($q, 'w.composition_date'))
-            ->get(['w.id', 'w.composition_place as place', 'w.composition_city as city', 'w.composition_date_from', 'w.composition_date_to', 'w.composition_date_kind',
+            ->get(['w.id', 'w.composition_place as place', 'w.composition_city as city', 'w.composition_region as region', 'w.composition_date_from', 'w.composition_date_to', 'w.composition_date_kind',
                 'w.composition_date_start_to', 'w.composition_date_end_from', 'w.primary_title as title']);
         foreach ($works as $w) {
-            $rows[] = ['place' => $w->place, 'city' => $w->city, 'date' => DateSpan::fromColumns($w, 'composition_date'), 'what' => 'تألیف',
+            $rows[] = ['place' => $w->place, 'city' => $w->city, 'region' => $w->region, 'date' => DateSpan::fromColumns($w, 'composition_date'), 'what' => 'تألیف',
                 'title' => $w->title, 'url' => route('works.show', $w->id)];
         }
 
@@ -74,8 +75,8 @@ final class PersonPlaces
             if (($person->death_to !== null && $row['date']->from > $person->death_to) || ($person->birth_year_hijri && $row['date']->to < $person->birth_year_hijri)) {
                 continue;
             }
-            $key = $row['city'] ?: $text;
-            $places[$key] ??= ['place' => $key, 'city' => (bool) $row['city'], 'from' => $row['date']->from, 'to' => $row['date']->to, 'count' => 0, 'items' => []];
+            $key = $row['city'] ?: ($row['region'] ?: $text);
+            $places[$key] ??= ['place' => $key, 'city' => (bool) $row['city'], 'kind' => $row['city'] ? null : CopyPlaces::regionKind($row['region']), 'from' => $row['date']->from, 'to' => $row['date']->to, 'count' => 0, 'items' => []];
             $places[$key]['from'] = min($places[$key]['from'], $row['date']->from);
             $places[$key]['to'] = max($places[$key]['to'], $row['date']->to);
             $places[$key]['count']++;

@@ -36,6 +36,7 @@ class Work extends Model
             // The city the place of composition names, beside its text (item 139, step 14.209)
             if ($work->isDirty('composition_place')) {
                 $work->composition_city = \App\Support\CopyPlaces::cityOf($work->composition_place);
+                $work->composition_region = \App\Support\CopyPlaces::regionOf($work->composition_place);
             }
         });
     }

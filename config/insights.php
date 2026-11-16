@@ -220,4 +220,41 @@ return [
         'بیجاپور' => ['lat' => 16.83, 'lon' => 75.71, 'aliases' => []],
         'مدراس' => ['lat' => 13.08, 'lon' => 80.27, 'aliases' => []],
     ],
+
+    // The countries and regions a place text may name beside, or instead of, a city (backlog item 139, step 14.211):
+    // «هندوستان», «آمل مازندران», «احمد نگر دکن هند». They are read as the cities are (CopyPlaces::regionOf), the name
+    // that comes first in the text as a whole word, and stored in copy_region and composition_region. They are no
+    // points on the map. «روم» is left out: «ارز روم» is a city.
+    'copy_regions' => [
+        'ایران' => ['kind' => 'country', 'aliases' => []],
+        'هند' => ['kind' => 'country', 'aliases' => ['هندوستان']],
+        'ترکیه' => ['kind' => 'country', 'aliases' => ['عثمانی', 'بلاد روم']],
+        'عراق' => ['kind' => 'country', 'aliases' => ['عتبات']],
+        'مصر' => ['kind' => 'country', 'aliases' => []],
+        'یمن' => ['kind' => 'country', 'aliases' => []],
+        'افغانستان' => ['kind' => 'country', 'aliases' => []],
+        'لبنان' => ['kind' => 'country', 'aliases' => ['جبل عامل']],
+        'بحرین' => ['kind' => 'country', 'aliases' => []],
+        'شام' => ['kind' => 'region', 'aliases' => ['سوریه']],
+        'حجاز' => ['kind' => 'region', 'aliases' => []],
+        'خراسان' => ['kind' => 'region', 'aliases' => []],
+        'گیلان' => ['kind' => 'region', 'aliases' => []],
+        'مازندران' => ['kind' => 'region', 'aliases' => ['طبرستان']],
+        'کردستان' => ['kind' => 'region', 'aliases' => []],
+        'آذربایجان' => ['kind' => 'region', 'aliases' => []],
+        'فارس' => ['kind' => 'region', 'aliases' => []],
+        'خوزستان' => ['kind' => 'region', 'aliases' => []],
+        'لرستان' => ['kind' => 'region', 'aliases' => []],
+        'سیستان' => ['kind' => 'region', 'aliases' => []],
+        'گجرات' => ['kind' => 'region', 'aliases' => []],
+        'دکن' => ['kind' => 'region', 'aliases' => []],
+        'کشمیر' => ['kind' => 'region', 'aliases' => []],
+        'بنگاله' => ['kind' => 'region', 'aliases' => ['بنگال']],
+        'پنجاب' => ['kind' => 'region', 'aliases' => []],
+        'ماوراءالنهر' => ['kind' => 'region', 'aliases' => ['ماوراء النهر']],
+        'ترکستان' => ['kind' => 'region', 'aliases' => []],
+        'بدخشان' => ['kind' => 'region', 'aliases' => []],
+        'قفقاز' => ['kind' => 'region', 'aliases' => []],
+        'داغستان' => ['kind' => 'region', 'aliases' => []],
+    ],
 ];
