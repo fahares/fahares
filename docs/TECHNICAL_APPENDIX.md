@@ -11765,6 +11765,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_a_scribe_whose_name_is_only_read_right_keeps_the_copy_under_the_new_name` در `RebuildCopiesCommandTest`. یک شخص تک‌نسخه‌ای نام می‌گیرد، و شخصی که نسخه‌ی دیگری بیرون از پرونده دارد دست نمی‌خورد.
 - **تمرین روی `fahares_prod` محلی:** `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`. اجرای دوم: `Would rebuild 0 copies`. نمونه: #192178 کاتب «محمد علی بن عباس تویسرکانی» (شخص 45656) و تاریخ «سه شنبه 16 ذیقعده 1085ق»، سال ۱۰۸۵.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از `scribe_name`، `scribe_id`، `copy_date_raw`، ستون‌های بازه و `is_bita` این ۲۹۱ نسخه، و از `id`، `name`، `normalized_name` اشخاص پیوندخورده. سپس فرمان و اجرای دوباره.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
+  - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
+  - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
+  - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
 
 ### گام ۱۴.۲۲۵: `Person::lifeYear` و `fahares:fix-life-years`
 
@@ -11795,11 +11800,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
 - **پس از اجرا در پروداکشن:** `fahares:estimate-dates --apply`، و برای سند جستجوی اشخاص `fahares:reindex-work-estimates --people --all`.
 - **مانده:** ۴۰ شخص گروه سوم (بازبینی با منبع زندگی‌نامه)؛ شبه‌شخص‌ها (مورد ۱۴۵).
-- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
-  - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
-  - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
-  - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
-  - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
 
 ### گام ۱۴.۲۲۶: قاعده‌ی `period` و `DateVar::periodStart()` / `periodEnd()`
 
