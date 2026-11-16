@@ -136,8 +136,9 @@ final class EstimateText
         $year = $row->year_from;
         $lasted = false;
         // a duration with exact ends: alive at its end, or for a patron at its start
+        // (the engine gives the end itself since step 14.222; an estimate made before it gives the start)
         if ($date && $date->isSpan() && $date->startTo === null && $date->endFrom === null && $date->from !== null && $date->to !== null
-            && $row->from_rule !== Loader::RULE_DEDICATEE && (int) $row->year_from === $date->from) {
+            && $row->from_rule !== Loader::RULE_DEDICATEE && in_array((int) $row->year_from, [$date->from, $date->to], true)) {
             $year = $row->from_rule === Loader::RULE_PATRON ? $date->from : $date->to;
             $lasted = true;
         }

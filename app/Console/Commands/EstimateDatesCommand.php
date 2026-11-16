@@ -257,7 +257,8 @@ class EstimateDatesCommand extends Command
         $pools = [];
         foreach ($engine->seeded() as $var) {
             [$from, $to] = [$engine->seedFrom($var), $engine->seedTo($var)];
-            if ($from !== null && $to !== null && $to - $from >= 0 && $to - $from <= 10 && ! isset($quarantined[$var])) {
+            // the end of a date that lasted is no date of its own to hide
+            if (! DateVar::isEnd($var) && $from !== null && $to !== null && $to - $from >= 0 && $to - $from <= 10 && ! isset($quarantined[$var])) {
                 $pools[DateVar::kind($var)][] = $var;
             }
         }
