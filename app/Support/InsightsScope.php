@@ -149,14 +149,15 @@ class InsightsScope
         $this->close();
         $features = implode(', ', config('insights.features'));
         $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, scribe_id, library_id, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}"
+            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}"
         ));
         DB::statement('CREATE TEMPORARY TABLE ' . self::COPIES . ' (PRIMARY KEY (id), KEY (work_id)) ' . $copies->toSql(), $copies->getBindings());
 
         $works = $this->hasCopyFilter()
             ? DB::table('works')->whereIn('id', DB::table(self::COPIES)->whereNotNull('work_id')->distinct()->select('work_id'))
             : $this->conditions(DB::table('works'));
-        $works->select(['id', 'author_id', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_place', 'composition_year_hijri']);
+        $works->select(['id', 'author_id', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_place', 'composition_year_hijri'])
+            ->selectRaw("print_info IS NOT NULL AND print_info != '' AS printed");
         DB::statement('CREATE TEMPORARY TABLE ' . self::WORKS . ' (PRIMARY KEY (id), KEY (author_id)) ' . $works->toSql(), $works->getBindings());
         $this->open = true;
     }
