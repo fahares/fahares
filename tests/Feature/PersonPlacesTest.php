@@ -70,13 +70,16 @@ class PersonPlacesTest extends TestCase
         // two texts of one city are one row, each with the catalogue's own words (step 14.209)
         $this->copy($base, $person, ['copy_place' => 'طهران', 'copy_city' => 'تهران', 'copy_date_from' => 1070, 'copy_date_to' => 1070]);
         $this->copy($base, $person, ['copy_place' => 'دارالخلافه طهران', 'copy_city' => 'تهران', 'copy_date_from' => 1072, 'copy_date_to' => 1072]);
+        // a text that names a country and no city is a row of the country (step 14.211)
+        $this->copy($base, $person, ['copy_place' => 'هندوستان', 'copy_region' => 'هند', 'copy_date_from' => 1080, 'copy_date_to' => 1080]);
         // an author: a work with a place and a year, in a place the copies name too
         $own = $this->work('اثر خودش آزمایشی مکان', $person, ['composition_place' => 'شیراز', 'composition_date_from' => 1066, 'composition_date_to' => 1066]);
 
         $places = PersonPlaces::for($person->fresh());
-        $this->assertSame([['اصفهان', 1052, 1057, 1], ['شیراز', 1060, 1066, 2], ['تهران', 1070, 1072, 2]], array_map(fn ($p) => [$p['place'], $p['from'], $p['to'], $p['count']], $places));
+        $this->assertSame([['اصفهان', 1052, 1057, 1], ['شیراز', 1060, 1066, 2], ['تهران', 1070, 1072, 2], ['هند', 1080, 1080, 1]], array_map(fn ($p) => [$p['place'], $p['from'], $p['to'], $p['count']], $places));
         $this->assertSame([true, ['طهران', 'دارالخلافه طهران']], [$places[2]['city'], array_column($places[2]['items'], 'text')]);
         $this->assertSame([false, [null]], [$places[0]['city'], array_column($places[0]['items'], 'text')]);
+        $this->assertSame([null, 'کشور', ['هندوستان']], [$places[2]['kind'], $places[3]['kind'], array_column($places[3]['items'], 'text')]);
         $this->assertSame('از 1052 تا 1057', $places[0]['items'][0]['years']);
         $this->assertSame([['1060', 'کتابت', route('manuscripts.show', $first)], ['1066', 'تألیف', route('works.show', $own->id)]],
             array_map(fn ($i) => [$i['years'], $i['what'], $i['url']], $places[1]['items']));
@@ -93,6 +96,7 @@ class PersonPlacesTest extends TestCase
         $work = $this->work('اثر آزمایشی کد شهر', $author, ['composition_place' => 'دارالسلطنه اصفهان']);
         $a = $this->copy($work, $author, ['copy_place' => 'دارالخلافه طهران']);
         $b = $this->copy($work, $author, ['copy_place' => 'هندوستان', 'copy_city' => 'تهران']);
+        $d = $this->copy($work, $author, ['copy_place' => 'آمل مازندران']);
         $c = $this->copy($work, $author, ['copy_place' => null, 'copy_city' => 'قم']);
         $city = fn (int $id) => DB::table('manuscripts')->where('id', $id)->value('copy_city');
 
@@ -103,12 +107,17 @@ class PersonPlacesTest extends TestCase
         $this->assertSame(['تهران', null, null], [$city($a), $city($b), $city($c)]);
         $this->assertSame('دارالخلافه طهران', DB::table('manuscripts')->where('id', $a)->value('copy_place'));
         $this->assertSame('اصفهان', DB::table('works')->where('id', $work->id)->value('composition_city'));
+        // the country or region beside the city: a country alone, a city with its region, a city alone
+        $region = fn (int $id) => DB::table('manuscripts')->where('id', $id)->value('copy_region');
+        $this->assertSame([null, 'هند', ['آمل', 'مازندران']], [$region($a), $region($b), [$city($d), $region($d)]]);
 
         // saving keeps the city in step
         Manuscript::find($a)->update(['copy_place' => 'مشهد رضوی مدرسه میرزا جعفر']);
         $this->assertSame('مشهد', $city($a));
+        Manuscript::find($a)->update(['copy_place' => 'احمد نگر دکن هند']);
+        $this->assertSame(['احمدنگر', 'دکن'], [$city($a), $region($a)]);
         Manuscript::find($a)->update(['copy_place' => null]);
-        $this->assertNull($city($a));
+        $this->assertSame([null, null], [$city($a), $region($a)]);
         Work::find($work->id)->update(['composition_place' => 'نجف اشرف']);
         $this->assertSame('نجف', DB::table('works')->where('id', $work->id)->value('composition_city'));
     }

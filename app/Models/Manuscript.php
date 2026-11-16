@@ -182,6 +182,7 @@ class Manuscript extends Model
             // The city the place of copying names, beside its text (item 139, step 14.209)
             if ($manuscript->isDirty('copy_place')) {
                 $manuscript->copy_city = \App\Support\CopyPlaces::cityOf($manuscript->copy_place);
+                $manuscript->copy_region = \App\Support\CopyPlaces::regionOf($manuscript->copy_place);
             }
             // The sort/collection key is the shelfmark cut to the indexed length
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {

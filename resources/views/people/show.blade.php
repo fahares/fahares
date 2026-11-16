@@ -137,7 +137,7 @@
                             <li>
                                 <details class="group">
                                     <summary class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2 cursor-pointer list-none">
-                                        <span class="font-semibold text-ink">{{ $place['place'] }}</span>
+                                        <span class="font-semibold text-ink">{{ $place['place'] }}@if($place['kind']) <span class="text-xs font-normal text-muted">({{ $place['kind'] }})</span>@endif</span>
                                         <span class="tabular-nums text-ink">{{ Fa::digits($place['from'] === $place['to'] ? $place['from'] : $place['from'] . '–' . $place['to']) }} ق</span>
                                         <span class="text-xs text-muted ms-auto">{{ Fa::num($place['count']) }} شاهد <span aria-hidden="true" class="inline-block transition group-open:rotate-180">▾</span></span>
                                     </summary>
