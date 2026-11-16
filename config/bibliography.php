@@ -363,7 +363,8 @@ return [
         // («نقباء البشر 245/1», «الکرام البررة: 310/2») or the century («طبقات اعلام الشیعه قرن 13: 245»), so no citation
         // reads as a page of this one (the pattern matches nothing) and sources:link-earlier-edition tabaqat old ties
         // a work to its author's life: on the cited page of the century's volumes, else anywhere in them; a citation
-        // without its century takes the author's death year's.
+        // without its century takes the author's death year's. A citation that names its century opens the page all
+        // the same (step 14.239): BibliographyLinks::centurySpans reads it by «earlier.old» below, apart from the pattern.
         'tabaqat' => [
             'label' => 'طبقات أعلام الشیعة',
             'pattern' => '(?!)',
