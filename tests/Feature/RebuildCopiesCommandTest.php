@@ -173,4 +173,41 @@ class RebuildCopiesCommandTest extends TestCase
         $this->assertSame(\App\Support\HijriYear::parse('قرن 12'), $row->copy_date_hijri_year === null ? null : (int) $row->copy_date_hijri_year);
         $this->assertNotSame(1373, (int) $row->copy_date_hijri_year);
     }
+
+    public function test_a_scribe_whose_name_is_only_read_right_keeps_the_copy_under_the_new_name()
+    {
+        $meta = ['incipits' => [], 'explicits' => [], 'editorial_notes' => [], 'ownership_and_seals' => [], 'catalog_citation' => null, 'residual_notes' => null];
+        $make = function (string $name) use ($meta) {
+            $id = $this->copy('88/' . count($this->manuscripts), "تهران؛ دانشگاه؛ شماره نسخه: 88\nکا: {$name}", null, $meta);
+            $person = \App\Models\Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'scribe-' . uniqid()]);
+            DB::table('manuscripts')->where('id', $id)->update(['scribe_name' => $name, 'scribe_id' => $person->id]);
+
+            return [$id, $person->id];
+        };
+        [$own, $renamed] = $make('کاتب آزمایشی یکم، تا: 1085ق');
+        [$first, $shared] = $make('کاتب آزمایشی مشترک');
+        // the shared person wrote another copy, which the file does not hold: that person is not renamed
+        $other = $this->copy('88/x', 'تهران؛ دانشگاه؛ شماره نسخه: 88', null, $meta);
+        DB::table('manuscripts')->where('id', $other)->update(['scribe_name' => 'کاتب آزمایشی مشترک', 'scribe_id' => $shared]);
+        $records = [
+            $this->record($own, DB::table('manuscripts')->where('id', $own)->value('shelfmark'), ['scribe_name' => ['from' => 'کاتب آزمایشی یکم، تا: 1085ق', 'to' => 'کاتب آزمایشی یکم'], 'copy_date_raw' => ['from' => null, 'to' => '1085ق']]) + ['scribe' => 'rename'],
+            $this->record($first, DB::table('manuscripts')->where('id', $first)->value('shelfmark'), ['scribe_name' => ['from' => 'کاتب آزمایشی مشترک', 'to' => 'کاتب آزمایشی مشترک [تبریزی]']]) + ['scribe' => 'rename'],
+        ];
+        file_put_contents($this->file, json_encode(['records' => $records], JSON_UNESCAPED_UNICODE));
+
+        try {
+            $this->artisan('fahares:rebuild-copies', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+            $this->assertSame('کاتب آزمایشی یکم', DB::table('people')->where('id', $renamed)->value('name'));
+            $this->assertSame($renamed, (int) DB::table('manuscripts')->where('id', $own)->value('scribe_id'));
+            $this->assertSame(1085, (int) DB::table('manuscripts')->where('id', $own)->value('copy_date_hijri_year'));
+            $this->assertSame('کاتب آزمایشی مشترک', DB::table('people')->where('id', $shared)->value('name'));
+            $this->assertNull(DB::table('manuscripts')->where('id', $first)->value('scribe_id'));
+            $this->assertSame($shared, (int) DB::table('manuscripts')->where('id', $other)->value('scribe_id'));
+        } finally {
+            AuditLog::where('auditable_type', \App\Models\Person::class)->whereIn('auditable_id', [$renamed, $shared])->delete();
+            DB::table('manuscripts')->whereIn('id', [$own, $first, $other])->update(['scribe_id' => null]);
+            DB::table('people')->whereIn('id', [$renamed, $shared])->delete();
+        }
+    }
 }

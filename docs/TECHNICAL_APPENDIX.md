@@ -11665,3 +11665,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`author_id`:** `add-corpus-works` با تغییر `author_name` بی کلید `author`، `author_id` را تهی می‌کند و شمار آثار شخص پیشین را دوباره می‌شمارد. شخص #480 («ملاجعفر (ق13 و 14هـ) در مقدمه گوید…») پس از تمرین اثری ندارد.
 - **تمرین روی `fahares_prod` محلی:** `fahares:add-corpus-works --file=… --apply` برای هر دو پرونده: ۱۴۷ و ۶۳ اثر. اجرای دوم: `update 0`.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از `description`، `author_name`، `author_id`، `incipit_text`، `explicit_text`، `bibliography`، `composition_date_raw` و `composition_place` این ۲۱۰ اثر. سپس دو فرمان و اجرای دوباره.
+
+### گام ۱۴.۲۲۴: `scribe_names_step14_224_copies.json` و `"scribe": "rename"` در `rebuild-copies`
+
+- **ردیف‌های `scribe_name` در review14:** `trimmed` ۶۳۱، `emptied` ۳۷۴، `hedge_split` ۱۹۸، `trimmed_inner` ۱۷۷، `extended` ۱۶۹، `filled` ۱۴۶ و `different` ۲۶.
+  - دنباله‌ی `trimmed`: واژه‌ی تردید ۱۸۸، تاریخ ۱۸۴، کمانک ۱۰۱ و دیگر ۱۵۶ (بیشتر چند کاتب).
+  - `filled`: ۹۸ مقدار «بی‌کا»، «= مؤلف» یا «نونویس» است.
+- **`fankha_v2_scribe_names_export.py`** (مخزن corpus):
+  - **تاریخ:** نام سایت با v2 آغاز می‌شود و دنباله با `DATE_TAIL` می‌خواند («، تا: …»، «، تا …»، «، بیتا»). اگر `copy_date_raw` پر باشد، نسخه کنار می‌رود (۱). تاریخ به `copy_date_raw` می‌رود. «بی‌تا» `is_bita` را روشن می‌کند، اگر خاموش باشد.
+  - **کروشه:** v2 با نام سایت آغاز می‌شود و `[…]` دارد. هر کروشه باید ۴۰ نویسه یا کمتر باشد و با `NOT_NAME` نخواند («بخش»، «جلد»، «؟»، «کذا»، «افتاده»، «شاید»، رقم …). نام v2 باید حرف‌به‌حرف در `raw_text` نسخه باشد.
+  - شمارها: ۲۹۱ رکورد: ۱۸۳ تاریخ (۱۲۲ با تاریخ) و ۱۰۸ کروشه. ۵۲ کروشه کنار رفت.
+- **`RebuildCopiesCommand::scribeRenames()`:** رکورد با `"scribe": "rename"` و `scribe_id` پر. شخص نام `to` را می‌گیرد اگر همه‌ی این‌ها برقرار باشد:
+  - همه‌ی رکوردهای آن شخص در پرونده یک `to` دارند.
+  - `from` هر رکورد همان `people.name` است.
+  - هر نسخه با این `scribe_id` در پرونده هست.
+  - شخص اثری ندارد (`works.author_id`).
+  - شخص دیگری با `normalized_name` نام تازه نیست.
+
+  در این حال `scribe_id` و ردیف `manuscript_people` می‌مانند. پس از تراکنش، `Person::update(['name' => …])` (قلاب `saving` نام نرمال را می‌سازد)، `recountContributions()` و `searchable()` اجرا می‌شوند و `audit_logs` برای شخص ثبت می‌شود. وگرنه رفتار پیشین است: `scribe_id` تهی می‌شود.
+- **آزمون:** `test_a_scribe_whose_name_is_only_read_right_keeps_the_copy_under_the_new_name` در `RebuildCopiesCommandTest`. یک شخص تک‌نسخه‌ای نام می‌گیرد، و شخصی که نسخه‌ی دیگری بیرون از پرونده دارد دست نمی‌خورد.
+- **تمرین روی `fahares_prod` محلی:** `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`. اجرای دوم: `Would rebuild 0 copies`. نمونه: #192178 کاتب «محمد علی بن عباس تویسرکانی» (شخص 45656) و تاریخ «سه شنبه 16 ذیقعده 1085ق»، سال ۱۰۸۵.
+- **اجرا در تولید (پس از تأیید):** پشتیبان از `scribe_name`، `scribe_id`، `copy_date_raw`، ستون‌های بازه و `is_bita` این ۲۹۱ نسخه، و از `id`، `name`، `normalized_name` اشخاص پیوندخورده. سپس فرمان و اجرای دوباره.
