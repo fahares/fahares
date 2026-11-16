@@ -411,9 +411,11 @@ class PrintedPage
      */
     private static function marks(string $text, Source $source, SourceVolume $volume, int $page): array
     {
-        // an entry is read from its first page on; a catalogue's entries are short, so a few pages back is enough
+        // an entry is read from its first page on; a catalogue's entries are short, so a few pages back is enough, but
+        // a copy may stand far after its work's heading (Golpaygani prints a work's copies one after another, step 14.206)
         $entries = SourceEntry::with('citable')->where('source_id', $source->id)->where('volume_number', $volume->volume_number)
-            ->whereBetween('page_start', [$page - 5, $page])->where('role', SourceEntry::ROLE_ENTRY)->where('status', '!=', SourceEntry::STATUS_REJECTED)
+            ->where(fn ($q) => $q->whereBetween('page_start', [$page - 5, $page])
+                ->orWhere(fn ($q) => $q->whereBetween('page_start', [$page - 40, $page - 6])->where('shelfmark_page', $page)))->where('role', SourceEntry::ROLE_ENTRY)->where('status', '!=', SourceEntry::STATUS_REJECTED)
             ->get()->filter(fn (SourceEntry $e) => $e->citable && in_array($page, array_filter([$e->text_page, $e->shelfmark_page, $e->page_start]), true)
                 || ($e->citable && $e->page_start <= $page && ($e->page_end ?? $e->page_start) >= $page))
             ->sortBy('id');
