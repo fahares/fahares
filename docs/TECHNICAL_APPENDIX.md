@@ -10899,6 +10899,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **آثار (۴):** «در 18 ذیحجه 1351ق (25 فروردین 1312)»، «… 471 … سال 469 یزدگردی»، «… 810ق … (4 آذرماه 782 یزدگردی)»، «چهارشنبه 12 اردیبهشت 1352 مطابق با 26 ربیع الاول 1393ق».
 - **مانده:** دو نسخه‌ای که فقط سال یزدگردی دارند بازه ندارند؛ تبدیل یزدگردی به قمری ساخته نشد.
+- **ثبت دستی دو نسخه (۲۵ آبان ۱۴۰۵، با تأیید کاربر، زیر `prod-run`):** #۱۲۲۲۲۹ «11 بهمن ماه الهی 996 یزدجرد بن شهریار» ← «… = 1036ق» (نُه نسخه‌ی دیگر همین تاریخ را ۱۰۳۶ نوشته‌اند)؛ #۱۶۶۴۱۴ «1240 یزدگردی» ← «1240 یزدگردی = 1287 یا 1288ق» (سال ۱۲۴۰ یزدگردی از اوت ۱۸۷۰ تا اوت ۱۸۷۱ است؛ همین حساب برای «1250 یزدگردی = 1298ق» درست درمی‌آید). با `Manuscript::update` (بازه و سال مرتب‌سازی از قلاب ذخیره) و یک لاگ `verify` با `direct_edit`، تا `ProtectedColumns` متن را از فرمان‌های corpus نگه دارد. پیش و پس در `../fahares-sources/backups/step13/step14_207_yazdgerdi_dates_before_after.jsonl`.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان):** `fahares:fill-copy-date-ranges --apply`، سپس با `--works`.
 - **تست:** `CopyDateRangeTest::test_a_second_number_that_is_no_date_of_the_copy_is_left_out` و `ApplyCorpusCategoriesCommandTest::test_the_sort_year_follows_a_range_that_drops_a_number_the_text_no_longer_gives_as_a_year`.
 
@@ -11366,3 +11367,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان ستون‌های `TextRefresh::COLUMNS` مأخذهای منبع ۱۰۰۰۲۰، و ستون `extractor` منبع.
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:take-texts 100020 --extractor=numbered_copies'`.
   3. اجرای دوم باید «taken 0» بدهد.
+### گام ۱۴.۲۰۷: `App\Support\PersonPlaces` و بخش «حضور در شهرها»
+
+- **منبع:** `manuscript_people` با نقش `scribe` و نسخه‌ی دارای `copy_place`؛ `work_people` با نقش `author` (بی `certainty`) و اثرِ دارای `composition_place`.
+- **تاریخ:** `from = to`، یا `kind = span` با دو سر (`DateSpan`، گام ۱۴.۱۸۸). متن سال از `DateSpan::brief()`.
+- **کنار رفته:** `copy_date_certainty` یا `composition_date_certainty` پر؛ `is_facsimile`؛ متن مکان بلندتر از ۶۰ نویسه (`MAX_PLACE`)؛ مکان با «؟»، «احتمال»، «محتمل»، «ظاهرا»، «گویا»، «شاید»؛ همه‌ی نسخه‌های کاتبی که `scribed_to − scribed_from` از `PersonReviewQueue::MIXED_SPAN` (۷۰) بیشتر است؛ شاهدِ پس از `death_to` یا پیش از `birth_year_hijri`.
+- **خروجی:** مکان‌ها به ترتیب نخستین سال؛ هر مکان `from`، `to`، `count` و تا ۱۲ شاهد (`SHOWN`) با سال، نوع («کتابت»، «تألیف»)، عنوان و پیوند.
+- **نمایش:** `resources/views/people/show.blade.php`، پس از زندگی‌نامه‌ی کوتاه؛ هر مکان یک `<details>`.
+- **سنجش روی `fahares_prod` (مورد ۱۳۹):** ۱۳٬۷۲۴ نسخه برای ۹٬۳۷۵ کاتب و ۱٬۷۱۱ اثر برای ۱٬۰۹۹ مؤلف، پیش از قاعده‌های کنارگذاری.
+- **تست:** `PersonPlacesTest` (دو آزمون نخست و سوم).
+
+### گام ۱۴.۲۰۹: `copy_city` و `composition_city`، و `fahares:fill-place-cities`
+
+- **مهاجرت `2026_11_16_100001_add_city_codes_to_copy_and_composition_places`:** دو ستون `string(40)` تهی‌پذیر با نمایه. روی رونوشت محلیِ زیر بار ۵۱ ثانیه طول کشید (ساخت نمایه روی ۳۲۳ هزار نسخه)؛ در پروداکشن migrate پیش از آغاز وب‌سرور اجرا می‌شود (گام ۱۴.۱۸۲).
+- **مقدار:** `CopyPlaces::cityOf(متن)`: شهری که نامش، یا نام دیگرش در `config/insights.php` (`copy_places`)، زودتر از بقیه به‌صورت واژه‌ی کامل در متن می‌آید. «اصفهان مدرسه جده» ← «اصفهان»، «قمصر کاشان» ← «قمصر»، «ایران» ← تهی.
+- **هم‌گامی:** قلاب `saving` در `Manuscript` و `Work` وقتی متن مکان عوض شود. فرمان‌های corpus با `DB::table` می‌نویسند؛ `fahares:refresh-derived --apply` فرمان پرکننده را صدا می‌زند.
+- **`fahares:fill-place-cities [--apply]`:** رکوردها را دسته‌دسته با شناسه می‌خواند، شهر هر متن را یک بار حساب می‌کند و با `whereIn(id)` می‌نویسد (ستون مکان نمایه ندارد؛ نسخه‌ی نخست که با متن مکان می‌نوشت در پنج دقیقه تمام نشد). مکانِ خالی‌شده شهرش را از دست می‌دهد. پس از نوشتن، نهانگاه `CopyPlaces::variantMap` تازه می‌شود. پس از هر تغییر فهرست شهرها باید دوباره اجرا شود.
+- **تمرین روی `fahares_prod`:** ۱۸٬۳۳۹ نسخه و ۱٬۵۸۹ اثر؛ ۱ دقیقه و ۱۵ ثانیه؛ اجرای دوم صفر.
+- **پرشمارترین متن‌های بی‌شهر:** «ایران» ۱۰۵، «هندوستان» ۷۸، «هند» ۲۷، «خراسان» ۲۶، «ترکیه عثمانی» ۱۹، «کتابخانه آصفیه» ۱۹، «مدرسه صادقیه» ۱۴، «ساوج» ۱۳، «ادرنه» ۱۰. کشور و ناحیه به‌عمد در فهرست نیستند (نقطه‌ای روی نقشه ندارند)؛ شهرهای جامانده (ادرنه، ایروان، شاهرود، موصل، عظیم‌آباد) باید با مختصات به `copy_places` افزوده شوند.
+- **آنچه هنوز از ستون نمی‌خواند:** فیلتر «شهر کتابت» جست‌وجو و صفحه‌ی آمار همچنان از `CopyPlaces::variants` (فهرست متن‌های هر شهر) می‌خوانند. نتیجه یکی است؛ بردنشان روی ستون کار بعدی است.
+- **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-place-cities --apply`.
+- **تست:** `PersonPlacesTest::test_the_city_of_a_place_text_is_stored_beside_it_and_kept_in_step`.
