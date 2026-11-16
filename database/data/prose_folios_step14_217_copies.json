@@ -1,0 +1,2203 @@
+{
+ "source": "a copy's leaf count the old import took from a number inside a sentence, a reference or another text («ضمن 2 برگ», «الذریعه 17 ص 255»), emptied; labelled by a model and checked, 2026-11-16; fahares step 14.217",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 11505,
+   "shelfmark": "25575",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | احادیث اخلاقی در 12 صفحه و تفسیر آیه نور 6برگ ضمیمه اند؛ کاغذ: آبی، جلد: مشمع، قطع: خشتی، 14",
+   "changes": {
+    "folios": {
+     "from": 6,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12133,
+   "shelfmark": "26616",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 4 برگ در صدر نسخه، نقل حدیثی از جلد هفتم بحارالانوا",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12373,
+   "shelfmark": "42",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | برگی داشته با حروف ابجدی در برخی از آن اکنون هست تا «کب» و 177 برگ آن مانده گویا دو سه برگی افتاده باشد؛ قطع: وز",
+   "changes": {
+    "folios": {
+     "from": 177,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17189,
+   "shelfmark": "29432",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 5 برگ در اخبار و غیره ضمیمه دارد؛ واقف: حاج شیخ محم",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20602,
+   "shelfmark": "29740",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ذیلا 12 برگ در اخبار و متفرقه ضمیمه دارد؛ کاغذ: نخودی، جل",
+   "changes": {
+    "folios": {
+     "from": 12,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21774,
+   "shelfmark": "28963",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 30 برگ در رساله (سماع در تصرف) از ناهید اعظم مومن به",
+   "changes": {
+    "folios": {
+     "from": 30,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23484,
+   "shelfmark": "2255-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | مقالة فی المدخل الی علم الاخلاق» نوشته 619 در 27 برگ (رویهم 67برگ)؛ بی‌کا، تا: چهارشنبه 27 شعبان 619ق [فیلم‌ها -",
+   "changes": {
+    "folios": {
+     "from": 67,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23540,
+   "shelfmark": "8865/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | بر بالای 40 برگ اول با مداد کلمات خوب یا بد نوشته شده است (بر",
+   "changes": {
+    "folios": {
+     "from": 40,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23697,
+   "shelfmark": "862/3",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | تا قسم 2 باب 40 (شرط 19 وزارت) را دارد و برابر است با سطر 5ص 324 چاپ تهران و نزدیک به شش صفحه در آن کم است؛ خ",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23752,
+   "shelfmark": "5178-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: موزه بریتانیا 4119 .Or (ذیل ریو ش 147 ص 107). با دیباچه دوم؛ خط: نسخ، کا: صدیق بن خضر ب",
+   "changes": {
+    "folios": {
+     "from": 147,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23998,
+   "shelfmark": "27592",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در ضمن ذیل نسخه 9 برگ قرابادین و متفرقات ضمیمه است؛ کاغذ: نخودی، جل",
+   "changes": {
+    "folios": {
+     "from": 9,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24016,
+   "shelfmark": "15728/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: ضمن 2 برگ منظومه‌ای است عربی به خط نستعلیق در عنوان ملح",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25363,
+   "shelfmark": "1189",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | جام: در هر رکعت بعد از فاتحه پنجاه توحید بخواند (و پس از آن 4 برگ با خط مغایر ادعیه).⏎ادعیه و دستوراتی است برای",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26636,
+   "shelfmark": "11768",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در آغاز نسخه 3 برگ از آغاز کتاب «من لایحضره الطبيب» تالیف ابوبکر",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30826,
+   "shelfmark": "8 عکسی",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ش 310. نمونه‌ای از آن نسخه که 31 برگ از 452 برگ آن می‌باشد در دو قطع؛ خط: نستعلیق،",
+   "changes": {
+    "folios": {
+     "from": 31,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33141,
+   "shelfmark": "2541/1-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: برلین Or. 8066 (پرج ش 303 ص 326). فایده در اسماء الله؛ خط: نستعلیق، بی‌کا،",
+   "changes": {
+    "folios": {
+     "from": 303,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34938,
+   "shelfmark": "132/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ورخ 18 صفر 1037 است که نباید پدر شیخ درگذشته 984 باشد (یغما 205 ص 254) [نشریه: 5-224]",
+   "changes": {
+    "folios": {
+     "from": 205,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 36731,
+   "shelfmark": "825/12",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در 6 ص از آغاز و ص 348 و 349 و 8 ص در پایان، در هامش ص 6 گلچین معانی آورده است که",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44207,
+   "shelfmark": "6431",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | پس از این ضمن 5 صفحه قطعه‌ای از رساله در مباحث نفس از مؤلف ضمیمه",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44838,
+   "shelfmark": "212",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه از ورق نهم در امراض دماغ از مقاله اولی است که 112 ورق باید باشد تا ورق 36 مقاله دوم که در 40 ورق با",
+   "changes": {
+    "folios": {
+     "from": 112,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 45241,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | بین سطور 4 صفحه نخست دندان موشی رنگین، مجدول با آب طلا و دار",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46748,
+   "shelfmark": "3189/13-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | بی‌تا [فیلمها ف: 2-95]",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46892,
+   "shelfmark": "7/2-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در هامش نیمه دوم نسخه و 5 ص آخر [فیلمها ف: 1-401]",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48699,
+   "shelfmark": "2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | افتادگی: آغاز (حدود 12 برگ) و انجام (تقریباً 60 برگ)، حدود یک پنجم کتاب",
+   "changes": {
+    "folios": {
+     "from": 12,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52456,
+   "shelfmark": "20662",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | از ابتدا تعداد 9 برگ توسط سید مصطفی حسینی صفائی خوانساری نونویسی ش",
+   "changes": {
+    "folios": {
+     "from": 9,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52734,
+   "shelfmark": "21675",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | آغاز: (اولین عنوان موجود پس از 13 برگ:) باب نقش خواتيمهم و اشغالهم و امزجتهم و احوا",
+   "changes": {
+    "folios": {
+     "from": 13,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54774,
+   "shelfmark": "45/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | شامل 5 برگ اول کتاب است؛ خط: نستعلیق، بی‌کا، تا: قرن 13؛",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 57404,
+   "shelfmark": "868/11",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | اندازه: 14×23/5سم [نشریه: 13-246]",
+   "changes": {
+    "folios": {
+     "from": 13,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 58769,
+   "shelfmark": "27194",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در انتهای نسخه 20 برگ به نام تعبیرنامه با چاپ سنگی آمده است؛ کاغذ:",
+   "changes": {
+    "folios": {
+     "from": 20,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 62114,
+   "shelfmark": "999/2-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: بادلیان 78 .ind ist. pers (2811 ج 3 ص 79)؛ بی‌کا، تا: 1244ق، جا: دربند بمبئی [فیلمها",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 69814,
+   "shelfmark": "202/3-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نام آن در بیت 5 ص 66 دیده می‌شود؛ 11 سطر [ فیلمها ف: 1-433]",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70069,
+   "shelfmark": "13505",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | چهل سوره از تورات ترجمه امیرالمؤمنین ضمیمه است ر-ک فهرست ج 14 ص 10 [رایانه]",
+   "changes": {
+    "folios": {
+     "from": 14,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72747,
+   "shelfmark": "8663/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | از تذکره گمنام نسخه کتابخانه ملی ش 1170 ص 642 تا 649 (3: 198)؛ خط: نستعلیق، کا: عباس اقبا",
+   "changes": {
+    "folios": {
+     "from": 1170,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 76137,
+   "shelfmark": "1487",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | یگر از این کتاب در کتابخانه شیخ صالح آل طعان هست (الذریعه ج 4 ص 167)؛ قطع: خشتی [رشت و همدان: ف: 1294]",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 76819,
+   "shelfmark": "15023/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: ضمن 2 برگ ادعیه حفظ و تسخیر اعداء؛ کاغذ: الوان، جلد: تی",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80122,
+   "shelfmark": "3976",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | افتادگی: آغاز (برابر با س 14 ص 37 چاپ نجف: «و عبدالله بن محمد لقول الله تعالی",
+   "changes": {
+    "folios": {
+     "from": 14,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81605,
+   "shelfmark": "22371",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | آغاز: اولین عنوان موجود پس از 5 برگ: مسئلة اللفظ و المعنی ان اتحدا فیکون متحد الل",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82563,
+   "shelfmark": "23107",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | تقویم دوم: دارای 16 برگ؛ تقویم سوم: راجع به سال 1245ق دارای 15 برگ؛ ت",
+   "changes": {
+    "folios": {
+     "from": 16,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82655,
+   "shelfmark": "29664",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ذیلاً 5 برگ از مدخل منظوم خواجه نصیر طوسی ضمیمه دارد [رای",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 86524,
+   "shelfmark": "2763-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | میافارقمینی در ربیع الاول تا 15 رجب 747 (راهنمای کتاب س 5 ش 7 ص 589)؛ کا: مترجم، بی‌تا [فیلمها ف: 1 - 61]",
+   "changes": {
+    "folios": {
+     "from": 7,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89264,
+   "shelfmark": "28306",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 3 برگ مراسلات ضمیمه دارد؛ قطع: وزیری [رایانه]",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93408,
+   "shelfmark": "25589",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 14 برگ در آخر نسخه در ادعیه و علوم غریبه ضمیمه می‌با",
+   "changes": {
+    "folios": {
+     "from": 14,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95882,
+   "shelfmark": "9982",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ه است که در این جنگ مطالبی بنویسند از جمله مرحوم علامه مجلس 5 صفحه با خط مبارک خود برای صاحب جنگ در تاریخ ذیحجه",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96452,
+   "shelfmark": "24261",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 3 برگ در صدر نسخه، طلسمات به زبان فارسی با خط مغایر",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96601,
+   "shelfmark": "675/17",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | کامل الزیاره ابن بابویه که از ابن قولویه باید باشد (الذریعه 17 ص 255)، کشکول بهائی، شرح نهج البلاغه، نهایة الاحک",
+   "changes": {
+    "folios": {
+     "from": 17,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96679,
+   "shelfmark": "482",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در ریاض العلماء افندی (نسخه دانشگاه ش 993 گ 340 و 516) بندی از این کتاب هست و با چاپ شده یک",
+   "changes": {
+    "folios": {
+     "from": 993,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97088,
+   "shelfmark": "850",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در 177برگ) (هنر و مردم 31: 93)؛ شعر ملاملک مشرقی در هجو طالب خان (گ 177) در آخر",
+   "changes": {
+    "folios": {
+     "from": 93,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97225,
+   "shelfmark": "27457",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 21 برگ در روضه و 14 برگ در طالع و ادعیه ضمیمه دارد [",
+   "changes": {
+    "folios": {
+     "from": 21,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97447,
+   "shelfmark": "8227",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | آغاز: والده ابراهیم نان خورش بنا (پس از 20 برگ نام نویس قرض و طلب) بیاورید طفلی تا بالغ پسر",
+   "changes": {
+    "folios": {
+     "from": 20,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97626,
+   "shelfmark": "16910",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | از اکابر است که آدمی از برای سه کس مال جمع کند ... (پیش از 4 برگ) بسمله حمدله اما بعد قال امیرالمؤمنین علی بن",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97703,
+   "shelfmark": "24357",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 6 برگ در علوم غریبه در آخر نسخه؛ واقف: محمود تولائی",
+   "changes": {
+    "folios": {
+     "from": 6,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97814,
+   "shelfmark": "866-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: نسخه اصل: بادلیان 36 .Pers. c (2838 ج 3 ص 9). دارای یک مصرع به خط بهاء الله جانشین باب و",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98055,
+   "shelfmark": "27037",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | تعداد 28 برگ سفید به متن در آخر ضمیمه شده است؛ کاغذ: نخودی",
+   "changes": {
+    "folios": {
+     "from": 28,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99114,
+   "shelfmark": "ف84",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نوشته 1318 م (بلوشه 27/4 ش 2044- دیباچه چاپ 1352 ج 1 قسم 3 ص 99 و 109) [فهرستواره مینوی: - 169]",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99414,
+   "shelfmark": "10943",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | بیشتر از 80 برگ از نسخه نانویس است [الفبائی ف: - 175]",
+   "changes": {
+    "folios": {
+     "from": 80,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106435,
+   "shelfmark": "958",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در پایان نسخه 9 صفحه به خط نتيجة الافراد مهدی قلیخان از روی خط قا",
+   "changes": {
+    "folios": {
+     "from": 9,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110450,
+   "shelfmark": "2259/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | این نسخه در فهرست گزارش نشده و به استناد جلد 35 صفحه 243 معرفی می گردد؛ بی‌کا، بی‌تا [ف: 6 - 244]",
+   "changes": {
+    "folios": {
+     "from": 35,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 115857,
+   "shelfmark": "11418/5",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: ضمن 8 برگ مراسلات و مکاتیب و برخی اشعار مؤلف؛ کاغذ: مشق",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 117773,
+   "shelfmark": "35501",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: ضمن 4 برگ ذیل نسخه: صورت چند اجازه جهت سید دلدار علی بن",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 118414,
+   "shelfmark": "27147",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | جلد 2. برگ اول ساقط و همچنین سه صفحه آخر با نسخه‌های مو",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119514,
+   "shelfmark": "700/3",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | هذه البيوت والله اعلم بالصواب واليه المرجع والمآب. پس از آن 22 برگ جداول نجومی می‌باشد. ⏎⏎<!-- page: 960 -->⏎⏎خط",
+   "changes": {
+    "folios": {
+     "from": 22,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125241,
+   "shelfmark": "11418/4",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: ضمن 2 صفحه قصیده‌ای در مدح وجود مقدس امام عصر عج- سروده",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125560,
+   "shelfmark": "12897/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: 6 صفحه: خواص اسماء الحسنی، استخاره با تسبیح، ختم سو",
+   "changes": {
+    "folios": {
+     "from": 6,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125780,
+   "shelfmark": "708/5",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | برابر با س 16 گ رش 707 در فصل پنجم. در این نسخه چند برگ افزوده",
+   "changes": {
+    "folios": {
+     "from": 16,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127502,
+   "shelfmark": "6556/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | هامش 31 ص به خط سده 13؛ کاغذ: سپاهانی، جلد: تیماج تریاکی،",
+   "changes": {
+    "folios": {
+     "from": 31,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131480,
+   "shelfmark": "15023/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمیمه: گفتاری بفارسی ضمن 4 برگ در خواص چند سوره قرآن؛ کاغذ: الوان، جلد: تیما",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132277,
+   "shelfmark": "2561-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: موزه بریتانیا 2781 .Or (ذیل ریو ش 384 ص 240)؛ بی‌کا، بی‌تا [فیلمها ف: 2 - 11]",
+   "changes": {
+    "folios": {
+     "from": 384,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132846,
+   "shelfmark": "431/11",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در شماره 11 گ 139ب میباشد. [ف: 3 - 332]",
+   "changes": {
+    "folios": {
+     "from": 11,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 137774,
+   "shelfmark": "28149",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 13 برگ در جدول مطالع به نسخه ضمیمه شده [رایانه]",
+   "changes": {
+    "folios": {
+     "from": 13,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140009,
+   "shelfmark": "166",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | آغاز 26 برگ نونویس سده 14؛ قطع: وزیری [نشریه: 5 - 626]",
+   "changes": {
+    "folios": {
+     "from": 26,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 147474,
+   "shelfmark": "25944",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | من نزل من السماء عالم القدس والاهوت فی ارض عالم ... (بعد از 8 برگ) بسمله ای بحقیقت زانبیا همه اقدم ×× گر چه بصو",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150682,
+   "shelfmark": "2541/8-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: برلین 8066 .Or (پرج ش 303 ص 326)؛ خط: نستعلیق، کا: هاشم خان یارعلی کشمیری،",
+   "changes": {
+    "folios": {
+     "from": 303,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150731,
+   "shelfmark": "69",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ن از گفتار سوم و کتاب دوم و سوم و چهارم و پنجم تا باب دهم و 24 ص باب ششم؛ خط: نسخ، بی‌کا، تا: قرن 6 و 7؛ کاغذ: س",
+   "changes": {
+    "folios": {
+     "from": 24,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161859,
+   "shelfmark": "1307",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | با 7ص فهرست در آغاز، در چهار روضه، ج 2. در 325 گ، در چ",
+   "changes": {
+    "folios": {
+     "from": 7,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 165281,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ن بیگم در دارالملک شیراز متولد شد 1191» نسخه اصل در 88برگ = 176ص، نزد سید محمد روضاتی است، و گفته که [فرزندش] سید",
+   "changes": {
+    "folios": {
+     "from": 176,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166133,
+   "shelfmark": "1371",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | شماره دومی در 1313 به کسی بخشیده شده و 25 ص <!-- page: 678 --> است، در پایان نخستین نسخه ما",
+   "changes": {
+    "folios": {
+     "from": 25,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171359,
+   "shelfmark": "15023/4",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ضمن 7 برگ ادعیه و اعمال محافظت از باغات و احشام بخط محم",
+   "changes": {
+    "folios": {
+     "from": 7,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171708,
+   "shelfmark": "247/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | برابر است با سطر 13 ص 163 ترجمه حنین و سطر 66 هامش صفحه 2 نمط 9 شرح ا",
+   "changes": {
+    "folios": {
+     "from": 13,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174159,
+   "shelfmark": "45/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در هامش نسخه و 21 برگ آخر متن؛ کاغذ: سپاهانی، جلد: تیماج سبز، 24 سط",
+   "changes": {
+    "folios": {
+     "from": 21,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174164,
+   "shelfmark": "299 بخش 3",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: موزه بریتانیا 5662 .Or (از سطر بازپسین ص 5 تا س 2 ص 238 چاپی)؛ بی‌کا، بی‌تا [ف: - 138]",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174650,
+   "shelfmark": "15",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در ابتدای نسخه طی 16 صفحه اشعاری از مؤلف در مرثیه آمده است؛ 21 سطر، ان",
+   "changes": {
+    "folios": {
+     "from": 16,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 175283,
+   "shelfmark": "21554 عکسی",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ترتیب محمد اکبر الدین صدیقی در 1968 میلادی شامل 306 صفحه، در آغاز نسخه، دیباچه آقای صدیقی در هشت برگ",
+   "changes": {
+    "folios": {
+     "from": 306,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 176448,
+   "shelfmark": "16758",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | مقدار 61 برگ توسط محمد بن ملک محمد بن زین الدین نونویسی شد",
+   "changes": {
+    "folios": {
+     "from": 61,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183544,
+   "shelfmark": "28916",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | صدر نسخه 8 برگ در فضائل امیر المومنین علی (ع) از بحارالانوار",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183995,
+   "shelfmark": "29260",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | صدرا 64برگ در علوم غریبه ضمیمه دارد. [رایانه]",
+   "changes": {
+    "folios": {
+     "from": 64,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 185054,
+   "shelfmark": "10897",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | این تاریخ کتابت مربوط به 6 برگ آغازین و 22 برگ پایانی نسخه است و بقیه برگها در قرن 12ق کتابت",
+   "changes": {
+    "folios": {
+     "from": 22,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 187121,
+   "shelfmark": "2067/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ی اصفهانی معروف به ملا تقیا باشد که در طبقات اعلام شیعه قرن 12ص 115 معرفی شده؛ کاغذ: نخودی، اصفهانی، 18سطر [ف: 1",
+   "changes": {
+    "folios": {
+     "from": 12,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 193097,
+   "shelfmark": "29060",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ول نیست و الحمدلله ... و اجعل عاقبة امورنا خیرا ... (بعد از 4 برگ) روایات و احکام آنها حکم مینماید از روی ...⏎ک",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201701,
+   "shelfmark": "11423/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | مذیل به 7 برگ مطلب به زبان عربی در وضو و کیفیت آن نیز و نیز 24 برگ مطالبی راجع به مباحث هیولی و فلسفه می‌باشد؛ ج",
+   "changes": {
+    "folios": {
+     "from": 24,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201949,
+   "shelfmark": "2987/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | آغاز: ... ابن النعمان الاعلم ... (پس از 5 صفحه) بمشهد منی من مؤلفات شیخ الاعاظم الفاضل مولا",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202467,
+   "shelfmark": "19181",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 8 برگ در اول ادعیه متفرقه و 7 برگ در آخر ضمیمه شده؛",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209226,
+   "shelfmark": "1343",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | متصل به این رساله 4 مسأله مختلف هر یک در 2 یا 3 صفحه نوشته شده: الف- حل یک مسأله طبیعی، ب- یک مسأ",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211345,
+   "shelfmark": "3920/4",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | اشد ز ایام ×× فلک گردان به کامش باد چون جام. خدمت سگالان (س 16 ص 285 چاپی).⏎خط: نستعلیق، کا: محمد مظفر یزدی، تا:",
+   "changes": {
+    "folios": {
+     "from": 16,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211529,
+   "shelfmark": "218",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در حاشیه 3 برگ از مصابیح - الاحکام سید بحر العلوم نوشته شده",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 213914,
+   "shelfmark": "3104/5-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: ملی تبریز ش 3572. صفحه آخر آن؛ خط: نستعلیق، بی‌کا، تا: قرن 10 [فیل",
+   "changes": {
+    "folios": {
+     "from": 3572,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214229,
+   "shelfmark": "26461",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 25 برگ اشعار متفرقه در آخر ضمیمه می‌باشد؛ کاغذ: حنای",
+   "changes": {
+    "folios": {
+     "from": 25,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214454,
+   "shelfmark": "2913/13",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در ص 270 که همان یک صفحه آغاز کتاب است و پس از آن تا 82 ص سفید مانده، سپس رساله‌ای است در «لطایف درباره ز",
+   "changes": {
+    "folios": {
+     "from": 82,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215963,
+   "shelfmark": "29828",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | صدرا 55 برگ در (رساله نخبه) ضمیمه دارد و چاپ سنگی است [را",
+   "changes": {
+    "folios": {
+     "from": 55,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 216016,
+   "shelfmark": "11000/5",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | هب از ابی القاسم محمد بن احمد السیماوی در ذیل کشف الظنون (ج 2 ص 550) با این مشخصات، دیده می‌شود؛ قطع: خشتی [رای",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222003,
+   "shelfmark": "2122-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: مدرسه نواب ش 36 ص 211 فهرست فاضلیه؛ بی‌کا، بی‌تا [فیلمها ف: 1 - 3",
+   "changes": {
+    "folios": {
+     "from": 36,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223307,
+   "shelfmark": "172ط",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ج 3 ص 737]",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 224442,
+   "shelfmark": "4230/4",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | حصول خلق مخصوص فى الباطن (پس از 8 ورق) ... فلايعسر عليه ذلك بل يسهل فهذا ما اردنا ا",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233217,
+   "shelfmark": "1395عکسی",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | تحق الحمد لوجوب وجوده و يستوجب الشكر لكمال جوده. نسخة كاملة 310ورق، لاله لی سلیمانیه رقم 404 كتب شهر رمضان سنة 87",
+   "changes": {
+    "folios": {
+     "from": 310,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235287,
+   "shelfmark": "4020/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | آمده در ص 1-3 و 22 ص از میانه نسخه و 4 ص نزدیک به پایان آن [ف: 7-147",
+   "changes": {
+    "folios": {
+     "from": 22,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235499,
+   "shelfmark": "14",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 4 ص آغاز نونویس؛ جلد: تیماج حنایی، قطع: رحلی کوچک [",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235536,
+   "shelfmark": "55-52",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | هشت و شانزده و بیست و هشت است از سی پاره با پاره چهارده که 5 ص از آن مانده است؛ خط: ثلث، بی‌کا، تا: قرن 9 و 10",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237548,
+   "shelfmark": "27149",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | این قرآن دارای 6 صفحه تذهیب است؛ بی‌کا، بی‌تا؛ خریداری از عبدالنبی",
+   "changes": {
+    "folios": {
+     "from": 6,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239820,
+   "shelfmark": "1859/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | موجودی از حالات صالح پیامبر تا حزقیل نبی و پس از آن 29 برگ به قلم نسخ مغایر در اخلاق است؛ خط: نسخ و نستع",
+   "changes": {
+    "folios": {
+     "from": 29,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241006,
+   "shelfmark": "14252",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | فهرست رایانه‌ای ج 3 ص 790]",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 248056,
+   "shelfmark": "19885",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | مذیل است به 5 برگ از ابجدالعلوم و 8 برگ در بسط و تکسیر حروف و 3 برگ از اول بجهة الابر",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 248321,
+   "shelfmark": "1170 عکسی",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | یبادن آلمان در سال 1976م تهیه شده است. نسخه چاپی مذکور شامل 124 صفحه بوده و تصویر حاضر از صفحه 50 شروع می‌شود و م",
+   "changes": {
+    "folios": {
+     "from": 124,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 248373,
+   "shelfmark": "575/6",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | انجام: فاستیقنت عند ذلك انه ساحر (بمانند چاپی س 13 ص 179) فذكر لك ذلك بالمدينة فاجتمع رأبی و رأیک عل",
+   "changes": {
+    "folios": {
+     "from": 13,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250924,
+   "shelfmark": "86(72)بخش2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: احمد ثالث 23(فهرست قرطای ش 3 ص 2)؛ بی‌کا، تا: نوشته پیش از 700 کابلی [ف: -85]",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257970,
+   "shelfmark": "2541/17-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: برلین 8066 Or. (پرج ش 303 ص 326). به عربی که یکی از مجربات علاء الدین هندی",
+   "changes": {
+    "folios": {
+     "from": 303,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258401,
+   "shelfmark": "340/8",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | گ 113ر (برابر با س 16 ص 368 چاپی) نسخه خطی فارسی تر از چاپی است، در مجل",
+   "changes": {
+    "folios": {
+     "from": 16,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258541,
+   "shelfmark": "3493-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | مجله عالم اسلامی ج 61 ص 205 سال 1925 بخش سوم یا سومین تری مستر آغاز ناس",
+   "changes": {
+    "folios": {
+     "from": 61,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262155,
+   "shelfmark": "271",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | و از ابتدای آن 96 برگ افتاده است و در آخر کتاب بابی در چند اسم آمده",
+   "changes": {
+    "folios": {
+     "from": 96,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262210,
+   "shelfmark": "8662",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | چاپ پاول هرن در گتینگن در 1897 با تصحیح عباس اقبال. 133ص+19ص اعلام +56 یادداشت؛ اندازه: 22×27سم [ف: 17-18",
+   "changes": {
+    "folios": {
+     "from": 133,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262812,
+   "shelfmark": "3563-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | لمعه نخستین و 7 ص از لمعه دوم را دارد؛ خط: نستعلیق، کا: فخرالدین",
+   "changes": {
+    "folios": {
+     "from": 7,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 263400,
+   "shelfmark": "34708",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | انجام: الفصل الثالث فى الخصوص و الاهمال اقول ... (بعد از 2 برگ) هذا خلف قلت انما يكون خلفاً⏎موجودی آن تا فصل",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 263534,
+   "shelfmark": "996/1-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: بادلیان 78 .Pers. Ist. Ind (2725 و 2785 ج 3 ص 59)؛ خط: نستعلیق، بی‌کا، تا: 1 و 14 صفر 1080ق؛",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267452,
+   "shelfmark": "2/1 فرخ",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | دارای 8 برگ که درهامش دستورات پزشکی منقول از میرزا محمد ح",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268874,
+   "shelfmark": "2-4",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 18 برگ اول کتاب شامل فهرست 50 مجلس مندرجات آن است که",
+   "changes": {
+    "folios": {
+     "from": 18,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270603,
+   "shelfmark": "3442-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | عکس خط شاهرخ و صفحه آخر آن در مجله یادگار (س 4 ش 9 و 10 ص 173 و 175) هست، آغاز اندکی افتاده، بخش اسماعیلی",
+   "changes": {
+    "folios": {
+     "from": 10,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 271251,
+   "shelfmark": "8665",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 81-271 و 31-552 ص یک رو، اندازه: 2×26/5سم [ف: 17-189]",
+   "changes": {
+    "folios": {
+     "from": 31,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 275508,
+   "shelfmark": "999/1-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: بادلیان108 .ind. ist. pers (2811 ج 3 ص 79)؛ بی‌کا، بی‌تا [فیلمها ف: 1-552]",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 277767,
+   "shelfmark": "1473/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه ما برابر است با س 83 ج 1- س 9ص 88 ج 1 چاپی؛ کاغذ: سپاهانی، جلد: تیماج، اندازه:",
+   "changes": {
+    "folios": {
+     "from": 9,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279498,
+   "shelfmark": "339-فیروز",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 6 برگ از آن دارای تذهیب، مجدول؛ جلد: مقوایی سبز، ان",
+   "changes": {
+    "folios": {
+     "from": 6,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279636,
+   "shelfmark": "8432/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | خط (32 پاره) (نمایشگاه نسخه‌های خطی کتابخانه مرکزی چاپ مهر 1350 ص 64 و 65)؛ بی‌کا، بی‌تا [ف: 17-134]",
+   "changes": {
+    "folios": {
+     "from": 1350,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279659,
+   "shelfmark": "32",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 42 صفحه از «تقی دانش» با مهر مستشار اعظم 1303 [نشریه",
+   "changes": {
+    "folios": {
+     "from": 42,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279864,
+   "shelfmark": "13338",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 29. صفحه‌ای به ترکی در منقبت علی (ع)، 30. دست خط میر",
+   "changes": {
+    "folios": {
+     "from": 29,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 282228,
+   "shelfmark": "278بخش3",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | خمس مائه (524)». به خط مغربی است در جدول در 8 برگ عکسی و ص 1 ص ع است [ف: -135]",
+   "changes": {
+    "folios": {
+     "from": 1,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 283356,
+   "shelfmark": "55",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ذیل نسخه ضمن 3برگ مستقل، مسودات مؤلف در مباحث متفرقه فقه بدون صح",
+   "changes": {
+    "folios": {
+     "from": 3,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 283935,
+   "shelfmark": "849/4",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ید دانست که سخن بمنزله قالب است و معنی بمنزله روح (آغاز فصل 2 ص 7 س 17 چاپی)؛ انجام: ز اسلام مجازی گشت بیزار کر",
+   "changes": {
+    "folios": {
+     "from": 2,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 285024,
+   "shelfmark": "1131/5",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | گ 127ب-141ب برابر با س 8 ص 52 و نزدیک به نه بند از همین باب را ندارد، مصحح",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296520,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 6 ورق از متن افتاده که بعدها به سال 1310ق مشابه با",
+   "changes": {
+    "folios": {
+     "from": 6,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298015,
+   "shelfmark": "3935/1ـف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ک پرده از زندگانی شاه تهماسب از نگارنده ص 962 مجله ادبیات ش 4 ص 7-ص 5 دیباچه آیین شاه تهماسب از نگارنده در بررس",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298023,
+   "shelfmark": "384/7",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | از روی نسخه تاریخ 1266 ص 1-4 این گفتار در ارسطو عندالعرب ص 2-291 به چاپ",
+   "changes": {
+    "folios": {
+     "from": 1266,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 299030,
+   "shelfmark": "721",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | وری کرده و در 19 ربیع الاول 1301ق آن را نوشته است. فقط حدود 30 صفحه از کتاب نوشته شده و باقی اوراق به صورت بیاض",
+   "changes": {
+    "folios": {
+     "from": 30,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 300492,
+   "shelfmark": "55/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | شاید همان است که در الذریعه (ج 22 ص 145) ذکر شده و ظاهراً منتخبی از کلمات خواجه افض",
+   "changes": {
+    "folios": {
+     "from": 22,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302479,
+   "shelfmark": "33/1 خوئی",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | خطبه آمده است که در خطبه دوم و سوم آن خطبه عید فطر است سپس 12 صفحه در اعمال و اذکار نگارش یافته و از آن بر بیای",
+   "changes": {
+    "folios": {
+     "from": 12,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 305926,
+   "shelfmark": "2126/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در فهرست مشترک آقای احمد منزوی (ج 5 ص 61) ترسل منسوب به محمد کریم شیروانی آمده و آدرس",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306292,
+   "shelfmark": "13",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | به علاوه در پایان کتاب 17 صفحه اشعاری از صائب و زمان به خط آن دو شاعر افزود",
+   "changes": {
+    "folios": {
+     "from": 17,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 308671,
+   "shelfmark": "150/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | 8 صفحه مکرر در اول؛ 18-24سطر، قطع: رحلی [ف: 2-82]",
+   "changes": {
+    "folios": {
+     "from": 8,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311473,
+   "shelfmark": "1828/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | و پسر وزیر را «نیک اختر» نام کردند (چکیده 185 صفحه از 219 صفحه داستان). سپس سربندهای: رسیدن شاه",
+   "changes": {
+    "folios": {
+     "from": 185,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 318195,
+   "shelfmark": "3327-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | درهامش 18 برگ میانه نسخه «الخطبة الجعفرية لامير المومنین» و",
+   "changes": {
+    "folios": {
+     "from": 18,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319922,
+   "shelfmark": "20355",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | ح الدجی و ... اما بعد قاصر از نیل معالی و معانی ... (بعد از 5 برگ) کتاب علم و در آن دو فصل است فصل اول در طریقه",
+   "changes": {
+    "folios": {
+     "from": 5,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320825,
+   "shelfmark": "1187/1",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نام این رساله و مؤلف آن به علت افتادگی 9 برگ آغاز معلوم نیست لکن عبارات آخر رساله مشابهت ب",
+   "changes": {
+    "folios": {
+     "from": 9,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323394,
+   "shelfmark": "56",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | در مجله ادبیات تبریز (ش 16 ش 1ص 1) این نسخه وصف شده است [نشریه: 4-343]",
+   "changes": {
+    "folios": {
+     "from": 1,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325169,
+   "shelfmark": "28797",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | الگی و پسر از پانزده سالگی عمل نماید باین رساله ... (بعد از 18 برگ) نقشها بینی برون از آب و خاک هم بینی نقش و هم",
+   "changes": {
+    "folios": {
+     "from": 18,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 326782,
+   "shelfmark": "844",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | الذریعه ج 19 ص 331؛ خط: نستعلیق، بی‌کا، تا: 1220ق، جا: تبریز؛",
+   "changes": {
+    "folios": {
+     "from": 19,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329343,
+   "shelfmark": "3525/23-ف",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه اصل: نسخه آقای بنی آدم. همان شماره 36 ص 220 چاپی منشآت رشیدی؛ قسمتی از وصیت نامه؛ خط: ن",
+   "changes": {
+    "folios": {
+     "from": 36,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 331972,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | نسخه حاضر حدودا 45 برگ از آغاز و 10 برگ از انجام افتادگی دارد)؛ مجدو",
+   "changes": {
+    "folios": {
+     "from": 45,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332857,
+   "shelfmark": "1933",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | تا صفحه 79 صفحه شمار دارد؛ اندازه: 10×15/5سم [ف: 3-347]",
+   "changes": {
+    "folios": {
+     "from": 79,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333921,
+   "shelfmark": "1583/7",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | دانشکده ادبیات معرفی شده است و لذا به اشتباه در فهرستگان (ج 4 ص 942) در کتابخانه دانشکده ادبیات دانسته شده است⏎",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333922,
+   "shelfmark": "1583/2",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | فهرست دانشکده ادبیات معرفی شده است به اشتباه در فهرستگان (ج 4 ص 942) از آن کتابخانه دانسته شده است.",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333923,
+   "shelfmark": "1583/8",
+   "category": "rebuild",
+   "v2": null,
+   "note": "not own extent: prose, reference, attachment or other | به اشتباه در فهرستگان (ج 4 ص 943) از آن کتابخانه دانسته شده است.",
+   "changes": {
+    "folios": {
+     "from": 4,
+     "to": null
+    }
+   }
+  }
+ ]
+}

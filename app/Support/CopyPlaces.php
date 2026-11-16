@@ -15,8 +15,8 @@ class CopyPlaces
 {
     private const VARIANTS_KEY = 'copy_places.variants';
 
-    /** @var array<int, array{0:string, 1:string}>|null normalized name => city, longest name first */
-    private static ?array $names = null;
+    /** @var array<string, array<int, array{0:string, 1:string}>> list => [normalized name, place], longest name first */
+    private static array $names = [];
 
     /** @return array<string, array{lat: float, lon: float, aliases: array<int, string>}> */
     public static function cities(): array
@@ -31,6 +31,33 @@ class CopyPlaces
 
     public static function cityOf(?string $place): ?string
     {
+        return self::firstOf($place, 'copy_places');
+    }
+
+    /** @return array<string, array{kind: string, aliases: array<int, string>}> */
+    public static function regions(): array
+    {
+        return config('insights.copy_regions', []);
+    }
+
+    /**
+     * The country or region a place text names (config/insights.php copy_regions; step 14.211), read as the city is:
+     * «هندوستان» is هند, «آمل مازندران» مازندران, «احمد نگر دکن هند» دکن, «اصفهان» none.
+     */
+    public static function regionOf(?string $place): ?string
+    {
+        return self::firstOf($place, 'copy_regions');
+    }
+
+    /** «کشور» or «ناحیه», for a region's label. */
+    public static function regionKind(?string $region): ?string
+    {
+        return ['country' => 'کشور', 'region' => 'ناحیه'][self::regions()[$region]['kind'] ?? ''] ?? null;
+    }
+
+    /** The place of a list whose name, or another name of it, comes first in the text as a whole word. */
+    private static function firstOf(?string $place, string $list): ?string
+    {
         $text = ' ' . preg_replace('/[^\p{L}\p{N}]+/u', ' ', TextNormalizer::normalize($place)) . ' ';
         if (trim($text) === '') {
             return null;
@@ -38,7 +65,7 @@ class CopyPlaces
 
         $best = null;
         $bestPos = PHP_INT_MAX;
-        foreach (self::names() as [$name, $city]) {
+        foreach (self::names($list) as [$name, $city]) {
             $pos = mb_strpos($text, ' ' . $name . ' ');
             // Longest name first, so «کرمانشاه» wins over «کرمان» at the same position
             if ($pos !== false && $pos < $bestPos) {
@@ -88,14 +115,14 @@ class CopyPlaces
     }
 
     /** @return array<int, array{0:string, 1:string}> */
-    private static function names(): array
+    private static function names(string $list = 'copy_places'): array
     {
-        if (self::$names !== null) {
-            return self::$names;
+        if (isset(self::$names[$list])) {
+            return self::$names[$list];
         }
 
         $names = [];
-        foreach (self::cities() as $city => $info) {
+        foreach (config("insights.{$list}", []) as $city => $info) {
             foreach (array_merge([$city], $info['aliases'] ?? []) as $name) {
                 $norm = trim(preg_replace('/[^\p{L}\p{N}]+/u', ' ', TextNormalizer::normalize($name)));
                 $names[$norm] = [$norm, $city];
@@ -103,6 +130,6 @@ class CopyPlaces
         }
         usort($names, fn ($a, $b) => mb_strlen($b[0]) <=> mb_strlen($a[0]));
 
-        return self::$names = $names;
+        return self::$names[$list] = $names;
     }
 }

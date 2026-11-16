@@ -92,6 +92,17 @@ class FillDeathRangesCommand extends Command
     /** @return array<int, array<int, string>> person id => the life dates their works give, in the file's order */
     private function texts(array $plan, FankhaWorkLocator $locator): array
     {
+        return self::personTexts($plan, $locator, fn (string $kind, ?string $example = null) => $this->count($kind, $example));
+    }
+
+    /**
+     * The same for another command (fahares:fix-solar-deaths); $count is told what was found and what was left out.
+     *
+     * @return array<int, array<int, string>>
+     */
+    public static function personTexts(array $plan, FankhaWorkLocator $locator, ?callable $count = null): array
+    {
+        $count ??= fn (string $kind, ?string $example = null) => null;
         $ids = [];
         foreach ($plan['works'] as $w) {
             $ids[] = $locator->find((int) $w['key']['vol'], (int) $w['key']['ordinal'], (string) $w['title'], (int) ($w['provenance']['page_start'] ?? 0));
@@ -114,25 +125,25 @@ class FillDeathRangesCommand extends Command
         foreach ($plan['works'] as $i => $w) {
             $label = "v{$w['key']['vol']}-{$w['key']['ordinal']} «{$w['title']}»";
             if (! $ids[$i]) {
-                $this->count('works:not_found', $label);
+                $count('works:not_found', $label);
                 continue;
             }
-            $this->count('works:found');
+            $count('works:found');
             $site = ['author' => isset($authors[$ids[$i]]) ? [(int) $authors[$ids[$i]]] : [], 'translator' => $translators[$ids[$i]] ?? []];
             foreach (['author', 'translator'] as $role) {
                 if (empty($w[$role]['death_raw'])) {
                     continue;
                 }
                 if (count($site[$role]) !== 1) {
-                    $this->count("{$role}:not_on_site", $label);
+                    $count("{$role}:not_on_site", $label);
                     continue;
                 }
                 $personId = $site[$role][0];
                 if (! self::sameName($people[$personId] ?? '', (string) $w[$role]['name'])) {
-                    $this->count("{$role}:other_name", "{$label}: «{$w[$role]['name']}» ≠ #{$personId} «" . ($people[$personId] ?? '') . '»');
+                    $count("{$role}:other_name", "{$label}: «{$w[$role]['name']}» ≠ #{$personId} «" . ($people[$personId] ?? '') . '»');
                     continue;
                 }
-                $this->count("{$role}:texts");
+                $count("{$role}:texts");
                 $texts[$personId][] = mb_substr(trim($w[$role]['death_raw']), 0, 120);
             }
         }
@@ -158,9 +169,13 @@ class FillDeathRangesCommand extends Command
         $groups = [];
         foreach ($raws as $raw) {
             $cols = Person::deathColumns($raw, null);
-            $holds = $cols['death_from'] !== null || $cols['death_to'] !== null;
+            // the century of a life gives no death range (step 14.213): it holds a death year of that century
+            $century = Person::lifeCentury($raw);
+            $cols['century'] = $century;
+            $holds = $cols['death_from'] !== null || $cols['death_to'] !== null || $century !== null;
             if ($holds && $year !== null) {
-                $holds = ($cols['death_from'] ?? PHP_INT_MIN) <= $year && $year <= ($cols['death_to'] ?? PHP_INT_MAX);
+                $holds = $cols['death_from'] === null && $cols['death_to'] === null ? (int) ceil($year / 100) === $century
+                    : ($cols['death_from'] ?? PHP_INT_MIN) <= $year && $year <= ($cols['death_to'] ?? PHP_INT_MAX);
             }
             if (! $holds) {
                 $this->count('texts:left_out', "#{$person->id} «{$person->name}» ({$year}): {$raw}");

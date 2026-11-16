@@ -92,6 +92,15 @@
                 @endforeach
             </div>
 
+            @if($tally = $opinions['date:' . $conflict->id] ?? null)
+                <div class="text-xs px-3 py-2 leading-6 bg-paper border border-s-4 border-emerald-600/60" data-collective-tally>
+                    <b>{{ config('contributions.review_title') }}:</b>
+                    @foreach($tally['answers'] as $answer)
+                        <span class="whitespace-nowrap">{{ $answer['label'] }} <span class="text-muted tabular-nums">({{ Fa::num($answer['count']) }} نظر، وزن {{ Fa::num($answer['weight']) }})</span></span>@if(! $loop->last) · @endif
+                    @endforeach
+                </div>
+            @endif
+
             @if($conflict->suggestions->isNotEmpty())
                 <div class="text-xs px-3 py-2 leading-6 bg-paper border border-s-4 border-gold space-y-1">
                     <b>پاسخ خوانندگان:</b>

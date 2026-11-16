@@ -81,8 +81,8 @@ class SearchController extends Controller
             $sort = [$sort[0], 'composition_sort_year', $sort[2], \App\Support\DateEstimates\EstimateText::COMPOSITION_SORT_SQL];
         }
         // ...and an author of no death year by the year he was last seen alive (step 14.198)
-        if ($sort && $type === 'authors' && $sort[1] === 'death_year_hijri' && $filters->get('estimates')) {
-            $sort = [$sort[0], 'death_sort_year', $sort[2], 'COALESCE(people.death_year_hijri, ' . \App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ')'];
+        if ($sort && $type === 'authors' && $sort[1] === 'era_year' && $filters->get('estimates')) {
+            $sort = [$sort[0], 'death_sort_year', $sort[2], 'COALESCE(people.death_year_hijri, ' . \App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ', people.century_hijri * 100 - 50)'];
         }
         // Only the ids come from the engine; the records come from the database
         $engineSort = fn (array $options) => ($sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options) + ['attributesToRetrieve' => ['id']];
@@ -523,8 +523,8 @@ class SearchController extends Controller
             'manuscripts' => ['بیشترین نسخه', 'manuscripts_count', 'desc'],
             'oldest' => ['کهن‌ترین تألیف', 'composition_year_hijri', 'asc'],
             'newest' => ['تازه‌ترین تألیف', 'composition_year_hijri', 'desc'],
-            'author_oldest' => ['کهن‌ترین مؤلف', 'author_death_year', 'asc', '(SELECT death_year_hijri FROM people WHERE people.id = works.author_id)'],
-            'author_newest' => ['تازه‌ترین مؤلف', 'author_death_year', 'desc', '(SELECT death_year_hijri FROM people WHERE people.id = works.author_id)'],
+            'author_oldest' => ['کهن‌ترین مؤلف', 'author_death_year', 'asc', '(SELECT ' . \App\Models\Person::ERA_YEAR_SQL . ' FROM people WHERE people.id = works.author_id)'],
+            'author_newest' => ['تازه‌ترین مؤلف', 'author_death_year', 'desc', '(SELECT ' . \App\Models\Person::ERA_YEAR_SQL . ' FROM people WHERE people.id = works.author_id)'],
         ],
         'manuscripts' => [
             'oldest' => ['کهن‌ترین کتابت', 'copy_date_hijri_year', 'asc'],
@@ -532,8 +532,9 @@ class SearchController extends Controller
             'folios' => ['بیشترین برگ', 'folios', 'desc'],
         ],
         'authors' => [
-            'oldest' => ['کهن‌ترین وفات', 'death_year_hijri', 'asc'],
-            'newest' => ['تازه‌ترین وفات', 'death_year_hijri', 'desc'],
+            // by the death year, or the middle of the century of a person known by the century alone (step 14.213)
+            'oldest' => ['کهن‌ترین وفات', 'era_year', 'asc', \App\Models\Person::ERA_YEAR_SQL],
+            'newest' => ['تازه‌ترین وفات', 'era_year', 'desc', \App\Models\Person::ERA_YEAR_SQL],
             'works' => ['بیشترین اثر', 'works_count', 'desc'],
         ],
         // A scribe by the copies: how many, and the years they lie between (people.scribed_from, scribed_to)

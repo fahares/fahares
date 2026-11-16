@@ -2,7 +2,8 @@
 
 @use('App\Support\Fa')
 @php
-    $answerLabels = $queue->answers();
+    // a queue whose answers name the item's own records gives them with the card (the date conflicts, step 14.212)
+    $answerLabels = $card['answers'] ?? $queue->answers();
     $previous = $opinion?->status === 'pending' ? $opinion : null;
     // «page:ج ۲، ص ۴۵», «some:12,15»: the answer's button is the part before the colon
     $previousAnswer = $previous ? strtok((string) $previous->review_answer, ':') : null;
@@ -58,8 +59,8 @@
                             @else
                                 <button type="submit" name="answer" value="{{ $value }}"
                                         @class(['px-4 py-3 rounded-sm border text-sm font-semibold transition cursor-pointer text-center',
-                                            'bg-cinnabar border-cinnabar text-on-cinnabar hover:opacity-90' => $loop->first,
-                                            'border-line-strong bg-surface text-ink hover:border-cinnabar hover:text-cinnabar' => ! $loop->first,
+                                            'bg-cinnabar border-cinnabar text-on-cinnabar hover:opacity-90' => $loop->first && empty($card['neutral']),
+                                            'border-line-strong bg-surface text-ink hover:border-cinnabar hover:text-cinnabar' => ! $loop->first || ! empty($card['neutral']),
                                             'ring-2 ring-offset-2 ring-gold ring-offset-surface' => $previousAnswer === $value])>{{ $label }}</button>
                             @endif
                         @endforeach
