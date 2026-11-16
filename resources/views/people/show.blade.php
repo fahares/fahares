@@ -127,7 +127,7 @@
             </x-ui.section>
             </div>
 
-            {{-- Where the person was and when, read from their dated copies and works that name a place (item 137, step 14.207) --}}
+            {{-- Where the person was and when, read from their dated copies and works that name a place (item 139, step 14.207) --}}
             @php $places = \App\Support\PersonPlaces::for($person); @endphp
             @if($places)
                 <x-ui.section title="حضور در شهرها" :count="count($places)">

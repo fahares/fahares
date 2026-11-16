@@ -33,7 +33,7 @@ class Work extends Model
             if ($work->isDirty('composition_date_raw')) {
                 $work->forceFill(self::compositionDateColumns($work->composition_date_raw));
             }
-            // The city the place of composition names, beside its text (item 137, step 14.209)
+            // The city the place of composition names, beside its text (item 139, step 14.209)
             if ($work->isDirty('composition_place')) {
                 $work->composition_city = \App\Support\CopyPlaces::cityOf($work->composition_place);
             }

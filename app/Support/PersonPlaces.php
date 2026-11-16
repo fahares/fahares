@@ -7,7 +7,7 @@ use App\Services\PersonReviewQueue;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Where a person was, and when, as the records already say it (backlog item 137, step 14.207): a copy with a place and
+ * Where a person was, and when, as the records already say it (backlog item 139, step 14.207): a copy with a place and
  * a year shows its scribe in that place in that year, and a work with a place and a year of composition its author.
  * Nothing is stored: the list is read from the copies and the works each time.
  *

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * The city a place text names, stored beside the text (backlog item 137, step 14.209): manuscripts.copy_city for
+     * The city a place text names, stored beside the text (backlog item 139, step 14.209): manuscripts.copy_city for
      * copy_place and works.composition_city for composition_place. The text stays as the catalogue wrote it
      * («دارالخلافه طهران», «اصفهان مدرسه جده»); the city is the name App\Support\CopyPlaces gives it («تهران»,
      * «اصفهان»), or null when the text names no city of its list («ایران», «مدرسه صدر»). Saving a copy or a work

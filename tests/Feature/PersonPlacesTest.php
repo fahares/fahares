@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
- * «حضور در شهرها» on a person's page: the places and years their dated copies and works give (item 137, step 14.207)
+ * «حضور در شهرها» on a person's page: the places and years their dated copies and works give (item 139, step 14.207)
  */
 class PersonPlacesTest extends TestCase
 {

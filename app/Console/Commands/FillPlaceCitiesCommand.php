@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Fills the city of each place text (manuscripts.copy_city from copy_place, works.composition_city from
- * composition_place; backlog item 137, step 14.209) as App\Support\CopyPlaces reads it. Saving a copy or a work keeps
+ * composition_place; backlog item 139, step 14.209) as App\Support\CopyPlaces reads it. Saving a copy or a work keeps
  * the city in step from then on; this is for the records there are, for the corpus commands, which write the place
  * with DB::table, and for after a change of the city list (config/insights.php copy_places). The place text is never
  * touched. A run only rewrites what differs and can be repeated; without --apply it only counts.

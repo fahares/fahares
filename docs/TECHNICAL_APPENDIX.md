@@ -11336,7 +11336,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **کنار رفته:** `copy_date_certainty` یا `composition_date_certainty` پر؛ `is_facsimile`؛ متن مکان بلندتر از ۶۰ نویسه (`MAX_PLACE`)؛ مکان با «؟»، «احتمال»، «محتمل»، «ظاهرا»، «گویا»، «شاید»؛ همه‌ی نسخه‌های کاتبی که `scribed_to − scribed_from` از `PersonReviewQueue::MIXED_SPAN` (۷۰) بیشتر است؛ شاهدِ پس از `death_to` یا پیش از `birth_year_hijri`.
 - **خروجی:** مکان‌ها به ترتیب نخستین سال؛ هر مکان `from`، `to`، `count` و تا ۱۲ شاهد (`SHOWN`) با سال، نوع («کتابت»، «تألیف»)، عنوان و پیوند.
 - **نمایش:** `resources/views/people/show.blade.php`، پس از زندگی‌نامه‌ی کوتاه؛ هر مکان یک `<details>`.
-- **سنجش روی `fahares_prod` (مورد ۱۳۷):** ۱۳٬۷۲۴ نسخه برای ۹٬۳۷۵ کاتب و ۱٬۷۱۱ اثر برای ۱٬۰۹۹ مؤلف، پیش از قاعده‌های کنارگذاری.
+- **سنجش روی `fahares_prod` (مورد ۱۳۹):** ۱۳٬۷۲۴ نسخه برای ۹٬۳۷۵ کاتب و ۱٬۷۱۱ اثر برای ۱٬۰۹۹ مؤلف، پیش از قاعده‌های کنارگذاری.
 - **تست:** `PersonPlacesTest` (دو آزمون نخست و سوم).
 
 ### گام ۱۴.۲۰۹: `copy_city` و `composition_city`، و `fahares:fill-place-cities`
