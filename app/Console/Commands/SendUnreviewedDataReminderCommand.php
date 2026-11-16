@@ -28,6 +28,7 @@ class SendUnreviewedDataReminderCommand extends Command
         $queues = [
             'تطبیق نسخه‌ها با فهرست‌های چاپی' => [SourceEntry::awaitingReview()->where('citable_type', Manuscript::class), route('admin.catalog-references.index')],
             'پیوند آثار به مدخل منابع' => [SourceEntry::awaitingReview()->where('citable_type', Work::class)->whereNotNull('source_item_id'), route('admin.source-links.index')],
+            'پیوند زندگی‌نامه‌ها به اشخاص' => [SourceEntry::awaitingReview()->where('citable_type', \App\Models\Person::class)->whereNotNull('source_item_id'), route('admin.person-lives.index')],
         ];
 
         $lines = [];

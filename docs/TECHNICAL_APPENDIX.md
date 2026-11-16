@@ -11872,3 +11872,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `linkedEntries` روی همه‌ی آثار دارای فهرست شروح: پیش از تغییر ۱۴۱ اثر یک اثر را از دو مدخل لینک می‌کردند (۲۰۴ لینک افزوده)، پس از آن صفر.
 - **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back`.
 - **اجرا در تولید، پس از استقرار:** پشتیبان `work_relations`، سپس `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`.
+### گام ۱۴.۲۳۰: `Admin\PersonLifeController` و بازبینی پیوند زندگی‌نامه از نشان ⓘ
+
+- **سنجش (`fahares_prod`، ۲۵ آبان ۱۴۰۵):** ۹۰٬۴۶۰ مدخل `kind = entry` در ۹ منبع `kind = biographical`؛ ۱۶٬۲۶۰ مدخل زیر ۶۰ نویسه (ارجاع)؛ ۳٬۲۹۳ مدخل با پیوند شخص (۳٬۳۲۲ سطر، ۱٬۹۱۲ شخص، همه `person_life_by_name` و `name_death_llm`). `author_death_year` این منابع خالی است. نمونه‌ی ۶۰تایی `ORDER BY RAND(20261116)`: ۶۰ درست.
+- **صف ([PersonLifeController](../app/Http/Controllers/Admin/PersonLifeController.php)، `admin.person-lives.index`، مجوز `catalog_refs.review`):** سطرهای `source_entries` با `origin = match`، `citable_type = Person` و `source_item_id`. ترتیب: `confidence` صعودی. پالایه‌ها: `source` (کد منبع)، `method` و `status`. تا ۸ اثر هر شخص با یک پرس‌وجو برای کل صفحه خوانده می‌شود.
+- **داوری:** فرم‌ها به `admin.catalog-references.verify`، `reject` و `reopen` می‌روند، که برای هر سطر `origin = match` کار می‌کنند. پیام پاسخ برای شخص «زندگی‌نامه‌ی «نام» تأیید شد» است.
+- **نشان:** [lives.blade.php](../resources/views/components/source/lives.blade.php) متن را از `SourceEntry::machineNote()` می‌گیرد (شاخه‌ی تازه برای `citable_type = Person`) و برای سطر در انتظار بازبینی `badgeReview()` را می‌دهد. هر سطر `data-machine-item` دارد تا پس از رد پنهان شود.
+- **دیگر:** `AdminNav` (گروه «داوری»، با شمار) و `notifications:unreviewed-data`.
+- **آزمون:** `tests/Feature/PersonLivesReviewTest.php`.
