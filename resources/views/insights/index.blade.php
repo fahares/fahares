@@ -901,6 +901,197 @@
     </x-ui.section>
     @endif
 
+    {{-- 3b. Copies per work, and the works of each century (backlog item 146) --}}
+    @php $pw = $data['copies_per_work']; $cw = $data['century_works']; @endphp
+    <x-ui.section title="هر اثر چند نسخه دارد" id="copies-per-work">
+        <x-ui.card>
+            @if($pw['works'] < $min)
+                @include('insights.thin', ['n' => $pw['works'], 'what' => 'اثر'])
+            @else
+                @include('insights.small', ['n' => $pw['works'], 'what' => 'اثر'])
+                @php $maxBandWorks = max([1, ...array_column($pw['bands'], 'works')]); $maxBandCopies = max([1, ...array_column($pw['bands'], 'copies')]); @endphp
+                <p class="text-xs text-muted mb-3">
+                    آثار بر پایه‌ی شمار نسخه‌هایشان{{ $scope->isEmpty() ? '' : ' در این دامنه' }}. نوار بالا شمار آثار هر دسته است و نوار پایین نسخه‌هایی که آن آثار دارند.
+                </p>
+                <ul class="space-y-3 text-sm">
+                    @foreach($pw['bands'] as $band)
+                        @continue($band['works'] === 0)
+                        <li>
+                            <span class="flex items-baseline gap-2">
+                                <span class="text-ink">
+                                    @if($band['upto'] === null) بیش از {{ Fa::digits($band['above']) }} نسخه
+                                    @elseif($band['upto'] === $band['above'] + 1) {{ $band['upto'] === 1 ? 'تک‌نسخه' : Fa::digits($band['upto']) . ' نسخه' }}
+                                    @else {{ Fa::digits($band['above'] + 1) }} تا {{ Fa::digits($band['upto']) }} نسخه
+                                    @endif
+                                </span>
+                                <span class="leader" aria-hidden="true"></span>
+                                <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($band['works']) }} اثر ({{ $pct(round($band['works'] * 100 / max(1, $pw['works']), 1)) }}) · {{ Fa::num($band['copies']) }} نسخه ({{ $pct(round($band['copies'] * 100 / max(1, $pw['copies']), 1)) }})</span>
+                            </span>
+                            <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                <span class="block h-full bg-cinnabar/70 rounded-full" style="width: max(2px, {{ round($band['works'] * 100 / $maxBandWorks, 2) }}%)"></span>
+                            </span>
+                            <span class="mt-0.5 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                <span class="block h-full bg-gold/80 rounded-full" style="width: max(2px, {{ round($band['copies'] * 100 / $maxBandCopies, 2) }}%)"></span>
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+                <p class="mt-4 text-xs text-muted leading-relaxed">
+                    <span class="inline-block w-2.5 h-2.5 bg-cinnabar/70 rounded-full align-middle" aria-hidden="true"></span> آثار
+                    <span class="inline-block w-2.5 h-2.5 bg-gold/80 rounded-full align-middle ms-2" aria-hidden="true"></span> نسخه‌ها ·
+                    از {{ Fa::num($pw['works']) }} اثرِ نسخه‌دار، {{ Fa::num($pw['single']) }} اثر ({{ $pct(round($pw['single'] * 100 / max(1, $pw['works']), 1)) }}) تنها یک نسخه دارند.
+                    @if($pw['works'] >= 100)
+                        @foreach($pw['top'] as $top)
+                            پرنسخه‌ترین {{ $top['percent'] === 1 ? 'یک' : 'ده' }} درصدِ آثار ({{ Fa::num($top['works']) }} اثر) {{ $pct($top['share']) }} نسخه‌ها را دارند{{ $loop->last ? '.' : '؛' }}
+                        @endforeach
+                    @endif
+                </p>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
+    @php $centuryCols = array_values(array_filter($cw['centuries'], fn ($c) => count($c['items']) > 0 && $c['count'] >= config('insights.min_sample'))); @endphp
+    {{-- One work a century, as in the scope of a single work, says no more than the timeline --}}
+    @if($centuryCols && max(array_map(fn ($c) => count($c['items']), $centuryCols)) > 1)
+    <x-ui.section title="پرنسخه‌ترین آثار هر سده" id="century-works">
+        <x-ui.card>
+            <p class="text-xs text-muted mb-4">در هر سده از کدام آثار بیشتر نسخه برداشته‌اند. عدد کنار هر اثر شمار نسخه‌های آن است که در همان سده کتابت شده‌اند.</p>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+                @foreach($centuryCols as $col)
+                    <div>
+                        <h3 class="flex items-baseline gap-2 border-b border-line-strong pb-1 mb-2">
+                            <span class="font-naskh font-bold text-ink">سده‌ی {{ Fa::digits($col['century']) }}</span>
+                            <span class="text-[11px] text-muted tabular-nums">{{ Fa::num($col['count']) }} نسخه</span>
+                        </h3>
+                        <ol class="space-y-1.5 text-sm">
+                            @foreach($col['items'] as $work)
+                                <li class="flex items-baseline gap-2">
+                                    <a href="{{ route('works.show', $work['key']) }}" class="text-ink hover:text-cinnabar transition truncate min-w-0" title="{{ $work['title'] }}{{ $work['author'] ? ' — ' . $work['author'] : '' }}">{{ $work['title'] }}</a>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <a href="{{ $search('manuscripts', ['work_id' => $work['id'], 'century' => $col['century']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($work['count']) }}</a>
+                                </li>
+                            @endforeach
+                        </ol>
+                    </div>
+                @endforeach
+            </div>
+            <p class="mt-5 text-xs text-muted leading-relaxed">
+                بر پایه‌ی {{ Fa::num($cw['counted']) }} نسخه که تاریخ کتابتشان در یک سده است. رکوردهای بی‌پدیدآوری که عنوانشان نام یک گونه‌ی متن است («اشعار»، «جنگ») نیامده‌اند.
+            </p>
+        </x-ui.card>
+    </x-ui.section>
+    @endif
+
+    {{-- 3c. Much-copied works with no note of a printing (backlog item 146) --}}
+    @php $up = $data['unprinted']; @endphp
+    @if(count($up['items']) > 1)
+    <x-ui.section title="آثار پرنسخه‌ی بی نشانی چاپ" :count="count($up['items'])" id="unprinted">
+        <x-ui.card class="!p-0 overflow-x-auto">
+            @php $maxUnprinted = max(1, $up['items'][0]['count']); @endphp
+            <table class="w-full text-sm">
+                <thead class="text-xs text-muted border-b border-line">
+                    <tr>
+                        <th scope="col" class="px-3 sm:px-4 py-2.5 text-right font-semibold w-10">#</th>
+                        <th scope="col" class="px-3 py-2.5 text-right font-semibold">اثر</th>
+                        <th scope="col" class="px-3 sm:px-4 py-2.5 text-left font-semibold w-28 sm:w-56">نسخه</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($up['items'] as $i => $work)
+                        <tr class="border-b border-line last:border-0 hover:bg-paper">
+                            <td class="px-3 sm:px-4 py-2.5 text-muted tabular-nums align-top">{{ Fa::digits($i + 1) }}</td>
+                            <td class="px-3 py-2.5 align-top">
+                                <a href="{{ route('works.show', $work['key']) }}" class="font-semibold text-ink hover:text-cinnabar transition">{{ $work['title'] }}</a>
+                                @if($work['author'])
+                                    <span class="block text-xs text-muted mt-0.5">
+                                        @if($work['author_key'])<a href="{{ route('people.show', $work['author_key']) }}" class="hover:text-cinnabar">{{ $work['author'] }}</a>@else{{ $work['author'] }}@endif
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-3 sm:px-4 py-2.5 align-top">
+                                <div class="flex items-center gap-2 justify-end">
+                                    <span class="hidden sm:block flex-1 h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                        <span class="block h-full bg-gold/80 rounded-full" style="width: {{ round($work['count'] * 100 / $maxUnprinted, 1) }}%"></span>
+                                    </span>
+                                    <a href="{{ route('works.show', $work['key']) }}#manuscripts" class="text-xs tabular-nums text-ink hover:text-cinnabar w-12 text-left">{{ Fa::num($work['count']) }}</a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </x-ui.card>
+        <p class="mt-3 text-xs text-muted leading-relaxed">
+            آثارِ دارای پدیدآور که فهارس برایشان چاپی یاد نکرده است: بخش «چاپ» رکوردشان خالی است و واژه‌ی «چاپ» در متنشان نیامده.
+            این به معنای چاپ‌نشدن اثر نیست؛ فهارس چاپ همه‌ی آثار را ثبت نکرده است و تنها {{ Fa::num($up['printed']) }} اثر ({{ $pct($up['coverage']) }}){{ $scope->isEmpty() ? '' : ' در این دامنه' }} آگاهی چاپ دارند. پیش از تصحیح، چاپ اثر را در منابع دیگر هم بجویید.
+        </p>
+    </x-ui.section>
+    @endif
+
+    {{-- 3d. Bound volumes (backlog item 146) --}}
+    @php $col = $data['collections']; @endphp
+    <x-ui.section title="مجموعه‌ها: رساله‌های هم‌مجلد" id="collections">
+        <x-ui.card>
+            @if($col['volumes'] < $min)
+                @include('insights.thin', ['n' => $col['volumes'], 'what' => 'مجموعه'])
+            @else
+                @include('insights.small', ['n' => $col['volumes'], 'what' => 'مجموعه'])
+                @php $maxVolumes = max([1, ...array_column($col['bands'], 'volumes')]); @endphp
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-xs text-muted mb-3">شمار مجموعه‌ها بر پایه‌ی شمار رساله‌هایشان. میانگین {{ Fa::digits(str_replace('.', '٫', (string) $col['mean'])) }} رساله در هر مجموعه است و بزرگ‌ترین مجموعه {{ Fa::num($col['largest']) }} رساله دارد.</p>
+                        <ul class="space-y-2.5 text-sm">
+                            @foreach($col['bands'] as $band)
+                                @continue($band['volumes'] === 0)
+                                <li>
+                                    <span class="flex items-baseline gap-2">
+                                        <span class="text-ink">
+                                            @if($band['upto'] === null) بیش از {{ Fa::digits($band['above']) }} رساله
+                                            @elseif($band['upto'] === $band['above'] + 1) {{ Fa::digits($band['upto']) }} رساله
+                                            @else {{ Fa::digits($band['above'] + 1) }} تا {{ Fa::digits($band['upto']) }} رساله
+                                            @endif
+                                        </span>
+                                        <span class="leader" aria-hidden="true"></span>
+                                        <span class="text-xs text-muted tabular-nums">{{ Fa::num($band['volumes']) }} · {{ $pct(round($band['volumes'] * 100 / max(1, $col['volumes']), 1)) }}</span>
+                                    </span>
+                                    <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                        <span class="block h-full bg-cinnabar/70 rounded-full" style="width: max(2px, {{ round($band['volumes'] * 100 / $maxVolumes, 2) }}%)"></span>
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div>
+                        @if($col['pairs'])
+                            <p class="text-xs text-muted mb-3">آثاری که بیشتر با هم در یک مجلد آمده‌اند، با شمار مجموعه‌هایی که هر دو را دارند.</p>
+                            <ol class="space-y-2 text-sm">
+                                @foreach($col['pairs'] as $pair)
+                                    <li class="flex items-baseline gap-2">
+                                        <span class="min-w-0">
+                                            @foreach($pair['works'] as $work)
+                                                <a href="{{ route('works.show', $work['key']) }}" class="text-ink hover:text-cinnabar transition" title="{{ $work['author'] }}">{{ $work['title'] }}</a>@if(! $loop->last) <span class="text-muted">و</span> @endif
+                                            @endforeach
+                                        </span>
+                                        <span class="leader" aria-hidden="true"></span>
+                                        <span class="text-xs text-muted tabular-nums">{{ Fa::num($pair['count']) }}</span>
+                                    </li>
+                                @endforeach
+                            </ol>
+                        @else
+                            <p class="text-sm text-muted">در این دامنه دو اثری نیست که در بیش از یک مجموعه با هم آمده باشند.</p>
+                        @endif
+                    </div>
+                </div>
+                <p class="mt-5 text-xs text-muted leading-relaxed">
+                    {{ Fa::num($col['copies']) }} نسخه ({{ $pct($col['coverage']) }} نسخه‌ها) رساله‌ای از {{ Fa::num($col['volumes']) }} مجموعه‌اند.
+                    مجموعه از شماره‌ی نسخه شناخته می‌شود: رساله‌هایی از یک کتابخانه که شماره‌ی مجلدشان یکی است («۳۸۵۲/۴» و «۳۸۵۲/۵»).
+                    @if($col['lone'] > 0){{ Fa::num($col['lone']) }} مجلد که{{ $scope->isEmpty() ? '' : ' در این دامنه' }} تنها یک رساله‌شان هست شمرده نشده‌اند.@endif
+                    @unless($scope->isEmpty())در یک دامنه، تنها رساله‌هایی از هر مجموعه شمرده می‌شوند که در همان دامنه‌اند.@endunless
+                </p>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
     {{-- 4. Scripts and languages --}}
     <div class="grid lg:grid-cols-2 gap-8">
         <x-ui.section title="سهم خطوط" id="scripts">
@@ -1032,6 +1223,61 @@
             <p class="mt-4 text-xs text-muted leading-relaxed">
                 همه‌ی این نسخه‌ها از راه فنخا آمده‌اند؛ فنخا هر نسخه را از فهرست چاپی کتابخانه‌اش نقل کرده است.
                 {{ Fa::num($src['counted']) }} نسخه ({{ $pct($src['coverage']) }}) به یکی از {{ Fa::num($src['volumes']) }} جلد فهرست پیوند دارند@if($src['unknown'] > 0) و جلد فهرست {{ Fa::num($src['unknown']) }} نسخه‌ی دیگر هنوز شناخته نیست@endif.
+            </p>
+        </x-ui.card>
+    </x-ui.section>
+    @endif
+
+    {{-- 5b. The catalogues that describe one copy (backlog item 146) --}}
+    @php $ov = $data['source_overlap']; @endphp
+    @if($ov['described'] >= max(1, $min))
+    <x-ui.section title="هر نسخه در چند فهرست وصف شده" id="source-overlap">
+        <x-ui.card>
+            @include('insights.small', ['n' => $ov['described'], 'what' => 'نسخه با فهرست کتابخانه'])
+            @php $maxOverlap = max([1, ...$ov['counts']]); @endphp
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-xs text-muted mb-3">شمار فهرست‌های کتابخانه‌ای که هر نسخه را وصف کرده‌اند، جدا از فنخا که همه‌ی نسخه‌ها را دارد.</p>
+                    <ul class="space-y-2.5 text-sm">
+                        @foreach(['تنها در فنخا', 'یک فهرست', 'دو فهرست', 'سه فهرست و بیشتر'] as $k => $name)
+                            @continue($ov['counts'][$k] === 0)
+                            <li>
+                                <span class="flex items-baseline gap-2">
+                                    <span class="text-ink">{{ $name }}</span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <span class="text-xs text-muted tabular-nums">{{ Fa::num($ov['counts'][$k]) }} · {{ $pct(round($ov['counts'][$k] * 100 / max(1, $data['totals']['manuscripts']), 1)) }}</span>
+                                </span>
+                                <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                    <span class="block h-full {{ $k === 0 ? 'bg-muted/60' : 'bg-gold/80' }} rounded-full" style="width: max(2px, {{ round($ov['counts'][$k] * 100 / $maxOverlap, 2) }}%)"></span>
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div>
+                    @if($ov['pairs'])
+                        <p class="text-xs text-muted mb-3">فهرست‌هایی که بیشترین نسخه‌ی مشترک را دارند.</p>
+                        <ol class="space-y-2.5 text-sm">
+                            @foreach($ov['pairs'] as $pair)
+                                <li class="flex items-baseline gap-2">
+                                    <span class="min-w-0">
+                                        @foreach($pair['sources'] as $source)
+                                            <a href="{{ route('sources.show', $source['key']) }}" class="text-ink hover:text-cinnabar transition">{{ $source['title'] }}</a>@if(! $loop->last) <span class="text-muted">و</span> @endif
+                                        @endforeach
+                                    </span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <span class="text-xs text-muted tabular-nums">{{ Fa::num($pair['count']) }}</span>
+                                </li>
+                            @endforeach
+                        </ol>
+                    @else
+                        <p class="text-sm text-muted">در این دامنه نسخه‌ای نیست که دو فهرست کتابخانه وصفش کرده باشند.</p>
+                    @endif
+                </div>
+            </div>
+            <p class="mt-5 text-xs text-muted leading-relaxed">
+                {{ Fa::num($ov['several']) }} نسخه در بیش از یک فهرست کتابخانه وصف شده‌اند: بیشتر، فهرست کهنه و فهرست تازه‌ی یک کتابخانه، یا فهرست نسخه‌های اصل و فهرست عکس‌ها و میکروفیلم‌هایشان.
+                فهرستی که هنوز به فهارس افزوده نشده در این شمارش نیست.
             </p>
         </x-ui.card>
     </x-ui.section>

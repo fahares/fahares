@@ -11880,3 +11880,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نشان:** [lives.blade.php](../resources/views/components/source/lives.blade.php) متن را از `SourceEntry::machineNote()` می‌گیرد (شاخه‌ی تازه برای `citable_type = Person`) و برای سطر در انتظار بازبینی `badgeReview()` را می‌دهد. هر سطر `data-machine-item` دارد تا پس از رد پنهان شود.
 - **دیگر:** `AdminNav` (گروه «داوری»، با شمار) و `notifications:unreviewed-data`.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php`.
+### گام ۱۴.۲۲۸: پنج آمار تازه‌ی `App\Support\Insights` (مورد ۱۴۶)
+
+- **کلیدهای تازه‌ی داده‌ی صفحه (`Insights::CACHE_KEY` اکنون `insights.v9`):**
+  - `copies_per_work`: دسته‌ها از `insights.copy_bands`. شمار نسخه‌ی هر اثر از نسخه‌های دامنه گرفته می‌شود، نه از `works.manuscripts_count`.
+  - `century_works`: از جدول موقت `insights_work_centuries` با `ROW_NUMBER() OVER (PARTITION BY c …)`؛ سه برابر ردیف‌های نمایش خوانده می‌شود، چون عنوان‌های عام (`generic_titles`) کنار می‌روند.
+  - `unprinted`: اثر باید `author_id` داشته باشد، ستون تازه‌ی `printed` جدول موقت آثار صفر باشد، و «چاپ» در `raw_text`، `description` و `bibliography` نباشد. شرط متن تنها روی نامزدها (چهار برابر ردیف‌های نمایش) اجرا می‌شود. اثر تک‌نسخه نمی‌آید.
+  - `collections`: مجلد یعنی `library_id` و `collection_key` یکسان. کلیدی که در دامنه یک رساله دارد جدا شمرده می‌شود (`lone`). جفت‌ها تنها با شمار ۲ و بیشتر.
+  - `source_overlap`: تنها منابع `kind = library_catalogue`، مدخل‌های ردنشده، و `COUNT(DISTINCT source_id)` برای هر نسخه.
+- **جدول‌های موقت دامنه (`InsightsScope::open`):** `collection_key` به نسخه‌ها و `printed` به آثار افزوده شد.
+- **سنجش روی `fahares_prod`:** از ۲۰۰ اثر پرنسخه، ۱۶۹ اثر `print_info` دارند. از ۵۱۷ اثرِ دارای پدیدآور و بی `print_info` با ۲۰ نسخه و بیشتر، ۲۹ اثر «چاپ» را در متنشان دارند.
+- **کارایی (`fahares_prod`، ۳۲۳٬۲۴۹ نسخه):**
+
+  | مرحله | آمار کل | کتابخانه‌ی مجلس | کتابخانه‌های تهران |
+  |---|---|---|---|
+  | نخستین نسخه‌ی کد | ۴۳٫۹ ثانیه | ۱۶٫۵ | ۲۵٫۶ |
+  | پس از پالایش جفت آثار و خواندن منابع با شناسه | ۲۲٫۵ | ۱۳٫۳ | ۱۹٫۸ |
+  | پس از ایندکس `source_entries_citable_source` | ۲۰٫۲ | ۶٫۶ | ۱۳٫۳ |
+
+  - **جفت آثار هم‌مجلد:** جدول موقت نمی‌تواند با خودش join شود، پس دو رونوشت ساخته می‌شود. پیش از آن، آثاری که تنها در یک مجلدند کنار می‌روند (۱۴۳٬۹۸۳ ردیف به ۱۱۰٬۵۹۲)، و join از ۷٫۱ به ۳٫۴ ثانیه می‌رسد.
+  - **هم‌پوشانی:** join به جدول `sources` چهار برابر کندتر از `whereIn` با شناسه‌هاست (۱۳٫۱ در برابر ۳٫۶ ثانیه). در دامنه، نسخه‌های دامنه با `straightJoin` نخست خوانده می‌شوند.
+- **migration:** `2026_11_17_200001_add_citable_source_index_to_source_entries` ایندکس `(citable_type, citable_id, source_id, status)` می‌سازد. روی `fahares_prod` ساختش ۵٫۵ ثانیه بود. همان‌جا با دست ساخته شده، و migration اگر ایندکس باشد کاری نمی‌کند.
+- **آزمون:** `tests/Feature/InsightsMoreFiguresTest.php`، ۶ آزمون، هر کدام در دامنه‌ی کتابخانه‌ای که خود آزمون می‌سازد.
+- **پس از استقرار:** فرمان داده لازم نیست. ساخت شبانه کلید `insights.v9` را پر می‌کند؛ تا آن زمان نخستین بازدید صفحه آمار را می‌سازد (حدود ۲۰ ثانیه).
