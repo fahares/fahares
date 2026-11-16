@@ -11795,3 +11795,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
 - **پس از اجرا در پروداکشن:** `fahares:estimate-dates --apply`، و برای سند جستجوی اشخاص `fahares:reindex-work-estimates --people --all`.
 - **مانده:** ۴۰ شخص گروه سوم (بازبینی با منبع زندگی‌نامه)؛ شبه‌شخص‌ها (مورد ۱۴۵).
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
+  - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
+  - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
+  - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
