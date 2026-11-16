@@ -111,6 +111,48 @@ class PersonPeriodsTest extends TestCase
         $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('از میان ۱۰۰۰ و ۱۰۰۵ تا ۱۰۳۰ ق')->assertSee('پیشنهاد دوره');
     }
 
+    public function test_periods_read_from_a_biography_wait_for_a_reviewer_who_approves_or_rejects_them()
+    {
+        $person = $this->person('شخص آزمایشی زندگی‌نامه دوره');
+        $code = 'period-test-' . uniqid();
+        $source = \App\Models\Source::create(['code' => $code, 'kind' => \App\Models\Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'معجم آزمایشی دوره', 'short_name' => 'معجم آزمایشی دوره']);
+        $volume = \App\Models\SourceVolume::create(['source_id' => $source->id, 'volume_number' => 2, 'facsimile_code' => $code]);
+        $item = \App\Models\SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 2, 'item_key' => '77#1', 'position' => 77, 'kind' => 'entry',
+            'page_start' => 77, 'page_end' => 77, 'title' => $person->name, 'title_normalized' => $person->name, 'text_status' => 'auto',
+            'text' => 'فقيه اصولي. ولد ببغداد. ثم انتقل الى طهران سنة 1250، و بقى فيها. و تولى القضاء بحلب. و توفي بدمشق.'])->id;
+        $entry = DB::table('source_entries')->insertGetId(['citable_type' => Person::class, 'citable_id' => $person->id, 'source_id' => $source->id, 'source_item_id' => $item,
+            'volume_number' => 2, 'page_start' => 77, 'role' => 'entry', 'origin' => 'match', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
+
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id])->assertSuccessful();
+        $this->assertSame(0, PersonPeriod::where('person_id', $person->id)->count());
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true])->assertSuccessful();
+        $proposals = PersonPeriod::where('person_id', $person->id)->orderBy('id')->get();
+        $this->assertSame([['residence', 'تهران', 1250, 1250, 'proposed', 'machine'], ['office', 'حلب', null, null, 'proposed', 'machine']],
+            $proposals->map(fn ($p) => [$p->kind, $p->city, $p->period_from, $p->period_to, $p->status, $p->origin])->all());
+        $this->assertSame([$entry, 'معجم آزمایشی دوره 2: 77'], [$proposals[0]->source_entry_id, $proposals[0]->source_text]);
+        // a second run proposes nothing again
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true])->assertSuccessful();
+        $this->assertSame(2, PersonPeriod::where('person_id', $person->id)->count());
+
+        // readers see nothing of it; a reviewer sees it on the page and in the panel
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertDontSee('انتقل الى طهران')->assertDontSee('پیشنهادهای هوشواره');
+        $this->actingAs($this->member)->get(route('admin.people.periods.proposals'))->assertForbidden();
+        $this->actingAs($this->admin)->get(route('people.show', $person))->assertOk()->assertSee('پیشنهادهای هوشواره')->assertSee('انتقل الى طهران')->assertSee('تأیید و ثبت دوره');
+        $this->actingAs($this->admin)->get(route('admin.people.periods.proposals'))->assertOk()->assertSee($person->name)->assertSee('تولى القضاء بحلب');
+
+        // saving a proposal approves it, with the reviewer's own years; rejecting keeps the row so that it does not come back
+        $this->actingAs($this->admin)->put(route('admin.people.periods.update', [$person->id, $proposals[0]->id]),
+            ['kind' => 'residence', 'place' => 'تهران', 'mode' => 'span', 'start' => 1250, 'end' => 1260, 'source_text' => 'معجم آزمایشی دوره 2: 77'])->assertRedirect();
+        $this->actingAs($this->admin)->post(route('admin.people.periods.reject', [$person->id, $proposals[1]->id]))->assertRedirect();
+        $this->assertSame([['approved', 1250, 1260, 'span'], ['rejected', null, null, null]],
+            PersonPeriod::where('person_id', $person->id)->orderBy('id')->get()->map(fn ($p) => [$p->status, $p->period_from, $p->period_to, $p->period_kind])->all());
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('از ۱۲۵۰ تا ۱۲۶۰ ق')->assertDontSee('حلب');
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true])->assertSuccessful();
+        $this->assertSame(2, PersonPeriod::where('person_id', $person->id)->count());
+        // an approved period is not rejected through the proposals' door
+        $this->actingAs($this->admin)->post(route('admin.people.periods.reject', [$person->id, $proposals[0]->id]))->assertNotFound();
+    }
+
     public function test_periods_follow_a_merged_person_and_come_back_with_a_rollback()
     {
         $source = $this->person('شخص آزمایشی ادغام دوره الف');

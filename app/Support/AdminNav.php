@@ -30,6 +30,8 @@ class AdminNav
             ]],
             ['title' => 'داده‌ها و مراجع', 'items' => [
                 ['label' => 'اشخاص', 'route' => 'admin.people.index', 'active' => ['admin.people.index', 'admin.people.edit'], 'can' => 'people.edit'],
+                ['label' => 'پیشنهادهای دوره‌ی زندگی', 'route' => 'admin.people.periods.proposals', 'active' => 'admin.people.periods.proposals', 'can' => 'people.edit',
+                    'count' => fn () => \App\Models\PersonPeriod::where('status', \App\Models\PersonPeriod::PROPOSED)->count(), 'soft' => true],
                 ['label' => 'ادغام اشخاص', 'route' => 'admin.people.merge', 'active' => 'admin.people.merge', 'can' => 'people.merge'],
                 ['label' => 'اشخاص هم‌نام', 'route' => 'admin.person-reviews.index', 'active' => fn () => request()->routeIs('admin.person-reviews.*') && request()->query('type') !== 'mixed', 'can' => 'people.merge',
                     'count' => fn () => \App\Models\PersonReview::where('type', 'duplicate')->where('status', 'open')->count()],

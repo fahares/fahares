@@ -20,6 +20,7 @@ class PersonPeriodController extends Controller
 {
     public function store(Request $request, Person $person): RedirectResponse
     {
+        // the status column's default is the database's: a new period is approved
         $period = $person->periods()->create(self::columns($request) + ['created_by' => $request->user()->id]);
         $this->log($person, 'create', null, $period);
 
@@ -30,10 +31,33 @@ class PersonPeriodController extends Controller
     {
         abort_unless($period->person_id === $person->id, 404);
         $old = $period->toArray();
-        $period->update(self::columns($request));
-        $this->log($person, 'update', $old, $period);
+        // saving a proposal approves it (step 14.220)
+        $period->update(self::columns($request) + ['status' => PersonPeriod::APPROVED]);
+        $this->log($person, $old['status'] === PersonPeriod::PROPOSED ? 'approve' : 'update', $old, $period);
 
-        return redirect()->to(route('people.show', $person) . '#periods')->with('success', 'دوره ویرایش شد.');
+        return redirect()->to(route('people.show', $person) . '#periods')->with('success', $old['status'] === PersonPeriod::PROPOSED ? 'پیشنهاد تأیید و دوره ثبت شد.' : 'دوره ویرایش شد.');
+    }
+
+    /** A proposal that is wrong: kept as rejected, so that the same reading is not proposed again. */
+    public function reject(Request $request, Person $person, PersonPeriod $period): RedirectResponse
+    {
+        abort_unless($period->person_id === $person->id && $period->status === PersonPeriod::PROPOSED, 404);
+        $old = $period->toArray();
+        $period->update(['status' => PersonPeriod::REJECTED]);
+        $this->log($person, 'reject', $old, $period);
+
+        return back()->with('success', 'پیشنهاد رد شد.');
+    }
+
+    /** The proposals that wait, for the panel. */
+    public function proposals(Request $request)
+    {
+        $proposals = PersonPeriod::where('status', PersonPeriod::PROPOSED)->with('person:id,name,slug')
+            ->when(in_array($request->query('kind'), array_keys(PersonPeriod::KINDS), true), fn ($q) => $q->where('kind', $request->query('kind')))
+            ->orderBy('person_id')->orderBy('id')->paginate(50)->withQueryString();
+
+        return view('admin.people.period-proposals', ['proposals' => $proposals,
+            'counts' => PersonPeriod::where('status', PersonPeriod::PROPOSED)->selectRaw('kind, COUNT(*) AS n')->groupBy('kind')->pluck('n', 'kind')]);
     }
 
     public function destroy(Request $request, Person $person, PersonPeriod $period): RedirectResponse

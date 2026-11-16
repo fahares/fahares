@@ -171,6 +171,30 @@
                     @else
                         <p class="text-sm text-muted">دوره‌ای ثبت نشده است.</p>
                     @endif
+                    {{-- What the machine read in the biographies of the sources, for a reviewer to approve or reject (step 14.220) --}}
+                    @can('people.edit')
+                        @php $proposed = $person->proposedPeriods; @endphp
+                        @if($proposed->isNotEmpty())
+                            <div class="mt-4 border border-dashed border-line-strong p-3 space-y-3">
+                                <p class="text-xs font-bold text-muted">پیشنهادهای هوشواره از زندگی‌نامه‌های منابع ({{ Fa::num($proposed->count()) }}): خوانندگان این‌ها را نمی‌بینند. مکان و سال‌ها را با متن بسنجید، درست کنید و ذخیره کنید، یا رد کنید.</p>
+                                @foreach($proposed as $proposal)
+                                    <div class="space-y-1.5 text-sm">
+                                        <p><span class="text-xs font-bold text-cinnabar">{{ $proposal->kind_label }}</span> <span class="font-semibold">{{ $proposal->place_name }}</span>
+                                            @if($proposal->date_text)<span class="tabular-nums">{{ Fa::digits($proposal->date_text) }}</span>@endif</p>
+                                        <p class="text-[13px] text-muted leading-6">«{{ $proposal->note }}» <span class="text-xs">({{ $proposal->source_text }})</span></p>
+                                        <details @if(old('period_form') === 'p' . $proposal->id) open @endif>
+                                            <summary class="text-xs font-bold text-cinnabar cursor-pointer">بازبینی و تأیید</summary>
+                                            <div class="mt-2">@include('people.partials.period-form', ['action' => route('admin.people.periods.update', [$person->id, $proposal->id]), 'period' => $proposal, 'submitLabel' => 'تأیید و ثبت دوره'])</div>
+                                        </details>
+                                        <form method="POST" action="{{ route('admin.people.periods.reject', [$person->id, $proposal->id]) }}">
+                                            @csrf
+                                            <x-ui.btn type="submit" size="sm" variant="ghost">نادرست است، رد شود</x-ui.btn>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    @endcan
                     @can('people.edit')
                         <details class="mt-3" @if(old('period_form') === 'new') open @endif>
                             <summary class="text-sm font-semibold text-cinnabar cursor-pointer">افزودن دوره</summary>
