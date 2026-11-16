@@ -105,7 +105,11 @@ class CatalogerController extends Controller
 
         // the copies they catalogued: named, of their volumes without parts, and of their parts (Cataloger::catalogedCopies)
         $manuscripts = $cataloger->catalogedCopies()
-            ->with(['work.author', 'libraryRecord', 'catalogVolume'])
+            ->with(['work.author', 'libraryRecord', 'catalogVolume',
+                // the copy's place in the printed catalogue, shown instead of Fankha's (backlog item 147)
+                'sourceEntries' => fn ($q) => $q->where('role', \App\Models\SourceEntry::ROLE_ENTRY)->where('origin', '!=', \App\Models\SourceEntry::ORIGIN_FANKHA)
+                    ->where('status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)->whereNotNull('page_start'),
+                'sourceEntries.source.library', 'sourceEntries.sourceVolume'])
             ->orderBy('volume_number')
             ->orderBy('page_start')
             ->paginate(24, ['*'], 'manuscripts_page');

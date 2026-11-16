@@ -19,9 +19,6 @@
                     {{ $entry->isMention() ? 'یاد شده ذیل' : 'مدخل' }} «{{ $entry->sourceItem->title }}»
                 </a>
             @endif
-            @if($entry->origin === \App\Models\SourceEntry::ORIGIN_FANKHA_CITATION)
-                <div class="text-[11px] text-muted">به نشانی فنخا</div>
-            @endif
         </div>
         @if($entry->isAwaitingReview() && ($field || $entry->source_item_id))
             <x-ui.machine-badge class="shrink-0 mt-0.5" :text="$entry->machineNote()"
