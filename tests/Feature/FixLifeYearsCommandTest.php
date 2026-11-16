@@ -65,6 +65,9 @@ class FixLifeYearsCommandTest extends TestCase
         $middle = $this->person('خوئی آزمایشی', $as(1250), 'ق13 قمری');
         $middleNoText = $this->person('قلندرشاه آزمایشی', $as(1250));
         $solar = $this->person('عبرت نائینی، محمد علی', $as(1321, '1245؟ - 1321 قمری'), '1245؟ - 1321 قمری');
+        $solarDeath = $this->person('لاهیجی حائری، علی بن مهدی', $as(1306, '-1306 قمری'), '-1306 قمری');
+        // the same name with other life dates is someone else
+        $namesake = $this->person('شعار، یوسف', $as(1310, '- 1310 قمری'), '- 1310 قمری');
         // left alone: a death after a dash, a death year with no life dates that is no middle of a century
         $dashed = $this->person('نائینی آزمایشی', $as(1250, '1188-1250 قمری'), '1188-1250 قمری');
         $plain = $this->person('ساده آزمایشی', $as(1241));
@@ -72,7 +75,7 @@ class FixLifeYearsCommandTest extends TestCase
         file_put_contents($file, json_encode(['works' => $this->works, 'peers' => []], JSON_UNESCAPED_UNICODE));
 
         $this->artisan('fahares:fix-life-years', ['--file' => $file])
-            ->expectsOutputToContain('Dry run, nothing written: 3 fuller texts, 1 birth years, 3 years alive, 1 open dashes, 2 mid-century years, 1 solar, 0 already right')->assertSuccessful();
+            ->expectsOutputToContain('Dry run, nothing written: 3 fuller texts, 1 birth years, 3 years alive, 1 open dashes, 2 mid-century years, 2 solar, 0 already right')->assertSuccessful();
         $this->assertSame(['1294 قمری', null, 1294, 13, 1294, 1294], $this->cols($birth));
 
         $this->artisan('fahares:fix-life-years', ['--file' => $file, '--apply' => true])->assertSuccessful();
@@ -87,6 +90,8 @@ class FixLifeYearsCommandTest extends TestCase
         $this->assertSame(['ق13 قمری', null, null, 13, null, null], $this->cols($middle));
         $this->assertSame([null, null, null, 13, null, null], $this->cols($middleNoText));
         $this->assertSame(['1245؟ - 1321 شمسی', 1282, 1361, 14, 1361, 1362], $this->cols($solar));
+        $this->assertSame(['-1306 شمسی', null, 1345, 14, 1345, 1346], $this->cols($solarDeath));
+        $this->assertSame(['- 1310 قمری', null, 1310, 14, 1310, 1310], $this->cols($namesake));
         $this->assertSame(['1188-1250 قمری', null, 1250, 13, 1250, 1250], $this->cols($dashed));
         $this->assertSame([null, null, 1241, 13, 1241, 1241], $this->cols($plain));
 
