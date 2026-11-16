@@ -14,7 +14,7 @@
 @section('title', 'متن مأخذ')
 @section('page_title', 'متن مأخذ: ' . $entry->textTitle())
 @section('breadcrumb')
-    <a href="{{ $recordUrl }}" class="hover:text-cinnabar">{{ $record->work?->primary_title ?? $record->primary_title ?? 'رکورد' }}@if($record->shelfmark ?? null)، شماره‌ی <span dir="ltr">{{ Fa::digits($record->shelfmark) }}</span>@endif</a>
+    <a href="{{ $recordUrl }}" class="hover:text-cinnabar">{{ $record->work?->primary_title ?? $record->primary_title ?? 'رکورد' }}@if($record->shelfmark ?? null)، شمارۀ <span dir="ltr">{{ Fa::digits($record->shelfmark) }}</span>@endif</a>
     <span>/</span>
     <span>{{ $entry->cardLabel($record) }}</span>
 @endsection
@@ -63,7 +63,7 @@
             <x-admin.field label="سطر نسخه" for="copy_text">
                 <textarea name="copy_text" id="copy_text" x-model="copyText" rows="4" class="admin-field w-full leading-7"></textarea>
             </x-admin.field>
-            <x-admin.form-actions :cancel="$recordUrl" submit="ذخیره‌ی متن دستی" />
+            <x-admin.form-actions :cancel="$recordUrl" submit="ذخیرۀ متن دستی" />
         </form>
     </x-ui.card>
 
@@ -72,8 +72,8 @@
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 class="rubric text-base">متن صفحه‌های مأخذ <small class="font-sans text-xs text-muted font-normal">{{ Fa::digits("ص {$from} تا {$to}") }}</small></h2>
                 <div class="flex flex-wrap gap-1.5">
-                    <x-ui.btn :href="$nav($from - 1, $to)" size="sm">صفحه‌ی پیش</x-ui.btn>
-                    <x-ui.btn :href="$nav($from, $to + 1)" size="sm">صفحه‌ی بعد</x-ui.btn>
+                    <x-ui.btn :href="$nav($from - 1, $to)" size="sm">صفحۀ پیش</x-ui.btn>
+                    <x-ui.btn :href="$nav($from, $to + 1)" size="sm">صفحۀ بعد</x-ui.btn>
                     @if($to > $from)
                         <x-ui.btn :href="$nav($from, $to - 1)" size="sm" variant="ghost">یک صفحه کمتر</x-ui.btn>
                     @endif

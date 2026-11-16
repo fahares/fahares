@@ -22,9 +22,9 @@
     <header class="text-center grid justify-items-center gap-2 pb-6">
         <p class="text-xs font-bold text-cinnabar">
             @if($subject->parent)
-                زیرشاخه‌ی <a href="{{ route('subjects.show', $subject->parent) }}" class="underline decoration-cinnabar/40 hover:decoration-cinnabar">{{ $subject->parent->name }}</a>
+                زیرشاخۀ <a href="{{ route('subjects.show', $subject->parent) }}" class="underline decoration-cinnabar/40 hover:decoration-cinnabar">{{ $subject->parent->name }}</a>
             @else
-                رده‌ی اصلی
+                ردۀ اصلی
             @endif
         </p>
         <h1 class="font-naskh text-[28px] sm:text-[40px] font-bold leading-[1.6] text-ink">{{ $subject->name }}</h1>

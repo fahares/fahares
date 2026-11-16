@@ -23,12 +23,12 @@ class SuggestionReviewed extends SuggestionNotification
         $s = $this->suggestion;
 
         return match (true) {
-            $this->event === 'demoted' && $s->standing === 'superseded' => 'قول شما درباره‌ی «' . $s->field_label . '» منسوخ شد',
-            $this->event === 'demoted' => 'قول دیگری درباره‌ی «' . $s->field_label . '» مختار شد',
-            $s->kind === 'feedback' => 'گزارش شما درباره‌ی سایت بررسی شد',
-            $s->status === 'rejected' => 'پیشنهاد شما درباره‌ی «' . $s->field_label . '» پذیرفته نشد',
-            $s->standing === 'alternative' => 'پیشنهاد شما درباره‌ی «' . $s->field_label . '» به‌عنوان «قول دیگر» ثبت شد',
-            default => 'پیشنهاد شما درباره‌ی «' . $s->field_label . '» تأیید شد',
+            $this->event === 'demoted' && $s->standing === 'superseded' => 'قول شما دربارۀ «' . $s->field_label . '» منسوخ شد',
+            $this->event === 'demoted' => 'قول دیگری دربارۀ «' . $s->field_label . '» مختار شد',
+            $s->kind === 'feedback' => 'گزارش شما دربارۀ سایت بررسی شد',
+            $s->status === 'rejected' => 'پیشنهاد شما دربارۀ «' . $s->field_label . '» پذیرفته نشد',
+            $s->standing === 'alternative' => 'پیشنهاد شما دربارۀ «' . $s->field_label . '» به‌عنوان «قول دیگر» ثبت شد',
+            default => 'پیشنهاد شما دربارۀ «' . $s->field_label . '» تأیید شد',
         };
     }
 
@@ -40,7 +40,7 @@ class SuggestionReviewed extends SuggestionNotification
         if ($this->event === 'demoted') {
             $replacement = $s->supersededBy;
             $lines[] = $s->standing === 'superseded'
-                ? 'قول شما در «سابقه‌ی اصلاحات» صفحه می‌ماند و سهم شما در آن دیده می‌شود.'
+                ? 'قول شما در «سابقۀ اصلاحات» صفحه می‌ماند و سهم شما در آن دیده می‌شود.'
                 : 'قول شما با مستندش به‌عنوان «قول دیگر» در صفحه می‌ماند.';
             if ($replacement) {
                 $lines[] = 'مقدار منتخب تازه: ' . self::short($replacement->display_value, 200);
@@ -56,10 +56,10 @@ class SuggestionReviewed extends SuggestionNotification
             $s->kind === 'feedback' && $s->status === 'rejected' => 'داور گزارش را بررسی کرد و تغییری لازم ندانست.',
             $s->kind === 'feedback' => 'داور به گزارش شما رسیدگی کرد.',
             $s->status === 'rejected' => 'داور پیشنهاد را نپذیرفت.',
-            $s->kind === 'note' => 'یادداشت شما در صفحه‌ی رکورد، بخش «یادداشت‌ها و منابع پژوهشی»، منتشر شد.',
-            $s->standing === 'adopted' => 'پیشنهاد در شناسنامه‌ی رکورد اعمال شد و به‌عنوان «مقدار منتخب» با مستندش در صفحه نمایش داده می‌شود.',
+            $s->kind === 'note' => 'یادداشت شما در صفحۀ رکورد، بخش «یادداشت‌ها و منابع پژوهشی»، منتشر شد.',
+            $s->standing === 'adopted' => 'پیشنهاد در شناسنامۀ رکورد اعمال شد و به‌عنوان «مقدار منتخب» با مستندش در صفحه نمایش داده می‌شود.',
             $s->standing === 'alternative' => 'مقدار رکورد تغییر نکرد، ولی پیشنهاد شما با مستندش به‌عنوان «قول دیگر» در صفحه نمایش داده می‌شود.',
-            $s->standing === 'edit' => 'اصلاح در شناسنامه‌ی رکورد اعمال شد.',
+            $s->standing === 'edit' => 'اصلاح در شناسنامۀ رکورد اعمال شد.',
             default => 'داور به پیشنهاد شما رسیدگی کرد.',
         };
         if ($s->public_note) {

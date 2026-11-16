@@ -238,7 +238,7 @@ class EventNoticesTest extends TestCase
     public function test_the_daily_digest_gathers_the_admins_technical_notices(): void
     {
         $admin = $this->user('admin');
-        foreach (['شکست دستور: sources:segment', 'شکست دستور: sources:segment', 'خطای نمایه‌ی جست‌وجو'] as $i => $title) {
+        foreach (['شکست دستور: sources:segment', 'شکست دستور: sources:segment', 'خطای نمایۀ جست‌وجو'] as $i => $title) {
             $admin->notifications()->create(['id' => (string) \Illuminate\Support\Str::uuid(), 'type' => Notice::class,
                 'data' => ['type' => $i < 2 ? 'system.command_finished' : 'system.search_failed', 'title' => $title, 'body' => '', 'url' => '/']]);
         }
@@ -247,7 +247,7 @@ class EventNoticesTest extends TestCase
         Notification::fake();
         $this->artisan('notifications:digest')->assertSuccessful();
         Notification::assertSentTo($admin, DailyDigest::class, fn (DailyDigest $d) => ($d->sections['دستورهای سرور'] ?? null) === ['شکست دستور: sources:segment (2 بار)']
-            && ($d->sections['نمایه‌ی جست‌وجو'] ?? null) === ['خطای نمایه‌ی جست‌وجو']);
+            && ($d->sections['نمایۀ جست‌وجو'] ?? null) === ['خطای نمایۀ جست‌وجو']);
     }
 
     public function test_a_telegram_chat_links_through_the_start_token_and_receives_its_channel(): void

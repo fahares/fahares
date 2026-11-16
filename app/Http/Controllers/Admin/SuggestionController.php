@@ -200,7 +200,7 @@ class SuggestionController extends Controller
 
         // An answer of «تصحیح جمعی» on people is decided with its item in the panel's queue, which settles it
         if (in_array($suggestion->review_queue, CollectiveReview::DECIDED_IN_QUEUE, true)) {
-            return back()->withErrors(['applied_value' => 'درباره‌ی این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
+            return back()->withErrors(['applied_value' => 'دربارۀ این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
         }
 
         if ($suggestion->kind === 'relation') {
@@ -324,8 +324,8 @@ class SuggestionController extends Controller
         $message = match (true) {
             ! $field => "پیشنهاد #{$suggestion->id} به‌عنوان «رسیدگی‌شده» ثبت شد. تغییرات لازم را دستی اعمال کنید.",
             $standing === 'alternative' => "پیشنهاد #{$suggestion->id} به‌عنوان «قول دیگر» با مستندش ثبت شد. مقدار رکورد تغییر نکرد.",
-            $standing === 'edit' => "ویرایش #{$suggestion->id} در شناسنامه‌ی رکورد اعمال شد.",
-            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان مقدار منتخب تأیید و در شناسنامه‌ی رکورد اعمال شد.",
+            $standing === 'edit' => "ویرایش #{$suggestion->id} در شناسنامۀ رکورد اعمال شد.",
+            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان مقدار منتخب تأیید و در شناسنامۀ رکورد اعمال شد.",
         };
 
         SuggestionNotifier::reviewed($suggestion->fresh());
@@ -581,7 +581,7 @@ class SuggestionController extends Controller
         }
 
         return redirect()->route('admin.suggestions.show', $suggestion)
-            ->with('success', $firstReview ? "یادداشت #{$suggestion->id} تأیید و در صفحه‌ی رکورد منتشر شد." : "ویرایش یادداشت #{$suggestion->id} ذخیره شد.");
+            ->with('success', $firstReview ? "یادداشت #{$suggestion->id} تأیید و در صفحۀ رکورد منتشر شد." : "ویرایش یادداشت #{$suggestion->id} ذخیره شد.");
     }
 
     /** Site feedback handled: the reviewer's public note is the answer the sender receives. */
@@ -608,7 +608,7 @@ class SuggestionController extends Controller
         $validated = $request->validate(['admin_notes' => 'nullable|string|max:1000']);
         $suggestion->update(['status' => 'withdrawn', 'admin_notes' => ($validated['admin_notes'] ?? null) ?: $suggestion->admin_notes]);
 
-        return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت #{$suggestion->id} از صفحه‌ی رکورد برداشته شد.");
+        return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت #{$suggestion->id} از صفحۀ رکورد برداشته شد.");
     }
 
     /**
@@ -758,7 +758,7 @@ class SuggestionController extends Controller
             DB::transaction(function () use ($suggestion, $record, $validated) {
                 $created = null;
                 $cataloger = match ($validated['cataloger_choice']) {
-                    'target' => $suggestion->relationTarget() ?? throw new InvalidArgumentException('فهرست‌نگار پیشنهادی در فهارس ثبت نشده است؛ شناسه‌ی او را بنویسید یا فهرست‌نگار تازه بسازید.'),
+                    'target' => $suggestion->relationTarget() ?? throw new InvalidArgumentException('فهرست‌نگار پیشنهادی در فهارس ثبت نشده است؛ شناسۀ او را بنویسید یا فهرست‌نگار تازه بسازید.'),
                     'manual' => \App\Models\Cataloger::find($validated['cataloger_id'] ?? 0) ?? throw new InvalidArgumentException('فهرست‌نگاری با این شناسه پیدا نشد.'),
                     default => $created = \App\Suggestions\VolumeCatalogers::createCataloger((string) ($validated['cataloger_name'] ?? ''), $suggestion->id),
                 };
@@ -806,7 +806,7 @@ class SuggestionController extends Controller
             DB::transaction(function () use ($suggestion, $record, $location, $validated, $request) {
                 $created = null;
                 $library = match ($validated['library_choice']) {
-                    'target' => $suggestion->relationTarget() ?? throw new InvalidArgumentException('کتابخانه‌ی پیشنهادی دیگر وجود ندارد.'),
+                    'target' => $suggestion->relationTarget() ?? throw new InvalidArgumentException('کتابخانۀ پیشنهادی دیگر وجود ندارد.'),
                     'manual' => \App\Models\Library::find($validated['library_id'] ?? 0) ?? throw new InvalidArgumentException('کتابخانه‌ای با این شناسه پیدا نشد.'),
                     'new' => $created = $location->createLibrary((string) ($validated['library_name'] ?? ''), (string) ($validated['library_city'] ?? ''), $validated['library_country'] ?? null),
                     default => null,
@@ -972,7 +972,7 @@ class SuggestionController extends Controller
         ]);
         $other = $suggestion->relationTarget();
         if (! $record || ($relation['target'] && ! $other)) {
-            return back()->withErrors(['applied_value' => 'یکی از دو کتابخانه‌ی این پیشنهاد دیگر وجود ندارد.']);
+            return back()->withErrors(['applied_value' => 'یکی از دو کتابخانۀ این پیشنهاد دیگر وجود ندارد.']);
         }
 
         $merger = app(\App\Suggestions\LibraryMerger::class);
@@ -1052,7 +1052,7 @@ class SuggestionController extends Controller
         if ($validated['kind'] === 'feedback') {
             // Site feedback has no record; the original's page, if it was feedback, goes with it
             if (! array_key_exists($validated['field_name'] ?? '', SuggestionRegistry::FEEDBACK_CATEGORIES)) {
-                return back()->withInput()->withErrors(['field_name' => 'دسته‌ی بازخورد را انتخاب کنید.']);
+                return back()->withInput()->withErrors(['field_name' => 'دستۀ بازخورد را انتخاب کنید.']);
             }
             if ($value === '') {
                 return back()->withInput()->withErrors(['suggested_value' => 'متن بازخورد را بنویسید.']);
@@ -1063,7 +1063,7 @@ class SuggestionController extends Controller
             $type = $validated['target_type'];
             $record = self::convertTarget($suggestion, $type, (string) ($validated['target_ref'] ?? ''));
             if (! $record) {
-                return back()->withInput()->withErrors(['target_ref' => 'رکورد مقصد پیدا نشد. پیوند یا شناسه‌ی فهارس را بنویسید.']);
+                return back()->withInput()->withErrors(['target_ref' => 'رکورد مقصد پیدا نشد. پیوند یا شناسۀ فهارس را بنویسید.']);
             }
             $attributes = ['current_value' => null, 'payload' => ['derived_from' => $suggestion->id]];
         }
@@ -1106,7 +1106,7 @@ class SuggestionController extends Controller
                     $otherRef = trim((string) ($validated['relation_target'] ?? ''));
                     $otherId = $other && $otherRef !== '' ? self::recordId($other, $otherRef) : null;
                     if ($other && $otherRef !== '' && ! $otherId) {
-                        return back()->withInput()->withErrors(['relation_target' => 'پیوند یا شناسه‌ی رکورد مقصد خوانا نیست.']);
+                        return back()->withInput()->withErrors(['relation_target' => 'پیوند یا شناسۀ رکورد مقصد خوانا نیست.']);
                     }
                     ['relation' => $relation, 'payload' => $payload] = RelationInput::validate($type, $record, ['target_id' => $otherId, 'suggested_value' => $value] + $validated);
                     $attributes = ['field_name' => $relation['key'], 'suggested_value' => $value !== '' ? $value : $relation['label'], 'current_value' => null, 'payload' => $payload + ['derived_from' => $suggestion->id]];

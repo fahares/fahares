@@ -22,7 +22,7 @@ class DailyDigest extends SiteNotification
 
     protected function title(): string
     {
-        return 'خلاصه‌ی روزانه‌ی فهارس';
+        return 'خلاصۀ روزانۀ فهارس';
     }
 
     protected function lines(object $notifiable): array
@@ -32,7 +32,7 @@ class DailyDigest extends SiteNotification
             $lines[] = "**{$heading}**";
             array_push($lines, ...$items);
         }
-        $lines[] = 'آنچه در این خلاصه می‌آید، در ستون «خلاصه‌ی روزانه» تنظیمات اعلان انتخاب می‌شود: ' . route('notifications.settings');
+        $lines[] = 'آنچه در این خلاصه می‌آید، در ستون «خلاصۀ روزانه» تنظیمات اعلان انتخاب می‌شود: ' . route('notifications.settings');
 
         return $lines;
     }

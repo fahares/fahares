@@ -30,7 +30,7 @@ class ContributorRolesTest extends TestCase
     public function test_the_authors_and_scribes_stay_apart_from_the_other_roles()
     {
         $author = $this->person('مؤلف آزمون');
-        $dedicatee = $this->person('اهداشده‌ی آزمون');
+        $dedicatee = $this->person('اهداشدۀ آزمون');
         $work = $this->work(['author_id' => $author->id, 'author_name' => $author->name]);
         app(ContributorRelations::class)->addRole($work, 'dedicatee', $dedicatee, null, null, null);
         $scribe = $this->person('کاتب آزمون');

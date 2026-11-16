@@ -358,7 +358,7 @@ class WorkRelationLinker
             }
             $html .= e(Fa::digits(mb_substr($text, $at, $pos - $at)))
                 . '<a href="' . e(route('works.show', $work)) . '" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" title="'
-                . e('صفحه‌ی اثر: ' . $work->clean_title) . '">' . e(Fa::digits($title)) . '</a>';
+                . e('صفحۀ اثر: ' . $work->clean_title) . '">' . e(Fa::digits($title)) . '</a>';
             $at = $pos + mb_strlen($title);
         }
 

@@ -54,7 +54,7 @@ class Phone
     {
         return function (string $attribute, mixed $value, \Closure $fail) {
             if (trim((string) $value) !== '' && self::normalize((string) $value) === null) {
-                $fail('شماره‌ی تماس خوانا نیست. شماره‌ی همراه را مانند ۰۹۱۲۱۲۳۴۵۶۷ بنویسید، و شماره‌ی خارج از ایران را با + و کد کشور.');
+                $fail('شمارۀ تماس خوانا نیست. شمارۀ همراه را مانند ۰۹۱۲۱۲۳۴۵۶۷ بنویسید، و شمارۀ خارج از ایران را با + و کد کشور.');
             }
         };
     }

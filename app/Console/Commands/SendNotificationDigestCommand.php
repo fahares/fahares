@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 /**
  * The daily digest (backlog item 25): for each user, the last day's new suggestions, «تصحیح جمعی» opinions,
  * sign-ups and the site notices of the other gathered types (technical alerts, access changes), for the types whose
- * «خلاصه‌ی روزانه» column the user has on. Opinions are announced only here, so a
+ * «خلاصۀ روزانه» column the user has on. Opinions are announced only here, so a
  * busy day of collective review does not flood the reviewers (backlog item 80).
  */
 class SendNotificationDigestCommand extends Command
@@ -39,7 +39,7 @@ class SendNotificationDigestCommand extends Command
                 }
             }
             if (NotificationPreferences::enabled($recipient, 'collective.opinions', 'digest') && $opinions->isNotEmpty()) {
-                $sections['نظرهای تصحیح جمعی'] = $opinions->map(fn ($row) => (CollectiveReview::queue($row->review_queue)?->title() ?? $row->review_queue) . ": {$row->opinions} نظر درباره‌ی {$row->items} مورد")->all();
+                $sections['نظرهای تصحیح جمعی'] = $opinions->map(fn ($row) => (CollectiveReview::queue($row->review_queue)?->title() ?? $row->review_queue) . ": {$row->opinions} نظر دربارۀ {$row->items} مورد")->all();
             }
             if (NotificationPreferences::enabled($recipient, 'user.registered', 'digest') && $users->isNotEmpty()) {
                 $sections['کاربران تازه'] = $users->map(fn (User $u) => "{$u->name} ({$u->email})")->all();
@@ -62,7 +62,7 @@ class SendNotificationDigestCommand extends Command
     /** Types gathered from the recipient's own site notices, with their section heading */
     private const GATHERED = [
         'system.queue_failed' => 'شکست کارهای صف',
-        'system.search_failed' => 'نمایه‌ی جست‌وجو',
+        'system.search_failed' => 'نمایۀ جست‌وجو',
         'system.command_finished' => 'دستورهای سرور',
         'permissions.changed' => 'تغییر دسترسی نقش‌ها',
     ];

@@ -82,19 +82,19 @@ class InsightsPageTest extends TestCase
     {
         $generic = $this->work('اشعار');
         $generic->forceFill(['manuscripts_count' => 999999])->save();
-        $named = $this->work('اثر بسیار پرنسخه‌ی آزمایشی');
+        $named = $this->work('اثر بسیار پرنسخۀ آزمایشی');
         $named->forceFill(['manuscripts_count' => 999998])->save();
 
         $top = Insights::build()['top_works'];
 
-        $this->assertSame('اثر بسیار پرنسخه‌ی آزمایشی', $top['items'][0]['title']);
+        $this->assertSame('اثر بسیار پرنسخۀ آزمایشی', $top['items'][0]['title']);
         $this->assertContains('اشعار', array_column($top['skipped'], 'title'));
         $this->assertNotContains('اشعار', array_column($top['items'], 'title'));
     }
 
     public function test_the_page_shows_the_figures_with_links_to_search()
     {
-        $work = $this->work('اثر آزمایشی صفحه‌ی بینش');
+        $work = $this->work('اثر آزمایشی صفحۀ بینش');
         $this->manuscript($work, ['copy_date_raw' => '1100ق', 'copy_place' => 'هرات']);
         Insights::refresh();
 
@@ -103,7 +103,7 @@ class InsightsPageTest extends TestCase
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'century' => 11])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات'])), false)
             ->assertSee('پدیدآورندگان و آثار در گذر سده‌ها')
-            ->assertSee('فاصله‌ی کتابت تا وفات مؤلف')
+            ->assertSee('فاصلۀ کتابت تا وفات مؤلف')
             ->assertSee(e(route('search', ['type' => 'authors', 'role' => 'author', 'century' => 11])), false)
             ->assertSee('کانون‌های تاریخی استنساخ')
             ->assertSee('سهم خطوط')
@@ -112,7 +112,7 @@ class InsightsPageTest extends TestCase
 
     public function test_search_filters_copies_by_city_of_copying()
     {
-        $library = Library::create(['name' => 'کتابخانه‌ی آزمایشی بینش' . uniqid(), 'city' => 'شهر آزمایشی', 'slug' => 'lib-insights-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی بینش' . uniqid(), 'city' => 'شهر آزمایشی', 'slug' => 'lib-insights-' . uniqid()]);
         $inTehran = $this->work('اثر کتابت‌شده در طهران');
         $inShiraz = $this->work('اثر کتابت‌شده در شیراز');
         $this->manuscript($inTehran, ['library_id' => $library->id, 'copy_place' => 'طهران دارالخلافه']);
@@ -135,7 +135,7 @@ class InsightsPageTest extends TestCase
     public function test_the_copy_timeline_layers_years_centuries_and_doubtful_dates()
     {
         $before = Insights::build()['timeline'];
-        $work = $this->work('اثر آزمایشی بازه‌ی کتابت');
+        $work = $this->work('اثر آزمایشی بازۀ کتابت');
         $this->manuscript($work, ['copy_date_raw' => '1252ق']);
         $this->manuscript($work, ['copy_date_raw' => '1237ق؟']);
         $this->manuscript($work, ['copy_date_raw' => 'قرن 13']);
@@ -186,7 +186,7 @@ class InsightsPageTest extends TestCase
         $band = fn (array $data, ?int $upto) => collect($data['copy_gap']['bands'])->firstWhere('upto', $upto);
         $before = Insights::build();
         $author = $this->author('1180 - 1250 ق');
-        $work = $this->work('اثر آزمایشی فاصله‌ی نسخه');
+        $work = $this->work('اثر آزمایشی فاصلۀ نسخه');
         $work->forceFill(['author_id' => $author->id])->save();
         $this->manuscript($work, ['copy_date_raw' => '1230ق']); // in his lifetime
         $this->manuscript($work, ['copy_date_raw' => '1236ق؟']); // the same, doubtful

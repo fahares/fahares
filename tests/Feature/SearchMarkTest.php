@@ -25,6 +25,6 @@ class SearchMarkTest extends TestCase
 
     public function test_the_engines_marks_become_the_same_tags()
     {
-        $this->assertSame('نسخه‌ی <mark class="search-mark">دیوان</mark> حافظ', SearchHelper::marked("نسخه‌ی \x01دیوان\x02 حافظ"));
+        $this->assertSame('نسخۀ <mark class="search-mark">دیوان</mark> حافظ', SearchHelper::marked("نسخۀ \x01دیوان\x02 حافظ"));
     }
 }

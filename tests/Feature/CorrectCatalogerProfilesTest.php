@@ -25,7 +25,7 @@ class CorrectCatalogerProfilesTest extends TestCase
                 'birth_year_solar' => ['from' => 1318, 'to' => 1344],
                 'death_year_solar' => ['from' => 1390, 'to' => null],
                 'title_prefix' => ['from' => 'استاد دکتر', 'to' => null],
-                'bio' => ['from' => 'زندگی‌نامه‌ی ساختگی', 'to' => 'زندگی‌نامه‌ی منبع‌دار'],
+                'bio' => ['from' => 'زندگی‌نامۀ ساختگی', 'to' => 'زندگی‌نامۀ منبع‌دار'],
                 'metadata.birth_place' => ['from' => 'شیراز', 'to' => 'کربلا'],
                 'metadata.specialty' => ['from' => 'تخصص ساختگی', 'to' => null],
             ],
@@ -47,7 +47,7 @@ class CorrectCatalogerProfilesTest extends TestCase
             'birth_year_solar' => 1318,
             'death_year_solar' => 1390,
             'title_prefix' => 'استاد دکتر',
-            'bio' => 'زندگی‌نامه‌ی ساختگی',
+            'bio' => 'زندگی‌نامۀ ساختگی',
             'metadata' => ['birth_place' => 'شیراز', 'specialty' => 'تخصص ساختگی'],
         ], $overrides));
     }
@@ -62,7 +62,7 @@ class CorrectCatalogerProfilesTest extends TestCase
         $this->assertSame(1344, $cataloger->birth_year_solar);
         $this->assertNull($cataloger->death_year_solar);
         $this->assertNull($cataloger->title_prefix);
-        $this->assertSame('زندگی‌نامه‌ی منبع‌دار', $cataloger->bio);
+        $this->assertSame('زندگی‌نامۀ منبع‌دار', $cataloger->bio);
         $this->assertSame('کربلا', $cataloger->metadata['birth_place']);
         $this->assertArrayNotHasKey('specialty', $cataloger->metadata);
         $this->assertSame('ویکی‌نور', $cataloger->metadata['sources'][0]['title']);

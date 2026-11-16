@@ -42,7 +42,7 @@ class WorkSearchTextsTest extends TestCase
             'page_start' => 1,
             'incipit_text' => $incipit,
             'explicit_text' => $explicit,
-            'raw_text' => 'نسخه‌ی آزمایشی',
+            'raw_text' => 'نسخۀ آزمایشی',
         ]);
     }
 

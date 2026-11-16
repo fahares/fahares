@@ -85,7 +85,7 @@ class RecordRemover
     {
         $attributes = $old['snapshot']['attributes'] ?? throw new InvalidArgumentException('اطلاعات رکورد حذف‌شده در این لاگ ثبت نشده است.');
         if ($class::find($attributes['id'])) {
-            throw new InvalidArgumentException("رکوردی با شناسه‌ی #{$attributes['id']} هم‌اکنون وجود دارد.");
+            throw new InvalidArgumentException("رکوردی با شناسۀ #{$attributes['id']} هم‌اکنون وجود دارد.");
         }
         if ($class === Manuscript::class && ! Work::find($attributes['work_id'])) {
             throw new InvalidArgumentException("اثر این نسخه (#{$attributes['work_id']}) دیگر وجود ندارد.");

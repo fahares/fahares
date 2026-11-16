@@ -10,7 +10,7 @@
         <input id="note_admin_notes" type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" class="{{ $input }}">
     </div>
     <p class="px-3 py-2 bg-paper border border-line text-xs text-ink leading-6" data-approve-summary>
-        <b>با این کار:</b> یادداشت با متن ستون اصلی در صفحه‌ی رکورد {{ $suggestion->status === 'approved' ? 'به‌روز می‌شود' : 'منتشر می‌شود' }}{{ ! empty($suggestion->payload['files']) ? '؛ تصویرهای علامت‌خورده پاک می‌شوند' : '' }}.
+        <b>با این کار:</b> یادداشت با متن ستون اصلی در صفحۀ رکورد {{ $suggestion->status === 'approved' ? 'به‌روز می‌شود' : 'منتشر می‌شود' }}{{ ! empty($suggestion->payload['files']) ? '؛ تصویرهای علامت‌خورده پاک می‌شوند' : '' }}.
     </p>
     <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $button }}</button>
 </form>

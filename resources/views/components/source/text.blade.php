@@ -26,7 +26,7 @@
     @if($entry->isAwaitingReview() && ($field || $entry->source_item_id))
         <x-slot:badge>
             <x-ui.machine-badge
-                :text="$entry->source_item_id ? $entry->machineNote() : 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.'"
+                :text="$entry->source_item_id ? $entry->machineNote() : 'این متن را هوشواره با تطبیق شمارۀ نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.'"
                 report-label="گزارش نشانی نادرست"
                 :report="$field ? ['field' => $field] : null" :review="$entry->badgeReview()" />
         </x-slot:badge>

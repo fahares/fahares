@@ -20,23 +20,23 @@ class SeedHomePageCommand extends Command
     protected $description = 'Add the first banner slides, featured images and home catalogers if none exist';
 
     private const HERO = [
-        ['file' => 'frontispiece.jpg', 'title' => 'شمسه‌ی هشت‌لت در سرلوح یک نسخه‌ی ایرانی', 'credit' => 'سرلوح، نسخه‌ی ایرانی، موزه‌ی والترز W.569',
+        ['file' => 'frontispiece.jpg', 'title' => 'شمسۀ هشت‌لت در سرلوح یک نسخۀ ایرانی', 'credit' => 'سرلوح، نسخۀ ایرانی، موزۀ والترز W.569',
             'link_url' => 'https://commons.wikimedia.org/wiki/File:Iranian_-_Left_Side_of_a_Double-page_Illuminated_Frontispiece_-_Walters_W5692A_-_Full_Page.jpg'],
     ];
 
     private const SLIDES = [
-        ['file' => 'slide-1.jpg', 'title' => 'نگاره‌ی معراج پیامبر (ص)، خمسه‌ی نظامی، کتابخانه‌ی مدرسه‌ی سپهسالار'],
-        ['file' => 'slide-2.jpg', 'title' => 'نمایشگاه «خطوط از مشرق زمین» در موزه‌ی چاپ و کتاب مادرید'],
+        ['file' => 'slide-1.jpg', 'title' => 'نگارۀ معراج پیامبر (ص)، خمسۀ نظامی، کتابخانۀ مدرسۀ سپهسالار'],
+        ['file' => 'slide-2.jpg', 'title' => 'نمایشگاه «خطوط از مشرق زمین» در موزۀ چاپ و کتاب مادرید'],
         ['file' => 'slide-3.jpg', 'title' => 'پنجاه سال با دکتر مهدی بیانی'],
-        ['file' => 'slide-4.jpg', 'title' => 'کتابخانه‌ی ملی ایران'],
+        ['file' => 'slide-4.jpg', 'title' => 'کتابخانۀ ملی ایران'],
     ];
 
     private const TREASURES = [
-        ['file' => 'shamseh.jpg', 'title' => 'شمسه', 'subtitle' => 'کلیات سعدی، برگ آغاز', 'credit' => 'موزه‌ی والترز W.620، مالکیت عمومی',
+        ['file' => 'shamseh.jpg', 'title' => 'شمسه', 'subtitle' => 'کلیات سعدی، برگ آغاز', 'credit' => 'موزۀ والترز W.620، مالکیت عمومی',
             'link_url' => 'https://commons.wikimedia.org/wiki/File:Sa%27di_-_Illuminated_Frontispiece_with_Medallion_-_Walters_W6201A_-_Full_Page.jpg'],
-        ['file' => 'colophon.jpg', 'title' => 'ترقیمه', 'subtitle' => 'دیوان حافظ، انجامه و ترقیمه', 'credit' => 'موزه‌ی والترز W.634، مالکیت عمومی',
+        ['file' => 'colophon.jpg', 'title' => 'ترقیمه', 'subtitle' => 'دیوان حافظ، انجامه و ترقیمه', 'credit' => 'موزۀ والترز W.634، مالکیت عمومی',
             'link_url' => 'https://commons.wikimedia.org/wiki/File:Hafiz_-_Illuminated_Tailpiece_and_Colophon_-_Walters_W634199A_-_Full_Page.jpg'],
-        ['file' => 'binding.jpg', 'title' => 'جلد لاکی', 'subtitle' => 'بوستان سعدی، جلد', 'credit' => 'موزه‌ی والترز W.621، مالکیت عمومی',
+        ['file' => 'binding.jpg', 'title' => 'جلد لاکی', 'subtitle' => 'بوستان سعدی، جلد', 'credit' => 'موزۀ والترز W.621، مالکیت عمومی',
             'link_url' => 'https://commons.wikimedia.org/wiki/File:Sa%27di_-_The_Orchard_(Bustan)_-_Walters_W621_-_Top_Exterior.jpg'],
     ];
 

@@ -57,7 +57,7 @@ class HomePageController extends Controller
             $this->audit($request, SiteSetting::class, 0, 'home_texts', $old, $new);
         }
 
-        return back()->with('success', 'متن‌های صفحه‌ی خانه ذخیره شد.')->withFragment('texts');
+        return back()->with('success', 'متن‌های صفحۀ خانه ذخیره شد.')->withFragment('texts');
     }
 
     public function storeItem(Request $request)
@@ -132,7 +132,7 @@ class HomePageController extends Controller
             $this->audit($request, Cataloger::class, $cataloger->id, 'home_cataloger_add', ['home_order' => null], ['home_order' => $cataloger->home_order]);
         }
 
-        return back()->with('success', "«{$cataloger->name}» به صفحه‌ی خانه افزوده شد.")->withFragment('catalogers');
+        return back()->with('success', "«{$cataloger->name}» به صفحۀ خانه افزوده شد.")->withFragment('catalogers');
     }
 
     public function removeCataloger(Request $request, Cataloger $cataloger)
@@ -143,7 +143,7 @@ class HomePageController extends Controller
         $this->renumberCatalogers();
         $this->audit($request, Cataloger::class, $cataloger->id, 'home_cataloger_remove', ['home_order' => $old], ['home_order' => null]);
 
-        return back()->with('success', "«{$cataloger->name}» از صفحه‌ی خانه برداشته شد.")->withFragment('catalogers');
+        return back()->with('success', "«{$cataloger->name}» از صفحۀ خانه برداشته شد.")->withFragment('catalogers');
     }
 
     public function moveCataloger(Request $request, Cataloger $cataloger)

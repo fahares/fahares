@@ -67,7 +67,7 @@ class SplitCompoundPeopleTest extends TestCase
             'page_start' => 1,
             'scribe_id' => $scribe->id,
             'scribe_name' => $scribe->name,
-            'raw_text' => 'نسخه‌ی آزمایشی',
+            'raw_text' => 'نسخۀ آزمایشی',
         ]);
     }
 
@@ -142,7 +142,7 @@ class SplitCompoundPeopleTest extends TestCase
     public function test_reviewed_decision_keeps_unidentified_names_as_text_and_moves_extra_details()
     {
         $kept = $this->person("مؤلف شناخته {$this->tag}");
-        $duplicate = $this->person("مؤلف شناخته‌ی تکراری {$this->tag}");
+        $duplicate = $this->person("مؤلف شناختۀ تکراری {$this->tag}");
         $compound = $this->person("مهدی {$this->tag} جهت آقا محمد علی و مؤلف شناخته {$this->tag}");
         $edited = $this->person("شاهرخ خان {$this->tag} مین باشی و فرزند سرتیپ");
         $ms = $this->manuscriptBy($compound);
@@ -153,7 +153,7 @@ class SplitCompoundPeopleTest extends TestCase
                 'person_id' => $compound->id, 'name' => $compound->name, 'decision' => 'split', 'has_others' => false,
                 'parts' => [
                     ['name' => "مهدی {$this->tag}", 'note' => null, 'text' => true],
-                    ['name' => "مؤلف شناخته‌ی تکراری {$this->tag}", 'note' => 'جلد دوم', 'person_id' => $duplicate->id, 'set' => ['is_translator' => true]],
+                    ['name' => "مؤلف شناختۀ تکراری {$this->tag}", 'note' => 'جلد دوم', 'person_id' => $duplicate->id, 'set' => ['is_translator' => true]],
                 ],
                 'manuscript_set' => ['commissioned_by' => 'آقا محمد علی', 'is_autograph' => true],
             ],

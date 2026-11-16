@@ -72,7 +72,7 @@
                 @if($hasRecord)
                     <label class="flex items-center gap-2" x-show="targetType === ownType"><input type="checkbox" x-model="otherRecord" @change="loadFields()" class="accent-cinnabar"> رکورد دیگری است</label>
                 @endif
-                <input type="text" name="target_ref" x-show="otherRecord" x-model="targetRef" @input="loadFields()" placeholder="پیوند یا شناسه‌ی فهارس، مثلاً fahares.net/w/123" dir="ltr" class="{{ $input }}">
+                <input type="text" name="target_ref" x-show="otherRecord" x-model="targetRef" @input="loadFields()" placeholder="پیوند یا شناسۀ فهارس، مثلاً fahares.net/w/123" dir="ltr" class="{{ $input }}">
                 <span x-show="!otherRecord" class="block text-muted">همین رکورد</span>
                 <template x-if="otherRecord && record">
                     <a :href="record.url" target="_blank" class="block text-emerald-700 dark:text-emerald-300 hover:underline">✓ <span x-text="record.label"></span></a>
@@ -81,18 +81,18 @@
         </div>
 
         <label class="block space-y-1" x-show="kind !== 'general'">
-            <span class="block font-bold text-ink" x-text="({field: 'فیلد:', relation: 'نوع رابطه:', note: 'نوع یادداشت:', feedback: 'دسته‌ی بازخورد:'})[kind]"></span>
+            <span class="block font-bold text-ink" x-text="({field: 'فیلد:', relation: 'نوع رابطه:', note: 'نوع یادداشت:', feedback: 'دستۀ بازخورد:'})[kind]"></span>
             <select name="field_name" x-model="fieldName" @change="target = null; targetResults = []" class="{{ $input }}">
                 <option value="">انتخاب کنید…</option>
                 <template x-for="o in options" :key="o.name ?? o.key"><option :value="o.name ?? o.key" x-text="o.label" :selected="(o.name ?? o.key) === fieldName"></option></template>
             </select>
-            <span x-show="kind === 'field' && otherRecord && !record" class="block text-muted">نشانی‌های رکورد در فهرست‌ها و مآخذ، پس از نوشتن پیوند یا شناسه‌ی رکورد مقصد در فهرست می‌آیند.</span>
+            <span x-show="kind === 'field' && otherRecord && !record" class="block text-muted">نشانی‌های رکورد در فهرست‌ها و مآخذ، پس از نوشتن پیوند یا شناسۀ رکورد مقصد در فهرست می‌آیند.</span>
         </label>
 
         {{-- Relations: the option, the other record, and what some of them need besides --}}
         <template x-if="relation && relation.options">
             <label class="block space-y-1">
-                <span class="block font-bold text-ink" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطه‌ی دو رکورد:'"></span>
+                <span class="block font-bold text-ink" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطۀ دو رکورد:'"></span>
                 <select name="role" x-model="role" class="{{ $input }}">
                     <option value="">انتخاب کنید…</option>
                     <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label" :selected="key === role"></option></template>
@@ -102,8 +102,8 @@
         <template x-if="relation && relation.target">
             <div class="space-y-1 relative">
                 <span class="block font-bold text-ink"
-                    x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:', cataloger: 'فهرست‌نگار (پیوند یا شناسه؛ اختیاری):'})[relation.target])"></span>
-                <input type="text" name="relation_target" x-model="relationTarget" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جست‌وجوی عنوان و نام" class="{{ $input }}">
+                    x-text="relation.apply === 'relocate' ? 'کتابخانۀ تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانۀ مقصد:', manuscript: 'نسخۀ مقصد:', cataloger: 'فهرست‌نگار (پیوند یا شناسه؛ اختیاری):'})[relation.target])"></span>
+                <input type="text" name="relation_target" x-model="relationTarget" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسۀ فهارس، یا جست‌وجوی عنوان و نام" class="{{ $input }}">
                 <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-surface shadow-lg">
                     <template x-for="r in targetResults" :key="r.id">
                         <li>
@@ -130,7 +130,7 @@
         </template>
         <template x-if="relation && relation.apply === 'relocate'">
             <label class="block space-y-1">
-                <span class="block font-bold text-ink">شماره‌ی تازه‌ی نسخه (اگر عوض شده است):</span>
+                <span class="block font-bold text-ink">شمارۀ تازۀ نسخه (اگر عوض شده است):</span>
                 <input type="text" name="shelfmark" value="{{ old('shelfmark') }}" class="{{ $input }}">
             </label>
         </template>
@@ -203,7 +203,7 @@
                         </template>
                     </label>
                 </template>
-                <p x-show="note.files" class="text-muted">تصاویر بارگذاری‌شده‌ی پیشنهاد اصلی منتقل نمی‌شوند؛ اگر لازم است، پیوند تصویر را بنویسید.</p>
+                <p x-show="note.files" class="text-muted">تصاویر بارگذاری‌شدۀ پیشنهاد اصلی منتقل نمی‌شوند؛ اگر لازم است، پیوند تصویر را بنویسید.</p>
             </div>
         </template>
 

@@ -19,7 +19,7 @@
 <x-ui.card class="max-w-3xl space-y-4 text-[13px]">
     <p class="text-xs text-muted">
         به <b class="text-ink">{{ $thread->user?->name }}</b>
-        @can('users.manage') · <a href="{{ route('admin.users.edit', $thread->user_id) }}" class="text-cinnabar hover:underline">صفحه‌ی کاربر</a>@endcan
+        @can('users.manage') · <a href="{{ route('admin.users.edit', $thread->user_id) }}" class="text-cinnabar hover:underline">صفحۀ کاربر</a>@endcan
         · کاربر فرستنده را «{{ $thread->staffLabel() }}» می‌بیند.
     </p>
     @include('messages.partials.letters', ['thread' => $thread, 'staffView' => true])

@@ -54,7 +54,7 @@ class SearchFiltersTest extends TestCase
         $logic = $this->work();
         $logic->subjects()->attach($subject);
         $other = $this->work();
-        $qom = Library::create(['name' => 'کتابخانه‌ی فیلتر', 'city' => 'قم', 'slug' => 'f-lib-' . uniqid(), 'manuscripts_count' => 2]);
+        $qom = Library::create(['name' => 'کتابخانۀ فیلتر', 'city' => 'قم', 'slug' => 'f-lib-' . uniqid(), 'manuscripts_count' => 2]);
         $this->manuscript($logic, 'F-1', ['library_id' => $qom->id, 'city' => 'قم', 'copy_date_raw' => '820ق', 'folios' => 250]);
         $this->manuscript($logic, 'F-2', ['city' => 'تهران', 'copy_date_raw' => '1100ق', 'is_facsimile' => true, 'folios' => 40]);
         $this->manuscript($other, 'F-3', ['city' => 'قم', 'is_collated' => true]);
@@ -140,10 +140,10 @@ class SearchFiltersTest extends TestCase
         // Whoever is not only a scribe is among the authors, a person with no work yet too
         $see(['type' => 'authors'], ['مؤلف تنها', 'مؤلف کاتب', 'شخص بی‌نقش'], ['کاتب تنها', 'کاتب متأخر']);
         $see(['type' => 'scribes'], ['مؤلف کاتب', 'کاتب تنها', 'کاتب متأخر'], ['مؤلف تنها', 'شخص بی‌نقش']);
-        $see(['type' => 'authors', 'century' => 11, 'role' => 'scribe'], ['مؤلف کاتب', 'سده‌ی ۱۱ (وفات)', 'همچنین کاتب'], ['مؤلف تنها']);
+        $see(['type' => 'authors', 'century' => 11, 'role' => 'scribe'], ['مؤلف کاتب', 'سدۀ ۱۱ (وفات)', 'همچنین کاتب'], ['مؤلف تنها']);
 
         // A scribe by the copies: their century, their place, their number and their years
-        $see(['type' => 'scribes', 'century' => 11], ['مؤلف کاتب', 'کاتب تنها', 'سده‌ی ۱۱ (کتابت)'], ['کاتب متأخر']);
+        $see(['type' => 'scribes', 'century' => 11], ['مؤلف کاتب', 'کاتب تنها', 'سدۀ ۱۱ (کتابت)'], ['کاتب متأخر']);
         $see(['type' => 'scribes', 'century' => 12], ['کاتب تنها'], ['مؤلف کاتب', 'کاتب متأخر']);
         $see(['type' => 'scribes', 'copy_city' => 'اصفهان'], ['مؤلف کاتب', 'محل کتابت: اصفهان'], ['کاتب تنها']);
         $see(['type' => 'scribes', 'role' => 'author'], ['مؤلف کاتب', 'همچنین پدیدآور'], ['کاتب تنها']);
@@ -179,7 +179,7 @@ class SearchFiltersTest extends TestCase
         $copied = $this->manuscript($other, 'S-1');
         $copied->scribes()->attach($first->id, ['position' => 1]);
         $this->manuscript($other, 'S-2');
-        $library = Library::create(['name' => 'کتابخانه‌ی ترتیب عددی', 'city' => 'قم', 'slug' => 'f-order-' . uniqid(), 'manuscripts_count' => 3]);
+        $library = Library::create(['name' => 'کتابخانۀ ترتیب عددی', 'city' => 'قم', 'slug' => 'f-order-' . uniqid(), 'manuscripts_count' => 3]);
         foreach (['10', '2', 'بی‌شماره'] as $shelfmark) {
             $this->manuscript($own, $shelfmark, ['library_id' => $library->id]);
         }
@@ -203,7 +203,7 @@ class SearchFiltersTest extends TestCase
     public function test_several_libraries_can_be_chosen_and_removed_one_by_one(): void
     {
         $work = $this->work();
-        $libs = collect(['الف', 'ب', 'ج'])->map(fn ($n) => Library::create(['name' => "کتابخانه‌ی {$n}", 'city' => 'قم', 'slug' => 'f-multi-' . uniqid(), 'manuscripts_count' => 1]));
+        $libs = collect(['الف', 'ب', 'ج'])->map(fn ($n) => Library::create(['name' => "کتابخانۀ {$n}", 'city' => 'قم', 'slug' => 'f-multi-' . uniqid(), 'manuscripts_count' => 1]));
         foreach ($libs as $i => $lib) {
             $this->manuscript($work, "M-{$i}", ['library_id' => $lib->id]);
         }
@@ -213,7 +213,7 @@ class SearchFiltersTest extends TestCase
         $this->assertSame("(library_id IN [{$chosen[0]}, {$chosen[1]}])", $filters->engine());
 
         $page = $this->get(route('search', ['type' => 'manuscripts', 'library_id' => $chosen]))->assertOk()
-            ->assertSee('M-0')->assertSee('M-1')->assertDontSee('M-2')->assertSee('کتابخانه: کتابخانه‌ی الف، قم');
+            ->assertSee('M-0')->assertSee('M-1')->assertDontSee('M-2')->assertSee('کتابخانه: کتابخانۀ الف، قم');
         // Removing one keeps the other
         $page->assertSee(e(route('search', ['type' => 'manuscripts', 'library_id' => [$chosen[1]]])), false);
         // One library, as the record pages and older links send it

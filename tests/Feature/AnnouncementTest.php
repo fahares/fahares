@@ -39,14 +39,14 @@ class AnnouncementTest extends TestCase
         $this->actingAs($this->admin)->get(route('admin.announcements.create'))->assertOk();
 
         $this->post(route('admin.announcements.store'), [
-            'title' => 'فهرست کتابخانه‌ی آزمایشی افزوده شد', 'body' => 'هزار نسخه‌ی تازه.',
+            'title' => 'فهرست کتابخانۀ آزمایشی افزوده شد', 'body' => 'هزار نسخۀ تازه.',
             'link_url' => '/libraries', 'style' => 'card', 'audience' => 'all', 'days' => 10,
             'image' => UploadedFile::fake()->createWithContent('a.jpg', base64_decode(
                 '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA='
             )),
         ])->assertRedirect();
 
-        $notice = Announcement::where('title', 'فهرست کتابخانه‌ی آزمایشی افزوده شد')->firstOrFail();
+        $notice = Announcement::where('title', 'فهرست کتابخانۀ آزمایشی افزوده شد')->firstOrFail();
         $this->assertSame('off', $notice->status());
         $this->assertNull($notice->starts_at);
         Storage::disk('public')->assertExists($notice->image_path);

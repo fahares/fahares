@@ -67,7 +67,7 @@ class MixedRecordQueue extends PersonQueue
                 'kind' => 'relation',
                 'field_name' => 'one_person',
                 'current_value' => null,
-                'suggested_value' => 'همه‌ی نسخه‌های این رکورد را یک نفر نوشته است.',
+                'suggested_value' => 'همۀ نسخه‌های این رکورد را یک نفر نوشته است.',
                 'payload' => null,
                 'review_answer' => 'one',
             ];

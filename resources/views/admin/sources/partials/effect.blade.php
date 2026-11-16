@@ -9,11 +9,11 @@
     ]);
     $after = array_filter([
         $effect['outside'] || ($effect['outside_before'] ?? 0)
-            ? $fa($effect['outside']) . ' نسخه بیرون از بازه‌ی صفحه‌های بخش کتابخانه‌شان'
+            ? $fa($effect['outside']) . ' نسخه بیرون از بازۀ صفحه‌های بخش کتابخانه‌شان'
                 . (isset($effect['outside_before']) && $effect['outside_before'] !== $effect['outside'] ? ' (پیش از این ' . $fa($effect['outside_before']) . ')' : '')
             : null,
-        $effect['by_page'] ? $fa($effect['by_page']) . ' نسخه‌ی بی‌بخش که صفحه‌شان در بازه‌ی تنها یک بخش است (کتابخانه‌شان در بخش‌ها نیست)' : null,
-        $effect['none'] ? $fa($effect['none']) . ' نسخه‌ی بی‌بخش در جلد' : null,
+        $effect['by_page'] ? $fa($effect['by_page']) . ' نسخۀ بی‌بخش که صفحه‌شان در بازۀ تنها یک بخش است (کتابخانه‌شان در بخش‌ها نیست)' : null,
+        $effect['none'] ? $fa($effect['none']) . ' نسخۀ بی‌بخش در جلد' : null,
     ]);
 @endphp
 <x-admin.notice :tone="$done ? 'good' : 'warn'" class="text-xs">

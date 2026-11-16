@@ -9,7 +9,7 @@
 @endsection
 @section('page_actions')
     @can('structure.direct')
-        <x-ui.btn :href="route('admin.structure.show', ['library', $library->id])" size="sm" title="ادغام کتابخانه‌ی تکراری یا تغییر نام، با پیش‌نمایش">ادغام و تغییر نام</x-ui.btn>
+        <x-ui.btn :href="route('admin.structure.show', ['library', $library->id])" size="sm" title="ادغام کتابخانۀ تکراری یا تغییر نام، با پیش‌نمایش">ادغام و تغییر نام</x-ui.btn>
     @endcan
     <x-ui.btn :href="route('libraries.show', $library)" target="_blank" size="sm">صفحه در سایت ↗</x-ui.btn>
 @endsection
@@ -31,7 +31,7 @@
                    placeholder="مثال: کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی" class="admin-field w-full">
         </x-admin.field>
 
-        <x-admin.field label="نام‌های دیگر" for="aliases" hint="نام پیشین یا نامی که در فهرست‌های قدیم آمده است؛ هر نام در یک سطر. تغییر نام یا شهر، نام کتابخانه را در همه‌ی نسخه‌هایش هم به‌روز می‌کند.">
+        <x-admin.field label="نام‌های دیگر" for="aliases" hint="نام پیشین یا نامی که در فهرست‌های قدیم آمده است؛ هر نام در یک سطر. تغییر نام یا شهر، نام کتابخانه را در همۀ نسخه‌هایش هم به‌روز می‌کند.">
             <textarea name="aliases" id="aliases" rows="2" class="admin-field w-full">{{ old('aliases', implode("\n", (array) ($library->aliases ?? []))) }}</textarea>
         </x-admin.field>
 
@@ -48,7 +48,7 @@
             <textarea name="description" id="description" rows="4" class="admin-field w-full leading-7">{{ old('description', $library->description) }}</textarea>
         </x-admin.field>
 
-        <x-admin.field label="نشان (لوگو)" for="logo" error="logo" hint="PNG با زمینه‌ی شفاف بهتر است؛ JPG، WebP و GIF هم پذیرفته می‌شود (حداکثر ۲ مگابایت). نشان روی پلاکی با رنگ ثابت نمایش داده می‌شود.">
+        <x-admin.field label="نشان (لوگو)" for="logo" error="logo" hint="PNG با زمینۀ شفاف بهتر است؛ JPG، WebP و GIF هم پذیرفته می‌شود (حداکثر ۲ مگابایت). نشان روی پلاکی با رنگ ثابت نمایش داده می‌شود.">
             @if($library->logo_url)
                 <div class="flex items-center gap-4 pb-1">
                     <x-library-logo :library="$library" />

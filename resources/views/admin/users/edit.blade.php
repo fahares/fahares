@@ -17,7 +17,7 @@
             <p class="text-xs text-muted">عضو از @jdate($user->created_at)</p>
             {{-- Given by the user for scholarly cooperation; never public (backlog item 74) --}}
             @can('users.contact')
-                <p class="text-xs text-muted">شماره‌ی تماس:
+                <p class="text-xs text-muted">شمارۀ تماس:
                     @if($user->phone)<a href="tel:{{ $user->phone }}" class="text-ink hover:text-cinnabar" dir="ltr">{{ $user->phone }}</a>@else نداده است@endif
                 </p>
             @endcan
@@ -67,7 +67,7 @@
     <x-ui.card class="max-w-2xl mt-5 space-y-3 text-[13px]">
         <h2 class="rubric text-base">جست‌وجوهای اخیر</h2>
         @if(! $user->search_history)
-            <p class="text-xs text-muted">این کاربر نگه‌داری سابقه‌ی جست‌وجو را خاموش کرده است.</p>
+            <p class="text-xs text-muted">این کاربر نگه‌داری سابقۀ جست‌وجو را خاموش کرده است.</p>
         @elseif($searches->isEmpty())
             <p class="text-xs text-muted">جست‌وجویی ثبت نشده است.</p>
         @else
@@ -75,7 +75,7 @@
                 @foreach($searches as $s)
                     <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-1.5">
                         <a href="{{ route('search', ['q' => $s->query, 'type' => $s->type]) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $s->query !== '' ? $s->query : 'فقط فیلتر' }}</a>
-                        <span class="text-xs text-muted">{{ ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان', 'sources' => 'منابع', 'people' => 'اشخاص (زبانه‌ی پیشین)'][$s->type] ?? $s->type }} · {{ $s->kind === \App\Models\SearchLog::KIND_EXPORT ? 'خروجی ' . strtoupper((string) $s->format) . ' · ' : '' }}{{ \App\Support\Fa::num($s->results_count) }} نتیجه{{ $s->clicked_position ? ' · رتبه‌ی ' . \App\Support\Fa::digits($s->clicked_position) . ' باز شد' : '' }}</span>
+                        <span class="text-xs text-muted">{{ ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان', 'sources' => 'منابع', 'people' => 'اشخاص (زبانۀ پیشین)'][$s->type] ?? $s->type }} · {{ $s->kind === \App\Models\SearchLog::KIND_EXPORT ? 'خروجی ' . strtoupper((string) $s->format) . ' · ' : '' }}{{ \App\Support\Fa::num($s->results_count) }} نتیجه{{ $s->clicked_position ? ' · رتبۀ ' . \App\Support\Fa::digits($s->clicked_position) . ' باز شد' : '' }}</span>
                         <span class="ms-auto text-xs text-muted whitespace-nowrap">@jdate($s->created_at, 'datetime')</span>
                     </li>
                 @endforeach

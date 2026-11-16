@@ -71,7 +71,7 @@
             @endforeach
 
             <div x-data="{ from: @js((string) $c0), to: @js((string) $c1), get span() { const a = this.from || this.to, b = this.to || this.from; return a ? (a === b ? a : `${Math.min(a, b)}-${Math.max(a, b)}`) : '' } }">
-                <span class="block text-xs text-muted mb-1">سده‌ی کتابت</span>
+                <span class="block text-xs text-muted mb-1">سدۀ کتابت</span>
                 <input type="hidden" name="century" :value="span" :disabled="! span" value="{{ $scope->query()['century'] ?? '' }}" @disabled(! $scope->get('century'))>
                 <div class="flex items-center gap-2">
                     @foreach(['from' => 'از سده', 'to' => 'تا سده'] as $end => $endName)
@@ -89,7 +89,7 @@
                 <label for="insights-facsimile" class="block text-xs text-muted mb-1">اصل یا عکسی</label>
                 <input type="hidden" name="facsimile" :value="v" :disabled="v === ''" value="{{ $scope->get('facsimile') }}" @disabled($scope->get('facsimile') === null)>
                 <select id="insights-facsimile" x-model="v" class="w-full bg-paper border border-line-strong px-2 py-1.5 text-sm text-ink focus:outline-none focus:border-cinnabar">
-                    <option value="" @selected($scope->get('facsimile') === null)>همه‌ی نسخه‌ها</option>
+                    <option value="" @selected($scope->get('facsimile') === null)>همۀ نسخه‌ها</option>
                     <option value="0" @selected($scope->get('facsimile') === '0')>تنها نسخه‌های اصل</option>
                     <option value="1" @selected($scope->get('facsimile') === '1')>تنها نسخه‌های عکسی</option>
                 </select>

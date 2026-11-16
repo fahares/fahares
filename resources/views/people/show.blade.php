@@ -45,7 +45,7 @@
 
     <!-- PERSON HEADER -->
     <header class="text-center grid justify-items-center gap-2 pb-6">
-        <p class="text-xs font-bold text-cinnabar">شناسنامه‌ی شخص</p>
+        <p class="text-xs font-bold text-cinnabar">شناسنامۀ شخص</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
             {{ $person->name }}
             <x-suggest.field name="name" class="ms-1 align-middle" />
@@ -80,7 +80,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-3">
         <x-suggest.toggle type="person" />
-        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $person->id }}</span></span>
+        <span class="text-xs text-muted">شناسۀ فهارس: <span class="font-mono text-ink font-bold">#{{ $person->id }}</span></span>
     </div>
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
@@ -89,7 +89,7 @@
         <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
             <x-ui.card :framed="true">
                 <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
-                    <x-ui.meta label="سده" field="century_hijri">{{ $person->century_hijri ? 'سده‌ی ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
+                    <x-ui.meta label="سده" field="century_hijri">{{ $person->century_hijri ? 'سدۀ ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
                     <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق</x-ui.meta>
                     <x-date-conflict-note type="person" :id="$person->id" field="birth" />
                     {{-- With no death date, the latest year a dated work or copy shows the person alive (step 14.172) --}}
@@ -109,7 +109,7 @@
                         </div>
                         <div>
                             <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($scribedTotal) }}</div>
-                            <div class="text-xs text-muted">نسخه‌ی کتابت‌شده</div>
+                            <div class="text-xs text-muted">نسخۀ کتابت‌شده</div>
                         </div>
                     </div>
                 @endif
@@ -118,7 +118,7 @@
 
         <div class="min-w-0 space-y-10">
             <div @unless($person->bio_notes) x-show="$store.suggest.on" x-cloak @endunless>
-            <x-ui.section title="زندگی‌نامه‌ی کوتاه" field="bio_notes">
+            <x-ui.section title="زندگی‌نامۀ کوتاه" field="bio_notes">
                 @if($person->bio_notes)
                     <p class="text-sm sm:text-[15px] text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ $person->bio_notes }}</p>
                 @else
@@ -208,7 +208,7 @@
             @php $places = \App\Support\PersonPlaces::for($person); @endphp
             @if($places)
                 <x-ui.section title="حضور در شهرها" :count="count($places)">
-                    <p class="text-xs text-muted mb-3">از محل و سالِ کتابت نسخه‌ها و تألیف آثار این شخص. نوشته‌ی خود فهرست، اگر با نام شهر فرق دارد، کنار هر شاهد آمده است.</p>
+                    <p class="text-xs text-muted mb-3">از محل و سالِ کتابت نسخه‌ها و تألیف آثار این شخص. نوشتۀ خود فهرست، اگر با نام شهر فرق دارد، کنار هر شاهد آمده است.</p>
                     <ul class="divide-y divide-line border-y border-line text-sm">
                         @foreach($places as $place)
                             <li>
@@ -234,7 +234,7 @@
             @endif
 
             @if(! $tabs)
-                <p class="text-sm text-muted">اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.</p>
+                <p class="text-sm text-muted">اثر یا نسخۀ کتابت‌شده‌ای برای این شخص ثبت نشده است.</p>
             @endif
 
             @if(count($tabs) > 1)
@@ -287,13 +287,13 @@
                         @foreach($scribedManuscripts as $ms)
                             <li class="py-3">
                                 <a href="{{ route('manuscripts.show', $ms) }}" class="flex flex-wrap items-baseline gap-x-2 group">
-                                    <span class="font-naskh text-base font-bold text-ink group-hover:text-cinnabar transition">{{ $ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان' }}</span>
+                                    <span class="font-naskh text-base font-bold text-ink group-hover:text-cinnabar transition">{{ $ms->work?->primary_title ?? 'نسخۀ بی‌عنوان' }}</span>
                                     @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px]">دستخط مؤلف</x-ui.chip>@endif
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
                                     @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_name)<span>از {{ $ms->work->author_name }} <x-ui.life :person="$ms->work->author" /></span>@endif
                                     <span class="text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library }}@if($ms->city)، {{ $ms->city }}@endif</span>
-                                    <span>شماره‌ی @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else — @endif</span>
+                                    <span>شمارۀ @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else — @endif</span>
                                     @if($ms->copy_date_raw)<span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>@endif
                                 </div>
                             </li>

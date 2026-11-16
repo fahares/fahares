@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'قالب‌های پیام')
-@section('page_title', 'قالب‌های آماده‌ی پیام')
+@section('page_title', 'قالب‌های آمادۀ پیام')
 @section('breadcrumb')
     <a href="{{ route('admin.messages.index') }}" class="hover:text-cinnabar">پیام به کاربران</a>
     <span>/</span>
@@ -31,7 +31,7 @@
                 <x-admin.field label="متن" for="body-{{ $t->id }}">
                     <textarea name="body" id="body-{{ $t->id }}" rows="7" required maxlength="{{ \App\Models\Message::MAX_LENGTH }}" class="admin-field w-full leading-7">{{ $t->body }}</textarea>
                 </x-admin.field>
-                <x-ui.btn type="submit" variant="primary">ذخیره‌ی قالب</x-ui.btn>
+                <x-ui.btn type="submit" variant="primary">ذخیرۀ قالب</x-ui.btn>
             </form>
         </x-ui.card>
     @endforeach

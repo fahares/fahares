@@ -10,7 +10,7 @@
         <p class="font-naskh text-lg font-bold text-ink m-0">{{ $filters ? 'در این حوزه موردی برای شما نمانده است.' : 'در این صف موردی برای شما نمانده است.' }}</p>
         <p class="text-sm text-muted m-0 leading-7">سپاس از همراهی‌تان. پاسخ‌ها اکنون نزد داوران است.</p>
         <div class="flex flex-wrap justify-center gap-2">
-            @if($filters)<x-ui.btn :href="route('contribute.next', $queue->key())" variant="primary">همه‌ی حوزه‌ها</x-ui.btn>@endif
+            @if($filters)<x-ui.btn :href="route('contribute.next', $queue->key())" variant="primary">همۀ حوزه‌ها</x-ui.btn>@endif
             <x-ui.btn :href="route('contribute.index')">صف‌های دیگر</x-ui.btn>
         </div>
     </x-ui.card>

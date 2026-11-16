@@ -117,7 +117,7 @@ class VolumeCatalogers
         $volumes = (array) ($log->old_values['volumes'] ?? []);
         foreach ($volumes as $id => $_) {
             if (self::people((int) $id) != array_values((array) ($log->new_values['volumes'][$id] ?? []))) {
-                throw new InvalidArgumentException('فهرست‌نگاران جلد #' . $id . ' پس از این تأیید دوباره تغییر کرده‌اند؛ آن را در صفحه‌ی جلد دستی بازگردانید.');
+                throw new InvalidArgumentException('فهرست‌نگاران جلد #' . $id . ' پس از این تأیید دوباره تغییر کرده‌اند؛ آن را در صفحۀ جلد دستی بازگردانید.');
             }
         }
         $this->write(array_map(fn ($people) => array_values((array) $people), $volumes));

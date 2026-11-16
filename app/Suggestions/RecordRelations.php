@@ -34,11 +34,11 @@ class RecordRelations
         'copied_from' => ['استنساخ‌شده از', 'نسخه‌هایی که از روی این نسخه استنساخ شده‌اند'],
         'collated_with' => ['مقابله‌شده با', 'نسخه‌هایی که با این نسخه مقابله شده‌اند'],
         'same_set' => ['مجلدهای دیگر از همان دوره', 'مجلدهای دیگر از همان دوره'],
-        'facsimile_of' => ['نسخه‌ی عکسی یا میکروفیلمِ', 'نسخه‌های عکسی و میکروفیلم‌های این نسخه'],
+        'facsimile_of' => ['نسخۀ عکسی یا میکروفیلمِ', 'نسخه‌های عکسی و میکروفیلم‌های این نسخه'],
         // Two descriptions that may be of one copy, kept apart until that is shown (step 14.16)
-        'possibly_same' => ['احتمالاً همان نسخه‌ی', 'معرفی‌های دیگری که احتمالاً همین نسخه‌اند'],
+        'possibly_same' => ['احتمالاً همان نسخۀ', 'معرفی‌های دیگری که احتمالاً همین نسخه‌اند'],
         // A reader's answer to «possibly the same»: two copies, not one; it takes the possibly_same link away
-        'distinct_from' => ['نسخه‌ی جدایی است، نه همانِ', 'نسخه‌های جدایی که با این نسخه یکی نیستند'],
+        'distinct_from' => ['نسخۀ جدایی است، نه همانِ', 'نسخه‌های جدایی که با این نسخه یکی نیستند'],
     ];
 
     /** Types with no direction: one option, and a pair is the same either way round */
@@ -60,13 +60,13 @@ class RecordRelations
     {
         $types = SuggestionRegistry::typeKey($recordType) === 'manuscript' ? self::MANUSCRIPT_TYPES : self::WORK_TYPES;
         // Manuscript labels are participles and need «است» to read as a sentence
-        [$noun, $chosen, $verb] = SuggestionRegistry::typeKey($recordType) === 'manuscript' ? ['نسخه', 'نسخه‌ی انتخاب‌شده', ' است'] : ['اثر', 'اثر انتخاب‌شده', ''];
+        [$noun, $chosen, $verb] = SuggestionRegistry::typeKey($recordType) === 'manuscript' ? ['نسخه', 'نسخۀ انتخاب‌شده', ' است'] : ['اثر', 'اثر انتخاب‌شده', ''];
         $options = [];
         foreach ($types as $type => [$forward]) {
             $options[$type] = match ($type) {
                 'same_set' => "این {$noun} و {$chosen} مجلدهای یک دوره‌اند",
                 'possibly_same' => "این {$noun} و {$chosen} احتمالاً یک نسخه‌اند",
-                'distinct_from' => "این {$noun} و {$chosen} دو نسخه‌ی جدایند، نه یک نسخه",
+                'distinct_from' => "این {$noun} و {$chosen} دو نسخۀ جدایند، نه یک نسخه",
                 default => "این {$noun} {$forward} {$chosen}{$verb}",
             };
         }

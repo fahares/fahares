@@ -463,7 +463,7 @@ class BibliographyLinks
             && ! in_array($page, $viewer['missing'][$volume] ?? [], true)) {
             $link = [
                 'url' => $link['url'] ?? '#',
-                'title' => "دیدن برگه‌ی {$src['label']}، ج {$volume}، {$unit} {$page}",
+                'title' => "دیدن برگۀ {$src['label']}، ج {$volume}، {$unit} {$page}",
                 'viewer' => ['catalog' => $viewer['catalog'], 'catalogName' => $viewer['name'], 'volume' => $volume, 'page' => $page],
             ];
         }

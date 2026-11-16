@@ -25,7 +25,7 @@ class SearchEstimatesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $library = Library::create(['name' => 'کتابخانه‌ی جستجوی تخمین', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ جستجوی تخمین', 'city' => 'قم', 'slug' => 'lib-' . uniqid()]);
         $author = Person::create(['name' => 'مؤلف آزمایشی جستجوی تخمین', 'normalized_name' => 'مؤلف آزمایشی جستجوی تخمین', 'slug' => 'se-' . uniqid(), 'birth_year_hijri' => 1010]);
         $work = function (string $title, ?int $year, ?int $copy, bool $byAuthor) use ($library, $author) {
             $w = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'se-' . uniqid(), 'volume_number' => 1, 'page_start' => 1,
@@ -46,7 +46,7 @@ class SearchEstimatesTest extends TestCase
         // by an author born in 1010, with a copy of 1060: composed between 1025 and 1060
         $this->estimated = $work('اثر تخمینی جستجوی تخمین', null, 1060, true);
         // only a copy: «before 1080», which names no century
-        $this->loose = $work('اثر یک‌طرفه‌ی جستجوی تخمین', null, 1080, false);
+        $this->loose = $work('اثر یک‌طرفۀ جستجوی تخمین', null, 1080, false);
 
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
     }
@@ -103,14 +103,14 @@ class SearchEstimatesTest extends TestCase
 
     public function test_the_people_with_a_death_year_or_a_year_alive_are_reindexed()
     {
-        $dead = Person::create(['name' => 'درگذشته‌ی نمایه‌ی آزمایشی', 'normalized_name' => 'درگذشته‌ی نمایه‌ی آزمایشی', 'slug' => 'se-' . uniqid(), 'death_year_hijri' => 1200]);
-        $unknown = Person::create(['name' => 'بی‌قرینه‌ی نمایه‌ی آزمایشی', 'normalized_name' => 'بی‌قرینه‌ی نمایه‌ی آزمایشی', 'slug' => 'se-' . uniqid()]);
+        $dead = Person::create(['name' => 'درگذشتۀ نمایۀ آزمایشی', 'normalized_name' => 'درگذشتۀ نمایۀ آزمایشی', 'slug' => 'se-' . uniqid(), 'death_year_hijri' => 1200]);
+        $unknown = Person::create(['name' => 'بی‌قرینۀ نمایۀ آزمایشی', 'normalized_name' => 'بی‌قرینۀ نمایۀ آزمایشی', 'slug' => 'se-' . uniqid()]);
 
         $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--from' => $dead->id, '--sleep' => 0])
             ->expectsOutputToContain("Reindexed 1 of 1 people (up to #{$dead->id})")->assertSuccessful();
         $this->assertGreaterThan($dead->id, $unknown->id);
         // a person known by the century alone has a year to order by (step 14.213); --all takes the others too
-        $century = Person::create(['name' => 'سده‌ی نمایه‌ی آزمایشی', 'normalized_name' => 'سده‌ی نمایه‌ی آزمایشی', 'slug' => 'se-' . uniqid(), 'life_dates_raw' => 'ق 13 قمری']);
+        $century = Person::create(['name' => 'سدۀ نمایۀ آزمایشی', 'normalized_name' => 'سدۀ نمایۀ آزمایشی', 'slug' => 'se-' . uniqid(), 'life_dates_raw' => 'ق 13 قمری']);
         $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--from' => $dead->id, '--sleep' => 0])
             ->expectsOutputToContain("Reindexed 2 of 2 people (up to #{$century->id})")->assertSuccessful();
         $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--all' => true, '--from' => $dead->id, '--sleep' => 0])
@@ -126,7 +126,7 @@ class SearchEstimatesTest extends TestCase
         // 1042, the middle of 1025–1060, comes before 1090
         $this->get(route('search', $base + ['estimates' => '1']))->assertOk()
             ->assertSeeInOrder(['اثر تخمینی جستجوی تخمین', 'تألیف میان ۱۰۲۵ و ۱۰۶۰ ق (تخمینی)', 'اثر تاریخ‌دار جستجوی تخمین'])
-            ->assertDontSee('اثر یک‌طرفه‌ی جستجوی تخمین');
+            ->assertDontSee('اثر یک‌طرفۀ جستجوی تخمین');
         $this->get(route('search', ['sort' => 'newest'] + $base + ['estimates' => '1']))->assertOk()
             ->assertSeeInOrder(['اثر تاریخ‌دار جستجوی تخمین', 'اثر تخمینی جستجوی تخمین']);
     }

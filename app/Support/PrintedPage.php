@@ -130,8 +130,8 @@ class PrintedPage
             return match (true) {
                 $record instanceof SourceItem => [$record->url(), ($record->source?->short_name ?: $record->source?->title) . "، {$record->placeLabel()}: {$record->title}", 'entry'],
                 $record instanceof \App\Models\Subject => [route('subjects.show', $record), "موضوع: {$record->name}", 'subject'],
-                $record instanceof \App\Models\Library => [route('libraries.show', $record), "کتابخانه‌ی {$record->name}، {$record->city}", 'library'],
-                $record instanceof Manuscript => [route('manuscripts.show', $record->id), 'نسخه‌ی ' . Fa::digits($record->shelfmark) . ' ' . ($record->libraryRecord?->name ?? '') . ($record->work ? '، ' . $record->work->title : ''), 'copy'],
+                $record instanceof \App\Models\Library => [route('libraries.show', $record), "کتابخانۀ {$record->name}، {$record->city}", 'library'],
+                $record instanceof Manuscript => [route('manuscripts.show', $record->id), 'نسخۀ ' . Fa::digits($record->shelfmark) . ' ' . ($record->libraryRecord?->name ?? '') . ($record->work ? '، ' . $record->work->title : ''), 'copy'],
                 $record instanceof \App\Models\SourcePage => [$record->url(), Fa::digits(($record->volume->source->short_name ?: $record->volume->source->title) . '، ج ' . $record->volume->volume_number . '، ص ' . $record->page), 'page'],
                 $record !== null => [route('people.show', $record), $record->name, 'person-guess'],
                 default => null,

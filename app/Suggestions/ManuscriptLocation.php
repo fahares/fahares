@@ -26,7 +26,7 @@ class ManuscriptLocation
         $libraryChanged = $library && (int) $manuscript->library_id !== $library->id;
         $shelfmarkChanged = $shelfmark !== null && $shelfmark !== $manuscript->shelfmark;
         if (! $libraryChanged && ! $shelfmarkChanged) {
-            throw new InvalidArgumentException('کتابخانه و شماره‌ی تازه همان نشانی کنونی نسخه است.');
+            throw new InvalidArgumentException('کتابخانه و شمارۀ تازه همان نشانی کنونی نسخه است.');
         }
 
         $meta = $manuscript->metadata ?? [];
@@ -75,7 +75,7 @@ class ManuscriptLocation
         $name = trim($name);
         $city = trim($city);
         if ($name === '' || $city === '') {
-            throw new InvalidArgumentException('برای ساخت کتابخانه‌ی تازه، نام و شهر لازم است.');
+            throw new InvalidArgumentException('برای ساخت کتابخانۀ تازه، نام و شهر لازم است.');
         }
         if ($existing = Library::where('city', $city)->where('name', $name)->first()) {
             throw new InvalidArgumentException("این کتابخانه پیش‌تر ثبت شده است (#{$existing->id}). آن را با شناسه انتخاب کنید.");

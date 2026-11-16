@@ -6,6 +6,15 @@ numbers and deploys from colliding.
 The step registry, the release queue and the locks live in `~/.fahares` on the owner's machine. If you work on another
 machine, the last section, "Collaborators on another machine", replaces the rules that depend on them.
 
+## Persian spelling
+
+- After a word ending in a silent heh, write the ezafe as «ۀ» (U+06C0): «صفحۀ»، «نسخۀ»، «همۀ»، «کتابخانۀ». Never «ه‌ی»
+  (heh, ZWNJ, yeh). This holds for the site's templates, interface strings, PHP strings, config and editorial content,
+  for the docs you write, for your replies to the user, and for any text you suggest to the user.
+- The texts of sources (Fankha's `raw_text`, `source_pages`, page images' text) keep the spelling of the print.
+- Code that reads source text or users' queries may still need to match «ه‌ی» as an input form: keep such patterns and
+  lists, and add «ۀ» beside them.
+
 ## Step numbers («گام»)
 
 - Take a step number only from `scripts/dev/reserve-step "short title" <session-name>`. It prints the next free number

@@ -102,13 +102,13 @@
 
     <section class="rounded-sm border border-line bg-surface p-4 min-w-0">
         <h2 class="text-sm font-bold text-ink mb-1">متن صفحه‌ها</h2>
-        <p class="text-xs text-muted mb-3">این مأخذ تصویر صفحه ندارد؛ متن خوانده‌شده‌ی صفحه‌ها به جای برگه.</p>
+        <p class="text-xs text-muted mb-3">این مأخذ تصویر صفحه ندارد؛ متن خوانده‌شدۀ صفحه‌ها به جای برگه.</p>
         @forelse($pageTexts as $page => $text)
             <details class="mb-2 border border-line rounded-sm" @if(in_array($page, [$entry->page_start, $cited], true)) open @endif>
                 <summary class="px-3 py-1.5 cursor-pointer text-[13px] font-bold text-ink">
                     {{ $unit }} {{ Fa::digits($page) }}
-                    @if($page === $entry->page_start)<span class="text-xs font-normal text-muted">، صفحه‌ی پیوند</span>@endif
-                    @if($page === $cited)<span class="text-xs font-normal text-muted">، صفحه‌ی ارجاع فنخا</span>@endif
+                    @if($page === $entry->page_start)<span class="text-xs font-normal text-muted">، صفحۀ پیوند</span>@endif
+                    @if($page === $cited)<span class="text-xs font-normal text-muted">، صفحۀ ارجاع فنخا</span>@endif
                 </summary>
                 <p class="px-3 pb-3 text-ink leading-7 whitespace-pre-line max-h-[36rem] overflow-y-auto">{{ Fa::digits(trim((string) $text)) }}</p>
             </details>

@@ -10,7 +10,7 @@
     <header class="text-center grid justify-items-center gap-2 pb-2">
         <p class="text-xs font-bold text-cinnabar">گنجینه‌ها</p>
         <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">کتابخانه‌ها و مراکز نگهداری</h1>
-        <p class="text-sm text-muted max-w-2xl leading-relaxed">{{ Fa::num(\App\Support\SiteStats::all()['libraries']) }} کتابخانه، موزه و مجموعه‌ی اسناد در ایران و جهان، به ترتیب شمار نسخه‌ها.</p>
+        <p class="text-sm text-muted max-w-2xl leading-relaxed">{{ Fa::num(\App\Support\SiteStats::all()['libraries']) }} کتابخانه، موزه و مجموعۀ اسناد در ایران و جهان، به ترتیب شمار نسخه‌ها.</p>
 
         <form action="{{ route('libraries.index') }}" method="GET" class="w-full max-w-2xl mt-3 flex flex-col sm:flex-row gap-2">
             <div class="relative flex-1">
@@ -21,7 +21,7 @@
             </div>
             <label for="library-city" class="sr-only">شهر</label>
             <select id="library-city" name="city" class="sm:w-44 px-3 py-2.5 bg-surface rounded-sm border border-line-strong text-sm text-ink">
-                <option value="">همه‌ی شهرها</option>
+                <option value="">همۀ شهرها</option>
                 @foreach($cities as $c)
                     <option value="{{ $c }}" {{ $city === $c ? 'selected' : '' }}>{{ $c }}</option>
                 @endforeach

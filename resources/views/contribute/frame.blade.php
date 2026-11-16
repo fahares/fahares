@@ -24,7 +24,7 @@
 @if($filterOptions)
     <details class="group bg-surface border border-line rounded-sm" @if($filters) open @endif>
         <summary class="cursor-pointer list-none px-3 py-2 text-xs sm:text-sm text-ink flex items-center justify-between gap-2">
-            <span>حوزه‌ی خود را برگزینید @if($filters)<span class="text-cinnabar">({{ Fa::num(count($filters)) }} فیلتر)</span>@endif</span>
+            <span>حوزۀ خود را برگزینید @if($filters)<span class="text-cinnabar">({{ Fa::num(count($filters)) }} فیلتر)</span>@endif</span>
             <svg class="w-4 h-4 text-muted group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </summary>
         <form method="GET" action="{{ route('contribute.next', $queue->key()) }}" class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end px-3 pb-3">

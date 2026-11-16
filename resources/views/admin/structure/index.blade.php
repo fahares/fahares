@@ -8,7 +8,7 @@
     <x-admin.notice>
         ادغام، تفکیک، انتقال، حذف رکورد زائد و دیگر اصلاح‌های ساختاری را بی‌آنکه پیشنهادی ثبت و تأیید کنید، مستقیم انجام دهید.
         پیش از اجرا، اثر تغییر را می‌بینید. هر اقدام در لاگ ممیزی ثبت می‌شود و بازگرداندنی است.
-        این ابزارها را در صفحه‌ی هر رکورد هم، در فرم «پیشنهاد کلی»، با دکمه‌ی «اعمال مستقیم» دارید.
+        این ابزارها را در صفحۀ هر رکورد هم، در فرم «پیشنهاد کلی»، با دکمۀ «اعمال مستقیم» دارید.
     </x-admin.notice>
     <form action="{{ route('admin.structure.index') }}" method="GET" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -19,7 +19,7 @@
                     @endforeach
                 </select>
             </x-admin.field>
-            <x-admin.field label="پیوند یا شناسه‌ی فهارس" for="ref" error="ref" class="sm:col-span-2">
+            <x-admin.field label="پیوند یا شناسۀ فهارس" for="ref" error="ref" class="sm:col-span-2">
                 <input type="text" name="ref" id="ref" value="{{ old('ref') }}" required dir="ltr" placeholder="fahares.net/w/123 یا 123" class="admin-field w-full">
             </x-admin.field>
         </div>

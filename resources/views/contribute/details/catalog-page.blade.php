@@ -1,4 +1,4 @@
-{{-- «در صفحه‌ی دیگری است»: the page where the copy is described (CatalogMatchQueue::otherPage reads it) --}}
+{{-- «در صفحۀ دیگری است»: the page where the copy is described (CatalogMatchQueue::otherPage reads it) --}}
 @use('App\Support\Fa')
 <label class="flex-1 min-w-40 space-y-1">
     <span class="block text-[11px] text-muted">نشانی درست در همین فهرست</span>

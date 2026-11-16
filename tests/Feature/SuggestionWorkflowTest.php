@@ -130,7 +130,7 @@ class SuggestionWorkflowTest extends TestCase
             '1095 هـ.ق' => 1095,
             '1034 تا 1052 ق' => 1034,
             'قرن 13' => null,
-            'سده‌ی ۱۳' => null,
+            'سدۀ ۱۳' => null,
             // a solar or Gregorian year gives the first Hijri year it spans (step 14.181)
             '1820م' => 1235,
             '۱۳۵۰ش' => 1391,
@@ -182,17 +182,17 @@ class SuggestionWorkflowTest extends TestCase
         // A page cached before the per-field desk posts the class name and the old "other" field
         $this->suggestPost([
             'suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'field_name' => 'other',
-            'suggested_value' => 'نکته‌ی دیگر', 'rationale_citation' => 'منبع آزمایشی',
+            'suggested_value' => 'نکتۀ دیگر', 'rationale_citation' => 'منبع آزمایشی',
         ])->assertRedirect();
 
         $kinds = FieldSuggestion::where('suggestable_id', $m->id)->where('suggestable_type', Manuscript::class)->pluck('kind', 'suggested_value');
-        $this->assertSame(['این نسخه از اثر دیگری است' => 'general', 'نکته‌ی دیگر' => 'general'], $kinds->all());
+        $this->assertSame(['این نسخه از اثر دیگری است' => 'general', 'نکتۀ دیگر' => 'general'], $kinds->all());
     }
 
     public function test_approving_a_date_writes_the_numeric_year()
     {
         $m = $this->manuscript(['is_bita' => true]);
-        $this->suggest($m, ['field_name' => 'copy_date_raw', 'suggested_value' => '۱۴ رجب ۱۲۳۹ق', 'rationale_citation' => 'ترقیمه‌ی نسخه'])->assertOk();
+        $this->suggest($m, ['field_name' => 'copy_date_raw', 'suggested_value' => '۱۴ رجب ۱۲۳۹ق', 'rationale_citation' => 'ترقیمۀ نسخه'])->assertOk();
         $s = FieldSuggestion::where('suggestable_id', $m->id)->sole();
 
         $this->get("/admin/suggestions/{$s->id}")->assertRedirect('/login');
@@ -305,10 +305,10 @@ class SuggestionWorkflowTest extends TestCase
             'alternative_titles' => [['title' => 'عنوان کهن', 'transliteration' => 'ʿunwān-i kuhan']],
         ]);
 
-        $this->suggest($work, ['field_name' => 'author_name', 'suggested_value' => $author->name, 'rationale_citation' => 'مقدمه‌ی اثر', 'person_id' => $author->id])->assertOk();
+        $this->suggest($work, ['field_name' => 'author_name', 'suggested_value' => $author->name, 'rationale_citation' => 'مقدمۀ اثر', 'person_id' => $author->id])->assertOk();
         $this->approve($this->pendingFor($work), ['person_pick' => 'p:' . $author->id])->assertRedirect('/admin/suggestions');
 
-        $this->suggest($work, ['field_name' => 'composition_date_raw', 'suggested_value' => 'رمضان ۸۹۵ق', 'rationale_citation' => 'انجامه‌ی مؤلف'])->assertOk();
+        $this->suggest($work, ['field_name' => 'composition_date_raw', 'suggested_value' => 'رمضان ۸۹۵ق', 'rationale_citation' => 'انجامۀ مؤلف'])->assertOk();
         $this->approve($this->pendingFor($work), ['hijri_year' => 895]);
 
         $this->suggest($work, ['field_name' => 'alternative_titles', 'suggested_value' => "عنوان کهن\nعنوان تازه", 'rationale_citation' => 'فهرست ملی'])->assertOk();
@@ -384,7 +384,7 @@ class SuggestionWorkflowTest extends TestCase
 
         return $this->suggestJson($extra + [
             'type' => $type, 'id' => $record->id, 'kind' => 'relation', 'field_name' => $key,
-            'target_id' => $other?->id, 'suggested_value' => '', 'rationale_citation' => 'مقایسه‌ی دو فهرست',
+            'target_id' => $other?->id, 'suggested_value' => '', 'rationale_citation' => 'مقایسۀ دو فهرست',
         ]);
     }
 
@@ -439,7 +439,7 @@ class SuggestionWorkflowTest extends TestCase
 
     public function test_merging_a_duplicate_manuscript()
     {
-        $scribe = $this->person('کاتب نسخه‌ی تکراری');
+        $scribe = $this->person('کاتب نسخۀ تکراری');
         $kept = $this->manuscript(['shelfmark' => '۱۲۳']);
         $dup = $this->manuscript(['copy_date_raw' => '۱۰۹۵ق', 'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name]);
         $this->removedManuscripts[] = $dup->id;
@@ -511,7 +511,7 @@ class SuggestionWorkflowTest extends TestCase
     public function test_credit_needs_consent_and_shows_only_once_approved()
     {
         $m = $this->manuscript(['copy_date_raw' => 'احتمالاً ۸۹۷', 'copy_date_hijri_year' => 897]);
-        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه‌ی نسخه', 'guest_name' => 'بی‌نام آزمون'])->assertOk();
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمۀ نسخه', 'guest_name' => 'بی‌نام آزمون'])->assertOk();
         $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '25', 'rationale_citation' => 'شمارش برگ‌ها', 'credit_name' => '  پژوهشگر آزمون  '])->assertOk();
         [$anonymous, $credited] = FieldSuggestion::where('suggestable_id', $m->id)->orderBy('id')->get()->all();
         $this->assertNull($anonymous->credit_name);
@@ -548,7 +548,7 @@ class SuggestionWorkflowTest extends TestCase
         $first = $this->pendingFor($m);
         $this->approve($first, ['applied_value' => 'هرات', 'outcome' => 'adopt']);
 
-        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی رساله‌ی دیگر', 'credit_name' => 'دومین'])->assertOk();
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمۀ رسالۀ دیگر', 'credit_name' => 'دومین'])->assertOk();
         $second = $this->pendingFor($m);
         $this->actingAs($this->admin)->get("/admin/suggestions/{$second->id}")->assertOk()->assertSee('این فیلد مقدار منتخب دارد');
 
@@ -557,15 +557,15 @@ class SuggestionWorkflowTest extends TestCase
         $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded'])->assertSessionHasErrors('public_note');
         $this->assertSame('pending', $second->fresh()->status);
 
-        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded', 'public_note' => 'ترقیمه‌ی رساله‌ی دیگر روشن‌تر است'])->assertRedirect('/admin/suggestions');
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded', 'public_note' => 'ترقیمۀ رسالۀ دیگر روشن‌تر است'])->assertRedirect('/admin/suggestions');
         $this->assertSame('مشهد', $m->fresh()->copy_place);
         $this->assertSame('superseded', $first->fresh()->standing);
         $this->assertSame($second->id, $first->fresh()->superseded_by);
 
         $this->get(route('manuscripts.show', $m))->assertOk()
-            ->assertSee('سابقه‌ی اصلاحات (1)')
+            ->assertSee('سابقۀ اصلاحات (1)')
             ->assertSee('جای خود را به قول «مشهد» داد')
-            ->assertSee('ترقیمه‌ی رساله‌ی دیگر روشن‌تر است')
+            ->assertSee('ترقیمۀ رسالۀ دیگر روشن‌تر است')
             // The catalog's own value is a reading too: «تبریز» beside «مشهد»
             ->assertSee('ضبط فهرست پیش از اصلاح')
             ->assertSee('2 قول');
@@ -660,7 +660,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه'])->assertOk();
         $first = $this->pendingFor($m);
         $this->approve($first, ['applied_value' => 'هرات', 'outcome' => 'adopt']);
-        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی دیگر'])->assertOk();
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمۀ دیگر'])->assertOk();
         $second = $this->pendingFor($m);
         $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded', 'public_note' => 'روشن‌تر است']);
 
@@ -769,7 +769,7 @@ class SuggestionWorkflowTest extends TestCase
     public function test_corpus_syncs_keep_columns_fixed_by_reviewed_corrections()
     {
         $work = $this->work(['print_info' => 'چاپ فهرست']);
-        $this->suggest($work, ['field_name' => 'print_info', 'suggested_value' => 'چاپ تهران ۱۳۲۰', 'rationale_citation' => 'شناسنامه‌ی چاپ'])->assertOk();
+        $this->suggest($work, ['field_name' => 'print_info', 'suggested_value' => 'چاپ تهران ۱۳۲۰', 'rationale_citation' => 'شناسنامۀ چاپ'])->assertOk();
         $this->approve($this->pendingFor($work), ['applied_value' => 'چاپ تهران ۱۳۲۰', 'outcome' => 'adopt']);
         // A reviewer's direct edit is protected too
         $this->actingAs($this->admin)->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => 'dedication', 'suggested_value' => 'به نام شاه'])->assertOk();
@@ -831,10 +831,10 @@ class SuggestionWorkflowTest extends TestCase
         // A guest who opted in, before guests stopped suggesting (backlog item 76), hears by email; one who did not hears nothing
         $this->post('/logout');
         $legacy = ['suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'kind' => 'field', 'status' => 'pending', 'guest_name' => 'پژوهشگر مهمان'];
-        $second = FieldSuggestion::create($legacy + ['field_name' => 'copy_place', 'current_value' => 'هرات', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی دیگر', 'guest_email' => 'guest-yes@example.com', 'notify_submitter' => true]);
+        $second = FieldSuggestion::create($legacy + ['field_name' => 'copy_place', 'current_value' => 'هرات', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمۀ دیگر', 'guest_email' => 'guest-yes@example.com', 'notify_submitter' => true]);
         $silent = FieldSuggestion::create($legacy + ['field_name' => 'folios', 'suggested_value' => '9', 'rationale_citation' => 'شمارش', 'guest_email' => 'guest-no@example.com', 'notify_submitter' => false]);
 
-        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'alternative', 'public_note' => 'ترقیمه‌ی دوم روشن‌تر است']);
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'alternative', 'public_note' => 'ترقیمۀ دوم روشن‌تر است']);
         $this->post("/admin/suggestions/{$silent->id}/reject", ['public_note' => 'نادرست']);
 
         \Illuminate\Support\Facades\Notification::assertSentOnDemand($reviewed, fn ($n, $channels, $notifiable) => ($notifiable->routes['mail'] ?? null) === 'guest-yes@example.com');
@@ -843,7 +843,7 @@ class SuggestionWorkflowTest extends TestCase
         \Illuminate\Support\Facades\Notification::assertSentTo($user, $reviewed, function ($n) use ($user, $first) {
             $lines = $n->toArray($user)['body'];
 
-            return $n->event === 'demoted' && $n->suggestion->is($first) && str_contains($lines, 'ترقیمه‌ی دوم روشن‌تر است');
+            return $n->event === 'demoted' && $n->suggestion->is($first) && str_contains($lines, 'ترقیمۀ دوم روشن‌تر است');
         });
 
         $user->delete();
@@ -865,7 +865,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->actingAs($user)->get('/notifications')->assertOk()->assertSee('پذیرفته نشد')->assertSee('مستند کافی نبود');
         $this->assertSame(0, $user->unreadNotifications()->count());
 
-        $this->get('/settings/notifications')->assertOk()->assertSee('نتیجه‌ی داوری پیشنهادهای من')->assertDontSee('پیشنهاد اصلاحی تازه برای داوری');
+        $this->get('/settings/notifications')->assertOk()->assertSee('نتیجۀ داوری پیشنهادهای من')->assertDontSee('پیشنهاد اصلاحی تازه برای داوری');
         $this->post('/settings/notifications', ['enabled' => ['suggestion.reviewed' => ['database' => 1]]])->assertSessionHas('success');
         $this->assertSame(['database'], \App\Notifications\NotificationPreferences::channelsFor($user, 'suggestion.reviewed'));
 
@@ -970,7 +970,7 @@ class SuggestionWorkflowTest extends TestCase
         });
 
         $this->post('/reset-password', ['token' => 'wrong', 'email' => $user->email, 'password' => 'newpassword9', 'password_confirmation' => 'newpassword9'])->assertSessionHasErrors('email');
-        $this->get("/reset-password/{$token}?email=" . urlencode($user->email))->assertOk()->assertSee('تعیین گذرواژه‌ی تازه');
+        $this->get("/reset-password/{$token}?email=" . urlencode($user->email))->assertOk()->assertSee('تعیین گذرواژۀ تازه');
         $this->post('/reset-password', ['token' => $token, 'email' => $user->email, 'password' => 'newpassword9', 'password_confirmation' => 'newpassword9'])->assertRedirect('/login');
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check('newpassword9', $user->fresh()->password));
 
@@ -995,21 +995,21 @@ class SuggestionWorkflowTest extends TestCase
         $this->addNote($m, 'study', ['author' => 'بی‌عنوان'])->assertStatus(422)->assertJsonValidationErrors('note.title');
         $this->addNote($m, 'study', ['title' => 'مقاله', 'url' => 'javascript:alert(1)'])->assertStatus(422)->assertJsonValidationErrors('note.url');
 
-        $this->addNote($m, 'observation', ['text' => "در برگ ۲۰ یادداشتی به خط علامه‌ی مجلسی است", 'location' => 'برگ ۲۰ پ'], ['credit_name' => 'نسخه‌پژوه آزمون'])->assertOk();
+        $this->addNote($m, 'observation', ['text' => "در برگ ۲۰ یادداشتی به خط علامۀ مجلسی است", 'location' => 'برگ ۲۰ پ'], ['credit_name' => 'نسخه‌پژوه آزمون'])->assertOk();
         $note = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->sole();
         $this->assertSame('pending', $note->status);
-        $this->assertStringContainsString('علامه‌ی مجلسی', $note->suggested_value);
+        $this->assertStringContainsString('علامۀ مجلسی', $note->suggested_value);
         \Illuminate\Support\Facades\Notification::assertSentTo($this->admin, \App\Notifications\SuggestionSubmitted::class);
-        $this->get(route('manuscripts.show', $m))->assertDontSee('علامه‌ی مجلسی');
+        $this->get(route('manuscripts.show', $m))->assertDontSee('علامۀ مجلسی');
 
         // The reviewer corrects the text and publishes; the submitter's version is kept
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تأیید و انتشار در صفحه‌ی رکورد');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تأیید و انتشار در صفحۀ رکورد');
         $this->post("/admin/suggestions/{$note->id}/note", ['note' => ['text' => 'در برگ ۲۰ یادداشتی به خط علامه محمدباقر مجلسی است', 'location' => 'برگ ۲۰ پ'], 'public_note' => 'خط با نمونه‌های دیگر سنجیده شد'])->assertRedirect();
         $note->refresh();
         $this->assertSame('approved', $note->status);
-        $this->assertStringContainsString('علامه‌ی مجلسی', $note->resolution['original_payload']['text']);
+        $this->assertStringContainsString('علامۀ مجلسی', $note->resolution['original_payload']['text']);
         $this->get(route('manuscripts.show', $m))->assertOk()
-            ->assertSee('علامه محمدباقر مجلسی')->assertSee('نسخه‌پژوه آزمون')->assertSee('خط با نمونه‌های دیگر سنجیده شد')->assertSee('مشاهده و نکته‌ی پژوهشی');
+            ->assertSee('علامه محمدباقر مجلسی')->assertSee('نسخه‌پژوه آزمون')->assertSee('خط با نمونه‌های دیگر سنجیده شد')->assertSee('مشاهده و نکتۀ پژوهشی');
 
         // Withdrawn notes leave the page and can be published again
         $this->post("/admin/suggestions/{$note->id}/withdraw")->assertRedirect();
@@ -1022,10 +1022,10 @@ class SuggestionWorkflowTest extends TestCase
     {
         \Illuminate\Support\Facades\Notification::fake();
         $m = $this->manuscript();
-        $this->addNote($m, 'observation', ['text' => 'نسخه به کتابخانه‌ی دیگری منتقل شده است'])->assertOk();
+        $this->addNote($m, 'observation', ['text' => 'نسخه به کتابخانۀ دیگری منتقل شده است'])->assertOk();
         $note = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->sole();
         $this->actingAs($this->admin)->get("/admin/suggestions/{$note->id}")->assertOk()->assertDontSee('لغو تأیید و بازگشت به صف داوری');
-        $this->post("/admin/suggestions/{$note->id}/note", ['note' => ['text' => 'نسخه به کتابخانه‌ی ملی منتقل شده است']])->assertRedirect();
+        $this->post("/admin/suggestions/{$note->id}/note", ['note' => ['text' => 'نسخه به کتابخانۀ ملی منتقل شده است']])->assertRedirect();
 
         // Any reviewer sees the button on a published note and takes the decision back
         $this->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('لغو تأیید و بازگشت به صف داوری');
@@ -1034,8 +1034,8 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame('pending', $note->status);
         $this->assertNull($note->reviewed_by);
         $this->assertArrayHasKey('original_payload', $note->resolution);
-        $this->get(route('manuscripts.show', $m))->assertDontSee('کتابخانه‌ی ملی منتقل');
-        $this->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تأیید و انتشار در صفحه‌ی رکورد');
+        $this->get(route('manuscripts.show', $m))->assertDontSee('کتابخانۀ ملی منتقل');
+        $this->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تأیید و انتشار در صفحۀ رکورد');
 
         // A rejected note can be taken back too
         $this->post("/admin/suggestions/{$note->id}/reject", ['public_note' => 'مستند نیست'])->assertRedirect();
@@ -1085,7 +1085,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->addNote($m, 'image', ['caption' => 'نامربوط'], ['files' => [$file()], 'rights_confirmed' => 1])->assertOk();
         $rejected = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->where('status', 'pending')->sole();
         $path = $rejected->payload['files'][0];
-        $this->actingAs($this->admin)->post("/admin/suggestions/{$rejected->id}/reject", ['public_note' => 'تصویر از نسخه‌ی دیگری است']);
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$rejected->id}/reject", ['public_note' => 'تصویر از نسخۀ دیگری است']);
         \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($path);
 
         $user->delete();
@@ -1299,9 +1299,9 @@ class SuggestionWorkflowTest extends TestCase
         // Reviewers filter and resolve it; the sender gets the answer; screenshots stay private
         $this->actingAs($this->admin)->get('/admin/suggestions?type=feedback')->assertOk()->assertSee('صفحه: موضوعات');
         $this->get("/admin/suggestions/{$mine->id}")->assertOk()->assertSee('ثبت «رسیدگی شد»')->assertSee('/subjects');
-        $this->post("/admin/suggestions/{$mine->id}/resolve", ['public_note' => 'در نسخه‌ی بعد افزوده می‌شود'])->assertRedirect();
+        $this->post("/admin/suggestions/{$mine->id}/resolve", ['public_note' => 'در نسخۀ بعد افزوده می‌شود'])->assertRedirect();
         $this->assertSame('approved', $mine->fresh()->status);
-        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\SuggestionReviewed::class, fn ($n) => str_contains($n->toArray($user)['body'], 'در نسخه‌ی بعد افزوده می‌شود'));
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\SuggestionReviewed::class, fn ($n) => str_contains($n->toArray($user)['body'], 'در نسخۀ بعد افزوده می‌شود'));
         $this->post('/logout');
         $this->get(route('notes.file', [$mine, 0]))->assertNotFound();
 
@@ -1439,7 +1439,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame(['base' => '5722', 'collection' => null, 'part' => '2'], Manuscript::collectionKey('5722/2-29/62'));
         $this->assertNull(Manuscript::collectionKey('5722'));
 
-        $lib = 'کتابخانه‌ی آزمون ' . uniqid();
+        $lib = 'کتابخانۀ آزمون ' . uniqid();
         $make = fn ($shelfmark) => $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark, 'folios' => 3]);
         $one = $make('9001/10');
         $make('9001/2');
@@ -1472,8 +1472,8 @@ class SuggestionWorkflowTest extends TestCase
     public function test_a_manuscript_moved_to_another_library_or_renumbered()
     {
         \Illuminate\Support\Facades\Notification::fake();
-        $from = $this->library('کتابخانه‌ی پیشین');
-        $to = $this->library('کتابخانه‌ی تازه');
+        $from = $this->library('کتابخانۀ پیشین');
+        $to = $this->library('کتابخانۀ تازه');
         $m = $this->manuscript(['library_id' => $from->id, 'library' => $from->name, 'city' => $from->city, 'shelfmark' => '1234', 'shelfmark_key' => '1234']);
         $from->update(['manuscripts_count' => 1]);
 
@@ -1485,7 +1485,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->relate($m, 'relocated', $to, ['shelfmark' => '77/5'])->assertOk();
         $s = $this->pendingFor($m);
         $this->assertSame(['target_id' => $to->id, 'shelfmark' => '77/5'], $s->payload);
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کتابخانه‌ی پیشنهادی')->assertSee('77/5');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کتابخانۀ پیشنهادی')->assertSee('77/5');
         $this->approve($s, ['library_choice' => 'target', 'shelfmark' => '77/5'])->assertRedirect('/admin/suggestions');
 
         $m->refresh();
@@ -1503,8 +1503,8 @@ class SuggestionWorkflowTest extends TestCase
 
         // Only the number changed, or a library fahares does not list yet; the rollback removes that library
         $this->approve($s->fresh(), ['library_choice' => 'keep', 'shelfmark' => '1234'])->assertSessionHasErrors('applied_value');
-        $this->approve($s->fresh(), ['library_choice' => 'new', 'library_name' => "کتابخانه‌ی نوساخته {$this->tag}", 'library_city' => 'شهر آزمون', 'shelfmark' => '9/1']);
-        $created = Library::where('name', "کتابخانه‌ی نوساخته {$this->tag}")->sole();
+        $this->approve($s->fresh(), ['library_choice' => 'new', 'library_name' => "کتابخانۀ نوساخته {$this->tag}", 'library_city' => 'شهر آزمون', 'shelfmark' => '9/1']);
+        $created = Library::where('name', "کتابخانۀ نوساخته {$this->tag}")->sole();
         $this->libraryIds[] = $created->id;
         $this->assertSame([$created->id, 1], [$m->fresh()->library_id, $created->fresh()->manuscripts_count]);
         $this->rollbackLatest($m);
@@ -1515,8 +1515,8 @@ class SuggestionWorkflowTest extends TestCase
     public function test_a_duplicate_library_is_merged_and_the_merge_undone()
     {
         \Illuminate\Support\Facades\Notification::fake();
-        $kept = $this->library('کتابخانه‌ی ماندنی');
-        $dup = $this->library('کتابخانه‌ی تکراری');
+        $kept = $this->library('کتابخانۀ ماندنی');
+        $dup = $this->library('کتابخانۀ تکراری');
         $dup->update(['full_name' => "نام رسمی تکراری {$this->tag}", 'description' => 'معرفی']);
         $m = $this->manuscript(['library_id' => $dup->id, 'library' => $dup->name, 'city' => 'شهر قدیم', 'shelfmark' => '12']);
         $moved = $this->manuscript(['library_id' => $kept->id, 'library' => $kept->name, 'city' => $kept->city, 'metadata' => ['former_locations' => [['library_id' => $dup->id, 'library' => $dup->name, 'shelfmark' => '3']]]]);
@@ -1526,7 +1526,7 @@ class SuggestionWorkflowTest extends TestCase
 
         $this->relate($dup, 'duplicate', $kept)->assertOk();
         $s = $this->pendingFor($dup);
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کتابخانه‌ی مقصد')->assertSee('کدام کتابخانه بماند؟');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کتابخانۀ مقصد')->assertSee('کدام کتابخانه بماند؟');
         $this->approve($s, ['keep' => 'target'])->assertRedirect('/admin/suggestions');
 
         $this->assertNull(Library::find($dup->id));
@@ -1566,11 +1566,11 @@ class SuggestionWorkflowTest extends TestCase
     public function test_a_renamed_library_keeps_its_former_name()
     {
         \Illuminate\Support\Facades\Notification::fake();
-        $library = $this->library('کتابخانه‌ی نام قدیم');
-        $other = $this->library('کتابخانه‌ی همسایه');
+        $library = $this->library('کتابخانۀ نام قدیم');
+        $other = $this->library('کتابخانۀ همسایه');
         $m = $this->manuscript(['library_id' => $library->id, 'library' => $library->name, 'city' => $library->city]);
         $former = $library->name;
-        $new = "کتابخانه‌ی نام تازه {$this->tag}";
+        $new = "کتابخانۀ نام تازه {$this->tag}";
 
         $this->relate($library, 'renamed', null)->assertStatus(422)->assertJsonValidationErrors('suggested_value');
         $this->relate($library, 'renamed', null, ['suggested_value' => $former])->assertStatus(422)->assertJsonValidationErrors('suggested_value');
@@ -1607,7 +1607,7 @@ class SuggestionWorkflowTest extends TestCase
     public function test_undoing_a_manuscript_merge_restores_the_removed_copy()
     {
         \Illuminate\Support\Facades\Notification::fake();
-        $scribe = $this->person('کاتب نسخه‌ی بازگشتی');
+        $scribe = $this->person('کاتب نسخۀ بازگشتی');
         $kept = $this->manuscript(['shelfmark' => '۱۲۳']);
         $dup = $this->manuscript(['copy_date_raw' => '۱۰۹۵ق', 'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name]);
         $third = $this->manuscript();
@@ -1807,14 +1807,14 @@ class SuggestionWorkflowTest extends TestCase
         $work->update(['manuscripts_count' => 2]);
 
         $this->relate($work, 'conflated', null)->assertStatus(422)->assertJsonValidationErrors('suggested_value');
-        $this->relate($work, 'conflated', null, ['suggested_value' => 'نسخه‌ی «دیگر» رساله‌ی دیگری است'])->assertOk();
+        $this->relate($work, 'conflated', null, ['suggested_value' => 'نسخۀ «دیگر» رسالۀ دیگری است'])->assertOk();
         $s = $this->pendingFor($work);
         $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('عنوان اثر تازه')->assertSee('نسخه‌هایی که از اثر تازه‌اند');
 
-        $this->approve($s, ['new_title' => 'رساله‌ی جدا ' . $this->tag])->assertSessionHasErrors('applied_value');
-        $this->approve($s, ['new_title' => 'رساله‌ی جدا ' . $this->tag, 'author' => 'same', 'copy_subjects' => '1', 'manuscript_ids' => [$go->id]])->assertRedirect('/admin/suggestions');
+        $this->approve($s, ['new_title' => 'رسالۀ جدا ' . $this->tag])->assertSessionHasErrors('applied_value');
+        $this->approve($s, ['new_title' => 'رسالۀ جدا ' . $this->tag, 'author' => 'same', 'copy_subjects' => '1', 'manuscript_ids' => [$go->id]])->assertRedirect('/admin/suggestions');
 
-        $created = Work::where('primary_title', 'رساله‌ی جدا ' . $this->tag)->sole();
+        $created = Work::where('primary_title', 'رسالۀ جدا ' . $this->tag)->sole();
         $this->works[] = $created;
         $this->assertSame([$created->id, $work->id], [$go->fresh()->work_id, $stay->fresh()->work_id]);
         $this->assertSame([1, 1], [$work->fresh()->manuscripts_count, $created->manuscripts_count]);
@@ -1845,7 +1845,7 @@ class SuggestionWorkflowTest extends TestCase
         $person->recountContributions();
         $this->assertSame([2, 2], [$person->fresh()->works_count, $person->fresh()->manuscripts_count]);
 
-        $this->relate($person, 'conflated', null, ['suggested_value' => 'کاتب نسخه‌ی دوم هم‌نام اوست'])->assertOk();
+        $this->relate($person, 'conflated', null, ['suggested_value' => 'کاتب نسخۀ دوم هم‌نام اوست'])->assertOk();
         $s = $this->pendingFor($person);
         $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('آثاری که از شخص تازه‌اند')->assertSee('نقش‌های دیگری که از شخص تازه‌اند');
         $this->approve($s, ['new_name' => 'هم‌نام ' . $this->tag])->assertSessionHasErrors('applied_value');

@@ -46,7 +46,7 @@
                 <div class="grid {{ $cataloger->supervised_count ? 'grid-cols-3' : 'grid-cols-2' }} gap-2 text-center">
                     <div>
                         <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->manuscripts_count) }}</div>
-                        <div class="text-xs text-muted">نسخه‌ی فهرست‌شده</div>
+                        <div class="text-xs text-muted">نسخۀ فهرست‌شده</div>
                     </div>
                     <div>
                         <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->volumes_count) }}</div>
@@ -175,11 +175,11 @@
                         @foreach($manuscripts as $m)
                             <li class="py-3 flex items-start gap-3">
                                 <div class="min-w-0 flex-1">
-                                    <a href="{{ route('manuscripts.show', $m) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar transition">{{ $m->work?->clean_title ?: ($m->work?->primary_title ?: 'نسخه‌ی خطی') }}</a>
+                                    <a href="{{ route('manuscripts.show', $m) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar transition">{{ $m->work?->clean_title ?: ($m->work?->primary_title ?: 'نسخۀ خطی') }}</a>
                                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-0.5">
                                         <span>از {{ $m->work?->author?->name ?? 'ناشناخته' }}</span>
                                         <span class="text-ink" title="{{ $m->libraryRecord?->display_name }}">{{ $m->libraryRecord?->short_name ?? $m->library }}</span>
-                                        @if($m->shelfmark)<span>شماره‌ی <span dir="ltr">{{ Fa::digits($m->shelfmark) }}</span></span>@endif
+                                        @if($m->shelfmark)<span>شمارۀ <span dir="ltr">{{ Fa::digits($m->shelfmark) }}</span></span>@endif
                                         @if($m->volume_number && $m->page_start)<span>{{ $m->catalog?->short_name ?? 'فنخا' }}، ج {{ Fa::digits($m->volume_number) }}، ص {{ Fa::digits($m->page_start) }}</span>@endif
                                     </div>
                                 </div>

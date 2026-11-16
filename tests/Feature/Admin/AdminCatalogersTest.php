@@ -36,7 +36,7 @@ class AdminCatalogersTest extends TestCase
             'meta' => [
                 'birth_place' => 'آمل',
                 'resting_place' => '',
-                'institutions' => "کتابخانه‌ی مرکزی دانشگاه تهران\n\n  کتابخانه‌ی مجلس  ",
+                'institutions' => "کتابخانۀ مرکزی دانشگاه تهران\n\n  کتابخانۀ مجلس  ",
                 'major_catalogs' => '',
                 'sources' => "ویکی‌نور | https://fa.wikinoor.ir/wiki/x\nرکورد MTIF\nhttps://example.org/a",
             ],
@@ -50,24 +50,24 @@ class AdminCatalogersTest extends TestCase
         $this->assertSame($person->id, $made->person_id);
         $this->assertSame([
             'birth_place' => 'آمل',
-            'institutions' => ['کتابخانه‌ی مرکزی دانشگاه تهران', 'کتابخانه‌ی مجلس'],
+            'institutions' => ['کتابخانۀ مرکزی دانشگاه تهران', 'کتابخانۀ مجلس'],
             'sources' => [['title' => 'ویکی‌نور', 'url' => 'https://fa.wikinoor.ir/wiki/x'], 'رکورد MTIF', ['title' => 'https://example.org/a', 'url' => 'https://example.org/a']],
         ], $made->metadata);
         $this->assertTrue(AuditLog::where('auditable_type', Cataloger::class)->where('auditable_id', $made->id)->where('action', 'create')->exists());
 
-        $this->get(route('catalogers.show', $made))->assertOk()->assertSee('آمل')->assertSee('کتابخانه‌ی مجلس');
+        $this->get(route('catalogers.show', $made))->assertOk()->assertSee('آمل')->assertSee('کتابخانۀ مجلس');
     }
 
     public function test_edit_shows_profile_and_keeps_other_metadata(): void
     {
         $cataloger = Cataloger::create(['name' => 'عبدالحسین حائری', 'slug' => 'haeri-' . uniqid(), 'metadata' => [
-            'institutions' => ['کتابخانه‌ی مجلس'],
+            'institutions' => ['کتابخانۀ مجلس'],
             'sources' => [['title' => 'ویکی‌نور', 'url' => 'https://fa.wikinoor.ir/wiki/h']],
             'external_links' => ['wikinoor' => 'https://wikinoor.ir/h'],
         ]]);
 
         $this->actingAs($this->admin)->get("/admin/catalogers/{$cataloger->id}/edit")->assertOk()
-            ->assertSee('کتابخانه‌ی مجلس')->assertSee('ویکی‌نور | https://fa.wikinoor.ir/wiki/h', false);
+            ->assertSee('کتابخانۀ مجلس')->assertSee('ویکی‌نور | https://fa.wikinoor.ir/wiki/h', false);
 
         $this->actingAs($this->admin)->put("/admin/catalogers/{$cataloger->id}", [
             'name' => 'عبدالحسین حائری',
