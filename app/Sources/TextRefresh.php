@@ -50,13 +50,13 @@ class TextRefresh
     }
 
     /**
-     * Writes the text found at the entry's place for the copy's present shelfmark; returns the columns it had, for
-     * the audit log, or null when the pages do not show the copy there.
+     * Writes the text found at the entry's place for the copy's present shelfmark (or the text given, as find() gave
+     * it); returns the columns it had, for the audit log, or null when the pages do not show the copy there.
      */
-    public static function apply(SourceEntry $entry, ?int $page = null, ?string $shelfmark = null): ?array
+    public static function apply(SourceEntry $entry, ?int $page = null, ?string $shelfmark = null, ?array $text = null): ?array
     {
         $entry->loadMissing(['source', 'sourceVolume', 'citable']);
-        $text = $page ? Extractors::extract($entry, $page, $shelfmark) : self::find($entry, $shelfmark);
+        $text ??= $page ? Extractors::extract($entry, $page, $shelfmark) : self::find($entry, $shelfmark);
         if (! $text) {
             return null;
         }
@@ -78,13 +78,14 @@ class TextRefresh
 
     /**
      * The text for a shelfmark near the entry's page: another treatise of a composite volume may begin a few pages on.
-     * The shelfmark's part is strict here, so a page of the same volume never gives another of its treatises.
+     * The shelfmark's part is strict here, so a page of the same volume never gives another of its treatises; a first
+     * reading of the copy's own shelfmark (sources:take-texts) passes null, which leaves that to the extractor.
      */
-    public static function find(SourceEntry $entry, ?string $shelfmark = null): ?array
+    public static function find(SourceEntry $entry, ?string $shelfmark = null, ?bool $strict = true): ?array
     {
         $from = (int) $entry->page_start;
         foreach ([$from, ...range($from + 1, $from + 4), max(1, $from - 1)] as $page) {
-            if ($text = Extractors::extract($entry, $page, $shelfmark, true)) {
+            if ($text = Extractors::extract($entry, $page, $shelfmark, $strict)) {
                 return $text;
             }
         }

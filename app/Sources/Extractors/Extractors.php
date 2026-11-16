@@ -13,6 +13,7 @@ class Extractors
 {
     public const FORMATS = [
         'numbered_catalogue' => NumberedCatalogueExtractor::class,
+        'numbered_copies' => NumberedCopyCatalogueExtractor::class,
     ];
 
     /** @var array<int, array<int, string>> source_volumes.id => its pages, read once a request */
