@@ -11721,6 +11721,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش روی `fahares_prod` (اجرای خشک، کد `main` در برابر این شاخه):** تاریخ‌های مستند ۲۷۳٬۸۷۲ ← ۲۷۵٬۱۹۰. تناقض مستقیم: «تألیف > کتابت» ۱٬۷۴۶ ← ۱٬۷۵۲، «تألیف > وفات مؤلف» ۲۴۸ ← ۲۵۲، «کتابت > وفات کاتب» ۴۶۰ ← ۴۶۱، خط مؤلف ۲۵۴ ← ۲۵۵. تخمین‌ها: تولد ۶۰٬۷۳۱ ← ۶۰٬۷۳۵، وفات ۵۸٬۲۳۹ ← ۵۸٬۲۳۸، تألیف ۵۳٬۰۴۵ ← ۵۳٬۰۵۶، کتابت ۵۳٬۱۷۴ ← ۵۳٬۱۸۶.
 - **دوره‌های زندگی:** قیدشان ساخته نشد. راه پیشنهادی: برای هر شخص یک جفت متغیر (زودترین آغاز و دیرترین پایانِ دوره‌های تأییدشده) با فیلد `period`، قاعده‌ی `period` در `Loader::CONFLICT_LABELS`، `DateConflict::FIELD_LABELS`، `DateConflictNote::TIES` و `DateConflictQueue`.
 - **تست:** `EstimateDatesCommandTest::test_a_copying_or_a_composition_that_lasted_is_a_start_and_an_end`.
+
 ### گام ۱۴.۲۲۳: `description_extras_step14_223_works.json` و `lost_descriptions_step14_223_works.json`
 
 - **review14:** `python3 scripts/fankha_v2_db_compare.py --db fahares_prod --out reports/fankha_v2_db_review14` (مخزن corpus). `json/fankha_v2` همان خروجی ۲۳ آبان است، چون `text/fankha` پس از آن دگرگون نشده است. ۷۸٬۰۰۰ ردیف.
