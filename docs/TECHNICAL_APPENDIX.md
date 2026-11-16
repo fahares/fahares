@@ -11329,13 +11329,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **php-fpm (`docker/php-fpm.conf`):** `pm.max_children` ۶ به ۱۲، `start_servers` ۴، `min_spare_servers` ۳ و `max_spare_servers` ۶. هر کارگر حدود ۱۰۰ MB، پس ۱۲ کارگر حدود ۱٫۲ GB.
 - **بودجه‌ی حافظه:** InnoDB ۴ GB، Meilisearch تا ۳ GB، php-fpm حدود ۱٫۲ GB، Coolify و سرویس‌های دیگر حدود ۱ GB؛ دست‌کم ۲ GB برای کش سیستم‌عامل می‌ماند.
 
-### گام ۱۴.۲۱۰: `scripts/dev/reserve-backlog`
-
-- **کار:** شماره‌ی بعدی = یکی بیش از بزرگ‌ترین شماره‌ی دفتر (`~/.fahares/backlog.tsv`، ستون نخست) و بزرگ‌ترین `### N.` در `docs/BACKLOG.md` شاخه‌ی `origin/main` (ارقام فارسی به لاتین برگردانده می‌شوند). زیر `flock` روی `backlog.tsv.lock`. سطر دفتر: شماره، زمان، جلسه، عنوان.
-- **`--list [N]`:** آخرین N رزرو.
-- **آغاز دفتر:** ۱۳۹ («دوره‌های زندگی شخص»، `claude/date-range-places`) و ۱۴۰ (گلپایگانی پس از ۱۴.۲۰۶، که در انتشار ۱۳۹ از ۱۳۷ به ۱۴۰ رفت).
-- **CLAUDE.md:** بخش «Backlog item numbers» پیش از «Push and deploy».
-
 ### گام ۱۴.۲۰۶: استخراج‌گر `numbered_copies` و `sources:take-texts`
 
 - **پرونده‌ها:** `app/Sources/Extractors/NumberedCopyCatalogueExtractor.php` (در `Extractors::FORMATS` با کلید `numbered_copies`)، `app/Console/Commands/TakeSourceTextsCommand.php`، و تغییرهای کوچک در `TextRefresh` (`find(…, $strict)` و `apply(…, $text)`) و `PrintedPage::marks`. آزمون: `tests/Feature/NumberedCopyCatalogueTest.php` (۴ آزمون، با پاره‌هایی از صفحه‌های ۱۴۹۵–۱۴۹۶ و ۴۰۹۱–۴۰۹۲).
@@ -11396,3 +11389,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آنچه هنوز از ستون نمی‌خواند:** فیلتر «شهر کتابت» جست‌وجو و صفحه‌ی آمار همچنان از `CopyPlaces::variants` (فهرست متن‌های هر شهر) می‌خوانند. نتیجه یکی است؛ بردنشان روی ستون کار بعدی است.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-place-cities --apply`.
 - **تست:** `PersonPlacesTest::test_the_city_of_a_place_text_is_stored_beside_it_and_kept_in_step`.
+
+### گام ۱۴.۲۱۰: `scripts/dev/reserve-backlog`
+
+- **کار:** شماره‌ی بعدی = یکی بیش از بزرگ‌ترین شماره‌ی دفتر (`~/.fahares/backlog.tsv`، ستون نخست) و بزرگ‌ترین `### N.` در `docs/BACKLOG.md` شاخه‌ی `origin/main` (ارقام فارسی به لاتین برگردانده می‌شوند). زیر `flock` روی `backlog.tsv.lock`. سطر دفتر: شماره، زمان، جلسه، عنوان.
+- **`--list [N]`:** آخرین N رزرو.
+- **آغاز دفتر:** ۱۳۹ («دوره‌های زندگی شخص»، `claude/date-range-places`) و ۱۴۰ (گلپایگانی پس از ۱۴.۲۰۶، که در انتشار ۱۳۹ از ۱۳۷ به ۱۴۰ رفت).
+- **CLAUDE.md:** بخش «Backlog item numbers» پیش از «Push and deploy».
