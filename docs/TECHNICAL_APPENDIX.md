@@ -11614,3 +11614,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `fill-extents --apply`.
   3. `rebuild-copies` با این پرونده.
   4. اجرای دوباره‌ی هر دو برای وارسی.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۱۵ و ۱۴.۲۱۷):**
+  - پشتیبان: ستون‌های ۱۳۴ نسخه‌ی گام ۱۴.۲۱۵ و ستون‌های شمار ۳۲۳٬۲۴۹ نسخه در `step14_217_backup.json` (md5 `373dad19…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `rebuild-copies` گام ۱۴.۲۱۵: ۱۳۴ نسخه.
+  - `fill-extents`: `changed 72`، `pages_out_of_folios 28`.
+  - `rebuild-copies` این گام: ۱۵۷ نسخه.
+  - اجرای دوم هر سه: `Would rebuild 0 copies`، `kept:no_count_in_text 188` بی `changed`.
