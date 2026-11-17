@@ -405,4 +405,56 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([['69/13', 'dharia', 13, 69]], $cites('الذریعة 69/13 و 1350 ق'));
         $this->assertSame([['4369', 'monzavi-nuskhe', 6, 4369]], $cites('[نسخه‌های منزوی 4369]'));
     }
+
+    public function test_tabaqat_cited_by_century_opens_the_page_of_the_centurys_volume()
+    {
+        $pages = fn (string $entry) => array_map(fn ($s) => [$s['text'], $s['viewer']['volume'], $s['viewer']['page']],
+            array_values(array_filter(BibliographyLinks::segments($entry), fn ($s) => ($s['viewer']['catalog'] ?? null) === 'tabaqat')));
+
+        // a century in one volume: the page is the old printing's, which this one keeps
+        $this->assertSame([['8', 7, 8], ['9', 7, 9], ['245', 7, 245], ['246', 7, 246]], $pages('طبقات اعلام الشیعه، قرن 10، ص 8 و 9 و 245 و 246'));
+        $this->assertSame([['۱۱۹', 8, 119], ['۱۲۰', 8, 120], ['۵۷۱', 8, 571], ['۵۷۲', 8, 572]], $pages('طبقات اعلام الشیعه، قرن ۱۱، ص ۱۱۹ و ۱۲۰ و ۵۷۱ و ۵۷۲'));
+        $this->assertSame([['575', 9, 575]], $pages('طبقات أعلام الشيعة قرن 12 ص 575'));
+        $this->assertSame([['645', 9, 645]], $pages('طبقات اعلام الشيعة (قرن 12ق): 645'));
+        $this->assertSame([['792', 9, 792]], $pages('طبقات اعلام الشیعه (قرن 12)، ص 792'));
+        // a range opens at its first page; the century is not a page («12: 739» is not a pair)
+        $this->assertSame([['739', 9, 739]], $pages('طبقات اعلام الشیعة قرن 12: 739-741'));
+        // the century by its part's name
+        $this->assertSame([['185', 9, 185]], $pages('طبقات اعلام الشيعة، الكواكب المنتشرة في القرن الثاني بعد العشرة: 185-186'));
+        $this->assertSame([['102', 7, 102]], $pages('احیاء الداثر 102'));
+
+        // a century in several volumes: the part's volume, or the one volume that holds the page
+        $this->assertSame([['245/1', 13, 245]], $pages('نقباء البشر 245/1'));
+        $this->assertSame([['ج 1، ص 36', 13, 36]], $pages('طبقات اعلام الشیعه (قرن 14)، ج 1، ص 36'));
+        $this->assertSame([['666', 11, 666]], $pages('طبقات اعلام الشیعه (ق.13: ص.666)'));
+        $this->assertSame([['1000/3', 15, 1000]], $pages('نقباء البشر 1000/3'));
+        $this->assertSame([['1000', 15, 1000]], $pages('طبقات اعلام الشیعه قرن 14، ص 1000'));
+        $this->assertSame([['638/3', 12, 638], ['493/2', 11, 493]], $pages('الکرام البررة 638/3؛ اعلام الشیعه (الکرام البرره): 493/2'));
+        // «part: page», and a pair in the other order where only that one fits
+        $this->assertSame([['1: 349', 13, 349]], $pages('نقباء البشر 1: 349'));
+        $this->assertSame([['4/ 1624', 16, 1624]], $pages('نقباء البشر 4/ 1624-1626'));
+        $this->assertSame([['143', 5, 143]], $pages('طبقات اعلام الشیعة، قرن 8ق، صفحه 143'));
+        $this->assertSame([['739', 9, 739]], $pages('طبقات اعلام الشیعة قرن (12): 739'));
+        // two volumes hold the page and no part tells which
+        $this->assertSame([], $pages('طبقات اعلام الشیعه قرن 14، ص 389'));
+
+        // no century, a part the century does not have, a page past the volume: left plain
+        $this->assertSame([], $pages('طبقات اعلام الشیعه 169/6، کشف الظنون 616/1'));
+        $this->assertSame([], $pages('طبقات أعلام الشيعة (قرن 11 هـ): 223/3'));
+        $this->assertSame([], $pages('طبقات اعلام الشیعه قرن 10، ص 900'));
+        $this->assertSame([], $pages('طبقات اعیان الشیعه قرن 10، ص 8'));
+
+        // the citations around it read as before, and the line is still not a citation of a place in source_entries
+        $this->assertSame([['90/25', 'https://lib.eshia.ir/71602/25/90'], ['8', '#'], ['369/4', 'https://lib.eshia.ir/10984/4/369']],
+            $this->links('الذریعة 90/25؛ طبقات اعلام الشیعه، قرن 10، ص 8؛ ریحانة الادب 369/4'));
+        $this->assertSame([['source' => 'dharia', 'volume' => 25, 'page' => 90]], BibliographyLinks::citations('الذریعة 90/25؛ طبقات اعلام الشیعه، قرن 10، ص 8'));
+        $this->assertSame(
+            [['text' => 'طبقات اعلام الشیعه 169/6؛ دنا 5/2']],
+            BibliographyLinks::segments('طبقات اعلام الشیعه 169/6؛ دنا 5/2')
+        );
+        $this->assertStringContainsString('title="دیدن برگۀ طبقات أعلام الشیعة، ج ۷، ص ۸"', (string) BibliographyLinks::html('طبقات اعلام الشیعه، قرن 10، ص 8'));
+
+        // not in the page texts of the sources, whose citations are read by their own forms
+        $this->assertSame([], array_filter(BibliographyLinks::inProse('(طبقات اعلام الشیعه قرن 10 ص 8)', 'fankha'), fn ($s) => isset($s['url'])));
+    }
 }
