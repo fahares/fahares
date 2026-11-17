@@ -172,7 +172,7 @@
                 <x-ui.btn href="#manuscripts" variant="primary" class="w-full mt-4">فهرست نسخه‌ها</x-ui.btn>
             </x-ui.card>
 
-            <!-- Cited sources: bibliographies with a scanned page first, the catalog (فنخا) last -->
+            <!-- Cited sources: bibliographies with a scanned page first, the union catalogue last -->
             <x-ui.card class="space-y-4">
                 <div class="text-xs text-muted">در مآخذ کتاب‌شناسی</div>
                 @php
@@ -199,9 +199,18 @@
                         @endif
                     </div>
                 @endforeach
-                @foreach($entryCards as $entry)
+                @php [$secondHandCards, $firstHandCards] = $entryCards->partition(fn ($e) => $e->isSecondHand()); @endphp
+                @foreach($firstHandCards as $entry)
                     <x-source.page-card :entry="$entry" :record="$work" />
                 @endforeach
+                @if($secondHandCards->isNotEmpty())
+                    {{-- Fankha's own card folded under the others (backlog item 147) --}}
+                    <x-source.secondary>
+                        @foreach($secondHandCards as $entry)
+                            <x-source.page-card :entry="$entry" :record="$work" />
+                        @endforeach
+                    </x-source.secondary>
+                @endif
             </x-ui.card>
         </aside>
 
@@ -251,7 +260,6 @@
 
             @if(! empty($work->description))
                 <x-ui.section title="معرفی اثر" field="description">
-                    <x-slot:actions><span class="text-muted">به روایت {{ $fankha?->sourceName() ?: 'فنخا' }}</span></x-slot:actions>
                     <div class="text-ink text-sm sm:text-[15px] leading-loose text-justify whitespace-pre-line max-w-[72ch]">{{ $work->description }}</div>
                 </x-ui.section>
             @endif
@@ -306,7 +314,6 @@
 
             @if(! empty($work->commentaries_and_glosses) && count($work->commentaries_and_glosses) > 0)
                 <x-ui.section title="شروح، حواشی و منظومه‌ها" field="commentaries_and_glosses" :count="count($work->commentaries_and_glosses)">
-                    <x-slot:actions><span class="text-muted">به روایت {{ $fankha?->sourceName() ?: 'فنخا' }}</span></x-slot:actions>
                     <ul class="space-y-1.5 text-sm" x-data="{ all: false }">
                         @foreach($work->commentaries_and_glosses as $comm)
                             <li class="flex gap-2.5 leading-relaxed" @if($loop->index >= 12) x-show="all" x-cloak @endif>
@@ -327,12 +334,14 @@
                 <ul class="space-y-1 text-sm">
                     @foreach($sources->bibliography() as $bib)
                         @php $bibCovered = $sources->isCovered($bib); @endphp
-                        <li class="flex gap-2.5 leading-relaxed" @if($bibCovered) x-show="$store.suggest.on" x-cloak data-covered-citation title="نشانی‌های این سطرِ فنخا در سطرهای زیر آمده است" @endif>
+                        <li class="flex gap-2.5 leading-relaxed" @if($bibCovered) x-show="$store.suggest.on" x-cloak data-covered-citation title="نشانی‌های این سطر در سطرهای زیر آمده است" @endif>
                             <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
                             <span class="{{ $bibCovered ? 'text-muted' : 'text-ink' }}">{{ \App\Support\BibliographyLinks::html($bib->citation_text) }}</span>
                         </li>
                     @endforeach
                     @foreach($sources->cards() as $entry)
+                        {{-- Fankha's own place is on its folded card above, not in this list (backlog item 147) --}}
+                        @continue($entry->isSecondHand())
                         @if($entry->isMention() && $entry->sourceItem)
                             {{-- named inside another work's entry: one line, never that entry's text (plan dharia-text) --}}
                             <li class="flex gap-2.5 leading-relaxed" data-machine-item="{{ $entry->reviewKey() }}" data-source-mention>
@@ -340,7 +349,7 @@
                                 <span class="text-ink">یاد شده در {{ $entry->sourceName() }}، {{ \App\Support\Fa::digits('ج ' . $entry->volumeNumber() . '، ' . ($entry->source?->unit === 'ستون' ? 'ستون ' : 'ص ') . $entry->sourceItem->page_start) }}، ذیل
                                     <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">«{{ $entry->sourceItem->title }}»</a>@if($entry->sourceItem->entry_number) ({{ $entry->itemLabel() }})@endif
                                     @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
-                                    @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>به نوشتۀ {{ $fankha?->sourceName() ?: 'فنخا' }}: {{ \App\Support\Fa::digits($note) }}</span>@endforeach
+                                    @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>یادداشت: {{ \App\Support\Fa::digits($note) }}</span>@endforeach
                                 </span>
                             </li>
                             @continue
@@ -356,7 +365,7 @@
                                 @if($entry->sourceItem)، <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $entry->itemLabel() }}</a>
                                     @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
                                 @endif
-                                @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>به نوشتۀ {{ $fankha?->sourceName() ?: 'فنخا' }}: {{ \App\Support\Fa::digits($note) }}</span>@endforeach</span>
+                                @foreach($sources->notesFor($entry) as $note)<span class="block text-xs text-muted mt-0.5" data-citation-note>یادداشت: {{ \App\Support\Fa::digits($note) }}</span>@endforeach</span>
                         </li>
                     @endforeach
                 </ul>
@@ -366,10 +375,18 @@
             @php $texts = $sources->texts(); @endphp
             @if($texts->isNotEmpty())
                 <x-ui.section title="متن مأخذ">
+                    @php [$secondHandTexts, $firstHandTexts] = $texts->partition(fn ($e) => $e->isSecondHand()); @endphp
                     <div class="space-y-6">
-                        @foreach($texts as $entry)
+                        @foreach($firstHandTexts as $entry)
                             <x-source.text :entry="$entry" :record="$work" />
                         @endforeach
+                        @if($secondHandTexts->isNotEmpty())
+                            <x-source.secondary>
+                                @foreach($secondHandTexts as $entry)
+                                    <x-source.text :entry="$entry" :record="$work" />
+                                @endforeach
+                            </x-source.secondary>
+                        @endif
                     </div>
                 </x-ui.section>
             @endif
@@ -641,7 +658,9 @@
             </p>
 
             @php
-                $workFankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($fankha?->volume_number ?? '-') . "، ص " . ($fankha?->page_start ?? '-') . ($fankha?->page_end && $fankha->page_end > $fankha->page_start ? " تا {$fankha->page_end}" : "") . "، مدخل «" . $work->primary_title . "».";
+                // a bibliography or a printed catalogue before Fankha (backlog item 147)
+                $citedEntry = $sources->citable();
+                $workSourceCitation = $citedEntry ? rtrim($citedEntry->referenceCitation($work), '.') . ($citedEntry->sourceItem ? '' : '، مدخل «' . $work->primary_title . '»') . '.' : null;
                 
                 $authorPrefix = $work->author ? $work->author->name . '. ' : ($work->author_name ? $work->author_name . '. ' : '');
                 $shortUrlWork = url('/w/' . $work->id);
@@ -653,27 +672,29 @@
 
             <div class="space-y-4">
                 
-                <!-- Format 1: FanKha Source -->
+                <!-- Format 1: the source's entry -->
+                @if($workSourceCitation)
                 <div class="p-4 rounded-2xl bg-paper border border-line space-y-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-cinnabar text-[11px] font-bold">
                                 قالب ۱
                             </span>
-                            <span class="text-xs font-bold text-ink">قالب مأخذ ({{ $fankha?->source?->title ?? 'فهرستگان نسخه‌های خطی ایران' }})</span>
+                            <span class="text-xs font-bold text-ink">ارجاع به مأخذ چاپی</span>
                         </div>
                         <button 
                             type="button" 
-                            @click="copyText(@js($workFankhaCitation), 'fankha')"
+                            @click="copyText(@js($workSourceCitation), 'source')"
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
-                            <span x-show="copiedKey !== 'fankha'">کپی ارجاع</span>
-                            <span x-show="copiedKey === 'fankha'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                            <span x-show="copiedKey !== 'source'">کپی ارجاع</span>
+                            <span x-show="copiedKey === 'source'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
                         </button>
                     </div>
                     <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-normal select-all">
-                        {{ $workFankhaCitation }}
+                        {{ $workSourceCitation }}
                     </div>
                 </div>
+                @endif
 
                 <!-- Format 2: General Citation in Persian Articles -->
                 <div class="p-4 rounded-2xl bg-stone-50 dark:bg-paper border border-stone-200 dark:border-line space-y-2">

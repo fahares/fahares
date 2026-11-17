@@ -356,12 +356,12 @@ class SourceEntry extends Model
                 : 'هوشواره این زندگی‌نامه را از روی نام و تاریخ‌های این شخص یافته و یک مدل زبانی آن را با متن مدخل سنجیده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
         }
         if ($this->source_item_id && $this->match_method === 'llm') {
-            return 'یک مدل زبانی این پیوند را با خواندن متن مدخل‌های صفحه‌ای که فنخا نشانی داده پیشنهاد کرده، و عبارتی که از متن مدخل شاهد آورده وارسی شده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
+            return 'یک مدل زبانی این پیوند را با خواندن متن مدخل‌های صفحه‌ای که مآخذ اثر نشانی داده‌اند پیشنهاد کرده، و عبارتی که از متن مدخل شاهد آورده وارسی شده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
         }
         if ($this->source_item_id) {
             return $this->isMention()
                 ? 'هوشواره این اثر را در متن این مدخل یافته است، با سنجیدن عنوان و مؤلف آن. این پیوند هنوز به دست انسان بازبینی نشده است.'
-                : 'هوشواره این مدخل را با سنجیدن عنوان و مؤلف اثر با مدخل‌های صفحه‌ای که فنخا نشانی داده برگزیده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
+                : 'هوشواره این مدخل را با سنجیدن عنوان و مؤلف اثر با مدخل‌های صفحه‌ای که مآخذ اثر نشانی داده‌اند برگزیده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
         }
 
         return 'این نشانی را هوشواره با تطبیق شمارۀ نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
@@ -376,6 +376,12 @@ class SourceEntry extends Model
         }
 
         return $item->entry_number ? Fa::digits('ش ' . $item->entry_number) : '«' . $item->title . '»';
+    }
+
+    /** An entry of a union catalogue compiled from the printed catalogues (Fankha): a second-hand source (backlog item 147). */
+    public function isSecondHand(): bool
+    {
+        return $this->source?->kind === Source::KIND_UNION_CATALOGUE;
     }
 
     /** A machine match nobody has reviewed yet: the ⓘ badge on the record page. */
@@ -516,6 +522,31 @@ class SourceEntry extends Model
         $v = $this->viewer();
 
         return $v ? asset('storage/catalogs/' . $v['catalog'] . '/v' . str_pad($v['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($v['page'], 4, '0', STR_PAD_LEFT) . '.webp') : null;
+    }
+
+    /**
+     * The entry as a reader cites it in print (backlog item 147): «اکبری، محمد، فهرست نسخه‌های خطی کتابخانه …، چاپ ۱۳۸۴،
+     * ج ۱، ص ۸۲.». The compiler is the source's, or the cataloger of the copy's volume; a part the data lacks is left
+     * out, never «-».
+     */
+    public function referenceCitation(?Model $record = null): string
+    {
+        $compiler = $this->source?->compiler
+            ?: ($record instanceof Manuscript && $this->source?->kind === Source::KIND_LIBRARY_CATALOGUE ? $record->cataloger?->name : null);
+        $year = $this->sourceVolume?->publication_year ?: $this->source?->publication_year;
+        $edition = $this->editionLabel();
+        $row = $this->is_primary && $record instanceof Manuscript && $record->sequence_number ? 'ردیف ' . $record->sequence_number : null;
+
+        return Fa::digits(implode('، ', array_filter([
+            $compiler,
+            $this->source?->title,
+            $edition ? 'چاپ ' . $edition : null,
+            $this->source?->publisher,
+            $year && ! ($edition && str_contains($edition, (string) $year)) ? $year : null,
+            $this->placeLabel($record instanceof Work),
+            $this->itemLabel(),
+            $row,
+        ])) . '.');
     }
 
     /** The printing as its volume, or else its source, names it: «۱۳۸۸، به کوشش رضا استادی». */

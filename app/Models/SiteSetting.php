@@ -14,7 +14,7 @@ class SiteSetting extends Model
     public const DEFAULTS = [
         'home.eyebrow' => 'پایگاه جامع نسخه‌های خطی',
         'home.headline' => 'جست‌وجو در آثار و نسخه‌های خطی',
-        'home.lede' => 'مجموعه اطلاعات الذریعة، إیضاح المکنون، فنخا …',
+        'home.lede' => 'مجموعه اطلاعات الذریعة، إیضاح المکنون، فهارس کتابخانه‌ها …',
         'home.treasures_title' => 'از گنجینه‌ها',
         'home.catalogers_title' => 'فهرست‌نگاران',
         'home.slide_interval' => '7',

@@ -173,6 +173,7 @@
                 @else
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($manuscripts as $m)
+                            @php $place = (new \App\Support\RecordSources($m->sourceEntries))->cards()->first(); @endphp
                             <li class="py-3 flex items-start gap-3">
                                 <div class="min-w-0 flex-1">
                                     <a href="{{ route('manuscripts.show', $m) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar transition">{{ $m->work?->clean_title ?: ($m->work?->primary_title ?: 'نسخۀ خطی') }}</a>
@@ -180,11 +181,11 @@
                                         <span>از {{ $m->work?->author?->name ?? 'ناشناخته' }}</span>
                                         <span class="text-ink" title="{{ $m->libraryRecord?->display_name }}">{{ $m->libraryRecord?->short_name ?? $m->library }}</span>
                                         @if($m->shelfmark)<span>شمارۀ <span dir="ltr">{{ Fa::digits($m->shelfmark) }}</span></span>@endif
-                                        @if($m->volume_number && $m->page_start)<span>{{ $m->catalog?->short_name ?? 'فنخا' }}، ج {{ Fa::digits($m->volume_number) }}، ص {{ Fa::digits($m->page_start) }}</span>@endif
+                                        @if($place)<span>{{ $place->cardLabel($m) }}</span>@endif
                                     </div>
                                 </div>
-                                @if($m->volume_number && $m->page_start)
-                                    <x-ui.btn size="sm" variant="ghost" @click="$dispatch('open-catalog-viewer', { catalog: '{{ $m->catalog?->code ?? 'fankha' }}', catalogName: '{{ $m->catalog?->short_name ?? 'فنخا' }}', volume: {{ $m->volume_number }}, page: {{ $m->page_start }} })" title="دیدن برگه در مأخذ چاپی">برگه</x-ui.btn>
+                                @if($viewer = $place?->viewer())
+                                    <x-ui.btn size="sm" variant="ghost" @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})" title="دیدن برگه در فهرست چاپی">برگه</x-ui.btn>
                                 @endif
                             </li>
                         @endforeach
