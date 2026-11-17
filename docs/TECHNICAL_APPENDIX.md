@@ -12111,3 +12111,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `test_the_folder_of_a_killed_export_is_pruned_when_old`: فرایند جدا با `TMPDIR` خودش در میانۀ ردیف‌ها `posix_kill(getmypid(), SIGKILL)` می‌کند. یک `fahares-export-…` می‌ماند؛ تازه‌اش پاک نمی‌شود و پس از ۳۱ دقیقه کهنه شدن پاک می‌شود.
   - `test_the_prune_touches_nothing_but_old_export_leftovers`: نام‌های همانند ولی نادرست، `nginx_fastcgi`، پیوند نمادین به پوشۀ بیرونی، و پوشۀ کهنه‌ای که فایل تازه دارد می‌مانند.
   - `test_the_prune_waits_longer_than_the_longest_export_and_runs_hourly`.
+### گام ۱۴.۲۴۴: فیلدهای `pages` و `range_from` (دامنه) در `SuggestionRegistry` و نگهبانی در `CopyExtent::columns`
+- **`SuggestionRegistry::manuscriptFields`:** `pages` (`integer`) و `range_from` (`text` با `leaf_range`). `currentValue` برای `leaf_range` دو سر را با «–» می‌دهد («1–12») و اگر یکی باشند همان یکی را.
+- **`SuggestionApplier::apply`:** برای `leaf_range`، `CopyExtent::parseRange` چهار ستون `range_from`، `range_to`، `range_from_number` و `range_to_number` را می‌نویسد؛ مقدار خالی هر چهار را تهی می‌کند و متن ناخوانا خطای `applied_value` می‌دهد.
+- **`CopyExtent::parseRange`:** رقم فارسی و عربی، «تا» و «الی» به‌جای خط تیره، و پیشوند «برگ»، «برگ‌های»، «صفحه»، «ص» و «گ» را می‌پذیرد و سپس همان `range()` متن فنخا را به کار می‌برد.
+- **`CopyExtent::columns`:** اگر لاگ `verify` نسخه `pages` را دارد، مقدار ذخیره‌شده می‌ماند؛ اگر یکی از چهار ستون دامنه را دارد، هر چهار می‌مانند (لاگ فقط ستون‌های تغییرکرده را نام می‌برد). ترتیب کلیدها حفظ می‌شود تا مقایسۀ `$new === $old` در `fahares:fill-extents` درست بماند. `extent_raw` همچنان متن چاپی است.
+- **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.

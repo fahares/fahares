@@ -128,6 +128,14 @@ class SuggestionApplier
                 break;
 
             default:
+                if (! empty($field['leaf_range'])) {
+                    $range = $value === null ? [null, null, null, null] : \App\Support\CopyExtent::parseRange($value);
+                    if ($range === null) {
+                        throw new InvalidArgumentException('جای نسخه را به شکل «۲–۷» یا «۳۴پ–۴۳ر» بنویسید.');
+                    }
+                    [$record->range_from, $record->range_to, $record->range_from_number, $record->range_to_number] = $range;
+                    break;
+                }
                 $record->{$name} = $value;
         }
 

@@ -136,8 +136,38 @@ class CopyExtent
             }
         }
 
-        return ['kind' => $kind, 'site' => $site, 'raw' => $e['raw'], 'columns' => ['folios' => $folios, 'pages' => $e['pages'], 'extent_raw' => $e['raw'],
-            'range_from' => $e['range_from'], 'range_to' => $e['range_to'], 'range_from_number' => $e['range_from_number'], 'range_to_number' => $e['range_to_number']]];
+        $columns = ['folios' => $folios, 'pages' => $e['pages'], 'extent_raw' => $e['raw'],
+            'range_from' => $e['range_from'], 'range_to' => $e['range_to'], 'range_from_number' => $e['range_from_number'], 'range_to_number' => $e['range_to_number']];
+        // A reviewed page count or place in the volume stays as the reviewer set it (step 14.244); the place is one
+        // correction of four columns, of which the log names only those that changed
+        if (property_exists($row, 'pages')) {
+            $stored = self::stored($row);
+            if ($columns['pages'] !== $stored['pages'] && $guard->strip($row->id, ['pages' => 1]) === []) {
+                $columns['pages'] = $stored['pages'];
+            }
+            $place = array_intersect_key($columns, array_flip(self::RANGE));
+            if ($place !== array_intersect_key($stored, $place) && count($guard->strip($row->id, $place)) < count($place)) {
+                $columns = array_replace($columns, array_intersect_key($stored, $place));
+            }
+        }
+
+        return ['kind' => $kind, 'site' => $site, 'raw' => $e['raw'], 'columns' => $columns];
+    }
+
+    /** The columns of a copy's place in its volume. */
+    private const RANGE = ['range_from', 'range_to', 'range_from_number', 'range_to_number'];
+
+    /**
+     * A reviewer's or member's wording of the place, «۲–۷», «2 تا 7», «34پ-43ر», «271», as the four range columns
+     * (from, to, and both as numbers); null when it is not a range.
+     *
+     * @return array{0: string, 1: string, 2: int, 3: int}|null
+     */
+    public static function parseRange(string $text): ?array
+    {
+        $text = preg_replace('/\s*(?:تا|الی|—|ـ)\s*/u', '-', trim(strtr($text, self::DIGITS + ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9'])));
+
+        return self::range(preg_replace('/^(?:برگ(?:‌های)?|صفحه(?:‌های)?|ص|گ)\s*/u', '', $text));
     }
 
     /** The stored extent columns of a copy row, typed as columns() gives them. */
