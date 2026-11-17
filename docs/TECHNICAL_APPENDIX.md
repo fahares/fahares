@@ -12025,3 +12025,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ماند:** نام فنخا در صفحۀ منابع، در پنل مدیریت، در برچسب پیشنهاد `fankha_page` («نشانی در فنخا»)، و در پاسخ مستقیم جستجو وقتی خود کاربر «فنخا ج … ص …» پرسیده است. متن صفحۀ «درباره ما» و مقدار `home.lede` در پایگاه داده محتوای ویرایشی‌اند و به دست کاربر در پنل تغییر می‌کنند.
 - **سنجش پوشش:** `docs/plans/fankha-retirement/copy.sql` و `vol.sql` روی `fahares_prod`؛ خروجی `per_library.csv` و `per_volume.csv`. تعریف‌ها در خود طرح.
 - **آزمون:** `SourcePagesTest` و `CatalogReferencesTest` به‌روز شدند (نبود «به روایت فنخا» و «به نشانی فنخا»، ترتیب «مأخذ دست دوم»، و «ارجاع به فهرست چاپی» در پنجرۀ استناد). کل مجموعه پس از ادغام origin/main: ۹۵۶ آزمون موفق (۹٬۵۴۴ ادعا).
+
+### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
+- **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
+- **`components/date-conflict-note.blade.php`:** پیوند پاسخ به‌جای « ←» برچسب را با `<span class="text-muted">(در {{ $choice['page'] }})</span>` و `title="پیشنهاد در … باز می‌شود"` نشان می‌دهد.
+- **آزمون:** `DateConflictNotesTest` «(در صفحۀ شخص)» و «(در صفحۀ اثر)» و نبود «» ←» را می‌سنجد.
