@@ -136,6 +136,15 @@ class SuggestionApplier
                     [$record->range_from, $record->range_to, $record->range_from_number, $record->range_to_number] = $range;
                     break;
                 }
+                // The death year the old wording gave goes with it, and its Gregorian year too; the model's saving hook
+                // then reads the new wording's death year, range and century (step 14.245)
+                if (! empty($field['life_dates']) && $record->death_year_hijri !== null) {
+                    $was = \App\Models\Person::deathColumns($record->{$name}, null);
+                    if ($was['death_from'] === $was['death_to'] && $was['death_from'] === $record->death_year_hijri) {
+                        $record->death_year_hijri = null;
+                        $record->death_year_gregorian = null;
+                    }
+                }
                 $record->{$name} = $value;
         }
 

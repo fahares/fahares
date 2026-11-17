@@ -358,6 +358,35 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame(['لقب یک', 'لقب دو'], $person->fresh()->aliases);
     }
 
+    /** Step 14.245: the catalogue's wording of a life is corrected, and the death year read from it follows. */
+    public function test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows()
+    {
+        $person = $this->person('خوشنویس آزمایشی');
+        $person->update(['life_dates_raw' => '- 940 ؟ ق', 'death_year_hijri' => 940, 'death_year_gregorian' => 1534]);
+        $person->refresh();
+        $this->assertSame([940, 940, 10], [$person->death_from, $person->death_to, $person->century_hijri]);
+
+        // A year the person was alive in: the doubtful death year of the old wording goes, the century stays
+        $this->suggest($person, ['field_name' => 'life_dates_raw', 'suggested_value' => '930 قمری', 'rationale_citation' => 'مادۀ تاریخ'])->assertOk();
+        $s = $this->pendingFor($person);
+        $this->assertSame('- 940 ؟ ق', $s->current_value);
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+        $person->refresh();
+        $this->assertSame(['930 قمری', null, null, null, null, 10], [$person->life_dates_raw, $person->death_year_hijri, $person->death_year_gregorian, $person->death_from, $person->death_to, $person->century_hijri]);
+
+        // A wording with a death year sets it
+        $this->suggest($person, ['field_name' => 'life_dates_raw', 'suggested_value' => '880 - 951 قمری', 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person), ['previous_standing' => 'superseded', 'public_note' => 'تذکره مقدم است'])->assertRedirect('/admin/suggestions');
+        $person->refresh();
+        $this->assertSame([951, 951, 951, 10], [$person->death_year_hijri, $person->death_from, $person->death_to, $person->century_hijri]);
+
+        // A death year a reviewer set apart from the wording is not the wording's to take away
+        $person->update(['death_year_hijri' => 955]);
+        $this->suggest($person, ['field_name' => 'life_dates_raw', 'suggested_value' => 'قرن 10', 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person), ['previous_standing' => 'superseded', 'public_note' => 'تذکره مقدم است'])->assertRedirect('/admin/suggestions');
+        $this->assertSame(955, $person->fresh()->death_year_hijri);
+    }
+
     public function test_library_fields_and_record_pages()
     {
         $library = Library::create(['city' => 'شهر آزمون', 'name' => 'کتابخانه آزمون ' . $this->tag, 'slug' => 'test-suggest-lib-' . uniqid()]);
