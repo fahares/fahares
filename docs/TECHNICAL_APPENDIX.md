@@ -12046,6 +12046,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم: `already` ۱۰۱.
   - وارسی از بیرون: `/people/6267` («سال تألیف») با ۳۰۱ به اثر 4677 و `/people/36569` («به دستور: ناصرالدین شاه») با ۳۰۱ به شخص 801 می‌رود.
 - **مانده:** ۴ نام با «(؟)» یا «(شاید)» در کمانک (تردید باید به `certainty` برود)؛ کاتبانی که نامشان جمله است («تحریر عنوانها درحواشی محمد موسوی») شمرده نشدند؛ تاریخ و اهدایی که پارسر 2.3.1 از شرح ۲۴۱ و ۷ اثر دیگر می‌خواند (مورد ۱۴۸).
+
 ### گام ۱۴.۲۳۶: فنخا کم‌رنگ‌تر در رابط، و سنجش پوشش دست اول
 
 - **استناد:** `RecordSources::citable()` نخستین کارت صفحه‌دار را می‌دهد که مدخل خود فنخا (`origin = fankha`) نیست، و گرنه مدخل `is_primary`. `SourceEntry::referenceCitation($record)` ارجاع چاپی را می‌سازد: گردآورنده (`sources.compiler`، یا برای فهرست کتابخانه فهرست‌نگار نسخه)، عنوان مأخذ، چاپ، ناشر، سال، جای مدخل و ردیف؛ بخش ناموجود حذف می‌شود. قالب ۱ پنجرۀ استناد در `manuscripts/show` و `works/show` از آن می‌خواند. با مورد ۱۳۳ (کامپوننت مشترک `x-citation`) سازگار است: همان دو تابع را می‌توان آن‌جا به کار برد.
@@ -12056,11 +12057,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش پوشش:** `docs/plans/fankha-retirement/copy.sql` و `vol.sql` روی `fahares_prod`؛ خروجی `per_library.csv` و `per_volume.csv`. تعریف‌ها در خود طرح.
 - **آزمون:** `SourcePagesTest` و `CatalogReferencesTest` به‌روز شدند (نبود «به روایت فنخا» و «به نشانی فنخا»، ترتیب «مأخذ دست دوم»، و «ارجاع به فهرست چاپی» در پنجرۀ استناد). کل مجموعه پس از ادغام origin/main: ۹۵۶ آزمون موفق (۹٬۵۴۴ ادعا).
 
-### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
-- **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
-- **`components/date-conflict-note.blade.php`:** پیوند پاسخ به‌جای « ←» برچسب را با `<span class="text-muted">(در {{ $choice['page'] }})</span>` و `title="پیشنهاد در … باز می‌شود"` نشان می‌دهد.
-- **آزمون:** `DateConflictNotesTest` «(در صفحۀ شخص)» و «(در صفحۀ اثر)» و نبود «» ←» را می‌سنجد.
-
 ### گام ۱۴.۲۳۷: `person_lives_step14_237_ayan.json`
 
 - **صافی (`blocker.py . ayan`):** ۱۱٬۱۶۰ مدخل بی‌پیوندِ ۶۰ نویسه به بالا؛ ۲٬۶۹۱ با نامزد (۱٬۶۷۹ با یک نامزد، ۵۴۲ با دو، ۲۷۵ با سه، ۵۲۵ با چهار) و پس از کنار رفتن ارجاع‌ها ۲٬۶۴۵ مدخل. أعیان الفبایی است و جلدهایش سده ندارند، پس پیش‌فرض سال جلد به کار نمی‌رود. بازیابی روی پیوندهای موجود همان ۸۶٫۴٪ است.
@@ -12069,6 +12065,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+
+### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
+- **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
+- **`components/date-conflict-note.blade.php`:** پیوند پاسخ به‌جای « ←» برچسب را با `<span class="text-muted">(در {{ $choice['page'] }})</span>` و `title="پیشنهاد در … باز می‌شود"` نشان می‌دهد.
+- **آزمون:** `DateConflictNotesTest` «(در صفحۀ شخص)» و «(در صفحۀ اثر)» و نبود «» ←» را می‌سنجد.
 
 ### گام ۱۴.۲۳۹: `BibliographyLinks::centurySpans`، ارجاع طبقات با سده
 
