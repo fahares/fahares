@@ -11989,3 +11989,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - تمرین نخست با متن چاپی دو اهدا اجرا شد؛ پس از بازنویسی آن دو در پرونده، ردیف‌های نقش دو اثر روی رونوشت محلی دستی پاک و `backfill-work-dedications --only=` دوباره اجرا شد.
 - **اجرا در تولید (پس از انتشار و تأیید):** پشتیبان از ردیف‌های `people` این ۱۰۱ نام، و از `author_id`، `author_name`، `composition_date_raw`، ستون‌های بازه، `description`، `dedication`، `bibliography` و ردیف‌های `work_people` آثارشان، و `scribe_id` سه نسخه. سپس `php artisan fahares:remove-pseudo-people --apply` و اجرای دوباره.
 - **مانده:** ۴ نام با «(؟)» یا «(شاید)» در کمانک (تردید باید به `certainty` برود)؛ کاتبانی که نامشان جمله است («تحریر عنوانها درحواشی محمد موسوی») شمرده نشدند؛ تاریخ و اهدایی که پارسر 2.3.1 از شرح ۲۴۱ و ۷ اثر دیگر می‌خواند (مورد ۱۴۸).
+
+### گام ۱۴.۲۴۲: `saveReviewerNote` و یادداشت عمومی در تأیید انتقال و ادغام
+- **`Admin\SuggestionController::approveRelation`:** شاخۀ انتقال (`move_to_work`) و ادغام نسخه و اثر اکنون `public_note` را اعتبارسنجی و ذخیره می‌کند؛ پیش‌تر فقط `admin_notes` ذخیره می‌شد.
+- **`saveReviewerNote`** (`POST /admin/suggestions/{suggestion}/reviewer-note`، نام `admin.suggestions.reviewer-note`، زیر `can:suggestions.review`): `public_note` (تا ۲۰۰۰) و `admin_notes` (تا ۱۰۰۰) را در هر وضعیت ذخیره می‌کند و `status`، `reviewed_by` و `reviewed_at` را دست نمی‌زند. برای `kind` برابر `note` و `feedback` پاسخ ۴۰۴ است (فرم خودشان را دارند). یادداشت عمومی «قول دیگر» تأییدشده خالی نمی‌شود. اعلانی فرستاده نمی‌شود.
+- **قالب‌ها:** `partials/relation-approve.blade.php`: ده `input` یادداشت عمومی `textarea` شد و مقدار آغازین `public_note` و `admin_notes` از خود پیشنهاد می‌آید؛ `partials/field-approve.blade.php` و فرم رد در `show.blade.php` هم همین‌طور. فرم تازه در `details[data-more-tools]` با `data-reviewer-note`؛ پس از ذخیره این بخش باز می‌ماند.
+- **`my/suggestions.blade.php`:** «یادداشت داور» فقط وقتی `status` برابر `pending` نیست نمایش داده می‌شود.
+- **آزمون:** `SuggestionWorkflowTest::test_reviewer_notes_are_saved_without_a_decision_and_kept_by_a_move`.

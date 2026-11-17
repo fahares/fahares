@@ -155,13 +155,13 @@
                 @if($previousAdopted)<span x-show="outcome === 'adopt'" class="text-cinnabar">الزامی</span>@endif
                 <span x-show="outcome === 'alternative'" class="text-cinnabar">الزامی</span>
             </label>
-            <textarea id="approve_public_note" name="public_note" rows="2" placeholder="مثال: مقدار منتخب به استناد ترقیمۀ رسالۀ هشتم همین مجموعه ترجیح داده شد." class="admin-field w-full">{{ old('public_note', $promoting ? $suggestion->public_note : '') }}</textarea>
+            <textarea id="approve_public_note" name="public_note" rows="2" placeholder="مثال: مقدار منتخب به استناد ترقیمۀ رسالۀ هشتم همین مجموعه ترجیح داده شد." class="admin-field w-full">{{ old('public_note', $suggestion->public_note) }}</textarea>
         </div>
     @endif
 
     <div class="space-y-1">
         <label for="approve_admin_notes" class="block font-bold text-ink">یادداشت داخلی <span class="font-normal text-xs text-muted">(فقط داوران می‌بینند؛ اختیاری)</span></label>
-        <input id="approve_admin_notes" type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="توضیحات داوری…" class="admin-field w-full">
+        <input id="approve_admin_notes" type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="توضیحات داوری…" class="admin-field w-full">
     </div>
 
     {{-- What the approval will do, in one line --}}

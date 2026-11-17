@@ -284,6 +284,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/reopen', [AdminSuggestionController::class, 'reopen'])->name('suggestions.reopen');
         Route::post('/suggestions/{suggestion}/credit', [AdminSuggestionController::class, 'credit'])->name('suggestions.credit');
         Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
+        Route::post('/suggestions/{suggestion}/reviewer-note', [AdminSuggestionController::class, 'saveReviewerNote'])->name('suggestions.reviewer-note');
         Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
         Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
         Route::get('/suggestions/{suggestion}/convert-fields', [AdminSuggestionController::class, 'convertFields'])->name('suggestions.convert-fields');

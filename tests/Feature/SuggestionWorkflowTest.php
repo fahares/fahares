@@ -437,6 +437,41 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame('pending', $s->fresh()->status);
     }
 
+    /** Step 14.242: the reviewer's evidence is saved without a decision, and a move keeps the public note. */
+    public function test_reviewer_notes_are_saved_without_a_decision_and_kept_by_a_move()
+    {
+        $user = $this->researcher('test-researcher@fahares.net');
+        $m = $this->manuscript();
+        $to = $this->work();
+
+        $this->actingAs($user);
+        $this->relate($m, 'move_to_work', $to)->assertOk();
+        $s = $this->pendingFor($m);
+
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/reviewer-note", ['public_note' => " آغاز نسخه همان آغاز اثر مقصد است\nسطر دوم ", 'admin_notes' => 'فهرست دیده شد'])
+            ->assertRedirect("/admin/suggestions/{$s->id}")->assertSessionHas('success');
+        $s->refresh();
+        $this->assertSame(['pending', "آغاز نسخه همان آغاز اثر مقصد است\nسطر دوم", 'فهرست دیده شد', null], [$s->status, $s->public_note, $s->admin_notes, $s->reviewed_at]);
+        $this->assertSame($m->work_id, $m->fresh()->work_id);
+
+        // Until the decision the note is the reviewer's: the forms start from it, the submitter does not see it
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('آغاز نسخه همان آغاز اثر مقصد است')->assertSee('فهرست دیده شد');
+        $this->actingAs($user)->get('/my/suggestions')->assertOk()->assertDontSee('آغاز نسخه همان آغاز اثر مقصد است');
+
+        $this->approve($s, ['public_note' => 'آغاز نسخه همان آغاز اثر مقصد است', 'admin_notes' => 'فهرست دیده شد'])->assertRedirect('/admin/suggestions');
+        $s->refresh();
+        $this->assertSame(['approved', 'آغاز نسخه همان آغاز اثر مقصد است', $to->id], [$s->status, $s->public_note, $m->fresh()->work_id]);
+        $this->actingAs($user)->get('/my/suggestions')->assertOk()->assertSee('آغاز نسخه همان آغاز اثر مقصد است');
+
+        // After the decision the note can still be corrected; a research note has its own form
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/reviewer-note", ['public_note' => 'متن اصلاح‌شده'])->assertSessionHas('success');
+        $this->assertSame(['approved', 'متن اصلاح‌شده', null], [$s->fresh()->status, $s->fresh()->public_note, $s->fresh()->admin_notes]);
+        $s->update(['kind' => 'note']);
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/reviewer-note", ['public_note' => 'x'])->assertNotFound();
+
+        User::whereKey($user->id)->delete();
+    }
+
     public function test_merging_a_duplicate_manuscript()
     {
         $scribe = $this->person('کاتب نسخۀ تکراری');

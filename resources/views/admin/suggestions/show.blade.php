@@ -62,7 +62,7 @@
     $suggestedPerson = ! empty($payload['person_id']) ? (int) $payload['person_id'] : null;
     $derivedIds = $suggestion->resolution['converted_to'] ?? [];
     $sourceId = $payload['derived_from'] ?? null;
-    $toolsOpen = $errors->has('credit_name') || $errors->hasAny(['target_ref', 'target_type', 'kind', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role_name', 'shelfmark']);
+    $toolsOpen = $errors->has('credit_name') || session('success') === "یادداشت‌های پیشنهاد #{$suggestion->id} ذخیره شد." ||$errors->hasAny(['target_ref', 'target_type', 'kind', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role_name', 'shelfmark']);
 @endphp
 
 @section('title', 'پیشنهاد #' . $fa($suggestion->id))
@@ -292,6 +292,25 @@
                     </form>
                 @endunless
 
+                {{-- The reviewer's evidence without a decision (step 14.242) --}}
+                @unless(in_array($kind, ['note', 'feedback'], true))
+                    <form action="{{ route('admin.suggestions.reviewer-note', $suggestion) }}" method="POST" class="space-y-2 pt-3" data-reviewer-note>
+                        @csrf
+                        <h4 class="font-bold text-ink">یادداشت‌های داور <span class="font-normal text-xs text-muted">(ذخیره بدون تصمیم)</span></h4>
+                        @error('public_note')<p class="text-cinnabar font-bold">{{ $message }}</p>@enderror
+                        <div class="space-y-1">
+                            <label for="reviewer_public_note" class="block text-ink">یادداشت عمومی و مستند داور
+                                <span class="text-xs text-muted">({{ $suggestion->status === 'pending' ? 'تا تصمیم نهایی، پیشنهاددهنده آن را نمی‌بیند؛ فرم تأیید و رد با همین متن پر می‌شود' : 'پیشنهاددهنده آن را می‌بیند' }})</span></label>
+                            <textarea id="reviewer_public_note" name="public_note" rows="4" maxlength="2000" class="admin-field w-full leading-7">{{ old('public_note', $suggestion->public_note) }}</textarea>
+                        </div>
+                        <div class="space-y-1">
+                            <label for="reviewer_admin_notes" class="block text-ink">یادداشت داخلی <span class="text-xs text-muted">(فقط داوران)</span></label>
+                            <textarea id="reviewer_admin_notes" name="admin_notes" rows="2" maxlength="1000" class="admin-field w-full">{{ old('admin_notes', $suggestion->admin_notes) }}</textarea>
+                        </div>
+                        <x-ui.btn type="submit">ذخیرۀ یادداشت‌ها</x-ui.btn>
+                    </form>
+                @endunless
+
                 {{-- Links between a converted suggestion and the ones made from it --}}
                 @if($derivedIds || $sourceId)
                     <x-admin.notice class="space-y-1">
@@ -370,11 +389,11 @@
                             @csrf
                             <div class="space-y-1">
                                 <label for="reject_public_note" class="block font-bold text-ink">علت رد <span class="font-normal text-xs text-muted">(یادداشت عمومی؛ پیشنهاددهنده آن را می‌بیند)</span></label>
-                                <textarea id="reject_public_note" name="public_note" rows="3" placeholder="مثال: در ترقیمۀ نسخه تاریخ دیگری آمده است." class="admin-field w-full"></textarea>
+                                <textarea id="reject_public_note" name="public_note" rows="3" placeholder="مثال: در ترقیمۀ نسخه تاریخ دیگری آمده است." class="admin-field w-full">{{ $suggestion->public_note }}</textarea>
                             </div>
                             <div class="space-y-1">
                                 <label for="reject_admin_notes" class="block font-bold text-ink">یادداشت داخلی <span class="font-normal text-xs text-muted">(فقط داوران)</span></label>
-                                <textarea id="reject_admin_notes" name="admin_notes" rows="2" placeholder="مثال: مستند ارائه‌شده کافی نبود…" class="admin-field w-full"></textarea>
+                                <textarea id="reject_admin_notes" name="admin_notes" rows="2" placeholder="مثال: مستند ارائه‌شده کافی نبود…" class="admin-field w-full">{{ $suggestion->admin_notes }}</textarea>
                             </div>
                             <button type="submit" onclick="return confirm('این پیشنهاد رد شود؟')"
                                     class="w-full py-2.5 px-4 rounded-sm border border-cinnabar text-cinnabar hover:bg-cinnabar/5 font-bold transition cursor-pointer">
