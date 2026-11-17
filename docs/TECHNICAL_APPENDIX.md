@@ -11996,3 +11996,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **قالب‌ها:** `partials/relation-approve.blade.php`: ده `input` یادداشت عمومی `textarea` شد و مقدار آغازین `public_note` و `admin_notes` از خود پیشنهاد می‌آید؛ `partials/field-approve.blade.php` و فرم رد در `show.blade.php` هم همین‌طور. فرم تازه در `details[data-more-tools]` با `data-reviewer-note`؛ پس از ذخیره این بخش باز می‌ماند.
 - **`my/suggestions.blade.php`:** «یادداشت داور» فقط وقتی `status` برابر `pending` نیست نمایش داده می‌شود.
 - **آزمون:** `SuggestionWorkflowTest::test_reviewer_notes_are_saved_without_a_decision_and_kept_by_a_move`.
+
+### گام ۱۴.۲۴۴: فیلدهای `pages` و `range_from` (دامنه) در `SuggestionRegistry` و نگهبانی در `CopyExtent::columns`
+- **`SuggestionRegistry::manuscriptFields`:** `pages` (`integer`) و `range_from` (`text` با `leaf_range`). `currentValue` برای `leaf_range` دو سر را با «–» می‌دهد («1–12») و اگر یکی باشند همان یکی را.
+- **`SuggestionApplier::apply`:** برای `leaf_range`، `CopyExtent::parseRange` چهار ستون `range_from`، `range_to`، `range_from_number` و `range_to_number` را می‌نویسد؛ مقدار خالی هر چهار را تهی می‌کند و متن ناخوانا خطای `applied_value` می‌دهد.
+- **`CopyExtent::parseRange`:** رقم فارسی و عربی، «تا» و «الی» به‌جای خط تیره، و پیشوند «برگ»، «برگ‌های»، «صفحه»، «ص» و «گ» را می‌پذیرد و سپس همان `range()` متن فنخا را به کار می‌برد.
+- **`CopyExtent::columns`:** اگر لاگ `verify` نسخه `pages` را دارد، مقدار ذخیره‌شده می‌ماند؛ اگر یکی از چهار ستون دامنه را دارد، هر چهار می‌مانند (لاگ فقط ستون‌های تغییرکرده را نام می‌برد). ترتیب کلیدها حفظ می‌شود تا مقایسۀ `$new === $old` در `fahares:fill-extents` درست بماند. `extent_raw` همچنان متن چاپی است.
+- **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.

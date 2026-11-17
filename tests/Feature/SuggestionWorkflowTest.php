@@ -472,6 +472,39 @@ class SuggestionWorkflowTest extends TestCase
         User::whereKey($user->id)->delete();
     }
 
+    /** Step 14.244: the page count and the place in the volume are corrected like the leaf count, and a sync keeps them. */
+    public function test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync()
+    {
+        $m = $this->manuscript(['pages' => 12, 'extent_raw' => '12ص (1-12)', 'range_from' => '1', 'range_to' => '12', 'range_from_number' => 1, 'range_to_number' => 12,
+            'raw_text' => "1. تهران؛ ملی؛ شماره نسخه: 1/1\nخط: نستعلیق، بی‌کا؛ کاغذ: دولت آبادی، 12ص (1-12)، 15 سطر [ف: 6-601]"]);
+        $this->actingAs($this->admin)->get(route('manuscripts.show', $m))->assertOk()->assertSee('تعداد صفحه')->assertSee('جای نسخه در مجموعه');
+
+        $this->suggest($m, ['field_name' => 'range_from', 'suggested_value' => 'برگ ۲ تا ۷', 'rationale_citation' => 'خود نسخه'])->assertOk();
+        $s = $this->pendingFor($m);
+        $this->assertSame('1–12', $s->current_value);
+        $this->approve($s, ['applied_value' => 'نامعلوم'])->assertSessionHasErrors('applied_value');
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+        $this->assertSame(['2', '7', 2, 7], array_values($m->fresh()->only(['range_from', 'range_to', 'range_from_number', 'range_to_number'])));
+
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '6', 'rationale_citation' => 'خود نسخه'])->assertOk();
+        $this->approve($this->pendingFor($m))->assertRedirect('/admin/suggestions');
+        $this->suggest($m, ['field_name' => 'pages', 'suggested_value' => '14', 'rationale_citation' => 'خود نسخه'])->assertOk();
+        $this->approve($this->pendingFor($m), ['applied_value' => ''])->assertRedirect('/admin/suggestions');
+        $m->refresh();
+        $this->assertSame([6, null], [$m->folios, $m->pages]);
+        $this->assertSame('۶ برگ (۲–۷)', $m->extentLabel());
+        $this->assertSame('برگ‌های ۲ تا ۷', $m->rangeLabel());
+
+        // fahares:fill-extents reads «12ص (1-12)» again from the text and leaves the reviewed columns alone
+        $row = \Illuminate\Support\Facades\DB::table('manuscripts')->where('id', $m->id)->first(['id', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number', 'raw_text']);
+        $columns = \App\Support\CopyExtent::columns($row, \App\Suggestions\ProtectedColumns::for(Manuscript::class))['columns'];
+        $this->assertEquals(\App\Support\CopyExtent::stored($row), $columns);
+
+        $this->assertSame(['34پ', '43ر', 34, 43], \App\Support\CopyExtent::parseRange('۳۴پ–۴۳ر'));
+        $this->assertSame(['271', '271', 271, 271], \App\Support\CopyExtent::parseRange('271'));
+        $this->assertNull(\App\Support\CopyExtent::parseRange('برگ ۱ برگ ۲ تا ۷'));
+    }
+
     public function test_merging_a_duplicate_manuscript()
     {
         $scribe = $this->person('کاتب نسخۀ تکراری');

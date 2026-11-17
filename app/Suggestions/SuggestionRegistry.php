@@ -495,6 +495,11 @@ class SuggestionRegistry
     {
         $name = $field['name'];
 
+        // «2–7», «34پ–43ر»: both ends of the copy's place in its volume are one field
+        if (! empty($field['leaf_range'])) {
+            return $record->range_from === null ? null : ($record->range_from === $record->range_to ? $record->range_from : $record->range_from . '–' . $record->range_to);
+        }
+
         $value = match ($field['input']) {
             'boolean' => $record->{$name} ? 'بله' : 'خیر',
             'quote' => implode("\n\n", array_column(self::metaList($record, $field['meta_key']), 'text')) ?: $record->{$name},
@@ -551,6 +556,9 @@ class SuggestionRegistry
             'script_names' => ['label' => 'نوع خط', 'input' => 'text'],
             'script_style' => ['label' => 'کیفیت خط', 'input' => 'text'],
             'folios' => ['label' => 'تعداد برگ', 'input' => 'integer'],
+            // the page count and the copy's place in its volume, which only the Fankha text filled (step 14.244)
+            'pages' => ['label' => 'تعداد صفحه', 'input' => 'integer'],
+            'range_from' => ['label' => 'جای نسخه در مجموعه (برگ یا صفحه؛ مثلاً ۲–۷ یا ۳۴پ–۴۳ر)', 'input' => 'text', 'leaf_range' => true],
             'lines' => ['label' => 'تعداد سطر', 'input' => 'integer'],
             'dimensions' => ['label' => 'ابعاد', 'input' => 'text'],
             'paper' => ['label' => 'کاغذ', 'input' => 'textarea'],
