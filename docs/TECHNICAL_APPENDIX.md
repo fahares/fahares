@@ -12125,6 +12125,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نمونه:** «- 940 ؟ ق» با وفات ۹۴۰ ← «930 قمری»: وفات و بازه تهی، سده ۱۰ می‌ماند. «880 - 951 قمری» وفات ۹۵۱ می‌دهد. وفات ۹۵۵ که با متن نمی‌خواند با «قرن 10» می‌ماند.
 - **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.
 
+### گام ۱۴.۲۴۶: برداشتن سازوکارهای همکار دوم
+
+- **GitHub:** `gh api -X DELETE repos/fahares/fahares/branches/main/protection`؛ پس از آن `branches/main` می‌گوید `protected: false`. فهرست `collaborators` فقط `fahares` (admin) را دارد و `invitations` خالی است.
+- **`scripts/dev/prod-run`:** با `git checkout 9b236858^ -- scripts/dev/prod-run` به نسخۀ پیش از ۱۴.۲۰۳ برگشت؛ تنها تفاوت همان بلوک `main-lock on/off` و انتظار برای ساخت ایمیج بود.
+- **حذف:** `.github/CODEOWNERS`، `scripts/dev/main-lock`، `scripts/dev/dev-dump`، `docs/COLLABORATOR_SETUP.md`، `docs/COLLABORATOR_AGENT.md`؛ در CLAUDE.md جملۀ آغازینِ «If you work on another machine…» و بخش «Collaborators on another machine».
+- **ماند:** `*.sh text eol=lf` و `scripts/dev/* text eol=lf` در `.gitattributes`.
+
 ### گام ۱۴.۲۴۷: ستون `people.century_from` و سده‌های زندگی
 - **انتخاب طرح:** یک ستون `century_from` (`tinyint`، تهی‌پذیر) کنار `century_hijri`، نه مجموعۀ ذخیره‌شده. سده‌های یک زندگی همیشه پیوسته‌اند، پس دو سر بازه کافی است. `century_hijri` سر پایانی بازه است و همۀ خواننده‌های کنونی‌اش (ترتیب، `ERA_YEAR_SQL`، موتور تخمین تاریخ، آمار) دست‌نخورده می‌مانند. فیلتر پایگاه داده یک شرط بازه است و آرایۀ `life_centuries` فقط در سند جست‌وجو ساخته می‌شود.
 - **معنای ستون:** نخستین سدۀ زندگی، فقط وقتی پیش از `century_hijri` است. برای زندگی در یک سده، یا شخص بی‌سده، `null`.
@@ -12139,9 +12146,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` (۲۶ آبان ۱۴۰۵):** ۶۶٬۴۳۲ شخص، ۱٬۶۸۴ با سال تولد (۱٬۶۶۵ با وفات، ۱۹ فقط با سده). اجرای آزمایشی و اجرای `--apply`: ۱٬۲۱۱ پر شد (۱٬۲۰۸ با هر دو سال و ۳ با سال تولد و سده)، ۰ تهی شد. اجرای دوباره: ۰ و ۰. فاصلۀ سدۀ تولد تا سدۀ شخص در همۀ ۱٬۶۸۴ رکورد ۰ یا ۱ است.
 - **پس از استقرار (به تأیید کاربر، با `scripts/dev/prod-run`):** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:fill-life-centuries --apply`، سپس `php artisan scout:import "App\Models\Person"`.
 - **آزمون:** `LifeCenturiesTest` (چهار آزمون) و `SuggestionWorkflowTest::test_the_first_century_of_a_life_is_set_for_a_person_of_no_birth_year`.
-### گام ۱۴.۲۴۶: برداشتن سازوکارهای همکار دوم
-
-- **GitHub:** `gh api -X DELETE repos/fahares/fahares/branches/main/protection`؛ پس از آن `branches/main` می‌گوید `protected: false`. فهرست `collaborators` فقط `fahares` (admin) را دارد و `invitations` خالی است.
-- **`scripts/dev/prod-run`:** با `git checkout 9b236858^ -- scripts/dev/prod-run` به نسخۀ پیش از ۱۴.۲۰۳ برگشت؛ تنها تفاوت همان بلوک `main-lock on/off` و انتظار برای ساخت ایمیج بود.
-- **حذف:** `.github/CODEOWNERS`، `scripts/dev/main-lock`، `scripts/dev/dev-dump`، `docs/COLLABORATOR_SETUP.md`، `docs/COLLABORATOR_AGENT.md`؛ در CLAUDE.md جملۀ آغازینِ «If you work on another machine…» و بخش «Collaborators on another machine».
-- **ماند:** `*.sh text eol=lf` و `scripts/dev/* text eol=lf` در `.gitattributes`.
