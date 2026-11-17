@@ -22,6 +22,9 @@ class Source extends Model
 
     public const KIND_OTHER = 'other';
 
+    /** The year of a volume that was never printed. */
+    public const UNPUBLISHED = 'مخطوط';
+
     /**
      * The default rank of each kind: a library's catalogue, written by one who saw the copies, first; Fankha,
      * compiled from those catalogues, last.
@@ -114,7 +117,20 @@ class Source extends Model
         return $this->belongsTo(Library::class);
     }
 
-    /** The printing this one reprints (the Masjid-e A'zam catalogue of 1388 is a printing of the one Fankha cites). */
+    /**
+     * Whether the book was never printed: each of its volumes has «مخطوط» for its year, as the catalogue of Masjid-e
+     * A'zam that Fankha cites as «ف مخ». A printed catalogue tied to it is another book of the same library, with its
+     * own volumes and pages, not another printing of it (step 14.240).
+     */
+    public function isUnpublished(): bool
+    {
+        return $this->volumes->isNotEmpty() && $this->volumes->every(fn (SourceVolume $v) => $v->publication_year === self::UNPUBLISHED);
+    }
+
+    /**
+     * The book this one is tied to: the printing it reprints, or, when that book is unpublished (isUnpublished), the
+     * unprinted catalogue of the same library (the Masjid-e A'zam catalogue of 1388 and the one Fankha cites).
+     */
     public function editionOf(): BelongsTo
     {
         return $this->belongsTo(self::class, 'edition_of_id');

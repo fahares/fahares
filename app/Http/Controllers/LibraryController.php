@@ -66,7 +66,7 @@ class LibraryController extends Controller
             ->paginate(30);
 
         // the library's printed catalogues, each a source with its own page (step 13.80)
-        $catalogues = \App\Models\Source::where('library_id', $library->id)->whereNull('edition_of_id')->with('editions')->orderBy('title')->get();
+        $catalogues = \App\Models\Source::where('library_id', $library->id)->whereNull('edition_of_id')->with(['editions', 'volumes'])->orderBy('title')->get();
 
         // its catalogues printed as parts of a volume that holds several libraries' («نشریه» 5, pp. 8–107), step 14.50
         $parts = collect();

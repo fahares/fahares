@@ -25,7 +25,7 @@ class SourceController extends Controller
     public function index()
     {
         $counts = SourceShelf::counts();
-        $sources = Source::with(['library', 'volumes', 'editions'])->whereNull('edition_of_id')->orderBy('rank')->orderBy('title')->get()
+        $sources = Source::with(['library', 'volumes', 'editions.volumes', 'editions.library'])->whereNull('edition_of_id')->orderBy('rank')->orderBy('title')->get()
             // a source the site has nothing of, in itself or an edition, is left out
             ->filter(fn (Source $s) => collect([$s, ...$s->editions])->contains(fn ($e) => array_sum($counts[$e->id] ?? []) > 0))
             ->groupBy(fn (Source $s) => $s->kind === Source::KIND_UNION_CATALOGUE ? Source::KIND_LIBRARY_CATALOGUE : $s->kind);
