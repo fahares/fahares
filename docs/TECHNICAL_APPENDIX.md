@@ -11794,11 +11794,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `middle`: شخص بی‌متن با `death_year_hijri = century_hijri * 100 - 50`؛ متن سده‌ی پیکره، اگر باشد، `life_dates_raw` می‌شود.
   - `solar`: ثابت `SOLAR` (نام ← متن فهرست و متن درست)، با `FixCalendarDeathsCommand::columns`.
 - **منبع دو مورد `SOLAR`:** عبرت نائینی، زاده‌ی ۱۸۶۶ و درگذشته‌ی ۱۹۴۲ (ویکی‌نبشته‌ی فارسی)؛ ارباب کیخسرو شاهرخ، زاده‌ی تیر ۱۲۵۳ یا ۱۲۵۴ و درگذشته‌ی ۱۱ تیر ۱۳۱۹ (kojaro.com، iranketab.ir). برای یوسف شعار، محمد مردوخ و فیاض زنجانی منبعی پیدا نشد و دست نخوردند.
-- **تمرین روی `fahares_prod` (۲۶ آبان ۱۴۰۵):** «3 fuller texts, 5 birth years, 61 years alive, 6 open dashes, 53 mid-century years, 2 solar»؛ اجرای دوم همه صفر و «75 already right».
+- **تمرین روی `fahares_prod` (۲۵ آبان ۱۴۰۵):** «3 fuller texts, 5 birth years, 61 years alive, 6 open dashes, 53 mid-century years, 2 solar»؛ اجرای دوم همه صفر و «75 already right».
   - ناسازگاری مستقیم پس از `estimate-dates --apply`: ۲٬۸۳۵ ← ۲٬۶۶۰ (با موتور پیش از گام ۱۴.۲۲۲). با موتور گام ۱۴.۲۲۲ همین داده ۲٬۶۷۲ مستقیم و ۹٬۷۵۵ غیرمستقیم دارد.
   - نمونه‌ها: قاضی سعید قمی «1049-»: وفات ۱۰۴۹ ← تولد ۱۰۴۹؛ حکیمی «1357 - قمری»: وفات ۱۳۵۷ ← تولد ۱۳۵۷؛ عبرت نائینی: ۱۳۲۱ ← ۱۳۶۱ تا ۱۳۶۲.
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
-- **اجرای پروداکشن (۲۶ آبان ۱۴۰۵، پس از انتشار ۱۴۶، با تأیید کاربر، هر فرمان جدا زیر `prod-run`):**
+- **اجرای پروداکشن (۲۵ آبان ۱۴۰۵، پس از انتشار ۱۴۶، با تأیید کاربر، هر فرمان جدا زیر `prod-run`):**
   - پشتیبان: `../fahares-sources/backups/step13/step14_225_people_before.jsonl.gz` (۶۶٬۵۱۲ ردیف، md5 `a149227a…`).
   - `fahares:fix-life-years`: آزمایشی و `--apply` هر دو «3 fuller texts, 5 birth years, 61 years alive, 6 open dashes, 53 mid-century years, 2 solar»؛ اجرای دوم «75 already right».
   - `fahares:estimate-dates --apply`: ۸۷ ثانیه؛ ۲۲۵٬۳۴۳ تخمین و ۱۲٬۴۲۷ ناسازگاری (۲٬۶۷۲ مستقیم، ۹٬۷۵۵ غیرمستقیم)، همان عددهای تمرین با موتور گام ۱۴.۲۲۲؛ ۳۴۱ سند اثر و ۵۶۴ سند شخص تازه شد.
@@ -11997,9 +11997,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: `../fahares-sources/backups/step13/step14_233_people_before.jsonl.gz` (۶۶٬۴۳۲ ردیف، md5 `322e9224…`).
   - بار سرور از حدود ۱۵:۰۰ تا ۱۶:۱۵ بین ۱۰ و ۴۵ بود (میانگین پنج‌دقیقه‌ای تا ۵۵)، هم‌زمان با اجراهای نشست‌های دیگر و استقرار ۱۵۰؛ در کانتینر برنامه پردازش سنگینی دیده نشد. نخستین اجرای آزمایشی با قطع اتصال ssh از سمت سرور ناتمام ماند. اجرا تا پایین آمدن بار عقب افتاد.
   - `fahares:fix-life-years` (با `nohup` و لاگ): آزمایشی «9 solar, 42 already right»، `--apply` همان، و اجرای دوم «0 solar, 51 already right». شمار «already right» از تمرین کمتر است، چون گام ۱۴.۲۳۵ در این میان ۸۰ شبه‌شخص را حذف کرده بود.
-  - `fahares:estimate-dates --apply` دستی اجرا نشد؛ اجرای شبانۀ ۲۷ آبان (۰۴:۴۱) آن را انجام داد: ۲٬۶۶۱ ناسازگاری مستقیم و ۹٬۷۵۵ غیرمستقیم.
+  - `fahares:estimate-dates --apply` دستی اجرا نشد؛ اجرای شبانۀ ۲۶ آبان (۰۴:۴۱) آن را انجام داد: ۲٬۶۶۱ ناسازگاری مستقیم و ۹٬۷۵۵ غیرمستقیم.
   - وارسی: فیاض زنجانی «۱۲۸۴–۱۳۵۹ ق»، یوسف شعار «۱۳۱۹–۱۳۹۲ ق»، لاهیجی حائری «د. ۱۳۴۵ ق». فایل‌های `/tmp` کانتینر پاک شد.
-  - سند جستجوی این ۹ شخص در ۲۷ آبان، با تأیید کاربر، بازنمایه شد: `fahares:reindex-work-estimates --people --from=<id> --to=<id> --sleep=0` برای هر شناسه، هر بار «Reindexed 1 of 1 people». صف Meilisearch خالی، کار ناموفق ۰؛ سند فیاض زنجانی `death_year_hijri` و `era_year` برابر ۱۳۵۹ دارد.
+  - سند جستجوی این ۹ شخص در ۲۶ آبان، با تأیید کاربر، بازنمایه شد: `fahares:reindex-work-estimates --people --from=<id> --to=<id> --sleep=0` برای هر شناسه، هر بار «Reindexed 1 of 1 people». صف Meilisearch خالی، کار ناموفق ۰؛ سند فیاض زنجانی `death_year_hijri` و `era_year` برابر ۱۳۵۹ دارد.
 - **مانده:** حدود ۱۵ شخص همان گروه که در منابع سایت زندگی‌نامه ندارند (سبحانی تبریزی، مجتهد کرمانشاهی، مخصوص، رشیدی، مردوخ، مظفری و دیگران)، و ۱۲ نفری که تاریخشان درست است و پیوند نسخه یا اثرشان باید بازبینی شود.
 
 ### گام ۱۴.۲۳۵: `fahares:remove-pseudo-people`، `pseudo_people_step14_235.json` و `fankha_parser_v2` 2.3.1
