@@ -12118,3 +12118,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`CopyExtent::parseRange`:** رقم فارسی و عربی، «تا» و «الی» به‌جای خط تیره، و پیشوند «برگ»، «برگ‌های»، «صفحه»، «ص» و «گ» را می‌پذیرد و سپس همان `range()` متن فنخا را به کار می‌برد.
 - **`CopyExtent::columns`:** اگر لاگ `verify` نسخه `pages` را دارد، مقدار ذخیره‌شده می‌ماند؛ اگر یکی از چهار ستون دامنه را دارد، هر چهار می‌مانند (لاگ فقط ستون‌های تغییرکرده را نام می‌برد). ترتیب کلیدها حفظ می‌شود تا مقایسۀ `$new === $old` در `fahares:fill-extents` درست بماند. `extent_raw` همچنان متن چاپی است.
 - **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.
+
+### گام ۱۴.۲۴۶: برداشتن سازوکارهای همکار دوم
+
+- **GitHub:** `gh api -X DELETE repos/fahares/fahares/branches/main/protection`؛ پس از آن `branches/main` می‌گوید `protected: false`. فهرست `collaborators` فقط `fahares` (admin) را دارد و `invitations` خالی است.
+- **`scripts/dev/prod-run`:** با `git checkout 9b236858^ -- scripts/dev/prod-run` به نسخۀ پیش از ۱۴.۲۰۳ برگشت؛ تنها تفاوت همان بلوک `main-lock on/off` و انتظار برای ساخت ایمیج بود.
+- **حذف:** `.github/CODEOWNERS`، `scripts/dev/main-lock`، `scripts/dev/dev-dump`، `docs/COLLABORATOR_SETUP.md`، `docs/COLLABORATOR_AGENT.md`؛ در CLAUDE.md جملۀ آغازینِ «If you work on another machine…» و بخش «Collaborators on another machine».
+- **ماند:** `*.sh text eol=lf` و `scripts/dev/* text eol=lf` در `.gitattributes`.
+
