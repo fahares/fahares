@@ -56,7 +56,10 @@
             @if($source->library)
                 <p class="text-sm"><a href="{{ route('libraries.show', $source->library) }}" class="text-cinnabar hover:underline">{{ $source->library->display_name }}</a></p>
             @endif
-            @if($source->editionOf)
+            {{-- a printed catalogue tied to an unprinted one is another book, not a printing of it (step 14.240) --}}
+            @if($source->editionOf?->isUnpublished())
+                <p class="text-xs text-muted" data-source-unprinted>فهرست چاپی این کتابخانه. شمارۀ جلد و صفحۀ آن با فهرست چاپ‌نشده یکی نیست: <a href="{{ route('sources.show', $source->editionOf->code) }}" class="text-cinnabar hover:underline">{{ $source->editionOf->title }}</a></p>
+            @elseif($source->editionOf)
                 <p class="text-xs text-muted">چاپی از <a href="{{ route('sources.show', $source->editionOf->code) }}" class="text-cinnabar hover:underline">{{ $source->editionOf->title }}</a></p>
             @endif
             <div class="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-1 mt-2 text-sm text-muted" data-source-counts>
@@ -102,7 +105,10 @@
     </div>
 
     @if($source->editions->isNotEmpty())
-        <x-ui.section title="چاپ‌های دیگر">
+        <x-ui.section :title="$source->isUnpublished() ? 'فهرست چاپی همین کتابخانه' : 'چاپ‌های دیگر'">
+            @if($source->isUnpublished())
+                <p class="text-xs text-muted mb-2" data-source-printed>این فهرست چاپ نشده است. شمارۀ جلد و صفحۀ فهرست چاپی با آن یکی نیست.</p>
+            @endif
             <ul class="space-y-1 text-sm">
                 @foreach($source->editions as $edition)
                     <li><a href="{{ route('sources.show', $edition->code) }}" class="text-cinnabar hover:underline">{{ $edition->title }}</a>@if($edition->edition_label)<span class="text-muted"> ({{ Fa::digits($edition->edition_label) }})</span>@endif</li>

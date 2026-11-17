@@ -154,7 +154,7 @@
                 @endif
             @endif
             @if($possiblySame)
-                <p>به گفتۀ فنخا («همان نسخه بالا») این معرفی احتمالاً همان نسخۀ <a href="{{ route('manuscripts.show', $possiblySame) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($possiblySame->libraryRecord?->name ?? $possiblySame->library ?? '') . ' ' . ($possiblySame->shelfmark ?? ''))) }}</a> است. تا روشن شدن آن، دو رکورد جدا مانده‌اند.</p>
+                <p>بنا بر یادداشت «همان نسخه بالا» در مأخذ، این معرفی احتمالاً همان نسخۀ <a href="{{ route('manuscripts.show', $possiblySame) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($possiblySame->libraryRecord?->name ?? $possiblySame->library ?? '') . ' ' . ($possiblySame->shelfmark ?? ''))) }}</a> است. تا روشن شدن آن، دو رکورد جدا مانده‌اند.</p>
                 {{-- One step for a reader who knows: a suggestion with the other copy already chosen, for the reviewers --}}
                 @php $sameTarget = \App\Suggestions\SuggestionRegistry::describe($possiblySame) + ['id' => $possiblySame->id]; @endphp
                 <div class="flex flex-wrap items-center gap-2 text-[13px]" data-same-answer>
@@ -244,7 +244,11 @@
             <!-- The copy's places in the sources (step 13.4), in the order of their rank: the library's catalogues first, Fankha, compiled from them, last -->
             <x-ui.card class="space-y-4">
                 <div class="text-xs text-muted">در مآخذ نسخه‌شناسی</div>
-                @foreach($sources->cardGroups() as $group)
+                @php
+                    // Fankha's own card folded under the printed catalogues' (backlog item 147)
+                    [$secondHandGroups, $firstHandGroups] = $sources->cardGroups()->partition(fn ($g) => $g['entries'][0]->isSecondHand());
+                @endphp
+                @foreach($firstHandGroups as $group)
                     @if($group['label'])
                         {{-- several pages of one volume (step 14.42) --}}
                         <div class="space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-group>
@@ -257,6 +261,15 @@
                         <x-source.page-card :entry="$group['entries'][0]" :record="$manuscript" />
                     @endif
                 @endforeach
+                @if($secondHandGroups->isNotEmpty())
+                    <x-source.secondary>
+                        @foreach($secondHandGroups as $group)
+                            @foreach($group['entries'] as $entry)
+                                <x-source.page-card :entry="$entry" :record="$manuscript" />
+                            @endforeach
+                        @endforeach
+                    </x-source.secondary>
+                @endif
                 @if($manuscript->cataloger)
                     @php
                         // A copy in a volume compiled under someone else (an article of «اوراق عتیق»): name the volume and its supervisor
@@ -509,10 +522,18 @@
             @php $texts = $sources->texts(); @endphp
             @if($texts->isNotEmpty())
                 <x-ui.section title="متن مأخذ">
+                    @php [$secondHandTexts, $firstHandTexts] = $texts->partition(fn ($e) => $e->isSecondHand()); @endphp
                     <div class="space-y-6">
-                        @foreach($texts as $entry)
+                        @foreach($firstHandTexts as $entry)
                             <x-source.text :entry="$entry" :record="$manuscript" />
                         @endforeach
+                        @if($secondHandTexts->isNotEmpty())
+                            <x-source.secondary>
+                                @foreach($secondHandTexts as $entry)
+                                    <x-source.text :entry="$entry" :record="$manuscript" />
+                                @endforeach
+                            </x-source.secondary>
+                        @endif
                     </div>
                 </x-ui.section>
             @endif
@@ -641,7 +662,9 @@
             </p>
 
             @php
-                $fankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($fankha?->volume_number ?? '-') . "، ص " . ($fankha?->page_start ?? '-') . "، ردیف " . ($manuscript->sequence_number ?? '-') . ".";
+                // the printed catalogue the copy is in, not Fankha, which only cites it (backlog item 147)
+                $citedEntry = $sources->citable();
+                $catalogCitation = $citedEntry?->referenceCitation($manuscript);
                 
                 $workTitle = $manuscript->work?->primary_title ?? 'نسخه خطی';
                 $authorName = $manuscript->work?->author?->name ?? 'ناشناخته';
@@ -658,27 +681,29 @@
 
             <div class="space-y-4">
                 
-                <!-- Format 1: FanKha Source -->
+                <!-- Format 1: the printed catalogue -->
+                @if($catalogCitation)
                 <div class="p-4 rounded-2xl bg-paper border border-line space-y-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-cinnabar text-[11px] font-bold">
                                 قالب ۱
                             </span>
-                            <span class="text-xs font-bold text-ink">قالب مأخذ فنخا (فهرستگان نسخه‌های خطی ایران)</span>
+                            <span class="text-xs font-bold text-ink">ارجاع به فهرست چاپی</span>
                         </div>
                         <button 
                             type="button" 
-                            @click="copyText(@js($fankhaCitation), 'fankha')"
+                            @click="copyText(@js($catalogCitation), 'catalog')"
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
-                            <span x-show="copiedKey !== 'fankha'">کپی ارجاع</span>
-                            <span x-show="copiedKey === 'fankha'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                            <span x-show="copiedKey !== 'catalog'">کپی ارجاع</span>
+                            <span x-show="copiedKey === 'catalog'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
                         </button>
                     </div>
                     <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-normal select-all">
-                        {{ $fankhaCitation }}
+                        {{ $catalogCitation }}
                     </div>
                 </div>
+                @endif
 
                 <!-- Format 2: Persian Articles / Codicological Reference -->
                 <div class="p-4 rounded-2xl bg-stone-50 dark:bg-paper border border-stone-200 dark:border-line space-y-2">

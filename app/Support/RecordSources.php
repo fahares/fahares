@@ -49,6 +49,16 @@ class RecordSources
             ->values();
     }
 
+    /**
+     * The place the citation window cites (backlog item 147): the first card with a page, so a library's own printed
+     * catalogue, or a bibliography, before Fankha; Fankha's entry only when the record has no other place.
+     */
+    public function citable(): ?SourceEntry
+    {
+        return $this->cards()->first(fn (SourceEntry $e) => $e->page_start && $e->origin !== SourceEntry::ORIGIN_FANKHA)
+            ?? $this->primary();
+    }
+
     /** The texts printed at those places, in the same order. */
     public function texts(): Collection
     {

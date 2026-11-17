@@ -65,9 +65,15 @@
                     @foreach($catalogues as $catalogue)
                         <li class="flex gap-2.5 leading-relaxed">
                             <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                            @if($catalogue->isUnpublished() && $catalogue->editions->isNotEmpty())
+                                {{-- an unprinted catalogue comes after the printed one of the library (step 14.240) --}}
+                                <span>@foreach($catalogue->editions as $edition)<a href="{{ route('sources.show', $edition->code) }}" class="text-cinnabar hover:underline">{{ $edition->title }}</a>@if($edition->edition_label)<span class="text-muted"> ({{ Fa::digits($edition->edition_label) }})</span>@endif<span class="text-muted">، </span>@endforeach<a href="{{ route('sources.show', $catalogue->code) }}" class="text-cinnabar hover:underline" data-library-unprinted>فهرست چاپ‌نشده</a>
+                                </span>
+                            @else
                             <span><a href="{{ route('sources.show', $catalogue->code) }}" class="text-cinnabar hover:underline">{{ $catalogue->title }}</a>
                                 @foreach($catalogue->editions as $edition)<span class="text-muted">، </span><a href="{{ route('sources.show', $edition->code) }}" class="text-cinnabar hover:underline">{{ Fa::digits($edition->edition_label ?: $edition->title) }}</a>@endforeach
                             </span>
+                            @endif
                         </li>
                     @endforeach
                     {{-- a part of a volume that holds several libraries' catalogues (step 14.50) --}}

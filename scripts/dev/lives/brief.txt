@@ -1,0 +1,20 @@
+You are judging entity links for a catalogue of Persian and Arabic manuscripts. No code is needed; this is a careful reading task in Arabic and Persian.
+
+Input file (read all of it, in pages if it is long): <dir>/full/batch_NNN.json
+
+It is a JSON list of up to 50 entries from the biographical dictionary <title and author of the source>. Each entry has `id`, `volume`, `heading`, `text` (the opening of the entry, up to 800 characters, « / » marks a line break) and `candidates`: 1 to 4 people from the catalogue's own records, each with `n`, `name` (usually «nisba or laqab، given name بن father»), `other_names`, `dates` (life dates as the catalogue has them; «ق 11» means the 11th Hijri century; a «؟» means doubt) and up to 8 `works` titles.
+
+For each entry decide: is this entry the biography of one of the candidates, i.e. the same historical person? Answer with that candidate's `n`, or 0 when none of them is the subject of the entry. Most candidates were found by a loose name match, so 0 is a frequent and correct answer. A wrong link is worse than a missed one.
+
+How to judge:
+- The subject of the entry is the person named in the heading and the opening words. People merely mentioned in the text (a teacher, father, son, brother, the owner or copyist of a manuscript, an author whose book the subject copied) are not the subject.
+- Same given name and father's name are not enough on their own: these names are very common. Look for agreement of at least one more thing: the nisba or laqab, a death or birth year, the century, or a work of the candidate named in the entry (titles may be worded a little differently in Arabic and Persian).
+- Father and son, brothers and namesakes of different centuries are the usual traps. If the dates contradict (more than a few years apart for exact years, or a different century), answer 0 unless a named work settles it. A candidate's «year» may be a birth, composition or copy year rather than a death year, so weigh a named work above a small date disagreement.
+- When two candidates look like two records of the same person and both fit, choose the one whose dates or works agree best with the entry.
+- If the entry is too short or too damaged to tell, or it only points to another entry, answer 0 with low confidence.
+- Use only what is in the file. Do not look anything up, and do not use outside knowledge to override the text; outside knowledge may only make you more cautious.
+
+Output: write a JSON file at <dir>/full/out_NNN.json containing a list with exactly one object per entry, in the input order:
+{"id": <entry id>, "choice": <n or 0>, "chosen_name": "<the `name` of the chosen candidate copied exactly from the file; empty string for 0>", "confidence": <0-100, how sure you are of this choice>, "evidence": "<a short phrase copied exactly from the entry's heading or text that supports the choice; empty string for 0 when nothing applies>", "reason": "<one short sentence in English>"}
+
+Confidence guide for a non-zero choice: 95+ when the name, and a date or a named work, all agree; 80-94 when the name with nisba agrees and nothing contradicts but there is no date or work to confirm; below 80 when you lean yes but something is missing. Judge every entry yourself, one by one; do not write a script that decides. After writing the file, check that it is valid JSON, that every `id` of the input appears exactly once, and that every `chosen_name` is the name of candidate `choice` of that entry. Your final reply: only the number of non-zero choices and the number of zeros.

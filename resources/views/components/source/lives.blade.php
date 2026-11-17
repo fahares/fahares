@@ -7,7 +7,9 @@
     $lives = \App\Models\SourceEntry::with(['source:id,code,title,short_name,rank', 'sourceItem'])
         ->where('citable_type', \App\Models\Person::class)->where('citable_id', $person->id)->whereNotNull('source_item_id')
         ->where('status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)->get()
-        ->filter(fn ($e) => $e->source && $e->sourceItem)->sortBy(fn ($e) => [$e->source->rank, $e->volume_number, $e->page_start])->values();
+        ->filter(fn ($e) => $e->source && $e->sourceItem)
+        // an unsure tie of the model waits in the reviewers' queue, out of the readers' sight
+        ->reject(fn ($e) => $e->isUnsureLife() && ! auth()->user()?->can('catalog_refs.review'))->sortBy(fn ($e) => [$e->source->rank, $e->volume_number, $e->page_start])->values();
 @endphp
 @if($lives->isNotEmpty())
     <x-ui.section title="زندگی‌نامه در منابع" :count="$lives->count()">

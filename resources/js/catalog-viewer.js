@@ -23,7 +23,7 @@ const phone = () => window.matchMedia('(max-width: 639px), (pointer: coarse)').m
 export default (config) => ({
     open: false,
     catalog: 'fankha',
-    catalogName: 'فنخا',
+    catalogName: '',
     volume: 1,
     page: 1,
     // The volume's page range, from the page-images endpoint; null until known (next is then not capped)
@@ -167,7 +167,7 @@ export default (config) => ({
         const volume = parseInt(detail.volume) || 1;
         const sameVolume = this.catalog === catalog && this.volume === volume;
         this.catalog = catalog;
-        this.catalogName = detail.catalogName || 'فنخا';
+        this.catalogName = detail.catalogName || '';
         this.volume = volume;
         if (!sameVolume) {
             this.first = 1;

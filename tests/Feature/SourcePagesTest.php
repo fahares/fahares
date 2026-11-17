@@ -96,9 +96,12 @@ class SourcePagesTest extends TestCase
         $this->entry($this->work, ['source_id' => $dharia, 'role' => SourceEntry::ROLE_CITATION, 'citation_text' => 'الذریعة 101/25', 'sort_order' => 0]);
 
         $this->get(route('works.show', $this->work))->assertOk()
-            ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'فهرستگان نسخه‌های خطی ایران', '(استدراک)، ', 'ج ۱۵، ص ۱۲۱–۱۲۲', 'متن مأخذ', 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن فنخای اثر'])
+            // Fankha's own place only on its folded card and text, not in the list (backlog item 147)
+            ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'متن مأخذ', 'مأخذ دست دوم', 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن فنخای اثر'])
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)
-            ->assertSeeInOrder(['معرفی اثر', 'به روایت فنخا', 'معرفی آزمایشی اثر'])
+            // no «به روایت فنخا» over the description, and Fankha's own card folded under the others (backlog item 147)
+            ->assertSeeInOrder(['معرفی اثر', 'معرفی آزمایشی اثر'])->assertDontSee('به روایت فنخا')
+            ->assertSeeInOrder(['در مآخذ کتاب‌شناسی', 'مأخذ دست دوم', 'فهرستگان نسخه‌های خطی ایران'])
             ->assertSee('استدراک')
             // the suggestion desk still offers the bibliography column, which corrections write until step 13.3
             ->assertDontSee('ستون کهنۀ اثر');

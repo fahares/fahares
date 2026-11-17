@@ -193,6 +193,129 @@ class BibliographyLinks
      */
     public static function segments(string $entry): array
     {
+        // a book cited by its centuries (Tabaqat) is read on its own; the rest of the entry as ever, around it
+        $segments = [];
+        $cursor = 0;
+        foreach (self::$citing[1] === 'bibliography' ? self::centurySpans($entry) : [] as [$start, $end, $links]) {
+            array_push($segments, ...self::read(substr($entry, $cursor, $start - $cursor)));
+            foreach ($links as [$offset, $length, $link]) {
+                self::pushText($segments, substr($entry, $start, $offset - $start));
+                $segments[] = ['text' => substr($entry, $offset, $length)] + $link;
+                $start = $offset + $length;
+            }
+            self::pushText($segments, substr($entry, $start, $end - $start));
+            $cursor = $end;
+        }
+        if ($cursor === 0) {
+            return self::read($entry);
+        }
+        array_push($segments, ...self::read(substr($entry, $cursor)));
+
+        // the pieces read apart are one text again where no link parts them
+        $joined = [];
+        foreach ($segments as $seg) {
+            $last = count($joined) - 1;
+            if ($last >= 0 && count($seg) === 1 && count($joined[$last]) === 1) {
+                $joined[$last]['text'] .= $seg['text'];
+            } else {
+                $joined[] = $seg;
+            }
+        }
+
+        return $joined;
+    }
+
+    /**
+     * The citations of a book of lives by centuries whose pages the site's printing keeps (Tabaqat A'lam al-Shi'a, its
+     * config entry's «earlier» of places «centuries»; step 14.239): «طبقات اعلام الشیعه، قرن 10، ص 8 و 9» is pages 8
+     * and 9 of the tenth century's volume. The century is the part's name («نقباء البشر 245/1») or the number after
+     * «قرن»، «سده» or «ق»; without one nothing is linked. In a century of several volumes the part («245/1», «ج 1، ص
+     * 36») names the volume when it holds the page, and else the one volume of the century that holds it does; a page
+     * two of them hold is left plain. The links carry no «cite»: the entry stays a citation of the old printing in
+     * source_entries, which sources:link-earlier-edition ties to the author's life.
+     *
+     * @return list<array{0: int, 1: int, 2: list<array{0: int, 1: int, 2: array}>}>  start, end and the links (offset, length, link) of each
+     */
+    private static function centurySpans(string $entry): array
+    {
+        $d = '[0-9۰-۹]';
+        $spans = [];
+        foreach (self::sources() as $key => $src) {
+            $edition = collect($src['earlier'] ?? [])->firstWhere('places', 'centuries');
+            if (! $edition || ! preg_match_all('/(?<![\p{L}\p{M}])(?:ال)?(?:' . $edition['pattern'] . ')(?![\p{L}\p{M}])/u', $entry, $names, PREG_OFFSET_CAPTURE)) {
+                continue;
+            }
+            $bounds = $src['viewer'] ?? $src['text'] ?? [];
+            $holds = fn (int $v, int $p) => $p >= ($bounds['first_pages'][$v] ?? 1) && $p <= ($bounds['last_pages'][$v] ?? 0);
+            foreach ($names[0] as $i => [$name, $at]) {
+                // up to the next citation: «؛», the next name of the book, or a comma before another book's name
+                $from = $at + strlen($name);
+                $tail = substr($entry, $from, ($names[0][$i + 1][1] ?? strlen($entry)) - $from);
+                $tail = preg_split('/[؛;\n]|[،,]\s*(?!(?:ال)?قرن|سد[هۀ]|صفحه)(?=\p{L}{3})/u', $tail)[0];
+                $century = null;
+                foreach ($edition['names'] as $part => $of) {
+                    if (preg_match('/' . $part . '/u', $name)) {
+                        $century = $of;
+                        break;
+                    }
+                }
+                // «قرن 12»، «(قرن 12ق)»، «قرن (12)»، «ق.13»: not a page, whatever names the century
+                if (preg_match('/(?<![\p{L}\p{M}])(?:(?:ال)?قرن|سد[هۀ]|ق)[\s.(]*(' . $d . '{1,2})(?![\/' . $d . ']|\s*\/)(?:\s*(?:هـ|ه|ق)(?![\p{L}\p{M}]))?/u', $tail, $c, PREG_OFFSET_CAPTURE)) {
+                    $century ??= self::int($c[1][0]);
+                    $tail = substr_replace($tail, str_repeat(' ', strlen($c[0][0])), $c[0][1], strlen($c[0][0]));
+                }
+                $volumes = $edition['centuries'][$century] ?? [];
+                if (! $volumes || ! preg_match('/(?:ج\s*)?' . $d . '/u', $tail, $first, PREG_OFFSET_CAPTURE)) {
+                    continue;
+                }
+                // the numbers, one after another: «ج 1، ص 36», «245/1», «1: 349», «8 و 9 و 245», «739-741»; anything else ends them
+                $links = [];
+                $pos = $first[0][1];
+                $word = '(?:صفحه|صص|ص)\s*\.?\s*';
+                $token = '/\G(?:(?<jw>ج\s*(?<jv>' . $d . '+)\s*[،,:]?\s*' . $word . '(?<jp>' . $d . '+))|(?<pw>(?<a>' . $d . '+)(?:\s*(?<sep>[\/:])\s*(?<b>' . $d . '+))?))'
+                    . '(?:\s*[-–]\s*' . $d . '+)?(?<gap>\s*(?:[،,]|و(?=\s))?\s*(?:' . $word . ')?)/u';
+                while (preg_match($token, $tail, $t, PREG_OFFSET_CAPTURE | PREG_UNMATCHED_AS_NULL, $pos)) {
+                    $whole = $t['jw'][0] ?? $t['pw'][0];
+                    // the page and its part: «ج 1، ص 36», Fankha's «page/part» and «part: page», and the other order of
+                    // a pair where only that one is a page of the part («1/ 182»)
+                    $orders = match (true) {
+                        isset($t['jp'][0]) => [[self::int($t['jp'][0]), self::int($t['jv'][0])]],
+                        ! isset($t['b'][0]) => [[self::int($t['a'][0]), null]],
+                        $t['sep'][0] === ':' => [[self::int($t['b'][0]), self::int($t['a'][0])], [self::int($t['a'][0]), self::int($t['b'][0])]],
+                        default => [[self::int($t['a'][0]), self::int($t['b'][0])], [self::int($t['b'][0]), self::int($t['a'][0])]],
+                    };
+                    $volume = $page = null;
+                    foreach ($orders as [$p, $part]) {
+                        if ($part !== null && isset($volumes[$part - 1]) && $holds($volumes[$part - 1], $p)) {
+                            [$volume, $page] = [$volumes[$part - 1], $p];
+                            break;
+                        }
+                    }
+                    // no part, or pages that run on through the parts («ج 2، ص 600»): the one volume that holds the page
+                    [$p, $part] = $orders[0];
+                    $holding = array_values(array_filter($volumes, fn ($v) => $holds($v, $p)));
+                    if (! $volume && ($part === null || isset($volumes[$part - 1])) && count($holding) === 1) {
+                        [$volume, $page] = [$holding[0], $p];
+                    }
+                    if ($volume && ($link = self::pageLink($key, $volume, $page))) {
+                        unset($link['cite'], $link['volume']);
+                        $links[] = [$from + $pos, strlen($whole), $link];
+                    }
+                    $pos = $t[0][1] + strlen($t[0][0]);
+                }
+                if ($links) {
+                    $spans[] = [$at, $from + $pos, $links];
+                }
+            }
+        }
+        usort($spans, fn ($a, $b) => $a[0] <=> $b[0]);
+
+        return $spans;
+    }
+
+    /** The entry, or a stretch of it, read number by number. */
+    private static function read(string $entry): array
+    {
         $segments = [];
         $source = null; // the source the following citations belong to
         $cursor = 0;

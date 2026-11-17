@@ -176,6 +176,65 @@ class SearchExport
         return $folder;
     }
 
+    /**
+     * Minutes after its last change that an export's leftover in the temp folder is removed. Well above the longest
+     * export: php-fpm kills a request at 150 s and a queued export at its job timeout, 900 s.
+     */
+    public const TEMP_MAX_AGE_MINUTES = 30;
+
+    /**
+     * Removes the export leftovers that neither `finally` nor the shutdown function could remove, because the process
+     * was killed (php-fpm's request_terminate_timeout, the queue worker's timeout, the OOM killer): our
+     * fahares-export-… folders, and the xlsx… folders and .zip files that OpenSpout left directly in the temp folder
+     * before step 14.199. Only an entry that has not changed for $minutes, inside or out, is removed; nothing else in
+     * the folder is touched. Returns the paths removed (step 14.243).
+     */
+    public static function pruneTempFolders(?string $directory = null, int $minutes = self::TEMP_MAX_AGE_MINUTES): array
+    {
+        $directory = rtrim($directory ?? sys_get_temp_dir(), DIRECTORY_SEPARATOR);
+        $before = time() - $minutes * 60;
+        $removed = [];
+        foreach (scandir($directory) ?: [] as $name) {
+            // fahares-export-<16 hex> from makeTempFolder; xlsx<uniqid('xlsx', true)> and its .zip from OpenSpout
+            if (! preg_match('/^(?:fahares-export-[0-9a-f]{16}|xlsx[0-9a-f]{13}\d\.\d{8}(?:\.zip)?)$/', $name)) {
+                continue;
+            }
+            $path = $directory . DIRECTORY_SEPARATOR . $name;
+            if (is_link($path) || self::lastChange($path) >= $before) {
+                continue;
+            }
+            if (is_dir($path)) {
+                self::removeTempFolder($path);
+            } else {
+                @unlink($path);
+            }
+            if (! file_exists($path)) {
+                $removed[] = $path;
+            }
+        }
+
+        return $removed;
+    }
+
+    /** The latest change to a file, or to a folder and anything in it */
+    private static function lastChange(string $path): int
+    {
+        $latest = (int) @filemtime($path);
+        if (is_dir($path)) {
+            try {
+                $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
+                foreach ($items as $item) {
+                    $latest = max($latest, (int) $item->getMTime());
+                }
+            } catch (\UnexpectedValueException) {
+                // A folder this process cannot read is left alone
+                return PHP_INT_MAX;
+            }
+        }
+
+        return $latest;
+    }
+
     private static function removeTempFolder(string $folder): void
     {
         unset(self::$pendingTempFolders[$folder]);

@@ -60,3 +60,6 @@ Schedule::call(function () {
         }
     }
 })->name('search-exports:prune')->dailyAt('05:10');
+// ...and the temporary folders of xlsx exports whose process was killed (php-fpm's timeout, the OOM killer) before it
+// removed them: a leftover in /tmp blocks the release push (step 14.243)
+Schedule::command('fahares:prune-export-temp')->hourly()->withoutOverlapping(10);

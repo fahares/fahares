@@ -19,7 +19,11 @@ use Illuminate\Support\Facades\DB;
  * title with no «؛» («تهذیب المنطق تفتازانی، مسعود بن عمر (722-792)»), or after another title («شرح التجرید
  * قوشچی، علی بن محمد»); the author under another name of his person's record, or under another form of the name
  * with the same year of death; and an entry naming no author, when one work of its title names this work back in its
- * own text. Where a rule finds several works, the one that names this work back is taken.
+ * own text. Where a rule finds several works, the one that names this work back is taken. Of several works of one
+ * title and author, the entry's is the one that has every title of the entry as written, marks and all («حاشية شرح
+ * التجريد الجديد (امور عامه)»), or, for the work a work is made on, the one that is not itself a selection or
+ * translation of the others. Two works of one title are linked when they are plainly two: other authors, or the one
+ * made on the other a selection, a commentary or in verse («مجالس المؤمنین (منتخب)»).
  *
  * The type is read from the title of the work made on the other («شرح X», «X (ترجمه)», work_form translation) when
  * the base it names is the other's title; else, a commentary on another's commentary listed under the base text
@@ -54,6 +58,10 @@ class WorkRelationLinker
 
     /** The shortest author's key that may end a longer one («… قوشچی، علی بن محمد») */
     private const SUFFIX_MIN = 8;
+
+    /** The forms of a work made on another that may carry its title, and the type they give (null: «related») */
+    private const MADE_FORMS = ['selection' => 'abridgment', 'verse' => 'versification', 'commentary' => 'commentary',
+        'compilation' => null, 'notes' => null, 'lecture_notes' => null];
 
     /** Parts of a name that say nothing of who it is */
     private const NAME_WORDS = ['بن', 'ابن', 'ابو', 'ابی', 'بنت', 'ملا', 'مولی', 'شیخ', 'سید', 'میرزا', 'حاج', 'حاجی', 'آقا', 'محمد', 'علی', 'حسن', 'حسین', 'احمد', 'الدین', 'الله', 'عبد'];
@@ -91,7 +99,7 @@ class WorkRelationLinker
         $people = [];
         foreach (DB::table('people')->select('id', 'name', 'aliases', 'death_year_hijri')->lazyById(5000) as $p) {
             $names = [$p->name, ...array_filter(json_decode($p->aliases ?? '[]', true) ?: [], 'is_string')];
-            $people[$p->id] = ['keys' => array_values(array_unique(array_filter(array_map(fn ($n) => self::authorKey($n), $names)))),
+            $people[$p->id] = ['id' => $p->id, 'keys' => array_values(array_unique(array_filter(array_map(fn ($n) => self::authorKey($n), $names)))),
                 'died' => $p->death_year_hijri ? (int) $p->death_year_hijri : null];
         }
         foreach ($authorOf ?? [] as $id => $personId) {
@@ -118,6 +126,38 @@ class WorkRelationLinker
         }
 
         return $heads;
+    }
+
+    /** The title's key with the mark after it kept: «الرجعة (منتخب)» is not «الرجعة» */
+    private static function markKey(?string $title): string
+    {
+        return MatchCatalogEditionCommand::norm(TextNormalizer::normalize((string) $title));
+    }
+
+    /** The type the mark after one of the work's titles gives: «مجالس المؤمنین (منتخب)» → abridgment */
+    private function markType(int $id): ?string
+    {
+        foreach ($this->titles[$id] ?? [] as $title) {
+            if (preg_match('/\(([^()]+)\)\s*$/u', $title, $m) && ($type = WorkRelationParser::MARKS[TextNormalizer::normalize($m[1])] ?? null)) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    /** Two works of one title are two works, not one recorded twice: other authors, or the one made on the other marked so */
+    private function twoWorks(int $child, int $parent): bool
+    {
+        [$a, $b] = [self::authorKey($this->author[$child]), self::authorKey($this->author[$parent])];
+        $onePerson = $a === $b || (($this->person[$child]['id'] ?? 0) === ($this->person[$parent]['id'] ?? -1))
+            || str_ends_with($a, $b) || str_ends_with($b, $a)
+            || count(array_intersect(self::nameWords($this->author[$child]), self::nameWords($this->author[$parent]))) >= 2;
+        $form = $this->works[$child]['form'];
+
+        return ($a !== '' && $b !== '' && ! $onePerson)
+            || (array_key_exists((string) $form, self::MADE_FORMS) && $form !== $this->works[$parent]['form'])
+            || $this->markType($child) !== null;
     }
 
     /** @return list<string> the parts of a name that tell it from another */
@@ -242,8 +282,12 @@ class WorkRelationLinker
         }
         $childTitle = $this->works[$child]['title'];
         $translation = $this->works[$child]['form'] === 'translation';
-        if (! $translation && collect($parentTitles)->contains(fn ($t) => self::key($t) !== '' && self::key($t) === self::key($childTitle))) {
-            return ['one title on both sides', null];
+        $oneTitle = ! $translation && collect($parentTitles)->contains(fn ($t) => self::key($t) !== '' && self::key($t) === self::key($childTitle));
+        if ($oneTitle) {
+            if ($taken === null || ! $this->twoWorks($child, $parent)) {
+                return ['one title on both sides', null];
+            }
+            $how = $how === 'title+author' ? 'one title, two works' : "{$how}, one title";
         }
         $made = WorkRelationParser::parseTitle($childTitle);
         $type = match (true) {
@@ -251,6 +295,7 @@ class WorkRelationLinker
             $made && collect($parentTitles)->contains(fn ($t) => Titles::agree($made['base'], $t)) => $made['type'],
             // «الاختصاص (ترجمه)» among the commentaries: the mark is the entry's own
             ! $made && $side === 'children' && $entry['type'] !== null => $entry['type'],
+            $oneTitle => $this->markType($child) ?? self::MADE_FORMS[$this->works[$child]['form']] ?? 'related',
             default => 'related',
         };
 
@@ -297,7 +342,22 @@ class WorkRelationLinker
         };
 
         if (count($same) > 1) {
-            return $one('title+author', array_values(array_diff($same, array_keys($taken))));
+            $same = array_values(array_diff($same, array_keys($taken)));
+            // the one that has every title of the entry as written, marks and all
+            $want = array_filter(array_map(fn ($t) => self::markKey($t), $entry['titles']));
+            $all = array_values(array_filter($same, fn ($id) => ! array_diff($want, array_map(fn ($t) => self::markKey($t), $this->titles[$id]))));
+            if (count($same) > 1 && count($all) === 1) {
+                return ['title+author, every title', $all];
+            }
+            // what a work is made on: the one of them that is not itself a selection or translation of the others
+            $titles = array_fill_keys(array_filter(array_map(fn ($t) => self::key($t), $entry['titles'])), true);
+            $base = array_values(array_filter($same, fn ($id) => ! $this->works[$id]['form'] && $this->markType($id) === null
+                && ! array_intersect_key($this->named['related'][$id] ?? [], $titles)));
+            if ($side === 'related' && count($same) > 1 && count($base) === 1 && ! preg_grep('/\([^()]+\)\s*$/u', $entry['titles'])) {
+                return ['title+author, the base', $base];
+            }
+
+            return $one('title+author', $same);
         }
         if ($author) {
             $words = self::nameWords($entry['author']);

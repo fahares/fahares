@@ -58,13 +58,16 @@ class DateConflictNotesTest extends TestCase
             ->assertSee('تألیف این اثر')->assertSee('وفات «مؤلف آزمایشی یادداشت»')
             ->assertSee('این اثر از این شخص نیست')->assertSee('هیچ‌کدام؛ هر دو درست‌اند')
             ->assertSee('suggest=field.death_year_hijri&amp;conflict=' . $conflict->id, false)
+            // the answer that leaves the page names where it goes, with no bare arrow (step 14.238)
+            ->assertSee('(در صفحۀ شخص)')->assertDontSee('» ←')
             // the copy of 1299 is only a year off, so it is left out
             ->assertDontSee('کتابت نسخه پیش از تألیف اثر');
 
         // the person's page: the tie is the work's, so that answer goes to the work's page with its text
         $this->get(route('people.show', $this->author))->assertOk()
             ->assertSee('تألیف پس از وفات مؤلف')->assertSee('وفات این شخص')->assertSee('تألیف «اثر یادداشت‌دار آزمایشی»')
-            ->assertSee('suggest=general&amp;conflict=' . $conflict->id . '&amp;prefill=', false);
+            ->assertSee('suggest=general&amp;conflict=' . $conflict->id . '&amp;prefill=', false)
+            ->assertSee('(در صفحۀ اثر)')->assertSee('پیشنهاد در صفحۀ اثر باز می‌شود');
 
         $this->get(route('manuscripts.show', $this->copy))->assertOk()->assertDontSee('ناسازگاری تاریخ:');
     }
