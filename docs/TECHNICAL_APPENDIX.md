@@ -12119,15 +12119,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`CopyExtent::columns`:** اگر لاگ `verify` نسخه `pages` را دارد، مقدار ذخیره‌شده می‌ماند؛ اگر یکی از چهار ستون دامنه را دارد، هر چهار می‌مانند (لاگ فقط ستون‌های تغییرکرده را نام می‌برد). ترتیب کلیدها حفظ می‌شود تا مقایسۀ `$new === $old` در `fahares:fill-extents` درست بماند. `extent_raw` همچنان متن چاپی است.
 - **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.
 
+### گام ۱۴.۲۴۵: فیلد `life_dates_raw` در `SuggestionRegistry::personFields`
+- **فیلد:** `life_dates_raw` (`text` با `life_dates`).
+- **`SuggestionApplier::apply`:** پیش از نوشتن متن تازه، اگر `death_year_hijri` همان سالی است که `Person::deathColumns(متن پیشین, null)` به‌صورت یک سال (`death_from === death_to`) می‌دهد، `death_year_hijri` و `death_year_gregorian` تهی می‌شوند. سپس قلاب `saving` مدل `Person` از متن تازه `death_from`، `death_to`، قطعیت، سال وفات تک‌ساله و سده را می‌سازد.
+- **نمونه:** «- 940 ؟ ق» با وفات ۹۴۰ ← «930 قمری»: وفات و بازه تهی، سده ۱۰ می‌ماند. «880 - 951 قمری» وفات ۹۵۱ می‌دهد. وفات ۹۵۵ که با متن نمی‌خواند با «قرن 10» می‌ماند.
+- **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.
+
 ### گام ۱۴.۲۴۶: برداشتن سازوکارهای همکار دوم
 
 - **GitHub:** `gh api -X DELETE repos/fahares/fahares/branches/main/protection`؛ پس از آن `branches/main` می‌گوید `protected: false`. فهرست `collaborators` فقط `fahares` (admin) را دارد و `invitations` خالی است.
 - **`scripts/dev/prod-run`:** با `git checkout 9b236858^ -- scripts/dev/prod-run` به نسخۀ پیش از ۱۴.۲۰۳ برگشت؛ تنها تفاوت همان بلوک `main-lock on/off` و انتظار برای ساخت ایمیج بود.
 - **حذف:** `.github/CODEOWNERS`، `scripts/dev/main-lock`، `scripts/dev/dev-dump`، `docs/COLLABORATOR_SETUP.md`، `docs/COLLABORATOR_AGENT.md`؛ در CLAUDE.md جملۀ آغازینِ «If you work on another machine…» و بخش «Collaborators on another machine».
 - **ماند:** `*.sh text eol=lf` و `scripts/dev/* text eol=lf` در `.gitattributes`.
-
-### گام ۱۴.۲۴۵: فیلد `life_dates_raw` در `SuggestionRegistry::personFields`
-- **فیلد:** `life_dates_raw` (`text` با `life_dates`).
-- **`SuggestionApplier::apply`:** پیش از نوشتن متن تازه، اگر `death_year_hijri` همان سالی است که `Person::deathColumns(متن پیشین, null)` به‌صورت یک سال (`death_from === death_to`) می‌دهد، `death_year_hijri` و `death_year_gregorian` تهی می‌شوند. سپس قلاب `saving` مدل `Person` از متن تازه `death_from`، `death_to`، قطعیت، سال وفات تک‌ساله و سده را می‌سازد.
-- **نمونه:** «- 940 ؟ ق» با وفات ۹۴۰ ← «930 قمری»: وفات و بازه تهی، سده ۱۰ می‌ماند. «880 - 951 قمری» وفات ۹۵۱ می‌دهد. وفات ۹۵۵ که با متن نمی‌خواند با «قرن 10» می‌ماند.
-- **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.
