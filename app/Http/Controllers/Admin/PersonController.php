@@ -35,7 +35,7 @@ class PersonController extends Controller
         }
 
         if ($century) {
-            $query->where('century_hijri', $century);
+            Person::whereInCentury($query, (int) $century);
         }
 
         $people = $query->orderByDesc('works_count')
@@ -58,6 +58,7 @@ class PersonController extends Controller
             'birth_year_hijri' => 'nullable|integer',
             'death_year_hijri' => 'nullable|integer',
             'century_hijri' => 'nullable|integer|between:1,15',
+            'century_from' => 'nullable|integer|between:1,15|lte:century_hijri',
             'death_year_gregorian' => 'nullable|integer',
             'transliteration' => 'nullable|string',
             'bio_notes' => 'nullable|string',
@@ -73,6 +74,8 @@ class PersonController extends Controller
             'birth_year_hijri' => $validated['birth_year_hijri'] ?? null,
             'death_year_hijri' => $validated['death_year_hijri'] ?? null,
             'century_hijri' => $validated['century_hijri'] ?? null,
+            // with a birth year the model derives it (step 14.247)
+            ...(empty($validated['birth_year_hijri']) ? ['century_from' => $validated['century_from'] ?? null] : []),
             'death_year_gregorian' => $validated['death_year_gregorian'] ?? null,
             'transliteration' => $validated['transliteration'] ?? null,
             'bio_notes' => $validated['bio_notes'] ?? null,
@@ -217,6 +220,7 @@ class PersonController extends Controller
             'id' => $p->id,
             'name' => $p->name,
             'century_hijri' => $p->century_hijri,
+            'centuries_text' => $p->centuriesText('قرن', ''),
             'death_year_hijri' => $p->death_year_hijri,
             'works_count' => (int) ($p->works_count ?? 0),
             'manuscripts_count' => (int) ($p->manuscripts_count ?? 0),

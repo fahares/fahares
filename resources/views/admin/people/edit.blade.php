@@ -58,6 +58,10 @@
             <x-admin.field label="قرن (قمری)" for="century_hijri">
                 <input type="number" name="century_hijri" id="century_hijri" min="1" max="15" value="{{ old('century_hijri', $person->century_hijri) }}" class="admin-field w-full tabular-nums">
             </x-admin.field>
+            <x-admin.field label="نخستین سدۀ زندگی" for="century_from">
+                <input type="number" name="century_from" id="century_from" min="1" max="15" value="{{ old('century_from', $person->century_from) }}" class="admin-field w-full tabular-nums"
+                       title="برای کسی که در دو سده زیسته و سال ولادتش دانسته نیست. با سال ولادت، از همان به دست می‌آید.">
+            </x-admin.field>
             <x-admin.field label="درگذشت (میلادی)" for="death_year_gregorian">
                 <input type="number" name="death_year_gregorian" id="death_year_gregorian" value="{{ old('death_year_gregorian', $person->death_year_gregorian) }}" class="admin-field w-full tabular-nums">
             </x-admin.field>

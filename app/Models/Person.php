@@ -49,6 +49,12 @@ class Person extends Model
                     $person->century_hijri = $century;
                 }
             }
+            // ...and the first century of the life (step 14.247): the birth's when there is a birth year, else what
+            // a reviewer set, which stands while it is before the person's century
+            if ($person->isDirty(['birth_year_hijri', 'death_year_hijri', 'century_hijri', 'century_from'])) {
+                $person->century_from = self::centuryFrom($person->birth_year_hijri, $person->century_hijri, $person->century_from,
+                    $person->isDirty('century_from'));
+            }
         });
         // The author and scribe rows go with the person, as their old tables' cascade did; the other roles keep the name
         static::deleting(function (Person $person) {
@@ -228,6 +234,69 @@ class Person extends Model
     /** «قرن 13», «ق 13», and the «14» of «1297ق 14 شمسی». */
     private const CENTURY = '(?:قرن|سده|(?<![\p{L}\d])ق|(?<=\dق)\s)';
 
+    /**
+     * The first century of a life that lies in more than one (step 14.247), beside century_hijri, its last: the
+     * century of the birth year (970 with century 11 gives 10), else the one a reviewer set ($current) for a person
+     * of no birth year. Null when the life lies in one century or the century is not known, and for a birth year
+     * after the person's century or more than two centuries before it, which is an error in one of the two.
+     * $set: the caller wrote $current itself, so it stands against the birth year.
+     */
+    public static function centuryFrom(?int $birthYear, ?int $century, ?int $current, bool $set = false): ?int
+    {
+        if (! $century) {
+            return null;
+        }
+        if ($birthYear && ! $set) {
+            $current = (int) ceil($birthYear / 100);
+            $current = $century - $current <= 2 ? $current : null;
+        }
+
+        return $current && $current >= 1 && $current < $century ? $current : null;
+    }
+
+    /** The people who lived in a century, by any century of the life: the century filter of the people lists. */
+    public static function whereInCentury($query, int $century)
+    {
+        return $query->where(fn ($q) => $q->where('people.century_hijri', $century)
+            ->orWhere(fn ($q) => $q->where('people.century_from', '<=', $century)->where('people.century_hijri', '>', $century)));
+    }
+
+    /**
+     * The Hijri centuries of the life, in order: from century_from to century_hijri, or the one century. Empty when
+     * no century is known.
+     *
+     * @return array<int, int>
+     */
+    public function lifeCenturies(): array
+    {
+        if (! $this->century_hijri) {
+            return [];
+        }
+        $from = self::centuryFrom(null, (int) $this->century_hijri, $this->century_from) ?? (int) $this->century_hijri;
+
+        return range($from, (int) $this->century_hijri);
+    }
+
+    /** «سدۀ ۱۰ ق», «سده‌های ۹ و ۱۰ ق», «سده‌های ۹ تا ۱۱ ق»; null when no century is known. */
+    public function getCenturiesTextAttribute(): ?string
+    {
+        return $this->centuriesText();
+    }
+
+    /** The same with the list's own word for one century («قرن») and ending («» for none). */
+    public function centuriesText(string $one = 'سدۀ', string $suffix = ' ق'): ?string
+    {
+        $centuries = $this->lifeCenturies();
+        $text = match (count($centuries)) {
+            0 => null,
+            1 => "{$one} {$centuries[0]}",
+            2 => "سده‌های {$centuries[0]} و {$centuries[1]}",
+            default => "سده‌های {$centuries[0]} تا " . end($centuries),
+        };
+
+        return $text === null ? null : \App\Support\Fa::digits($text . $suffix);
+    }
+
     /** The year the lists order and filter a person by: the death year, else the middle of the person's century. */
     public const ERA_YEAR_SQL = 'COALESCE(people.death_year_hijri, people.century_hijri * 100 - 50)';
 
@@ -314,6 +383,7 @@ class Person extends Model
             'birth_year_hijri' => 'integer',
             'death_year_hijri' => 'integer',
             'century_hijri' => 'integer',
+            'century_from' => 'integer',
             'death_year_gregorian' => 'integer',
             'death_from' => 'integer',
             'death_to' => 'integer',
@@ -330,7 +400,7 @@ class Person extends Model
 
     /**
      * Life dates for display next to the name, in Persian digits: «۸۱۷–۸۹۸ ق», «د. ۸۹۸ ق»
-     * or «سدۀ ۱۰ ق». Null when nothing is known.
+     * or «سدۀ ۱۰ ق», «سده‌های ۹ و ۱۰ ق» for a life in two centuries (step 14.247). Null when nothing is known.
      */
     public function getLifeSpanAttribute(): ?string
     {
@@ -341,8 +411,7 @@ class Person extends Model
             $birth && $death => "{$birth}–{$death} ق",
             (bool) $death => "د. {$death} ق",
             (bool) $birth => "ز. {$birth} ق",
-            (bool) $this->century_hijri => "سدۀ {$this->century_hijri} ق",
-            default => null,
+            default => $this->centuriesText(),
         };
 
         return $text ? \App\Support\Fa::digits($text) : null;
@@ -492,6 +561,8 @@ class Person extends Model
             'transliteration' => $this->transliteration,
             'death_year_hijri' => $this->death_year_hijri ? (int) $this->death_year_hijri : null,
             'century_hijri' => $this->century_hijri ? (int) $this->century_hijri : null,
+            // Every century of the life, which the century filter matches (step 14.247); century_hijri stays for the order
+            'life_centuries' => $this->lifeCenturies(),
             // The century a person of no known century was last seen alive in, for readers who ask for estimates
             // too, and the year the order by death falls back on (step 14.198)
             'alive_century' => ! $this->century_hijri && ($alive = $this->aliveYear()) ? intdiv($alive - 1, 100) + 1 : null,

@@ -75,7 +75,7 @@
             </select>
         </div>
         <div class="space-y-2 {{ $hide('centuries') }}">
-            <label for="f-century" class="{{ $label }}">سدۀ وفات (قمری)</label>
+            <label for="f-century" class="{{ $label }}">سدۀ زندگی (قمری)</label>
             <select id="f-century" name="century" class="{{ $field }}">
                 <option value="">همۀ سده‌ها</option>
                 @foreach($options['centuries'] as $c => $count)

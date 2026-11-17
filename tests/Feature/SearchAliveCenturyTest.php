@@ -68,8 +68,8 @@ class SearchAliveCenturyTest extends TestCase
         $this->assertSame([$this->dead->id, $this->alive->id], $this->ids(['century' => '9', 'estimates' => '1']));
         $this->assertSame([], $this->ids(['century' => '10', 'estimates' => '1']));
 
-        $this->assertStringContainsString('(century_hijri = 9)', $this->filters(['century' => '9'])->engine());
-        $this->assertStringContainsString('(century_hijri = 9 OR alive_century = 9)', $this->filters(['century' => '9', 'estimates' => '1'])->engine());
+        $this->assertStringContainsString('(life_centuries = 9)', $this->filters(['century' => '9'])->engine());
+        $this->assertStringContainsString('(life_centuries = 9 OR alive_century = 9)', $this->filters(['century' => '9', 'estimates' => '1'])->engine());
     }
 
     public function test_the_search_document_carries_the_century_and_the_year()

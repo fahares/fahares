@@ -179,6 +179,7 @@ function personMerger(config) {
         },
         life(p) {
             if (p.death_year_hijri) return 'درگذشت ' + this.digits(p.death_year_hijri) + ' ق';
+            if (p.centuries_text) return p.centuries_text;
             if (p.century_hijri) return 'قرن ' + this.digits(p.century_hijri);
             return '';
         },

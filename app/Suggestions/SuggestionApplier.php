@@ -75,6 +75,19 @@ class SuggestionApplier
                 if ($value !== null && (isset($field['min']) && (int) $value < $field['min'] || isset($field['max']) && (int) $value > $field['max'])) {
                     throw new InvalidArgumentException("مقدار باید بین {$field['min']} و {$field['max']} باشد.");
                 }
+                // The first century of the life stands only for a person of no birth year, and never after the
+                // person's century; the same as that century it says one century, which the model keeps as null (step 14.247)
+                if (! empty($field['century_from'])) {
+                    if ($record->birth_year_hijri) {
+                        throw new InvalidArgumentException('این شخص سال تولد دارد و نخستین سدۀ زندگی از آن به دست می‌آید. اگر نادرست است، سال تولد را اصلاح کنید.');
+                    }
+                    if ($value !== null && ! $record->century_hijri) {
+                        throw new InvalidArgumentException('این شخص سده ندارد. نخست فیلد «سده (قمری)» را ثبت کنید.');
+                    }
+                    if ($value !== null && (int) $value > $record->century_hijri) {
+                        throw new InvalidArgumentException('نخستین سدۀ زندگی نمی‌تواند پس از سدۀ شخص (سدۀ ' . \App\Support\Fa::digits((string) $record->century_hijri) . ') باشد.');
+                    }
+                }
                 $record->{$name} = $value === null ? null : (int) $value;
                 break;
 

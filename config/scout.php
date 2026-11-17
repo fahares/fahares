@@ -364,6 +364,7 @@ return [
                     'is_translator',
                     'is_donor',
                     'century_hijri',
+                    'life_centuries',
                     'alive_century',
                     'death_year_hijri',
                     'works_count',

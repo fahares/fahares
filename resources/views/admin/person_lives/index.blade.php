@@ -62,7 +62,7 @@
                     @if($person->life_dates_raw || $person->death_year_hijri)
                         <span class="block text-xs text-ink mt-0.5">{{ Fa::digits($person->life_dates_raw ?: 'د. ' . $person->death_year_hijri) }}</span>
                     @elseif($person->century_hijri)
-                        <span class="block text-xs text-muted mt-0.5">سدۀ {{ Fa::digits($person->century_hijri) }}</span>
+                        <span class="block text-xs text-muted mt-0.5">{{ $person->centuriesText('سدۀ', '') }}</span>
                     @endif
                     @foreach(array_filter((array) $person->aliases, 'is_string') as $alias)
                         <span class="block text-xs text-muted">{{ $alias }}</span>

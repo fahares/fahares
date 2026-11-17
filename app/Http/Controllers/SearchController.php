@@ -246,7 +246,7 @@ class SearchController extends Controller
         $names = [
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
             'manuscripts' => ['library_id', 'city', 'scripts', 'copy_century', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
-            'authors' => ['century_hijri', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
+            'authors' => ['life_centuries', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
             'scribes' => ['copy_centuries', 'copy_cities', 'is_author', 'is_translator'],
             'sources' => ['source_id', 'volume_number'],
         ][$type];
@@ -309,8 +309,8 @@ class SearchController extends Controller
         }
 
         if (self::isPeople($type)) {
-            // The death of an author; the copies of a scribe, who almost never has a date of death (step 14.155)
-            $options['centuries'] = $counted ? collect($facets[$type === 'scribes' ? 'copy_centuries' : 'century_hijri'] ?? [])
+            // The centuries of an author's life (step 14.247); the copies of a scribe, who almost never has a date of death (step 14.155)
+            $options['centuries'] = $counted ? collect($facets[$type === 'scribes' ? 'copy_centuries' : 'life_centuries'] ?? [])
                 ->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->filter(fn ($n, $c) => $c >= 1 && $c <= 15)->sortKeys()->all()
                 : array_fill_keys(range($type === 'scribes' ? 3 : 1, 15), null);
             // A role nobody of the matches has is left out, unless it is the one chosen

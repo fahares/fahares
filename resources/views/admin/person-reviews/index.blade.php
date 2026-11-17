@@ -177,7 +177,7 @@
                                     </div>
                                     <div class="text-[11px] text-muted tabular-nums flex flex-wrap gap-x-3">
                                         <span>#{{ $fa($p->id) }}</span>
-                                        @if($p->death_year_hijri)<span>د. {{ $fa($p->death_year_hijri) }} ق</span>@elseif($p->century_hijri)<span>سدۀ {{ $fa($p->century_hijri) }}</span>@endif
+                                        @if($p->death_year_hijri)<span>د. {{ $fa($p->death_year_hijri) }} ق</span>@elseif($p->century_hijri)<span>{{ $p->centuriesText('سدۀ', '') }}</span>@endif
                                         @if($m['span'])<span>کتابت {{ $fa($m['span'][0]) }}{{ $m['span'][1] !== $m['span'][0] ? '–' . $fa($m['span'][1]) : '' }} ق</span>@endif
                                         <span>{{ $num($p->manuscripts_count) }} نسخه</span>
                                         <span>{{ $num($p->works_count) }} اثر</span>

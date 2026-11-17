@@ -387,6 +387,38 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame(955, $person->fresh()->death_year_hijri);
     }
 
+    /** Step 14.247: the first century of a life in two centuries, for a person of no birth year. */
+    public function test_the_first_century_of_a_life_is_set_for_a_person_of_no_birth_year()
+    {
+        $person = $this->person('مجنون آزمایشی');
+        $person->update(['life_dates_raw' => '- 940 ؟ ق', 'death_year_hijri' => 940]);
+        $this->assertArrayHasKey('century_from', \App\Suggestions\SuggestionRegistry::fieldChoices('person', $person));
+
+        // not after the person's century
+        $this->suggest($person, ['field_name' => 'century_from', 'suggested_value' => '۱۱', 'rationale_citation' => 'تذکره'])->assertOk();
+        $s = $this->pendingFor($person);
+        $this->approve($s)->assertSessionHasErrors('applied_value');
+        $this->approve($s, ['applied_value' => '16'])->assertSessionHasErrors('applied_value');
+
+        $this->approve($s, ['applied_value' => '۹'])->assertRedirect('/admin/suggestions');
+        $person->refresh();
+        $this->assertSame([9, 10, [9, 10], 'سده‌های ۹ و ۱۰ ق'], [$person->century_from, $person->century_hijri, $person->lifeCenturies(), $person->centuries_text]);
+        $this->assertSame('9', \App\Suggestions\SuggestionRegistry::currentValue($person, \App\Suggestions\SuggestionRegistry::field('person', 'century_from')));
+        // a sync from the corpus leaves the reviewed century alone
+        $this->assertSame([], \App\Suggestions\ProtectedColumns::for(Person::class)->strip($person->id, ['century_from' => null]));
+
+        // with a birth year the century is the birth's: the birth year is what is corrected
+        $person->update(['birth_year_hijri' => 870]);
+        $this->suggest($person, ['field_name' => 'century_from', 'suggested_value' => '10', 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person), ['previous_standing' => 'superseded', 'public_note' => 'آزمون'])->assertSessionHasErrors('applied_value');
+        $this->assertSame(9, $person->fresh()->century_from);
+
+        // and a person of no century has no first century
+        $bare = $this->person('بی‌سدۀ آزمایشی');
+        $this->suggest($bare, ['field_name' => 'century_from', 'suggested_value' => '9', 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($bare))->assertSessionHasErrors('applied_value');
+    }
+
     public function test_library_fields_and_record_pages()
     {
         $library = Library::create(['city' => 'شهر آزمون', 'name' => 'کتابخانه آزمون ' . $this->tag, 'slug' => 'test-suggest-lib-' . uniqid()]);

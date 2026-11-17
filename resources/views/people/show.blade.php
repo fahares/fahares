@@ -89,7 +89,7 @@
         <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
             <x-ui.card :framed="true">
                 <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
-                    <x-ui.meta label="سده" field="century_hijri">{{ $person->century_hijri ? 'سدۀ ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
+                    <x-ui.meta label="سده" field="century_hijri">{{ $person->centuries_text ?? 'نامشخص' }}</x-ui.meta>
                     <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق</x-ui.meta>
                     <x-date-conflict-note type="person" :id="$person->id" field="birth" />
                     {{-- With no death date, the latest year a dated work or copy shows the person alive (step 14.172) --}}

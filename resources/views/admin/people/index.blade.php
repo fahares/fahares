@@ -49,7 +49,7 @@
                 @if($p->death_year_hijri)
                     {{ $fa($p->death_year_hijri) }} ق
                 @elseif($p->century_hijri)
-                    قرن {{ $fa($p->century_hijri) }}
+                    {{ $p->centuriesText('قرن', '') }}
                 @else
                     <span class="text-muted">—</span>
                 @endif

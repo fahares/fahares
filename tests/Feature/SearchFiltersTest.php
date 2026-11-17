@@ -41,7 +41,7 @@ class SearchFiltersTest extends TestCase
             $filters->engine());
 
         $people = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'scribe', 'century' => '11', 'subject_id' => $subject->id]), 'authors');
-        $this->assertSame('(is_author = true OR is_translator = true OR is_donor = true OR is_scribe = false) AND (is_scribe = true) AND (century_hijri = 11)',
+        $this->assertSame('(is_author = true OR is_translator = true OR is_donor = true OR is_scribe = false) AND (is_scribe = true) AND (life_centuries = 11)',
             $people->engine(), 'a filter of another tab is ignored');
         // The scribes by their copies; «donor» is no role of their tab
         $scribes = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'donor', 'century' => '11', 'copy_city' => 'اصفهان']), 'scribes');
@@ -140,7 +140,7 @@ class SearchFiltersTest extends TestCase
         // Whoever is not only a scribe is among the authors, a person with no work yet too
         $see(['type' => 'authors'], ['مؤلف تنها', 'مؤلف کاتب', 'شخص بی‌نقش'], ['کاتب تنها', 'کاتب متأخر']);
         $see(['type' => 'scribes'], ['مؤلف کاتب', 'کاتب تنها', 'کاتب متأخر'], ['مؤلف تنها', 'شخص بی‌نقش']);
-        $see(['type' => 'authors', 'century' => 11, 'role' => 'scribe'], ['مؤلف کاتب', 'سدۀ ۱۱ (وفات)', 'همچنین کاتب'], ['مؤلف تنها']);
+        $see(['type' => 'authors', 'century' => 11, 'role' => 'scribe'], ['مؤلف کاتب', 'سدۀ ۱۱ (زندگی)', 'همچنین کاتب'], ['مؤلف تنها']);
 
         // A scribe by the copies: their century, their place, their number and their years
         $see(['type' => 'scribes', 'century' => 11], ['مؤلف کاتب', 'کاتب تنها', 'سدۀ ۱۱ (کتابت)'], ['کاتب متأخر']);

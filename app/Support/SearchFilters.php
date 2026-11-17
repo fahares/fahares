@@ -283,7 +283,8 @@ class SearchFilters
                 'source_volume_id' => "source_volume_ids = {$value}",
                 'role' => "is_{$value} = true",
                 'century' => match ($this->type) {
-                    'authors' => $this->get('estimates') ? "century_hijri = {$value} OR alive_century = {$value}" : "century_hijri = {$value}",
+                    // any century of the life (step 14.247)
+                    'authors' => $this->get('estimates') ? "life_centuries = {$value} OR alive_century = {$value}" : "life_centuries = {$value}",
                     'scribes' => "copy_centuries = {$value}",
                     default => null,
                 },
@@ -359,9 +360,9 @@ class SearchFilters
                 'role' => $query->where("is_{$value}", true),
                 'century' => match ($this->type) {
                     'authors' => $this->get('estimates')
-                        ? $query->where(fn ($q) => $q->where('century_hijri', $value)->orWhere(fn ($q) => $q->whereNull('century_hijri')
+                        ? $query->where(fn ($q) => \App\Models\Person::whereInCentury($q, (int) $value)->orWhere(fn ($q) => $q->whereNull('century_hijri')
                             ->whereRaw('FLOOR((' . \App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ' - 1) / 100) + 1 = ?', [$value])))
-                        : $query->where('century_hijri', $value),
+                        : \App\Models\Person::whereInCentury($query, (int) $value),
                     'scribes' => $scribesOf(fn ($copies) => \App\Models\Manuscript::whereCopiedWithin($copies, ($value - 1) * 100 + 1, $value * 100)),
                     default => null,
                 },
@@ -426,7 +427,7 @@ class SearchFilters
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
                 'role' => ($this->type === 'scribes' || $value === 'scribe' ? 'همچنین ' : 'نقش: ') . self::ROLES[$value],
-                'century' => 'سدۀ ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (وفات)', default => ' (کتابت)' },
+                'century' => 'سدۀ ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (زندگی)', default => ' (کتابت)' },
                 default => null,
             };
             if ($label) {

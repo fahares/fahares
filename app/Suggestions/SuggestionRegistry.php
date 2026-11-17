@@ -609,6 +609,8 @@ class SuggestionRegistry
             'aliases' => ['label' => 'شهرت‌ها و القاب', 'input' => 'list'],
             'transliteration' => ['label' => 'آوانگاری نام', 'input' => 'text'],
             'century_hijri' => ['label' => 'سده (قمری)', 'input' => 'integer', 'min' => 1, 'max' => 15],
+            // the first century of a life in two centuries, for a person of no birth year (step 14.247)
+            'century_from' => ['label' => 'نخستین سدۀ زندگی (قمری؛ برای کسی که در دو سده زیسته و سال تولدش دانسته نیست، مثلاً ۹ برای «سده‌های ۹ و ۱۰»)', 'input' => 'integer', 'min' => 1, 'max' => 15, 'century_from' => true],
             'birth_year_hijri' => ['label' => 'سال تولد (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_hijri' => ['label' => 'سال وفات (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_gregorian' => ['label' => 'سال وفات (میلادی)', 'input' => 'integer', 'min' => 500, 'max' => 2100],

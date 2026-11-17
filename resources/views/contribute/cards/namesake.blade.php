@@ -22,7 +22,7 @@
                     <a href="{{ route('people.show', $p) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar break-words leading-7">{{ $p->name }}</a>
                     <p class="m-0 text-[11px] text-muted">
                         {{ implode(' · ', array_filter([
-                            $p->death_year_hijri ? 'درگذشت ' . Fa::digits((string) $p->death_year_hijri) . ' ق' : ($p->century_hijri ? 'سدۀ ' . Fa::digits((string) $p->century_hijri) : null),
+                            $p->death_year_hijri ? 'درگذشت ' . Fa::digits((string) $p->death_year_hijri) . ' ق' : $p->centuriesText('سدۀ', ''),
                             $m['span'] ? 'کتابت ' . Fa::digits($m['span'][0] . ($m['span'][1] !== $m['span'][0] ? '–' . $m['span'][1] : '')) . ' ق' : null,
                             $p->works_count ? Fa::num($p->works_count) . ' اثر' : null,
                             $p->manuscripts_count ? Fa::num($p->manuscripts_count) . ' نسخه' : null,

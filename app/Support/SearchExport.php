@@ -66,6 +66,7 @@ class SearchExport
                 'تولد (ق)' => fn (Person $p) => $p->birth_year_hijri,
                 'وفات (ق)' => fn (Person $p) => $p->death_year_hijri,
                 'سده' => fn (Person $p) => $p->century_hijri,
+                'سده‌های زندگی' => fn (Person $p) => implode('، ', $p->lifeCenturies()),
                 'شمار آثار' => fn (Person $p) => $p->works_count,
                 'نسخه‌های کتابت‌شده' => fn (Person $p) => $p->manuscripts_count,
                 'کتابت از سال (ق)' => fn (Person $p) => $p->scribed_from,

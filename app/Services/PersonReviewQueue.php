@@ -126,7 +126,7 @@ class PersonReviewQueue
         if (! $ids) {
             return [];
         }
-        $people = Person::whereIn('id', $ids)->get(['id', 'name', 'aliases', 'death_year_hijri', 'century_hijri', 'works_count', 'manuscripts_count'])->keyBy('id');
+        $people = Person::whereIn('id', $ids)->get(['id', 'name', 'aliases', 'death_year_hijri', 'century_hijri', 'century_from', 'works_count', 'manuscripts_count'])->keyBy('id');
 
         $copies = DB::table('manuscript_people as s')->where('s.role', ManuscriptPerson::SCRIBE)
             ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
