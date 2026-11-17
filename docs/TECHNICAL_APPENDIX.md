@@ -12089,3 +12089,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`scripts/fankha_notes_pass2_select.py`:** گزینش دور دوم: `c` بیرون از نام نوع‌ها؛ نوع بیرون از فهرست؛ «other»؛ و نوعی جز نوع قاعدۀ v2، وقتی قاعده «other» نگفته و نوعش در `a` هم نیست.
 - **`scripts/fankha_notes_merge_types.py`:** برای هر شناسه سطر دور دوم، وگرنه دور نخست. `c` دور نخست که نام نوع است، نوع می‌شود. کلیدهای تهی نوشته نمی‌شوند و `"m":"o"` یعنی دور دوم داوری کرده است. پرونده ۶ مگابایت است.
 - **دو هشدار امنیتی دور نخست (بسته‌های ۲۲۵ و ۶۶۹):** عامل خروجی را با یک اسکریپت پایتون نوشته بود، نه با ابزار نوشتن. جز پروندۀ خروجی خودش چیزی دگرگون نشده بود. بستۀ ۲۲۵ دویست بند شماره‌دار فهرست محتواست.
+
+### گام ۱۴.۲۴۲: `saveReviewerNote` و یادداشت عمومی در تأیید انتقال و ادغام
+- **`Admin\SuggestionController::approveRelation`:** شاخۀ انتقال (`move_to_work`) و ادغام نسخه و اثر اکنون `public_note` را اعتبارسنجی و ذخیره می‌کند؛ پیش‌تر فقط `admin_notes` ذخیره می‌شد.
+- **`saveReviewerNote`** (`POST /admin/suggestions/{suggestion}/reviewer-note`، نام `admin.suggestions.reviewer-note`، زیر `can:suggestions.review`): `public_note` (تا ۲۰۰۰) و `admin_notes` (تا ۱۰۰۰) را در هر وضعیت ذخیره می‌کند و `status`، `reviewed_by` و `reviewed_at` را دست نمی‌زند. برای `kind` برابر `note` و `feedback` پاسخ ۴۰۴ است (فرم خودشان را دارند). یادداشت عمومی «قول دیگر» تأییدشده خالی نمی‌شود. اعلانی فرستاده نمی‌شود.
+- **قالب‌ها:** `partials/relation-approve.blade.php`: ده `input` یادداشت عمومی `textarea` شد و مقدار آغازین `public_note` و `admin_notes` از خود پیشنهاد می‌آید؛ `partials/field-approve.blade.php` و فرم رد در `show.blade.php` هم همین‌طور. فرم تازه در `details[data-more-tools]` با `data-reviewer-note`؛ پس از ذخیره این بخش باز می‌ماند.
+- **`my/suggestions.blade.php`:** «یادداشت داور» فقط وقتی `status` برابر `pending` نیست نمایش داده می‌شود.
+- **آزمون:** `SuggestionWorkflowTest::test_reviewer_notes_are_saved_without_a_decision_and_kept_by_a_move`.

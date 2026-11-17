@@ -85,7 +85,8 @@
             @if(! empty($s->payload['derived_from']))
                 <p class="text-[11px] text-muted">ساخته‌شده از پیشنهاد #{{ $s->payload['derived_from'] }} شما</p>
             @endif
-            @if($s->public_note)
+            {{-- A note the reviewer saved before deciding is theirs until the decision (step 14.242) --}}
+            @if($s->public_note && $s->status !== 'pending')
                 <p class="text-ink/80 whitespace-pre-line"><span class="font-bold text-muted">یادداشت داور:</span> {{ $s->public_note }}</p>
             @endif
             {{-- The reviewers' questions and the answers (backlog item 91) --}}

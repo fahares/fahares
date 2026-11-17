@@ -356,6 +356,7 @@ class SuggestionController extends Controller
             'keep' => 'nullable|in:target,source',
             'fields' => 'nullable|array',
             'admin_notes' => 'nullable|string|max:1000',
+            'public_note' => 'nullable|string|max:2000',
         ]);
 
         $relation = $suggestion->relationDefinition();
@@ -421,6 +422,7 @@ class SuggestionController extends Controller
                 $suggestion->update([
                     'status' => 'approved',
                     'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
                     'resolution' => $resolution,
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
@@ -582,6 +584,25 @@ class SuggestionController extends Controller
 
         return redirect()->route('admin.suggestions.show', $suggestion)
             ->with('success', $firstReview ? "یادداشت #{$suggestion->id} تأیید و در صفحۀ رکورد منتشر شد." : "ویرایش یادداشت #{$suggestion->id} ذخیره شد.");
+    }
+
+    /**
+     * The reviewer's own evidence, saved without a decision (step 14.242): the notes of a suggestion in any state,
+     * so writing one no longer takes a conversion. Before the decision the submitter does not see the public note;
+     * the approve and reject forms start from what was saved here.
+     */
+    public function saveReviewerNote(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_if(in_array($suggestion->kind, ['note', 'feedback'], true), 404);
+        $validated = $request->validate(['public_note' => 'nullable|string|max:2000', 'admin_notes' => 'nullable|string|max:1000']);
+        $publicNote = trim($validated['public_note'] ?? '') ?: null;
+        // An «قول دیگر» is shown on the public page with the reason it was not preferred
+        if ($suggestion->status === 'approved' && $suggestion->standing === 'alternative' && ! $publicNote) {
+            return back()->withInput()->withErrors(['public_note' => 'یادداشت عمومی «قول دیگر» را نمی‌توان خالی کرد.']);
+        }
+        $suggestion->update(['public_note' => $publicNote, 'admin_notes' => trim($validated['admin_notes'] ?? '') ?: null]);
+
+        return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت‌های پیشنهاد #{$suggestion->id} ذخیره شد.");
     }
 
     /** Site feedback handled: the reviewer's public note is the answer the sender receives. */
