@@ -384,6 +384,16 @@ class SourceEntry extends Model
         return $this->source?->kind === Source::KIND_UNION_CATALOGUE;
     }
 
+    /** The least confidence at which a life tied to a person by a model's reading alone is shown to readers before review (step 14.232). */
+    public const LIFE_SHOWN_FROM = 90;
+
+    /** A person's life the model tied with too little confidence: only reviewers see it until one of them settles it. */
+    public function isUnsureLife(): bool
+    {
+        return $this->citable_type === Person::class && $this->match_method === 'name_llm'
+            && $this->isAwaitingReview() && (int) $this->confidence < self::LIFE_SHOWN_FROM;
+    }
+
     /** A machine match nobody has reviewed yet: the ⓘ badge on the record page. */
     public function isAwaitingReview(): bool
     {

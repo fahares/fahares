@@ -82,4 +82,47 @@ class PersonLivesReviewTest extends TestCase
         [$tie] = $this->tie('via_works');
         $this->assertStringContainsString('از روی آثار این شخص', $tie->machineNote());
     }
+
+    public function test_an_unsure_tie_of_the_model_is_shown_to_reviewers_only(): void
+    {
+        [$tie, $person] = $this->tie('name_llm');
+        $tie->update(['confidence' => SourceEntry::LIFE_SHOWN_FROM - 1]);
+        $this->get(route('people.show', $person))->assertOk()->assertDontSee('زندگی‌نامه در منابع');
+        $tie->update(['confidence' => SourceEntry::LIFE_SHOWN_FROM]);
+        $this->get(route('people.show', $person))->assertOk()->assertSee('زندگی‌نامه در منابع');
+
+        $tie->update(['confidence' => 70]);
+        $this->actingAs($this->admin())->get(route('people.show', $person))->assertOk()->assertSee('زندگی‌نامه در منابع');
+        $tie->review($this->admin(), SourceEntry::STATUS_VERIFIED);
+        auth()->logout();
+        $this->get(route('people.show', $person))->assertOk()->assertSee('زندگی‌نامه در منابع');
+    }
+
+    public function test_a_judged_file_keeps_its_evidence_and_is_taken_back(): void
+    {
+        [$tie, $person, $source] = $this->tie();
+        $item = $tie->sourceItem;
+        $tie->delete();
+        $file = 'storage/framework/testing-lives-llm.json';
+        file_put_contents(base_path($file), json_encode(['ties' => [
+            ['person_slug' => $person->slug, 'source' => $source->code, 'item_key' => $item->item_key, 'volume' => 3, 'method' => 'name_llm',
+                'confidence' => 96, 'evidence' => 'المتوفى سنة 685'],
+        ]]));
+        $this->artisan('sources:tie-person-lives', ['--file' => $file, '--apply' => true])->assertSuccessful();
+        $made = SourceEntry::where('citable_type', Person::class)->where('citable_id', $person->id)->sole();
+        $this->assertSame(['name_llm', 96, 'شاهد: المتوفى سنة 685'], [$made->match_method, $made->confidence, $made->notes]);
+
+        $this->artisan('sources:tie-person-lives', ['--file' => $file, '--undo' => true])->assertSuccessful();
+        $this->assertTrue($made->fresh()->exists);
+        $this->artisan('sources:tie-person-lives', ['--file' => $file, '--undo' => true, '--apply' => true])->assertSuccessful();
+        $this->assertNull($made->fresh());
+
+        // a tie a person has reviewed is not taken back
+        $this->artisan('sources:tie-person-lives', ['--file' => $file, '--apply' => true])->assertSuccessful();
+        $kept = SourceEntry::where('citable_type', Person::class)->where('citable_id', $person->id)->sole();
+        $kept->review($this->admin(), SourceEntry::STATUS_VERIFIED);
+        $this->artisan('sources:tie-person-lives', ['--file' => $file, '--undo' => true, '--apply' => true])->assertSuccessful();
+        $this->assertNotNull($kept->fresh());
+        @unlink(base_path($file));
+    }
 }
