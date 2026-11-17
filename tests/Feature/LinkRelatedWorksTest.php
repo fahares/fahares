@@ -75,6 +75,40 @@ class LinkRelatedWorksTest extends TestCase
         $this->assertSame(['نهج البلاغة', 'خطب علی'], $sharh->fresh()->baseTitles());
     }
 
+    /** Step 14.229: two works of one title that are plainly two, and the one of several works of a title and author */
+    public function test_two_works_of_one_title_and_the_one_of_several_works_of_a_title_and_author()
+    {
+        // one title: a selection by another, a selection by the author himself, an answer by another author: linked
+        $majalis = $this->work('مجالس المؤمنین', 'شوشتری، نورالله بن شرف الدین', ['commentaries_and_glosses' => ['مجالس المؤمنین (منتخب)؛ ذوالقدر، خلیل (-11)']]);
+        $selection = $this->work('مجالس المؤمنین', 'ذوالقدر، خلیل', ['work_form' => 'selection', 'alternative_titles' => [['title' => 'مجالس المؤمنین (منتخب)']]]);
+        $hisn = $this->work('الحصن الحصین', 'ابن جزری، محمد بن محمد');
+        $own = $this->work('الحصن الحصین', 'ابن جزری، محمد بن محمد', ['work_form' => 'selection', 'related_work' => 'الحصن الحصین؛ ابن جزری، محمد بن محمد (751-833)']);
+        $tafsir = $this->work('تفسیر آیه نور', 'شیروانی، محمد بن حسن');
+        $answer = $this->work('تفسیر آیه نور', 'خواجوئی، محمد اسماعیل بن حسین', ['related_work' => 'تفسیر آیه نور؛ شیروانی، محمد بن حسن (1033-1098)']);
+        // one title and one author with nothing to tell them apart, or the author under two forms of his name: most likely one work twice
+        $this->work('التذکرة', 'انطاکی، داود بن عمر', ['related_work' => 'التذکرة؛ انطاکی، داود بن عمر (950-1008)']);
+        $this->work('التذکرة', 'انطاکی، داود بن عمر');
+        $this->work('الشافیة', 'ابوفراس حمدانی، حارث بن سعید', ['related_work' => 'الشافیة؛ ابوفراس همدانی، حارث بن سعید (320-357)']);
+        $this->work('الشافیة', 'ابوفراس همدانی، حارث بن سعید');
+
+        // several works of the title and author: the one with every title of the entry, marks and all
+        $tajrid = $this->work('شرح تجرید الاعتقاد', 'قوشچی، علی بن محمد', ['commentaries_and_glosses' => ['حاشیة شرح التجرید (امور عامه)؛ خفری، محمد بن احمد (-957)', 'حاشیة شرح التجرید = اثبات الواجب؛ خفری، محمد بن احمد (-957)']]);
+        $umur = $this->work('حاشیة شرح التجرید', 'خفری، محمد بن احمد', ['alternative_titles' => [['title' => 'حاشیة شرح التجرید (امور عامه)']]]);
+        $ithbat = $this->work('حاشیة شرح التجرید', 'خفری، محمد بن احمد', ['alternative_titles' => [['title' => 'اثبات الواجب']]]);
+        // what a work is made on, of two works of one title and author: the one that is not the other's selection
+        $sharh = $this->work('شرح الحصن الحصین', 'حنفی تبریزی، شمس الدین محمد', ['related_work' => 'الحصن الحصین؛ ابن جزری، محمد بن محمد (751-833)']);
+
+        $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
+        $this->assertEqualsCanonicalizing([
+            [$selection->id, $majalis->id, 'abridgment', 'auto', 85],
+            [$own->id, $hisn->id, 'abridgment', 'auto', 85],
+            [$answer->id, $tafsir->id, 'related', 'auto', 65],
+            [$umur->id, $tajrid->id, 'gloss', 'auto', 85],
+            [$ithbat->id, $tajrid->id, 'gloss', 'auto', 85],
+            [$sharh->id, $hisn->id, 'commentary', 'auto', 85],
+        ], $this->relations());
+    }
+
     /** Step 14.229: the same title and author written another way, and an entry with no author that is named back */
     public function test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back()
     {
