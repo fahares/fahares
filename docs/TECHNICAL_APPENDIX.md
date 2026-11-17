@@ -12126,3 +12126,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **حذف:** `.github/CODEOWNERS`، `scripts/dev/main-lock`، `scripts/dev/dev-dump`، `docs/COLLABORATOR_SETUP.md`، `docs/COLLABORATOR_AGENT.md`؛ در CLAUDE.md جملۀ آغازینِ «If you work on another machine…» و بخش «Collaborators on another machine».
 - **ماند:** `*.sh text eol=lf` و `scripts/dev/* text eol=lf` در `.gitattributes`.
 
+### گام ۱۴.۲۴۵: فیلد `life_dates_raw` در `SuggestionRegistry::personFields`
+- **فیلد:** `life_dates_raw` (`text` با `life_dates`).
+- **`SuggestionApplier::apply`:** پیش از نوشتن متن تازه، اگر `death_year_hijri` همان سالی است که `Person::deathColumns(متن پیشین, null)` به‌صورت یک سال (`death_from === death_to`) می‌دهد، `death_year_hijri` و `death_year_gregorian` تهی می‌شوند. سپس قلاب `saving` مدل `Person` از متن تازه `death_from`، `death_to`، قطعیت، سال وفات تک‌ساله و سده را می‌سازد.
+- **نمونه:** «- 940 ؟ ق» با وفات ۹۴۰ ← «930 قمری»: وفات و بازه تهی، سده ۱۰ می‌ماند. «880 - 951 قمری» وفات ۹۵۱ می‌دهد. وفات ۹۵۵ که با متن نمی‌خواند با «قرن 10» می‌ماند.
+- **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.

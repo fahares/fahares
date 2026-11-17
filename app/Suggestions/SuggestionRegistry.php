@@ -612,6 +612,8 @@ class SuggestionRegistry
             'birth_year_hijri' => ['label' => 'سال تولد (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_hijri' => ['label' => 'سال وفات (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_gregorian' => ['label' => 'سال وفات (میلادی)', 'input' => 'integer', 'min' => 500, 'max' => 2100],
+            // the catalogue's wording of the life, which the death year and range are read from (step 14.245)
+            'life_dates_raw' => ['label' => 'تاریخ زندگی به شیوۀ فهرست (مثلاً «۸۱۷ - ۸۹۸ قمری»، «- ۹۴۰ ؟ قمری»، «قرن ۱۰»، یا سالی که زنده بوده: «۹۳۰ قمری»)', 'input' => 'text', 'life_dates' => true],
             'bio_notes' => ['label' => 'زندگی‌نامۀ کوتاه', 'input' => 'textarea'],
         ];
     }
