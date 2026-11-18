@@ -1168,6 +1168,19 @@ class SuggestionController extends Controller
             ->with('success', "پیشنهاد #{$derived->id} از روی پیشنهاد #{$suggestion->id} ساخته شد" . ($request->boolean('close_original') ? ' و پیشنهاد اصلی بسته شد.' : '. پیشنهاد اصلی هنوز باز است.'));
     }
 
+    /**
+     * Closes a suggestion that was converted with «پیشنهاد اصلی بسته شود» unticked and then left open (step 14.248):
+     * it becomes «تبدیل‌شده», as the tick would have made it. Nothing is applied and the submitter hears of no rejection.
+     */
+    public function closeConverted(FieldSuggestion $suggestion)
+    {
+        abort_unless($suggestion->status === 'pending', 409, 'فقط پیشنهاد در انتظار داوری را می‌توان بست.');
+        abort_if(empty($suggestion->resolution['converted_to']), 422, 'از روی این پیشنهاد هنوز پیشنهادی ساخته نشده است.');
+        $suggestion->update(['status' => 'converted', 'reviewed_by' => auth()->id(), 'reviewed_at' => now()]);
+
+        return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "پیشنهاد #{$suggestion->id} به‌عنوان «تبدیل‌شده» بسته شد.");
+    }
+
     /** The record a conversion lands on: the suggestion's own when no other is named, else a pasted link or id. */
     private static function convertTarget(FieldSuggestion $suggestion, string $type, string $ref)
     {

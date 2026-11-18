@@ -62,7 +62,7 @@
     $suggestedPerson = ! empty($payload['person_id']) ? (int) $payload['person_id'] : null;
     $derivedIds = $suggestion->resolution['converted_to'] ?? [];
     $sourceId = $payload['derived_from'] ?? null;
-    $toolsOpen = $errors->has('credit_name') || session('success') === "یادداشت‌های پیشنهاد #{$suggestion->id} ذخیره شد." ||$errors->hasAny(['target_ref', 'target_type', 'kind', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role_name', 'shelfmark']);
+    $toolsOpen = $errors->has('credit_name') || ($derivedIds && $suggestion->status === 'pending') || session('success') === "یادداشت‌های پیشنهاد #{$suggestion->id} ذخیره شد." ||$errors->hasAny(['target_ref', 'target_type', 'kind', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role_name', 'shelfmark']);
 @endphp
 
 @section('title', 'پیشنهاد #' . $fa($suggestion->id))
@@ -323,6 +323,14 @@
                                     <a href="{{ route('admin.suggestions.show', $d) }}" class="font-bold text-cinnabar hover:underline">#{{ $fa($d->id) }} ({{ $d->field_label }})</a>@if(! $loop->last)، @endif
                                 @endforeach
                             </p>
+                            {{-- Converted with the original left open: closed here as the tick would have (step 14.248) --}}
+                            @if($suggestion->status === 'pending')
+                                <form action="{{ route('admin.suggestions.close-converted', $suggestion) }}" method="POST" class="pt-1" data-close-converted>
+                                    @csrf
+                                    <p class="text-xs text-muted">این پیشنهاد هنوز باز است. اگر کارش با پیشنهادهای بالا تمام شده، آن را ببندید: چیزی روی رکورد اعمال نمی‌شود و «رد» هم ثبت نمی‌شود.</p>
+                                    <x-ui.btn type="submit">بستن به‌عنوان «تبدیل‌شده»</x-ui.btn>
+                                </form>
+                            @endif
                         @endif
                     </x-admin.notice>
                 @endif

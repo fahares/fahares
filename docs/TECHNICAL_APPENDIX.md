@@ -12146,3 +12146,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` (۲۶ آبان ۱۴۰۵):** ۶۶٬۴۳۲ شخص، ۱٬۶۸۴ با سال تولد (۱٬۶۶۵ با وفات، ۱۹ فقط با سده). اجرای آزمایشی و اجرای `--apply`: ۱٬۲۱۱ پر شد (۱٬۲۰۸ با هر دو سال و ۳ با سال تولد و سده)، ۰ تهی شد. اجرای دوباره: ۰ و ۰. فاصلۀ سدۀ تولد تا سدۀ شخص در همۀ ۱٬۶۸۴ رکورد ۰ یا ۱ است.
 - **پس از استقرار (به تأیید کاربر، با `scripts/dev/prod-run`):** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:fill-life-centuries --apply`، سپس بازنمایه‌سازی اشخاص با `php artisan fahares:reindex-work-estimates --people` (دسته‌های کوچک و منتظر صف موتور؛ همۀ اشخاصِ سده‌دار را می‌فرستد) یا `php artisan scout:import "App\Models\Person"`.
 - **آزمون:** `LifeCenturiesTest` (چهار آزمون) و `SuggestionWorkflowTest::test_the_first_century_of_a_life_is_set_for_a_person_of_no_birth_year`.
+
+### گام ۱۴.۲۴۸: `closeConverted`
+- **`Admin\SuggestionController::closeConverted`** (`POST /admin/suggestions/{suggestion}/close-converted`، نام `admin.suggestions.close-converted`، زیر `can:suggestions.review`): فقط برای `status` برابر `pending` (وگرنه ۴۰۹) که `resolution.converted_to` دارد (وگرنه ۴۲۲). `status` را `converted` می‌کند و `reviewed_by` و `reviewed_at` را می‌نویسد؛ همان چیزی که `convert` با `close_original` می‌نویسد. لاگ ممیزی و اعلان ندارد.
+- **`show.blade.php`:** فرم `data-close-converted` در کادر پیشنهادهای ساخته‌شده؛ `$toolsOpen` برای پیشنهاد در انتظاری که `$derivedIds` دارد درست است.
+- **آزمون:** `SuggestionWorkflowTest::test_a_converted_suggestion_left_open_is_closed_as_converted`.

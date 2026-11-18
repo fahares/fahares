@@ -533,6 +533,29 @@ class SuggestionWorkflowTest extends TestCase
         User::whereKey($user->id)->delete();
     }
 
+    /** Step 14.248: a suggestion converted with its original left open is closed as «تبدیل‌شده», not rejected. */
+    public function test_a_converted_suggestion_left_open_is_closed_as_converted()
+    {
+        $m = $this->manuscript();
+        $this->suggest($m, ['kind' => 'general', 'suggested_value' => 'تاریخ کتابت ۸۹۷ است', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $s = $this->pendingFor($m);
+
+        // Nothing was made from it yet: there is nothing to close it as
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertDontSee('data-close-converted', false);
+        $this->post("/admin/suggestions/{$s->id}/close-converted")->assertStatus(422);
+
+        $this->post("/admin/suggestions/{$s->id}/convert", ['target_type' => 'manuscript', 'kind' => 'field', 'field_name' => 'copy_date_raw', 'suggested_value' => '۸۹۷'])->assertRedirect();
+        $this->assertSame('pending', $s->fresh()->status);
+        $this->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('data-close-converted', false);
+
+        $this->post("/admin/suggestions/{$s->id}/close-converted")->assertRedirect("/admin/suggestions/{$s->id}")->assertSessionHas('success');
+        $s->refresh();
+        $this->assertSame(['converted', $this->admin->id, null], [$s->status, $s->reviewed_by, $m->fresh()->copy_date_raw]);
+        $this->assertNotNull($s->reviewed_at);
+        $this->get("/admin/suggestions/{$s->id}")->assertOk()->assertDontSee('data-close-converted', false);
+        $this->post("/admin/suggestions/{$s->id}/close-converted")->assertStatus(409);
+    }
+
     /** Step 14.244: the page count and the place in the volume are corrected like the leaf count, and a sync keeps them. */
     public function test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync()
     {
