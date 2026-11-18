@@ -11375,6 +11375,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان ستون‌های `TextRefresh::COLUMNS` مأخذهای منبع ۱۰۰۰۲۰، و ستون `extractor` منبع.
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:take-texts 100020 --extractor=numbered_copies'`.
   3. اجرای دوم باید «taken 0» بدهد.
+- **اجرای پروداکشن (۲۷ آبان ۱۴۰۵، انتشار ۱۵۹):**
+  - پشتیبان: `../fahares-sources/backups/step13/step14_206_golpa_entries_before.jsonl.gz`، با md5 `dd10e7249997a30a2bdabcd48ef36a42`. در آن ستون‌های `TextRefresh::COLUMNS` همۀ ۱۳٬۷۲۴ مدخل منبع ۱۰۰۰۲۰ آمده است، و سطر پایانی `extractor` پیشین منبع را دارد (`null`).
+  - اجرای آزمایشی و اجرای اصلی هر دو این را دادند: ۱۳٬۷۲۴ بی‌متن، ۱ بی صفحه، ۷۹ یافت‌نشده، ۱۳٬۶۴۴ برداشته، ۲۸۰ با غلط چاپی، و ۷٬۸۰۰ نشانی تازه. اجرای دوم «taken 0» داد.
 
 ### گام ۱۴.۲۰۷: `App\Support\PersonPlaces` و بخش «حضور در شهرها»
 
@@ -12235,3 +12238,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `C=tehran-univ-microfilm` و `C=majlis-sena` با `tehran-univ/work/send.sh`: ۱٬۵۳۴ پرونده در حدود ۴۵ ثانیه و ۹۲۸ پرونده در حدود ۷۰ ثانیه. اجرای دوم هر دو «missing 0» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - چهار برگۀ نمونه (میکروفیلم ج ۱ ص ۹۴ و ج ۳ ص ۳۷۱، سنا ج ۱ ص ۱۳۸ و ج ۲ ص ۵۲۰) از `https://fahares.net/storage/catalogs/` پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
 - **پس از انتشار:** `catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان این پنج ردیف. انتظار: «0 created, 5 updated».
+- **اجرای پروداکشن (۲۷ آبان ۱۴۰۵، انتشار ۱۵۹، با `prod-run`، هر بار یک دستور):**
+  - پیش از آن، `sources:take-texts 100020` (گام ۱۴.۲۰۶) اجرا شد، چون مدخل‌های گلپایگانی در پروداکشن هنوز متن نداشتند.
+  - گلپایگانی: ۱۳٬۶۴۴ سطر خوانده شد. هم‌خوان / پرکردن / اختلاف: شمارۀ نسخه ۱۳٬۴۳۰ / ۰ / ۲۱۴، برگ ۱۳٬۲۷۴ / ۴۲ / ۱۵۸، سطر ۱۱٬۱۲۷ / ۱۷ / ۱۱، اندازه ۱۱٬۰۴۷ / ۹۱ / ۱۶، تاریخ ۹٬۲۱۸ / ۳۶ / ۱۰۳، کاتب ۱۲٬۷۰۷ / ۱۰۹ / ۹۰، و خط ۱۳٬۱۴۶ / ۸۹ / ۱۸.
+  - مسجد اعظم: ۶٬۱۲۴ سطر خوانده شد، با همان شمارهای تمرین.
+  - `fahares:firsthand-coverage`: ۱۹٬۷۰۷ نسخه خوانده شد، ۱۳٬۸۷۷ کامل (۴٫۳٪)، و ۱٬۹۶۳ ادعای نامزد.
+  - برای خوانش‌ها پشتیبان گرفته نشد. `claims` و `confirmed_fields` پیش از آن خالی بودند، و برگرداندن یعنی خالی کردن همان دو.
+
