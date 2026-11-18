@@ -20,7 +20,7 @@ class FetchReplyAttachmentsCommand extends Command
         {--email= : The Resend id of the received email, when it cannot be found by its sender and time}
         {--dry-run : Show what would be fetched, without keeping anything}';
 
-    protected $description = 'Fetch from Resend the pictures attached to an email reply filed without them';
+    protected $description = 'Fetch from Resend the pictures and PDFs attached to an email reply filed without them';
 
     public function handle(): int
     {
@@ -31,7 +31,7 @@ class FetchReplyAttachmentsCommand extends Command
             return self::FAILURE;
         }
         if ($message->attachments->isNotEmpty()) {
-            $this->info('The letter already has ' . $message->attachments->count() . ' picture(s); nothing to do.');
+            $this->info('The letter already has ' . $message->attachments->count() . ' file(s); nothing to do.');
 
             return self::SUCCESS;
         }
@@ -49,14 +49,14 @@ class FetchReplyAttachmentsCommand extends Command
 
             return self::FAILURE;
         }
-        $this->line("Email {$emailId}: " . count($pictures) . ' picture(s), ' . number_format(array_sum(array_map(fn ($p) => strlen($p['bytes']), $pictures))) . ' bytes.');
+        $this->line("Email {$emailId}: " . count($pictures) . ' file(s), ' . number_format(array_sum(array_map(fn ($p) => strlen($p['bytes']), $pictures))) . ' bytes.');
         if (! $pictures || $this->option('dry-run')) {
             return self::SUCCESS;
         }
 
         EmailAttachments::keep($message, $pictures);
         $message->update(['body' => EmailAttachments::withoutMarkers((string) $message->body)]);
-        $this->info('Kept ' . count($pictures) . " picture(s) with letter {$message->id}.");
+        $this->info('Kept ' . count($pictures) . " file(s) with letter {$message->id}.");
 
         return self::SUCCESS;
     }

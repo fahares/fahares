@@ -65,8 +65,11 @@ class EmailReplyAttachmentsTest extends TestCase
                 // Not a picture by its bytes, though it says so
                 ['id' => 'a2', 'filename' => 'x.png', 'content_type' => 'image/png', 'size' => 100, 'download_url' => 'https://cdn.resend.test/a2'],
                 ['id' => 'a3', 'filename' => 'نامه.pdf', 'content_type' => 'application/pdf', 'size' => 100, 'download_url' => 'https://cdn.resend.test/a3'],
+                // A kind that is not kept, and a PDF over the size limit
+                ['id' => 'a4', 'filename' => 'گزارش.docx', 'content_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'size' => 348160, 'download_url' => 'https://cdn.resend.test/a4'],
+                ['id' => 'a5', 'filename' => 'نسخه.pdf', 'content_type' => 'application/pdf', 'size' => 31457280, 'download_url' => 'https://cdn.resend.test/a5'],
             ]]),
-            'api.resend.com/emails/receiving/em_1' => Http::response(['text' => $text, 'attachments' => [['id' => 'a1'], ['id' => 'a2'], ['id' => 'a3']]]),
+            'api.resend.com/emails/receiving/em_1' => Http::response(['text' => $text, 'attachments' => [['id' => 'a1'], ['id' => 'a2'], ['id' => 'a3'], ['id' => 'a4'], ['id' => 'a5']]]),
             'cdn.resend.test/a1' => Http::response($this->png()),
             'cdn.resend.test/a2' => Http::response('<script>alert(1)</script>'),
             'cdn.resend.test/a3' => Http::response('%PDF-1.4'),
@@ -84,9 +87,20 @@ class EmailReplyAttachmentsTest extends TestCase
 
         $this->inbound($thread, "کاربر <{$submitter->email}>")->assertOk();
         $reply = Message::where('is_staff', false)->sole();
-        $this->assertSame('بله، این تصویر برگ نخست است.', $reply->body);
-        $picture = $reply->attachments->sole();
+        // The three that were not kept are named under the letter (step 14.251)
+        $this->assertSame("بله، این تصویر برگ نخست است.\n\n"
+            . "〔پیوست «x.png» (PNG، ۱ کیلوبایت) نگه داشته نشد: این نوع فایل پذیرفته نمی‌شود〕\n"
+            . "〔پیوست «گزارش.docx» (DOCX، ۳۴۰ کیلوبایت) نگه داشته نشد: این نوع فایل پذیرفته نمی‌شود〕\n"
+            . '〔پیوست «نسخه.pdf» (PDF، ۳۰٫۰ مگابایت) نگه داشته نشد: بزرگ‌تر از سقف حجم پیوست است〕', $reply->body);
+        $this->assertCount(2, $reply->attachments);
+        $picture = $reply->attachments->firstWhere('content_type', 'image/png');
         $this->assertSame(['برگ نخست.png', 'image/png'], [$picture->filename, $picture->content_type]);
+        // The PDF is kept too, listed by its name and handed over as a download
+        $pdf = $reply->attachments->firstWhere('content_type', 'application/pdf');
+        $this->assertSame('نامه.pdf', $pdf->filename);
+        $this->assertStringEndsWith('.pdf', $pdf->path);
+        $this->actingAs($editor)->get(route('admin.suggestions.show', $thread->field_suggestion_id))->assertSee('data-attachment-file', false)->assertSee('نامه.pdf');
+        $this->assertStringStartsWith('attachment;', (string) $this->actingAs($submitter)->get(route('messages.attachment', $pdf))->assertOk()->headers->get('Content-Disposition'));
         $this->assertStringStartsWith("message-attachments/{$thread->id}/{$reply->id}-", $picture->path);
         Storage::disk('public')->assertExists($picture->path);
 
@@ -110,7 +124,8 @@ class EmailReplyAttachmentsTest extends TestCase
 
         $this->inbound($thread, $submitter->email)->assertOk();
         $reply = Message::where('is_staff', false)->sole();
-        $this->assertSame(['', 1], [$reply->body, $reply->attachments->count()]);
+        $this->assertSame(2, $reply->attachments->count());
+        $this->assertStringStartsWith('〔پیوست «x.png»', $reply->body);
     }
 
     public function test_gmail_markers_are_taken_out_of_the_text(): void
@@ -132,12 +147,12 @@ class EmailReplyAttachmentsTest extends TestCase
             ['id' => 'em_1', 'from' => "کاربر <{$submitter->email}>", 'created_at' => now()->subSeconds(2)->toIso8601String()],
         ]])]);
 
-        $this->artisan('fahares:fetch-reply-attachments', ['message' => $reply->id, '--dry-run' => true])->expectsOutputToContain('Email em_1: 1 picture(s)')->assertSuccessful();
+        $this->artisan('fahares:fetch-reply-attachments', ['message' => $reply->id, '--dry-run' => true])->expectsOutputToContain('Email em_1: 2 file(s)')->assertSuccessful();
         $this->assertSame(0, $reply->attachments()->count());
 
-        $this->artisan('fahares:fetch-reply-attachments', ['message' => $reply->id])->expectsOutputToContain('Kept 1 picture(s)')->assertSuccessful();
-        $this->assertSame(['بله.', 1], [$reply->fresh()->body, $reply->attachments()->count()]);
+        $this->artisan('fahares:fetch-reply-attachments', ['message' => $reply->id])->expectsOutputToContain('Kept 2 file(s)')->assertSuccessful();
+        $this->assertSame(['بله.', 2], [$reply->fresh()->body, $reply->attachments()->count()]);
 
-        $this->artisan('fahares:fetch-reply-attachments', ['message' => $reply->id])->expectsOutputToContain('already has 1 picture(s)')->assertSuccessful();
+        $this->artisan('fahares:fetch-reply-attachments', ['message' => $reply->id])->expectsOutputToContain('already has 2 file(s)')->assertSuccessful();
     }
 }

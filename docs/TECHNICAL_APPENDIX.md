@@ -12151,3 +12151,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Admin\SuggestionController::closeConverted`** (`POST /admin/suggestions/{suggestion}/close-converted`، نام `admin.suggestions.close-converted`، زیر `can:suggestions.review`): فقط برای `status` برابر `pending` (وگرنه ۴۰۹) که `resolution.converted_to` دارد (وگرنه ۴۲۲). `status` را `converted` می‌کند و `reviewed_by` و `reviewed_at` را می‌نویسد؛ همان چیزی که `convert` با `close_original` می‌نویسد. لاگ ممیزی و اعلان ندارد.
 - **`show.blade.php`:** فرم `data-close-converted` در کادر پیشنهادهای ساخته‌شده؛ `$toolsOpen` برای پیشنهاد در انتظاری که `$derivedIds` دارد درست است.
 - **آزمون:** `SuggestionWorkflowTest::test_a_converted_suggestion_left_open_is_closed_as_converted`.
+
+### گام ۱۴.۲۵۱: PDF و پیوست‌های نگه‌داشته‌نشده در `EmailAttachments`
+- **`EmailAttachments::download(string $emailId, array &$skipped = [])`:** `application/pdf` اگر در ۱۰۲۴ بایت نخست `%PDF-` دارد نگه داشته می‌شود (`extension` برابر `pdf`). `$skipped` برای هر پیوست کنارگذاشته `filename`، `content_type`، `size` و `reason` (`type`، `size`، `count`، `fetch`) می‌گیرد. مهلت دانلود ۶۰ ثانیه شد.
+- **`EmailAttachments::notice`:** برای هر مورد یک سطر «〔پیوست «نام» (نوع، حجم) نگه داشته نشد: علت〕»؛ نوع از پسوند نام فایل، وگرنه از `content_type`. `EmailAttachments::size` حجم را به مگابایت یا کیلوبایت با رقم فارسی می‌دهد.
+- **`InboundEmailController::store`:** سطرها پس از یک سطر خالی به متن نامه افزوده می‌شوند (در سقف `Message::MAX_LENGTH`)؛ نامۀ بی‌متن و بی‌فایل که پیوست کنارگذاشته دارد ثبت می‌شود.
+- **`MessageAttachmentController::show`:** `Content-Disposition` برای تصویر `inline` و برای بقیه `attachment` با نام فایل است.
+- **`messages/partials/letters.blade.php`:** پیوست غیرتصویری پیوندی با `data-attachment-file`، نوع، نام و حجم است.
+- **`fahares:fetch-reply-attachments`:** PDF را هم می‌گیرد؛ پیام‌هایش «file(s)» می‌گویند.
+- **آزمون:** `EmailReplyAttachmentsTest` (چهار آزمون، با PDF، DOCX و PDF بزرگ‌تر از سقف).

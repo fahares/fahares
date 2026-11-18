@@ -33,9 +33,18 @@
                 {{-- Pictures attached to an email reply (step 14.36) --}}
                 <div class="mt-2 flex flex-wrap gap-2">
                     @foreach($m->attachments as $a)
-                        <a href="{{ route('messages.attachment', $a) }}" target="_blank" rel="noopener" class="block border border-line rounded-sm bg-paper hover:border-cinnabar" title="{{ $a->filename }}">
-                            <img src="{{ route('messages.attachment', $a) }}" alt="{{ $a->filename }}" loading="lazy" class="h-32 w-auto max-w-[14rem] object-contain">
-                        </a>
+                        @if(str_starts_with((string) $a->content_type, 'image/'))
+                            <a href="{{ route('messages.attachment', $a) }}" target="_blank" rel="noopener" class="block border border-line rounded-sm bg-paper hover:border-cinnabar" title="{{ $a->filename }}">
+                                <img src="{{ route('messages.attachment', $a) }}" alt="{{ $a->filename }}" loading="lazy" class="h-32 w-auto max-w-[14rem] object-contain">
+                            </a>
+                        @else
+                            {{-- A file that is no picture (a PDF, step 14.251): its name and size, as a download --}}
+                            <a href="{{ route('messages.attachment', $a) }}" class="flex items-center gap-2 px-3 py-2 border border-line rounded-sm bg-paper hover:border-cinnabar text-ink" data-attachment-file>
+                                <span class="font-bold text-cinnabar text-xs">{{ strtoupper(\Illuminate\Support\Str::afterLast((string) $a->content_type, '/')) }}</span>
+                                <span class="break-all">{{ $a->filename }}</span>
+                                <span class="text-xs text-muted whitespace-nowrap">{{ \App\Messaging\EmailAttachments::size((int) $a->size) }}</span>
+                            </a>
+                        @endif
                     @endforeach
                 </div>
             @endif

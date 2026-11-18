@@ -49,8 +49,9 @@ class InboundEmailController extends Controller
         }
         $text = ReplyText::extract($email->json('text'), $email->json('html'));
         $pictures = [];
+        $skipped = [];
         if ((array) $email->json('attachments', [])) {
-            $pictures = EmailAttachments::download((string) $data['email_id']);
+            $pictures = EmailAttachments::download((string) $data['email_id'], $skipped);
             if ($pictures === null) {
                 return response()->json(['ok' => false], 502);
             }
@@ -58,12 +59,15 @@ class InboundEmailController extends Controller
                 $text = EmailAttachments::withoutMarkers($text);
             }
         }
-        if ($text === '' && ! $pictures) {
+        if ($text === '' && ! $pictures && ! $skipped) {
             return response()->json(['ok' => true]);
         }
+        // An attachment that was not kept is named under the letter, so neither side takes it for delivered (step 14.251)
+        $notice = EmailAttachments::notice($skipped);
+        $text = trim(Str::limit($text, Message::MAX_LENGTH - mb_strlen($notice) - 2, '') . ($notice !== '' ? "\n\n" . $notice : ''));
 
         // Resend's id of the email is its token: a webhook delivered twice files the letter once (backlog item 115)
-        $message = Conversations::userReply($thread, Str::limit($text, Message::MAX_LENGTH, ''), 'email', 'email:' . ($data['email_id'] ?? Str::uuid()));
+        $message = Conversations::userReply($thread, $text, 'email', 'email:' . ($data['email_id'] ?? Str::uuid()));
         if ($message->wasRecentlyCreated) {
             EmailAttachments::keep($message, $pictures);
         }

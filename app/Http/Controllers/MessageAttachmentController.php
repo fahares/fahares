@@ -23,7 +23,8 @@ class MessageAttachmentController extends Controller
 
         return Storage::disk('public')->response($attachment->path, $attachment->filename, [
             'Content-Type' => $attachment->content_type,
-            'Content-Disposition' => 'inline',
+            // a picture opens in the page; anything else (a PDF, step 14.251) is handed over as a download
+            'Content-Disposition' => str_starts_with((string) $attachment->content_type, 'image/') ? 'inline' : 'attachment; filename*=UTF-8\'\'' . rawurlencode((string) $attachment->filename),
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, max-age=86400',
         ]);
