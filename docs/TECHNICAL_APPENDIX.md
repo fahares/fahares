@@ -12188,3 +12188,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - در هر خانه: تأییدشده / ادعا (اختلاف و پرکردن). سطر هم در گلپایگانی ۱۱٬۱۱۳ / ۲۸ است.
   - هر دو فرمان روی `fahares_prod` اجرا شدند (`--apply`): گلپایگانی در ۲۶ ثانیه.
 - **آزمون:** `FirstHandReadingTest` (پنج آزمون: دو خواننده، سنجش، اجرای دوباره و ماندن ادعای پذیرفته، و معیار پایان). کل مجموعه پس از ادغام origin/main: ۹۸۳ آزمون موفق.
+### گام ۱۴.۲۵۱: PDF و پیوست‌های نگه‌داشته‌نشده در `EmailAttachments`
+- **`EmailAttachments::download(string $emailId, array &$skipped = [])`:** `application/pdf` اگر در ۱۰۲۴ بایت نخست `%PDF-` دارد نگه داشته می‌شود (`extension` برابر `pdf`). `$skipped` برای هر پیوست کنارگذاشته `filename`، `content_type`، `size` و `reason` (`type`، `size`، `count`، `fetch`) می‌گیرد. مهلت دانلود ۶۰ ثانیه شد.
+- **`EmailAttachments::notice`:** برای هر مورد یک سطر «〔پیوست «نام» (نوع، حجم) نگه داشته نشد: علت〕»؛ نوع از پسوند نام فایل، وگرنه از `content_type`. `EmailAttachments::size` حجم را به مگابایت یا کیلوبایت با رقم فارسی می‌دهد.
+- **`InboundEmailController::store`:** سطرها پس از یک سطر خالی به متن نامه افزوده می‌شوند (در سقف `Message::MAX_LENGTH`)؛ نامۀ بی‌متن و بی‌فایل که پیوست کنارگذاشته دارد ثبت می‌شود.
+- **`MessageAttachmentController::show`:** `Content-Disposition` برای تصویر `inline` و برای بقیه `attachment` با نام فایل است.
+- **`messages/partials/letters.blade.php`:** پیوست غیرتصویری پیوندی با `data-attachment-file`، نوع، نام و حجم است.
+- **`fahares:fetch-reply-attachments`:** PDF را هم می‌گیرد؛ پیام‌هایش «file(s)» می‌گویند.
+- **آزمون:** `EmailReplyAttachmentsTest` (چهار آزمون، با PDF، DOCX و PDF بزرگ‌تر از سقف).
