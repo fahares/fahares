@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Console\Commands\FirsthandCoverageCommand;
 use App\Models\Claim;
+use App\Models\FieldSuggestion;
+use App\Models\User;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Source;
@@ -119,6 +121,41 @@ class FirstHandReadingTest extends TestCase
         Claim::where('subject_id', $other->id)->where('field', 'folios')->update(['status' => Claim::STATUS_ACCEPTED]);
         $this->artisan('fahares:firsthand-coverage')->assertOk();
         $this->assertSame(2, Cache::get(FirsthandCoverageCommand::CACHE_KEY)['total']['complete']);
+    }
+
+    public function test_the_review_queue_sends_a_claim_to_the_suggestion_page_and_follows_its_decision()
+    {
+        [, $ms] = $this->copyWithLine('ش 176، 397 برگ، 18×28، نسخ محمد در 1084.', ['shelfmark' => '176', 'folios' => 379, 'dimensions' => '18×28سم']);
+        [, $other] = $this->copyWithLine('ش 177، 50 برگ، 14×21، نسخ، بیکا، بیتا.', ['shelfmark' => '177', 'folios' => 52, 'dimensions' => '14×21سم']);
+        $this->artisan('sources:read-copy-lines', ['source' => 'masjid-azam-ostadi', '--apply' => true])->assertOk();
+        $admin = User::firstOrCreate(['email' => 'claims-admin@fahares.net'], ['name' => 'داور', 'password' => 'password123', 'role' => 'admin'])->forceFill(['role' => 'admin']);
+        $claim = Claim::where('subject_id', $ms->id)->where('field', 'folios')->sole();
+
+        $this->actingAs($admin)->get(route('admin.claims.index'))->assertOk()
+            ->assertSee('فهرست درست است')->assertSee('فنخا درست است')->assertSee('شمار برگ · اختلاف');
+        $this->actingAs($admin)->get(route('admin.claims.index', ['field' => 'folios', 'kind' => 'fills']))->assertOk()->assertSee('موردی نیست');
+
+        // «فهرست درست است»: a suggestion of the system, then approved on its page like any other
+        $response = $this->actingAs($admin)->post(route('admin.claims.suggest', $claim));
+        $suggestion = FieldSuggestion::findOrFail($claim->fresh()->suggestion_id);
+        $response->assertRedirect(route('admin.suggestions.show', $suggestion));
+        $this->assertSame(['folios', '397', '379', 'pending', null], [$suggestion->field_name, $suggestion->suggested_value, $suggestion->current_value, $suggestion->status, $suggestion->user_id]);
+        $this->assertSame('first_hand', $suggestion->machineOrigin());
+        $this->assertStringContainsString('397 برگ', $suggestion->rationale_citation);
+        $this->actingAs($admin)->get(route('admin.suggestions.show', $suggestion))->assertOk();
+        $this->actingAs($admin)->post(route('admin.claims.suggest', $claim))->assertRedirect(route('admin.suggestions.show', $suggestion));
+        $this->assertSame(1, FieldSuggestion::count());
+
+        $this->actingAs($admin)->post(route('admin.suggestions.approve', $suggestion), ['applied_value' => '397', 'outcome' => 'adopt'])->assertSessionHasNoErrors();
+        $this->assertSame(397, $ms->fresh()->folios);
+        $this->assertSame(Claim::STATUS_ACCEPTED, $claim->fresh()->status);
+
+        // «فنخا درست است»: the record stands
+        $wrong = Claim::where('subject_id', $other->id)->where('field', 'folios')->sole();
+        $this->actingAs($admin)->post(route('admin.claims.reject', $wrong))->assertRedirect();
+        $this->assertSame([Claim::STATUS_REJECTED, 52], [$wrong->fresh()->status, $other->fresh()->folios]);
+        $this->actingAs($admin)->post(route('admin.claims.reopen', $wrong))->assertRedirect();
+        $this->assertSame(Claim::STATUS_CANDIDATE, $wrong->fresh()->status);
     }
 
     /** @return array{SourceEntry, Manuscript} */

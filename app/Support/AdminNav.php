@@ -43,6 +43,8 @@ class AdminNav
                     'count' => fn () => \App\Models\PersonReview::where('type', 'author_link')->where('status', 'open')->count()],
                 ['label' => 'تناقض‌های تاریخی', 'route' => 'admin.date-conflicts.index', 'active' => 'admin.date-conflicts.*', 'can' => 'suggestions.review',
                     'count' => fn () => \App\Models\DateConflict::open()->where('direct', true)->count(), 'soft' => true],
+                ['label' => 'ادعاهای فهرست‌های چاپی', 'route' => 'admin.claims.index', 'active' => 'admin.claims.*', 'can' => 'suggestions.review',
+                    'count' => fn () => \App\Models\Claim::candidate()->count(), 'soft' => true],
                 ['label' => 'فهرست‌نگاران', 'route' => 'admin.catalogers.index', 'active' => 'admin.catalogers.*', 'can' => 'catalogers.edit'],
                 ['label' => 'منابع', 'route' => 'admin.sources.index', 'active' => ['admin.sources.index', 'admin.sources.show', 'admin.sources.volume'], 'can' => 'sources.edit'],
                 ['label' => 'ادغام منابع', 'route' => 'admin.sources.merge', 'active' => 'admin.sources.merge', 'can' => 'sources.merge'],
