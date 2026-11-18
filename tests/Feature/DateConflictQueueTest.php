@@ -109,7 +109,7 @@ class DateConflictQueueTest extends TestCase
             ->assertSee('ورود و پاسخ');
 
         $this->actingAs($this->user('پژوهشگر'))->get(route('contribute.show', ['date', $conflict->id]))->assertOk()
-            ->assertSee('تألیف «اثر آزمایشی صف تاریخ»')->assertSee('وفات «مؤلف آزمایشی صف»')
+            ->assertSee('تاریخ تألیف «اثر آزمایشی صف تاریخ»')->assertSee('تاریخ وفات «مؤلف آزمایشی صف»')
             ->assertSee('این اثر از این شخص نیست')->assertSee('هیچ‌کدام؛ هر دو درست‌اند');
     }
 
@@ -131,7 +131,7 @@ class DateConflictQueueTest extends TestCase
         $this->assertSame(['date', $conflict->id, 'b', $conflict->id, 'pending', 'general'],
             [$opinion->review_queue, (int) $opinion->review_item_id, $opinion->review_answer, (int) $opinion->date_conflict_id, $opinion->status, $opinion->kind]);
         $this->assertSame([Person::class, $this->author->id], [$opinion->suggestable_type, (int) $opinion->suggestable_id]);
-        $this->assertStringContainsString('وفات «مؤلف آزمایشی صف» نادرست است', $opinion->suggested_value);
+        $this->assertStringContainsString('تاریخ وفات «مؤلف آزمایشی صف» نادرست است', $opinion->suggested_value);
         $this->assertSame('وفات او 1320 است.', $opinion->rationale_citation);
         $this->assertSame(1280, (int) $this->author->fresh()->death_year_hijri);
 

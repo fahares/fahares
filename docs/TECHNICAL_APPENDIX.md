@@ -12248,3 +12248,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان:** پنج ردیف `catalog_volumes` و `source_volumes` (#۵۳۹، ۱۵۴، ۱۴۹، ۶۵۰ و ۱۴۵) به JSON، از راه `tinker` به خروجی ssh، در `../fahares-sources/backups/step13/before_step14_252_set_facsimiles_20261118_1450.json`. `facsimile_code` هر پنج ردیف پیش‌تر خالی بود. پرونده‌ای در کانتینر نماند.
   - `prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 5 updated, 179 unchanged». اجرای آزمایشی دوم «0 created, 0 updated, 184 unchanged».
   - **در fahares.net:** صفحۀ یک نسخۀ تصادفی از هر جلد نشانی برگۀ درست را دارد: `/manuscripts/270634` (میکروفیلم ج ۱ ص ۱۸۳)، `/manuscripts/158509` (ج ۲ ص ۱۶)، `/manuscripts/244002` (ج ۳ ص ۸۷)، `/manuscripts/305611` (سنا ج ۱ ص ۲۱) و `/manuscripts/329933` (سنا ج ۲ ص ۱۴۸). `laravel.log` خطای تازه‌ای نداشت.
+- **پس از انتشار:** `catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان این پنج ردیف. انتظار: «0 created, 5 updated».
+
+### گام ۱۴.۲۵۳: `DateConflict::answerLabel`
+- **`DateConflict::answerLabel(string $field)`:** «تاریخ » + `FIELD_LABELS[$field]`؛ برای `period` همان `FIELD_LABELS` بی پیشوند.
+- **`DateConflictNote::note`** (دو پاسخ نخست) و **`DateConflictQueue::labels`** (پاسخ‌های `a` و `b`) به‌جای `FIELD_LABELS` آن را می‌خوانند. متن نظری که صف ذخیره می‌کند هم «تاریخ وفات «…» نادرست است» می‌شود.
+- `otherField` یادداشت، پیش‌نوشت پاسخ دوره («دورۀ زندگی نادرست ثبت شده است: ») و `admin/date-conflicts` همچنان `FIELD_LABELS` را نشان می‌دهند.

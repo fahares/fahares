@@ -160,7 +160,7 @@ class DateConflictQueue extends ReviewQueue
     }
 
     /**
-     * The answers this conflict takes, each naming its own date: «وفات «میرداماد»». A person's own birth and death
+     * The answers this conflict takes, each naming its own date: «تاریخ وفات «میرداماد»». A person's own birth and death
      * have no tie to doubt.
      *
      * @return array<string, string>
@@ -172,7 +172,7 @@ class DateConflictQueue extends ReviewQueue
         foreach (['a', 'b'] as $side) {
             [$type, $id, $field] = $this->side($c, $side);
             $title = Str::limit((string) ($records["{$type}:{$id}"]['title'] ?? self::TYPES[$type]), 40);
-            $labels[$side] = DateConflict::FIELD_LABELS[$field] . ($same ? ' این ' . self::TYPES[$type] : " «{$title}»");
+            $labels[$side] = DateConflict::answerLabel($field) . ($same ? ' این ' . self::TYPES[$type] : " «{$title}»");
         }
         if (! $same && ($tie = DateConflictNote::TIES[$c->rule] ?? null)) {
             $labels['tie'] = $tie[1];
