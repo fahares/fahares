@@ -751,6 +751,12 @@ class Manuscript extends Model
         return $this->belongsTo(Work::class);
     }
 
+    /** The copy's notes with their types, in the order of its text (step 14.254) */
+    public function notes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ManuscriptNote::class)->orderBy('position');
+    }
+
     public function library(): BelongsTo
     {
         return $this->belongsTo(Library::class);
