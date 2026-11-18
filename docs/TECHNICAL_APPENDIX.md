@@ -12243,4 +12243,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پیش از فرستادن، هیچ‌کدام از دو پوشه روی سرور نبود و چیزی بازنویسی نشد. حجم: ۶۱ مگابایت میکروفیلم و ۹۸ مگابایت سنا؛ سرور ۱۱۳ گیگابایت جای خالی داشت.
   - `C=tehran-univ-microfilm` و `C=majlis-sena` با `tehran-univ/work/send.sh`: ۱٬۵۳۴ پرونده در حدود ۴۵ ثانیه و ۹۲۸ پرونده در حدود ۷۰ ثانیه. اجرای دوم هر دو «missing 0» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - چهار برگۀ نمونه (میکروفیلم ج ۱ ص ۹۴ و ج ۳ ص ۳۷۱، سنا ج ۱ ص ۱۳۸ و ج ۲ ص ۵۲۰) از `https://fahares.net/storage/catalogs/` پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
-- **پس از انتشار:** `catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان این پنج ردیف. انتظار: «0 created, 5 updated».
+- **اجرای پروداکشن (انتشار ۱۵۹، `e27fb732`؛ ۲۷ آبان ۱۴۰۵، به تأیید کاربر):**
+  - فایل داده در کانتینر با شاخه یکی بود (md5 `005ebdf4…`). اجرای آزمایشی «0 created, 5 updated, 179 unchanged» داد.
+  - **پشتیبان:** پنج ردیف `catalog_volumes` و `source_volumes` (#۵۳۹، ۱۵۴، ۱۴۹، ۶۵۰ و ۱۴۵) به JSON، از راه `tinker` به خروجی ssh، در `../fahares-sources/backups/step13/before_step14_252_set_facsimiles_20261118_1450.json`. `facsimile_code` هر پنج ردیف پیش‌تر خالی بود. پرونده‌ای در کانتینر نماند.
+  - `prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 5 updated, 179 unchanged». اجرای آزمایشی دوم «0 created, 0 updated, 184 unchanged».
+  - **در fahares.net:** صفحۀ یک نسخۀ تصادفی از هر جلد نشانی برگۀ درست را دارد: `/manuscripts/270634` (میکروفیلم ج ۱ ص ۱۸۳)، `/manuscripts/158509` (ج ۲ ص ۱۶)، `/manuscripts/244002` (ج ۳ ص ۸۷)، `/manuscripts/305611` (سنا ج ۱ ص ۲۱) و `/manuscripts/329933` (سنا ج ۲ ص ۱۴۸). `laravel.log` خطای تازه‌ای نداشت.
