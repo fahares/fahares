@@ -12235,3 +12235,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `C=tehran-univ-microfilm` و `C=majlis-sena` با `tehran-univ/work/send.sh`: ۱٬۵۳۴ پرونده در حدود ۴۵ ثانیه و ۹۲۸ پرونده در حدود ۷۰ ثانیه. اجرای دوم هر دو «missing 0» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - چهار برگۀ نمونه (میکروفیلم ج ۱ ص ۹۴ و ج ۳ ص ۳۷۱، سنا ج ۱ ص ۱۳۸ و ج ۲ ص ۵۲۰) از `https://fahares.net/storage/catalogs/` پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
 - **پس از انتشار:** `catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان این پنج ردیف. انتظار: «0 created, 5 updated».
+
+### گام ۱۴.۲۵۴: `manuscript_notes`، `ManuscriptNote` و `fahares:import-copy-notes`
+
+- **جدول `manuscript_notes`:** `manuscript_id` (کلید بیرونی، با حذف آبشاری)، `position` (از ۱، به ترتیب متن نسخه)، `type` (۲۰ نویسه)، `text`، `also` (JSON)، `by_author`، `by_author_hedge`، `hedge` و `typed_by` (`field`، `rule`، `sonnet`، `opus`، `editor`). یکتا: (`manuscript_id`، `position`). نمایه: (`type`، `manuscript_id`).
+- **`ManuscriptNote::TYPES`:** ۱۶ کلید با برچسب فارسی. `Manuscript::notes()` به ترتیب `position`.
+- **`fankha_v2_copy_notes_export.py`** (مخزن corpus):
+  - جفت‌کردن: `rkey(raw_text)` همان نرمال‌سازی `fankha_v2_db_compare.py`؛ تنها متنی که یک نسخۀ سایت و یک نسخۀ v2 دارند.
+  - یادداشت‌ها: `notes` نسخه با نوع `reconciliations/fankha_note_types.jsonl`؛ سطر دارای `c` (ادامۀ فیلد) کنار می‌رود. `typed_by` برابر `opus` است اگر سطر `"m":"o"` دارد، وگرنه `sonnet`.
+  - فیلدها: `seals` → `seal`، `ownership` → `ownership`، `acquisition` → `acquisition`، `donor` («واقف:») → `endowment`؛ `typed_by` برابر `field`. متن تهی («مهر:» بی دنباله، ۲ مورد؛ ۱۰ یادداشت تهی v2) کنار می‌رود.
+  - ترتیب: جای متن یادداشت در `raw_text`؛ آنچه پیدا نشود در پایان.
+  - خروجی: `database/data/copy_notes_step14_254.jsonl.gz` (۸٫۷ مگابایت)، هر سطر `{"id","shelfmark","notes":[…]}`.
+  - شمار نوع‌ها: محتوا ۴۷٬۹۲۰، حواشی ۲۴٬۴۴۰، آرایه ۲۴٬۲۳۱، تملک ۲۲٬۸۳۹، وقف ۲۲٬۱۳۰، افزوده‌ها ۱۸٬۵۲۰، مهر ۱۸٬۰۴۲، ورود ۱۷٬۵۹۹، فهرست‌نگار ۱۵٬۱۲۴، نسخه‌شناسی ۱۱٬۶۱۷، کتابت ۱۰٬۷۱۲، اجازه ۶٬۹۲۳، مقابله ۶٬۲۰۰، شکل ۱٬۹۸۶، نگاره ۱٬۱۵۴ و دیگر ۵۰۷.
+- **`ImportCopyNotesCommand`:**
+  - نخست همۀ پرونده وارسی می‌شود (نوع در `TYPES`، `typed_by` شناخته، متن ناتهی)؛ با یک سطر نادرست چیزی نوشته نمی‌شود.
+  - دسته‌های ۱۰۰۰ نسخه‌ای. کنار می‌رود: نسخه‌ای که نیست، `shelfmark` دیگر، و نسخه‌ای که سطری با `typed_by = editor` دارد. سطرهای یکسان با پرونده «same» است.
+  - نسخۀ دگرگون‌شده: همۀ سطرهایش در یک تراکنش پاک و از نو نوشته می‌شود. `audit_logs` و نمایه‌سازی ندارد، چون ستون و `metadata` نسخه دست نمی‌خورد.
+- **آزمون:** `ImportCopyNotesCommandTest` (۳ آزمون): ترتیب و ویژگی‌ها و اجرای دوم، جانشینی و نگه‌داشتن کار ویراستار، و توقف با نوع ناشناخته.
+- **تمرین روی `fahares_prod` محلی:** migration، سپس `Wrote 249932 notes of 146476 copies` در ۲۳ ثانیه. اجرای دوم: `same 146476`.
+- **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_254.jsonl.gz --apply`. جدول تازه است و پشتیبان نمی‌خواهد.
