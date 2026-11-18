@@ -12188,6 +12188,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - در هر خانه: تأییدشده / ادعا (اختلاف و پرکردن). سطر هم در گلپایگانی ۱۱٬۱۱۳ / ۲۸ است.
   - هر دو فرمان روی `fahares_prod` اجرا شدند (`--apply`): گلپایگانی در ۲۶ ثانیه.
 - **آزمون:** `FirstHandReadingTest` (پنج آزمون: دو خواننده، سنجش، اجرای دوباره و ماندن ادعای پذیرفته، و معیار پایان). کل مجموعه پس از ادغام origin/main: ۹۸۳ آزمون موفق.
+
 ### گام ۱۴.۲۵۱: PDF و پیوست‌های نگه‌داشته‌نشده در `EmailAttachments`
 - **`EmailAttachments::download(string $emailId, array &$skipped = [])`:** `application/pdf` اگر در ۱۰۲۴ بایت نخست `%PDF-` دارد نگه داشته می‌شود (`extension` برابر `pdf`). `$skipped` برای هر پیوست کنارگذاشته `filename`، `content_type`، `size` و `reason` (`type`، `size`، `count`، `fetch`) می‌گیرد. مهلت دانلود ۶۰ ثانیه شد.
 - **`EmailAttachments::notice`:** برای هر مورد یک سطر «〔پیوست «نام» (نوع، حجم) نگه داشته نشد: علت〕»؛ نوع از پسوند نام فایل، وگرنه از `content_type`. `EmailAttachments::size` حجم را به مگابایت یا کیلوبایت با رقم فارسی می‌دهد.
@@ -12196,6 +12197,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`messages/partials/letters.blade.php`:** پیوست غیرتصویری پیوندی با `data-attachment-file`، نوع، نام و حجم است.
 - **`fahares:fetch-reply-attachments`:** PDF را هم می‌گیرد؛ پیام‌هایش «file(s)» می‌گویند.
 - **آزمون:** `EmailReplyAttachmentsTest` (چهار آزمون، با PDF، DOCX و PDF بزرگ‌تر از سقف).
+
 ### گام ۱۴.۲۵۲: سیاهۀ اسکن مرحلۀ ۳ و پنج جلد نخست (`tehran-univ-microfilm`، `majlis-sena`)
 - **سیاهه:** [`plans/fankha-retirement/phase3-scans.md`](plans/fankha-retirement/phase3-scans.md)، ۵۰ جلد بزرگِ `per_volume.csv` با `has_images = 0`. پرسش فقط‌خواندنی پروداکشن نشان داد که هیچ‌کدام `facsimile_code` ندارند. وضع‌ها: الف (اسکن در دست و چاپ هم‌خوان) ۵ جلد و ۱۳٬۳۹۹ نسخه؛ ب (سنجش یا دانلود مانده) ۴ جلد و ۴٬۵۷۰ نسخه؛ ج (شاید در نور) ۳ جلد و ۲٬۷۸۱ نسخه؛ د (چاپ یا فهرست دیگر) ۵ جلد و ۱۰٬۷۳۴ نسخه؛ هـ (فنخا فهرست دست‌نویس را ارجاع می‌دهد) ۸ جلد و ۹٬۹۳۴ نسخه؛ و (پیدا نشد) ۲۵ جلد و ۳۰٬۱۷۷ نسخه.
   - **جست‌وجو:** نام فایل‌های `telegram-khazaneha`، `telegram-faharisalmakhtutat`، `docibox` (`_list.tsv`) و دیسک بیرونی، و سیاهه‌های `_have-files-20261116.tsv`، `_a1-volumes.tsv`، `_a1-files.tsv` و `_bi-tasvir/`. جست‌وجوی وب (زیرعامل Sonnet) در archive.org، docibox، سایت‌های مجلس، مرعشی، رضوی، دائرةالمعارف و نور، جز PDF شماره‌های «میراث شهاب» در سایت کتابخانۀ مرعشی و رکورد کل فهرست مرعشی در نور (noorlib 16412، با اشتراک)، چیزی نیافت. جست‌وجوی docibox از راه WebFetch تهی برمی‌گردد (صفحۀ JavaScript).
