@@ -12253,3 +12253,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`DateConflict::answerLabel(string $field)`:** «تاریخ » + `FIELD_LABELS[$field]`؛ برای `period` همان `FIELD_LABELS` بی پیشوند.
 - **`DateConflictNote::note`** (دو پاسخ نخست) و **`DateConflictQueue::labels`** (پاسخ‌های `a` و `b`) به‌جای `FIELD_LABELS` آن را می‌خوانند. متن نظری که صف ذخیره می‌کند هم «تاریخ وفات «…» نادرست است» می‌شود.
 - `otherField` یادداشت، پیش‌نوشت پاسخ دوره («دورۀ زندگی نادرست ثبت شده است: ») و `admin/date-conflicts` همچنان `FIELD_LABELS` را نشان می‌دهند.
+
+### گام ۱۴.۲۵۵: `Admin\ClaimController` و `App\Sources\FirstHand\ClaimReview`
+
+- **نشانی‌ها** (با `can:suggestions.review`):
+  - `GET /admin/claims` (`admin.claims.index`)، با صافی‌های `status`، `kind=differs|fills`، `field` و `source`؛
+  - `POST /admin/claims/{claim}/suggest`، `/reject` و `/reopen`.
+- **`ClaimReview::suggestion()`:** یک `FieldSuggestion` می‌سازد:
+  - `kind = field`؛ `field_name` از `SuggestionRegistry::fieldOf` (`copy_date` → `copy_date_raw`)؛ `current_value` از `SuggestionRegistry::currentValue`؛
+  - `user_id = null`، با `guest_name` و `resolution.origin` برابر `first_hand`، که در `FieldSuggestion::MACHINE_ORIGINS` افزوده شد؛
+  - `rationale_citation`: `cardLabel` مدخل و عبارت فهرست.
+  - شمارۀ پیشنهاد در `claims.suggestion_id` می‌رود. اگر پیشنهاد هست، همان دوباره به کار می‌رود.
+- **همگام‌سازی:** قلاب `saved` در `FieldSuggestion` با تغییر `status` تابع `ClaimReview::sync` را صدا می‌زند: `approved` ادعا را `accepted` می‌کند، `rejected` آن را `rejected`، و `pending` (بازگشایی) آن را `candidate`.
+- **رد** (`ClaimReview::reject`): وضع ادعا `rejected` می‌شود، و پیشنهاد در انتظارش هم رد می‌شود.
+- **منو:** «ادعاهای فهرست‌های چاپی» در `AdminNav`، با شمار ادعاهای در انتظار.
+- **آزمون:** `FirstHandReadingTest::test_the_review_queue_sends_a_claim_to_the_suggestion_page_and_follows_its_decision`. ساخت پیشنهاد، تأیید آن از مسیر عادی `admin.suggestions.approve` (برگ رکورد ۳۷۹ → ۳۹۷)، رد، و بازگرداندن را می‌سنجد.
+- **وارسی:** صفحه روی `fahares_prod` با ادعاهای گام ۱۴.۲۵۰ ساخته و دیده شد. برای ورود رمزی وارد نشد: صفحه در خود برنامه برای کاربر مدیر ساخته شد.
