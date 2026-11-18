@@ -93,13 +93,14 @@ class DateConflictNote extends Component
         $fieldLabel = DateConflict::FIELD_LABELS[$field];
         $title = $record['title'] ?? '';
         $short = \Illuminate\Support\Str::limit($title, 28);
+        $answer = DateConflict::answerLabel($field);
 
         // the answers follow the question «کدام نادرست است؟», so each only names what is wrong
         $choices = [
-            $this->choice(DateConflict::FIELD_LABELS[$this->field] . ' ' . self::OF_THIS[$this->type], $this->type, $this->id, $c,
+            $this->choice(DateConflict::answerLabel($this->field) . ' ' . self::OF_THIS[$this->type], $this->type, $this->id, $c,
                 ['field' => self::FIELDS[$this->field]]),
             // a period of the life has no field of its own in the form: the answer is a note on the person
-            $this->choice($sameRecord ? "{$fieldLabel} " . self::OF_THIS[$type] : "{$fieldLabel} «{$short}»", $type, $id, $c,
+            $this->choice($sameRecord ? "{$answer} " . self::OF_THIS[$type] : "{$answer} «{$short}»", $type, $id, $c,
                 isset(self::FIELDS[$field]) ? ['field' => self::FIELDS[$field]] : ['general' => true, 'value' => "{$fieldLabel} نادرست ثبت شده است: "]),
         ];
         if ($tie = self::TIES[$c->rule] ?? null) {

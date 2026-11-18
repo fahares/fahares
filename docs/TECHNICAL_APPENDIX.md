@@ -12235,3 +12235,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `C=tehran-univ-microfilm` و `C=majlis-sena` با `tehran-univ/work/send.sh`: ۱٬۵۳۴ پرونده در حدود ۴۵ ثانیه و ۹۲۸ پرونده در حدود ۷۰ ثانیه. اجرای دوم هر دو «missing 0» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - چهار برگۀ نمونه (میکروفیلم ج ۱ ص ۹۴ و ج ۳ ص ۳۷۱، سنا ج ۱ ص ۱۳۸ و ج ۲ ص ۵۲۰) از `https://fahares.net/storage/catalogs/` پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
 - **پس از انتشار:** `catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان این پنج ردیف. انتظار: «0 created, 5 updated».
+
+### گام ۱۴.۲۵۳: `DateConflict::answerLabel`
+- **`DateConflict::answerLabel(string $field)`:** «تاریخ » + `FIELD_LABELS[$field]`؛ برای `period` همان `FIELD_LABELS` بی پیشوند.
+- **`DateConflictNote::note`** (دو پاسخ نخست) و **`DateConflictQueue::labels`** (پاسخ‌های `a` و `b`) به‌جای `FIELD_LABELS` آن را می‌خوانند. متن نظری که صف ذخیره می‌کند هم «تاریخ وفات «…» نادرست است» می‌شود.
+- `otherField` یادداشت، پیش‌نوشت پاسخ دوره («دورۀ زندگی نادرست ثبت شده است: ») و `admin/date-conflicts` همچنان `FIELD_LABELS` را نشان می‌دهند.
