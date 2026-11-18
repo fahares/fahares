@@ -12151,3 +12151,40 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Admin\SuggestionController::closeConverted`** (`POST /admin/suggestions/{suggestion}/close-converted`، نام `admin.suggestions.close-converted`، زیر `can:suggestions.review`): فقط برای `status` برابر `pending` (وگرنه ۴۰۹) که `resolution.converted_to` دارد (وگرنه ۴۲۲). `status` را `converted` می‌کند و `reviewed_by` و `reviewed_at` را می‌نویسد؛ همان چیزی که `convert` با `close_original` می‌نویسد. لاگ ممیزی و اعلان ندارد.
 - **`show.blade.php`:** فرم `data-close-converted` در کادر پیشنهادهای ساخته‌شده؛ `$toolsOpen` برای پیشنهاد در انتظاری که `$derivedIds` دارد درست است.
 - **آزمون:** `SuggestionWorkflowTest::test_a_converted_suggestion_left_open_is_closed_as_converted`.
+
+### گام ۱۴.۲۴۹: جدول `claims`، `source_entries.confirmed_fields` و `fahares:firsthand-coverage`
+
+- **مهاجرت** `2026_11_18_100001_create_claims_table`:
+  - جدول `claims`: `subject_type`/`subject_id`، `field`، `value_text`، `value_json`، `current_text` (مقدار رکورد هنگام ساخت، برای داور)، `source_entry_id`، `raw_text`، `method` (`rule`، `llm` یا `manual`)، `certainty`، `status` (`candidate`، `accepted` یا `rejected`)، `is_negative`، `suggestion_id`، `reviewed_by` و `reviewed_at`.
+  - روی `source_entries` دو ستون آمد: `confirmed_fields` (JSON) و `fields_read_at`. افزودن ستون در پایان جدول در MariaDB آنی است.
+  - روی `fahares_prod` در ۰٫۵ ثانیه اجرا شد.
+- **مدل:** `App\Models\Claim`، و `SourceEntry::claims()`.
+- **سنجش:** `fahares:firsthand-coverage [--libraries=N] [--json=path]`. معنای ستون‌ها:
+  - «با متن»: مدخل دست اول (`fankha_citation`، `match` یا `manual` از فهرست کتابخانه) با متن.
+  - «خوانده‌شده»: `fields_read_at` پر است.
+  - «تأییدشده»: فیلد در `confirmed_fields` آمده است. تأیید خالی بودن هم شمرده می‌شود («بی‌کا»، «بی‌تا»)، پس این شمار گاه از «پر» بیشتر است.
+  - «کامل»: نسخۀ خوانده‌شده‌ای که هر فیلد پرِ اصلی‌اش (شمارۀ نسخه، شمار برگ، تاریخ کتابت، کاتب) تأییدشده باشد یا ادعای پذیرفته داشته باشد.
+  - گزارش در کش `firsthand-coverage` می‌ماند. روی `fahares_prod` ۲۵ ثانیه طول کشید.
+
+### گام ۱۴.۲۵۰: `App\Sources\FirstHand` و `sources:read-copy-lines`
+
+- **خواننده‌ها** (`Readers\GolpayeganiReader` و `Readers\MasjidAzamReader`) متن `copy_text` را به `CopyLine` می‌برند. در آن، هر مقدار با واژه‌هایی که از آن خوانده شده می‌آید، و `wholeVolume` برای سطری است که شمار کل مجلد را می‌دهد.
+  - کد مسجد اعظم (`masjid-azam-ostadi`) خواننده را خود نام می‌برد. کد گلپایگانی هنگام ورود ساخته شده است (`catalogue-d0b9646d3e36`) و با `--reader=golpayegani` داده می‌شود.
+  - در این خواننده‌ها `\b` به کار نرفته است. بی پرچم UCP در PCRE، حرف فارسی «واژه» شمرده نمی‌شود و `\b` پس از آن هرگز برقرار نیست. جایش `(?!\p{L})` آمده است.
+- **سنجش** (`CopyLineComparer`):
+  - شمارۀ نسخه: با عددهایش، در هر ترتیبی («۲/ ۷۶۳۹-۵۱/۹۹» همان «7639/2-51/99» است). سطری که شمارۀ مجلد رسالۀ رکورد را دارد («ش 1341» برای «1341/2») هم‌خوان است، و برگ‌هایش برگ‌های مجلد شمرده می‌شود.
+  - اندازه: با نیم سانتی‌متر تاب.
+  - تاریخ: با `CopyDateRange`، یا با همان سال‌ها در هر دو.
+  - کاتب: واژه‌های کوتاه‌تر همه در بلندتر، هر کدام با ۸۵٪ همانندی. «ال»، «بن» و فاصله در سنجش نمی‌آیند، و «نام، کنیه» برگردانده می‌شود.
+  - خط: با واژه‌ها، در نام‌های خط و `script_style` رکورد.
+- **اجرای دوباره:** `confirmed_fields` و ادعاهای نامزدِ `rule` همان مدخل جایگزین می‌شوند. ادعای پذیرفته یا ردشده می‌ماند.
+- **شمارها روی `fahares_prod`:**
+
+| فهرست | سطر | شمارۀ نسخه | برگ | اندازه | تاریخ | کاتب | خط |
+|--|--:|--|--|--|--|--|--|
+| گلپایگانی | ۱۳٬۶۲۷ | ۱۳٬۴۱۳ / ۲۱۴ | ۱۳٬۲۵۷ / ۲۰۰ | ۱۱٬۰۳۲ / ۱۰۷ | ۹٬۳۱۵ / ۱۴۰ | ۱۲٬۶۹۳ / ۱۹۹ | ۱۳٬۱۳۱ / ۱۰۶ |
+| مسجد اعظم | ۶٬۱۲۴ | ۶٬۰۵۰ / ۲ | ۳٬۰۳۹ / ۱۴۸ | ۵٬۵۷۰ / ۲۵۲ | ۲٬۵۱۴ / ۲۶۴ | ۲٬۰۸۵ / ۱۸۳ | ۲٬۹۰۴ / ۱۲۰ |
+
+  - در هر خانه: تأییدشده / ادعا (اختلاف و پرکردن). سطر هم در گلپایگانی ۱۱٬۱۱۳ / ۲۸ است.
+  - هر دو فرمان روی `fahares_prod` اجرا شدند (`--apply`): گلپایگانی در ۲۶ ثانیه.
+- **آزمون:** `FirstHandReadingTest` (پنج آزمون: دو خواننده، سنجش، اجرای دوباره و ماندن ادعای پذیرفته، و معیار پایان).

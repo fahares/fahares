@@ -84,7 +84,15 @@ class SourceEntry extends Model
             'confidence' => 'integer',
             'reviewed_at' => 'datetime',
             'sort_order' => 'integer',
+            'confirmed_fields' => 'array',
+            'fields_read_at' => 'datetime',
         ];
+    }
+
+    /** What this entry's text says against the record, field by field (backlog item 147, step 14.249). */
+    public function claims(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Claim::class);
     }
 
     public function citable(): MorphTo
