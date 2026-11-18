@@ -3594,6 +3594,106 @@
      "step": "14.208"
     }
    }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "فهرست میکروفیلم‌های کتابخانه مرکزی دانشگاه تهران",
+   "facsimile_code": "tehran-univ-microfilm",
+   "page_first": 2,
+   "page_last": 820,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ-microfilm/v01.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-microfilm/v01.map.json"
+     ],
+     "note": "خزانه‌ها 2297؛ دوصفحه‌ای، کم‌وضوح؛ ص ۲۶۴–۲۶۵ در اسکن نیست؛ نمایه‌ها با شماره‌گذاری جدا (از برگ ۴۱۹) کنار ماند",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 2,
+   "title": "فهرست میکرو فیلمهای کتابخانه مرکزی دانشگاه تهران - 2",
+   "facsimile_code": "tehran-univ-microfilm",
+   "page_first": 2,
+   "page_last": 348,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ-microfilm/v02.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-microfilm/v02.map.json"
+     ],
+     "note": "خزانه‌ها 2298؛ دوصفحه‌ای، کم‌وضوح؛ پیوست لاتین کنار ماند",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 3,
+   "title": "فهرست میکروفیلم‌های کتابخانه مرکزی دانشگاه تهران - جلد سوم",
+   "facsimile_code": "tehran-univ-microfilm",
+   "page_first": 2,
+   "page_last": 371,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ-microfilm/v03.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-microfilm/v03.map.json"
+     ],
+     "note": "خزانه‌ها 2299؛ دوصفحه‌ای، کم‌وضوح",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-sna-1049",
+   "volume_number": 1,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد اول",
+   "facsimile_code": "majlis-sena",
+   "page_first": 1,
+   "page_last": 411,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis-sena/v01.pdf"
+     ],
+     "leaf_maps": [
+      "majlis-sena/v01.map.json"
+     ],
+     "note": "docibox 1145909؛ برگ = صفحه + ۴؛ نمایه‌ها با شماره‌گذاری جدا کنار ماند",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-sna-1049",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد دوم",
+   "facsimile_code": "majlis-sena",
+   "page_first": 1,
+   "page_last": 520,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis-sena/v02.pdf"
+     ],
+     "leaf_maps": [
+      "majlis-sena/v02.map.json"
+     ],
+     "note": "docibox 1298463 (چاپ ۱۳۵۹)؛ ص ۱–۳۱۱ برگ = صفحه + ۹، ص ۳۱۵–۵۲۰ برگ = صفحه + ۸؛ ص ۳۱۲–۳۱۴ در اسکن نیست",
+     "step": "14.252"
+    }
+   }
   }
  ]
 }
