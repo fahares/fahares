@@ -11613,6 +11613,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` محلی:** `fahares:rebuild-copies --file=database/data/glued_notes_step14_215_copies.json --apply` ۱۳۴ نسخه نوشت. اجرای دوم: `Would rebuild 0 copies`.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از آغاز، انجام، کاتب، تاریخ، جا، `is_ruled`، `is_illuminated` و `metadata` ۱۳۴ نسخه. سپس همان فرمان و اجرای دوباره.
 
+### گام ۱۴.۲۱۶: وزن از روی سابقه در `CollectiveReview`
+
+- **سابقه (`trackRecords()`):** از `field_suggestions` با `review_queue` پر و `status` در `approved` یا `rejected`، به تفکیک `user_id`: `settled` (شمار) و `agreed` (شمار `approved`). `pending`، `converted` و پس‌گرفته شمرده نمی‌شوند. همه‌ی صف‌ها با هم.
+- **ثابت‌ها:** `RECORD_MIN = 10`؛ `RECORD_WEIGHTS = [80 => 3, 60 => 2]` (درصد پذیرفته ← وزن). `SCHOLAR_WEIGHT = 2` و `ENOUGH = 3` بی‌تغییر.
+- **وزن:** `max(وزن پژوهشگر تأییدشده یا ۱، وزن سابقه)`. `weightOf(bool, settled, agreed)` در PHP و `weightSql('u', 'tr')` در SQL (با `GREATEST`) یک قاعده‌اند؛ `pendingOpinions()` زیرپرس‌وجوی سابقه را با نام `tr` پیوند می‌دهد، پس `agreement()`، `settledEnough()` و `waiting()` همه‌ی صف‌ها از آن می‌خوانند.
+- **بی ستون و بی فرمان:** سابقه هنگام شمارش حساب می‌شود؛ بازگشایی یک تصمیم خودبه‌خود در آن دیده می‌شود. روی `fahares_prod` پاسخ تصمیم‌گرفته‌ای در صف‌ها نیست (۱ سطر `converted`)، پس هزینه‌ی پرس‌وجو ناچیز است؛ اگر شمار پاسخ‌ها به ده‌ها هزار برسد، ستون شمارنده روی `users` جای زیرپرس‌وجو را می‌گیرد.
+- **نمایش:** `opinionsOn()` برای هر پاسخ `weights` (شناسه‌ی نظر ← وزن) می‌دهد؛ `admin/suggestions/partials/collective.blade.php` وزن بیش از ۱ را کنار نام می‌آورد. `contributionsOf()` کلید `weight` دارد و `contributions/review.blade.php` «وزن نظر شما» را برای وزن بیش از ۱ نشان می‌دهد.
+- **پیامد:** کاربری با وزن ۳ به‌تنهایی به `ENOUGH` می‌رسد و مورد از صف عمومی بیرون می‌رود. داده عوض نمی‌شود.
+- **تست:** `DateConflictQueueTest::test_the_weight_follows_the_track_record_over_every_queue` و `test_one_trusted_researcher_alone_reaches_enough`.
+
 ### گام ۱۴.۲۱۷: `CopyExtent` با «صفحه» و قید، و `prose_folios_step14_217_copies.json`
 
 - **فهرست ۴۱۶ نسخه:** نسخه‌هایی که `CopyExtent::columns()` برایشان `kept:no_count_in_text` می‌دهد (`fahares_prod` محلی، پس از گام ۱۴.۲۰۴). برای هر کدام تا سه پاره‌ی متن کنار عدد `folios` (از «،»، «؛» یا سطر پیش تا ۵۰ نویسه پس از عدد) گرفته شد.
@@ -12005,6 +12015,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سند جستجوی این ۹ شخص در ۲۶ آبان، با تأیید کاربر، بازنمایه شد: `fahares:reindex-work-estimates --people --from=<id> --to=<id> --sleep=0` برای هر شناسه، هر بار «Reindexed 1 of 1 people». صف Meilisearch خالی، کار ناموفق ۰؛ سند فیاض زنجانی `death_year_hijri` و `era_year` برابر ۱۳۵۹ دارد.
 - **مانده:** حدود ۱۵ شخص همان گروه که در منابع سایت زندگی‌نامه ندارند (سبحانی تبریزی، مجتهد کرمانشاهی، مخصوص، رشیدی، مردوخ، مظفری و دیگران)، و ۱۲ نفری که تاریخشان درست است و پیوند نسخه یا اثرشان باید بازبینی شود.
 
+### گام ۱۴.۲۳۴: `App\Support\InsightsNotes` و `insights/explain.blade.php`
+
+- **ساختار:** `InsightsNotes::for($data)` برای هر نمودار `['reading' => [بندها], 'examples' => [جمله‌ها]]` برمی‌گرداند، با ۲۴ کلید: `timeline`، `authors`، `works`، `copyGap`، `places`، `movement`، `subjects`، `features`، `scribes`، `libraries`، `dedications`، `patrons`، `facsimiles`، `sizes`، `languageScripts`، `topWorks`، `copiesPerWork`، `centuryWorks`، `unprinted`، `collections`، `scripts`، `languages`، `sources` و `sourceOverlap`.
+- **جای اجرا:** هنگام نمایش صفحه و از روی همان آرایۀ cacheشدۀ `Insights::get()`. پس کلید cache (`insights.v9`) و ساخت شبانه تغییری نکرد، و اصلاح متن یک توضیح بازسازی آمار نمی‌خواهد.
+- **متن‌ها:** بندهای «چگونه بخوانیم» ثابت‌اند و هیچ ادعایی دربارۀ ارقام ندارند، تا در هر دامنه درست بمانند. هر چه به رقم بسته است در «نمونه‌ها» آمده و از داده ساخته می‌شود.
+- **نمونه‌های جدول‌های سده (`gridExamples`):** دو نمونه: پرشمارترین ردیف با سدۀ بیشترین سهمش، و ردیفی که سهمش میان دو سده بیشترین فاصله را دارد. تنها سده‌هایی سنجیده می‌شوند که دست‌کم `insights.grid_min_copies` نسخه دارند.
+- **نمونۀ کاتبان:** اگر بازۀ سال‌های نسخه‌های کاتب نخست از ۷۰ سال بگذرد، نمونه می‌گوید که زیر آن نام شاید چند کاتب هم‌نام گرد آمده‌اند.
+- **قالب:** `resources/views/insights/explain.blade.php`، با `data-insights-note`. فراخوانی‌اش درون شاخۀ «داده بسنده است» هر نمودار است.
+- **سنجش در مرورگر (`fahares_prod`):** آمار کل ۲۴ توضیح؛ دامنه‌ها: `author=1110` با ۲۳، `work=52504` با ۱۲، `library=4&century=11` با ۲۲، `facsimile=1` با ۲۳، `subject=1&language=1` با ۱۶، `copy_city=هرات` با ۲۳، `century=5` با ۱۸، و `scribe=1` (دامنۀ تهی) بی توضیح. همه با پاسخ ۲۰۰.
+- **آزمون:** دو آزمون در `InsightsMoreFiguresTest`: دامنه‌ای با یک نسخۀ بی‌آگاهی هیچ توضیحی را نمی‌شکند، و نمونه‌ها رقم‌های نمودار خود را می‌آورند.
+
 ### گام ۱۴.۲۳۵: `fahares:remove-pseudo-people`، `pseudo_people_step14_235.json` و `fankha_parser_v2` 2.3.1
 
 - **سنجش (`fahares_prod`، ۲۵ آبان ۱۴۰۵):** ۴۴٬۹۴۸ پیوند `work_people` با نقش `author`. نشانه: نخستین سطر بدنۀ `works.raw_text` (پس از سرعنوان و آوانویسی عنوان) که سطر پس از آن لاتینی نیست. ۳۱۱ پیوند (۳۰۱ شخص) این نشانه را دارند؛ ۲۰۳ تای آن‌ها سرعنوان درست‌اند که آوانویسی‌شان در همان سطر یا سطر پیش است.
@@ -12289,22 +12310,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **منو:** «ادعاهای فهرست‌های چاپی» در `AdminNav`، با شمار ادعاهای در انتظار.
 - **آزمون:** `FirstHandReadingTest::test_the_review_queue_sends_a_claim_to_the_suggestion_page_and_follows_its_decision`. ساخت پیشنهاد، تأیید آن از مسیر عادی `admin.suggestions.approve` (برگ رکورد ۳۷۹ → ۳۹۷)، رد، و بازگرداندن را می‌سنجد.
 - **وارسی:** صفحه روی `fahares_prod` با ادعاهای گام ۱۴.۲۵۰ ساخته و دیده شد. برای ورود رمزی وارد نشد: صفحه در خود برنامه برای کاربر مدیر ساخته شد.
-### گام ۱۴.۲۱۶: وزن از روی سابقه در `CollectiveReview`
-
-- **سابقه (`trackRecords()`):** از `field_suggestions` با `review_queue` پر و `status` در `approved` یا `rejected`، به تفکیک `user_id`: `settled` (شمار) و `agreed` (شمار `approved`). `pending`، `converted` و پس‌گرفته شمرده نمی‌شوند. همه‌ی صف‌ها با هم.
-- **ثابت‌ها:** `RECORD_MIN = 10`؛ `RECORD_WEIGHTS = [80 => 3, 60 => 2]` (درصد پذیرفته ← وزن). `SCHOLAR_WEIGHT = 2` و `ENOUGH = 3` بی‌تغییر.
-- **وزن:** `max(وزن پژوهشگر تأییدشده یا ۱، وزن سابقه)`. `weightOf(bool, settled, agreed)` در PHP و `weightSql('u', 'tr')` در SQL (با `GREATEST`) یک قاعده‌اند؛ `pendingOpinions()` زیرپرس‌وجوی سابقه را با نام `tr` پیوند می‌دهد، پس `agreement()`، `settledEnough()` و `waiting()` همه‌ی صف‌ها از آن می‌خوانند.
-- **بی ستون و بی فرمان:** سابقه هنگام شمارش حساب می‌شود؛ بازگشایی یک تصمیم خودبه‌خود در آن دیده می‌شود. روی `fahares_prod` پاسخ تصمیم‌گرفته‌ای در صف‌ها نیست (۱ سطر `converted`)، پس هزینه‌ی پرس‌وجو ناچیز است؛ اگر شمار پاسخ‌ها به ده‌ها هزار برسد، ستون شمارنده روی `users` جای زیرپرس‌وجو را می‌گیرد.
-- **نمایش:** `opinionsOn()` برای هر پاسخ `weights` (شناسه‌ی نظر ← وزن) می‌دهد؛ `admin/suggestions/partials/collective.blade.php` وزن بیش از ۱ را کنار نام می‌آورد. `contributionsOf()` کلید `weight` دارد و `contributions/review.blade.php` «وزن نظر شما» را برای وزن بیش از ۱ نشان می‌دهد.
-- **پیامد:** کاربری با وزن ۳ به‌تنهایی به `ENOUGH` می‌رسد و مورد از صف عمومی بیرون می‌رود. داده عوض نمی‌شود.
-- **تست:** `DateConflictQueueTest::test_the_weight_follows_the_track_record_over_every_queue` و `test_one_trusted_researcher_alone_reaches_enough`.
-### گام ۱۴.۲۳۴: `App\Support\InsightsNotes` و `insights/explain.blade.php`
-
-- **ساختار:** `InsightsNotes::for($data)` برای هر نمودار `['reading' => [بندها], 'examples' => [جمله‌ها]]` برمی‌گرداند، با ۲۴ کلید: `timeline`، `authors`، `works`، `copyGap`، `places`، `movement`، `subjects`، `features`، `scribes`، `libraries`، `dedications`، `patrons`، `facsimiles`، `sizes`، `languageScripts`، `topWorks`، `copiesPerWork`، `centuryWorks`، `unprinted`، `collections`، `scripts`، `languages`، `sources` و `sourceOverlap`.
-- **جای اجرا:** هنگام نمایش صفحه و از روی همان آرایۀ cacheشدۀ `Insights::get()`. پس کلید cache (`insights.v9`) و ساخت شبانه تغییری نکرد، و اصلاح متن یک توضیح بازسازی آمار نمی‌خواهد.
-- **متن‌ها:** بندهای «چگونه بخوانیم» ثابت‌اند و هیچ ادعایی دربارۀ ارقام ندارند، تا در هر دامنه درست بمانند. هر چه به رقم بسته است در «نمونه‌ها» آمده و از داده ساخته می‌شود.
-- **نمونه‌های جدول‌های سده (`gridExamples`):** دو نمونه: پرشمارترین ردیف با سدۀ بیشترین سهمش، و ردیفی که سهمش میان دو سده بیشترین فاصله را دارد. تنها سده‌هایی سنجیده می‌شوند که دست‌کم `insights.grid_min_copies` نسخه دارند.
-- **نمونۀ کاتبان:** اگر بازۀ سال‌های نسخه‌های کاتب نخست از ۷۰ سال بگذرد، نمونه می‌گوید که زیر آن نام شاید چند کاتب هم‌نام گرد آمده‌اند.
-- **قالب:** `resources/views/insights/explain.blade.php`، با `data-insights-note`. فراخوانی‌اش درون شاخۀ «داده بسنده است» هر نمودار است.
-- **سنجش در مرورگر (`fahares_prod`):** آمار کل ۲۴ توضیح؛ دامنه‌ها: `author=1110` با ۲۳، `work=52504` با ۱۲، `library=4&century=11` با ۲۲، `facsimile=1` با ۲۳، `subject=1&language=1` با ۱۶، `copy_city=هرات` با ۲۳، `century=5` با ۱۸، و `scribe=1` (دامنۀ تهی) بی توضیح. همه با پاسخ ۲۰۰.
-- **آزمون:** دو آزمون در `InsightsMoreFiguresTest`: دامنه‌ای با یک نسخۀ بی‌آگاهی هیچ توضیحی را نمی‌شکند، و نمونه‌ها رقم‌های نمودار خود را می‌آورند.
