@@ -195,6 +195,36 @@ class InsightsMoreFiguresTest extends TestCase
         $this->assertEqualsCanonicalizing([$old->code, $new->code], array_column($figures['pairs'][0]['sources'], 'key'));
     }
 
+    public function test_every_chart_has_a_note_and_a_thin_scope_breaks_none()
+    {
+        // One copy with nothing known about it: the notes of a scope with next to no figures
+        $this->copy($this->work('اثر تنهای آزمایشی'));
+        $notes = \App\Support\InsightsNotes::for($this->figures());
+
+        $this->assertCount(24, $notes);
+        foreach ($notes as $chart => $note) {
+            $this->assertNotEmpty($note['reading'], $chart);
+            $this->assertIsList($note['examples']);
+        }
+    }
+
+    public function test_a_note_gives_examples_from_the_figures_of_its_chart()
+    {
+        $first = $this->work('رسالۀ نمونۀ یکم');
+        $second = $this->work('رسالۀ نمونۀ دوم');
+        foreach (['100', '200', '300'] as $key) {
+            $this->copy($first, ['collection_key' => $key, 'copy_date_raw' => '1100ق']);
+            $this->copy($second, ['collection_key' => $key]);
+        }
+        $this->copy($first);
+
+        $notes = \App\Support\InsightsNotes::for($this->figures());
+
+        $this->assertStringContainsString('«رسالۀ نمونۀ یکم» و «رسالۀ نمونۀ دوم» در ۳ مجموعه با هم آمده‌اند', implode(' ', $notes['collections']['examples']));
+        $this->assertStringContainsString('پرنسخه‌ترین اثر «رسالۀ نمونۀ یکم» است، با ۴ نسخه', implode(' ', $notes['topWorks']['examples']));
+        $this->assertStringContainsString('بلندترین ستون سدۀ ۱۱ است، با ۳ نسخه', implode(' ', $notes['timeline']['examples']));
+    }
+
     public function test_the_page_shows_the_five_figures()
     {
         $first = $this->work('رسالۀ صفحۀ آمار یکم', ['author_id' => $this->author()->id]);
@@ -215,6 +245,9 @@ class InsightsMoreFiguresTest extends TestCase
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'work_id' => $first->id, 'century' => 11, 'library_id' => $this->library->id])), false)
             ->assertSee('آثار پرنسخۀ بی نشانی چاپ')
             ->assertSee('مجموعه‌ها: رساله‌های هم‌مجلد')
-            ->assertSee('هر نسخه در چند فهرست وصف شده');
+            ->assertSee('هر نسخه در چند فهرست وصف شده')
+            ->assertSee('این نمودار را چگونه بخوانیم')
+            ->assertSee('نمونه از همین ارقام')
+            ->assertSee('بلندترین ستون سدۀ ۱۱ است، با ۱۲ نسخه');
     }
 }

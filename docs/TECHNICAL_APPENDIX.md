@@ -12298,3 +12298,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نمایش:** `opinionsOn()` برای هر پاسخ `weights` (شناسه‌ی نظر ← وزن) می‌دهد؛ `admin/suggestions/partials/collective.blade.php` وزن بیش از ۱ را کنار نام می‌آورد. `contributionsOf()` کلید `weight` دارد و `contributions/review.blade.php` «وزن نظر شما» را برای وزن بیش از ۱ نشان می‌دهد.
 - **پیامد:** کاربری با وزن ۳ به‌تنهایی به `ENOUGH` می‌رسد و مورد از صف عمومی بیرون می‌رود. داده عوض نمی‌شود.
 - **تست:** `DateConflictQueueTest::test_the_weight_follows_the_track_record_over_every_queue` و `test_one_trusted_researcher_alone_reaches_enough`.
+### گام ۱۴.۲۳۴: `App\Support\InsightsNotes` و `insights/explain.blade.php`
+
+- **ساختار:** `InsightsNotes::for($data)` برای هر نمودار `['reading' => [بندها], 'examples' => [جمله‌ها]]` برمی‌گرداند، با ۲۴ کلید: `timeline`، `authors`، `works`، `copyGap`، `places`، `movement`، `subjects`، `features`، `scribes`، `libraries`، `dedications`، `patrons`، `facsimiles`، `sizes`، `languageScripts`، `topWorks`، `copiesPerWork`، `centuryWorks`، `unprinted`، `collections`، `scripts`، `languages`، `sources` و `sourceOverlap`.
+- **جای اجرا:** هنگام نمایش صفحه و از روی همان آرایۀ cacheشدۀ `Insights::get()`. پس کلید cache (`insights.v9`) و ساخت شبانه تغییری نکرد، و اصلاح متن یک توضیح بازسازی آمار نمی‌خواهد.
+- **متن‌ها:** بندهای «چگونه بخوانیم» ثابت‌اند و هیچ ادعایی دربارۀ ارقام ندارند، تا در هر دامنه درست بمانند. هر چه به رقم بسته است در «نمونه‌ها» آمده و از داده ساخته می‌شود.
+- **نمونه‌های جدول‌های سده (`gridExamples`):** دو نمونه: پرشمارترین ردیف با سدۀ بیشترین سهمش، و ردیفی که سهمش میان دو سده بیشترین فاصله را دارد. تنها سده‌هایی سنجیده می‌شوند که دست‌کم `insights.grid_min_copies` نسخه دارند.
+- **نمونۀ کاتبان:** اگر بازۀ سال‌های نسخه‌های کاتب نخست از ۷۰ سال بگذرد، نمونه می‌گوید که زیر آن نام شاید چند کاتب هم‌نام گرد آمده‌اند.
+- **قالب:** `resources/views/insights/explain.blade.php`، با `data-insights-note`. فراخوانی‌اش درون شاخۀ «داده بسنده است» هر نمودار است.
+- **سنجش در مرورگر (`fahares_prod`):** آمار کل ۲۴ توضیح؛ دامنه‌ها: `author=1110` با ۲۳، `work=52504` با ۱۲، `library=4&century=11` با ۲۲، `facsimile=1` با ۲۳، `subject=1&language=1` با ۱۶، `copy_city=هرات` با ۲۳، `century=5` با ۱۸، و `scribe=1` (دامنۀ تهی) بی توضیح. همه با پاسخ ۲۰۰.
+- **آزمون:** دو آزمون در `InsightsMoreFiguresTest`: دامنه‌ای با یک نسخۀ بی‌آگاهی هیچ توضیحی را نمی‌شکند، و نمونه‌ها رقم‌های نمودار خود را می‌آورند.
