@@ -31,6 +31,13 @@
         <a href="#manuscripts" class="text-sm text-muted hover:text-cinnabar transition">
             <span class="font-bold text-cinnabar tabular-nums">{{ Fa::num($library->manuscripts_count) }}</span> نسخۀ ثبت‌شده
         </a>
+        @if($coverage ?? null)
+            <p class="text-xs text-muted max-w-[60ch] leading-relaxed" data-library-firsthand>
+                شناسه‌های اصلی <span class="font-bold text-ink tabular-nums">{{ Fa::num($coverage['complete']) }}</span> نسخه
+                ({{ Fa::digits(str_replace('.', '٫', (string) $coverage['share'])) }}٪ نسخه‌ها) با فهرست چاپی کتابخانه سنجیده و تأیید شده است.
+                <a href="{{ route('insights') }}#firsthand" class="text-cinnabar hover:underline">دربارۀ این رقم</a>
+            </p>
+        @endif
         @if($library->full_name || $library->aliases)
             <div class="flex flex-wrap justify-center items-center gap-1.5 mt-1">
                 @if($library->full_name)<x-ui.chip title="نام کوتاه در فهرست‌ها">{{ $library->short_name }}</x-ui.chip>@endif

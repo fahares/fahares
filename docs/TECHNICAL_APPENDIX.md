@@ -12310,3 +12310,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **منو:** «ادعاهای فهرست‌های چاپی» در `AdminNav`، با شمار ادعاهای در انتظار.
 - **آزمون:** `FirstHandReadingTest::test_the_review_queue_sends_a_claim_to_the_suggestion_page_and_follows_its_decision`. ساخت پیشنهاد، تأیید آن از مسیر عادی `admin.suggestions.approve` (برگ رکورد ۳۷۹ → ۳۹۷)، رد، و بازگرداندن را می‌سنجد.
 - **وارسی:** صفحه روی `fahares_prod` با ادعاهای گام ۱۴.۲۵۰ ساخته و دیده شد. برای ورود رمزی وارد نشد: صفحه در خود برنامه برای کاربر مدیر ساخته شد.
+
+### گام ۱۴.۲۵۶: `App\Support\FirsthandCoverage`
+
+- **خواندن کش:** `report()` گزارش کلید `firsthand-coverage` را برمی‌گرداند، و اگر کش خالی است یا `total.copies` و `libraries` ندارد، `null`.
+  - `summary()` برای صفحۀ آمار: جمع‌ها و کتابخانه‌هایی که `was_read > 0` دارند، به ترتیب شمار سنجیده. ۱۵ کتابخانۀ نخست می‌آیند و بقیه در `more` شمرده می‌شوند.
+    - نام، شهر و کلید پیوند هر کتابخانه از جدول `libraries` خوانده می‌شود. کتابخانه‌ای که پس از سنجش ادغام یا حذف شده کنار می‌رود.
+  - `forLibrary($id)` برای صفحۀ کتابخانه: سطر همان کتابخانه، تنها اگر نسخۀ سنجیده دارد.
+  - سهم: `complete / copies` با یک رقم اعشار.
+- **نماها:**
+  - `insights/index.blade.php`: بخش `#firsthand` پس از بخش فهرست‌ها. `InsightsController` آن را تنها برای آمار بی‌دامنه می‌فرستد. داده بیرون از `insights.v9` است، پس نسخۀ کش آمار عوض نشد.
+  - `libraries/show.blade.php`: سطر `data-library-firsthand` زیر شمار نسخه‌ها، از `LibraryController::show`.
+- **زمان‌بندی:** `fahares:firsthand-coverage` هر روز ساعت ۰۳:۱۰ (`withoutOverlapping(30)`) در `routes/console.php`. روی `fahares_prod` ۳۶ ثانیه طول کشید.
+- **آزمون:** `FirsthandCoveragePageTest`: نمایش در دو صفحه، نبودن در آمار دامنه‌دار و در کتابخانۀ نسنجیده، کش خالی یا نادرست، کتابخانۀ حذف‌شده، و زمان‌بندی.
