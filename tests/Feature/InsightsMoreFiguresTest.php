@@ -185,7 +185,13 @@ class InsightsMoreFiguresTest extends TestCase
         $entry($twice, $rejected, ['status' => SourceEntry::STATUS_REJECTED]);
         $entry($once, $old);
 
-        $figures = $this->figures()['source_overlap'];
+        $data = $this->figures();
+        $figures = $data['source_overlap'];
+
+        // the note names no union catalogue: item 147 keeps Fankha's name off the public pages (step 14.257)
+        $note = \App\Support\InsightsNotes::for($data)['sourceOverlap'];
+        $this->assertStringNotContainsString('فنخا', implode(' ', [...$note['reading'], ...$note['examples']]));
+        $this->assertStringContainsString('هنوز به هیچ فهرست چاپی کتابخانه پیوند ندارند', implode(' ', $note['examples']));
 
         $this->assertSame([0 => 1, 1 => 1, 2 => 1, 3 => 0], $figures['counts']);
         $this->assertSame(2, $figures['described']);

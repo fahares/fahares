@@ -12323,3 +12323,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `libraries/show.blade.php`: سطر `data-library-firsthand` زیر شمار نسخه‌ها، از `LibraryController::show`.
 - **زمان‌بندی:** `fahares:firsthand-coverage` هر روز ساعت ۰۳:۱۰ (`withoutOverlapping(30)`) در `routes/console.php`. روی `fahares_prod` ۳۶ ثانیه طول کشید.
 - **آزمون:** `FirsthandCoveragePageTest`: نمایش در دو صفحه، نبودن در آمار دامنه‌دار و در کتابخانۀ نسنجیده، کش خالی یا نادرست، کتابخانۀ حذف‌شده، و زمان‌بندی.
+
+### گام ۱۴.۲۵۷: نام فنخا در بخش `#source-overlap` صفحۀ آمار
+
+- `insights/index.blade.php`: برچسب ردیف نخست `source_overlap.counts[0]` «هنوز بی فهرست کتابخانه» است و توضیح بالای نمودار نام فنخا ندارد.
+- `InsightsNotes::sourceOverlap()`: بند خواندن و نمونۀ `counts[0]` بی نام فنخا.
+- **آزمون:** `InsightsMoreFiguresTest::test_copies_are_counted_by_the_catalogues_that_describe_them` نبودن «فنخا» در یادداشت را می‌سنجد. `FirsthandCoveragePageTest` نبودن آن را در کل صفحه می‌سنجد.

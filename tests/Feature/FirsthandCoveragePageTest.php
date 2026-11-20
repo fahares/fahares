@@ -64,7 +64,7 @@ class FirsthandCoveragePageTest extends TestCase
             ->assertSee('۸۲٪')                     // 164 of 200
             ->assertDontSee('data-firsthand-library="' . $unread->id . '"', false)
             ->assertSee('فهرست چاپی کتابخانه')
-            ->assertDontSee('فنخا درست');
+            ->assertDontSee('فنخا');   // item 147 keeps the union catalogue's name off the public pages (step 14.257)
 
         // a page narrowed to a scope leaves the whole-site measure out
         $this->get(route('insights', ['library' => $read->id]))->assertOk()->assertDontSee('data-firsthand-total', false);
