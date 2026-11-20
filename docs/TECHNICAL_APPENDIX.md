@@ -12512,4 +12512,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** ۱۲۶ اصلاح و ۱۸ ادعای نامزد. سپس `sources:take-texts` بی `--extractor` (منبع از گام ۱۴.۲۵۹ قالب دارد) هر ۱۲۶ را برداشت.
 - **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
 - **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
-- **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
+- **اجرا در پروداکشن (۲۹ آبان):**
+  - پشتیبان JSON مدخل‌ها و `shelfmark`، `shelfmark_key` و `collection_key` ۲۸۳ نسخۀ بی‌متن در `../fahares-sources/backups/step13/before_step14_266_prod_20261120_1305.json.gz` است.
+  - یک `prod-run --wait` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0` را اجرا کرد.
+  - نتیجه: ۹، ۴۸ و ۶۹ اصلاح، که همه متن گرفتند؛ ۴، ۳ و ۱۱ ادعای نامزد.
+  - ادعاهای قاعده‌ای `shelfmark` پس از اجرا: ۱۲۶ پذیرفته و ۲۳۴ نامزد (با ادعاهای گام ۱۴.۲۵۰).
