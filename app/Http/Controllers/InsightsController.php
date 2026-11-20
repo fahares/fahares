@@ -11,6 +11,7 @@ use App\Models\Script;
 use App\Models\Subject;
 use App\Models\Work;
 use App\Support\CopyPlaces;
+use App\Support\FirsthandCoverage;
 use App\Support\Insights;
 use App\Support\InsightsScope;
 use Illuminate\Http\Request;
@@ -20,7 +21,8 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class InsightsController extends Controller
 {
-    public function index(Request $request)
+    /** The hub of the statistics, or one of its topic pages (config insights.topics, backlog item 153) */
+    public function index(Request $request, ?string $topic = null)
     {
         $scope = InsightsScope::fromRequest($request);
         // A scope not yet in the cache is built now, which reads much of the data: a few per visitor and hour
@@ -30,7 +32,12 @@ class InsightsController extends Controller
             RateLimiter::hit($key, 3600);
         }
 
-        return view('insights.index', ['data' => Insights::get($scope), 'map' => Insights::MAP, 'scope' => $scope]);
+        // How far the copies stand on their libraries' own catalogues (step 14.256): a measure of the whole site, so
+        // only on the page that is not narrowed to a scope
+        $coverage = $scope->isEmpty() ? FirsthandCoverage::summary() : null;
+
+        return view('insights.index', ['data' => Insights::get($scope), 'map' => Insights::MAP, 'scope' => $scope, 'coverage' => $coverage,
+            'topic' => $topic, 'topics' => config('insights.topics')]);
     }
 
     /**

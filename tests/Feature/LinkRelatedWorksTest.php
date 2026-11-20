@@ -63,16 +63,65 @@ class LinkRelatedWorksTest extends TestCase
         $hashiya->delete();
         $this->assertCount(3, $this->relations());
 
-        // the pages: the text as Fankha wrote it, its titles linked to the works, and the relation both ways
+        // the pages: the relation both ways, in the one relations section (step 14.277); the text's own fields are off
+        // the page, and its words show only where they are not the work's title and author
         $page = $this->followingRedirects()->get(route('works.show', $sharh))->assertOk();
-        $page->assertSee('<a href="' . route('works.show', $nahj) . '"', false)->assertSee('؛ سید رضی، محمد بن حسین (۳۵۹-۴۰۶)', false)
-            ->assertSee('شرحی است بر');
+        $page->assertSee('<a href="' . route('works.show', $nahj) . '"', false)->assertSee('شرحی است بر')
+            ->assertDontSee('در فهرست:')->assertDontSee('وابسته به</dt>', false)->assertDontSee('field="commentaries_and_glosses"', false);
+        $this->followingRedirects()->get(route('works.show', $nahj))->assertOk()->assertDontSee('<span>شروح، حواشی و منظومه‌ها</span>', false);
         $page = $this->followingRedirects()->get(route('works.show', $nahj))->assertOk();
         $page->assertSee('<a href="' . route('works.show', $sharh) . '"', false)->assertSee('<a href="' . route('works.show', $tarjama) . '"', false)->assertSee('ترجمه‌ها');
         $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها و مجلدها');
 
         // the base titles feed the search: the relation's and the text's
         $this->assertSame(['نهج البلاغة', 'خطب علی'], $sharh->fresh()->baseTitles());
+    }
+
+    /** Step 14.277: the entries tied to no work stand in the page's one relations section, and a tied one shows the catalogue's other words */
+    public function test_the_relations_section_holds_the_entries_tied_to_no_work()
+    {
+        $nahj = $this->work('نهج البلاغة', 'سید رضی، محمد بن حسین', ['commentaries_and_glosses' => [
+            'شرح نهج البلاغة؛ ابن میثم، میثم بن علی (636-679)', 'شرح نهج البلاغة؛ کسی، که نیست (-900)', 'نهج البلاغة (ترجمه)',
+        ]]);
+        $sharh = $this->work('شرح نهج البلاغة', 'ابن میثم، میثم بن علی');
+        $orphan = $this->work('رساله‌ای دیگر', 'کسی، الف', ['related_work' => 'کتابی که نیست؛ کسی، ب (-800)']);
+        // a decision ties an entry to a work the catalogue itself records under another author
+        $zayirja = $this->work('الزایرجة', 'خزرجی، احمد بن مسعود');
+        $adwar = $this->work('الادوار العنصریة', 'ابن غزی، احمد', ['related_work' => 'الزایرجة؛ سبتی، احمد بن جعفر (524-601)']);
+        DB::table('work_entry_links')->insert(['work_id' => $adwar->id, 'side' => 'related', 'entry' => 'الزایرجة؛ سبتی، احمد بن جعفر',
+            'entry_hash' => sha1('الزایرجة؛ سبتی، احمد بن جعفر'), 'linked_work_id' => $zayirja->id, 'source' => 'model', 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('work_relations')->insert(['work_id' => $adwar->id, 'related_work_id' => $zayirja->id, 'type' => 'related', 'source' => 'model', 'created_at' => now(), 'updated_at' => now()]);
+        $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
+
+        // a field the parser reads no entry in (long, with no «؛») is one row as written; a field of several entries keeps its note
+        $long = 'الفرائض النصیریة علی مذهب اهل البیت = جواهر الفرائض = رسالة الدرة = الرسالة المیراثیة = رساله‌ای دیگر با نامی بلند نصیرالدین طوسی، محمد بن محمد';
+        $unread = $this->work('شرحی بر فرائض', 'کسی، ج', ['related_work' => $long]);
+        $note = 'گزیده‌ای است از این دو کتاب که در ده باب، برای هر روز از دهۀ نخست ماه یک باب، مرتب شده و در پایان آن فهرستی از مطالب هر باب آمده است';
+        $two = $this->work('منتخب دو کتاب', 'کسی، د', ['related_work' => "کتاب یکم؛ کسی، ه (-700)؛ کتاب دوم؛ کسی، و (-800)؛ {$note}"]);
+        $this->assertSame([['side' => 'related', 'text' => $long, 'type' => 'related']], WorkRelationLinker::pageRows($unread)['unlinked']);
+        $this->assertSame([$note], WorkRelationLinker::pageRows($two)['notes']);
+        $this->followingRedirects()->get(route('works.show', $two))->assertOk()
+            ->assertSeeInOrder(['وابسته است به:', 'کتاب یکم؛ کسی، ه (-۷۰۰)', 'کتاب دوم؛ کسی، و (-۸۰۰)', "یادداشت فهرست: {$note}"], false);
+
+        $rows = WorkRelationLinker::pageRows($nahj->fresh());
+        $this->assertSame([], $rows['printed']);
+        $this->assertSame([
+            ['side' => 'children', 'text' => 'شرح نهج البلاغة؛ کسی، که نیست (-900)', 'type' => 'commentary'],
+            ['side' => 'children', 'text' => 'نهج البلاغة (ترجمه)', 'type' => 'translation'],
+        ], $rows['unlinked']);
+        // the page: the work that is tied as a link, the others as text under the label of their type
+        $this->followingRedirects()->get(route('works.show', $nahj))->assertOk()->assertSeeInOrder([
+            'رابطه با آثار دیگر', 'شروح:', '<a href="' . route('works.show', $sharh) . '"', 'شرح نهج البلاغة؛ کسی، که نیست (-۹۰۰)', 'بی پیوند به رکورد اثر',
+            'ترجمه‌ها:', 'نهج البلاغة (ترجمه)',
+        ], false);
+        $this->followingRedirects()->get(route('works.show', $orphan))->assertOk()
+            ->assertSeeInOrder(['رابطه با آثار دیگر', 'وابسته است به:', 'کتابی که نیست؛ کسی، ب (-۸۰۰)', 'بی پیوند به رکورد اثر'], false);
+        // the catalogue's words beside a tied work, where its author there is another name
+        $this->assertSame([$zayirja->id => 'الزایرجة؛ سبتی، احمد بن جعفر (524-601)'], WorkRelationLinker::pageRows($adwar->fresh())['printed']);
+        $this->followingRedirects()->get(route('works.show', $adwar))->assertOk()
+            ->assertSeeInOrder(['وابسته است به:', '<a href="' . route('works.show', $zayirja) . '"', 'در فهرست: الزایرجة؛ سبتی، احمد بن جعفر (۵۲۴-۶۰۱)'], false);
+        // a work the texts say nothing of keeps the invitation to add a relation
+        $this->followingRedirects()->get(route('works.show', $zayirja))->assertOk()->assertSee('آثار وابسته:');
     }
 
     /** Step 14.229: two works of one title that are plainly two, and the one of several works of a title and author */
@@ -159,8 +208,8 @@ class LinkRelatedWorksTest extends TestCase
         $this->assertSame([1], array_keys(WorkRelationLinker::linkedEntries($base)['children']));
         $this->assertSame($qutb->id, WorkRelationLinker::linkedEntries($base)['children'][1][0][1]->id);
 
-        // the page links the title alone, and leaves the author after it as text
+        // the page links the work; the author written after the title is the work's own, so the catalogue's words are not repeated
         $this->followingRedirects()->get(route('works.show', $glued))->assertOk()
-            ->assertSee('>تهذیب المنطق</a> تفتازانی، مسعود بن عمر (۷۲۲-۷۹۲)', false);
+            ->assertSee('<a href="' . route('works.show', $tahdhib) . '"', false)->assertDontSee('در فهرست:');
     }
 }

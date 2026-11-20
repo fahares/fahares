@@ -6,6 +6,7 @@ use App\Models\Cataloger;
 use App\Models\CatalogVolume;
 use App\Models\Library;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
@@ -62,8 +63,11 @@ class SyncCatalogEditionsCommand extends Command
             $this->line("{$state}: {$spec['facsimile_code']} v{$spec['volume_number']}, edition of volume #{$cited[0]->id} ({$cited[0]->title})");
             if (! $dry && $state !== 'unchanged') {
                 $edition->save();
+                $changed = true;
             }
         }
+        // a new printing is a source of its own: the list of sources is built again (step 14.267)
+        empty($changed) || Cache::forget('sources:shelf');
 
         return self::SUCCESS;
     }

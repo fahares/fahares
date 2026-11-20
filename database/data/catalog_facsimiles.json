@@ -3594,6 +3594,330 @@
      "step": "14.208"
     }
    }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "فهرست میکروفیلم‌های کتابخانه مرکزی دانشگاه تهران",
+   "facsimile_code": "tehran-univ-microfilm",
+   "page_first": 2,
+   "page_last": 820,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ-microfilm/v01.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-microfilm/v01.map.json"
+     ],
+     "note": "خزانه‌ها 2297؛ دوصفحه‌ای، کم‌وضوح؛ ص ۲۶۴–۲۶۵ در اسکن نیست؛ نمایه‌ها با شماره‌گذاری جدا (از برگ ۴۱۹) کنار ماند",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 2,
+   "title": "فهرست میکرو فیلمهای کتابخانه مرکزی دانشگاه تهران - 2",
+   "facsimile_code": "tehran-univ-microfilm",
+   "page_first": 2,
+   "page_last": 348,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ-microfilm/v02.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-microfilm/v02.map.json"
+     ],
+     "note": "خزانه‌ها 2298؛ دوصفحه‌ای، کم‌وضوح؛ پیوست لاتین کنار ماند",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 3,
+   "title": "فهرست میکروفیلم‌های کتابخانه مرکزی دانشگاه تهران - جلد سوم",
+   "facsimile_code": "tehran-univ-microfilm",
+   "page_first": 2,
+   "page_last": 371,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ-microfilm/v03.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ-microfilm/v03.map.json"
+     ],
+     "note": "خزانه‌ها 2299؛ دوصفحه‌ای، کم‌وضوح",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-sna-1049",
+   "volume_number": 1,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد اول",
+   "facsimile_code": "majlis-sena",
+   "page_first": 1,
+   "page_last": 411,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis-sena/v01.pdf"
+     ],
+     "leaf_maps": [
+      "majlis-sena/v01.map.json"
+     ],
+     "note": "docibox 1145909؛ برگ = صفحه + ۴؛ نمایه‌ها با شماره‌گذاری جدا کنار ماند",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-sna-1049",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد دوم",
+   "facsimile_code": "majlis-sena",
+   "page_first": 1,
+   "page_last": 520,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis-sena/v02.pdf"
+     ],
+     "leaf_maps": [
+      "majlis-sena/v02.map.json"
+     ],
+     "note": "docibox 1298463 (چاپ ۱۳۵۹)؛ ص ۱–۳۱۱ برگ = صفحه + ۹، ص ۳۱۵–۵۲۰ برگ = صفحه + ۸؛ ص ۳۱۲–۳۱۴ در اسکن نیست",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-shykh-aaly-hydr-205",
+   "volume_number": 3,
+   "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثالث",
+   "facsimile_code": "moayyed",
+   "page_first": 1,
+   "page_last": 665,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "moayyed/v03.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه 505426 (نسخۀ PDF تصویری، ۶۶۷ برگ)؛ برگ = صفحه + ۲؛ متن فارسی «فهرست کتب خطی کتابخانه شیخ علی حیدر در قم»",
+     "step": "14.252"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-shykh-aaly-hydr-205",
+   "volume_number": 1,
+   "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الأول",
+   "facsimile_code": "moayyed",
+   "page_first": 1,
+   "page_last": 464,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "moayyed/v01.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه 505416 (PDF تصویری، ۴۶۶ برگ)؛ برگ = صفحه + ۲",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-shykh-aaly-hydr-205",
+   "volume_number": 2,
+   "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثانی",
+   "facsimile_code": "moayyed",
+   "page_first": 1,
+   "page_last": 354,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "moayyed/v02.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه 505421 (PDF تصویری، ۳۵۶ برگ)؛ برگ = صفحه + ۲",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-adbyat-17",
+   "volume_number": 3,
+   "title": "فهرست کتب خطی کتابخانه دانشکده ادبیات - جلد سوم: مجموعه امام جمعه کرمان اهدایی احمد جوادی",
+   "facsimile_code": "tehran-adabiyat",
+   "page_first": 10,
+   "page_last": 253,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-adabiyat/v03.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-adabiyat/v03.map.json"
+     ],
+     "note": "خزانه‌ها 3410؛ دوصفحه‌ای، راست = ۲·برگ − ۱۸؛ پیش‌گفتار ابجد کنار ماند",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 28,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد بیست و هشتم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 792,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v28.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (noorlib 16412، ج ۲۸، دانلود کاربر)؛ برگ = صفحه + ۹",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 31,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و یکم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 960,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v31.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (noorlib 16412، ج ۳۱، دانلود کاربر)؛ برگ = صفحه",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 1",
+   "facsimile_code": "marashi-akasi",
+   "page_first": 1,
+   "page_last": 457,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi-akasi/v01.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "خزانه‌ها 7873؛ برگ = صفحه + ۷",
+     "step": "14.272"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 2",
+   "facsimile_code": "marashi-akasi",
+   "page_first": 1,
+   "page_last": 498,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi-akasi/v02.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "خزانه‌ها 7874؛ برگ = صفحه + ۱",
+     "step": "14.272"
+    }
+   }
+  },
+  {
+   "library_slug": "km-daralhdyth-80",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه تخصصی مرکز تحقیقات دار الحدیث",
+   "facsimile_code": "darolhadith",
+   "page_first": 1,
+   "page_last": 438,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "darolhadith/v01.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "docibox 1168574؛ برگ = صفحه + ۱۹",
+     "step": "14.279"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-adbyat-17",
+   "volume_number": 2,
+   "title": "فهرست کتب خطی کتابخانه دانشکده ادبیات - جلد دوم: مجموعه وقفی علی‌اصغر حکمت",
+   "facsimile_code": "tehran-adabiyat",
+   "page_first": 2,
+   "page_last": 111,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-adabiyat/v02.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-adabiyat/v02.map.json"
+     ],
+     "note": "خزانه‌ها 3409؛ دوصفحه‌ای، راست = ۲·برگ − ۱۶",
+     "step": "14.279"
+    }
+   }
+  },
+  {
+   "library_slug": "km-fydyh-8",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه مبارکه مدرسه فیضیه قم - جلد دوم",
+   "facsimile_code": "feyziye",
+   "page_first": 1,
+   "page_last": 120,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "feyziye/v02.pdf"
+     ],
+     "leaf_maps": [
+      "feyziye/v02.map.json"
+     ],
+     "note": "خزانه‌ها 570؛ برگ = صفحه تا ص ۱۲۰ (بخش دوم)؛ بخش سوم (مجموعه‌ها) با شماره‌گذاری جدا (برگ ۱۲۳ به بعد) کنار ماند",
+     "step": "14.279"
+    }
+   }
+  },
+  {
+   "library_slug": "km-fydyh-8",
+   "volume_number": 3,
+   "title": "فهرست کتابخانه مبارکه مدرسه فیضیه قم - جلد سوم",
+   "facsimile_code": "feyziye",
+   "page_first": 1,
+   "page_last": 208,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "feyziye/v02.pdf"
+     ],
+     "leaf_maps": [
+      "feyziye/v03.map.json"
+     ],
+     "note": "خزانه‌ها 570، بخش سوم (مجموعه‌ها) همان پرونده‌ی ج ۲، با شماره‌گذاری جدا؛ برگ = صفحه + ۱۲۲",
+     "step": "14.279"
+    }
+   }
   }
  ]
 }

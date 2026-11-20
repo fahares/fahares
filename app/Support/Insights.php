@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use App\Helpers\TextNormalizer;
+use App\Models\Person;
+use App\Models\SourceEntry;
 use App\Models\Work;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +24,12 @@ class Insights
     // v6: patrons and facsimile copies (step 14.117)
     // v9: copies per work, the works of each century, works with no note of a printing, bound volumes and the
     // catalogues that describe one copy (backlog item 146, step 14.228)
-    private const CACHE_KEY = 'insights.v9';
+    // v10: copies under each dynasty, and dedications and patrons by court (backlog item 154, step 14.265)
+    // v11: the cities of the map by decade, with their scribes and authors (backlog item 137, step 14.275)
+    // v12: the origins, birthplaces and places of death of the map (backlog item 137, step 14.276)
+    // v13: every dynasty's count, for the chart of rows (step 14.278)
+    // v14: the density and the share of each dynasty (step 14.281)
+    private const CACHE_KEY = 'insights.v14';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -69,6 +76,15 @@ class Insights
         CopyPlaces::variantMap(fresh: true);
         $data = self::build();
         Cache::forever(self::CACHE_KEY, $data);
+
+        return $data;
+    }
+
+    /** Builds a scope again and keeps it until after the next nightly build (the ready-made scopes, item 155) */
+    public static function refreshScope(InsightsScope $scope): array
+    {
+        $data = self::build($scope);
+        Cache::put(self::cacheKey($scope), $data, (int) config('insights.scope_ttl') + 7200);
 
         return $data;
     }
@@ -128,6 +144,7 @@ class Insights
             'unprinted' => self::unprinted($scope, $totals['works']),
             'collections' => self::collections($scope, $totals['manuscripts']),
             'source_overlap' => self::sourceOverlap($scope, $totals['manuscripts']),
+            'dynasties' => self::dynasties($scope, $totals['manuscripts']),
         ];
     }
 
@@ -369,7 +386,7 @@ class Insights
                     continue;
                 }
                 $sums['mapped'] += $row->n;
-                $cities[$city] ??= ['count' => 0, 'centuries' => [], 'works' => 0, 'work_centuries' => []];
+                $cities[$city] ??= self::CITY;
                 $cities[$city][$count] += $row->n;
                 $c = (int) $row->century;
                 if ($row->century !== null && $c >= $from && $c <= $to) {
@@ -383,19 +400,69 @@ class Insights
         };
         $copySums = $layer($copies, 'count', 'centuries');
         $workSums = $layer($works, 'works', 'work_centuries');
+
+        // For the year slider of the map (backlog item 137, step 14.275): the copies and works of each city by the
+        // decade their date ends in («by this year» is true of a copy once the whole range of its date has passed),
+        // and its scribes and authors, each once per city, at the earliest such decade of their copies or works there
+        $upto = fn (string $column) => "IF({$column} BETWEEN 1 AND 1500, CEIL({$column} / 10) * 10, NULL)";
+        $decades = function (iterable $rows, string $key) use (&$cities, &$cityOf) {
+            foreach ($rows as $row) {
+                $city = $cityOf[$row->place] ??= (CopyPlaces::cityOf($row->place) ?? '');
+                if ($city !== '' && $row->upto !== null && isset($cities[$city])) {
+                    $cities[$city][$key][(int) $row->upto] = ($cities[$city][$key][(int) $row->upto] ?? 0) + $row->n;
+                }
+            }
+        };
+        $decades($scope->manuscripts()->whereNotNull('copy_place')->where('copy_place', '!=', '')
+            ->selectRaw('copy_place AS place, ' . $upto('manuscripts.copy_date_to') . ' AS upto, COUNT(*) AS n')->groupBy('place', 'upto')->get(), 'decades');
+        $decades($scope->works()->whereNotNull('composition_place')->where('composition_place', '!=', '')
+            ->selectRaw('composition_place AS place, ' . $upto('works.composition_date_to') . ' AS upto, COUNT(*) AS n')->groupBy('place', 'upto')->get(), 'work_decades');
+        $people = function (iterable $rows, string $count, string $key) use (&$cities, &$cityOf) {
+            $first = [];
+            foreach ($rows as $row) {
+                $city = $cityOf[$row->place] ??= (CopyPlaces::cityOf($row->place) ?? '');
+                if ($city === '' || ! isset($cities[$city])) {
+                    continue;
+                }
+                $at = $row->upto === null ? PHP_INT_MAX : (int) $row->upto;
+                $first[$city][$row->person] = min($first[$city][$row->person] ?? PHP_INT_MAX, $at);
+            }
+            $persons = [];
+            foreach ($first as $city => $list) {
+                $cities[$city][$count] = count($list);
+                foreach ($list as $person => $at) {
+                    $persons[$person] = true;
+                    if ($at !== PHP_INT_MAX) {
+                        $cities[$city][$key][$at] = ($cities[$city][$key][$at] ?? 0) + 1;
+                    }
+                }
+            }
+
+            return count($persons);
+        };
+        $scribesMapped = $people($scope->manuscripts()->whereNotNull('scribe_id')->whereNotNull('copy_place')->where('copy_place', '!=', '')
+            ->selectRaw('scribe_id AS person, copy_place AS place, MIN(' . $upto('manuscripts.copy_date_to') . ') AS upto')->groupBy('person', 'place')->get(), 'scribes', 'scribe_decades');
+        $authorsMapped = $people($scope->works()->whereNotNull('author_id')->whereNotNull('composition_place')->where('composition_place', '!=', '')
+            ->selectRaw('author_id AS person, composition_place AS place, MIN(' . $upto('works.composition_date_to') . ') AS upto')->groupBy('person', 'place')->get(), 'authors', 'author_decades');
         [$withPlace, $mapped] = [$copySums['with_place'], $copySums['mapped']];
         [$worksWithPlace, $worksMapped] = [$workSums['with_place'], $workSums['mapped']];
+        $origins = self::origins($scope, $cities);
 
         $config = CopyPlaces::cities();
         $list = [];
         foreach ($cities as $name => $info) {
             [$x, $y] = self::project($config[$name]['lat'], $config[$name]['lon']);
-            $list[] = ['name' => $name, 'x' => $x, 'y' => $y] + $info;
+            foreach (['decades', 'work_decades', 'scribe_decades', 'author_decades', 'origin_decades', 'birth_decades', 'death_decades'] as $key) {
+                ksort($info[$key]);
+            }
+            $list[] = ['name' => $name, 'x' => $x, 'y' => $y, 'lat' => $config[$name]['lat'], 'lon' => $config[$name]['lon']] + $info;
         }
         usort($list, fn ($a, $b) => [$b['count'], $b['works']] <=> [$a['count'], $a['works']]);
 
         return [
             'cities' => $list,
+            // The cities with a copy; the list also holds those known only from a work or from a person
+            'copy_cities' => count(array_filter($list, fn ($c) => $c['count'] > 0)),
             'with_place' => $withPlace,
             'mapped' => $mapped,
             'coverage' => self::share($mapped, $total),
@@ -403,6 +470,14 @@ class Insights
             'mapped_share' => self::share($mapped, $withPlace),
             'by_century' => $copySums['by_century'],
             'century_only' => $copySums['century_only'],
+            // The persons of the map's two layers of people, each counted once however many cities they have
+            'scribes_mapped' => $scribesMapped,
+            'authors_mapped' => $authorsMapped,
+            // The persons with a nisba of a city, and those whose lives name a city of birth or of death
+            'origins_mapped' => $origins[PersonOrigins::ORIGIN],
+            'births_mapped' => $origins[PersonOrigins::BIRTH],
+            'deaths_mapped' => $origins[PersonOrigins::DEATH],
+            'lives_read' => $origins['lives'],
             'composition' => [
                 'cities' => count(array_filter($list, fn ($c) => $c['works'] > 0)),
                 'with_place' => $worksWithPlace,
@@ -503,6 +578,7 @@ class Insights
 
         $names = [];
         $forms = [];
+        $courts = [];
         $kin = 0;
         foreach ($rows as $row) {
             $name = trim(TextNormalizer::normalize((string) $row->name));
@@ -516,6 +592,10 @@ class Insights
             }
             // Grouped by the person, or by the normalized form, shown as it is written most
             $key = $row->pid ? 'p' . $row->pid : 'n' . $name;
+            if ($row->pid && ($court = Dynasties::courtOf((string) $row->name))) {
+                $courts[$court]['count'] = ($courts[$court]['count'] ?? 0) + (int) $row->n;
+                $courts[$court]['names'][(string) $row->name] = (int) $row->n;
+            }
             $names[$key] ??= ['name' => trim((string) $row->name), 'person' => $row->pid ? (int) $row->pid : null, 'count' => 0, 'centuries' => null];
             $names[$key]['count'] += (int) $row->n;
             if (! $row->pid) {
@@ -554,6 +634,7 @@ class Insights
             'names' => count($names),
             'kin' => $kin,
             'centuries' => $centuries,
+            'courts' => self::courts($courts),
         ];
     }
 
@@ -578,6 +659,7 @@ class Insights
 
         $people = [];
         $forms = [];
+        $courts = [];
         $works = [];
         $linkedWorks = [];
         foreach ($rows as $row) {
@@ -596,6 +678,10 @@ class Insights
             }
             $people[$key]['works'][$row->w] = true;
             $people[$key]['count']++;
+            if ($court = Dynasties::courtOf($row->pname)) {
+                $courts[$court]['works'][$row->w] = true;
+                $courts[$court]['names'][$row->pname] = ($courts[$court]['names'][$row->pname] ?? 0) + 1;
+            }
             $people[$key]['asked'] += (int) $row->asked;
             if (! $row->pid) {
                 $forms[$key][trim((string) $row->name)] = ($forms[$key][trim((string) $row->name)] ?? 0) + 1;
@@ -635,6 +721,112 @@ class Insights
             'names' => count($people),
             'linked' => $linked,
             'linked_works' => count($linkedWorks),
+            'centuries' => $centuries,
+            'courts' => self::courts(array_map(fn ($c) => ['count' => count($c['works']), 'names' => $c['names']], $courts)),
+        ];
+    }
+
+    /**
+     * Counts by court (Dynasties::courtOf) as a list, largest first: the dynasty, its count, and the name counted
+     * most in it. Only the rulers, ministers and scholars of KnownRulers have a court, so this is a part of the names.
+     *
+     * @param  array<string, array{count: int, names: array<string, int>}>  $courts
+     */
+    private static function courts(array $courts): array
+    {
+        $list = [];
+        foreach ($courts as $name => $court) {
+            arsort($court['names']);
+            $list[] = ['name' => $name, 'count' => $court['count'], 'people' => count($court['names']), 'first' => (string) array_key_first($court['names'])];
+        }
+        usort($list, fn ($a, $b) => [$b['count'], $a['name']] <=> [$a['count'], $b['name']]);
+
+        return $list;
+    }
+
+    /**
+     * The copies made under each dynasty (backlog item 154): a copy with a known year and a city of copying on the
+     * map goes to the dynasty whose territory held that city in that decade (Dynasties). Each dynasty with its
+     * copies, the years of the first and the last of them, and the cities it has most copies from; and for each
+     * century the city with the most such copies and who ruled it, for the band under the decades of the timeline.
+     */
+    private static function dynasties(InsightsScope $scope, int $total): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $span = (int) config('insights.exact_span');
+        $rows = $scope->manuscripts()
+            ->whereNotNull('copy_place')->where('copy_place', '!=', '')
+            ->whereNotNull('copy_date_from')->whereNotNull('copy_date_to')
+            ->whereRaw('manuscripts.copy_date_to - manuscripts.copy_date_from <= ?', [$span])
+            ->selectRaw('copy_place AS place, FLOOR((manuscripts.copy_date_from + manuscripts.copy_date_to) / 2) AS y, COUNT(*) AS n')
+            ->groupBy('place', 'y')->get();
+
+        $cityOf = [];
+        $dynasties = [];
+        $perCentury = [];
+        $perYear = [];
+        $counted = 0;
+        $ruled = 0;
+        foreach ($rows as $row) {
+            $city = $cityOf[$row->place] ??= (CopyPlaces::cityOf($row->place) ?? '');
+            if ($city === '') {
+                continue;
+            }
+            [$year, $n] = [(int) $row->y, (int) $row->n];
+            $counted += $n;
+            $perYear[$year] = ($perYear[$year] ?? 0) + $n;
+            $century = intdiv($year - 1, 100) + 1;
+            $perCentury[$century][$city] = ($perCentury[$century][$city] ?? 0) + $n;
+            if (($name = Dynasties::of($city, $year)) === null) {
+                continue;
+            }
+            $ruled += $n;
+            $dynasties[$name] ??= ['name' => $name, 'count' => 0, 'from' => $year, 'to' => $year, 'cities' => []];
+            $dynasties[$name]['count'] += $n;
+            $dynasties[$name]['from'] = min($dynasties[$name]['from'], $year);
+            $dynasties[$name]['to'] = max($dynasties[$name]['to'], $year);
+            $dynasties[$name]['cities'][$city] = ($dynasties[$name]['cities'][$city] ?? 0) + $n;
+        }
+        // A long rule has many copies for its length alone (step 14.281): beside the count, the copies of every ten
+        // years of the rule, and the dynasty's share of all the copies with a year and a city made anywhere in its years
+        $rules = [];
+        foreach (Dynasties::all() as $rule) {
+            $rules[$rule['name']] = [min($rules[$rule['name']][0] ?? $rule['from'], $rule['from']), max($rules[$rule['name']][1] ?? $rule['to'], $rule['to'])];
+        }
+        foreach ($dynasties as &$dynasty) {
+            [$from, $to] = $rules[$dynasty['name']] ?? [$dynasty['from'], $dynasty['to']];
+            $then = 0;
+            foreach ($perYear as $year => $n) {
+                $then += $year >= $from && $year <= $to ? $n : 0;
+            }
+            $dynasty += ['rule_from' => $from, 'rule_to' => $to, 'years' => $to - $from + 1,
+                'density' => round($dynasty['count'] * 10 / max(1, $to - $from + 1), 1),
+                // Its own copies are among those of its years, save a copy the decade's rule puts a few years outside them
+                'share' => self::share($dynasty['count'], max($then, $dynasty['count']))];
+            arsort($dynasty['cities']);
+            $dynasty['city_kinds'] = count($dynasty['cities']);
+            $dynasty['cities'] = collect(array_slice($dynasty['cities'], 0, 3, true))->map(fn ($n, $city) => ['name' => (string) $city, 'count' => $n])->values()->all();
+        }
+        unset($dynasty);
+        usort($dynasties, fn ($a, $b) => [$b['count'], $a['name']] <=> [$a['count'], $b['name']]);
+
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            if (empty($perCentury[$c])) {
+                continue;
+            }
+            arsort($perCentury[$c]);
+            $city = (string) array_key_first($perCentury[$c]);
+            $centuries[$c] = ['city' => $city, 'count' => $perCentury[$c][$city], 'runs' => Dynasties::runs($city, ($c - 1) * 100 + 1, $c * 100)];
+        }
+
+        return [
+            // Every dynasty with a copy, the largest first; the page lists dynasties_shown of them in each reading
+            'items' => $dynasties,
+            'kinds' => count($dynasties),
+            'counted' => $counted,
+            'ruled' => $ruled,
+            'coverage' => self::share($ruled, $total),
             'centuries' => $centuries,
         ];
     }
@@ -1328,6 +1520,63 @@ class Insights
     }
 
     /** @return array{0: float, 1: float} SVG coordinates on the map frame */
+    // A city of the map with nothing counted in it yet
+    private const CITY = ['count' => 0, 'centuries' => [], 'works' => 0, 'work_centuries' => [], 'decades' => [], 'work_decades' => [],
+        'scribes' => 0, 'scribe_decades' => [], 'authors' => 0, 'author_decades' => [],
+        'origins' => 0, 'origin_decades' => [], 'births' => 0, 'birth_decades' => [], 'deaths' => 0, 'death_decades' => []];
+
+    /**
+     * Where the authors and scribes of the scope were from, were born and died (PersonOrigins, backlog item 137, step
+     * 14.276): from the nisbas of their names and from their entries in the biographical dictionaries. Each person
+     * once per city and kind, in the decade of the death (or of the last copy written): «by a year» they have lived.
+     *
+     * @return array{origin: int, birth: int, death: int, lives: int} the persons of each kind, and those with a life read
+     */
+    private static function origins(InsightsScope $scope, array &$cities): array
+    {
+        $ids = fn () => $scope->works()->whereNotNull('author_id')->select('author_id AS id')
+            ->union($scope->manuscripts()->whereNotNull('scribe_id')->select('scribe_id AS id'));
+        $at = [];
+        $found = [];
+        $people = DB::table('people')->joinSub($ids(), 'scope_people', 'scope_people.id', '=', 'people.id')
+            ->selectRaw('people.id, people.name, COALESCE(people.death_to, people.death_year_hijri, people.scribed_to) AS year')->get();
+        foreach ($people as $person) {
+            $at[$person->id] = $person->year >= 1 && $person->year <= 1500 ? (int) (ceil($person->year / 10) * 10) : null;
+            foreach (PersonOrigins::fromName($person->name) as $city) {
+                $found[PersonOrigins::ORIGIN][$city][$person->id] = true;
+            }
+        }
+        $lives = [];
+        $entries = DB::table('source_entries')->join('source_items', 'source_items.id', '=', 'source_entries.source_item_id')
+            ->joinSub($ids(), 'scope_people', 'scope_people.id', '=', 'source_entries.citable_id')
+            ->where('source_entries.citable_type', Person::class)->where('source_entries.status', '!=', SourceEntry::STATUS_REJECTED)
+            ->select(['source_entries.citable_id AS person', 'source_items.text'])->cursor();
+        foreach ($entries as $entry) {
+            $lives[$entry->person] = true;
+            foreach (PersonOrigins::fromBiography($entry->text) as $hit) {
+                $found[$hit['kind']][$hit['city']][$entry->person] = true;
+            }
+        }
+
+        $sums = ['lives' => count($lives)];
+        foreach ([PersonOrigins::ORIGIN => 'origin', PersonOrigins::BIRTH => 'birth', PersonOrigins::DEATH => 'death'] as $kind => $key) {
+            $persons = [];
+            foreach ($found[$kind] ?? [] as $city => $list) {
+                $cities[$city] ??= self::CITY;
+                $cities[$city]["{$key}s"] = count($list);
+                foreach (array_keys($list) as $person) {
+                    $persons[$person] = true;
+                    if (($at[$person] ?? null) !== null) {
+                        $cities[$city]["{$key}_decades"][$at[$person]] = ($cities[$city]["{$key}_decades"][$at[$person]] ?? 0) + 1;
+                    }
+                }
+            }
+            $sums[$kind] = count($persons);
+        }
+
+        return $sums;
+    }
+
     public static function project(float $lat, float $lon): array
     {
         $m = self::MAP;

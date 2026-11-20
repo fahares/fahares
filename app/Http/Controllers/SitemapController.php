@@ -232,6 +232,11 @@ class SitemapController extends Controller
             'changefreq' => 'weekly',
             'priority' => '0.6',
         ];
+        // the statistics: the hub and its topic pages (step 14.263); a page narrowed to a scope stays out (noindex)
+        $urls[] = ['loc' => route('insights'), 'lastmod' => $defaultDate, 'changefreq' => 'daily', 'priority' => '0.7'];
+        foreach (array_keys(config('insights.topics')) as $topic) {
+            $urls[] = ['loc' => route('insights.topic', $topic), 'lastmod' => $defaultDate, 'changefreq' => 'daily', 'priority' => '0.6'];
+        }
         // each source the site has something of (step 13.80); its page texts stay out (noindex)
         $shelf = \App\Support\SourceShelf::counts();
         foreach (\App\Models\Source::orderBy('id')->get(['id', 'code', 'updated_at']) as $source) {

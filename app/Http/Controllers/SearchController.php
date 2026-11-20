@@ -245,7 +245,7 @@ class SearchController extends Controller
     {
         $names = [
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
-            'manuscripts' => ['library_id', 'city', 'scripts', 'copy_century', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
+            'manuscripts' => ['library_id', 'city', 'scripts', 'copy_century', 'subjects', 'languages', 'is_facsimile', 'note_types', ...array_keys(SearchFilters::FLAGS)],
             'authors' => ['life_centuries', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
             'scribes' => ['copy_centuries', 'copy_cities', 'is_author', 'is_translator'],
             'sources' => ['source_id', 'volume_number'],
@@ -366,6 +366,9 @@ class SearchController extends Controller
         $options['centuries'] = $counted ? collect($facets['copy_century'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])
             ->filter(fn ($n, $c) => $c >= 1 && $c <= 15)->sortKeys()->all() : array_fill_keys(range(3, 14), null);
         $options['flags'] = collect(SearchFilters::FLAGS)->map(fn ($label, $flag) => [$label, $count($flag, 'true')])->all();
+        // The types of the copies' notes, section by section as the copy's page shows them (step 14.269)
+        $options['noteTypes'] = collect(\App\Models\ManuscriptNote::GROUPS)->flatMap(fn ($group) => collect($group['types'])->reject(fn ($t) => $t === 'other')
+            ->mapWithKeys(fn ($t) => [$t => [\App\Models\ManuscriptNote::TYPES[$t], $count('note_types', $t)]]))->all();
         $options['facsimile'] = ['0' => $count('is_facsimile', 'false'), '1' => $count('is_facsimile', 'true')];
         $options['copyCities'] = array_keys(CopyPlaces::cities());
 
@@ -549,7 +552,7 @@ class SearchController extends Controller
     /** The relations each tab's results show */
     public const WITH = [
         'works' => ['catalog', 'author', 'subjects', 'languages'],
-        'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts'],
+        'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts', 'notes'],
         'authors' => [],
         'scribes' => [],
         'sources' => ['source'],

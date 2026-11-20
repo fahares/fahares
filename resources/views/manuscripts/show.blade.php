@@ -468,11 +468,28 @@
 
             <!-- Sections hidden while empty: reachable in suggestion mode -->
             @php
+                // The copy's typed notes take the place of the three sections below (backlog item 87, step 14.260). A copy
+                // whose seals list a reviewer corrected keeps that list, and so does one without a note of provenance.
+                $noteGroups = $manuscript->noteGroups();
+                $oldSeals = $manuscript->keepsSealsList();
                 $emptySections = array_filter([
                     'incipit_text' => count($manuscript->incipits_list) === 0 ? 'آغاز نسخه' : null,
                     'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
-                    'ownership_and_seals' => count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
+                    'ownership_and_seals' => $oldSeals && count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
                 ]);
+                // a copy with typed notes: a note can be added to a section it does not have yet (steps 14.264, 14.269)
+                $addable = $noteGroups ? array_keys(array_filter(\App\Suggestions\SuggestionRegistry::recordFields($manuscript), fn ($f) => isset($f['new_note_type']))) : [];
+                foreach ($noteGroups ? \App\Models\ManuscriptNote::GROUPS : [] as $groupKey => $group) {
+                    if (isset($noteGroups[$groupKey]) && ! ($groupKey === 'provenance' && $oldSeals)) {
+                        continue;
+                    }
+                    foreach ($group['types'] as $newType) {
+                        if (in_array('note_new_' . $newType, $addable, true)) {
+                            unset($emptySections['ownership_and_seals']);
+                            $emptySections['note_new_' . $newType] = \App\Suggestions\SuggestionRegistry::newNoteLabel($newType);
+                        }
+                    }
+                }
             @endphp
             @if($emptySections)
                 <div x-show="$store.suggest.on" x-cloak class="p-4 border border-dashed border-cinnabar/40 bg-cinnabar/5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
@@ -483,7 +500,28 @@
                 </div>
             @endif
 
-            @if(count($manuscript->ownership_and_seals_list) > 0)
+            @foreach($noteGroups as $groupKey => $groupNotes)
+                @continue($groupKey === 'provenance' && $oldSeals)
+                <x-ui.section :title="\App\Models\ManuscriptNote::GROUPS[$groupKey]['title']" :count="$groupNotes->count()">
+                    <ul class="space-y-2 text-sm">
+                        @foreach($groupNotes as $note)
+                            <li class="flex items-start gap-3 leading-relaxed">
+                                <span class="mt-0.5 shrink-0 w-20 text-center text-[11px] font-bold py-0.5 border {{ $note->type === 'seal' ? 'border-cinnabar/40 text-cinnabar' : ($note->type === 'endowment' ? 'border-emerald-600/40 text-emerald-700 dark:text-emerald-300' : 'border-line-strong text-muted') }}">{{ \App\Models\ManuscriptNote::TYPES[$note->type] ?? $note->type }}</span>
+                                <span class="text-ink whitespace-pre-line">{{ Fa::digits($note->text) }}@if($note->by_author) <x-ui.chip tone="good" class="!text-[11px] !py-0 ms-1">{{ $note->by_author_hedge ? $note->by_author_hedge . ' ' : '' }}از مؤلف</x-ui.chip>@endif <x-suggest.field :name="'note_' . $note->id" /> <x-suggest.field :name="'note_type_' . $note->id" x-show="$store.suggest.on" x-cloak title="پیشنهاد تغییر نوع این یادداشت" aria-label="پیشنهاد تغییر نوع این یادداشت" class="!border-line-strong !bg-surface !text-muted" /></span>
+                            </li>
+                        @endforeach
+                    </ul>
+                    {{-- a note of the section's types the catalogue lacks (steps 14.264, 14.269) --}}
+                    <div x-show="$store.suggest.on" x-cloak class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+                        @foreach(\App\Models\ManuscriptNote::GROUPS[$groupKey]['types'] as $newType)
+                            @continue(! in_array('note_new_' . $newType, $addable, true))
+                            <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ \App\Suggestions\SuggestionRegistry::newNoteLabel($newType) }} <x-suggest.field :name="'note_new_' . $newType" /></span>
+                        @endforeach
+                    </div>
+                </x-ui.section>
+            @endforeach
+
+            @if($oldSeals && count($manuscript->ownership_and_seals_list) > 0)
                 <x-ui.section title="مهرها، تملک‌ها و وقف‌نامه‌ها" field="ownership_and_seals" :count="count($manuscript->ownership_and_seals_list)">
                     <ul class="space-y-2 text-sm">
                         @foreach($manuscript->ownership_and_seals_list as $seal)
@@ -499,13 +537,13 @@
                 </x-ui.section>
             @endif
 
-            @if($manuscript->residual_notes_text)
+            @if(! $noteGroups && $manuscript->residual_notes_text)
                 <x-ui.section title="فوائد و رسائل مندرج در نسخه">
                     <div class="text-sm text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ Fa::digits($manuscript->residual_notes_text) }}</div>
                 </x-ui.section>
             @endif
 
-            @if(count($manuscript->editorial_notes_list) > 0)
+            @if(! $noteGroups && count($manuscript->editorial_notes_list) > 0)
                 <x-ui.section title="یادداشت‌های فهرست‌نگار">
                     <ul class="space-y-1.5 text-sm">
                         @foreach($manuscript->editorial_notes_list as $editNote)

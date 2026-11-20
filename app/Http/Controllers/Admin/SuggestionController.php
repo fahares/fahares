@@ -373,7 +373,7 @@ class SuggestionController extends Controller
 
         $relation = $suggestion->relationDefinition();
         $record = $suggestion->suggestable;
-        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role', 'record_relation'], true)) {
+        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role', 'record_relation', 'text_relation'], true)) {
             return $this->approveContributor($request, $suggestion, $relation, $record);
         }
         if ($relation && ($relation['apply'] ?? null) === 'person_period') {
@@ -714,6 +714,12 @@ class SuggestionController extends Controller
                     'alias' => $relations->alias($record, (string) ($validated['alias'] ?? $suggestion->suggested_value)),
                     'record_relation' => app(\App\Suggestions\RecordRelations::class)->add(
                         $record, $person, (string) ($validated['role'] ?? $suggestion->payload['role'] ?? ''),
+                        trim($validated['contributor_note'] ?? '') ?: null, $suggestion->id,
+                    ),
+                    // The other work has no record (step 14.280): the reviewer may correct its title and author
+                    'text_relation' => app(\App\Suggestions\RecordRelations::class)->addText(
+                        $record, (string) ($validated['role'] ?? $suggestion->payload['role'] ?? ''),
+                        (string) ($validated['alias'] ?? $suggestion->suggested_value),
                         trim($validated['contributor_note'] ?? '') ?: null, $suggestion->id,
                     ),
                     // A removal deletes the row the reviewer picked among the work's people

@@ -62,6 +62,9 @@ Route::post('/search/click', [SearchController::class, 'click'])->middleware('th
 // Statistical insights: figures built nightly by fahares:build-insights
 Route::get('/insights', [InsightsController::class, 'index'])->name('insights');
 Route::get('/insights/lookup', [InsightsController::class, 'lookup'])->middleware('throttle:120,1')->name('insights.lookup');
+// The topic pages (backlog item 153); /insights itself is their hub
+Route::get('/insights/{topic}', [InsightsController::class, 'index'])
+    ->whereIn('topic', array_keys(config('insights.topics')))->name('insights.topic');
 
 // Works
 Route::get('/works/{id}', [WorkController::class, 'show'])
@@ -286,6 +289,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
         Route::post('/suggestions/{suggestion}/reviewer-note', [AdminSuggestionController::class, 'saveReviewerNote'])->name('suggestions.reviewer-note');
         Route::post('/suggestions/{suggestion}/close-converted', [AdminSuggestionController::class, 'closeConverted'])->name('suggestions.close-converted');
+
+        // Claims of the libraries' printed catalogues against the records (backlog item 147, step 14.255)
+        Route::get('/claims', [\App\Http\Controllers\Admin\ClaimController::class, 'index'])->name('claims.index');
+        Route::post('/claims/{claim}/suggest', [\App\Http\Controllers\Admin\ClaimController::class, 'suggest'])->name('claims.suggest');
+        Route::post('/claims/{claim}/reject', [\App\Http\Controllers\Admin\ClaimController::class, 'reject'])->name('claims.reject');
+        Route::post('/claims/{claim}/reopen', [\App\Http\Controllers\Admin\ClaimController::class, 'reopen'])->name('claims.reopen');
         Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
         Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
         Route::get('/suggestions/{suggestion}/convert-fields', [AdminSuggestionController::class, 'convertFields'])->name('suggestions.convert-fields');
@@ -343,6 +352,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/author-links', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'index'])->name('author-links.index');
         Route::post('/author-links/{review}/link', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'link'])->name('author-links.link');
         Route::post('/author-links/{review}/reject', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'reject'])->name('author-links.reject');
+
+        // An entry of a work's related works, and the work of the site it may name (backlog item 6, step 14.274)
+        Route::get('/work-entry-links', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'index'])->name('work-entry-links.index');
+        Route::post('/work-entry-links/{link}/link', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'link'])->name('work-entry-links.link');
+        Route::post('/work-entry-links/{link}/reject', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'reject'])->name('work-entry-links.reject');
+        Route::post('/work-entry-links/{link}/reopen', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'reopen'])->name('work-entry-links.reopen');
+        // A work's relation with a work that has no record, taken off from the work's page (step 14.280)
+        Route::delete('/work-text-relations/{relation}', [\App\Http\Controllers\Admin\WorkTextRelationController::class, 'destroy'])->name('work-text-relations.destroy');
     });
 
     // Catalogue references matched by machine (backlog item 51)

@@ -11,6 +11,9 @@ import catalogViewer from './catalog-viewer';
 import sendOnce from './send-once';
 import insightsCombo from './insights-filter';
 import announcement from './announcement';
+import chartTip from './chart-tip';
+import insightsMap from './insights-map';
+import insightsDynasties from './insights-dynasties';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -63,7 +66,10 @@ Alpine.data('referenceReview', referenceReview);
 Alpine.data('webPush', webPush);
 Alpine.data('catalogViewer', catalogViewer);
 Alpine.data('insightsCombo', insightsCombo);
+Alpine.data('insightsMap', insightsMap);
+Alpine.data('insightsDynasties', insightsDynasties);
 Alpine.data('announcement', announcement);
 
 sendOnce();
+chartTip();
 Alpine.start();

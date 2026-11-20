@@ -261,6 +261,7 @@ return [
                     'copy_from',
                     'copy_to',
                     'copy_century',
+                    'note_types',
                 ],
                 'sortableAttributes' => [
                     'copy_date_hijri_year',

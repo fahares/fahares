@@ -105,7 +105,7 @@
                     <a href="{{ route('contributions.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         {{ config('contributions.title') }}
                     </a>
-                    <a href="{{ route('insights') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('insights') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights', 'insights.topic') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         آمار
                     </a>
                     <a href="{{ route('about') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('about') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
@@ -260,7 +260,7 @@
                             <a href="{{ route('sources.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('sources.*', 'source-pages.*', 'source-items.*') ? 'text-cinnabar font-bold' : '' }}">منابع</a>
                             <a href="{{ route('posts.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('posts.*') ? 'text-cinnabar font-bold' : '' }}">جریده</a>
                             <a href="{{ route('contributions.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar font-bold' : '' }}">{{ config('contributions.title') }}</a>
-                            <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights') ? 'text-cinnabar font-bold' : '' }}">آمار</a>
+                            <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights', 'insights.topic') ? 'text-cinnabar font-bold' : '' }}">آمار</a>
                             <a href="{{ route('about') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('about') ? 'text-cinnabar font-bold' : '' }}">درباره ما</a>
                             <div class="my-1 border-t border-line-strong sm:hidden"></div>
                             <button type="button" @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" class="sm:hidden w-full text-right px-4 py-2 hover:bg-paper">

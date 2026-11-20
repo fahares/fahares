@@ -30,6 +30,12 @@ class FieldSuggestion extends Model
                 $s->reviewed_at ??= now();
             }
         });
+        // the claim a suggestion was made from follows its decision (backlog item 147, step 14.255)
+        static::saved(function (self $s) {
+            if ($s->wasChanged('status')) {
+                \App\Sources\FirstHand\ClaimReview::sync($s);
+            }
+        });
     }
 
     protected function casts(): array
@@ -90,6 +96,8 @@ class FieldSuggestion extends Model
     public const MACHINE_ORIGINS = [
         'copy_merge' => 'سامانه: یکی شدن دو معرفی نسخه',
         'merge' => 'سامانه: ادغام رکورد تکراری',
+        // a claim of a library's printed catalogue sent to review (backlog item 147, step 14.255)
+        'first_hand' => 'سامانه: فهرست چاپی کتابخانه',
     ];
 
     /** 'copy_merge' (fahares:link-copy-references) or 'merge' (MergeComparison) for a reading a merge made, else null. */

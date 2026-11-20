@@ -30,6 +30,7 @@
             'pair' => isset($def['pair']) ? ['label' => $def['pair']['label'], 'current' => SuggestionRegistry::pairCurrent($record, $field)] : null,
             // the field that adds another title has no value now
             'adds' => ($def['alt_title'] ?? null) === 'new',
+            'options' => $def['options'] ?? [],
         ];
     }
 
@@ -276,7 +277,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block text-[13px] font-bold text-ink"
-                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : (field.adds ? 'عنوان دیگر:' : 'مقدار درست:')"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : (relation.apply === 'text_relation' ? 'عنوان و پدیدآور آن اثر (مثلاً «شرح الکافیة؛ قمولی، احمد بن محمد»):' : 'نام دیگر:')))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : (field.adds ? 'عنوان دیگر:' : 'مقدار درست:')"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"
@@ -324,6 +325,15 @@
                                 </template>
                                 <p class="text-xs text-muted">صفحه‌ای را بنویسید که مدخل از آن آغاز می‌شود.</p>
                             </div>
+                        </template>
+
+                        <!-- One of a few values, by its label: the type of a copy's note (step 14.269) -->
+                        <template x-if="mode === 'field' && field.input === 'choice'">
+                            <select x-model="value" required class="{{ $inputClass }} w-56">
+                                <template x-for="option in field.options" :key="option">
+                                    <option :value="option" x-text="option" :selected="option === value"></option>
+                                </template>
+                            </select>
                         </template>
 
                         <template x-if="mode === 'field' && field.input === 'boolean'">

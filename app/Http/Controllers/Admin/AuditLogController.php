@@ -433,7 +433,7 @@ class AuditLogController extends Controller
 
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
-        unset($old['contributors'], $old['people_roles'], $old['relations']);
+        unset($old['contributors'], $old['people_roles'], $old['relations'], $old['text_relations']);
         // «Two copies, not one» took a possibly_same link away (step 14.16): it comes back
         if ($removedRelations = $old['removed_record_relations'] ?? null) {
             unset($old['removed_record_relations']);
@@ -467,6 +467,14 @@ class AuditLogController extends Controller
             }
             \App\Models\SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', $reference['id'])
                 ->update(array_intersect_key($columns, array_flip(['volume_number', 'page_start', 'page_end', 'origin', 'status', 'reviewed_by', 'reviewed_at'])));
+        }
+        // A relation with a work that has no record (step 14.280): the added row goes, a removed one comes back
+        if ($textRelation = $log->new_values['added_text_relation'] ?? null) {
+            DB::table('work_text_relations')->where('id', $textRelation)->delete();
+        }
+        if ($removedText = $old['removed_text_relation'] ?? null) {
+            unset($old['removed_text_relation']);
+            DB::table('work_text_relations')->insertOrIgnore($removedText);
         }
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();

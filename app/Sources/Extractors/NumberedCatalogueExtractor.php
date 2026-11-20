@@ -12,6 +12,23 @@ use App\Console\Commands\MatchCatalogEditionCommand as Format;
  */
 class NumberedCatalogueExtractor implements EntryTextExtractor
 {
+    /**
+     * The reading of a volume's pages that catalogs:match-edition matches copies in: [shelfmark number => its places,
+     * the number of entries, the lines]. A format of the same family overrides it and texts() (step 14.267).
+     *
+     * @return array{0: array<string, list<array>>, 1: int, 2: list<array>}
+     */
+    public function index(array $pages): array
+    {
+        return Format::index($pages);
+    }
+
+    /** The printed text at a place of index(): [entry_text, copy_text]. */
+    public function texts(array $place, array $lines): array
+    {
+        return Format::texts($place, $lines);
+    }
+
     /** @var array<string, array> the format's reading of each volume's pages */
     private static array $read = [];
 
@@ -22,7 +39,7 @@ class NumberedCatalogueExtractor implements EntryTextExtractor
         }
         // one reading of a volume serves every entry of it in a request (a review page, sources:retext)
         $key = md5(implode(',', array_keys($pages)) . '|' . array_sum(array_map('strlen', $pages)));
-        [$index, , $lines] = self::$read[$key] ??= Format::index($pages);
+        [$index, , $lines] = self::$read[static::class . $key] ??= $this->index($pages);
         $part = isset($base[2]) ? (int) $base[2] : null;
         $places = $index[$base[1]] ?? [];
         // the entry that begins on the page, or else the one whose copy line stands on it
@@ -43,7 +60,7 @@ class NumberedCatalogueExtractor implements EntryTextExtractor
         if (! $place || ! isset($place['entry'])) {
             return null;
         }
-        [$entryText, $copyText] = Format::texts($place, $lines);
+        [$entryText, $copyText] = $this->texts($place, $lines);
 
         return [
             'entry_text' => $entryText,

@@ -24,6 +24,16 @@
                 <label class="inline-flex items-center gap-1.5"><input type="radio" name="applied_value" value="0" @checked($boolDefault === '0') class="accent-cinnabar"> خیر</label>
             </div>
         </fieldset>
+    @elseif($field['input'] === 'choice')
+        <div class="space-y-1">
+            <label for="applied_value" class="block font-bold text-ink">مقدار نهایی «{{ $field['label'] }}»</label>
+            @php $choice = old('applied_value', trim($suggestion->applied_value ?? $suggestion->suggested_value)); @endphp
+            <select id="applied_value" name="applied_value" class="admin-field font-semibold">
+                @foreach($field['options'] as $option)
+                    <option value="{{ $option }}" @selected($option === $choice)>{{ $option }}</option>
+                @endforeach
+            </select>
+        </div>
     @else
         <div class="space-y-1">
             <label for="applied_value" class="block font-bold text-ink">

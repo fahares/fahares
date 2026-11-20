@@ -128,6 +128,12 @@ class InsightsScope
         return md5(http_build_query($this->query()));
     }
 
+    /** The copies of the scope, counted in the manuscripts table itself (no open() needed) */
+    public function count(): int
+    {
+        return $this->conditions(DB::table('manuscripts'))->count();
+    }
+
     public function hasCopyFilter(): bool
     {
         return (bool) array_diff(array_keys($this->values), self::WORK_PARAMS);

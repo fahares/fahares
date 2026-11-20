@@ -50,6 +50,47 @@ return [
     // Scopes not yet in the cache that one visitor may have built in an hour
     'scope_builds_per_hour' => 30,
 
+    // The nisbas that are not the name of a city with «ی» (PersonOrigins::nisbas, backlog item 137): nisba => city of
+    // copy_places. «مشهدی» and «کربلایی» are left out there: they are mostly the title of a pilgrim.
+    'nisbas' => [
+        'هروی' => 'هرات', 'رازی' => 'ری', 'مروزی' => 'مرو', 'غروی' => 'نجف', 'حلی' => 'حله', 'کوفی' => 'کوفه', 'بصری' => 'بصره',
+        'مکی' => 'مکه', 'مدنی' => 'مدینه', 'ساوجی' => 'ساوه', 'ساوی' => 'ساوه', 'مراغی' => 'مراغه', 'میانجی' => 'میانه',
+        'گنجوی' => 'گنجه', 'حویزی' => 'حویزه', 'بخاری' => 'بخارا', 'بخارایی' => 'بخارا', 'سامرایی' => 'سامرا',
+        'احسایی' => 'احسا', 'صنعانی' => 'صنعا', 'فسایی' => 'فسا', 'فسوی' => 'فسا', 'خویی' => 'خوی', 'دهلوی' => 'دهلی', 'ساروی' => 'ساری',
+        'بحرانی' => 'بحرین', 'عاملی' => 'جبل عامل', 'جرجانی' => 'استرآباد', 'کاشی' => 'کاشان', 'قاسانی' => 'کاشان', 'لاهیجی' => 'لاهیجان',
+        'خونساری' => 'خوانسار', 'نایینی' => 'نائین', 'قاینی' => 'قائن', 'جرفادقانی' => 'گلپایگان', 'ارموی' => 'ارومیه',
+        'کاظمی' => 'کاظمین', 'قسطنطنی' => 'استانبول', 'قونوی' => 'قونیه', 'ادرنوی' => 'ادرنه', 'لکهنوی' => 'لکهنو', 'اسکندرانی' => 'اسکندریه',
+        'موصلی' => 'موصل', 'حیدرآبادی' => 'حیدرآباد', 'احمدآبادی' => 'احمدآباد', 'تویسرکانی' => 'تویسرکان',
+        'شهرضایی' => 'شهرضا', 'اصطهباناتی' => 'استهبان', 'بارفروشی' => 'بابل', 'باکویی' => 'باکو',
+    ],
+
+    // «چند دامنه برای دیدن» under the filter form (backlog item 155): ready-made scopes worth a look. A record is named
+    // by its slug (author, scribe, work, library) or its name (subject, language, script), never by an id, which
+    // differs between copies of the data; the other filters take their value as the query string does. `topic` is the
+    // page the link opens (the page the reader is on when it is left out). A preset whose records are missing or
+    // whose scope holds fewer copies than preset_min_copies is not shown (InsightsPresets).
+    'preset_min_copies' => 50,
+    'presets' => [
+        ['label' => 'هرات در سدۀ ۹', 'topic' => 'time', 'scope' => ['copy_city' => 'هرات', 'century' => '9'],
+            'note' => 'کتابت در پایتخت تیموریان: خط زمانی دهه‌ها، اوج و فرود آن را کنار نوار حکومت‌ها نشان می‌دهد.'],
+        ['label' => 'اصفهان در سدۀ ۱۱', 'topic' => 'works', 'scope' => ['copy_city' => 'اصفهان', 'century' => '11'],
+            'note' => 'در پایتخت صفویان چه متن‌هایی بیشتر استنساخ می‌شد، و هر موضوع و زبان چه سهمی از نسخه‌ها داشت.'],
+        ['label' => 'کتابت‌شده در نجف', 'topic' => 'places', 'scope' => ['copy_city' => 'نجف'],
+            'note' => 'نسخه‌هایی که در نجف نوشته شده‌اند امروز در کدام شهرهایند؛ نمودار جابه‌جایی راهشان را نشان می‌دهد.'],
+        ['label' => 'کتابت‌شده در حیدرآباد', 'topic' => 'time', 'scope' => ['copy_city' => 'حیدرآباد'],
+            'note' => 'کتابت در دکن: خط زمانی اوج آن را نشان می‌دهد، و نمودار سلسله‌ها سهم روزگار قطبشاهیان و نظام‌ها را.'],
+        ['label' => 'نسخه‌های سده‌های ۵ تا ۷', 'topic' => 'libraries', 'scope' => ['century' => '5-7'],
+            'note' => 'کهن‌ترین نسخه‌های تاریخ‌دار در کدام کتابخانه‌ها نگهداری می‌شوند و از کدام فهرست‌ها شناخته شده‌اند.'],
+        ['label' => 'موضوع طب', 'topic' => 'works', 'scope' => ['subject' => 'طب'],
+            'note' => 'پرنسخه‌ترین متن‌های پزشکی در هر سده، و سهم فارسی و عربی در آثار و نسخه‌های این دانش.'],
+        ['label' => 'آثار ترکی', 'topic' => 'works', 'scope' => ['language' => 'ترکی'],
+            'note' => 'پرنسخه‌ترین متن‌های ترکی در کتابخانه‌های ایران، و آثاری که در هر سده بیشتر استنساخ شده‌اند.'],
+        ['label' => 'شرایع الاسلام', 'topic' => 'time', 'scope' => ['work' => 'sarayi-ul-islam-fi-masail-il-alal-i-wa-l-aram-v18-2191'],
+            'note' => 'یک متن درسی فقه در گذر هفت سده: نسخه‌هایش در هر سده، و فاصلۀ کتابتشان تا وفات محقق حلی.'],
+        ['label' => 'کتابخانۀ وزیری یزد', 'topic' => 'time', 'scope' => ['library' => 'yzd-ozyry-32'],
+            'note' => 'گنجینۀ یک شهر: نسخه‌های این کتابخانه از چه سده‌هایی است، و مؤلفانشان در چه روزگاری زیسته‌اند.'],
+    ],
+
     // A chart of a scope that rests on fewer records than this is not drawn; below small_sample it carries a warning
     'min_sample' => 10,
     'small_sample' => 50,
@@ -87,6 +128,48 @@ return [
     // The people works were dedicated to or written for (step 14.119): the names shown
     'dedications_shown' => 20,
 
+    // The topic pages of the statistics (backlog item 153, step 14.263): /insights is the hub, /insights/{slug} a
+    // topic. `charts` are the files of resources/views/insights/charts in the order shown; two in one array sit
+    // side by side. The id of a chart's section is its file name, so an old link /insights#places finds its page.
+    'topics' => [
+        'time' => [
+            'name' => 'زمان',
+            'title' => 'کتابت و تألیف در گذر سده‌ها',
+            'lead' => 'خط زمانی کتابت نسخه‌ها، نسخه‌ها در روزگار هر سلسله، مؤلفان و آثار در هر سده، و فاصلۀ کتابت هر نسخه تا وفات مؤلف.',
+            'charts' => ['timeline', 'dynasties', 'authors', 'copy-gap'],
+        ],
+        'places' => [
+            'name' => 'مکان',
+            'title' => 'کانون‌های استنساخ و تألیف',
+            'lead' => 'نقشۀ شهرهای کتابت و تألیف در هر سده، و راهی که نسخه‌ها از محل کتابت تا کتابخانۀ امروز رفته‌اند.',
+            'charts' => ['places', 'movement'],
+        ],
+        'works' => [
+            'name' => 'آثار',
+            'title' => 'آثار و نسخه‌هایشان',
+            'lead' => 'آثار پرنسخه، شمار نسخۀ هر اثر، متن‌های رایج هر سده، آثار پرنسخۀ بی نشانی چاپ، موضوع‌ها و زبان‌ها.',
+            'charts' => ['top-works', 'copies-per-work', 'century-works', 'unprinted', 'subjects', 'languages'],
+        ],
+        'copies' => [
+            'name' => 'نسخه‌ها',
+            'title' => 'ویژگی‌های نسخه‌ها',
+            'lead' => 'آرایش و تصحیح نسخه‌ها، اندازه، زبان و خط در گذر سده‌ها، مجموعه‌ها و نسخه‌های عکسی.',
+            'charts' => ['features', 'sizes', 'language-scripts', ['scripts', 'facsimiles'], 'collections'],
+        ],
+        'people' => [
+            'name' => 'اشخاص',
+            'title' => 'کاتبان و حامیان',
+            'lead' => 'کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
+            'charts' => [['scribes', 'patrons'], 'dedications'],
+        ],
+        'libraries' => [
+            'name' => 'کتابخانه‌ها و فهرست‌ها',
+            'title' => 'کتابخانه‌ها و فهرست‌هایشان',
+            'lead' => 'بزرگ‌ترین و کهن‌ترین گنجینه‌ها، فهرست‌هایی که این آمار بر آن‌ها بنا شده، و نسخه‌هایی که چند فهرست وصفشان کرده‌اند.',
+            'charts' => ['libraries', 'sources', 'firsthand', 'source-overlap'],
+        ],
+    ],
+
     // Five more figures (backlog item 146, step 14.228)
     // Bands of copies per work: a band runs from just above one edge up to the next
     'copy_bands' => [1, 2, 5, 10, 50, 100],
@@ -99,6 +182,9 @@ return [
     'collection_pairs' => 20,
     // Pairs of catalogues that describe the same copies
     'source_pairs' => 12,
+
+    // Dynasties listed with the copies made under them (backlog item 154, step 14.265)
+    'dynasties_shown' => 20,
 
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],

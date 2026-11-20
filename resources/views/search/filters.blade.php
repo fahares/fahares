@@ -17,7 +17,7 @@
             $options[$key] = $options[$key]->filter(fn ($o) => $live($o->matching_count, $param, $o->id))->values();
         }
     }
-    foreach (['volumes' => 'volume', 'centuries' => 'century', 'copyCities' => 'copy_city', 'cities' => 'city', 'roles' => 'role', 'workForms' => 'work_form', 'flags' => 'flags'] as $key => $param) {
+    foreach (['volumes' => 'volume', 'centuries' => 'century', 'copyCities' => 'copy_city', 'cities' => 'city', 'roles' => 'role', 'workForms' => 'work_form', 'flags' => 'flags', 'noteTypes' => 'note_types'] as $key => $param) {
         // a plain list (the copies' places of copying) carries no counts
         if (! empty($options[$key]) && ! array_is_list(collect($options[$key])->all())) {
             $options[$key] = collect($options[$key])->filter(fn ($o, $k) => $live(is_array($o) ? $o[1] : $o, $param, $k))->all();
@@ -30,7 +30,7 @@
 <form action="{{ route('search') }}" method="GET" class="bg-surface p-5 rounded-sm border border-line shadow-sm space-y-5 text-sm"
     x-data @change="$event.target.name && $el.requestSubmit()" data-search-filters>
     @foreach(['q' => $query, 'type' => $type, 'scope' => $scope, 'sort' => $sortKey ?: null, 'per_page' => $perPage !== 20 ? $perPage : null,
-        'source_volume_id' => $v('source_volume_id'), 'work_id' => $v('work_id'), 'scribe_id' => $v('scribe_id'), 'author_id' => $v('author_id')] as $key => $value)
+        'source_volume_id' => $v('source_volume_id'), 'work_id' => $v('work_id'), 'scribe_id' => $v('scribe_id'), 'author_id' => $v('author_id'), 'death_century' => $v('death_century')] as $key => $value)
         @if($value !== null && $value !== '')<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
     @endforeach
 
@@ -221,6 +221,25 @@
                 </label>
             @endforeach
         </fieldset>
+
+        {{-- The copies with a note of each chosen type: a seal, an ownership note, an endowment… (step 14.269) --}}
+        <details class="group space-y-3 {{ $hide('noteTypes') }}" @if($v('note_types')) open @endif data-note-types>
+            <summary class="cursor-pointer text-xs font-bold text-cinnabar list-none">
+                <span class="group-open:hidden">+ یادداشت‌های نسخه</span><span class="hidden group-open:inline">− یادداشت‌های نسخه</span>
+            </summary>
+            <fieldset class="space-y-2 pt-3">
+                <legend class="sr-only">یادداشت‌های نسخه</legend>
+                @foreach($options['noteTypes'] ?? [] as $noteType => [$noteLabel, $count])
+                    <label class="flex items-center justify-between gap-2 text-xs text-ink/80 cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <input type="checkbox" name="note_types[]" value="{{ $noteType }}" @checked(in_array($noteType, $v('note_types') ?? [], true)) class="w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-line-strong">
+                            {{ $noteLabel }}
+                        </span>
+                        @if($count)<span class="text-[10px] text-muted tabular-nums">{{ Fa::num($count) }}</span>@endif
+                    </label>
+                @endforeach
+            </fieldset>
+        </details>
 
         {{-- Used less often; open when one of them is set --}}
         <details class="group space-y-3" @if($v('language_id') || $v('copy_city') || $v('facsimile') !== null || $v('folios_from') !== null || $v('folios_to') !== null) open @endif>

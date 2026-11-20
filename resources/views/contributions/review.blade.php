@@ -5,7 +5,8 @@
     <div class="flex flex-wrap items-baseline justify-between gap-2">
         <h2 class="rubric text-lg m-0">{{ config('contributions.review_title') }}</h2>
         @if($review['mine'] && $review['mine']['answers'])
-            <p class="text-xs text-muted m-0">پاسخ‌های شما: <b class="text-ink tabular-nums">{{ Fa::num($review['mine']['answers']) }}</b>@if($review['mine']['approved']) · پذیرفته: <b class="text-ink tabular-nums">{{ Fa::num($review['mine']['approved']) }}</b>@endif</p>
+            <p class="text-xs text-muted m-0">پاسخ‌های شما: <b class="text-ink tabular-nums">{{ Fa::num($review['mine']['answers']) }}</b>@if($review['mine']['approved']) · پذیرفته: <b class="text-ink tabular-nums">{{ Fa::num($review['mine']['approved']) }}</b>@endif
+                @if(($review['mine']['weight'] ?? 1) > 1) · وزن نظر شما: <b class="text-ink tabular-nums">{{ Fa::num($review['mine']['weight']) }}</b> @endif</p>
         @endif
     </div>
     <p class="text-xs sm:text-sm text-muted leading-6 m-0">
