@@ -24,7 +24,7 @@ class InsightsTables
     {
         $tables = new self($data);
         $all = [];
-        foreach (['timeline', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
+        foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
             'scripts', 'languages', 'sources', 'sourceOverlap'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
@@ -97,6 +97,20 @@ class InsightsTables
     private function timeline(): array
     {
         return $this->layers($this->data['timeline'], 'نسخه‌ها', 'copies-by-century', decades: true);
+    }
+
+    private function dynasties(): array
+    {
+        return [self::table('نسخه‌ها در روزگار هر سلسله', 'copies-by-dynasty',
+            [['سلسله', 'text'], ['نسخه', 'num'], ['سال نخستین نسخه', 'year'], ['سال واپسین نسخه', 'year'], ['شمار شهرها', 'num'], ['شهرهای پرنسخه', 'text']],
+            array_map(fn ($r) => [$r['name'], $r['count'], $r['from'], $r['to'], $r['city_kinds'],
+                implode('، ', array_map(fn ($c) => $c['name'] . ' ' . $c['count'], $r['cities']))], $this->data['dynasties']['items']))];
+    }
+
+    private static function courtTable(array $courts, string $title, string $file, string $unit): array
+    {
+        return self::table($title, $file, [['دربار', 'text'], [$unit, 'num'], ['شمار نام‌ها', 'num'], ['پرشمارترین نام', 'text']],
+            array_map(fn ($r) => [$r['name'], $r['count'], $r['people'], $r['first']], $courts));
     }
 
     private function authors(): array
@@ -191,6 +205,7 @@ class InsightsTables
                 array_map(fn ($r) => [$r['name'], $r['count'], $r['asked']], $dd['items'])),
             self::table('آثار تقدیم‌شده یا سفارشی در هر سدۀ تألیف', 'dedications-by-century', [['سدۀ هجری', 'year'], ['اثرِ تاریخ‌دار', 'num'], ['تقدیم‌شده یا سفارشی', 'num'], ['سهم', 'pct']],
                 array_map(fn ($c) => [$c['century'], $c['works'], $c['count'], $c['share']], array_filter($dd['centuries'], fn ($c) => $c['works'] > 0))),
+            self::courtTable($dd['courts'], 'آثار تقدیم‌شده یا سفارشی به تفکیک دربار', 'dedications-by-court', 'اثر'),
         ];
     }
 
@@ -202,6 +217,7 @@ class InsightsTables
             self::table('سفارش‌دهندگان کتابت', 'patrons', [['نام', 'text'], ['نسخه', 'num']], array_map(fn ($r) => [$r['name'], $r['count']], $pt['items'])),
             self::table('نسخه‌های دارای سفارش‌دهنده در هر سده', 'patrons-by-century', [['سدۀ هجری', 'year'], ['نسخه', 'num'], ['دارای سفارش‌دهنده', 'num'], ['سهم', 'pct']],
                 array_map(fn ($c) => [$c['century'], $c['copies'], $c['count'], $c['share']], array_filter($pt['centuries'], fn ($c) => $c['copies'] > 0))),
+            self::courtTable($pt['courts'], 'نسخه‌های سفارشی به تفکیک دربار', 'patrons-by-court', 'نسخه'),
         ];
     }
 

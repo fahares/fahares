@@ -94,8 +94,8 @@ return [
         'time' => [
             'name' => 'زمان',
             'title' => 'کتابت و تألیف در گذر سده‌ها',
-            'lead' => 'خط زمانی کتابت نسخه‌ها، مؤلفان و آثار در هر سده، و فاصلۀ کتابت هر نسخه تا وفات مؤلف.',
-            'charts' => ['timeline', 'authors', 'copy-gap'],
+            'lead' => 'خط زمانی کتابت نسخه‌ها، نسخه‌ها در روزگار هر سلسله، مؤلفان و آثار در هر سده، و فاصلۀ کتابت هر نسخه تا وفات مؤلف.',
+            'charts' => ['timeline', 'dynasties', 'authors', 'copy-gap'],
         ],
         'places' => [
             'name' => 'مکان',
@@ -141,6 +141,9 @@ return [
     'collection_pairs' => 20,
     // Pairs of catalogues that describe the same copies
     'source_pairs' => 12,
+
+    // Dynasties listed with the copies made under them (backlog item 154, step 14.265)
+    'dynasties_shown' => 20,
 
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],

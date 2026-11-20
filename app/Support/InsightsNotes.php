@@ -25,7 +25,7 @@ class InsightsNotes
     {
         $notes = new self($data);
         $all = [];
-        foreach (['timeline', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
+        foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
             'scripts', 'languages', 'sources', 'sourceOverlap'] as $chart) {
             [$reading, $examples] = $notes->$chart();
@@ -103,6 +103,35 @@ class InsightsNotes
         return [[
             'هر ستون یک سدۀ هجری است و بلندی‌اش شمار نسخه‌هایی که در آن سده کتابت شده‌اند. بخش پررنگ ستون نسخه‌هایی است که سال کتابتشان معلوم است، و بخش طلایی نسخه‌هایی که فهرست‌نگار تنها سده‌شان را گفته است. رنگ کم‌رنگ‌تر هر بخش، تاریخ‌هایی است که فهرست با تردید آورده است.',
             'این نمودار شمار نسخه‌های بازمانده و فهرست‌شده را نشان می‌دهد، نه شمار همۀ نسخه‌هایی که در آن سده نوشته شده‌اند. نسخۀ کهن‌تر بیشتر از میان رفته است، پس کوتاهی ستون سده‌های نخستین تنها از کمی کتابت نیست. در سدۀ چهاردهم هم با فراگیر شدن چاپ، استنساخ کم شد.',
+        ], $examples];
+    }
+
+    private function dynasties(): array
+    {
+        $dy = $this->data['dynasties'];
+        $examples = [];
+        if ($first = $dy['items'][0] ?? null) {
+            $city = $first['cities'][0];
+            $examples[] = 'بیشترین نسخه از روزگار ' . $first['name'] . ' است: ' . self::n($first['count']) . ' نسخه، یعنی ' . self::share($first['count'], $dy['ruled'])
+                . ' نسخه‌های این نمودار، از سال ' . Fa::digits($first['from']) . ' تا ' . Fa::digits($first['to']) . '. از این شمار ' . self::n($city['count'])
+                . ' نسخه در ' . $city['name'] . ' کتابت شده است.';
+        }
+        if (($second = $dy['items'][1] ?? null) && ($times = self::times($first['count'], $second['count']))) {
+            $examples[] = 'پس از آن ' . $second['name'] . ' است با ' . self::n($second['count']) . ' نسخه؛ نسخه‌های ' . $first['name'] . ' ' . $times . ' آن است.';
+        }
+        // A dynasty whose copies come mostly from one city
+        foreach ($dy['items'] as $row) {
+            if ($row['count'] >= 50 && $row['cities'][0]['count'] * 2 > $row['count'] && $row !== $first) {
+                $examples[] = 'نسخه‌های روزگار ' . $row['name'] . ' بیشتر از یک شهر است: ' . self::n($row['cities'][0]['count']) . ' نسخه از ' . self::n($row['count'])
+                    . ' نسخه در ' . $row['cities'][0]['name'] . ' کتابت شده است.';
+                break;
+            }
+        }
+        $examples[] = 'نمونۀ شمارش: نسخه‌ای که در سال ۱۰۴۰ در اصفهان کتابت شده به صفویان می‌رسد، و نسخه‌ای که همان سال در لاهور کتابت شده به گورکانیان هند.';
+
+        return [[
+            'هر ردیف یک سلسله است و نوارش شمار نسخه‌هایی که در قلمرو آن و در روزگار آن کتابت شده‌اند. برای این شمارش، هم سال کتابت نسخه باید معلوم باشد و هم شهر کتابتش؛ سپس نقشۀ تاریخی می‌گوید آن شهر در آن دهه در دست کدام حکومت بوده است.',
+            'این نمودار از پشتیبانی یک حکومت از کتابت چیزی نمی‌گوید؛ تنها می‌گوید نسخه در قلمرو و روزگار آن نوشته شده است. شهری مانند نجف که چند بار میان صفویان و عثمانیان دست‌به‌دست شده، نسخه‌هایش میان آن دو بخش می‌شود. سلسله‌های دیرپا و نزدیک به روزگار ما هم نسخۀ بیشتری دارند، چون نسخۀ بیشتری از آن روزگار مانده است.',
         ], $examples];
     }
 
@@ -356,6 +385,9 @@ class InsightsNotes
         if ($peak = self::top($cols, 'share')) {
             $examples[] = 'در نمودار سده‌ها، بیشترین سهم از ' . self::century($peak['century']) . ' است: ' . self::n($peak['count']) . ' اثر از ' . self::n($peak['works'])
                 . ' اثرِ تاریخ‌دار آن سده (' . self::pct($peak['share']) . ') تقدیم‌نامه یا سفارش‌دهنده دارند.';
+        }
+        if ($court = $dd['courts'][0] ?? null) {
+            $examples[] = 'به تفکیک دربار، بیشترین آثار به نام بزرگان ' . $court['name'] . ' است: ' . self::n($court['count']) . ' اثر، بیش از همه به نام ' . $court['first'] . '.';
         }
         $examples[] = 'روی هم ' . self::n($dd['works']) . ' اثر (' . self::pct($dd['coverage']) . ') چنین آگاهی‌ای دارند، با ' . self::n($dd['names']) . ' نام.';
 

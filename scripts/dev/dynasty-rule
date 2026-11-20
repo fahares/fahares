@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""Build database/data/dynasties.php: the dynasties, and who ruled each city of copying in each decade (step 14.265).
+
+The data is that of the statistics of dawawin.ir (the sister site on the same server): its list of dynasties, and its
+territories of each Hijri year (borders: Cliopatria, Seshat Global History Databank, CC BY 4.0, simplified). A city is
+put under the dynasty whose territory holds its coordinates in the middle year of each decade; a decade with no
+territory over the city has no dynasty. The borders of states before the modern age are approximate.
+
+    scripts/dev/dynasty-rule <cities.json> <cache-dir>
+
+<cities.json> is {city: [lat, lon]}, written from the config:
+    docker exec -w <checkout in the container> fahares_app php -r \\
+      'echo json_encode(array_map(fn($c)=>[$c["lat"],$c["lon"]], (require "config/insights.php")["copy_places"]), JSON_UNESCAPED_UNICODE);'
+<cache-dir> keeps the fetched years, so a second run asks the site for nothing.
+"""
+import json, os, re, sys, time, urllib.request
+
+SITE = 'https://dawawin.ir'
+FIRST, LAST, STEP = 255, 1345, 10   # the middle years of the decades 251-260 … 1341-1350
+
+
+def fetch(url, path):
+    if not os.path.exists(path):
+        with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'fahares-dev'}), timeout=60) as r:
+            open(path, 'wb').write(r.read())
+        time.sleep(0.3)
+    return open(path, encoding='utf-8').read()
+
+
+def inside(lon, lat, ring):
+    hit = False
+    j = len(ring) - 1
+    for i in range(len(ring)):
+        xi, yi = ring[i][0], ring[i][1]
+        xj, yj = ring[j][0], ring[j][1]
+        if (yi > lat) != (yj > lat) and lon < (xj - xi) * (lat - yi) / (yj - yi) + xi:
+            hit = not hit
+        j = i
+    return hit
+
+
+def holds(geometry, lon, lat):
+    polygons = geometry['coordinates'] if geometry['type'] == 'MultiPolygon' else [geometry['coordinates']]
+    for polygon in polygons:
+        if inside(lon, lat, polygon[0]) and not any(inside(lon, lat, hole) for hole in polygon[1:]):
+            return True
+    return False
+
+
+def area(geometry):
+    polygons = geometry['coordinates'] if geometry['type'] == 'MultiPolygon' else [geometry['coordinates']]
+    total = 0.0
+    for polygon in polygons:
+        ring = polygon[0]
+        total += abs(sum(ring[i][0] * ring[i - 1][1] - ring[i - 1][0] * ring[i][1] for i in range(len(ring)))) / 2
+    return total
+
+
+def php(value, depth=0):
+    pad = '    ' * depth
+    if isinstance(value, dict):
+        return '[\n' + ''.join(f"{pad}    {php(k)} => {php(v, depth + 1)},\n" for k, v in value.items()) + pad + ']'
+    if isinstance(value, list):
+        if all(not isinstance(v, (list, dict)) for v in value):
+            return '[' + ', '.join(php(v) for v in value) + ']'
+        return '[\n' + ''.join(f"{pad}    {php(v, depth + 1)},\n" for v in value) + pad + ']'
+    if isinstance(value, str):
+        return "'" + value.replace('\\', '\\\\').replace("'", "\\'") + "'"
+    return 'null' if value is None else str(value)
+
+
+def main():
+    cities = json.load(open(sys.argv[1], encoding='utf-8'))
+    cache = sys.argv[2]
+    os.makedirs(cache, exist_ok=True)
+
+    page = fetch(f'{SITE}/stats/history/', f'{cache}/history.html')
+    data = json.loads(re.search(r'<script[^>]*id="stats-data"[^>]*>(.*?)</script>', page, re.S).group(1))
+    dynasties = [{'name': d['name'], 'region': d['region'], 'from': d['start'], 'to': d['end']} for d in data['timeline']['dynasties']]
+
+    rule = {city: [] for city in cities}
+    for year in range(FIRST, LAST + 1, STEP):
+        features = json.loads(fetch(f'{SITE}/stats/territories/{year}/', f'{cache}/{year}.json'))['features']
+        # Where two territories overlap, the smaller is the more local ruler
+        features.sort(key=lambda f: area(f['geometry']))
+        for city, (lat, lon) in cities.items():
+            name = next((f['properties']['name'] for f in features if holds(f['geometry'], lon, lat)), None)
+            runs = rule[city]
+            if name is None:
+                continue
+            if runs and runs[-1][2] == name and runs[-1][1] >= year - 15:
+                runs[-1][1] = year + 5
+            else:
+                runs.append([year - 4, year + 5, name])
+    rule = {city: runs for city, runs in rule.items() if runs}
+
+    head = ("<?php\n\n// Written by scripts/dev/dynasty-rule; do not edit by hand. The dynasties with their regions and years, and for each\n"
+            "// city of copying the dynasty whose territory held it in each decade: [from, to, dynasty] in Hijri years.\n"
+            "// Source: the statistics of dawawin.ir; borders after Cliopatria (Seshat Global History Databank, CC BY 4.0).\n\n")
+    open('database/data/dynasties.php', 'w', encoding='utf-8').write(head + 'return ' + php({'dynasties': dynasties, 'rule': rule}) + ';\n')
+    print(f'{len(dynasties)} dynasties; {len(rule)} of {len(cities)} cities under a dynasty in some decade; '
+          f'{sum(len(r) for r in rule.values())} runs')
+
+
+if __name__ == '__main__':
+    main()
