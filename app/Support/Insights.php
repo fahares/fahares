@@ -74,6 +74,15 @@ class Insights
         return $data;
     }
 
+    /** Builds a scope again and keeps it until after the next nightly build (the ready-made scopes, item 155) */
+    public static function refreshScope(InsightsScope $scope): array
+    {
+        $data = self::build($scope);
+        Cache::put(self::cacheKey($scope), $data, (int) config('insights.scope_ttl') + 7200);
+
+        return $data;
+    }
+
     public static function build(InsightsScope $scope = new InsightsScope): array
     {
         $scope->open();

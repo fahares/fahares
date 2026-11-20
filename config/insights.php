@@ -50,6 +50,33 @@ return [
     // Scopes not yet in the cache that one visitor may have built in an hour
     'scope_builds_per_hour' => 30,
 
+    // «چند دامنه برای دیدن» under the filter form (backlog item 155): ready-made scopes worth a look. A record is named
+    // by its slug (author, scribe, work, library) or its name (subject, language, script), never by an id, which
+    // differs between copies of the data; the other filters take their value as the query string does. `topic` is the
+    // page the link opens (the page the reader is on when it is left out). A preset whose records are missing or
+    // whose scope holds fewer copies than preset_min_copies is not shown (InsightsPresets).
+    'preset_min_copies' => 50,
+    'presets' => [
+        ['label' => 'هرات در سدۀ ۹', 'topic' => 'time', 'scope' => ['copy_city' => 'هرات', 'century' => '9'],
+            'note' => 'کتابت در پایتخت تیموریان: خط زمانی دهه‌ها، اوج و فرود آن را کنار نوار حکومت‌ها نشان می‌دهد.'],
+        ['label' => 'اصفهان در سدۀ ۱۱', 'topic' => 'works', 'scope' => ['copy_city' => 'اصفهان', 'century' => '11'],
+            'note' => 'در پایتخت صفویان چه متن‌هایی بیشتر استنساخ می‌شد، و هر موضوع و زبان چه سهمی از نسخه‌ها داشت.'],
+        ['label' => 'کتابت‌شده در نجف', 'topic' => 'places', 'scope' => ['copy_city' => 'نجف'],
+            'note' => 'نسخه‌هایی که در نجف نوشته شده‌اند امروز در کدام شهرهایند؛ نمودار جابه‌جایی راهشان را نشان می‌دهد.'],
+        ['label' => 'کتابت‌شده در حیدرآباد', 'topic' => 'time', 'scope' => ['copy_city' => 'حیدرآباد'],
+            'note' => 'کتابت در دکن: خط زمانی اوج آن را نشان می‌دهد، و نمودار سلسله‌ها سهم روزگار قطبشاهیان و نظام‌ها را.'],
+        ['label' => 'نسخه‌های سده‌های ۵ تا ۷', 'topic' => 'libraries', 'scope' => ['century' => '5-7'],
+            'note' => 'کهن‌ترین نسخه‌های تاریخ‌دار در کدام کتابخانه‌ها نگهداری می‌شوند و از کدام فهرست‌ها شناخته شده‌اند.'],
+        ['label' => 'موضوع طب', 'topic' => 'works', 'scope' => ['subject' => 'طب'],
+            'note' => 'پرنسخه‌ترین متن‌های پزشکی در هر سده، و سهم فارسی و عربی در آثار و نسخه‌های این دانش.'],
+        ['label' => 'آثار ترکی', 'topic' => 'works', 'scope' => ['language' => 'ترکی'],
+            'note' => 'پرنسخه‌ترین متن‌های ترکی در کتابخانه‌های ایران، و آثاری که در هر سده بیشتر استنساخ شده‌اند.'],
+        ['label' => 'شرایع الاسلام', 'topic' => 'time', 'scope' => ['work' => 'sarayi-ul-islam-fi-masail-il-alal-i-wa-l-aram-v18-2191'],
+            'note' => 'یک متن درسی فقه در گذر هفت سده: نسخه‌هایش در هر سده، و فاصلۀ کتابتشان تا وفات محقق حلی.'],
+        ['label' => 'کتابخانۀ وزیری یزد', 'topic' => 'time', 'scope' => ['library' => 'yzd-ozyry-32'],
+            'note' => 'گنجینۀ یک شهر: نسخه‌های این کتابخانه از چه سده‌هایی است، و مؤلفانشان در چه روزگاری زیسته‌اند.'],
+    ],
+
     // A chart of a scope that rests on fewer records than this is not drawn; below small_sample it carries a warning
     'min_sample' => 10,
     'small_sample' => 50,

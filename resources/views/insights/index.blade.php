@@ -101,6 +101,7 @@
     </nav>
 
     @include('insights.filter-form')
+    @includeWhen($scope->isEmpty(), 'insights.presets')
 
     @if($data['totals']['manuscripts'] === 0 && $data['totals']['works'] === 0)
         <x-ui.card><p class="text-sm text-muted text-center py-6">در این دامنه نسخه یا اثری نیست. فیلترها را کمتر کنید یا <a href="{{ $here([]) }}" class="text-cinnabar hover:underline">به آمار کل</a> برگردید.</p></x-ui.card>

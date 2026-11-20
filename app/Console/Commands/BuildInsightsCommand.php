@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Support\Insights;
+use App\Support\InsightsPresets;
 use Illuminate\Console\Command;
 
 /**
@@ -38,6 +39,11 @@ class BuildInsightsCommand extends Command
             $data['movement']['stayed_share'],
             count($data['top_works']['items']),
         ));
+
+        // The ready-made scopes under the filter form (backlog item 155): built now, so their links open at once
+        $start = microtime(true);
+        $presets = InsightsPresets::warm();
+        $this->info(sprintf('%d ready-made scopes built in %.1fs.', $presets, microtime(true) - $start));
 
         return self::SUCCESS;
     }
