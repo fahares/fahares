@@ -9,6 +9,7 @@ use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceVolume;
 use App\Models\Work;
+use App\Sources\Extractors\Extractors;
 use App\Sources\Extractors\ListedShelfmarkCatalogueExtractor;
 use App\Sources\Extractors\ShelfmarkHeadedCatalogueExtractor;
 use Illuminate\Support\Facades\DB;
@@ -123,5 +124,9 @@ class ShelfmarkCataloguesTest extends TestCase
         // the rollback gives the page back as it was: none
         $log = AuditLog::where('auditable_type', SourceEntry::class)->where('auditable_id', $alone->id)->latest('id')->firstOrFail();
         $this->assertNull($log->old_values['page_start']);
+        // the page view marks the copy's line, though Fankha's citation names no volume
+        Extractors::forget();
+        $this->get("/sources/{$source->code}/1/page/290")->assertOk()
+            ->assertSee('<a href="' . route('manuscripts.show', $alone->citable) . '" class="book-sheet__mark book-sheet__mark--manuscript"', false);
     }
 }

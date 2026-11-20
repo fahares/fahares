@@ -12342,7 +12342,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`TakeSourceTextsCommand`:**
   - شناسه‌ها یک‌جا خوانده می‌شوند و مدخل‌ها با `sourceVolume` و `citable` هزارتا‌هزارتا. ۳۹٬۵۳۹ ارجاع مجلس با هم از `memory_limit` ۵۱۲M بیشتر می‌شد و با کد ۲۵۵ بی پیام می‌ایستاد.
   - ارجاع بی صفحۀ منبع یک‌جلدی با `citation_text` «[ف: N]» در صفحۀ N خوانده می‌شود، و در جدول «page from the citation» شمرده می‌شود. در ثبت ممیزی، `page_start` پیشین `null` می‌ماند تا برگرداندن درست باشد.
-- **آزمون:** `ShelfmarkCataloguesTest` (پنج آزمون)؛ جدول `NumberedCopyCatalogueTest` سطر تازه را دارد.
+- **`PrintedPage::marks`:** مدخل‌های صفحه با `source_volume_id` جلد، یا اگر ندارند با `volume_number`، پیدا می‌شوند. ۱٬۳۹۷ ارجاع مروی `volume_number` ندارند، چون فنخا آن را «[ف: 150]» ارجاع می‌دهد.
+- **آزمون:** `ShelfmarkCataloguesTest` (پنج آزمون، با پیوند صفحۀ چاپی)؛ جدول `NumberedCopyCatalogueTest` سطر تازه را دارد.
 - **داده:**
   - صفحه‌ها: `../fahares-sources/ocr-claude/load/{majlis_v20,majlis_v29,majlis_v32,malek_v05,marvi_v01}.jsonl.gz` با `MD5SUMS`.
   - ج ۲۹ از دو PDF ساخته شد: `v29-1` با چاپی = pdf − ۱ از pdf ۹، و `v29` با چاپی = pdf + ۵۸۱ (از pdf ۲۸۶، + ۵۸۰) از pdf ۶. صفحه‌های ۸ تا ۱۰۴۶ است.
