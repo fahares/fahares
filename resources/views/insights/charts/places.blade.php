@@ -20,15 +20,20 @@
                 'years' => [300, config('insights.centuries')[1] * 100 - 50],
                 'cities' => array_map(fn ($c) => ['n' => $c['name'], 'lat' => $c['lat'], 'lon' => $c['lon'],
                     't' => $c['count'], 'd' => $pairs($c['decades']), 'w' => $c['works'], 'wd' => $pairs($c['work_decades']),
-                    's' => $c['scribes'], 'sd' => $pairs($c['scribe_decades']), 'a' => $c['authors'], 'ad' => $pairs($c['author_decades'])], $p['cities']),
+                    's' => $c['scribes'], 'sd' => $pairs($c['scribe_decades']), 'a' => $c['authors'], 'ad' => $pairs($c['author_decades']),
+                    'o' => $c['origins'], 'od' => $pairs($c['origin_decades']), 'b' => $c['births'], 'bd' => $pairs($c['birth_decades']),
+                    'x' => $c['deaths'], 'xd' => $pairs($c['death_decades'])], $p['cities']),
                 'frame' => \Illuminate\Support\Arr::only($map, ['lon0', 'lon1', 'lat0', 'lat1']),
                 'basemap' => asset('data/insights/basemap.json'),
                 'territories' => asset('data/insights/territories/__YEAR__.json'),
-                'regions' => array_values(array_unique(array_column(\App\Support\Dynasties::all(), 'region'))),
+                'regions' => \App\Support\Dynasties::regions(),
+                'capitals' => array_map(fn ($c) => ['n' => $c['name'], 'd' => $c['dynasty'], 'lat' => $c['lat'], 'lon' => $c['lon'], 'f' => $c['from'], 't' => $c['to']],
+                    \App\Support\Dynasties::capitals()),
                 // The searches that take a city of copying; the scribes' search cannot carry a scope
                 'search' => ['copy' => $search('manuscripts'), 'scribes' => $scope->isEmpty() ? route('search', ['type' => 'scribes']) : null],
             ];
-            $layerNames = ['copy' => 'نسخه‌ها (محل کتابت)', 'composition' => 'آثار (محل تألیف)', 'scribes' => 'کاتبان', 'authors' => 'مؤلفان'];
+            $layerNames = ['copy' => 'نسخه‌ها (محل کتابت)', 'composition' => 'آثار (محل تألیف)', 'scribes' => 'کاتبان', 'authors' => 'مؤلفان',
+                'origin' => 'خاستگاه (از نسبت)', 'birth' => 'زادگاه', 'death' => 'محل وفات'];
             $chip = fn (string $on) => "{$on} ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'";
         @endphp
         <div x-data="insightsMap(@js($mapData))" data-insights-map>
@@ -90,6 +95,7 @@
                     <template x-for="region in regions" :key="region">
                         <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-sm opacity-60" :style="`background: ${regionColor(region)}`" aria-hidden="true"></span><span x-text="region"></span></li>
                     </template>
+                    <li class="flex items-center gap-1.5"><span class="inline-block size-2 border-[1.5px] border-ink bg-surface" aria-hidden="true"></span>پایتخت</li>
                 </ul>
                 <p x-show="ready" x-cloak class="mt-2 text-[11px] text-muted">
                     با چرخ موس یا دو انگشت بزرگ و کوچک کنید و نقشه را بکشید. روی هر شهر بزنید تا ارقامش کنار نقشه بیاید.
@@ -118,7 +124,7 @@
                 </div>
 
                 <p class="text-xs text-muted mb-2">
-                    <span x-text="{ copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف' }[layer] + (mode === 'all' ? '' : '، ' + span)">پرکارترین شهرهای کتابت</span>
+                    <span x-text="{ copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف', origin: 'شهرهای نسبت', birth: 'زادگاه‌ها', death: 'شهرهای وفات' }[layer] + (mode === 'all' ? '' : '، ' + span)">پرکارترین شهرهای کتابت</span>
                 </p>
                 <ol class="text-sm">
                     <template x-for="row in ranked" :key="row.city.n">
@@ -144,7 +150,7 @@
                     </ol>
                 </noscript>
                 <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این لایه و این سال‌ها محلی ثبت نشده است.</p>
-                <p x-show="ranked.length" x-cloak class="mt-2 text-[11px] text-muted">روی هم <span class="tabular-nums" x-text="fa(total)"></span> <span x-text="unit"></span> در شهرهای نقشه<span x-show="layer === 'scribes' || layer === 'authors'">؛ کسی که در دو شهر کار کرده در هر دو شمرده شده است</span>.</p>
+                <p x-show="ranked.length" x-cloak class="mt-2 text-[11px] text-muted">روی هم <span class="tabular-nums" x-text="fa(total)"></span> <span x-text="unit"></span> در شهرهای نقشه<span x-show="layer === 'scribes' || layer === 'authors'">؛ کسی که در دو شهر کار کرده در هر دو شمرده شده است</span><span x-show="layer === 'origin'" x-cloak>؛ کسی که دو نسبت دارد در هر دو شهر شمرده شده است</span>.</p>
             </div>
         </div>
 
@@ -164,9 +170,21 @@
         <p x-show="layer === 'authors'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
             مؤلفان: {{ Fa::num($p['authors_mapped']) }} مؤلف که دست‌کم یک اثرشان محل تألیف روی نقشه دارد. محل هر مؤلف، شهر تألیف آثار اوست، نه زادگاه یا محل زندگی‌اش.
         </p>
+        <p x-show="layer === 'origin'" x-cloak class="mt-5 text-xs text-muted leading-relaxed">
+            خاستگاه: {{ Fa::num($p['origins_mapped']) }} مؤلف و کاتب که در نامشان نسبتِ یکی از شهرهای نقشه هست («اصفهانی»، «حلّی»، «هروی»).
+            نسبت می‌گوید شخص یا خاندانش از کجا بوده‌اند، نه اینکه کجا زاده شده یا زیسته است؛ نسبتِ پدر یا استاد هم گاه در نام می‌آید. این لایه را قاعده‌ای خودکار ساخته و کسی بازبینی‌اش نکرده است.
+            «مشهدی» و «کربلایی» که بیشتر لقب زائرند شمرده نشده‌اند.
+        </p>
+        <p x-show="layer === 'birth' || layer === 'death'" x-cloak class="mt-5 text-xs text-muted leading-relaxed">
+            زادگاه و محل وفات: از متن زندگی‌نامۀ {{ Fa::num($p['lives_read']) }} شخص در کتاب‌های تراجم (طبقات اعلام الشیعه، اعیان الشیعه، الاعلام و مانند آن) خوانده شده است.
+            زادگاه {{ Fa::num($p['births_mapped']) }} نفر و محل وفات {{ Fa::num($p['deaths_mapped']) }} نفر یکی از شهرهای نقشه بود.
+            تنها عبارتی گرفته شده که شهر را درست پس از «ولد»، «توفی»، «متولد» یا «درگذشت» می‌آورد؛ پس این لایه بخش کوچکی از اشخاص را دارد.
+            قاعده‌ای خودکار آن را خوانده و پیوند زندگی‌نامه‌ها به اشخاص هم هنوز بازبینی نشده است.
+        </p>
         <p class="mt-3 text-xs text-muted leading-relaxed">
             لغزندۀ سال: «تا این سال» نسخه یا اثری را می‌شمارد که کل بازۀ تاریخش تا آن سال گذشته است؛ پس نسخۀ «قرن ۱۱» از سال ۱۱۰۰ شمرده می‌شود و نسخۀ بی تاریخ تنها در «همۀ سال‌ها» هست.
             کاتب و مؤلف در نخستین دهه‌ای شمرده می‌شوند که نسخه یا اثر تاریخ‌داری از آنان در آن شهر هست.
+            در لایه‌های خاستگاه، زادگاه و محل وفات، هر شخص در دهۀ وفاتش شمرده می‌شود (کاتبِ بی سال وفات، در دهۀ واپسین نسخه‌اش).
             قلمرو حکومت‌ها از نقشه‌های تاریخی آمار دواوین است (مرزها: Cliopatria، بانک دادۀ Seshat)، به دقت دهه؛ مرز حکومت‌های پیشامدرن تقریبی است و چند سلسلۀ محلی هنوز مرز ندارند.
         </p>
         @include('insights.explain', ['note' => $notes['places'], 'tables' => $tables['places']])

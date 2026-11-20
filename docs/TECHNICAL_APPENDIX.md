@@ -12569,6 +12569,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `catalogs:sync-editions`: باید `create` برای پنج جلد `sepahsalar-motahhari` باشد.
   4. برای N از ۱ تا ۵: `sources:import-pages sepahsalar-motahhari /tmp/v0N.jsonl.gz --volume=N --extractor=bracketed_entries` و `catalogs:match-edition sepahsalar-motahhari /tmp/v0N.jsonl.gz --volume=N`. درج‌ها باید ۶۸۶، ۴۵۰، ۱٬۵۴۶، ۱٬۲۵۲ و ۲٬۷۰۲ باشد، اگر نسخه‌های سپهسالار از تمرین دگرگون نشده باشند.
   5. اجرای دوم پنج `match-edition` باید `insert 0, update 0` بدهد. سپس پرونده‌ها از `/tmp` پاک شوند.
+- **اجرای پروداکشن (انتشار `a2f93e99`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر):**
+  - **تصویرها:** ۲٬۶۹۷ پرونده با `send.sh` در شش جریان منتقل شد (۱۹:۳۹ تا ۲۰:۱۳). شمار پرونده‌های سرور ۲٬۶۹۷ است.
+  - **پشتیبان:** وضع پیش از اجرا در `../fahares-sources/backups/step13/before_step14_267_sepahsalar_20261120_1949.json`: منبع ۱۰۰۰۴۴، پنج ردیف `catalog_volumes` کتابخانۀ ۲۲، ۵٬۹۵۸ مدخل منبع کهنه، و ۵٬۹۸۵ نسخه. هنوز ردیفی از `sepahsalar-motahhari` نبود.
+  - **اجرا:** یک `prod-run`. پنج پرونده در یک جریان tar رفتند و `md5sum -c` گذشت. `sync-editions` پنج `create` داد.
+  - **درج‌ها:** ۶۸۶، ۴۵۰، ۱٬۵۴۶، ۱٬۲۵۲ و ۲٬۷۰۲، برابر تمرین. اجرای دوم: `insert 0, update 0`. `/tmp` پاک ماند.
+  - **وارسی:** چهار صفحۀ نسخه (۱۰۱۵۸، ۲۳۲۶۷، ۶۲۵۶۴ و ۱۲۹۶۲) چاپ دوم را با نشانی تمرین نشان دادند. تصویر و صفحۀ متن پاسخ ۲۰۰ دادند، منبع در `/sources` بود، و `laravel.log` خطایی نداشت.
 
 ### گام ۱۴.۲۶۸: `App\Support\InsightsPresets` و `InsightsNotes::LEADS`
 
@@ -12595,7 +12601,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`SuggestionApplier::applyNote`:** با `note_type_of`، برچسب یا کلید نوع را می‌گیرد، `type` و `typed_by = editor` را می‌نویسد و نوع تازه را از `also` برمی‌دارد؛ نتیجه زیر کلید `notes` است، پس درون‌ریزی دوباره آن نسخه را نگه می‌دارد. پس از هر تغییر یادداشت، سند جست‌وجوی نسخه تازه می‌شود (`searchable()`).
 - **نما:** ورودی `choice` در `suggest/desk.blade.php` (`<select>`) و `admin/suggestions/partials/field-approve.blade.php`. در `manuscripts/show.blade.php` دکمۀ `note_type_{id}` تنها در حالت پیشنهاد دیده می‌شود.
 - **آزمون:** `ImportCopyNotesCommandTest`: `test_a_note_s_type_can_be_changed_and_a_note_of_any_type_added` و `test_the_types_of_a_copy_s_notes_are_a_filter_of_the_search`.
-- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:index-note-types --apply` (هر دو زیر `scripts/dev/prod-run`). تا پیش از آن موتور facet و پالایۀ `note_types` را رد می‌کند: پالایه از پایگاه داده پاسخ می‌گیرد و شمارهای کنار پالایه‌های زبانۀ نسخه‌ها نمی‌آید.
+- **اجرا در پروداکشن (۲۹ آبان ۱۴۰۵):** زیر `scripts/dev/prod-run`، نخست `php artisan scout:sync-index-settings` (هر چهار نمایه «synced successfully»)، سپس `php artisan fahares:index-note-types --apply`: «Sent the note types of 323249 copies, 189237 of them with notes.» پس از آن صف Meilisearch خالی، کار ناموفق ۰؛ `note_types = seal AND note_types = endowment` برابر ۲٬۰۱۵ نسخه؛ facet: `defect` ۴۸٬۷۵۴، `contents` ۳۹٬۴۵۰، `scope` ۳۵٬۷۰۳. پشتیبان گرفته نشد، چون فرمان به پایگاه داده نمی‌نویسد. تا پیش از این دو فرمان موتور facet و پالایۀ `note_types` را رد می‌کند: پالایه از پایگاه داده پاسخ می‌گیرد و شمارهای کنار پالایه‌های زبانۀ نسخه‌ها نمی‌آید.
 
 ### گام ۱۴.۲۷۰: `work_entry_links` و `works:link-decisions`
 - **migration `2026_11_20_100001_create_work_entry_links_table`:** `work_id` (اثر میزبان مدخل)، `side` (`related` یا `children`)، `entry` (متن)، `entry_hash` (sha1 همان، برای یکتایی `work_id + side + entry_hash`)، `linked_work_id`، `source` (پیش‌فرض `model`)، `confidence`. هر دو کلید خارجی با حذف اثر پاک می‌شوند. روی رونوشت محلی ۹۲ میلی‌ثانیه.
@@ -12636,6 +12642,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش کور** (seed 142581، `marashi-akasi/work/check/`؛ از هر جلد ۸ ارجاع و ۲ فریب): ۱۶ از ۱۶ ارجاع روی برگه، ۴ از ۴ فریب «نیست».
 - **پوشش:** ج ۱ ۴۴۶ ارجاع از ۴۲۳ نسخه، ج ۲ ۴۸۶ از ۴۶۲؛ همه روی برگه (۸۸۵ نسخه).
 - **تمرین (`fahares_prod`):** «0 created, 2 updated, 190 unchanged»، و اجرای دوم «0 updated, 192 unchanged».
+- **انتقال تصویرها (به تأیید کاربر، پیش از انتشار):** `catalogs/marashi-akasi` پیش‌تر روی سرور نبود. `C=marashi-akasi/v01` و `v02` با `send.sh`: ج ۱ در حدود شش دقیقه رفت. ج ۲ با بسته شدن جلسه نیمه‌کاره ماند و اجرای دوباره ۳۱۴ پروندۀ مانده را فرستاد. اجرای پایانی هر دو «missing 0». سپس `chown` و `chmod`؛ روی سرور ۹۵۵ پرونده. ج ۱ ص ۱۰۰ و ج ۲ ص ۳۹۹ از fahares.net پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
+- **اجرای پروداکشن (انتشار ۱۶۷، `a2f93e99`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر):** فایل داده با کامیت گام یکی بود (md5 `d6d10d91…`)، و اجرای آزمایشی «2 updated». پشتیبان دو ردیف `catalog_volumes` و `source_volumes` (کد هر دو خالی) در `../fahares-sources/backups/step13/before_step14_272_set_facsimiles_20261120_1941.json`. `prod-run --wait` (پشت `fahares:index-note-types` جلسۀ دیگر): «0 created, 2 updated, 190 unchanged»؛ اجرای آزمایشی دوم «0 updated, 192 unchanged». `/manuscripts/67642` (ج ۱ ص ۱۰۹)، `/manuscripts/42895` (ج ۱ ص ۲۴۶) و `/manuscripts/323858` (ج ۲ ص ۳۳۹) برگۀ درست را دارند.
+  - **یک ارجاع نادرست:** مدخل ۵۰۹۵۰۳ (نسخۀ ۱۲۴۲۲۷) روی جلد #۳۹ است با `volume_number` ۲۷ و متن «[ف: 27 - 377 و عکسی ف: 4 - 274]». این ارجاع از آنِ ج ۲۷ فهرست بزرگ است، پس پیوندش به `marashi-akasi/v27` می‌رود که نیست. از پیش نادرست بود و این گام آن را نساخت. همان نسخه ارجاع ج ۴ عکسی (ص ۲۷۴) را جدا دارد.
+  - **اصلاح (به خواست کاربر، `prod-run`):** شمارۀ نسخه (10966/4) در بازۀ ج ۲۷ فهرست بزرگ است (#۳۸، ۱۰۵۰۱–۱۱۰۰۰). مانند `catalogs:move-cited-part` (گام ۱۴.۱۵۲): `manuscripts.catalog_volume_id` و ردیف `manuscript_catalog_references` از #۳۹ به #۳۸ رفتند، یک `corpus_update` در `audit_logs` نوشته شد، و `SourceEntrySync::syncCited` مدخل ۵۰۹۵۰۳ را به #۳۸ (ج ۲۷، ص ۳۷۷) برد. ارجاع ج ۴ عکسی (#۷۱۳) دست نخورد. نخست روی `fahares_prod` تمرین شد. اجرای دوم «unchanged». پیوند نادرست `marashi-akasi/v27` از صفحۀ نسخه رفت؛ ج ۲۷ فهرست بزرگ هنوز تصویر ندارد.
 - **مانده:** ج ۳ تا ۵ این فهرست (#۷۱۲ تا #۷۱۴، ۱٬۹۴۱ نسخه) فایل ندارند.
 - **سه فهرست قائمیه، سنجیده با کتاب‌خوان** (`get-page`، شمارۀ نسخه در متن صفحه‌ای که فنخا نشان داده، یا یک صفحه پیش و پس از آن):
   - عبدالعظیم (#۶۸۰، ۹۵ نسخه؛ قائمیه 339673): ۴ از ۸، آن هم بیشتر در صفحۀ پیش یا پس. قائمیه ۷۸۸ صفحه دارد و فهارس ۲۶۴، پس چاپ دیگری است.
@@ -12688,6 +12698,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجیده نشد:** زوم دوانگشتی روی گوشی واقعی (تنها پهنای ۳۷۵ پیکسل در مرورگر)، و سرو شدن فایل‌های `public/data` در پروداکشن، که پس از استقرار باید دیده شود.
 - **پس از استقرار:** migration و فرمان داده ندارد. کلید cache تازه است؛ `fahares:build-insights` آمار کل و دامنه‌های آماده را می‌سازد.
 
+### گام ۱۴.۲۷۶: `App\Support\PersonOrigins` و `Insights::origins`
+
+- **`nisbas()`:** نام هر شهر `insights.copy_places` و نام‌های دیگرش، اگر یک واژه باشد و به «ا»، «ه»، «ی» یا «و» پایان نیابد، با «ی» (اصفهانی، طهرانی، حائری)؛ به‌اضافۀ `insights.nisbas` (نسبت => شهر: هروی، رازی، حلی، غروی، عاملی، بحرانی، دهلوی …)؛ منهای `NOT_NISBAS` (مشهدی، کربلایی). کلیدها با `TextNormalizer::normalize` یکدست می‌شوند؛ چون نیم‌فاصله به فاصله بدل می‌شود، نسبت دوبخشی («مراغه‌ای») در این فهرست جا ندارد و آزمون جلویش را می‌گیرد.
+- **`fromName`:** نام بی آنچه در پرانتز است، به واژه‌ها شکسته می‌شود؛ هر واژه خودش یا بی «ال» آغازین در فهرست جسته می‌شود. خروجی: شهرها به ترتیب نام.
+- **`fromBiography`:** روی متن یکدست‌شده، سه دسته الگو (`birth`، `death`، `origin`). میان فعل و حرف جر تا سه واژه می‌آید («ولد سنة 1200 في») و نشانه‌گذاری آن را می‌بُرد. نام شهرها یک alternation است، بلندترین نخست. خروجی: `kind`، `city`، `text` (همان عبارت یافته). «توفي بها»، «نقل إلى …» و شهری که چند جمله بعد آمده گرفته نمی‌شود.
+- **`shrine`:** «مشهد» تنها وقتی شهر مشهد است که واژۀ بعد «الرضوی»، «الرضا»، «المقدس»، «طوس»، «خراسان» باشد یا چیزی نیاید؛ «مشهد الحسین» کربلا، «المشهد الغروی» نجف، «مشهد الکاظمین» کاظمین؛ جز این‌ها (مثل «مشهد عبد العظیم») کنار گذاشته می‌شود.
+- **`Insights::origins`:** اشخاص دامنه = `author_id` آثار دامنه ∪ `scribe_id` نسخه‌های دامنه. دهۀ هر شخص از `COALESCE(death_to, death_year_hijri, scribed_to)`. مدخل‌های `source_entries` با `citable_type = Person` و وضعیتی جز `rejected`، با متن `source_items`. کلیدهای تازۀ هر شهر: `origins`، `origin_decades`، `births`، `birth_decades`، `deaths`، `death_decades`؛ و در `places`: `origins_mapped`، `births_mapped`، `deaths_mapped`، `lives_read`، `copy_cities`. «خاستگاه» = نسبت نام ∪ «من أهل / أصله من» زندگی‌نامه.
+- **سنجش روی `fahares_prod`:** ۲۱٬۳۰۸ نفر از ۶۶٬۳۸۷ مؤلف و کاتب نسبت شهری دارند (۹۰۲ نفر بیش از یکی) در ۰٫۵ ثانیه؛ ۵٬۶۷۵ مدخل در ۱٫۹ ثانیه خوانده شد: ۶۸۵ عبارت زادگاه (۵۰۸ نفر)، ۹۹۰ عبارت وفات (۷۳۹ نفر) و ۲۸۵ عبارت خاستگاه (۲۵۴ نفر)، پیش از کنار گذاشتن «مصر»، «الشام»، خویشان و «إلى». حدود صد نمونۀ تصادفی خوانده شد و همین چهار خطا در آن‌ها بود که بسته شد.
+- **حدهای شناخته:** نسبت گاه از پدر یا استاد است و زادگاه نیست. «همدانی» قبیلۀ هَمْدان را هم می‌گیرد. «طوسی» به مشهد می‌رود (طوس نام دیگر مشهد در پیکربندی است). همۀ ۵٬۶۷۵ پیوند زندگی‌نامه `unverified` است (تطبیق خودکار نام و سال وفات)، پس شماری از آن‌ها به شخص نادرست پیوند خورده‌اند.
+- **نما:** سه لایۀ `origin`، `birth`، `death` در `LAYERS` اسکریپت نقشه (`o`/`od`، `b`/`bd`، `x`/`xd`)، با `row` برای نام ردیف در پنل شهر.
+- **پس از استقرار:** migration و فرمان داده ندارد؛ `fahares:build-insights` آمار را با کلید تازه می‌سازد.
+
 ### گام ۱۴.۲۷۷: `WorkRelationLinker::pageRows()` و مؤلفۀ `record-relations`
 - **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
   - `linkedEntries()`: هر پیوند سوی `related` عنصر سومی دارد، جای مدخل در فیلد. `html()` که متن دو فیلد را با لینک می‌کشید برداشته شد.
@@ -12703,3 +12725,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش پوشش روی `fahares_prod`:** ۱۱٬۲۰۹ اثر؛ ۹٬۴۰۶ فیلد «وابسته به»، بی سطر ۰؛ ۱۱٬۰۳۴ سطر «شروح و حواشی»، بی سطر ۰؛ پیوندخورده ۱۴٬۲۰۹ (با «در فهرست» ۳۶۴)، بی‌پیوند ۶٬۷۰۷، یادداشت ۲. پیش از بستن دو کاستی، فیلدهای بی‌مدخل (مانند #12805) هیچ سطری نداشتند.
 - **پیش‌نمایش (رونوشت `fahares_prod`، `php -S` روی نشانی کانتینر):** #52424 «الکافیة»: گروه‌ها «شروح (۳۸)، حواشی (۴۲)، ترجمه‌ها، تلخیص‌ها و مختصرها، آثار وابسته (۱۰۲)»؛ ۱۹۴ سطر، ۹۰ بی‌پیوند، ۳ با «در فهرست»، ۴۸ سطر دیدنی پیش از «نمایش همه». #3969: «الزایرجة · خزرجی، احمد بن مسعود · ۳ نسخه» و «در فهرست: الزايرجة؛ سبتی، ابوالعباس احمد بن جعفر (۵۲۴- ۶۰۱ق)».
 - **آزمون:** `LinkRelatedWorksTest::test_the_relations_section_holds_the_entries_tied_to_no_work`.
+
+### گام ۱۴.۲۷۸: `resources/js/insights-dynasties.js`، `Dynasties::capitals` و `Insights::dynasties['counts']`
+
+- **داده:** `Insights::dynasties` کلید `counts` گرفت (نام سلسله => شمار نسخه، برای همۀ سلسله‌های دارای نسخه؛ `items` همچنان `dynasties_shown` تای نخست است). `Dynasties::regions()` ترتیب منطقه‌ها را می‌دهد (ترتیب رنگ‌ها و ردیف‌ها) و `Dynasties::capitals()` پایتخت‌ها را (`name`، `dynasty`، `lat`، `lon`، `from`، `to`).
+- **چیدمان:** برای هر منطقه، سلسله‌ها به ترتیب سال آغاز در نخستین ردیف آزاد می‌نشینند (فاصلۀ دست‌کم ۵ سال)؛ ردیف نخست هر منطقه برای نام آن است. ارتفاع نمودار = شمار ردیف‌ها × ۱۶ + ۹۰ پیکسل (روی دادۀ کنونی ۹۵۴).
+- **ECharts:** محور x مقداری و وارونه (سال‌های کهن در راست)، دو سری `custom` (`regions` برای نام و خط جداکننده، `dynasties` برای نوارها؛ نام سلسله تنها وقتی نوار جا دارد نوشته می‌شود)، و `dataZoom` لغزنده و درونی با `filterMode: 'none'`. پررنگی نوار `0.18 + 0.72·√(n/بیشینه)`. به `echarts-map.js`، `GridComponent` و `DataZoomComponent` افزوده شد.
+- **رنگ منطقه‌ها:** `resources/js/insights-regions.js`، مشترک میان نقشه و این نمودار.
+- **پایتخت روی نقشه:** سری `capitals` (`scatter`، مربع ۷ پیکسلی)؛ پایتختی نشان داده می‌شود که سال میانۀ دهۀ لغزنده (سال − ۵) در بازه‌اش باشد. در «همۀ سال‌ها» پایتختی نیست.
+- **یک سلسله در چند منطقه:** دادۀ دواوین سلسله‌ای مانند صفویان را در هر منطقه‌ای که بر آن حکومت داشته جدا می‌آورد؛ پس نوارش در چند منطقه هست و شمار نسخه در همه یکی است (شمار کل سلسله، نه سهم آن منطقه).
+- **سنجیده نشد:** نمای گوشی این نمودار (ارتفاع ۹۵۴ پیکسل و نام‌های ریز)، که باید روی گوشی واقعی دیده شود.

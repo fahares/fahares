@@ -5,7 +5,7 @@
  * for the city that is clicked. ECharts and the base map are fetched when the map comes into view; until then, and
  * without script, the page shows the still map it was sent with.
  *
- * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad}: for each layer its whole count and its counts by decade,
+ * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad, o, od, b, bd, x, xd}: for each layer its whole count and its counts by decade,
  * [[the year the decade ends in, count], …]. A copy is «by a year» once the whole range of its date has passed.
  */
 const LAYERS = {
@@ -13,9 +13,13 @@ const LAYERS = {
     composition: { total: 'w', decades: 'wd', unit: 'اثر', color: '--gold' },
     scribes: { total: 's', decades: 'sd', unit: 'کاتب', color: '--ink' },
     authors: { total: 'a', decades: 'ad', unit: 'مؤلف', color: '--muted' },
+    // Where the authors and scribes were from (the nisba of the name), were born and died (their lives)
+    origin: { total: 'o', decades: 'od', unit: 'شخص', row: 'با نسبت این شهر', color: '--ink' },
+    birth: { total: 'b', decades: 'bd', unit: 'شخص', row: 'زادۀ این شهر', color: '--gold' },
+    death: { total: 'x', decades: 'xd', unit: 'شخص', row: 'درگذشته در این شهر', color: '--muted' },
 };
-// The tints of the territories, by the region of the dynasty (in the order the page lists the regions)
-const REGION_COLORS = ['#B5651D', '#3F7F6B', '#5B6BA8', '#A8843F', '#8C4A6E', '#4F8FA8', '#7A8A3A', '#A2553F', '#6E5BA8', '#3F6F8F'];
+import { regionColor } from './insights-regions';
+
 const CENTER = [59, 27.5];
 
 export default (config) => {
@@ -120,7 +124,7 @@ export default (config) => {
 
     /** The figures of the chosen city in every layer, for the panel */
     get figures() {
-        return this.selected ? Object.entries(LAYERS).map(([key, layer]) => ({ key, unit: layer.unit, n: this.value(this.selected, key) })) : [];
+        return this.selected ? Object.entries(LAYERS).map(([key, layer]) => ({ key, unit: layer.row ?? layer.unit, n: this.value(this.selected, key) })) : [];
     },
 
     /** The state whose territory holds the chosen city in the decade of the slider */
@@ -159,9 +163,7 @@ export default (config) => {
     },
 
     regionColor(region) {
-        const i = config.regions.indexOf(region);
-
-        return REGION_COLORS[(i < 0 ? config.regions.length : i) % REGION_COLORS.length];
+        return regionColor(config.regions, region);
     },
 
     /** The frame of the map and its series, in the colours of the page as it is now */
@@ -187,6 +189,9 @@ export default (config) => {
                         const land = lands[point.value]?.properties;
 
                         return land ? `<b>${esc(land.name)}</b><br>${esc(land.span)}<br>${esc(land.region)}` : '';
+                    }
+                    if (point.seriesId === 'capitals') {
+                        return `<b>${esc(point.name)}</b><br>پایتخت ${esc(point.data.capital.d)}<br>${this.fa(point.data.capital.f, false)} – ${this.fa(point.data.capital.t, false)} ق`;
                     }
                     if (point.seriesId === 'cities') {
                         return `<b>${esc(point.name)}</b><br>${this.fa(point.value[2])} ${this.unit}<br>${this.span}`;
@@ -214,6 +219,16 @@ export default (config) => {
                             })),
                         };
                     },
+                },
+                {
+                    // The seats of the states of the chosen decade (step 14.278): a small square, named when there is room
+                    id: 'capitals', type: 'scatter', coordinateSystem: 'geo', data: [], z: 4, symbol: 'rect', symbolSize: 7,
+                    itemStyle: { color: surface, borderColor: ink, borderWidth: 1.5 },
+                    label: {
+                        show: true, position: 'top', distance: 3, formatter: (point) => point.name, fontFamily: font, fontSize: 10,
+                        color: ink, textBorderColor: paper, textBorderWidth: 2,
+                    },
+                    labelLayout: { hideOverlap: true },
                 },
                 {
                     id: 'cities', type: 'scatter', coordinateSystem: 'geo', data: [], z: 5, cursor: 'pointer',
@@ -258,6 +273,12 @@ export default (config) => {
         chart.setOption({
             series: [
                 { id: 'lands', data: lands.map((land, i) => ({ value: i, name: land.properties.name })) },
+                {
+                    // A capital in the middle year of the decade the territories are of
+                    id: 'capitals',
+                    data: this.mode === 'all' ? [] : config.capitals.filter((capital) => capital.f <= this.year - 5 && this.year - 5 <= capital.t)
+                        .map((capital) => ({ name: capital.n, value: [capital.lon, capital.lat], capital })),
+                },
                 {
                     id: 'cities', itemStyle: { color },
                     data: rows.map(({ city, n }) => ({

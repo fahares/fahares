@@ -117,7 +117,7 @@
             ['نسخۀ خطی', Fa::num($data['totals']['manuscripts']), 'متعلق به ' . Fa::num($data['totals']['works']) . ' اثر'],
             ['نسخۀ تاریخ‌دار', Fa::num($t['shown']), $pct($t['coverage']) . ' نسخه‌ها، با سده‌ای‌ها'],
             ['اوج کتابت', $peak['count'] ? 'سدۀ ' . Fa::digits($peak['century']) : '—', Fa::num($peak['count']) . ' نسخه'],
-            ['کانون استنساخ', Fa::num(count($p['cities'])) . ' شهر', 'از ' . Fa::num($p['mapped']) . ' نسخۀ دارای محل کتابت'],
+            ['کانون استنساخ', Fa::num($p['copy_cities']) . ' شهر', 'از ' . Fa::num($p['mapped']) . ' نسخۀ دارای محل کتابت'],
         ] as [$label, $value, $note])
             <div class="bg-surface p-4 grid gap-0.5">
                 <dt class="text-xs text-muted">{{ $label }}</dt>
@@ -132,7 +132,7 @@
         $pw = $data['copies_per_work'];
         $figures = [
             'time' => [Fa::num($t['shown']) . ' نسخۀ تاریخ‌دار', $peak['count'] ? 'اوج کتابت در سدۀ ' . Fa::digits($peak['century']) : null],
-            'places' => [Fa::num(count($p['cities'])) . ' شهر', Fa::num($p['mapped']) . ' نسخه با محل کتابت'],
+            'places' => [Fa::num($p['copy_cities']) . ' شهر', Fa::num($p['mapped']) . ' نسخه با محل کتابت'],
             'works' => [Fa::num($pw['works']) . ' اثر', $pw['works'] ? $pct(round($pw['single'] * 100 / $pw['works'], 1)) . ' تک‌نسخه' : null],
             'copies' => [Fa::num($data['collections']['volumes']) . ' مجموعه', Fa::num($data['facsimiles']['count']) . ' نسخۀ عکسی'],
             'people' => [Fa::num($data['scribes']['scribes']) . ' کاتب', Fa::num($data['dedications']['names']) . ' نام در تقدیم‌ها'],
