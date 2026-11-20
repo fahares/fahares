@@ -12670,6 +12670,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):** «349 matches of confidence medium: 345 proposals to add»، «345 proposals queued for review». اجرای دوم: «0 proposals to add». `work_entry_links`: model/linked ۵۷۰، review/proposed ۳۴۵. `/admin/work-entry-links` و صفحهٔ ۷ آن با کاربر مدیر: ۲۰۰، ۲۵ کارت.
 - **آزمون:** `LinkDecidedWorksTest::test_a_proposal_is_linked_only_when_a_reviewer_confirms_it`.
 - **اجرا در تولید، پس از استقرار:** همان فرمان گام ۱۴.۲۷۰ با `--proposals`: `php artisan works:link-decisions /tmp/…json --proposals`.
+- **اجرای تولید گام‌های ۱۴.۲۲۹، ۱۴.۲۷۰ و ۱۴.۲۷۴ (۲۹ آبان ۱۴۰۵، جلسهٔ `item6-rule-links`، پس از استقرار دستهٔ ۱۶۷):**
+  - هر دو migration در دستهٔ ۸۳ اجرا شده بود (`migrate:status`).
+  - پشتیبان، خواندنی و مستقیم به این دستگاه: `work_relations` (۹٬۵۷۱ ردیف: auto ۹٬۵۷۰، suggestion ۱) و `work_entry_links` (تهی) در `fahares-sources/backups/step13/step14_270_work_relations_backup.json` (md5 `35e28726…`). چیزی در کانتینر نماند.
+  - `works:link-related --dry-run` و سپس اجرا: «10676 relations: 1176 to add, 70 to remove, 9500 kept»، «Indexed 1158 works again». نوع‌ها: related ۵٬۵۶۷، commentary ۲٬۱۴۳، gloss ۱٬۲۹۱، translation ۹۵۵، abridgment ۵۸۹، supplement ۷۶، versification ۳۶، refutation ۱۹.
+  - `works:link-decisions /tmp/item6_decisions.json --proposals`، نخست با `--dry-run`: «570 entries: 570 to add»، «236 relations: 236 to add»، «345 proposals queued for review»، «Indexed 226 works again». پرونده از ورودی استاندارد به `/tmp` رفت و در همان فرمان پاک شد («tmp clean»).
+  - پس از اجرا: `work_relations` auto ۱۰٬۶۷۶، model ۲۳۶، suggestion ۱؛ `work_entry_links` model/linked ۵۷۰، review/proposed ۳۴۵.
+  - سایت: `/works/53288` «تبصرة المتعلمین» را به #12336، `/works/3969` «الزايرجة» را به #34346 و `/works/4354` «الکافی» را به #52408 لینک می‌کند.
 
 ### گام ۱۴.۲۷۵: `resources/js/insights-map.js`، `echarts-map.js` و دادۀ دهه‌ای `Insights::places`
 
@@ -12702,3 +12709,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** یک `prod-run`. پنج پرونده در یک جریان tar رفتند و `md5sum -c` گذشت. `sync-editions` پنج `create` داد.
   - **درج‌ها:** ۶۸۶، ۴۵۰، ۱٬۵۴۶، ۱٬۲۵۲ و ۲٬۷۰۲، برابر تمرین. اجرای دوم: `insert 0, update 0`. `/tmp` پاک ماند.
   - **وارسی:** چهار صفحۀ نسخه (۱۰۱۵۸، ۲۳۲۶۷، ۶۲۵۶۴ و ۱۲۹۶۲) چاپ دوم را با نشانی تمرین نشان دادند. تصویر و صفحۀ متن پاسخ ۲۰۰ دادند، منبع در `/sources` بود، و `laravel.log` خطایی نداشت.
+### گام ۱۴.۲۷۷: `WorkRelationLinker::pageRows()` و مؤلفۀ `record-relations`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - `linkedEntries()`: هر پیوند سوی `related` عنصر سومی دارد، جای مدخل در فیلد. `html()` فقط دو عنصر نخست را می‌خواند.
+  - `pageRows($work)`: از `linkedEntries()` می‌خواند.
+    - `printed[شناسۀ اثر]`: متن مدخلِ پیوندخورده، اگر پدیدآور مدخل (`authorKey`) با `author_name` اثر برابر نباشد یا هیچ عنوان مدخل کلید یکی از عنوان‌های اثر نباشد.
+    - `unlinked`: مدخل‌های بی‌پیوند با `side`، `text` و `type`. در `related` نوع از `typeOf()` (قالب و عنوان خود اثر)، وگرنه `related`؛ در `children` نوع خود مدخل (`parseEntries`)، وگرنه `related`.
+    - متن: فیلد «وابسته به» اگر یک مدخل دارد همان‌طور که هست (با یادداشت پایانی‌اش)، وگرنه بازسازی هر مدخل؛ هر سطر «شروح و حواشی» همان‌طور که هست. نشان‌های صفحه (`<!-- … -->`) برداشته می‌شوند.
+    - پیشنهادهای صف پنل (`status = proposed`) تا تأیید بی‌پیوند شمرده می‌شوند.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** برای اثر، سطرهای `unlinked` با برچسب `RecordRelations::WORK_TYPES[type][0 یا 1]` به گروه‌ها افزوده می‌شود (سطر بی `record`، با `text`). گروه‌ها به ترتیب `WORK_TYPES` چیده می‌شوند. هر گروه `x-data="{ all: false }"` دارد و از سطر سیزدهم `x-show="all"`. برای نسخه چیزی تغییر نکرده است.
+- **[ui/meta](../resources/views/components/ui/meta.blade.php):** ویژگی `suggestOnly`: سطر مانند سطر تهی فقط با `$store.suggest.on` دیده می‌شود.
+- **[works/show](../resources/views/works/show.blade.php):** «وابسته به» با `:suggest-only="true"`؛ بخش «شروح، حواشی و منظومه‌ها» با `x-show="$store.suggest.on"`. هر دو همچنان در HTML هستند و لینک‌های `html()` را دارند.
+- **پیش‌نمایش (رونوشت `fahares_prod`، `php -S` روی نشانی کانتینر):** #52424 «الکافیة»: گروه‌ها «شروح (۳۸)، حواشی (۴۲)، ترجمه‌ها، تلخیص‌ها و مختصرها، آثار وابسته (۱۰۲)»؛ ۱۹۴ سطر، ۹۰ بی‌پیوند، ۳ با «در فهرست»، ۴۸ سطر دیدنی پیش از «نمایش همه». #3969: «الزایرجة · خزرجی، احمد بن مسعود · ۳ نسخه» و «در فهرست: الزايرجة؛ سبتی، ابوالعباس احمد بن جعفر (۵۲۴- ۶۰۱ق)».
+- **آزمون:** `LinkRelatedWorksTest::test_the_relations_section_holds_the_entries_tied_to_no_work`.
