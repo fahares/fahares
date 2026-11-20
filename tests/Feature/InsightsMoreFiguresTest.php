@@ -278,7 +278,7 @@ class InsightsMoreFiguresTest extends TestCase
             }
         }
 
-        $this->get(route('insights', ['library' => $this->library->id]))->assertOk()
+        $this->insightsPages(['library' => $this->library->id])->assertOk()
             ->assertSee('هر اثر چند نسخه دارد')
             ->assertSee('پرنسخه‌ترین آثار هر سده')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'work_id' => $first->id, 'century' => 11, 'library_id' => $this->library->id])), false)

@@ -218,7 +218,7 @@ class InsightsScopeTest extends TestCase
 
         $this->assertSame(['source_volume_id' => $volume->id, 'year_from' => 801, 'year_to' => 1000], $scope->searchParams('manuscripts'));
         $this->assertSame(12, Insights::build(InsightsScope::fromArray(['catalog' => $volume->id]))['totals']['manuscripts']);
-        $this->get(route('insights', ['catalog' => $volume->id]))->assertOk()
+        $this->insightsPages(['catalog' => $volume->id])->assertOk()
             ->assertDontSee('را با خود نمی‌برد')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات', 'source_volume_id' => $volume->id])), false);
     }
@@ -347,11 +347,11 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(['آثار ' . $author->name, 'اصل (بی نسخه‌های عکسی)'], array_column($originals->labels(), 1));
         $this->assertTrue(InsightsScope::fromArray(['facsimile' => '2'])->isEmpty());
 
-        $this->get(route('insights', ['author' => $author->id]))->assertOk()
+        $this->insightsPages(['author' => $author->id])->assertOk()
             ->assertSee('نسخه‌های عکسی')
             ->assertSee(e(route('insights', ['author' => $author->id, 'facsimile' => '0'])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'facsimile' => '1', 'author_id' => $author->id])), false);
-        $this->get(route('insights', ['author' => $author->id, 'facsimile' => '1']))->assertOk()
+        $this->insightsPages(['author' => $author->id, 'facsimile' => '1'])->assertOk()
             ->assertDontSee('آمار بی نسخه‌های عکسی');
     }
 
@@ -361,7 +361,7 @@ class InsightsScopeTest extends TestCase
         $work = $this->work(['primary_title' => 'اثر آزمایشی صفحۀ دامنه']);
         $this->copies($work, 12, ['library_id' => $library->id, 'city' => 'شیراز', 'copy_date_raw' => '1100ق', 'copy_place' => 'هرات', 'is_illuminated' => true]);
 
-        $this->get(route('insights', ['library' => $library->id]))->assertOk()
+        $this->insightsPages(['library' => $library->id])->assertOk()
             ->assertSee('آمار نسخه‌های کتابخانۀ ' . $library->name . ' (شیراز)')
             ->assertSee('۱۲ نسخه از ۱ اثر')
             ->assertSee('<meta name="robots" content="noindex, follow">', false)
@@ -381,7 +381,7 @@ class InsightsScopeTest extends TestCase
         $author = $this->person();
         $this->copy($this->work(['author_id' => $author->id]), ['copy_date_raw' => '1100ق']);
 
-        $this->get(route('insights', ['author' => $author->id]))->assertOk()
+        $this->insightsPages(['author' => $author->id])->assertOk()
             ->assertSee('آمار نسخه‌های آثار ' . $author->name)
             ->assertSee('در این دامنه تنها ۱ نسخۀ تاریخ‌دار هست که برای این نمودار بسنده نیست.')
             ->assertDontSee('را با خود نمی‌برد');
@@ -400,7 +400,7 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
         Cache::forever('insights.v8', Insights::build());
-        $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
+        $this->insightsPages(['library' => 'x', 'subject' => '0'])->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');
     }

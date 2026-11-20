@@ -12339,3 +12339,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **CSV:** تابع `insightsCsv` (یک بار در صفحه، با `@once`) ردیف‌های همان `<details>` را می‌خواند. هر خانه مقدار خام را در `data-v` دارد. فایل با BOM آغاز می‌شود تا Excel متن فارسی را درست بخواند. پسوند دامنه از `InsightsScope::query()` می‌آید.
 - **سنجش در مرورگر (`fahares_prod`):** فایل جابه‌جایی با سطر «محل کتابت,شهر امروز,نسخه» و «اصفهان,تهران,1339» آغاز شد. دامنه‌ها: `author=1110` با ۳۰ جدول، `work=52504` با ۱۶، `copy_city=هرات` با ۲۹، و `scribe=1` (تهی) بی جدول.
 - **آزمون:** دامنه‌ای با یک نسخه هیچ جدولی را نمی‌شکند و شمار خانه‌های هر ردیف با ستون‌ها یکی است؛ و ردیف‌های جدول‌های خط زمانی، آثار پرنسخه، مجموعه‌ها و شمار نسخۀ هر اثر با دادۀ ساختۀ آزمون یکی است.
+
+### گام ۱۴.۲۶۳: صفحه‌های موضوعی آمار (`insights.topics`)
+
+- **مسیرها:** `insights` (صفحۀ اصلی) و `insights.topic` (`/insights/{topic}`، با `whereIn` روی کلیدهای `config('insights.topics')`). `insights.lookup` پیش از آن تعریف شده و نشانی‌اش همان می‌ماند. `InsightsController::index` هر دو را پاسخ می‌دهد.
+- **پیکربندی:** `insights.topics`: برای هر صفحه `name`، `title`، `lead` و `charts`. دو نمودار در یک آرایۀ درونی کنار هم می‌نشینند.
+
+  | صفحه | نمودارها |
+  |---|---|
+  | `time` | `timeline`، `authors`، `copy-gap` |
+  | `places` | `places`، `movement` |
+  | `works` | `top-works`، `copies-per-work`، `century-works`، `unprinted`، `subjects`، `languages` |
+  | `copies` | `features`، `sizes`، `language-scripts`، [`scripts`، `facsimiles`]، `collections` |
+  | `people` | [`scribes`، `patrons`]، `dedications` |
+  | `libraries` | `libraries`، `sources`، `firsthand`، `source-overlap` |
+
+- **قالب‌ها:** `insights/index.blade.php` اکنون سر صفحه، نوار، فرم فیلتر، کارت‌های صفحۀ اصلی و پایان صفحه را دارد و نمودارهای صفحه را با `@include('insights.charts.' . $chart)` می‌آورد. ۲۴ فایل `insights/charts/*.blade.php` با اسکریپت از همان فایل بریده شدند، بی تغییر در محتوا. نام هر فایل همان `id` بخش آن است.
+- **متغیرهای مشترک:** متغیرهای بلوک `@php` آغاز `index` (`$pct`، `$search`، `$min`، `$notes`، `$tables`، `$t`، `$p` و …) از راه `@include` به قالب نمودارها می‌رسند. `use` به فایل دیگر نمی‌رسد، پس هر قالب نمودار `use App\Support\Fa` و `Jalali` خود را دارد.
+- **پیوندهای درون صفحه:** `$pageUrl($slug, $query)` و `$here($query)` در `index`. فرم فیلتر و «برداشتن فیلتر» با `$here` در همان صفحه می‌مانند. پیوند «آمار» کنار یک کتابخانه یا جلد فهرست به صفحۀ اصلی همان دامنه می‌رود.
+- **نشانی‌های کهنه:** لنگر به سرور نمی‌رسد، پس صفحۀ اصلی نگاشت `id` نمودار به صفحه‌اش را دارد و با `location.replace` می‌فرستد. پیوند صفحۀ کتابخانه به `#firsthand` مستقیم به `/insights/libraries#firsthand` رفت.
+- **جست‌وجوگرها:** هر صفحه `title` و `meta description` خود را دارد (`lead`). صفحۀ دامنه‌دار همچنان `noindex` است. `SitemapController::getStaticUrls` هفت نشانی تازه دارد.
+- **آزمون:** `TestCase::insightsPages($query)` صفحۀ اصلی و شش صفحه را با هم می‌خواند و هر هفت پاسخ را ۲۰۰ می‌خواهد؛ آزمون‌های نمودارها با آن نوشته شدند تا به جای نمودار وابسته نباشند. `InsightsTopicPagesTest`: هر فایل نمودار در یک صفحه است و برعکس؛ صفحۀ اصلی نمودار ندارد؛ صفحۀ موضوعی فقط نمودارهای خود را دارد؛ موضوع ناشناخته ۴۰۴ است؛ دامنه در نوار و فرم می‌ماند.
+- **سنجش در مرورگر (`fahares_prod`):** هر شش صفحه با `author=1110`، `library=4&century=11` و `scribe=1` (تهی) پاسخ ۲۰۰ دادند. `/insights?library=4#movement` به `/insights/places?library=4#movement` رفت.

@@ -87,6 +87,48 @@ return [
     // The people works were dedicated to or written for (step 14.119): the names shown
     'dedications_shown' => 20,
 
+    // The topic pages of the statistics (backlog item 153, step 14.263): /insights is the hub, /insights/{slug} a
+    // topic. `charts` are the files of resources/views/insights/charts in the order shown; two in one array sit
+    // side by side. The id of a chart's section is its file name, so an old link /insights#places finds its page.
+    'topics' => [
+        'time' => [
+            'name' => 'زمان',
+            'title' => 'کتابت و تألیف در گذر سده‌ها',
+            'lead' => 'خط زمانی کتابت نسخه‌ها، مؤلفان و آثار در هر سده، و فاصلۀ کتابت هر نسخه تا وفات مؤلف.',
+            'charts' => ['timeline', 'authors', 'copy-gap'],
+        ],
+        'places' => [
+            'name' => 'مکان',
+            'title' => 'کانون‌های استنساخ و تألیف',
+            'lead' => 'نقشۀ شهرهای کتابت و تألیف در هر سده، و راهی که نسخه‌ها از محل کتابت تا کتابخانۀ امروز رفته‌اند.',
+            'charts' => ['places', 'movement'],
+        ],
+        'works' => [
+            'name' => 'آثار',
+            'title' => 'آثار و نسخه‌هایشان',
+            'lead' => 'آثار پرنسخه، شمار نسخۀ هر اثر، متن‌های رایج هر سده، آثار پرنسخۀ بی نشانی چاپ، موضوع‌ها و زبان‌ها.',
+            'charts' => ['top-works', 'copies-per-work', 'century-works', 'unprinted', 'subjects', 'languages'],
+        ],
+        'copies' => [
+            'name' => 'نسخه‌ها',
+            'title' => 'ویژگی‌های نسخه‌ها',
+            'lead' => 'آرایش و تصحیح نسخه‌ها، اندازه، زبان و خط در گذر سده‌ها، مجموعه‌ها و نسخه‌های عکسی.',
+            'charts' => ['features', 'sizes', 'language-scripts', ['scripts', 'facsimiles'], 'collections'],
+        ],
+        'people' => [
+            'name' => 'کسان',
+            'title' => 'کاتبان و حامیان',
+            'lead' => 'کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
+            'charts' => [['scribes', 'patrons'], 'dedications'],
+        ],
+        'libraries' => [
+            'name' => 'کتابخانه‌ها و فهرست‌ها',
+            'title' => 'کتابخانه‌ها و فهرست‌هایشان',
+            'lead' => 'بزرگ‌ترین و کهن‌ترین گنجینه‌ها، فهرست‌هایی که این آمار بر آن‌ها بنا شده، و نسخه‌هایی که چند فهرست وصفشان کرده‌اند.',
+            'charts' => ['libraries', 'sources', 'firsthand', 'source-overlap'],
+        ],
+    ],
+
     // Five more figures (backlog item 146, step 14.228)
     // Bands of copies per work: a band runs from just above one edge up to the next
     'copy_bands' => [1, 2, 5, 10, 50, 100],
