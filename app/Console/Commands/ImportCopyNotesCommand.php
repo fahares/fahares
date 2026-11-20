@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
  * (fankha_v2_copy_notes_export.py): gzipped JSON lines, one copy a line, {"id", "shelfmark", "notes": [{"type",
  * "text", "typed_by", "also"?, "by_author"?, "by_author_hedge"?, "hedge"?}]}. A copy's rows are replaced as a whole,
  * in the file's order. Left alone: a copy the site lacks, one whose shelfmark is another than the file's, one with a
- * note an editor typed, and one whose rows are the file's already. The copy's own columns and metadata are not
+ * note a reviewer typed, changed or removed, and one whose rows are the file's already. The copy's own columns and metadata are not
  * touched, so nothing is logged or reindexed. Safe to run again.
  */
 class ImportCopyNotesCommand extends Command
@@ -21,6 +21,9 @@ class ImportCopyNotesCommand extends Command
         {--apply : Write; without it the command only counts}';
 
     protected $description = "Write the copies' typed notes to manuscript_notes";
+
+    /** @var array<int, true> copies a reviewer changed a note of, or removed one from (the audit log's «notes» key) */
+    private array $edited = [];
 
     private const FIELDS = ['type', 'text', 'also', 'by_author', 'by_author_hedge', 'hedge', 'typed_by'];
 
@@ -33,6 +36,8 @@ class ImportCopyNotesCommand extends Command
             return 1;
         }
         $apply = (bool) $this->option('apply');
+        $this->edited = DB::table('audit_logs')->where('auditable_type', \App\Models\Manuscript::class)->where('action', 'verify')
+            ->where('new_values', 'like', '%"notes"%')->pluck('auditable_id')->flip()->map(fn () => true)->all();
         $counts = ['new' => 0, 'changed' => 0, 'same' => 0, 'kept: an editor typed a note' => 0, 'skipped: no such copy' => 0, 'skipped: another shelfmark' => 0];
         $notes = 0;
         $batch = [];
@@ -111,7 +116,7 @@ class ImportCopyNotesCommand extends Command
                 'type' => $r->type, 'text' => $r->text, 'also' => $r->also === null ? null : json_encode(json_decode($r->also, true)),
                 'by_author' => (int) $r->by_author, 'by_author_hedge' => $r->by_author_hedge, 'hedge' => $r->hedge, 'typed_by' => $r->typed_by,
             ])->all();
-            if (in_array('editor', array_column($old, 'typed_by'), true)) {
+            if (in_array('editor', array_column($old, 'typed_by'), true) || isset($this->edited[$id])) {
                 $counts['kept: an editor typed a note']++;
                 continue;
             }

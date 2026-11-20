@@ -11,9 +11,9 @@
         @php $maxOverlap = max([1, ...$ov['counts']]); @endphp
         <div class="grid lg:grid-cols-2 gap-8">
             <div>
-                <p class="text-xs text-muted mb-3">شمار فهرست‌های کتابخانه‌ای که هر نسخه را وصف کرده‌اند، جدا از فنخا که همۀ نسخه‌ها را دارد.</p>
+                <p class="text-xs text-muted mb-3">شمار فهرست‌های چاپی کتابخانه‌ای که هر نسخه را وصف کرده‌اند.</p>
                 <ul class="space-y-2.5 text-sm">
-                    @foreach(['تنها در فنخا', 'یک فهرست', 'دو فهرست', 'سه فهرست و بیشتر'] as $k => $name)
+                    @foreach(['هنوز بی فهرست کتابخانه', 'یک فهرست', 'دو فهرست', 'سه فهرست و بیشتر'] as $k => $name)
                         @continue($ov['counts'][$k] === 0)
                         <li>
                             <span class="flex items-baseline gap-2">

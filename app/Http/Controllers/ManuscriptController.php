@@ -24,6 +24,7 @@ class ManuscriptController extends Controller
             'catalogVolume.catalogers',
             ...(\App\Models\CatalogVolumePart::ready() ? ['catalogVolumePart.catalogers'] : []),
             'scripts',
+            'notes',
             ...RecordSources::RELATIONS,
             'fieldSuggestions' => fn($q) => $q->where('status', 'approved'),
         ])->find($numericId);

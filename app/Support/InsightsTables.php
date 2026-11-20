@@ -336,7 +336,7 @@ class InsightsTables
     private function sourceOverlap(): array
     {
         $ov = $this->data['source_overlap'];
-        $names = ['تنها در فنخا', 'یک فهرست', 'دو فهرست', 'سه فهرست و بیشتر'];
+        $names = ['هنوز بی فهرست کتابخانه', 'یک فهرست', 'دو فهرست', 'سه فهرست و بیشتر'];
 
         return [
             self::table('نسخه‌ها بر پایۀ شمار فهرست‌های کتابخانه', 'catalogues-per-copy', [['شمار فهرست', 'text'], ['نسخه', 'num']],
