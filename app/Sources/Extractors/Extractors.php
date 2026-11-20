@@ -17,6 +17,7 @@ class Extractors
         'shelfmark_headings' => ShelfmarkHeadedCatalogueExtractor::class,
         'listed_shelfmarks' => ListedShelfmarkCatalogueExtractor::class,
         'serial_shelfmarks' => SerialShelfmarkCatalogueExtractor::class,
+        'bracketed_entries' => BracketedEntryCatalogueExtractor::class,
     ];
 
     /** @var array<int, array<int, string>> source_volumes.id => its pages, read once a request */

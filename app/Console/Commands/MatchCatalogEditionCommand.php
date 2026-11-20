@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Manuscript;
 use App\Models\SourceEntry as Entry;
 use App\Models\SourceVolume;
+use App\Sources\Extractors\Extractors;
+use App\Sources\Extractors\NumberedCatalogueExtractor;
 use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +57,9 @@ class MatchCatalogEditionCommand extends Command
 
     public const METHOD_TITLE = 'shelfmark_title';
 
+    /** The reading of the edition's pages: its source's format, or this command's own (numbered entries). */
+    private NumberedCatalogueExtractor $format;
+
     public const METHOD_SINGLE_PAGE = 'shelfmark_single_page';
 
     public const METHOD_SHELFMARK_ONLY = 'shelfmark_only';
@@ -94,7 +99,10 @@ class MatchCatalogEditionCommand extends Command
             return self::FAILURE;
         }
 
-        [$index, $entries, $lines] = self::index($pages);
+        // the printed format of the source, when it is of this family (sources.extractor), reads the pages
+        $format = Extractors::for($edition->source?->extractor);
+        $this->format = $format instanceof NumberedCatalogueExtractor ? $format : new NumberedCatalogueExtractor;
+        [$index, $entries, $lines] = $this->format->index($pages);
         $this->line(sprintf('%s v%d: %d pages, %d entries, %d shelfmarks indexed', $edition->facsimile_code, $edition->volume_number, count($pages), $entries, count($index)));
         if ($this->option('texts')) {
             $stats = $this->fillTexts($edition, $index, $lines, (bool) $this->option('dry-run'));
@@ -111,7 +119,7 @@ class MatchCatalogEditionCommand extends Command
         $stats = ['copies' => $copies->count(), 'no shelfmark in edition' => 0] + array_fill_keys([self::METHOD_TITLE, self::METHOD_SINGLE_PAGE, self::METHOD_SHELFMARK_ONLY, self::METHOD_AMBIGUOUS], 0);
         $matches = [];
         foreach ($copies as $copy) {
-            $match = self::match($copy, $index, $lines);
+            $match = self::match($copy, $index, $lines, $this->format);
             if (! $match) {
                 $stats['no shelfmark in edition']++;
 
@@ -270,7 +278,7 @@ class MatchCatalogEditionCommand extends Command
     }
 
     /** The match of one copy ({id, shelfmark, primary_title}), or null when its number is not in the edition. */
-    public static function match(object $copy, array $index, array $lines = []): ?array
+    public static function match(object $copy, array $index, array $lines = [], ?NumberedCatalogueExtractor $format = null): ?array
     {
         if (! preg_match('/(\d+)(?:\s*\/\s*(\d+))?/', self::digits((string) $copy->shelfmark), $base) || empty($index[$base[1]])) {
             return null;
@@ -313,7 +321,7 @@ class MatchCatalogEditionCommand extends Command
 
         $place = $best['place'];
         $entry = $place['entry'];
-        [$entryText, $copyText] = self::texts($place, $lines);
+        [$entryText, $copyText] = $format ? $format->texts($place, $lines) : self::texts($place, $lines);
         $others = $method === self::METHOD_AMBIGUOUS
             ? collect($scored)->skip(1)->map(fn ($s) => sprintf('ص %d، مدخل %s (%.2f)', $s['place']['page'], $s['place']['entry']['number'] ?? '؟', $s['score']))->unique()->implode('؛ ')
             : null;
@@ -404,7 +412,7 @@ class MatchCatalogEditionCommand extends Command
     }
 
     /** Lines joined as printed: a line the page broke goes on after a space, a gap between parts is one line break. */
-    private static function joinLines(array $lines, array $ids): ?string
+    public static function joinLines(array $lines, array $ids): ?string
     {
         $out = null;
         $prev = null;
@@ -457,7 +465,7 @@ class MatchCatalogEditionCommand extends Command
 
                         continue;
                     }
-                    [$entryText, $copyText] = self::texts($place, $lines);
+                    [$entryText, $copyText] = $this->format->texts($place, $lines);
                     $values = self::textValues($entryText, $copyText, $entry->volumeNumber(), $entry->page_start);
                     if (array_intersect_key($entry->getAttributes(), $values) == $values) {
                         $stats['unchanged']++;
