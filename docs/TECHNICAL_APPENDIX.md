@@ -12389,6 +12389,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
      - `catalogue-4ae9dc5de46a --extractor=listed_shelfmarks`.
      - شمارها باید همان تمرین باشد: ۵٬۵۱۸، ۲٬۷۷۰ و ۱٬۳۹۸.
   4. پاک کردن پرونده‌ها از `/tmp`.
+- **اجرای پروداکشن (۲۹ آبان):** پشتیبان JSON سطرهای `source_volumes`، `sources`، `source_pages` و `source_entries` این پنج جلد (۹٬۹۶۹ مدخل، بی صفحه) در `../fahares-sources/backups/step13/before_step14_259_prod_20261120_1236.json.gz` است. پرونده‌ها در یک جریان tar به همان `prod-run` رفتند، با `md5sum -c`، و در پایان پاک شدند.
 
 ### گام ۱۴.۲۶۰: `ManuscriptNote::GROUPS`، `Manuscript::noteGroups()` و `keepsSealsList()`
 
@@ -12454,3 +12455,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
 - **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
 - **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.
+
+### گام ۱۴.۲۶۶: `sources:shelfmark-claims`
+
+- **`ClaimShelfmarksCommand`:**
+  - مدخل‌های `text_status = none` منبع، با صفحه (یا «[ف: N]» در منبع یک‌جلدی) و صفحه‌های بارگذاری‌شده، دسته‌های ۵۰۰تایی خوانده می‌شوند.
+  - `neighbours()` شماره‌های یک ویرایش دورتر از شمارۀ پایه را می‌سازد: حذف، افزودن و جایگزینی هر رقم، و جابه‌جایی دو رقم کنار هم، بی صفر آغازین.
+  - هر کدام با بخش رساله (`/M`) با `extract(..., ['strict_part' => true])` در صفحه و صفحۀ پیش و پس جسته می‌شود.
+  - سهم واژه‌های سه‌حرفی نام اثر (`words()`، بی «ال» و با یکسان کردن ی، ک، ة و همزه) که در `entry_text` و `copy_text` یافته آمده است، سنجیده می‌شود.
+  - رکورد دیگر کتابخانه با همان شماره و بخش جست‌وجو می‌شود.
+- **تصمیم:**
+  - `claimed` (certainty ۸۰): بهترین یافته رکورد دیگری ندارد، سهم نامش دست‌کم ۰٫۵ است و از دومی بیشتر.
+  - `claimed, title not seen` (۵۰): تنها یک یافته هست.
+  - بقیه: `another record has it`، `more than one` یا `none found`.
+- **ثبت:**
+  - `--apply` ادعای `shelfmark` با `raw_text` برابر سطر نخست یافته می‌سازد. ادعای نامزد قاعده‌ای همان مدخل پیش از آن پاک می‌شود.
+  - `--correct` ادعاهای ۸۰ را `accepted` می‌کند، `manuscripts.shelfmark` را می‌نویسد (`shelfmark_key` و `collection_key` با قلاب مدل) و یک `AuditLog` از نوع `update` با `old_values.shelfmark` می‌سازد.
+  - مقدار تازه همان شکل شمارۀ رکورد است، با عدد چاپی به جای عدد فنخا («6721/1» ← «6771/1»).
+  - `--report=` همۀ تصمیم‌ها را با یافته‌ها در TSV می‌نویسد.
+- **تمرین روی `fahares_prod`:** ۱۲۶ اصلاح و ۱۸ ادعای نامزد. سپس `sources:take-texts` بی `--extractor` (منبع از گام ۱۴.۲۵۹ قالب دارد) هر ۱۲۶ را برداشت.
+- **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
+- **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
+- **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
