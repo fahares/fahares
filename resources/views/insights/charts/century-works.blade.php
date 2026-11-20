@@ -12,7 +12,7 @@
         <p class="text-xs text-muted mb-4">در هر سده از کدام آثار بیشتر نسخه برداشته‌اند. عدد کنار هر اثر شمار نسخه‌های آن است که در همان سده کتابت شده‌اند.</p>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
             @foreach($centuryCols as $col)
-                <div>
+                <div class="min-w-0">
                     <h3 class="flex items-baseline gap-2 border-b border-line-strong pb-1 mb-2">
                         <span class="font-naskh font-bold text-ink">سدۀ {{ Fa::digits($col['century']) }}</span>
                         <span class="text-[11px] text-muted tabular-nums">{{ Fa::num($col['count']) }} نسخه</span>

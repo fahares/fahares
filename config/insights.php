@@ -116,7 +116,7 @@ return [
             'charts' => ['features', 'sizes', 'language-scripts', ['scripts', 'facsimiles'], 'collections'],
         ],
         'people' => [
-            'name' => 'کسان',
+            'name' => 'اشخاص',
             'title' => 'کاتبان و حامیان',
             'lead' => 'کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
             'charts' => [['scribes', 'patrons'], 'dedications'],
