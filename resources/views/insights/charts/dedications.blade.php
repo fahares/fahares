@@ -24,7 +24,7 @@
                         @endif
                         @if($row['centuries'])<span class="text-[11px] text-muted whitespace-nowrap">{{ $ddCenturies($row['centuries']) }}</span>@endif
                         <span class="leader" aria-hidden="true"></span>
-                        @if($row['asked'])<span class="text-[11px] text-muted tabular-nums" title="آثاری که به درخواست او نوشته شده">{{ Fa::num($row['asked']) }} به درخواست</span>@endif
+                        @if($row['asked'])<span class="text-[11px] text-muted tabular-nums" data-tip="آثاری که به درخواست او نوشته شده">{{ Fa::num($row['asked']) }} به درخواست</span>@endif
                         @if($row['person'])
                             <span class="text-xs text-muted tabular-nums">{{ Fa::num($row['count']) }}</span>
                         @else
@@ -40,7 +40,7 @@
             <div class="flex items-end gap-1 sm:gap-2 h-28 border-b border-line-strong" role="list" aria-label="سهم آثار تقدیم‌شده یا سفارشی در هر سدۀ تألیف">
                 @foreach($ddCols as $col)
                     @php $tip = 'سدۀ ' . Fa::digits($col['century']) . ': ' . Fa::num($col['count']) . ' از ' . Fa::num($col['works']) . ' اثر (' . $pct($col['share']) . ')'; @endphp
-                    <span role="listitem" class="flex-1 h-full flex flex-col justify-end items-center gap-1 min-w-0" title="{{ $tip }}" aria-label="{{ $tip }}">
+                    <span role="listitem" class="flex-1 h-full flex flex-col justify-end items-center gap-1 min-w-0" data-tip="{{ $tip }}" aria-label="{{ $tip }}">
                         <span class="text-[10px] text-muted tabular-nums whitespace-nowrap">{{ $pct($col['share']) }}</span>
                         <span class="w-full max-w-10 bg-gold/70 rounded-t-[4px]" style="height: max({{ $col['count'] ? 2 : 0 }}px, {{ round($col['share'] * 100 / $ddMax, 2) }}%)"></span>
                     </span>

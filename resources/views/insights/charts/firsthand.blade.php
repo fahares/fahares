@@ -20,7 +20,7 @@
                         <a href="{{ route('libraries.show', $row['key']) }}" class="text-ink hover:text-cinnabar truncate min-w-0">{{ $row['name'] }}</a>
                         <span class="text-xs text-muted">{{ $row['city'] }}</span>
                         <span class="leader" aria-hidden="true"></span>
-                        <span class="text-xs text-muted tabular-nums whitespace-nowrap" title="{{ Fa::num($row['complete']) }} نسخه از {{ Fa::num($row['copies']) }}؛ {{ Fa::num($row['read']) }} نسخه سنجیده شده">{{ $pct($row['share']) }}</span>
+                        <span class="text-xs text-muted tabular-nums whitespace-nowrap" data-tip="{{ Fa::num($row['complete']) }} نسخه از {{ Fa::num($row['copies']) }}؛ {{ Fa::num($row['read']) }} نسخه سنجیده شده">{{ $pct($row['share']) }}</span>
                     </span>
                     <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
                         <span class="block h-full bg-gold/80 rounded-full" style="width: max(2px, {{ $row['share'] }}%)"></span>

@@ -36,7 +36,7 @@
                 <tr class="text-muted">
                     <th scope="col" class="text-right font-normal text-[10px] pb-1 pe-2">نسخه‌ها</th>
                     @foreach($grid['centuries'] as $col)
-                        <th scope="col" class="font-normal text-[10px] tabular-nums pb-1 text-center" title="{{ Fa::num($col['count']) }} نسخه در این سده">{{ Fa::approx($col['count']) }}</th>
+                        <th scope="col" class="font-normal text-[10px] tabular-nums pb-1 text-center" data-tip="سدۀ {{ Fa::digits($col['century']) }}: {{ Fa::num($col['count']) }} نسخه">{{ Fa::approx($col['count']) }}</th>
                     @endforeach
                 </tr>
             </thead>
@@ -47,7 +47,7 @@
                         $topShare = max([0.1, ...array_map(fn ($c) => $row['cells'][$c]['share'], $firmCols)]);
                     @endphp
                     <tr>
-                        <th scope="row" class="text-right font-normal text-ink pe-2 py-0.5 whitespace-nowrap max-w-40 truncate" title="{{ $row['name'] }}: {{ Fa::num($row['total']) }}">{{ $row['name'] }}</th>
+                        <th scope="row" class="text-right font-normal text-ink pe-2 py-0.5 whitespace-nowrap max-w-40 truncate" data-tip="{{ $row['name'] }}: {{ Fa::num($row['total']) }} نسخه">{{ $row['name'] }}</th>
                         @foreach($grid['centuries'] as $col)
                             @php
                                 $cell = $row['cells'][$col['century']];
@@ -58,9 +58,9 @@
                             @endphp
                             <td class="p-0 text-center">
                                 @if($col['count'] < $min)
-                                    <span class="block py-1.5 rounded-sm bg-line/40 text-muted" title="{{ $tip }}">·</span>
+                                    <span class="block py-1.5 rounded-sm bg-line/40 text-muted" data-tip="{{ $tip }}">·</span>
                                 @else
-                                    <a href="{{ $href($row['key'], $col['century']) }}" title="{{ $tip }}" aria-label="{{ $tip }}"
+                                    <a href="{{ $href($row['key'], $col['century']) }}" data-tip="{{ $tip }}" aria-label="{{ $tip }}"
                                        class="block py-1.5 rounded-sm tabular-nums hover:ring-1 hover:ring-cinnabar focus-visible:ring-2 focus-visible:ring-gold focus:outline-none"
                                        style="background: color-mix(in srgb, var(--cinnabar) {{ $toneCount }}%, transparent)"
                                        :style="`background: color-mix(in srgb, var(--cinnabar) ${mode === 'count' ? {{ $toneCount }} : {{ $toneShare }}}%, transparent)`"

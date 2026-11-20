@@ -27,7 +27,8 @@
                     };
                     $odd = $band['above'] === null;
                 @endphp
-                <li @class(['text-muted' => $odd])>
+                {{-- The two shades of the bar in figures: the certain dates and the doubtful ones --}}
+                <li @class(['text-muted' => $odd]) data-tip="{{ $name }}: {{ Fa::num($band['certain']) }} نسخه با تاریخ قطعی{{ $band['doubtful'] ? ' و ' . Fa::num($band['doubtful']) . ' نسخه با تاریخ مردد' : '' }}">
                     <span class="flex items-baseline gap-2">
                         <span @class(['text-ink' => ! $odd])>{{ $name }}</span>
                         <span class="leader" aria-hidden="true"></span>

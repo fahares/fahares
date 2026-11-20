@@ -39,7 +39,7 @@
                         @foreach($sz['centuries'] as $col)
                             @php $shown = $col['with_folios'] >= config('insights.min_sample'); @endphp
                             <div role="listitem" class="flex-1 h-full flex flex-col justify-end items-center gap-0.5 min-w-0"
-                                 title="سدۀ {{ Fa::digits($col['century']) }}: {{ $shown ? 'میانگین ' . Fa::num($col['folios']) . ' برگ از ' . Fa::num($col['with_folios']) . ' نسخه' : 'نسخۀ بسنده نیست' }}">
+                                 data-tip="سدۀ {{ Fa::digits($col['century']) }}: {{ $shown ? 'میانگین ' . Fa::num($col['folios']) . ' برگ از ' . Fa::num($col['with_folios']) . ' نسخه' : 'نسخۀ بسنده نیست' }}">
                                 @if($shown)
                                     <span class="text-[10px] text-muted tabular-nums">{{ Fa::num($col['folios']) }}</span>
                                     <span class="w-full max-w-8 rounded-t-[3px] bg-gold/70" style="height: {{ round($col['folios'] * 100 / $maxFolios, 2) }}%"></span>
@@ -54,7 +54,7 @@
                     </div>
                     <div class="flex gap-1 mt-0.5" aria-label="میانگین سطرهای هر سده">
                         @foreach($sz['centuries'] as $col)
-                            <span class="flex-1 text-center text-[10px] text-muted tabular-nums" title="میانگین سطر در سدۀ {{ Fa::digits($col['century']) }}">{{ $col['with_lines'] >= config('insights.min_sample') ? Fa::digits(str_replace('.', '٫', (string) $col['lines'])) : '·' }}</span>
+                            <span class="flex-1 text-center text-[10px] text-muted tabular-nums" data-tip="میانگین سطر در سدۀ {{ Fa::digits($col['century']) }}">{{ $col['with_lines'] >= config('insights.min_sample') ? Fa::digits(str_replace('.', '٫', (string) $col['lines'])) : '·' }}</span>
                         @endforeach
                     </div>
                     <p class="text-center text-[11px] text-muted mt-0.5">سدۀ هجری · سطر در صفحه</p>

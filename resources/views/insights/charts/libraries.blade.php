@@ -34,7 +34,7 @@
                             <span class="text-xs text-muted">{{ $row['city'] }}</span>
                             <span class="leader" aria-hidden="true"></span>
                             @if($list === 'oldest')
-                                <span class="text-xs text-muted tabular-nums" title="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخۀ تاریخ‌دار{{ $row['century_only'] ? '، از جمله ' . Fa::num($row['century_only']) . ' نسخه که تنها سده یا بخشی از سده دارند' : '' }}">میانگین {{ Fa::digits($row['mean']) }}ق</span>
+                                <span class="text-xs text-muted tabular-nums" data-tip="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخۀ تاریخ‌دار{{ $row['century_only'] ? '، از جمله ' . Fa::num($row['century_only']) . ' نسخه که تنها سده یا بخشی از سده دارند' : '' }}">میانگین {{ Fa::digits($row['mean']) }}ق</span>
                             @else
                                 <a href="{{ $search('manuscripts', ['library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
                             @endif

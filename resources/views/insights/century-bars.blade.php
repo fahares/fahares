@@ -26,7 +26,7 @@
         @endphp
         <a role="listitem" href="{{ $href($row['century']) }}"
            class="group flex-1 h-full flex flex-col justify-end items-center gap-1 min-w-0 focus:outline-none"
-           title="{{ $tip }}" aria-label="{{ $tip }}">
+           data-tip="{{ $tip }}" aria-label="{{ $tip }}">
             <span class="text-[10px] sm:text-xs text-muted tabular-nums whitespace-nowrap group-hover:text-cinnabar">{{ Fa::approx($row['count']) }}</span>
             <span class="w-full max-w-12 flex flex-col-reverse rounded-t-[4px] overflow-hidden group-hover:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-gold transition"
                   style="height: max({{ $row['count'] ? 2 : 0 }}px, {{ round($row['count'] * 100 / $max, 2) }}%)">
