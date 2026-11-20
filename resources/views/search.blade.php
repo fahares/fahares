@@ -314,7 +314,7 @@
                                         $ms->extentLabel(false),
                                         $ms->has_author_marginalia ? 'حواشی مؤلف' : null,
                                         $ms->corrected_by_author ? 'تصحیح مؤلف' : ($ms->collated_with_author_copy ? 'مقابله با نسخۀ مؤلف' : ($ms->copied_from_author_copy ? 'از روی نسخۀ مؤلف' : null)),
-                                        (! empty($ms->ownership_and_seals_list) && count($ms->ownership_and_seals_list)) ? 'مهر و تملک (' . Fa::digits(count($ms->ownership_and_seals_list)) . ')' : null,
+                                        $ms->provenanceCount() ? 'مهر و تملک (' . Fa::digits($ms->provenanceCount()) . ')' : null,
                                         $ms->is_illuminated ? 'مذهّب' : null,
                                         $ms->is_illustrated ? 'مصوّر' : null,
                                         $ms->is_corrected ? 'مصحَّح' : null,

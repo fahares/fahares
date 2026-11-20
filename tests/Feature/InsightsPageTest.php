@@ -98,7 +98,7 @@ class InsightsPageTest extends TestCase
         $this->manuscript($work, ['copy_date_raw' => '1100ق', 'copy_place' => 'هرات']);
         Insights::refresh();
 
-        $this->get(route('insights'))->assertOk()
+        $this->insightsPages()->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'century' => 11])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات'])), false)

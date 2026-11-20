@@ -185,7 +185,13 @@ class InsightsMoreFiguresTest extends TestCase
         $entry($twice, $rejected, ['status' => SourceEntry::STATUS_REJECTED]);
         $entry($once, $old);
 
-        $figures = $this->figures()['source_overlap'];
+        $data = $this->figures();
+        $figures = $data['source_overlap'];
+
+        // the note names no union catalogue: item 147 keeps Fankha's name off the public pages (step 14.257)
+        $note = \App\Support\InsightsNotes::for($data)['sourceOverlap'];
+        $this->assertStringNotContainsString('فنخا', implode(' ', [...$note['reading'], ...$note['examples']]));
+        $this->assertStringContainsString('هنوز به هیچ فهرست چاپی کتابخانه پیوند ندارند', implode(' ', $note['examples']));
 
         $this->assertSame([0 => 1, 1 => 1, 2 => 1, 3 => 0], $figures['counts']);
         $this->assertSame(2, $figures['described']);
@@ -225,6 +231,45 @@ class InsightsMoreFiguresTest extends TestCase
         $this->assertStringContainsString('بلندترین ستون سدۀ ۱۱ است، با ۳ نسخه', implode(' ', $notes['timeline']['examples']));
     }
 
+    public function test_each_chart_gives_its_figures_as_tables_and_a_thin_scope_breaks_none()
+    {
+        $this->copy($this->work('اثر تنهای جدول‌ها'));
+        $tables = \App\Support\InsightsTables::for($this->figures());
+
+        $this->assertCount(24, $tables);
+        foreach ($tables as $chart => $list) {
+            $this->assertIsList($list, $chart);
+            foreach ($list as $table) {
+                $this->assertNotEmpty($table['rows'], $chart);
+                foreach ($table['rows'] as $row) {
+                    $this->assertCount(count($table['columns']), $row, "{$chart}: {$table['file']}");
+                }
+            }
+        }
+    }
+
+    public function test_a_table_holds_the_figures_its_chart_is_drawn_from()
+    {
+        $first = $this->work('رسالۀ جدول یکم');
+        $second = $this->work('رسالۀ جدول دوم');
+        foreach (['100', '200'] as $key) {
+            $this->copy($first, ['collection_key' => $key, 'copy_date_raw' => '1005ق']);
+            $this->copy($second, ['collection_key' => $key, 'copy_date_raw' => 'قرن 11']);
+        }
+        $this->copy($first, ['copy_date_raw' => '1250ق']);
+
+        $tables = \App\Support\InsightsTables::for($this->figures());
+        $rows = fn (string $chart, int $i = 0) => $tables[$chart][$i]['rows'];
+
+        // Century, known year, doubtful, century alone, doubtful, sum; then the decades of the copies with a year
+        $this->assertSame([[11, 2, 0, 2, 0, 4], [13, 1, 0, 0, 0, 1]], $rows('timeline'));
+        $this->assertSame([[11, 1001, 1010, 2, 0, 2], [13, 1241, 1250, 1, 0, 1]], $rows('timeline', 1));
+        $this->assertSame([[1, 'رسالۀ جدول یکم', null, 3], [2, 'رسالۀ جدول دوم', null, 2]], $rows('topWorks'));
+        $this->assertSame([['۲ رساله', 2, 4]], $rows('collections'));
+        $this->assertSame([['رسالۀ جدول یکم', null, 'رسالۀ جدول دوم', null, 2]], $rows('collections', 1));
+        $this->assertSame([['۲ نسخه', 1, 2], ['۳ تا ۵ نسخه', 1, 3]], $rows('copiesPerWork'));
+    }
+
     public function test_the_page_shows_the_five_figures()
     {
         $first = $this->work('رسالۀ صفحۀ آمار یکم', ['author_id' => $this->author()->id]);
@@ -239,7 +284,7 @@ class InsightsMoreFiguresTest extends TestCase
             }
         }
 
-        $this->get(route('insights', ['library' => $this->library->id]))->assertOk()
+        $this->insightsPages(['library' => $this->library->id])->assertOk()
             ->assertSee('هر اثر چند نسخه دارد')
             ->assertSee('پرنسخه‌ترین آثار هر سده')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'work_id' => $first->id, 'century' => 11, 'library_id' => $this->library->id])), false)
@@ -248,6 +293,10 @@ class InsightsMoreFiguresTest extends TestCase
             ->assertSee('هر نسخه در چند فهرست وصف شده')
             ->assertSee('این نمودار را چگونه بخوانیم')
             ->assertSee('نمونه از همین ارقام')
+            ->assertSee('جدول داده‌ها')
+            ->assertSee('data-insights-table="copies-by-century"', false)
+            ->assertSee('data-file="fahares-copies-by-century-library=' . $this->library->id . '.csv"', false)
+            ->assertSee('function insightsCsv', false)
             ->assertSee('بلندترین ستون سدۀ ۱۱ است، با ۱۲ نسخه');
     }
 }

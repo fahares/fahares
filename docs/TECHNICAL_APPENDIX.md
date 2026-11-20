@@ -12294,6 +12294,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `ImportCopyNotesCommandTest` (۳ آزمون): ترتیب و ویژگی‌ها و اجرای دوم، جانشینی و نگه‌داشتن کار ویراستار، و توقف با نوع ناشناخته.
 - **تمرین روی `fahares_prod` محلی:** migration، سپس `Wrote 249932 notes of 146476 copies` در ۲۳ ثانیه. اجرای دوم: `same 146476`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_254.jsonl.gz --apply`. جدول تازه است و پشتیبان نمی‌خواهد.
+- **اجرای تولید (۲۹ آبان ۱۴۰۵، `prod-run`):** شمارش، سپس `--apply`: `Wrote 249924 notes of 146474 copies`، با `skipped: no such copy 1` و `skipped: another shelfmark 1`. اجرای دوم: `same 146474`. جدول: ۲۴۹٬۹۲۴ سطر و ۱۴۶٬۴۷۴ نسخه.
 
 ### گام ۱۴.۲۵۵: `Admin\ClaimController` و `App\Sources\FirstHand\ClaimReview`
 
@@ -12324,6 +12325,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **زمان‌بندی:** `fahares:firsthand-coverage` هر روز ساعت ۰۳:۱۰ (`withoutOverlapping(30)`) در `routes/console.php`. روی `fahares_prod` ۳۶ ثانیه طول کشید.
 - **آزمون:** `FirsthandCoveragePageTest`: نمایش در دو صفحه، نبودن در آمار دامنه‌دار و در کتابخانۀ نسنجیده، کش خالی یا نادرست، کتابخانۀ حذف‌شده، و زمان‌بندی.
 
+### گام ۱۴.۲۵۷: نام فنخا در بخش `#source-overlap` صفحۀ آمار
+
+- `insights/index.blade.php`: برچسب ردیف نخست `source_overlap.counts[0]` «هنوز بی فهرست کتابخانه» است و توضیح بالای نمودار نام فنخا ندارد.
+- `InsightsNotes::sourceOverlap()`: بند خواندن و نمونۀ `counts[0]` بی نام فنخا.
+- **آزمون:** `InsightsMoreFiguresTest::test_copies_are_counted_by_the_catalogues_that_describe_them` نبودن «فنخا» در یادداشت را می‌سنجد. `FirsthandCoveragePageTest` نبودن آن را در کل صفحه می‌سنجد.
+
 ### گام ۱۴.۲۵۸: مؤید ج ۳ (`moayyed`)، و یافته‌های میراث شهاب، نور و نوربخش
 - **مؤید ج ۳ (#۶۰۷):**
   - **دانلود (به تأیید کاربر):** صفحۀ `ghaemiyeh.com/show-book/505426` پنج پرونده دارد (HTML، EPUB، Word، «PDF متنی» و «PDF»). `library/download/{id}` تنها صفحه‌ای با iframe است و خود پرونده از `ghaemiyeh.com/file-access/6001668` می‌آید (۷۹٫۲ مگابایت، ۶۶۷ برگ، JPEG خاکستری ۱۱۰۰×۱۷۷۰). در `../fahares-sources/moayyed/v03.pdf` با `MD5SUMS`.
@@ -12346,3 +12353,104 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نوربخش ج ۱ (#۴۹۹):** نگاشت و PDF در `../fahares-sources/nurbakhsh/` آماده است. ۴۸۴ ارجاع «[نشریه: 13-…]» روی همین جلدند و باید نخست به دفتر ۱۳ نشریه (#۵۱۵، کد `tehran-univ-nashriyye`) بروند، وگرنه برگۀ نادرست باز می‌شود.
 - **ادبیات ج ۳ (#۴۱۱):** پروندۀ خزانه‌ها 3410 روی کارت SD است و کارت در این جلسه وصل نبود.
 - **سیاهۀ ۲۵ جلدِ پیدانشده:** `../fahares-sources/اسکن-پیدا-نشده-۲۵-جلد.csv` (عنوان، ناشر، سال، صفحه، بازۀ شماره‌ها، نسخه)، برای جست‌وجوی کاربر. ۲۰ تای آن‌ها در برگۀ «فایل نداریم» فایل اکسل ۲۵ آبان هم هستند.
+
+### گام ۱۴.۲۵۹: خوانندۀ سه قالب فهرست، و `sources:take-texts` دسته‌به‌دسته
+
+- **خواننده‌ها** (`app/Sources/Extractors/`، ثبت در `Extractors::FORMATS`). هر سه سطرهای صفحه را جدا می‌کنند و مدخل‌ها را با نشانی سطر می‌سازند. نسخه بر هر صفحه‌ای از سرعنوانش تا سرعنوان بعدی «می‌ایستد»، چون فنخا صفحۀ رسالۀ مجموعه را ارجاع می‌دهد. شمارۀ «N/M» رسالۀ M مجموعه را می‌گیرد و `strict_part` رسالۀ ناموجود را رد می‌کند.
+  - `ShelfmarkHeadedCatalogueExtractor` (`shelfmark_headings`، مجلس):
+    - سرعنوان `^\(?\d{2,6}\)?( مجموعه:?)?$` است. شمارۀ آن باید از پیشین بزرگ‌تر باشد و حداکثر ۶۰ بیشتر، تا عدد سرگردان سرعنوان گرفته نشود.
+    - رساله `^\d+\.` است.
+    - شرح نسخه از نخستین «خط:»، «کاغذ:»، «خط مجموعه:» یا «بخش اول» پس از آخرین رساله آغاز می‌شود و به آخرین سطر «ثبت» می‌رسد.
+  - `ListedShelfmarkCatalogueExtractor` (`listed_shelfmarks`، مروی):
+    - سرعنوان `( ش a و b )` است. «- خشتی» پس از شماره یعنی مجموعه.
+    - سطر نسخه `* ش n ،` است. شماره‌اش به شماره‌های سرعنوان افزوده می‌شود، چون سرعنوان گاهی ناخواناست («۰۰۰[؟]»).
+    - پانوشت پس از `---` کنار می‌رود.
+    - متن سه حالت دارد: اثر و سطر نسخه؛ رساله، و سرعنوان مجموعه همراه رساله؛ یا سرعنوان، و شرح قرآن‌ها.
+  - `SerialShelfmarkCatalogueExtractor` (`serial_shelfmarks`، ملک):
+    - سرعنوان شمارۀ ردیفی در سطری تنهاست که سطر بعدش با شمارۀ نسخه آغاز می‌شود (پس از آن نویسه، عدد شمار برگ، یا هیچ).
+    - `copy_text` سطرهای شرح تا نخستین رساله است. `entry_number` شمارۀ ردیف است.
+- **`TakeSourceTextsCommand`:**
+  - شناسه‌ها یک‌جا خوانده می‌شوند و مدخل‌ها با `sourceVolume` و `citable` هزارتا‌هزارتا. ۳۹٬۵۳۹ ارجاع مجلس با هم از `memory_limit` ۵۱۲M بیشتر می‌شد و با کد ۲۵۵ بی پیام می‌ایستاد.
+  - ارجاع بی صفحۀ منبع یک‌جلدی با `citation_text` «[ف: N]» در صفحۀ N خوانده می‌شود، و در جدول «page from the citation» شمرده می‌شود. در ثبت ممیزی، `page_start` پیشین `null` می‌ماند تا برگرداندن درست باشد.
+- **`PrintedPage::marks`:** مدخل‌های صفحه با `source_volume_id` جلد، یا اگر ندارند با `volume_number`، پیدا می‌شوند. ۱٬۳۹۷ ارجاع مروی `volume_number` ندارند، چون فنخا آن را «[ف: 150]» ارجاع می‌دهد.
+- **آزمون:** `ShelfmarkCataloguesTest` (پنج آزمون، با پیوند صفحۀ چاپی)؛ جدول `NumberedCopyCatalogueTest` سطر تازه را دارد.
+- **داده:**
+  - صفحه‌ها: `../fahares-sources/ocr-claude/load/{majlis_v20,majlis_v29,majlis_v32,malek_v05,marvi_v01}.jsonl.gz` با `MD5SUMS`.
+  - ج ۲۹ از دو PDF ساخته شد: `v29-1` با چاپی = pdf − ۱ از pdf ۹، و `v29` با چاپی = pdf + ۵۸۱ (از pdf ۲۸۶، + ۵۸۰) از pdf ۶. صفحه‌های ۸ تا ۱۰۴۶ است.
+- **اجرا در پروداکشن (پس از استقرار و با تأیید کاربر):**
+  1. پشتیبان `source_pages` و `source_entries` این پنج جلد، و رونوشت پنج پرونده به `/tmp` با md5.
+  2. یک `prod-run` با این فرمان‌ها:
+     - `sources:import-pages majlis /tmp/majlis_v20.jsonl.gz --volume=20`، و همین برای ۲۹ و ۳۲؛
+     - `sources:import-pages malek /tmp/malek_v05.jsonl.gz --volume=5`؛
+     - `sources:import-pages marvi /tmp/marvi_v01.jsonl.gz`.
+  3. سه `sources:take-texts` با `--extractor`:
+     - `catalogue-af2952129bfd --extractor=shelfmark_headings`؛
+     - `catalogue-7ac531af190e --extractor=serial_shelfmarks`؛
+     - `catalogue-4ae9dc5de46a --extractor=listed_shelfmarks`.
+     - شمارها باید همان تمرین باشد: ۵٬۵۱۸، ۲٬۷۷۰ و ۱٬۳۹۸.
+  4. پاک کردن پرونده‌ها از `/tmp`.
+
+### گام ۱۴.۲۶۰: `ManuscriptNote::GROUPS`، `Manuscript::noteGroups()` و `keepsSealsList()`
+
+- **سنجش (`fahares_prod` محلی):** هر تکۀ سه فهرست `metadata`، پس از برداشتن برچسب («مهر:»، «تملک:»، «واقف:» …) و شکستن با «؛»، حرف‌به‌حرف با متن یادداشت‌های جدول، فیلدهای v2 و `raw_text` سنجیده شد.
+  - `editorial_notes`: ۳۵٬۹۱۶ در جدول، ۱۲٬۹۸۶ در `contents_scope`، ۲٬۳۹۲ در `copy_description`، ۱٬۳۳۰ در ستون‌های دیگر نسخه، ۱٬۳۰۰ تنها در متن خام و ۸۷ هیچ‌جا.
+  - `ownership_and_seals`: ۶۵٬۱۴۸ در جدول، ۵٬۲۹۵ تنها در متن خام (بیشتر با ارجاع چسبیده، «تملک: فرهاد میرزا [نشریه: 11-881]») و ۷۳ هیچ‌جا.
+  - `residual_notes`: ۳۰٬۱۱۵ در جدول و ۲۰٬۴۹۳ هیچ‌جا، چون این فهرست نقطه‌گذاری و حرف ربط ندارد.
+- **`fankha_v2_copy_notes_export.py`:** `copy_description` → `description`، `contents_scope` → `scope`، `defects` → `defect`، با `typed_by = field`. خروجی `copy_notes_step14_260.jsonl.gz`: افتادگی ۴۸٬۷۵۴، بخش موجود ۳۵٬۷۰۳ و شرح نسخه ۱۰٬۹۸۴. پروندۀ گام ۱۴.۲۵۴ دست نخورد.
+- **`ManuscriptNote`:** `TYPES` نوزده کلید دارد، با برچسب کوتاه صفحه. `GROUPS` چهار بخش با عنوان و ترتیب نوع‌ها: `contents` (شرح، بخش موجود، افتادگی، محتوا، افزوده‌ها، فهرست‌نگار، دیگر)، `provenance`، `marks` و `physical`.
+- **`Manuscript::noteGroups()`:** یادداشت‌ها به تفکیک بخش، بخش تهی حذف. `ManuscriptController::show` رابطۀ `notes` را بار می‌کند.
+- **`Manuscript::keepsSealsList()`:** فهرست `metadata` می‌ماند اگر نسخه یادداشت پیشینه ندارد، یا پیشنهاد `approved` روی `ownership_and_seals` دارد، یا ثبت `verify` دارد که تنها ستونش `metadata` است و این کلید را دارد. وگرنه بخش از جدول می‌آید.
+- **تکه‌های جامانده در خروجی:** هر تکۀ `metadata.editorial_notes` (شکسته با «؛» و سطر، بی ارجاع پایانی `[…]`) که حرف‌به‌حرف نه در یادداشت‌های نسخه است، نه در هیچ فیلد نسخۀ v2، و پاره‌های «،»اش هم همه در یادداشت‌ها نیست، با `type = other` و `typed_by = site` می‌آید: ۸۳۴ تکه. دسته‌بندی ۶۹٬۶۰۰ تکه: ۶۷٬۳۸۳ در جدول، ۶۳۹ در آغاز، ۵۹۸ در انجام، ۱۶۹ ارجاع، ۱۰۳ کاتب، ۹۳ تاریخ، ۱۲۶ «ادامۀ فیلد»، ۳۲۲ تنها در متن خام و ۵۴ هیچ‌جا.
+- **`Manuscript::provenanceCount()`:** شمار یادداشت‌های پیشینۀ جدول، وگرنه شمار فهرست `metadata`؛ `search.blade.php` همین را می‌شمارد و `SearchController::WITH` رابطۀ `notes` را بار می‌کند.
+- **`manuscripts/show.blade.php`:** حلقه روی `noteGroups()`؛ دو بخش «فوائد و رسائل» و «یادداشت‌های فهرست‌نگار» تنها وقتی `noteGroups()` تهی است.
+- **آزمون:** `test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists`.
+- **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_260.jsonl.gz --apply`.
+
+### گام ۱۴.۲۶۱: «محل» به‌جای «جای» در صفحۀ آمار
+
+- **شمارش پیش از کار (قالب‌ها، `app`، `config`):** «جای کتابت» ۱۴، «محل کتابت» ۱۱، «جای تألیف» ۷، «محل تألیف» ۲، «جای‌دار» ۷ و «جای شناخته» ۱. همۀ صورت‌های «جای» در `insights/index.blade.php` و `InsightsNotes.php` بودند.
+- **جایگزینی‌ها:** «نسخۀ جای‌دارِ کتابخانه‌های» به «نسخۀ دارای محل کتابت در کتابخانه‌های»؛ «نسخۀ جای‌دار و تاریخ‌دار» به «نسخۀ تاریخ‌دار با محل کتابت»؛ «بیشترین نسخۀ جای‌دارش در» به «بیشترین نسخه‌اش در»؛ «برای این سده جایی ثبت نشده» به «محلی ثبت نشده»؛ «جاهایی چون «ایران»» به «نام‌هایی چون «ایران»».
+- **آنچه ماند:** ۲۷ سطر در قالب‌های مدیریت و پیشنهادها که «جای» را در معنای جایگاه دارند، و سه جمله در توضیح‌ها («در جای دیگری»، «جایش را به … می‌دهد»).
+- **آزمون:** تنها `InsightsScopeTest` عنوان بخش را می‌سنجید و به‌روز شد.
+
+### گام ۱۴.۲۶۲: `App\Support\InsightsTables` و `insights/data-table.blade.php`
+
+- **ساختار:** `InsightsTables::for($data)` برای هر یک از ۲۴ کلید `InsightsNotes` فهرستی از جدول‌ها می‌دهد: `['title', 'file', 'columns' => [[برچسب، نوع]], 'rows']`. نوع ستون `text`، `num`، `year` (بی جداکنندۀ هزارگان)، `dec` یا `pct` است. جدول بی‌ردیف کنار می‌رود.
+- **جدول‌ها (۳۳ تا در آمار کل):** سده‌ها و دهه‌های کتابت؛ مؤلفان و آثار در سده‌ها؛ فاصلۀ کتابت تا وفات؛ شهرهای کتابت و تألیف با ستون هر سده؛ جابه‌جایی (محل کتابت، شهر امروز، شمار)؛ موضوع‌ها، ویژگی‌ها، زبان‌ها و خطوط در سده‌ها، هر کدام با ردیف «همۀ نسخه‌های سده»؛ کاتبان؛ بزرگ‌ترین و کهن‌ترین کتابخانه‌ها؛ تقدیم‌ها و سفارش‌دهندگان با سهم هر سده؛ نسخه‌های عکسی؛ دسته‌های برگ و میانگین هر سده؛ آثار پرنسخه؛ دسته‌های شمار نسخه؛ آثار هر سده؛ بی نشانی چاپ؛ مجموعه‌ها و جفت آثار هم‌مجلد؛ خطوط؛ زبان‌ها؛ جلدهای فهرست؛ شمار فهرست هر نسخه و جفت فهرست‌ها.
+- **جای قالب:** `insights/explain.blade.php` اکنون نخست `insights/data-table` را می‌آورد و سپس توضیح را؛ پس جدول فقط جایی هست که نمودار کشیده شده است. `InsightsTables::firsthand($coverage)` جدول نمودار گام ۱۴.۲۵۶ را می‌دهد که دادۀ جدا دارد.
+- **CSV:** تابع `insightsCsv` (یک بار در صفحه، با `@once`) ردیف‌های همان `<details>` را می‌خواند. هر خانه مقدار خام را در `data-v` دارد. فایل با BOM آغاز می‌شود تا Excel متن فارسی را درست بخواند. پسوند دامنه از `InsightsScope::query()` می‌آید.
+- **سنجش در مرورگر (`fahares_prod`):** فایل جابه‌جایی با سطر «محل کتابت,شهر امروز,نسخه» و «اصفهان,تهران,1339» آغاز شد. دامنه‌ها: `author=1110` با ۳۰ جدول، `work=52504` با ۱۶، `copy_city=هرات` با ۲۹، و `scribe=1` (تهی) بی جدول.
+- **آزمون:** دامنه‌ای با یک نسخه هیچ جدولی را نمی‌شکند و شمار خانه‌های هر ردیف با ستون‌ها یکی است؛ و ردیف‌های جدول‌های خط زمانی، آثار پرنسخه، مجموعه‌ها و شمار نسخۀ هر اثر با دادۀ ساختۀ آزمون یکی است.
+
+### گام ۱۴.۲۶۳: صفحه‌های موضوعی آمار (`insights.topics`)
+
+- **مسیرها:** `insights` (صفحۀ اصلی) و `insights.topic` (`/insights/{topic}`، با `whereIn` روی کلیدهای `config('insights.topics')`). `insights.lookup` پیش از آن تعریف شده و نشانی‌اش همان می‌ماند. `InsightsController::index` هر دو را پاسخ می‌دهد.
+- **پیکربندی:** `insights.topics`: برای هر صفحه `name`، `title`، `lead` و `charts`. دو نمودار در یک آرایۀ درونی کنار هم می‌نشینند.
+
+  | صفحه | نمودارها |
+  |---|---|
+  | `time` | `timeline`، `authors`، `copy-gap` |
+  | `places` | `places`، `movement` |
+  | `works` | `top-works`، `copies-per-work`، `century-works`، `unprinted`، `subjects`، `languages` |
+  | `copies` | `features`، `sizes`، `language-scripts`، [`scripts`، `facsimiles`]، `collections` |
+  | `people` | [`scribes`، `patrons`]، `dedications` |
+  | `libraries` | `libraries`، `sources`، `firsthand`، `source-overlap` |
+
+- **قالب‌ها:** `insights/index.blade.php` اکنون سر صفحه، نوار، فرم فیلتر، کارت‌های صفحۀ اصلی و پایان صفحه را دارد و نمودارهای صفحه را با `@include('insights.charts.' . $chart)` می‌آورد. ۲۴ فایل `insights/charts/*.blade.php` با اسکریپت از همان فایل بریده شدند، بی تغییر در محتوا. نام هر فایل همان `id` بخش آن است.
+- **متغیرهای مشترک:** متغیرهای بلوک `@php` آغاز `index` (`$pct`، `$search`، `$min`، `$notes`، `$tables`، `$t`، `$p` و …) از راه `@include` به قالب نمودارها می‌رسند. `use` به فایل دیگر نمی‌رسد، پس هر قالب نمودار `use App\Support\Fa` و `Jalali` خود را دارد.
+- **پیوندهای درون صفحه:** `$pageUrl($slug, $query)` و `$here($query)` در `index`. فرم فیلتر و «برداشتن فیلتر» با `$here` در همان صفحه می‌مانند. پیوند «آمار» کنار یک کتابخانه یا جلد فهرست به صفحۀ اصلی همان دامنه می‌رود.
+- **نشانی‌های کهنه:** لنگر به سرور نمی‌رسد، پس صفحۀ اصلی نگاشت `id` نمودار به صفحه‌اش را دارد و با `location.replace` می‌فرستد. پیوند صفحۀ کتابخانه به `#firsthand` مستقیم به `/insights/libraries#firsthand` رفت.
+- **جست‌وجوگرها:** هر صفحه `title` و `meta description` خود را دارد (`lead`). صفحۀ دامنه‌دار همچنان `noindex` است. `SitemapController::getStaticUrls` هفت نشانی تازه دارد.
+- **آزمون:** `TestCase::insightsPages($query)` صفحۀ اصلی و شش صفحه را با هم می‌خواند و هر هفت پاسخ را ۲۰۰ می‌خواهد؛ آزمون‌های نمودارها با آن نوشته شدند تا به جای نمودار وابسته نباشند. `InsightsTopicPagesTest`: هر فایل نمودار در یک صفحه است و برعکس؛ صفحۀ اصلی نمودار ندارد؛ صفحۀ موضوعی فقط نمودارهای خود را دارد؛ موضوع ناشناخته ۴۰۴ است؛ دامنه در نوار و فرم می‌ماند.
+- **سنجش در مرورگر (`fahares_prod`):** هر شش صفحه با `author=1110`، `library=4&century=11` و `scribe=1` (تهی) پاسخ ۲۰۰ دادند. `/insights?library=4#movement` به `/insights/places?library=4#movement` رفت.
+
+### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
+
+- **`SuggestionRegistry::noteField()`:** `note_{id}` با `input = textarea` و `note_id`، برچسب «یادداشت ‹نوع›»؛ `note_new_{type}` برای `ownership`، `seal`، `endowment` و `acquisition` با `new_note_type` و `required`، برچسب از `NEW_NOTE_LABELS`.
+- **`field()`:** برای نسخه، پس از `sourceEntryField()`. **`fieldOf()`:** فیلد یادداشت باید در `recordFields()` همان نسخه باشد.
+- **`recordFields()`:** برای نسخۀ دارای یادداشت، یک فیلد برای هر سطر. اگر `keepsSealsList()` نادرست است یا فهرست `metadata` تهی است، `ownership_and_seals` برداشته و چهار فیلد افزودن گذاشته می‌شود.
+- **`currentValue()`:** متن سطر؛ برای فیلد افزودن تهی.
+- **`SuggestionApplier::applyNote()`:** اصلاح متن با `typed_by = editor`، حذف سطر با مقدار تهی، یا سطر تازه با `position` آخر + ۱. `old` و `new` زیر کلید `notes` به `audit_logs` می‌رود.
+- **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
+- **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
+- **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.

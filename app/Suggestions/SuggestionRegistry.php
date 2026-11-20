@@ -5,6 +5,7 @@ namespace App\Suggestions;
 use App\Models\Cataloger;
 use App\Models\Library;
 use App\Models\Manuscript;
+use App\Models\ManuscriptNote;
 use App\Models\SourceEntry;
 use App\Models\Person;
 use App\Models\Source;
@@ -245,7 +246,7 @@ class SuggestionRegistry
             return null;
         }
         $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
-            'manuscript' => self::sourceEntryField($name),
+            'manuscript' => self::sourceEntryField($name) ?? self::noteField($name),
             'work' => self::bibliographyPageField($name),
             default => null,
         };
@@ -261,7 +262,9 @@ class SuggestionRegistry
     {
         $field = self::field($record::class, $name);
         if (! $field || (isset($field['entry_id']) && ! SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
-            || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))) {
+            || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))
+            // a note of this very copy, or a new one where the page shows the copy's typed notes
+            || ((isset($field['note_id']) || isset($field['new_note_type'])) && ! array_key_exists($field['name'], self::recordFields($record)))) {
             return null;
         }
 
@@ -408,6 +411,20 @@ class SuggestionRegistry
                 }
             }
         }
+        if ($record instanceof Manuscript && $record->notes->isNotEmpty()) {
+            // each typed note of the copy is a field of its own, and a seal, an ownership note, an endowment or an
+            // acquisition can be added (step 14.264); the list of them all is then no field, unless the page still
+            // shows it (Manuscript::keepsSealsList)
+            foreach ($record->notes as $note) {
+                $fields[self::NOTE_PREFIX . $note->id] = self::noteField(self::NOTE_PREFIX . $note->id, $note);
+            }
+            if (! $record->keepsSealsList() || ! $record->ownership_and_seals_list) {
+                unset($fields['ownership_and_seals']);
+                foreach (ManuscriptNote::GROUPS['provenance']['types'] as $type) {
+                    $fields[self::NEW_NOTE_PREFIX . $type] = self::noteField(self::NEW_NOTE_PREFIX . $type);
+                }
+            }
+        }
         if ($record instanceof Work) {
             foreach (\App\Support\BibliographyLinks::viewerPages($record->sources()->bibliography()->pluck('citation_text')) as $vp) {
                 $name = self::bibliographyPageName($vp);
@@ -442,6 +459,31 @@ class SuggestionRegistry
             'entry_id' => $entry->id,
             'can_be_absent' => true,
         ];
+    }
+
+    /** One typed note of a copy, «note_{id}», and a new note of provenance, «note_new_{type}» (step 14.264). */
+    public const NOTE_PREFIX = 'note_';
+
+    public const NEW_NOTE_PREFIX = 'note_new_';
+
+    /** What the form calls a new note of each type of provenance */
+    public const NEW_NOTE_LABELS = ['ownership' => 'افزودن تملک', 'seal' => 'افزودن مهر', 'endowment' => 'افزودن وقف', 'acquisition' => 'افزودن ورود به کتابخانه'];
+
+    /**
+     * The field of one note of a copy: its text, which an emptied value removes; or of a note to add, by its type.
+     */
+    public static function noteField(string $name, ?ManuscriptNote $note = null): ?array
+    {
+        if (str_starts_with($name, self::NEW_NOTE_PREFIX)) {
+            $type = substr($name, strlen(self::NEW_NOTE_PREFIX));
+
+            return isset(self::NEW_NOTE_LABELS[$type]) ? ['label' => self::NEW_NOTE_LABELS[$type], 'input' => 'textarea', 'new_note_type' => $type, 'required' => true] : null;
+        }
+        if (! $note && preg_match('/^' . self::NOTE_PREFIX . '(\d+)$/', $name, $m)) {
+            $note = ManuscriptNote::find((int) $m[1]);
+        }
+
+        return $note ? ['label' => 'یادداشت ' . (ManuscriptNote::TYPES[$note->type] ?? $note->type), 'input' => 'textarea', 'note_id' => $note->id] : null;
     }
 
     public const BIBLIOGRAPHY_PAGE_PREFIX = 'bibliography_page_';
@@ -494,6 +536,10 @@ class SuggestionRegistry
     public static function currentValue(Model $record, array $field): ?string
     {
         $name = $field['name'];
+
+        if (isset($field['note_id']) || isset($field['new_note_type'])) {
+            return isset($field['note_id']) ? ManuscriptNote::find($field['note_id'])?->text : null;
+        }
 
         // «2–7», «34پ–43ر»: both ends of the copy's place in its volume are one field
         if (! empty($field['leaf_range'])) {
