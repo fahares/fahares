@@ -39,7 +39,7 @@
         @endif
         <span class="text-cinnabar text-xs group-open:rotate-180 transition" aria-hidden="true">▾</span>
     </summary>
-    <form method="GET" action="{{ route('insights') }}" class="px-4 pb-4 pt-1 border-t border-line">
+    <form method="GET" action="{{ $here([]) }}" class="px-4 pb-4 pt-1 border-t border-line">
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3 mt-3">
             @foreach($fields as $field => [$name, $hint])
                 <div x-data="insightsCombo({ field: @js($field), value: @js($scope->get($field)), label: @js($labelOf($field)), url: @js(route('insights.lookup')) })"
@@ -98,7 +98,7 @@
         <div class="mt-4 flex flex-wrap items-center gap-3">
             <button type="submit" class="bg-cinnabar text-on-cinnabar px-4 py-1.5 text-sm font-semibold hover:brightness-110 transition cursor-pointer">نمایش آمار</button>
             @unless($scope->isEmpty())
-                <a href="{{ route('insights') }}" class="text-xs text-muted hover:text-cinnabar">پاک کردن همه و بازگشت به آمار کل</a>
+                <a href="{{ $here([]) }}" class="text-xs text-muted hover:text-cinnabar">پاک کردن همه و بازگشت به آمار کل</a>
             @endunless
             <p class="text-[11px] text-muted basis-full sm:basis-auto sm:ms-auto">فیلترها با هم می‌آیند؛ نشانی صفحه را می‌شود نگه داشت یا فرستاد.</p>
         </div>

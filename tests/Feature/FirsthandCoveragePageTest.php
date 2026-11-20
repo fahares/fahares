@@ -56,7 +56,7 @@ class FirsthandCoveragePageTest extends TestCase
         Manuscript::create(['work_id' => $work->id, 'library_id' => $read->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
         Insights::refresh();
 
-        $this->get(route('insights'))->assertOk()
+        $this->insightsPages()->assertOk()
             ->assertSee('data-firsthand-total', false)
             ->assertSee('۱۲۰')                     // the copies that stand on their catalogue
             ->assertSee('۱۲٪')                     // of all 1,000
@@ -67,7 +67,7 @@ class FirsthandCoveragePageTest extends TestCase
             ->assertDontSee('فنخا');   // item 147 keeps the union catalogue's name off the public pages (step 14.257)
 
         // a page narrowed to a scope leaves the whole-site measure out
-        $this->get(route('insights', ['library' => $read->id]))->assertOk()->assertDontSee('data-firsthand-total', false);
+        $this->insightsPages(['library' => $read->id])->assertOk()->assertDontSee('data-firsthand-total', false);
 
         $this->get(route('libraries.show', $read))->assertOk()->assertSee('data-library-firsthand', false)->assertSee('۸۲٪');
         $this->get(route('libraries.show', $unread))->assertOk()->assertDontSee('data-library-firsthand', false);
@@ -79,7 +79,7 @@ class FirsthandCoveragePageTest extends TestCase
         foreach ([null, 'not a report', ['total' => []]] as $cached) {
             $cached === null ? Cache::forget(FirsthandCoverageCommand::CACHE_KEY) : Cache::forever(FirsthandCoverageCommand::CACHE_KEY, $cached);
             $this->assertNull(FirsthandCoverage::summary());
-            $this->get(route('insights'))->assertOk()->assertDontSee('data-firsthand-total', false);
+            $this->insightsPages()->assertOk()->assertDontSee('data-firsthand-total', false);
             $this->get(route('libraries.show', $library))->assertOk()->assertDontSee('data-library-firsthand', false);
         }
 
