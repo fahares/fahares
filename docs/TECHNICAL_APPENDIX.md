@@ -12330,6 +12330,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `insights/index.blade.php`: برچسب ردیف نخست `source_overlap.counts[0]` «هنوز بی فهرست کتابخانه» است و توضیح بالای نمودار نام فنخا ندارد.
 - `InsightsNotes::sourceOverlap()`: بند خواندن و نمونۀ `counts[0]` بی نام فنخا.
 - **آزمون:** `InsightsMoreFiguresTest::test_copies_are_counted_by_the_catalogues_that_describe_them` نبودن «فنخا» در یادداشت را می‌سنجد. `FirsthandCoveragePageTest` نبودن آن را در کل صفحه می‌سنجد.
+
 ### گام ۱۴.۲۵۸: مؤید ج ۳ (`moayyed`)، و یافته‌های میراث شهاب، نور و نوربخش
 - **مؤید ج ۳ (#۶۰۷):**
   - **دانلود (به تأیید کاربر):** صفحۀ `ghaemiyeh.com/show-book/505426` پنج پرونده دارد (HTML، EPUB، Word، «PDF متنی» و «PDF»). `library/download/{id}` تنها صفحه‌ای با iframe است و خود پرونده از `ghaemiyeh.com/file-access/6001668` می‌آید (۷۹٫۲ مگابایت، ۶۶۷ برگ، JPEG خاکستری ۱۱۰۰×۱۷۷۰). در `../fahares-sources/moayyed/v03.pdf` با `MD5SUMS`.
@@ -12352,6 +12353,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نوربخش ج ۱ (#۴۹۹):** نگاشت و PDF در `../fahares-sources/nurbakhsh/` آماده است. ۴۸۴ ارجاع «[نشریه: 13-…]» روی همین جلدند و باید نخست به دفتر ۱۳ نشریه (#۵۱۵، کد `tehran-univ-nashriyye`) بروند، وگرنه برگۀ نادرست باز می‌شود.
 - **ادبیات ج ۳ (#۴۱۱):** پروندۀ خزانه‌ها 3410 روی کارت SD است و کارت در این جلسه وصل نبود.
 - **سیاهۀ ۲۵ جلدِ پیدانشده:** `../fahares-sources/اسکن-پیدا-نشده-۲۵-جلد.csv` (عنوان، ناشر، سال، صفحه، بازۀ شماره‌ها، نسخه)، برای جست‌وجوی کاربر. ۲۰ تای آن‌ها در برگۀ «فایل نداریم» فایل اکسل ۲۵ آبان هم هستند.
+
 ### گام ۱۴.۲۵۹: خوانندۀ سه قالب فهرست، و `sources:take-texts` دسته‌به‌دسته
 
 - **خواننده‌ها** (`app/Sources/Extractors/`، ثبت در `Extractors::FORMATS`). هر سه سطرهای صفحه را جدا می‌کنند و مدخل‌ها را با نشانی سطر می‌سازند. نسخه بر هر صفحه‌ای از سرعنوانش تا سرعنوان بعدی «می‌ایستد»، چون فنخا صفحۀ رسالۀ مجموعه را ارجاع می‌دهد. شمارۀ «N/M» رسالۀ M مجموعه را می‌گیرد و `strict_part` رسالۀ ناموجود را رد می‌کند.
@@ -12387,6 +12389,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
      - `catalogue-4ae9dc5de46a --extractor=listed_shelfmarks`.
      - شمارها باید همان تمرین باشد: ۵٬۵۱۸، ۲٬۷۷۰ و ۱٬۳۹۸.
   4. پاک کردن پرونده‌ها از `/tmp`.
+
 ### گام ۱۴.۲۶۰: `ManuscriptNote::GROUPS`، `Manuscript::noteGroups()` و `keepsSealsList()`
 
 - **سنجش (`fahares_prod` محلی):** هر تکۀ سه فهرست `metadata`، پس از برداشتن برچسب («مهر:»، «تملک:»، «واقف:» …) و شکستن با «؛»، حرف‌به‌حرف با متن یادداشت‌های جدول، فیلدهای v2 و `raw_text` سنجیده شد.
@@ -12403,16 +12406,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_260.jsonl.gz --apply`.
 
-### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
-
-- **`SuggestionRegistry::noteField()`:** `note_{id}` با `input = textarea` و `note_id`، برچسب «یادداشت ‹نوع›»؛ `note_new_{type}` برای `ownership`، `seal`، `endowment` و `acquisition` با `new_note_type` و `required`، برچسب از `NEW_NOTE_LABELS`.
-- **`field()`:** برای نسخه، پس از `sourceEntryField()`. **`fieldOf()`:** فیلد یادداشت باید در `recordFields()` همان نسخه باشد.
-- **`recordFields()`:** برای نسخۀ دارای یادداشت، یک فیلد برای هر سطر. اگر `keepsSealsList()` نادرست است یا فهرست `metadata` تهی است، `ownership_and_seals` برداشته و چهار فیلد افزودن گذاشته می‌شود.
-- **`currentValue()`:** متن سطر؛ برای فیلد افزودن تهی.
-- **`SuggestionApplier::applyNote()`:** اصلاح متن با `typed_by = editor`، حذف سطر با مقدار تهی، یا سطر تازه با `position` آخر + ۱. `old` و `new` زیر کلید `notes` به `audit_logs` می‌رود.
-- **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
-- **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
-- **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.
 ### گام ۱۴.۲۶۱: «محل» به‌جای «جای» در صفحۀ آمار
 
 - **شمارش پیش از کار (قالب‌ها، `app`، `config`):** «جای کتابت» ۱۴، «محل کتابت» ۱۱، «جای تألیف» ۷، «محل تألیف» ۲، «جای‌دار» ۷ و «جای شناخته» ۱. همۀ صورت‌های «جای» در `insights/index.blade.php` و `InsightsNotes.php` بودند.
@@ -12450,3 +12443,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جست‌وجوگرها:** هر صفحه `title` و `meta description` خود را دارد (`lead`). صفحۀ دامنه‌دار همچنان `noindex` است. `SitemapController::getStaticUrls` هفت نشانی تازه دارد.
 - **آزمون:** `TestCase::insightsPages($query)` صفحۀ اصلی و شش صفحه را با هم می‌خواند و هر هفت پاسخ را ۲۰۰ می‌خواهد؛ آزمون‌های نمودارها با آن نوشته شدند تا به جای نمودار وابسته نباشند. `InsightsTopicPagesTest`: هر فایل نمودار در یک صفحه است و برعکس؛ صفحۀ اصلی نمودار ندارد؛ صفحۀ موضوعی فقط نمودارهای خود را دارد؛ موضوع ناشناخته ۴۰۴ است؛ دامنه در نوار و فرم می‌ماند.
 - **سنجش در مرورگر (`fahares_prod`):** هر شش صفحه با `author=1110`، `library=4&century=11` و `scribe=1` (تهی) پاسخ ۲۰۰ دادند. `/insights?library=4#movement` به `/insights/places?library=4#movement` رفت.
+
+### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
+
+- **`SuggestionRegistry::noteField()`:** `note_{id}` با `input = textarea` و `note_id`، برچسب «یادداشت ‹نوع›»؛ `note_new_{type}` برای `ownership`، `seal`، `endowment` و `acquisition` با `new_note_type` و `required`، برچسب از `NEW_NOTE_LABELS`.
+- **`field()`:** برای نسخه، پس از `sourceEntryField()`. **`fieldOf()`:** فیلد یادداشت باید در `recordFields()` همان نسخه باشد.
+- **`recordFields()`:** برای نسخۀ دارای یادداشت، یک فیلد برای هر سطر. اگر `keepsSealsList()` نادرست است یا فهرست `metadata` تهی است، `ownership_and_seals` برداشته و چهار فیلد افزودن گذاشته می‌شود.
+- **`currentValue()`:** متن سطر؛ برای فیلد افزودن تهی.
+- **`SuggestionApplier::applyNote()`:** اصلاح متن با `typed_by = editor`، حذف سطر با مقدار تهی، یا سطر تازه با `position` آخر + ۱. `old` و `new` زیر کلید `notes` به `audit_logs` می‌رود.
+- **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
+- **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
+- **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.
