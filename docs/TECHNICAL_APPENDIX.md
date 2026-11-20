@@ -12781,3 +12781,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **حرکت‌ها:** `pointerdown/move/up` روی جعبه؛ روی نوار نمای کل با مقیاس همۀ سال‌ها و روی ردیف‌ها با مقیاس پنجره؛ دو اشاره‌گر = زوم؛ `wheel` تنها با Ctrl؛ `touch-action: pan-y` تا پیمایش عمودی صفحه آزاد بماند. کلیکی که پایان یک کشیدن است چیزی را برنمی‌گزیند.
 - **ECharts:** `GridComponent` و `DataZoomComponent` از `echarts-map.js` برداشته شد؛ این بسته دوباره تنها برای نقشه است.
 - **سنجیده نشد:** لمس واقعی (کشیدن و دو انگشت) روی گوشی؛ در مرورگر با رویدادهای اشاره‌گر شبیه‌سازی‌شده و پهنای ۳۷۵ پیکسل آزموده شد.
+
+### گام ۱۴.۲۸۶: `pair` و فیلدهای `alternative_title_*` در `SuggestionRegistry`
+- **`pair`:** گزینۀ تازۀ یک فیلد، مقداری که با مقدار خود فیلد می‌آید. `primary_title` آن را با `column` برابر `transliteration` دارد. فرم عمومی `pair_value` می‌فرستد و `SuggestionController::store` آن را در `payload.pair` و مقدار همان لحظۀ رکورد را در `payload.pair_current` نگه می‌دارد. فرمی که `pair_value` نفرستد چیزی از آوانگاری عوض نمی‌کند.
+- **تأیید:** `approve` و `directEdit` ورودی `pair_value` را به `SuggestionApplier::apply` می‌دهند؛ مقدار اعمال‌شده در `resolution.pair` می‌ماند.
+- **فیلدهای عنوان دیگر:** `recordFields` برای هر عنصر `alternative_titles` اثر یک فیلد `alternative_title_{ده رقم نخست md5 عنوان}` می‌سازد و یک `alternative_title_new`. `altTitleField`، `altTitleName`، `altTitleItem` و `pairCurrent` در رجیستری‌اند؛ `field()` این نام‌ها را بی رکورد هم می‌شناسد و `fieldOf` فقط فیلد عنوانی را می‌پذیرد که رکورد دارد.
+- **`SuggestionApplier::altTitle`:** افزودن (عنوان تکراری یا برابر عنوان اصلی رد می‌شود)، بازنویسی و حذف (مقدار خالی). `resolution.field_name` نام فیلد عنوان نهایی است؛ `approve` آن را در `field_name` پیشنهاد می‌نویسد و نام پیشین را در `resolution.field_was`، و `AuditLogController` هنگام بازگرداندن آن را برمی‌گرداند.
+- **`listColumn`:** سطر «عنوان | آوانگاری» آوانگاری همان عنصر را می‌نویسد.
+- **قالب‌ها و اسکریپت:** `suggest/desk.blade.php` و `resources/js/suggest-desk.js` (`pairValue`، `field.pair`، `field.adds`)، `suggest/field.blade.php` (نشان «+»)، `works/show.blade.php`، `admin/suggestions/show.blade.php` (`data-pair`) و `partials/field-approve.blade.php`.
+- **آزمون:** `SuggestionWorkflowTest::test_a_title_goes_with_its_transliteration_and_each_other_title_is_its_own_field`.
