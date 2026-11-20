@@ -22,7 +22,8 @@ class Insights
     // v6: patrons and facsimile copies (step 14.117)
     // v9: copies per work, the works of each century, works with no note of a printing, bound volumes and the
     // catalogues that describe one copy (backlog item 146, step 14.228)
-    private const CACHE_KEY = 'insights.v9';
+    // v10: copies under each dynasty, and dedications and patrons by court (backlog item 154, step 14.265)
+    private const CACHE_KEY = 'insights.v10';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -128,6 +129,7 @@ class Insights
             'unprinted' => self::unprinted($scope, $totals['works']),
             'collections' => self::collections($scope, $totals['manuscripts']),
             'source_overlap' => self::sourceOverlap($scope, $totals['manuscripts']),
+            'dynasties' => self::dynasties($scope, $totals['manuscripts']),
         ];
     }
 
@@ -503,6 +505,7 @@ class Insights
 
         $names = [];
         $forms = [];
+        $courts = [];
         $kin = 0;
         foreach ($rows as $row) {
             $name = trim(TextNormalizer::normalize((string) $row->name));
@@ -516,6 +519,10 @@ class Insights
             }
             // Grouped by the person, or by the normalized form, shown as it is written most
             $key = $row->pid ? 'p' . $row->pid : 'n' . $name;
+            if ($row->pid && ($court = Dynasties::courtOf((string) $row->name))) {
+                $courts[$court]['count'] = ($courts[$court]['count'] ?? 0) + (int) $row->n;
+                $courts[$court]['names'][(string) $row->name] = (int) $row->n;
+            }
             $names[$key] ??= ['name' => trim((string) $row->name), 'person' => $row->pid ? (int) $row->pid : null, 'count' => 0, 'centuries' => null];
             $names[$key]['count'] += (int) $row->n;
             if (! $row->pid) {
@@ -554,6 +561,7 @@ class Insights
             'names' => count($names),
             'kin' => $kin,
             'centuries' => $centuries,
+            'courts' => self::courts($courts),
         ];
     }
 
@@ -578,6 +586,7 @@ class Insights
 
         $people = [];
         $forms = [];
+        $courts = [];
         $works = [];
         $linkedWorks = [];
         foreach ($rows as $row) {
@@ -596,6 +605,10 @@ class Insights
             }
             $people[$key]['works'][$row->w] = true;
             $people[$key]['count']++;
+            if ($court = Dynasties::courtOf($row->pname)) {
+                $courts[$court]['works'][$row->w] = true;
+                $courts[$court]['names'][$row->pname] = ($courts[$court]['names'][$row->pname] ?? 0) + 1;
+            }
             $people[$key]['asked'] += (int) $row->asked;
             if (! $row->pid) {
                 $forms[$key][trim((string) $row->name)] = ($forms[$key][trim((string) $row->name)] ?? 0) + 1;
@@ -635,6 +648,94 @@ class Insights
             'names' => count($people),
             'linked' => $linked,
             'linked_works' => count($linkedWorks),
+            'centuries' => $centuries,
+            'courts' => self::courts(array_map(fn ($c) => ['count' => count($c['works']), 'names' => $c['names']], $courts)),
+        ];
+    }
+
+    /**
+     * Counts by court (Dynasties::courtOf) as a list, largest first: the dynasty, its count, and the name counted
+     * most in it. Only the rulers, ministers and scholars of KnownRulers have a court, so this is a part of the names.
+     *
+     * @param  array<string, array{count: int, names: array<string, int>}>  $courts
+     */
+    private static function courts(array $courts): array
+    {
+        $list = [];
+        foreach ($courts as $name => $court) {
+            arsort($court['names']);
+            $list[] = ['name' => $name, 'count' => $court['count'], 'people' => count($court['names']), 'first' => (string) array_key_first($court['names'])];
+        }
+        usort($list, fn ($a, $b) => [$b['count'], $a['name']] <=> [$a['count'], $b['name']]);
+
+        return $list;
+    }
+
+    /**
+     * The copies made under each dynasty (backlog item 154): a copy with a known year and a city of copying on the
+     * map goes to the dynasty whose territory held that city in that decade (Dynasties). Each dynasty with its
+     * copies, the years of the first and the last of them, and the cities it has most copies from; and for each
+     * century the city with the most such copies and who ruled it, for the band under the decades of the timeline.
+     */
+    private static function dynasties(InsightsScope $scope, int $total): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $span = (int) config('insights.exact_span');
+        $rows = $scope->manuscripts()
+            ->whereNotNull('copy_place')->where('copy_place', '!=', '')
+            ->whereNotNull('copy_date_from')->whereNotNull('copy_date_to')
+            ->whereRaw('manuscripts.copy_date_to - manuscripts.copy_date_from <= ?', [$span])
+            ->selectRaw('copy_place AS place, FLOOR((manuscripts.copy_date_from + manuscripts.copy_date_to) / 2) AS y, COUNT(*) AS n')
+            ->groupBy('place', 'y')->get();
+
+        $cityOf = [];
+        $dynasties = [];
+        $perCentury = [];
+        $counted = 0;
+        $ruled = 0;
+        foreach ($rows as $row) {
+            $city = $cityOf[$row->place] ??= (CopyPlaces::cityOf($row->place) ?? '');
+            if ($city === '') {
+                continue;
+            }
+            [$year, $n] = [(int) $row->y, (int) $row->n];
+            $counted += $n;
+            $century = intdiv($year - 1, 100) + 1;
+            $perCentury[$century][$city] = ($perCentury[$century][$city] ?? 0) + $n;
+            if (($name = Dynasties::of($city, $year)) === null) {
+                continue;
+            }
+            $ruled += $n;
+            $dynasties[$name] ??= ['name' => $name, 'count' => 0, 'from' => $year, 'to' => $year, 'cities' => []];
+            $dynasties[$name]['count'] += $n;
+            $dynasties[$name]['from'] = min($dynasties[$name]['from'], $year);
+            $dynasties[$name]['to'] = max($dynasties[$name]['to'], $year);
+            $dynasties[$name]['cities'][$city] = ($dynasties[$name]['cities'][$city] ?? 0) + $n;
+        }
+        foreach ($dynasties as &$dynasty) {
+            arsort($dynasty['cities']);
+            $dynasty['city_kinds'] = count($dynasty['cities']);
+            $dynasty['cities'] = collect(array_slice($dynasty['cities'], 0, 3, true))->map(fn ($n, $city) => ['name' => (string) $city, 'count' => $n])->values()->all();
+        }
+        unset($dynasty);
+        usort($dynasties, fn ($a, $b) => [$b['count'], $a['name']] <=> [$a['count'], $b['name']]);
+
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            if (empty($perCentury[$c])) {
+                continue;
+            }
+            arsort($perCentury[$c]);
+            $city = (string) array_key_first($perCentury[$c]);
+            $centuries[$c] = ['city' => $city, 'count' => $perCentury[$c][$city], 'runs' => Dynasties::runs($city, ($c - 1) * 100 + 1, $c * 100)];
+        }
+
+        return [
+            'items' => array_slice($dynasties, 0, (int) config('insights.dynasties_shown')),
+            'kinds' => count($dynasties),
+            'counted' => $counted,
+            'ruled' => $ruled,
+            'coverage' => self::share($ruled, $total),
             'centuries' => $centuries,
         ];
     }

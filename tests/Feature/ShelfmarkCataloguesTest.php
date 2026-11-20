@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AuditLog;
+use App\Models\Claim;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Source;
@@ -128,5 +129,52 @@ class ShelfmarkCataloguesTest extends TestCase
         Extractors::forget();
         $this->get("/sources/{$source->code}/1/page/290")->assertOk()
             ->assertSee('<a href="' . route('manuscripts.show', $alone->citable) . '" class="book-sheet__mark book-sheet__mark--manuscript"', false);
+    }
+
+    public function test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print()
+    {
+        $library = Library::create(['name' => 'مروی', 'city' => 'تهران', 'slug' => 'marvi-' . uniqid()]);
+        $source = Source::create(['code' => 'catalogue-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'فهرست مروی',
+            'library_id' => $library->id, 'extractor' => 'listed_shelfmarks']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => 'marvi-test', 'page_first' => 4, 'page_last' => 334]);
+        foreach (self::MARVI as $page => $text) {
+            DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => $page, 'text' => $text]);
+        }
+        $copy = function (string $shelfmark, string $title) use ($library) {
+            $work = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+
+            return Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark, 'volume_number' => 1, 'page_start' => 1]);
+        };
+        $cite = fn (Manuscript $ms) => SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $ms->id, 'source_id' => $source->id,
+            'source_volume_id' => $volume->id, 'page_start' => 262, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => SourceEntry::ORIGIN_FANKHA_CITATION,
+            'status' => SourceEntry::STATUS_UNVERIFIED, 'citation_text' => '[ف: 1-262]']);
+        $misprint = $cite($copy('3910', 'نهج البلاغة'));   // a 0 too many: ۳۹۱ is printed under the work's title
+        $unsure = $cite($copy('2111', 'رسالۀ دیگر'));      // ۲۱۱ is printed there, under another title
+        $twice = $cite($copy('3944', 'نهج البلاغة'));      // ۳۹۴ is printed there, and is a record of its own
+        $copy('394', 'نهج البلاغة');
+
+        $this->artisan('sources:shelfmark-claims', ['source' => $source->code])->assertSuccessful();
+        $this->assertSame(0, Claim::count());
+
+        $this->artisan('sources:shelfmark-claims', ['source' => $source->code, '--apply' => true, '--correct' => true])
+            ->expectsTable(['', 'count'], [['without text', '3'], ['claimed', '1'], ['claimed, title not seen', '1'], ['another record has it', '1'],
+                ['more than one', '0'], ['none found', '0'], ['corrected', '1']])
+            ->assertSuccessful();
+        $this->assertSame('391', $misprint->citable->fresh()->shelfmark);
+        $accepted = Claim::where('source_entry_id', $misprint->id)->firstOrFail();
+        $this->assertSame([Claim::STATUS_ACCEPTED, '391', '3910', 80], [$accepted->status, $accepted->value_text, $accepted->current_text, $accepted->certainty]);
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $misprint->citable_id)->latest('id')->firstOrFail();
+        $this->assertSame(['3910', '391'], [$log->old_values['shelfmark'], $log->new_values['shelfmark']]);
+        // the copy without its title in the print waits for review, with the printed line; the record stays as it was
+        $claim = Claim::where('source_entry_id', $unsure->id)->firstOrFail();
+        $this->assertSame([Claim::STATUS_CANDIDATE, '211', 50, '* ش ۲۱۱ ، رحلی ، تحریر ۱۲۲۶ .'], [$claim->status, $claim->value_text, $claim->certainty, $claim->raw_text]);
+        $this->assertSame('2111', $unsure->citable->fresh()->shelfmark);
+        $this->assertNull(Claim::where('source_entry_id', $twice->id)->first());
+
+        // the corrected copy now takes its text
+        Extractors::forget();
+        $this->artisan('sources:take-texts', ['source' => $source->code])->assertSuccessful();
+        $this->assertSame('* ش ۳۹۱ ، وزیری ، تحریر ۱۱۰۷ .', $misprint->fresh()->copy_text);
+        $this->assertSame(SourceEntry::TEXT_NONE, $unsure->fresh()->text_status);
     }
 }

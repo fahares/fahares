@@ -12389,6 +12389,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
      - `catalogue-4ae9dc5de46a --extractor=listed_shelfmarks`.
      - شمارها باید همان تمرین باشد: ۵٬۵۱۸، ۲٬۷۷۰ و ۱٬۳۹۸.
   4. پاک کردن پرونده‌ها از `/tmp`.
+- **اجرای پروداکشن (۲۹ آبان):** پشتیبان JSON سطرهای `source_volumes`، `sources`، `source_pages` و `source_entries` این پنج جلد (۹٬۹۶۹ مدخل، بی صفحه) در `../fahares-sources/backups/step13/before_step14_259_prod_20261120_1236.json.gz` است. پرونده‌ها در یک جریان tar به همان `prod-run` رفتند، با `md5sum -c`، و در پایان پاک شدند.
 
 ### گام ۱۴.۲۶۰: `ManuscriptNote::GROUPS`، `Manuscript::noteGroups()` و `keepsSealsList()`
 
@@ -12405,6 +12406,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`manuscripts/show.blade.php`:** حلقه روی `noteGroups()`؛ دو بخش «فوائد و رسائل» و «یادداشت‌های فهرست‌نگار» تنها وقتی `noteGroups()` تهی است.
 - **آزمون:** `test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_260.jsonl.gz --apply`.
+- **اجرای تولید (۲۹ آبان ۱۴۰۵، `prod-run`):** `Wrote 176817 notes of 85466 copies` (`new 42763`، `changed 42703`، `same 103771`، `skipped: no such copy 1`، `skipped: another shelfmark 2`). اجرای دوم: `same 189237`.
 
 ### گام ۱۴.۲۶۱: «محل» به‌جای «جای» در صفحۀ آمار
 
@@ -12480,3 +12482,39 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - `sources:take-texts catalogue-b6b3ae39f183 --extractor=moayyed`: «taken 1,866، not found 615، address changed 581»، همانند تمرین. اجرای آزمایشی دوم «taken 0».
     - سه نسخۀ تصادفی (`/manuscripts/153441`، `/manuscripts/240633`، `/manuscripts/55605`) در fahares.net پاسخ ۲۰۰ دادند و متن خود را نشان دادند. پرونده‌های `/tmp` پاک شدند.
 - **سپهسالار ج ۳ تا ۵ در کتاب‌خوان قائمیه (620340 تا 620342):** به خواست جلسۀ مرحلۀ ۲ سنجیده شد. در ۲۴ ارجاع تصادفی فنخا (ص ۱۷ تا ۳۴۳)، شمارۀ هیچ نسخه‌ای در صفحۀ ارجاع یا صفحۀ پیش و پس نبود، و ج ۳ در قائمیه ۳۵۶ صفحه است و در فهارس تا ص ۵۴۶. پس چاپ دیگری است، چنان‌که مورد ۵۱ گفته بود.
+
+### گام ۱۴.۲۶۵: `App\Support\Dynasties`، `scripts/dev/dynasty-rule` و `Insights::dynasties`
+
+- **منبع:** صفحۀ `https://dawawin.ir/stats/history/` (فهرست سلسله‌ها در `stats-data`) و `…/stats/territories/{سال}/` (GeoJSON قلمروها؛ مرزها از Cliopatria، بانک دادۀ Seshat). اسکریپت سال میانۀ هر دهه را می‌گیرد (۲۵۵، ۲۶۵، … ۱۳۴۵) و پاسخ‌ها را در پوشۀ cache نگه می‌دارد.
+- **قاعدۀ شهر:** مختصات شهر (`insights.copy_places`) در کدام چندضلعی است. اگر در دو قلمرو باشد، کوچک‌تر (حکومت محلی‌تر) گرفته می‌شود. دهه‌های پیاپی یک حکومت یک بازه می‌شوند، و شکاف یک‌دهه‌ای میان دو بازۀ یک حکومت پر می‌شود.
+- **خروجی:** `database/data/dynasties.php` (۱۶۵ کیلوبایت): `dynasties` (نام، منطقه، از، تا) و `rule` (شهر => [[از، تا، سلسله]])، ۲٬۴۲۸ بازه. در `config/` نیست تا در هر درخواست بار نشود؛ `Dynasties` آن را هنگام نیاز می‌خواند.
+- **شهرهای بی حکومت در داده:** بوشهر، آستارا، تنکابن (کنار مرز ساحلی چندضلعی‌های ساده‌شده)، استانبول، بمبئی، پاریس و لندن.
+- **`Insights::dynasties`:** نسخه‌های دامنه با `copy_place` و تاریخی با دامنۀ تا `exact_span` سال، گروه‌بندی بر پایۀ محل و سال میانه. خروجی: `items` (سلسله، شمار، سال نخستین و واپسین نسخه، سه شهر نخست، شمار شهرها)، `counted`، `ruled`، `coverage` و `centuries` (شهر پرنسخۀ هر سده و بازه‌های حکومتش).
+- **دقت:** قاعده به دقت دهه است، پس سال‌های کنار یک تغییر حکومت شاید به حکومت دیگر برسند؛ مثلاً واپسین نسخۀ «صفویان» ۱۱۴۰ است، پنج سال پس از پایان آنان.
+- **دربارها:** `KnownRulers::LIST` کلید `dynasty` گرفت (نام سلسله در همان دادۀ `dynasties`). `Dynasties::courtOf` نام رکورد شخص را به دربار می‌برد. `Insights::dedications` و `patrons` کلید `courts` دارند. تنها نام‌های پیوندخورده به این ۳۵ شخص شمرده می‌شوند.
+- **نما:** `charts/dynasties.blade.php` (صفحۀ `time`، پس از خط زمانی)؛ نوار در `charts/timeline.blade.php` با Alpine (`band`، بخش‌ها به نسبت سال‌ها، شکاف‌ها خاکستری)؛ فهرست دربارها در `charts/dedications` و `charts/patrons`.
+- **سنجش روی `fahares_prod`:** ۱۶٬۹۷۱ نسخه سال و شهر دارند و ۱۶٬۰۲۸ نسخه حکومت گرفتند. نوار: سدۀ ۸ دمشق (ممالیک)، سدۀ ۹ شیراز (تیموریان، سپس آق‌قویونلو)، سدۀ ۱۱ اصفهان (صفویان)، سدۀ ۱۳ تهران (قاجاریان). دربارهای سفارش کتابت: قاجاریان ۳۴ نسخه و قطبشاهیان ۸.
+- **بازسازی داده:** پس از افزودن شهر تازه به `insights.copy_places`، اسکریپت دوباره اجرا شود؛ شیوه‌اش در سرآغاز خود اسکریپت است.
+- **پس از استقرار:** کلید cache تازه است؛ ساخت شبانه یا `fahares:build-insights` آن را پر می‌کند.
+
+### گام ۱۴.۲۶۶: `sources:shelfmark-claims`
+
+- **`ClaimShelfmarksCommand`:**
+  - مدخل‌های `text_status = none` منبع، با صفحه (یا «[ف: N]» در منبع یک‌جلدی) و صفحه‌های بارگذاری‌شده، دسته‌های ۵۰۰تایی خوانده می‌شوند.
+  - `neighbours()` شماره‌های یک ویرایش دورتر از شمارۀ پایه را می‌سازد: حذف، افزودن و جایگزینی هر رقم، و جابه‌جایی دو رقم کنار هم، بی صفر آغازین.
+  - هر کدام با بخش رساله (`/M`) با `extract(..., ['strict_part' => true])` در صفحه و صفحۀ پیش و پس جسته می‌شود.
+  - سهم واژه‌های سه‌حرفی نام اثر (`words()`، بی «ال» و با یکسان کردن ی، ک، ة و همزه) که در `entry_text` و `copy_text` یافته آمده است، سنجیده می‌شود.
+  - رکورد دیگر کتابخانه با همان شماره و بخش جست‌وجو می‌شود.
+- **تصمیم:**
+  - `claimed` (certainty ۸۰): بهترین یافته رکورد دیگری ندارد، سهم نامش دست‌کم ۰٫۵ است و از دومی بیشتر.
+  - `claimed, title not seen` (۵۰): تنها یک یافته هست.
+  - بقیه: `another record has it`، `more than one` یا `none found`.
+- **ثبت:**
+  - `--apply` ادعای `shelfmark` با `raw_text` برابر سطر نخست یافته می‌سازد. ادعای نامزد قاعده‌ای همان مدخل پیش از آن پاک می‌شود.
+  - `--correct` ادعاهای ۸۰ را `accepted` می‌کند، `manuscripts.shelfmark` را می‌نویسد (`shelfmark_key` و `collection_key` با قلاب مدل) و یک `AuditLog` از نوع `update` با `old_values.shelfmark` می‌سازد.
+  - مقدار تازه همان شکل شمارۀ رکورد است، با عدد چاپی به جای عدد فنخا («6721/1» ← «6771/1»).
+  - `--report=` همۀ تصمیم‌ها را با یافته‌ها در TSV می‌نویسد.
+- **تمرین روی `fahares_prod`:** ۱۲۶ اصلاح و ۱۸ ادعای نامزد. سپس `sources:take-texts` بی `--extractor` (منبع از گام ۱۴.۲۵۹ قالب دارد) هر ۱۲۶ را برداشت.
+- **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
+- **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
+- **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
