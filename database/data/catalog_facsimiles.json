@@ -3804,6 +3804,42 @@
      "step": "14.258"
     }
    }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 1",
+   "facsimile_code": "marashi-akasi",
+   "page_first": 1,
+   "page_last": 457,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi-akasi/v01.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "خزانه‌ها 7873؛ برگ = صفحه + ۷",
+     "step": "14.272"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 2",
+   "facsimile_code": "marashi-akasi",
+   "page_first": 1,
+   "page_last": 498,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi-akasi/v02.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "خزانه‌ها 7874؛ برگ = صفحه + ۱",
+     "step": "14.272"
+    }
+   }
   }
  ]
 }
