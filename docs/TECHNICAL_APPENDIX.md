@@ -12513,3 +12513,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
 - **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
 - **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
+
+### گام ۱۴.۲۶۸: `App\Support\InsightsPresets` و `InsightsNotes::LEADS`
+
+- **پیکربندی:** `insights.presets`: فهرستی از `label`، `note`، `topic` (اختیاری؛ بی آن پیوند در همان صفحه می‌ماند) و `scope`. در `scope`، `author`، `scribe`، `work` و `library` با slug می‌آیند و `subject`، `language` و `script` با نام؛ بقیه (`copy_city`، `city`، `century`، `facsimile`) همان مقدار query string را دارند. id نوشته نمی‌شود، چون میان رونوشت‌های داده فرق دارد. `insights.preset_min_copies` = ۵۰.
+- **`InsightsPresets::scope`:** slug و نام را به id می‌برد و `InsightsScope::fromArray` می‌سازد. اگر دامنه فیلتری را دور انداخته باشد (رکورد ناشناخته، شهر بیرون از نقشه) `null` می‌دهد، تا دامنۀ آماده پهن‌تر از نامش نشود.
+- **`InsightsPresets::all`:** فهرست دامنه‌های دارای نسخۀ بسنده (`label`، `note`، `topic`، `query`، `count`)، یک روز در cache با کلیدی که به محتوای پیکربندی بسته است. شمار با `InsightsScope::count()` (تازه) روی خود جدول `manuscripts` است، بی جدول موقت.
+- **`InsightsPresets::warm`:** cache فهرست را پاک می‌کند و آمار هر دامنه را با `Insights::refreshScope` (تازه؛ `scope_ttl` به‌اضافۀ دو ساعت، تا ساخت شب بعد) می‌سازد. `BuildInsightsCommand` آن را پس از آمار کل اجرا می‌کند و شمار و زمان را می‌نویسد.
+- **نما:** `resources/views/insights/presets.blade.php` با `@includeWhen($scope->isEmpty(), …)` پس از فرم فیلتر؛ پیوندها `rel="nofollow"` دارند (صفحۀ دامنه `noindex` است). در گوشی `flex` با `overflow-x-auto` و `snap-x`، از `sm` به بالا جدول دو و سه ستونه.
+- **سرجمله‌ها:** `InsightsNotes::LEADS` (کلید نمودار => سرجمله) و کلید `lead` در خروجی `InsightsNotes::for`. `explain.blade.php` آن را با `<strong data-insights-lead>` پیش از بند دوم می‌آورد. ۲۰ سرجمله پرسش است، ۴ تا «احتیاط.» (ویژگی‌ها، نسخه‌های عکسی، آثار پرنسخه، خطوط) و یکی «منبع.» (فهرست‌ها).
+- **سنجش روی `fahares_prod`:** هرات سدۀ ۹: ۷۸ نسخه؛ اصفهان سدۀ ۱۱: ۹۶۳؛ نجف: ۱٬۰۵۳؛ حیدرآباد: ۳۰۹؛ سده‌های ۵ تا ۷: ۳٬۳۵۱؛ طب: ۱۰٬۷۳۴؛ ترکی: ۲٬۱۷۳؛ شرایع الاسلام: ۹۰۰؛ وزیری یزد: ۶٬۳۱۱. «آثار ترکی» به صفحۀ آثار می‌رود، نه مکان: تنها ۷۱ نسخۀ ترکی محل کتابت روی نقشه دارند.
+- **آزمون:** `tests/Feature/InsightsPresetsTest.php`. آزمون «خوش‌ساخت بودن» خود فایل پیکربندی را می‌خواند (پارامترها، صفحه‌ها، شهرهای نقشه، املای «ۀ»)؛ بسنده بودن دادۀ هر دامنه را آزمون نمی‌تواند بسنجد (پایگاه آزمون داده ندارد) و همان سنجش هنگام نمایش این کار را می‌کند.
+- **پس از استقرار:** migration و فرمان داده ندارد. تا نخستین ساخت شبانه، هر دامنۀ آماده با نخستین بازدید ساخته می‌شود؛ `fahares:build-insights` آن را پیش می‌اندازد.
