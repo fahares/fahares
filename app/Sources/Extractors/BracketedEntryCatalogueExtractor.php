@@ -33,19 +33,25 @@ class BracketedEntryCatalogueExtractor extends NumberedCatalogueExtractor
     private const SERIAL = '/^\s*(\d+)(?:\s+(\d+))?((?:\s*(?:مکرر|صدر|مشیر))?)\s*:\s*(.*)$/u';
 
     /** A copy paragraph's heading, «دیوان مختاری غزنوی (2)» */
-    private const COPY_HEADING = '/^(.+?)\s*\(\s*\d+\s*\)?\s*$/u';
+    private const COPY_HEADING = '/^(.+?)\s*[(«]\s*\d+\s*\)?\s*$/u';
 
     /** The shelfmark that opens a copy paragraph, «374 نستعلیق», «3297: نسخ», «228 صدر: …» */
     private const LEADING = '/^\s*(\d{1,5})((?:\s*(?:مکرر|صدر|مشیر))?)(?:\s*:\s*|\s+(?=\D))/u';
 
     /** A copy inside a work's paragraph, «2925: ش 1 دفتر» */
-    private const INLINE = '/(?:^|[\s.،؛])(\d{1,5})\s*:\s*(?=ش\s*\d+\s*دفتر)/u';
+    private const INLINE = '/(?:^|[\s.،؛])(\d{1,5})\s*:\s*(?=ش\s*\d)/u';
 
-    /** Ibn Yusuf's «شماره کتابخانه (2726)», not a footnote mark «(1) {1}» */
-    private const LIBRARY_NUMBER = '/شماره\s*کتاب\s*\x{200C}?\s*خانه\s*\(\s*(\d+)\s*\)(?!\s*\{)/u';
+    /** Ibn Yusuf's «شماره کتابخانه (2726)» (vol. 2) or «نمره کتابخانه (1005)» (vol. 1), not a footnote mark «(1) {1}» */
+    private const LIBRARY_NUMBER = '/(?:شماره|نمره)\s*\x{200C}?\s*کتاب\s*\x{200C}?\s*خانه\s*\(\s*(\d+)\s*\)(?!\s*\{)/u';
 
-    /** «ش 49 دفتر», the treatise of a composite volume */
-    private const PART = '/^\s*ش\s*(\d+)\s*دفتر/u';
+    /** «ش 49 دفتر», «ش 84 16 ر», the treatise of a composite volume, right after the shelfmark */
+    private const PART = '/^\s*ش\s*(\d+)/u';
+
+    /**
+     * A copy inside a paragraph (vol. 4): its shelfmark at the start of a line or after a sentence, followed by what
+     * describes a copy, «… اجمعین. 5637 نسخ حسین سلماسی …», «6651 ش 1 دفتر …», «1403 نستعلیق. …»
+     */
+    private const DESCRIBED = '/(?:^|[.:)»]\s+)(\d{2,5})((?:\s*(?:مکرر|صدر|مشیر))?)\s*:?\s+(?=ش\s*\d|نسخ|نستعلیق|شکسته|ثلث|تعلیق|کوفی|ریحان|محقق|رقاع|سده\s|خط\s|بی\s*نشان|همان\s|بخش\s|از\s*آغاز|آغاز\s*(?:و|افتاده))/u';
 
     public function index(array $pages): array
     {
@@ -57,6 +63,35 @@ class BracketedEntryCatalogueExtractor extends NumberedCatalogueExtractor
             $merged = [];
             foreach ($paragraphs as $p) {
                 if ($merged && ! preg_match(self::BRACKETED, $p['heading'])) {
+                    array_push($merged[array_key_last($merged)]['lines'], ...$p['lines']);
+                } else {
+                    $merged[] = $p;
+                }
+            }
+            $paragraphs = $merged;
+        } else {
+            // a copy's heading «الجوهر النضید … (2)» over its shelfmark's line opens a paragraph even where the page
+            // before ended with no blank line
+            $split = [];
+            foreach ($paragraphs as $p) {
+                $cur = ['heading' => $p['heading'], 'lines' => []];
+                foreach ($p['lines'] as $k => $ln) {
+                    $text = Format::digits($lines[$ln]['text']);
+                    $next = $p['lines'][$k + 1] ?? null;
+                    if ($k > 0 && $next !== null && mb_strlen($text) < 120 && preg_match(self::COPY_HEADING, $text)
+                        && preg_match(self::LEADING, Format::digits($lines[$next]['text']))) {
+                        $split[] = $cur;
+                        $cur = ['heading' => $text, 'lines' => []];
+                    }
+                    $cur['lines'][] = $ln;
+                }
+                $split[] = $cur;
+            }
+            // a copy's own paragraph begins with its shelfmark when a blank line parts it from its heading
+            // «دعا (74)», «5725 جنگ دعا. …»: it goes on with the paragraph before
+            $merged = [];
+            foreach ($split as $p) {
+                if ($merged && preg_match('/^\s*\d{2,5}(?:\s*(?:مکرر|صدر|مشیر))?\s*:?\s+[^\d\s\-–ـ]/u', $p['heading'])) {
                     array_push($merged[array_key_last($merged)]['lines'], ...$p['lines']);
                 } else {
                     $merged[] = $p;
@@ -183,12 +218,17 @@ class BracketedEntryCatalogueExtractor extends NumberedCatalogueExtractor
             $found[] = ['shelf' => ltrim($m[1], '0'), 'line_no' => $body[0], 'line' => $lines[$body[0]]['text'],
                 'texts' => [$work === null ? $lines[$p['lines'][0]]['text'] : Format::joinLines($lines, $paragraphs[$work]['lines']), $text]]
                 + (preg_match(self::PART, $rest, $pm) ? ['part' => (int) $pm[1]] : []);
-
-            return $found;
+            $body = array_slice($body, 1); // the lines after it may name other copies
         }
         foreach ($body as $ln) {
             $line = Format::digits($lines[$ln]['text']);
             $own = $lines[$ln]['text'];
+            if (preg_match_all(self::DESCRIBED, $line, $all, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+                foreach ($all as $m) {
+                    preg_match(self::PART, substr($line, $m[0][1] + strlen($m[0][0])), $pm);
+                    $found[] = self::inline($m[1][0], $ln, $own, mb_strlen(substr($line, 0, $m[1][1])), $text, isset($pm[1]) ? (int) $pm[1] : null);
+                }
+            }
             if (preg_match_all(self::INLINE, $line, $all, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
                 foreach ($all as $m) {
                     preg_match(self::PART, substr($line, $m[0][1] + strlen($m[0][0])), $pm);
@@ -207,7 +247,12 @@ class BracketedEntryCatalogueExtractor extends NumberedCatalogueExtractor
             }
         }
 
-        return $found;
+        // one place a shelfmark and line, the first reading of it
+        $seen = [];
+
+        return array_values(array_filter($found, function ($f) use (&$seen) {
+            return ! isset($seen[$f['shelf'] . '@' . $f['line_no']]) && ($seen[$f['shelf'] . '@' . $f['line_no']] = true);
+        }));
     }
 
     /** A copy inside a paragraph: its text from $from to $to in its line, the rest of the paragraph the entry's. */
