@@ -141,6 +141,10 @@ class SuggestionApplier
                 break;
 
             default:
+                if (isset($field['alt_title'])) {
+                    $resolution = $this->altTitle($record, $field, $value, $input);
+                    break;
+                }
                 if (! empty($field['leaf_range'])) {
                     $range = $value === null ? [null, null, null, null] : \App\Support\CopyExtent::parseRange($value);
                     if ($range === null) {
@@ -163,6 +167,10 @@ class SuggestionApplier
 
         foreach ($field['mirror'] ?? [] as $column) {
             $record->{$column} = $record->{$name};
+        }
+        // the value that goes with the field's own, when the form sent one: a title's transliteration (step 14.286)
+        if (isset($field['pair']['column']) && array_key_exists('pair_value', $input)) {
+            $record->{$field['pair']['column']} = $this->clean($input['pair_value']);
         }
 
         $old = array_intersect_key($record->getOriginal(), $record->getDirty());
@@ -272,6 +280,48 @@ class SuggestionApplier
      * Rebuilds a JSON list column from one item per line. For object items (e.g. alternative titles)
      * an unchanged item keeps its other keys, such as its transliteration.
      */
+    /**
+     * One of a work's other titles (step 14.286): the adding field appends a title, a title's own field rewrites it,
+     * and emptied removes it. The transliteration is written when the form sent one. The resolution names the field
+     * the title has afterwards, so the suggestion stays with its title.
+     */
+    private function altTitle(Model $record, array $field, ?string $value, array $input): array
+    {
+        $items = array_values((array) ($record->alternative_titles ?? []));
+        $pairGiven = array_key_exists('pair_value', $input);
+        $pair = $pairGiven ? $this->clean($input['pair_value']) : null;
+        $taken = fn (string $title, ?int $except = null) => trim((string) $record->primary_title) === $title
+            || (($found = SuggestionRegistry::altTitleItem($record, ['alt_title' => SuggestionRegistry::altTitleName($title)])) && $found['index'] !== $except);
+
+        if ($field['alt_title'] === 'new') {
+            if ($taken((string) $value)) {
+                throw new InvalidArgumentException('این عنوان هم‌اکنون در رکورد هست.');
+            }
+            $items[] = ['title' => $value] + ($pair !== null ? ['transliteration' => $pair] : []);
+        } else {
+            $item = SuggestionRegistry::altTitleItem($record, $field);
+            if (! $item) {
+                throw new InvalidArgumentException('این عنوان دیگر اکنون در رکورد نیست؛ شاید پیش‌تر ویرایش یا حذف شده است.');
+            }
+            if ($value === null) {
+                array_splice($items, $item['index'], 1);
+            } else {
+                if ($taken($value, $item['index'])) {
+                    throw new InvalidArgumentException('این عنوان هم‌اکنون در رکورد هست.');
+                }
+                $items[$item['index']]['title'] = $value;
+                if ($pairGiven && $pair !== null) {
+                    $items[$item['index']]['transliteration'] = $pair;
+                } elseif ($pairGiven) {
+                    unset($items[$item['index']]['transliteration']);
+                }
+            }
+        }
+        $record->alternative_titles = $items ?: null;
+
+        return $value !== null ? ['field_name' => SuggestionRegistry::altTitleName($value)] : [];
+    }
+
     private function listColumn(array $existing, array $lines, ?string $itemKey): array
     {
         if ($itemKey === null) {
@@ -284,7 +334,17 @@ class SuggestionApplier
             }
         }
 
-        return array_map(fn ($line) => $byText[$line] ?? [$itemKey => $line], $lines);
+        // «عنوان | آوانگاری»: a line may bring the item's transliteration with it (step 14.286)
+        return array_map(function ($line) use ($byText, $itemKey) {
+            [$text, $transliteration] = array_pad(array_map('trim', explode('|', $line, 2)), 2, null);
+            $item = $byText[$text] ?? [$itemKey => $text];
+
+            if ($transliteration !== null && $transliteration !== '') {
+                $item['transliteration'] = $transliteration;
+            }
+
+            return $item;
+        }, $lines);
     }
 
     private function recount(?int $previousId, ?int $currentId): void

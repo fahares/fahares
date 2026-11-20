@@ -26,6 +26,10 @@
             'withRow' => ! empty($def['with_row']),
             'canBeAbsent' => ! empty($def['can_be_absent']),
             'unit' => $def['unit'] ?? 'ص',
+            // a title's transliteration, corrected with it (step 14.286)
+            'pair' => isset($def['pair']) ? ['label' => $def['pair']['label'], 'current' => SuggestionRegistry::pairCurrent($record, $field)] : null,
+            // the field that adds another title has no value now
+            'adds' => ($def['alt_title'] ?? null) === 'new',
         ];
     }
 
@@ -208,10 +212,12 @@
 
                     <template x-if="mode === 'field'">
                         <div class="space-y-3">
-                            <div class="space-y-1">
+                            <div class="space-y-1" x-show="!field.adds">
                                 <span class="block text-xs font-bold text-muted">اکنون در فهارس:</span>
-                                <div class="px-3 py-2 border-s-2 border-line-strong text-ink/80 whitespace-pre-line max-h-32 overflow-y-auto leading-relaxed"
-                                    x-text="field.current ?? 'ثبت نشده'"></div>
+                                <div class="px-3 py-2 border-s-2 border-line-strong text-ink/80 whitespace-pre-line max-h-32 overflow-y-auto leading-relaxed">
+                                    <span x-text="field.current ?? 'ثبت نشده'"></span>
+                                    <template x-if="field.pair && field.pair.current"><span class="block text-xs text-muted" dir="ltr" x-text="field.pair.current"></span></template>
+                                </div>
                             </div>
                             <template x-if="field.pending > 0">
                                 <p class="p-2.5 rounded-sm bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-[13px] text-amber-800 dark:text-amber-300 leading-relaxed">
@@ -270,7 +276,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block text-[13px] font-bold text-ink"
-                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : (field.adds ? 'عنوان دیگر:' : 'مقدار درست:')"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"
@@ -279,6 +285,15 @@
 
                         <template x-if="mode === 'field' && ['text', 'hijri_date'].includes(field.input)">
                             <input type="text" x-model="value" required class="{{ $inputClass }}">
+                        </template>
+
+                        <!-- The transliteration that goes with a title (step 14.286) -->
+                        <template x-if="mode === 'field' && field.pair">
+                            <div class="space-y-1 pt-2">
+                                <label class="block text-[13px] font-bold text-ink" x-text="field.pair.label + ' (اختیاری):'"></label>
+                                <input type="text" x-model="pairValue" dir="ltr" data-pair-value class="{{ $inputClass }} text-left">
+                                <p class="text-xs text-muted" x-show="!field.adds">اگر عنوان را عوض می‌کنید، آوانگاری‌اش را هم درست کنید.</p>
+                            </div>
                         </template>
 
                         <template x-if="mode === 'field' && field.input === 'integer'">
