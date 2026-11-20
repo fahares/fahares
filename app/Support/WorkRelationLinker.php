@@ -545,9 +545,10 @@ class WorkRelationLinker
 
             return [$text, $w];
         };
-        foreach (WorkRelationParser::parseEntries($work->related_work) as $entry) {
+        foreach (WorkRelationParser::parseEntries($work->related_work) as $n => $entry) {
             if ($hit = $byDecision($entry, 'related') ?? $find($entry, $rows->where('work_id', $work->id)->pluck('related_work_id'))) {
-                $out['related'][] = $hit;
+                // the entry's place in the field goes with it, for pageRows()
+                $out['related'][] = [...$hit, $n];
             }
         }
         // a work is one entry's: of two entries of one title, the one naming its author, else the first
@@ -562,6 +563,57 @@ class WorkRelationLinker
                     $out['children'][$i] = [$hit];
                     $entryOf[$hit[1]->id] = [$i, $names];
                 }
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * For the one relations section of the work's page (step 14.277): the catalogue's words for a work an entry is
+     * tied to, where they are not that work's title and author («printed», by the work's id), and the entries tied
+     * to no work («unlinked»), each with the type its text tells and the side it stands on.
+     *
+     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>}
+     */
+    public static function pageRows(\App\Models\Work $work): array
+    {
+        $linked = self::linkedEntries($work);
+        $out = ['printed' => [], 'unlinked' => []];
+        $titlesOf = fn (\App\Models\Work $w) => array_values(array_filter([$w->clean_title, $w->primary_title,
+            ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : (string) $a)->all()]));
+        // the catalogue's words differ when its author is another name, or none of its titles is the work's
+        $differs = function (array $entry, \App\Models\Work $w) use ($titlesOf) {
+            $keys = array_map(fn ($t) => self::key($t), $titlesOf($w));
+
+            return ($entry['author'] !== null && self::authorKey($entry['author']) !== self::authorKey($w->author_name))
+                || ! array_intersect(array_map(fn ($t) => self::key($t), $entry['titles']), $keys);
+        };
+
+        $entries = WorkRelationParser::parseEntries($work->related_work);
+        $hits = collect($linked['related'])->keyBy(fn ($hit) => $hit[2]);
+        foreach ($entries as $n => $entry) {
+            // a field of one entry is shown as written, its note kept
+            $text = count($entries) === 1 ? trim(preg_replace(['/<!--.*?-->/su', '/\s+/u'], ' ', (string) $work->related_work))
+                : implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] . ($entry['born'] || $entry['died'] ? " ({$entry['born']}-{$entry['died']})" : '') : '');
+            if ($hit = $hits->get($n)) {
+                if ($differs($entry, $hit[1])) {
+                    $out['printed'][$hit[1]->id] = $text;
+                }
+            } else {
+                $out['unlinked'][] = ['side' => 'related', 'text' => $text,
+                    'type' => self::typeOf((string) $work->clean_title, $work->work_form, $titlesOf($work), $entry['titles'], 'related', $entry)];
+            }
+        }
+        foreach (array_values($work->commentaries_and_glosses ?? []) as $i => $text) {
+            $text = trim(preg_replace(['/<!--.*?-->/su', '/\s+/u'], ' ', (string) $text));
+            $entry = WorkRelationParser::parseEntries($text)[0] ?? null;
+            if ($hit = $linked['children'][$i][0] ?? null) {
+                if ($entry && $differs($entry, $hit[1])) {
+                    $out['printed'][$hit[1]->id] = $text;
+                }
+            } elseif ($text !== '') {
+                $out['unlinked'][] = ['side' => 'children', 'text' => $text, 'type' => $entry['type'] ?? 'related'];
             }
         }
 

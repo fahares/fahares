@@ -12687,3 +12687,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **حذف شد:** حالت «هر دو» لایه و دکمه‌های سده؛ کلیدهای `centuries` و `work_centuries` برای توضیح و جدول‌ها مانده‌اند.
 - **سنجیده نشد:** زوم دوانگشتی روی گوشی واقعی (تنها پهنای ۳۷۵ پیکسل در مرورگر)، و سرو شدن فایل‌های `public/data` در پروداکشن، که پس از استقرار باید دیده شود.
 - **پس از استقرار:** migration و فرمان داده ندارد. کلید cache تازه است؛ `fahares:build-insights` آمار کل و دامنه‌های آماده را می‌سازد.
+
+### گام ۱۴.۲۷۷: `WorkRelationLinker::pageRows()` و مؤلفۀ `record-relations`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - `linkedEntries()`: هر پیوند سوی `related` عنصر سومی دارد، جای مدخل در فیلد. `html()` فقط دو عنصر نخست را می‌خواند.
+  - `pageRows($work)`: از `linkedEntries()` می‌خواند.
+    - `printed[شناسۀ اثر]`: متن مدخلِ پیوندخورده، اگر پدیدآور مدخل (`authorKey`) با `author_name` اثر برابر نباشد یا هیچ عنوان مدخل کلید یکی از عنوان‌های اثر نباشد.
+    - `unlinked`: مدخل‌های بی‌پیوند با `side`، `text` و `type`. در `related` نوع از `typeOf()` (قالب و عنوان خود اثر)، وگرنه `related`؛ در `children` نوع خود مدخل (`parseEntries`)، وگرنه `related`.
+    - متن: فیلد «وابسته به» اگر یک مدخل دارد همان‌طور که هست (با یادداشت پایانی‌اش)، وگرنه بازسازی هر مدخل؛ هر سطر «شروح و حواشی» همان‌طور که هست. نشان‌های صفحه (`<!-- … -->`) برداشته می‌شوند.
+    - پیشنهادهای صف پنل (`status = proposed`) تا تأیید بی‌پیوند شمرده می‌شوند.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** برای اثر، سطرهای `unlinked` با برچسب `RecordRelations::WORK_TYPES[type][0 یا 1]` به گروه‌ها افزوده می‌شود (سطر بی `record`، با `text`). گروه‌ها به ترتیب `WORK_TYPES` چیده می‌شوند. هر گروه `x-data="{ all: false }"` دارد و از سطر سیزدهم `x-show="all"`. برای نسخه چیزی تغییر نکرده است.
+- **[ui/meta](../resources/views/components/ui/meta.blade.php):** ویژگی `suggestOnly`: سطر مانند سطر تهی فقط با `$store.suggest.on` دیده می‌شود.
+- **[works/show](../resources/views/works/show.blade.php):** «وابسته به» با `:suggest-only="true"`؛ بخش «شروح، حواشی و منظومه‌ها» با `x-show="$store.suggest.on"`. هر دو همچنان در HTML هستند و لینک‌های `html()` را دارند.
+- **پیش‌نمایش (رونوشت `fahares_prod`، `php -S` روی نشانی کانتینر):** #52424 «الکافیة»: گروه‌ها «شروح (۳۸)، حواشی (۴۲)، ترجمه‌ها، تلخیص‌ها و مختصرها، آثار وابسته (۱۰۲)»؛ ۱۹۴ سطر، ۹۰ بی‌پیوند، ۳ با «در فهرست»، ۴۸ سطر دیدنی پیش از «نمایش همه». #3969: «الزایرجة · خزرجی، احمد بن مسعود · ۳ نسخه» و «در فهرست: الزايرجة؛ سبتی، ابوالعباس احمد بن جعفر (۵۲۴- ۶۰۱ق)».
+- **آزمون:** `LinkRelatedWorksTest::test_the_relations_section_holds_the_entries_tied_to_no_work`.
