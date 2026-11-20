@@ -12797,4 +12797,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_repaired_labels_export.py --before DIR --diffs … --copies FILE`:** نسخه‌هایی که فیلدهای v2 آن‌ها میان دو خروجی دگرگون شده (۸۷۶، ۸۷۴ تا با متن یکتا در سایت)، و از تفاوت‌های «filled» همان‌ها ستون‌های `copy_date_raw`، `binding`، `lines`، `dimensions`، `explicit_text`، `incipit_text`، `paper`، `folios` و `copy_place`، بی اصلاح بازبینی‌شده و دیده‌شده در `raw_text` رکورد. `is_bika` و `is_bita` روشن می‌شوند جایی که ستون همتا تهی است، و با پر شدن تاریخ یا کاتب خاموش. کاغذ و جلد پیش از «جلد …» یا شمار برگ بریده می‌شوند.
 - **پرونده:** `database/data/fankha_repaired_labels_step14_282.json` (۵۸۷ رکورد)، برای `fahares:rebuild-copies`.
 - **تمرین روی `fahares_prod`:** «write 587»، سپس «Rebuilding 587 copies … dates=174, pointers_linked=13»، و اجرای دوم «already 587».
+- **اصلاح متن (`fahares-corpus`، کامیت‌های `a8082c7` و `7cf6945`):**
+  - تجزیه‌گر هر «تعمیر» را در `FIX_LOG` می‌نویسد (`log_fix`: سطر، گونه، متن پیشین، متن تازه)؛ `FIX_NOT` شیوه‌های خود فهرست را بیرون می‌گذارد.
+  - `scripts/fankha_label_fixes.py [--apply] [VOL …]`: هر جلد را می‌خواند و هر جا را در همان سطر پروندۀ متن جایگزین می‌کند، تنها اگر متن پیشین درست یک بار در سطر باشد. اجرا: «Fixed 703 places {chunk: 368, explicit: 142, head: 169, bare: 24}; 2 not found on their line» (جلد ۸ سطر ۵۱۲۸۱ و جلد ۲۰ سطر ۲۷۸۹۹)؛ اجرای دوم «Would fix 0 places».
+  - «بی‌کا تا <غیر تاریخ>» دیگر دو تکه نمی‌شود (۱۴ نسخه `no_scribe` نمی‌گیرند و تکه یادداشت می‌ماند).
+  - `scripts/fankha_label_fixes_site_export.py --before DIR --copies FILE`: نسخۀ سایت را با متن پیشین می‌یابد، همان جایگزینی‌ها را در `raw_text` سایت (با برچسب صفحه و فاصله‌های خودش) می‌کند و تنها وقتی می‌نویسد که نتیجه با متن تازۀ v2 یکی باشد. ۶۰۴ نسخه: ۶۰۳ یافته، ۳ کنار گذاشته (خط دارند و سطر «خط:» ندارند).
+- **پروندۀ دوم:** `database/data/fankha_label_fixes_text_step14_282.json` (۶۰۰ رکورد، تنها `raw_text`).
+- **تمرین روی `fahares_prod`:** «Rebuilding 603 copies … extents=5, lines=87, pointers_linked=8» (با سه نسخه‌ای که سپس برگردانده و از پرونده برداشته شد)، اجرای دوم «already 600». مقایسه با پروداکشن: جز ستون‌های گام نخست، `extent_raw` ۶، `range_from/to` ۳، `catalog_volume_id` و `cataloger_id` ۱۳ پر شدند. `fahares:rebuild-scripts --dry-run`: ۷ نسخه خط می‌گیرند (تحریری ۲، پهلوی ۲، سیاق، نسخ، نستعلیق).
 
