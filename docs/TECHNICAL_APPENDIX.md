@@ -12798,7 +12798,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `export RCLONE_DRIVE_USE_TRASH="${RCLONE_DRIVE_USE_TRASH:-false}"`: ‏`rclone serve restic` این متغیر را از محیط می‌خواند. با پیش‌فرض rclone (`true`)، حذف‌های `prune` تا ۳۰ روز در سهمیه می‌مانند.
   - `crontab.example`: ‏`52 4 * * 6 … prune` (شنبه، یک روز پس از `media`، چون دو کار یک `flock` دارند و دومی بی‌انتظار خارج می‌شود).
 - **آزمایش `prune` روی میزبان:** از نسخۀ تازۀ اسکریپت اجرا شد: ۳۶ ← ۲۶ snapshot (`db` ‏۲۹ ← ۱۹، ‏`config` ‏۴، ‏`media` ‏۳)؛ Used 11.566 GiB، ‏Free 3.433 GiB، ‏Trashed 0 B، یعنی حذف‌ها دیگر به سطل زباله نمی‌روند. خط `prune` به crontab میزبان افزوده شد.
+- **نصب:** `/usr/local/bin/fahares-backup.sh` از آنِ root است و `sudo` رمز می‌خواهد، پس کاربر نسخۀ تازه را با `sudo install -m 755` نصب کرد (۲۱ نوامبر، ۰۰:۵۶ تهران)؛ sha256 آن با نسخۀ مخزن یکی است. نسخۀ پیشین: `~/fahares-backups/fahares-backup.sh.bak-20261121`.
 - **مانده:**
-  - `/usr/local/bin/fahares-backup.sh` از آنِ root است و `sudo` رمز می‌خواهد؛ نسخۀ تازه در `~/fahares-backups/fahares-backup.sh.new` است و کاربر باید آن را نصب کند. تا آن زمان خط cron `prune` با اسکریپت پیشین فقط راهنما چاپ می‌کند.
   - `media` تا افزایش گنجایش Drive خاموش است و `last.json` آن `failed` می‌ماند، پس `watch` هر روز هشدار می‌دهد.
   - نخستین `media` پس از روشن شدن حدود ۱۰ گیگابایت بارگذاری می‌کند.
