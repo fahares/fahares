@@ -10,7 +10,6 @@
     // they are not its work's title and author. So do the relations with works that have no record, added by hand
     // (work_text_relations, step 14.280).
     $printed = $notes = [];
-    $catalogueText = false;
     if ($isWork) {
         $rows = \App\Support\WorkRelationLinker::pageRows($record);
         $printed = $rows['printed'];
@@ -27,7 +26,6 @@
         // the kinds in their own order, «وابسته» (the kind not told) last
         $order = collect(\App\Suggestions\RecordRelations::WORK_TYPES)->flatMap(fn ($labels) => $labels)->values()->flip();
         $groups = $groups->sortBy(fn ($items, $label) => $order[$label] ?? 99);
-        $catalogueText = ['related_work' => trim((string) $record->related_work) !== '', 'commentaries_and_glosses' => ! empty($record->commentaries_and_glosses)];
     }
 @endphp
 @php
@@ -93,13 +91,5 @@
         @foreach($notes as $note)
             <p class="mt-3 text-[13px] text-muted leading-relaxed max-w-[72ch]">یادداشت فهرست: {{ Fa::digits($note) }}</p>
         @endforeach
-        {{-- In suggestion mode: the catalogue's own text of these entries can be corrected, as any field of the record --}}
-        @if($catalogueText && array_filter($catalogueText))
-            <p x-show="$store.suggest.on" x-cloak class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
-                <span class="font-semibold">اصلاح متن فهرست:</span>
-                @if($catalogueText['related_work'])<span class="inline-flex items-center gap-1.5">وابسته به <x-suggest.field name="related_work" /></span>@endif
-                @if($catalogueText['commentaries_and_glosses'])<span class="inline-flex items-center gap-1.5">شروح و حواشی <x-suggest.field name="commentaries_and_glosses" /></span>@endif
-            </p>
-        @endif
 </x-ui.section>
 @endif
