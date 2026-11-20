@@ -12340,6 +12340,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`manuscripts/show.blade.php`:** حلقه روی `noteGroups()`؛ دو بخش «فوائد و رسائل» و «یادداشت‌های فهرست‌نگار» تنها وقتی `noteGroups()` تهی است.
 - **آزمون:** `test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_260.jsonl.gz --apply`.
+- **اجرای تولید (۲۹ آبان ۱۴۰۵، `prod-run`):** `Wrote 176817 notes of 85466 copies` (`new 42763`، `changed 42703`، `same 103771`، `skipped: no such copy 1`، `skipped: another shelfmark 2`). اجرای دوم: `same 189237`.
 
 ### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
 
