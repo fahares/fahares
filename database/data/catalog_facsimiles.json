@@ -3898,6 +3898,26 @@
      "step": "14.279"
     }
    }
+  },
+  {
+   "library_slug": "km-fydyh-8",
+   "volume_number": 3,
+   "title": "فهرست کتابخانه مبارکه مدرسه فیضیه قم - جلد سوم",
+   "facsimile_code": "feyziye",
+   "page_first": 1,
+   "page_last": 208,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "feyziye/v02.pdf"
+     ],
+     "leaf_maps": [
+      "feyziye/v03.map.json"
+     ],
+     "note": "خزانه‌ها 570، بخش سوم (مجموعه‌ها) همان پرونده‌ی ج ۲، با شماره‌گذاری جدا؛ برگ = صفحه + ۱۲۲",
+     "step": "14.279"
+    }
+   }
   }
  ]
 }
