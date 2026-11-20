@@ -42,8 +42,12 @@ class SuggestionApplier
         }
 
         // A copy's typed note lives in its own table too
-        if (isset($field['note_id']) || isset($field['new_note_type'])) {
-            return $this->applyNote($record, $field, $value);
+        if (isset($field['note_id']) || isset($field['new_note_type']) || isset($field['note_type_of'])) {
+            $result = $this->applyNote($record, $field, $value);
+            // the search document holds the types of the copy's notes (step 14.269)
+            $record->load('notes')->searchable();
+
+            return $result;
         }
 
         switch ($field['input']) {
@@ -229,7 +233,7 @@ class SuggestionApplier
 
     /**
      * A copy's typed note (step 14.264): its text is corrected, or with an emptied value the note is removed, or a
-     * new note of provenance is added after the copy's last. The note becomes an editor's, and the audit log's
+     * new note is added after the copy's last, or the note's type is changed (step 14.269). The note becomes an editor's, and the audit log's
      * «notes» key keeps the copy's notes from fahares:import-copy-notes from then on.
      */
     private function applyNote(Model $record, array $field, ?string $value): array
@@ -240,11 +244,21 @@ class SuggestionApplier
 
             return ['old' => ['notes' => []], 'new' => ['notes' => ['id' => $note->id, 'type' => $note->type, 'text' => $note->text]], 'resolution' => ['note_id' => $note->id]];
         }
-        $note = ManuscriptNote::find($field['note_id']);
+        $note = ManuscriptNote::find($field['note_id'] ?? $field['note_type_of']);
         if (! $note || (int) $note->manuscript_id !== (int) $record->getKey()) {
             throw new InvalidArgumentException('این یادداشت از این نسخه نیست.');
         }
         $old = ['id' => $note->id, 'type' => $note->type, 'text' => $note->text, 'typed_by' => $note->typed_by];
+        // The note's type, by its label or its key (step 14.269); a type it had as a second one is its second no more
+        if (isset($field['note_type_of'])) {
+            $type = isset(ManuscriptNote::TYPES[$value]) ? $value : array_search($value, ManuscriptNote::TYPES, true);
+            if (! $type || ! in_array(ManuscriptNote::TYPES[$type], $field['options'], true)) {
+                throw new InvalidArgumentException('نوع یادداشت باید یکی از نوع‌های فهرست باشد.');
+            }
+            $note->update(['type' => $type, 'typed_by' => 'editor', 'also' => array_values(array_diff((array) $note->also, [$type])) ?: null]);
+
+            return ['old' => ['notes' => $old], 'new' => ['notes' => ['id' => $note->id, 'type' => $type]], 'resolution' => ['note_id' => $note->id]];
+        }
         if ($value === null) {
             $note->delete();
 

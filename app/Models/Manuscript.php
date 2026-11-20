@@ -556,7 +556,7 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'work.authors:people.id', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name',
+        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'work.authors:people.id', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name', 'notes:id,manuscript_id,type,also',
             'catalogueEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_volume_id')]);
     }
 
@@ -624,6 +624,8 @@ class Manuscript extends Model
             'collated_with_author_copy' => (bool) $this->collated_with_author_copy,
             'corrected_by_author' => (bool) $this->corrected_by_author,
             'scripts' => $this->relationLoaded('scripts') ? $this->scripts->pluck('name')->all() : [],
+            // The types of the copy's notes, a note's other types too (step 14.269)
+            'note_types' => ManuscriptNote::typesOf($this->notes),
             // The work's subjects and languages, as filters of the manuscripts tab (backlog item 83, phase 5)
             'subjects' => $this->work?->subjects->pluck('name')->all() ?? [],
             'languages' => $this->work?->languages->pluck('name')->all() ?? [],

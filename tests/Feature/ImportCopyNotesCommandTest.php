@@ -172,6 +172,83 @@ class ImportCopyNotesCommandTest extends TestCase
         \App\Models\AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $other)->delete();
     }
 
+    public function test_a_note_s_type_can_be_changed_and_a_note_of_any_type_added()
+    {
+        $id = $this->copy('50');
+        $this->file([['id' => $id, 'shelfmark' => '50', 'notes' => [
+            ['type' => 'contents', 'text' => 'مهر بیضی «عبده علی»', 'typed_by' => 'sonnet', 'also' => ['seal']],
+            ['type' => 'other', 'text' => 'ناخوانا', 'typed_by' => 'site'],
+        ]]]);
+        $this->run_()->assertExitCode(0);
+        $copy = Manuscript::find($id);
+        [$note, $loose] = $copy->notes->all();
+        $registry = \App\Suggestions\SuggestionRegistry::class;
+
+        $fields = $registry::recordFields($copy);
+        $type = $fields['note_type_' . $note->id];
+        $this->assertSame('choice', $type['input']);
+        $this->assertContains('مهر', $type['options']);
+        $this->assertNotContains('دیگر', $type['options'], 'no note is made «other»');
+        $this->assertContains('دیگر', $fields['note_type_' . $loose->id]['options'], '...but one that is may stay');
+        $this->assertSame('محتوا', $registry::currentValue($copy, ['name' => 'note_type_' . $note->id] + $type));
+        // a note of every type but «other» can be added, in every section
+        $this->assertSame('افزودن مقابله', $fields['note_new_collation']['label']);
+        $this->assertSame('افزودن یادداشت نسخه‌شناسی', $fields['note_new_codicology']['label']);
+        $this->assertArrayNotHasKey('note_new_other', $fields);
+        $this->assertNull($registry::fieldOf($copy, 'note_type_999999'));
+
+        $applier = app(\App\Suggestions\SuggestionApplier::class);
+        $apply = fn (string $name, ?string $value) => $applier->apply($copy, $registry::fieldOf($copy->fresh(), $name), ['applied_value' => $value]);
+        $changed = $apply('note_type_' . $note->id, 'مهر');
+        $this->assertSame('contents', $changed['old']['notes']['type']);
+        $this->assertSame('seal', $changed['new']['notes']['type']);
+        $apply('note_new_collation', 'مقابله با نسخۀ اصل، ۱۰۸۵');
+        $this->assertSame([['seal', null, 'editor'], ['other', null, 'site'], ['collation', null, 'editor']],
+            $copy->fresh()->notes->map(fn ($n) => [$n->type, $n->also, $n->typed_by])->all());
+        try {
+            $apply('note_type_' . $note->id, 'نوعی که نیست');
+            $this->fail('an unknown type was taken');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('نوع یادداشت', $e->getMessage());
+        }
+
+        // the page: the changed note under provenance, the add buttons of each section, the type's own button
+        $page = $this->get(route('manuscripts.show', ['id' => $copy->getRouteKey()]))->assertOk();
+        $page->assertSee('data-suggest-field="note_type_' . $note->id . '"', false)->assertSee('data-suggest-field="note_new_collation"', false)
+            ->assertSee('data-suggest-field="note_new_decoration"', false)->assertSee('افزودن آرایه');
+    }
+
+    public function test_the_types_of_a_copy_s_notes_are_a_filter_of_the_search()
+    {
+        $sealed = $this->copy('60');
+        $both = $this->copy('61');
+        $bare = $this->copy('62');
+        $this->file([
+            ['id' => $sealed, 'shelfmark' => '60', 'notes' => [['type' => 'seal', 'text' => 'مهر', 'typed_by' => 'field']]],
+            ['id' => $both, 'shelfmark' => '61', 'notes' => [['type' => 'ownership', 'text' => 'تملک و مهر', 'typed_by' => 'opus', 'also' => ['seal']], ['type' => 'collation', 'text' => 'مقابله', 'typed_by' => 'rule']]],
+        ]);
+        $this->run_()->assertExitCode(0);
+
+        $this->assertSame(['ownership', 'seal', 'collation'], Manuscript::find($both)->toSearchableArray()['note_types'], 'a note\'s second type too, in the order of the types');
+        $this->assertSame([], Manuscript::find($bare)->toSearchableArray()['note_types']);
+
+        $filters = \App\Support\SearchFilters::fromRequest(\Illuminate\Http\Request::create('/search', 'GET', ['note_types' => ['seal', 'bogus', 'collation']]), 'manuscripts');
+        $this->assertSame(['collation', 'seal'], collect($filters->get('note_types'))->sort()->values()->all());
+        $this->assertStringContainsString('note_types = "seal"', $filters->engine());
+        $this->assertContains('یادداشت: مهر', array_column($filters->active(), 0));
+        $found = fn (array $types) => \App\Support\SearchFilters::fromRequest(\Illuminate\Http\Request::create('/search', 'GET', ['note_types' => $types]), 'manuscripts')
+            ->apply(Manuscript::query())->whereIn('manuscripts.id', [$sealed, $both, $bare])->orderBy('manuscripts.id')->pluck('manuscripts.id')->all();
+        $this->assertSame([$sealed, $both], $found(['seal']));
+        $this->assertSame([$both], $found(['seal', 'collation']));
+
+        // the search page offers the types and names the chosen one
+        $this->get(route('search', ['type' => 'manuscripts', 'note_types' => ['seal']]))->assertOk()
+            ->assertSee('name="note_types[]"', false)->assertSee('یادداشت: مهر');
+
+        // the index command counts every copy, with or without notes
+        $this->artisan('fahares:index-note-types', ['--from' => $sealed])->expectsOutputToContain('2 of them with notes')->assertExitCode(0);
+    }
+
     public function test_a_note_of_an_unknown_type_stops_the_run()
     {
         $id = $this->copy('20');

@@ -12513,3 +12513,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
 - **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
 - **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
+
+### گام ۱۴.۲۶۹: `note_types` در نمایه، فیلد `note_type_{id}` و ورودی `choice`
+
+- **نمایه:** `Manuscript::toSearchableArray` کلید `note_types` دارد: `ManuscriptNote::typesOf($this->notes)`، یعنی `type` و `also` همۀ یادداشت‌ها، به ترتیب `TYPES`. `makeAllSearchableUsing` رابطۀ `notes` را بار می‌کند. `note_types` در `filterableAttributes` نمایۀ نسخه‌ها (`config/scout.php`).
+- **پالایه (`SearchFilters`):** پارامتر `note_types[]` در زبانۀ `manuscripts`؛ تنها کلیدهای `ManuscriptNote::TYPES` می‌مانند. موتور: `note_types = "seal" AND …`. پایگاه داده: برای هر نوع `manuscripts.id IN (ManuscriptNote::copiesWith($type))`، که `type = ?` یا `JSON_CONTAINS(also, ?)` است. برچسب فعال: «یادداشت: مهر»، هر کدام جدا برداشتنی.
+- **گزینه‌ها:** `SearchController::filterOptions` کلید `noteTypes` می‌دهد (به ترتیب `GROUPS`، بی `other`)، با شمار از facet `note_types`. نما: `search/filters.blade.php`، یک `<details>` که با انتخاب باز می‌ماند. `SearchStatsController` برچسب `note_types` دارد.
+- **`fahares:index-note-types [--apply] [--chunk=5000] [--from=] [--sleep=1] [--max-queued=1]`:** برای همۀ نسخه‌ها `{id, note_types}` را با `updateDocuments` می‌فرستد (به‌روزرسانی جزئی سند)؛ نسخۀ بی یادداشت فهرست تهی می‌گیرد، پس اجرای دوباره پس از `fahares:import-copy-notes` نوع‌های برداشته را هم پاک می‌کند. مانند `fahares:reindex-work-estimates` منتظر صف موتور می‌ماند. بی `--apply` تنها می‌شمارد. روی `fahares_prod`: ۳۲۳٬۲۴۹ نسخه، ۱۸۹٬۲۴۰ با یادداشت.
+- **`SuggestionRegistry`:**
+  - `NOTE_TYPE_PREFIX = 'note_type_'`: فیلد نوع هر یادداشت، `input` برابر `choice`، `options` برچسب‌های `TYPES` (بی «دیگر»، مگر یادداشت خودش «دیگر» باشد)، کلید `note_type_of`. مقدار کنونی برچسب نوع است.
+  - `newNoteLabel($type)`: «افزودن …» برای هر نوع جز `other`؛ `NEW_NOTE_LABELS` تنها برچسب‌های ناهمسان را دارد. `recordFields` برای نسخۀ یادداشت‌دار `note_new_{type}` همۀ نوع‌ها را می‌دهد؛ چهار نوع پیشینه مانند پیش تنها جایی که فهرست کهنه نمایش داده نمی‌شود.
+  - `submittedValue` مقدار ورودی `choice` را تنها از `options` می‌پذیرد.
+- **`SuggestionApplier::applyNote`:** با `note_type_of`، برچسب یا کلید نوع را می‌گیرد، `type` و `typed_by = editor` را می‌نویسد و نوع تازه را از `also` برمی‌دارد؛ نتیجه زیر کلید `notes` است، پس درون‌ریزی دوباره آن نسخه را نگه می‌دارد. پس از هر تغییر یادداشت، سند جست‌وجوی نسخه تازه می‌شود (`searchable()`).
+- **نما:** ورودی `choice` در `suggest/desk.blade.php` (`<select>`) و `admin/suggestions/partials/field-approve.blade.php`. در `manuscripts/show.blade.php` دکمۀ `note_type_{id}` تنها در حالت پیشنهاد دیده می‌شود.
+- **آزمون:** `ImportCopyNotesCommandTest`: `test_a_note_s_type_can_be_changed_and_a_note_of_any_type_added` و `test_the_types_of_a_copy_s_notes_are_a_filter_of_the_search`.
+- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:index-note-types --apply` (هر دو زیر `scripts/dev/prod-run`). تا پیش از آن موتور facet و پالایۀ `note_types` را رد می‌کند: پالایه از پایگاه داده پاسخ می‌گیرد و شمارهای کنار پالایه‌های زبانۀ نسخه‌ها نمی‌آید.
