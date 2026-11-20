@@ -28,7 +28,8 @@ class Insights
     // v11: the cities of the map by decade, with their scribes and authors (backlog item 137, step 14.275)
     // v12: the origins, birthplaces and places of death of the map (backlog item 137, step 14.276)
     // v13: every dynasty's count, for the chart of rows (step 14.278)
-    private const CACHE_KEY = 'insights.v13';
+    // v14: the density and the share of each dynasty (step 14.281)
+    private const CACHE_KEY = 'insights.v14';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -763,6 +764,7 @@ class Insights
         $cityOf = [];
         $dynasties = [];
         $perCentury = [];
+        $perYear = [];
         $counted = 0;
         $ruled = 0;
         foreach ($rows as $row) {
@@ -772,6 +774,7 @@ class Insights
             }
             [$year, $n] = [(int) $row->y, (int) $row->n];
             $counted += $n;
+            $perYear[$year] = ($perYear[$year] ?? 0) + $n;
             $century = intdiv($year - 1, 100) + 1;
             $perCentury[$century][$city] = ($perCentury[$century][$city] ?? 0) + $n;
             if (($name = Dynasties::of($city, $year)) === null) {
@@ -784,7 +787,22 @@ class Insights
             $dynasties[$name]['to'] = max($dynasties[$name]['to'], $year);
             $dynasties[$name]['cities'][$city] = ($dynasties[$name]['cities'][$city] ?? 0) + $n;
         }
+        // A long rule has many copies for its length alone (step 14.281): beside the count, the copies of every ten
+        // years of the rule, and the dynasty's share of all the copies with a year and a city made anywhere in its years
+        $rules = [];
+        foreach (Dynasties::all() as $rule) {
+            $rules[$rule['name']] = [min($rules[$rule['name']][0] ?? $rule['from'], $rule['from']), max($rules[$rule['name']][1] ?? $rule['to'], $rule['to'])];
+        }
         foreach ($dynasties as &$dynasty) {
+            [$from, $to] = $rules[$dynasty['name']] ?? [$dynasty['from'], $dynasty['to']];
+            $then = 0;
+            foreach ($perYear as $year => $n) {
+                $then += $year >= $from && $year <= $to ? $n : 0;
+            }
+            $dynasty += ['rule_from' => $from, 'rule_to' => $to, 'years' => $to - $from + 1,
+                'density' => round($dynasty['count'] * 10 / max(1, $to - $from + 1), 1),
+                // Its own copies are among those of its years, save a copy the decade's rule puts a few years outside them
+                'share' => self::share($dynasty['count'], max($then, $dynasty['count']))];
             arsort($dynasty['cities']);
             $dynasty['city_kinds'] = count($dynasty['cities']);
             $dynasty['cities'] = collect(array_slice($dynasty['cities'], 0, 3, true))->map(fn ($n, $city) => ['name' => (string) $city, 'count' => $n])->values()->all();
@@ -803,9 +821,8 @@ class Insights
         }
 
         return [
-            'items' => array_slice($dynasties, 0, (int) config('insights.dynasties_shown')),
-            // Every dynasty with a copy, for the chart of rows (step 14.278)
-            'counts' => array_column($dynasties, 'count', 'name'),
+            // Every dynasty with a copy, the largest first; the page lists dynasties_shown of them in each reading
+            'items' => $dynasties,
             'kinds' => count($dynasties),
             'counted' => $counted,
             'ruled' => $ruled,

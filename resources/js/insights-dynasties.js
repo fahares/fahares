@@ -1,62 +1,51 @@
 /**
- * The dynasties as rows by region across the Hijri years (backlog item 154, step 14.278), after the chart of
- * dawawin.ir's statistics: each dynasty a bar from its first year to its last, in the lanes of its region, the darker
- * the more copies of the scope were made in its lands and days. The window of years is dragged and zoomed (the
- * slider under the chart, the wheel, two fingers). ECharts is fetched when the chart comes into view.
+ * The dynasties as rows by region across the Hijri years (backlog item 154, steps 14.278 and 14.281), drawn as the
+ * chart of dawawin.ir's statistics is: a strip of all the years with every dynasty as a hairline and a frame for the
+ * window, and under it the window alone, with only the regions and dynasties it holds, packed anew for it, so the
+ * chart stays short on a phone. The window is dragged (on the strip or on the rows), zoomed with two fingers or with
+ * Ctrl and the wheel, and set by the buttons of periods; a finger moving up or down scrolls the page as ever.
  *
- * A dynasty is {n: name, r: region, f: from, t: to, c: copies, cities: [[name, copies], …] for the larger ones}.
+ * A bar is the darker the more copies of the scope were made in every ten years of the rule (the density, not the
+ * count: a long rule has many copies for its length alone). No library: the SVG is written here.
+ *
+ * A dynasty is {n: name, r: region, f: from, t: to, c: copies, d: copies per ten years, s: share, cities: [[name, n]]}.
  */
 import { regionColor } from './insights-regions';
 
-const LANE = 16;
+const NS = 'http://www.w3.org/2000/svg';
 
 export default (config) => {
-    let chart = null;
-    const rows = [];
-    const bands = [];
+    const [MIN, MAX] = config.span;
+    const most = Math.max(0.1, ...config.dynasties.map((dynasty) => dynasty.d));
+    let view = { lo: config.window[0], hi: config.window[1] };
+    let frame = { left: 6, right: 300 };
 
-    // The lanes: the regions in their order, and within a region each dynasty in the first lane free at its start
-    let lane = 0;
-    for (const region of config.regions) {
-        const ends = [];
-        const mine = config.dynasties.filter((dynasty) => dynasty.r === region).sort((a, b) => a.f - b.f || b.t - a.t);
-        for (const dynasty of mine) {
-            let i = ends.findIndex((end) => end + 5 <= dynasty.f);
-            if (i < 0) {
-                i = ends.length;
-                ends.push(0);
-            }
-            ends[i] = dynasty.t;
-            // The first lane of a region is left for its name
-            rows.push({ ...dynasty, lane: lane + 1 + i });
+    const el = (parent, tag, attrs, text) => {
+        const node = document.createElementNS(NS, tag);
+        for (const key in attrs) {
+            node.setAttribute(key, attrs[key]);
         }
-        if (mine.length) {
-            bands.push({ region, from: lane, lanes: ends.length + 1 });
-            lane += ends.length + 1;
+        if (text != null) {
+            node.textContent = text;
         }
-    }
-    const lanes = lane;
-    const most = Math.max(1, ...rows.map((row) => row.c));
+        parent.appendChild(node);
+
+        return node;
+    };
 
     return {
-        ready: false,
-        failed: false,
         selected: null,
-        height: lanes * LANE + 90,
 
         init() {
-            const start = () => this.load().catch(() => { this.failed = true; });
-            if ('IntersectionObserver' in window) {
-                const seen = new IntersectionObserver((entries) => {
-                    if (entries.some((entry) => entry.isIntersecting)) {
-                        seen.disconnect();
-                        start();
-                    }
-                }, { rootMargin: '300px' });
-                seen.observe(this.$el);
-            } else {
-                start();
+            const box = this.$refs.chart;
+            // A phone shows three centuries at a time
+            if (box.clientWidth && box.clientWidth < 600) {
+                view = { lo: Math.max(MIN, view.hi - 300), hi: view.hi };
             }
+            this.render();
+            new ResizeObserver(() => this.render()).observe(box);
+            new MutationObserver(() => this.render()).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            this.gestures(box);
         },
 
         fa(n, grouping = true) {
@@ -67,118 +56,183 @@ export default (config) => {
             return `${this.fa(row.f, false)} – ${this.fa(row.t, false)} ق`;
         },
 
-        async load() {
-            const { default: echarts } = await import('./echarts-map');
-            this.ready = true;
-            await this.$nextTick();
-            chart = echarts.init(this.$refs.chart, null, { renderer: 'canvas' });
-            chart.on('click', (point) => {
-                this.selected = point.seriesId === 'dynasties' ? rows[point.dataIndex] : null;
-                // Drawn again, for the outline of the chosen bar
-                this.draw();
-            });
-            new ResizeObserver(() => { if (this.$refs.chart.clientWidth) { chart.resize(); } }).observe(this.$refs.chart);
-            new MutationObserver(() => this.draw()).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-            this.draw();
+        /** What a dynasty's bar says, for the shared box of figures and for the line under the chart */
+        figures(row) {
+            return row.c
+                ? `${this.fa(row.c)} نسخه · ${this.fa(row.d)} نسخه در هر ده سال · ${this.fa(row.s)}٪ نسخه‌های همان سال‌ها`
+                : 'نسخه‌ای با سال و شهر در قلمرو آن نیست';
         },
 
-        draw() {
+        show(lo, hi) {
+            const span = Math.max(40, Math.min(MAX - MIN, hi - lo));
+            lo = Math.max(MIN, Math.min(MAX - span, lo));
+            view = { lo, hi: lo + span };
+            this.render();
+        },
+
+        render() {
+            const box = this.$refs.chart;
+            const width = box.clientWidth;
+            if (! width) {
+                return;
+            }
             const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-            const ink = css('--ink'), paper = css('--paper'), muted = css('--muted'), line = css('--line');
-            const font = getComputedStyle(document.body).fontFamily;
-            const esc = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-            const zoom = chart.getOption()?.dataZoom?.[0];
-            chart.setOption({
-                backgroundColor: 'transparent',
-                // Read from right to left, as the page is: the early years on the right
-                grid: { left: 8, right: 8, top: 26, bottom: 56 },
-                xAxis: {
-                    type: 'value', min: config.span[0], max: config.span[1], inverse: true, position: 'top',
-                    axisLabel: { color: muted, fontFamily: font, formatter: (year) => this.fa(year, false) },
-                    axisLine: { lineStyle: { color: line } }, splitLine: { lineStyle: { color: line, opacity: 0.6 } },
-                },
-                yAxis: { type: 'value', min: 0, max: lanes, inverse: true, show: false },
-                dataZoom: [
-                    {
-                        type: 'slider', xAxisIndex: 0, bottom: 10, height: 22, filterMode: 'none',
-                        startValue: zoom?.startValue ?? config.window[0], endValue: zoom?.endValue ?? config.window[1],
-                        textStyle: { color: muted, fontFamily: font }, labelFormatter: (year) => this.fa(Math.round(year), false),
-                        borderColor: line, fillerColor: 'rgba(162, 58, 38, 0.12)', handleStyle: { color: css('--cinnabar') },
-                    },
-                    { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-                ],
-                tooltip: {
-                    trigger: 'item', confine: true, backgroundColor: ink, borderWidth: 0, padding: [6, 10],
-                    textStyle: { color: paper, fontFamily: font, fontSize: 12 },
-                    formatter: (point) => {
-                        const row = rows[point.dataIndex];
-                        if (point.seriesId !== 'dynasties' || ! row) {
-                            return '';
-                        }
+            const ink = css('--ink'), muted = css('--muted'), line = css('--line'), surface = css('--surface'), cinnabar = css('--cinnabar');
+            const mobile = width < 600, left = 6, right = width - 6;
+            frame = { left, right };
+            // The early years on the right, as the page reads
+            const fx = (year) => right - (year - MIN) / (MAX - MIN) * (right - left);
+            const x = (year) => right - (year - view.lo) / (view.hi - view.lo) * (right - left);
+            box.querySelectorAll('svg').forEach((old) => old.remove());
+            const svg = el(box, 'svg', { width, role: 'presentation' });
+            svg.style.display = 'block';
 
-                        return `<b>${esc(row.n)}</b><br>${this.years(row)}<br>${esc(row.r)}<br>` + (row.c ? `${this.fa(row.c)} نسخه در قلمرو و روزگار آن` : 'نسخه‌ای با سال و شهر در قلمرو آن نیست');
-                    },
-                },
-                series: [
-                    {
-                        // The name of each region over its lanes, and a line between two regions
-                        id: 'regions', type: 'custom', silent: true, z: 1, data: bands.map((band, i) => [i]), clip: false,
-                        renderItem: (params, api) => {
-                            const band = bands[api.value(0)];
-                            const top = api.coord([config.span[0], band.from])[1];
-                            const { x, width } = params.coordSys;
+            // The strip of all the years: every dynasty a hairline in the row of its region, and the window's frame
+            const stripTop = 4, stripHeight = 40;
+            el(svg, 'rect', { x: left, y: stripTop, width: right - left, height: stripHeight, fill: surface, stroke: line, rx: 4 });
+            const step = (stripHeight - 6) / Math.max(1, config.regions.length);
+            config.regions.forEach((region, i) => config.dynasties.filter((dynasty) => dynasty.r === region).forEach((dynasty) => el(svg, 'rect', {
+                x: fx(dynasty.t), y: stripTop + 3 + i * step, width: Math.max(1, fx(dynasty.f) - fx(dynasty.t)), height: Math.max(1.5, step - 0.6),
+                fill: regionColor(config.regions, region), 'fill-opacity': 0.25 + 0.6 * Math.sqrt(dynasty.d / most),
+            })));
+            for (let year = 200; year <= 1400; year += 200) {
+                el(svg, 'text', { x: fx(year), y: stripTop + stripHeight + 13, 'text-anchor': 'middle', 'font-size': 10.5, fill: muted }, this.fa(year, false));
+            }
+            el(svg, 'rect', {
+                x: fx(view.hi), y: stripTop - 2, width: Math.max(4, fx(view.lo) - fx(view.hi)), height: stripHeight + 4,
+                fill: cinnabar, 'fill-opacity': 0.08, stroke: cinnabar, 'stroke-width': 2, rx: 4, cursor: 'grab',
+            });
 
-                            return {
-                                type: 'group',
-                                children: [
-                                    { type: 'line', shape: { x1: x, y1: top, x2: x + width, y2: top }, style: { stroke: line, lineWidth: 1 } },
-                                    {
-                                        type: 'text', x: x + width - 4, y: top + 3,
-                                        style: { text: band.region, fill: muted, font: `600 11px ${font}`, align: 'right', verticalAlign: 'top', opacity: 0.9 },
-                                    },
-                                ],
-                            };
-                        },
-                    },
-                    {
-                        id: 'dynasties', type: 'custom', z: 2, cursor: 'pointer', clip: true,
-                        data: rows.map((row) => [row.f, row.t, row.lane]),
-                        encode: { x: [0, 1], y: 2 },
-                        renderItem: (params, api) => {
-                            const row = rows[params.dataIndex];
-                            const [x0, y] = api.coord([api.value(0), api.value(2)]);
-                            const [x1] = api.coord([api.value(1), api.value(2)]);
-                            const left = Math.max(params.coordSys.x, Math.min(x0, x1));
-                            const right = Math.min(params.coordSys.x + params.coordSys.width, Math.max(x0, x1));
-                            if (right - left < 1) {
-                                return null;
-                            }
-                            const color = regionColor(config.regions, row.r);
-                            const chosen = this.selected?.n === row.n;
-                            const wide = right - left > row.n.length * 6.2 + 8;
+            // The window: a band for each region with a dynasty in it, its dynasties in the first lane free
+            const top = stripTop + stripHeight + 42;
+            const barHeight = mobile ? 15 : 16, gap = 2, span = view.hi - view.lo;
+            const size = mobile ? 10.5 : 11.5;
+            let y = top;
+            const bands = [];
+            for (const region of config.regions) {
+                const items = config.dynasties.filter((dynasty) => dynasty.r === region && Math.min(dynasty.t, view.hi) - Math.max(dynasty.f, view.lo) >= span * 0.015);
+                if (! items.length) {
+                    continue;
+                }
+                const ends = [];
+                for (const item of [...items].sort((a, b) => a.f - b.f || b.t - a.t)) {
+                    let lane = ends.findIndex((end) => end + span / 200 <= item.f);
+                    if (lane < 0) {
+                        lane = ends.length;
+                        ends.push(0);
+                    }
+                    ends[lane] = item.t;
+                    item.lane = lane;
+                }
+                bands.push({ region, items, y });
+                y += 15 + ends.length * (barHeight + gap) + 5;
+            }
+            const height = y + 4;
+            svg.setAttribute('height', height);
 
-                            return {
-                                type: 'group',
-                                children: [
-                                    {
-                                        type: 'rect', shape: { x: left, y: y + 2, width: right - left, height: LANE - 4, r: 2 },
-                                        style: { fill: color, opacity: 0.18 + 0.72 * Math.sqrt(row.c / most), stroke: chosen ? ink : color, lineWidth: chosen ? 1.6 : 0.6 },
-                                    },
-                                    ...(wide ? [{
-                                        type: 'text', x: right - 4, y: y + LANE / 2,
-                                        style: { text: row.n, fill: ink, font: `10.5px ${font}`, align: 'right', verticalAlign: 'middle' },
-                                        silent: true,
-                                    }] : []),
-                                ],
-                            };
-                        },
-                    },
-                ],
-            }, true);
+            const tick = [10, 20, 50, 100, 200].find((years) => years * (right - left) / span >= 44) || 200;
+            for (let year = Math.ceil(view.lo / tick) * tick; year <= view.hi; year += tick) {
+                el(svg, 'line', { x1: x(year), x2: x(year), y1: top, y2: height, stroke: line, 'stroke-opacity': year % 100 ? 0.45 : 1 });
+                if (x(year) > left + 12 && x(year) < right - 12) {
+                    el(svg, 'text', { x: x(year), y: top - 6, 'text-anchor': 'middle', 'font-size': 11, fill: muted }, this.fa(year, false));
+                }
+            }
+            for (const band of bands) {
+                const color = regionColor(config.regions, band.region);
+                el(svg, 'text', { x: right, y: band.y + 10, 'font-size': 11.5, 'font-weight': 600, fill: color }, band.region);
+                for (const row of band.items) {
+                    const x0 = Math.max(left, x(row.t)), x1 = Math.min(right, x(row.f));
+                    if (x1 - x0 < 1) {
+                        continue;
+                    }
+                    const chosen = this.selected?.n === row.n;
+                    const rowY = band.y + 15 + row.lane * (barHeight + gap);
+                    const group = el(svg, 'g', { 'data-tip': `${row.n} · ${this.years(row)} · ${this.figures(row)}`, cursor: 'pointer' });
+                    el(group, 'rect', {
+                        x: x0, y: rowY, width: Math.max(2, x1 - x0), height: barHeight, rx: 4, fill: color,
+                        'fill-opacity': 0.14 + 0.78 * Math.sqrt(row.d / most), stroke: chosen ? ink : color, 'stroke-width': chosen ? 1.8 : 0.6,
+                    });
+                    if (x1 - x0 > row.n.length * size * 0.52 + 10) {
+                        el(group, 'text', { x: x1 - 6, y: rowY + barHeight / 2 + 4, 'font-size': size, fill: ink, 'pointer-events': 'none' }, row.n);
+                    }
+                    group.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        this.selected = row;
+                        this.render();
+                    });
+                }
+            }
         },
 
-        show(from, to) {
-            chart?.dispatchAction({ type: 'dataZoom', startValue: from, endValue: to });
+        gestures(box) {
+            const yearAtStrip = (px) => MIN + (frame.right - px) / (frame.right - frame.left) * (MAX - MIN);
+            const points = new Map();
+            let pan = null, moved = false;
+            const pinch = () => {
+                const xs = [...points.values()];
+
+                return xs.length >= 2 ? Math.abs(xs[0] - xs[1]) : 0;
+            };
+            box.addEventListener('wheel', (event) => {
+                if (! event.ctrlKey) {
+                    return;
+                }
+                event.preventDefault();
+                const at = box.getBoundingClientRect();
+                const year = view.lo + (frame.right - (event.clientX - at.left)) / (frame.right - frame.left) * (view.hi - view.lo);
+                const k = event.deltaY > 0 ? 1.2 : 1 / 1.2;
+                this.show(year - (year - view.lo) * k, year + (view.hi - year) * k);
+            }, { passive: false });
+            box.addEventListener('pointerdown', (event) => {
+                const at = box.getBoundingClientRect();
+                // On the strip: the window follows the finger, by the scale of all the years; elsewhere by its own
+                const strip = event.clientY - at.top <= 50;
+                if (strip) {
+                    const year = yearAtStrip(event.clientX - at.left);
+                    if (year < view.lo || year > view.hi) {
+                        const half = (view.hi - view.lo) / 2;
+                        this.show(year - half, year + half);
+                    }
+                }
+                points.set(event.pointerId, event.clientX);
+                moved = false;
+                pan = { x: event.clientX, lo: view.lo, hi: view.hi, pinch: pinch(), strip };
+            });
+            box.addEventListener('pointermove', (event) => {
+                if (! pan || ! points.has(event.pointerId)) {
+                    return;
+                }
+                points.set(event.pointerId, event.clientX);
+                if (points.size >= 2 && pan.pinch) {
+                    const k = pan.pinch / Math.max(1, pinch()), mid = (pan.lo + pan.hi) / 2, half = (pan.hi - pan.lo) / 2 * k;
+                    moved = true;
+                    this.show(mid - half, mid + half);
+                } else if (Math.abs(event.clientX - pan.x) > 3) {
+                    const perPixel = (pan.strip ? MAX - MIN : pan.hi - pan.lo) / (frame.right - frame.left);
+                    const years = (event.clientX - pan.x) * perPixel * (pan.strip ? -1 : 1);
+                    moved = true;
+                    this.show(pan.lo + years, pan.hi + years);
+                }
+            });
+            const up = (event) => {
+                points.delete(event.pointerId);
+                if (! points.size) {
+                    pan = null;
+                }
+            };
+            box.addEventListener('pointerup', up);
+            box.addEventListener('pointercancel', up);
+            box.addEventListener('pointerleave', up);
+            // A click that ended a drag chooses nothing; a click on no bar lets the chosen one go
+            box.addEventListener('click', (event) => {
+                if (moved) {
+                    event.stopPropagation();
+                    moved = false;
+                } else if (this.selected) {
+                    this.selected = null;
+                    this.render();
+                }
+            }, true);
         },
     };
 };

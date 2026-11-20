@@ -102,8 +102,9 @@ class InsightsTables
     private function dynasties(): array
     {
         return [self::table('نسخه‌ها در روزگار هر سلسله', 'copies-by-dynasty',
-            [['سلسله', 'text'], ['نسخه', 'num'], ['سال نخستین نسخه', 'year'], ['سال واپسین نسخه', 'year'], ['شمار شهرها', 'num'], ['شهرهای پرنسخه', 'text']],
-            array_map(fn ($r) => [$r['name'], $r['count'], $r['from'], $r['to'], $r['city_kinds'],
+            [['سلسله', 'text'], ['نسخه', 'num'], ['سال‌های حکومت', 'num'], ['نسخه در هر ده سال', 'dec'], ['سهم از نسخه‌های همان سال‌ها', 'pct'],
+                ['آغاز حکومت', 'year'], ['پایان حکومت', 'year'], ['سال نخستین نسخه', 'year'], ['سال واپسین نسخه', 'year'], ['شمار شهرها', 'num'], ['شهرهای پرنسخه', 'text']],
+            array_map(fn ($r) => [$r['name'], $r['count'], $r['years'], $r['density'], $r['share'], $r['rule_from'], $r['rule_to'], $r['from'], $r['to'], $r['city_kinds'],
                 implode('، ', array_map(fn ($c) => $c['name'] . ' ' . $c['count'], $r['cities']))], $this->data['dynasties']['items']))];
     }
 

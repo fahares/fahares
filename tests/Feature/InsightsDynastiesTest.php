@@ -98,7 +98,9 @@ class InsightsDynastiesTest extends TestCase
         $this->assertSame(50.0, $figures['coverage']);
         $this->assertSame(2, $figures['kinds']);
         $this->assertSame(['name' => 'صفویان', 'count' => 3, 'from' => 1040, 'to' => 1060,
-            'cities' => [['name' => 'اصفهان', 'count' => 2], ['name' => 'مشهد', 'count' => 1]], 'city_kinds' => 2], $figures['items'][0]);
+            'cities' => [['name' => 'اصفهان', 'count' => 2], ['name' => 'مشهد', 'count' => 1]],
+            // 3 copies in the 229 years of the rule, and 3 of the 4 copies made anywhere in those years
+            'rule_from' => 907, 'rule_to' => 1135, 'years' => 229, 'density' => 0.1, 'share' => 75.0, 'city_kinds' => 2], $figures['items'][0]);
         $this->assertSame('گورکانیان هند (تیموریان هند)', $figures['items'][1]['name']);
         // The band under the decades: the busiest city of the century and who ruled it
         $this->assertSame(['city' => 'اصفهان', 'count' => 2, 'runs' => [[1001, 1100, 'صفویان']]], $figures['centuries'][11]);
@@ -149,11 +151,12 @@ class InsightsDynastiesTest extends TestCase
         }
         $this->copy($work, ['copy_date_raw' => '1040ق', 'copy_place' => 'لاهور']);
 
-        // Every dynasty with a copy has its count, beyond the largest ones the list shows
+        // Every dynasty with a copy is in the figures, beyond the ones each reading of the list shows
         config(['insights.dynasties_shown' => 1]);
         $figures = $this->figures()['dynasties'];
-        $this->assertCount(1, $figures['items']);
-        $this->assertSame(['صفویان' => 12, 'گورکانیان هند (تیموریان هند)' => 1], $figures['counts']);
+        $this->assertSame(['صفویان' => 12, 'گورکانیان هند (تیموریان هند)' => 1], array_column($figures['items'], 'count', 'name'));
+        // 12 copies in 229 years: 0.5 in ten years; and 12 of the 13 copies of those years
+        $this->assertSame([0.5, 92.3], [$figures['items'][0]['density'], $figures['items'][0]['share']]);
 
         $capitals = Dynasties::capitals();
         $names = array_column(Dynasties::all(), 'name');
@@ -167,11 +170,17 @@ class InsightsDynastiesTest extends TestCase
 
         $this->get(route('insights.topic', ['topic' => 'time', 'library' => $this->library->id]))->assertOk()
             ->assertSee('data-insights-dynasty-rows', false)
-            ->assertSee('x-data="insightsDynasties(', false);
+            ->assertSee('x-data="insightsDynasties(', false)
+            // The list in its three readings, the density first; one dynasty in each, as the config says
+            ->assertSee('data-insights-dynasties="density"', false)
+            ->assertSee('data-insights-dynasties="count"', false)
+            ->assertSee('data-insights-dynasties="share"', false)
+            ->assertSee('۰٫۵ در هر ده سال')
+            ->assertSee('۹۲٫۳٪ نسخه‌های همان سال‌ها');
         $this->get(route('insights.topic', ['topic' => 'places', 'library' => $this->library->id]))->assertOk()
             ->assertSee('capitals', false)
             ->assertSee('پایتخت');
-        // One chunk of ECharts for the two charts, never in the site's own script
-        $this->assertStringContainsString("import('./echarts-map')", file_get_contents(resource_path('js/insights-dynasties.js')));
+        // The chart of rows is drawn by the site's own script, without ECharts
+        $this->assertStringNotContainsString('echarts', file_get_contents(resource_path('js/insights-dynasties.js')));
     }
 }
