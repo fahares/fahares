@@ -12538,3 +12538,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `works:link-related` گام ۱۴.۲۲۹، اگر هنوز اجرا نشده است (با پشتیبان `work_relations`).
   2. پروندهٔ `reconciliations/related_works_model_decisions_20261116.json` پیکره به `/tmp` کانتینر برود.
   3. `scripts/dev/prod-run <session> -- 'php artisan works:link-decisions /tmp/…json'`، سپس پاک کردن پرونده از `/tmp`.
+
+### گام ۱۴.۲۷۴: صف `admin.work-entry-links` و `works:link-decisions --proposals`
+- **migration `2026_11_20_100002_add_review_to_work_entry_links`:** `status` (پیش‌فرض `linked`، نمایه‌دار)، `why` (۳۰۰ نویسه)، `decided_by` (کاربر، با حذف او تهی می‌شود) و `decided_at`. ردیف‌های `model` گام ۱۴.۲۷۰ با پیش‌فرض `linked` می‌مانند.
+- **[WorkEntryLink](../app/Models/WorkEntryLink.php):** ثابت‌های `LINKED`، `PROPOSED`، `REJECTED` و `SOURCE_REVIEW = 'review'`.
+- **[LinkDecidedWorksCommand](../app/Console/Commands/LinkDecidedWorksCommand.php)، `--proposals`:** ردیف‌های `match` با `confidence = medium`. همان وارسی‌های ردیف‌های «high» (اثر هست، مدخل در متن هست، جفت وارونه نیست). مدخلی که هر ردیفی در `work_entry_links` دارد (از هر `source` و `status`) یا در همین اجرا ردیف `model` می‌گیرد، کنار می‌ماند. `insertOrIgnore` با `source = review`، `status = proposed`، `confidence = 60` و `why` پرونده. همگام‌سازی ردیف‌های `model` به ردیف‌های `review` دست نمی‌زند.
+- **[WorkEntryLinkController](../app/Http/Controllers/Admin/WorkEntryLinkController.php)** (گروه `can:structure.link`):
+  - `index`: ردیف‌های `source = review`؛ «در انتظار» به ترتیب `id`، «تصمیم‌گرفته» به ترتیب `decided_at` نزولی؛ ۲۵ در هر صفحه.
+  - `link`: مدخل با `entryKey` در متن میزبان پیدا می‌شود؛ `WorkRelationLinker::relationBetween()` جهت و نوع را می‌دهد. اگر رابطه‌ای وارونه باشد، خطا. اگر جفت در همان جهت رابطه‌ای ندارد، ردیف `work_relations` با `source = review` ساخته می‌شود. `AuditLog` روی اثر میزبان، و نمایهٔ دوبارهٔ اثر فرعی.
+  - `reject`: فقط وضعیت.
+  - `reopen`: اگر «پیوند خورد» بود، رابطهٔ `source = review` دو اثر برداشته می‌شود، مگر مدخل تأییدشدهٔ دیگری میان همان دو اثر باشد.
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):** `relationBetween()` همان `relationOf()` است برای دو `Work`، بی ساختن نمایهٔ همهٔ آثار؛ هر دو از `typeOf()` می‌خوانند. `linkedEntries()` فقط `status = linked` را می‌خواند.
+- **[AdminNav](../app/Support/AdminNav.php):** «پیوند آثار مرتبط» پس از «پیوند پدیدآور»، با شمار ردیف‌های در انتظار.
+- **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):** «349 matches of confidence medium: 345 proposals to add»، «345 proposals queued for review». اجرای دوم: «0 proposals to add». `work_entry_links`: model/linked ۵۷۰، review/proposed ۳۴۵. `/admin/work-entry-links` و صفحهٔ ۷ آن با کاربر مدیر: ۲۰۰، ۲۵ کارت.
+- **آزمون:** `LinkDecidedWorksTest::test_a_proposal_is_linked_only_when_a_reviewer_confirms_it`.
+- **اجرا در تولید، پس از استقرار:** همان فرمان گام ۱۴.۲۷۰ با `--proposals`: `php artisan works:link-decisions /tmp/…json --proposals`.
