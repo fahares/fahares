@@ -757,6 +757,51 @@ class Manuscript extends Model
         return $this->hasMany(ManuscriptNote::class)->orderBy('position');
     }
 
+    private ?bool $keepsSealsList = null;
+
+    /**
+     * Whether the page shows the metadata list of seals, ownership and endowment rather than the typed notes of
+     * provenance: the copy has no such note, or a reviewer corrected the list (an approved suggestion on it, or a
+     * direct edit of the metadata alone), which the notes table does not hold (step 14.260).
+     */
+    public function keepsSealsList(): bool
+    {
+        return $this->keepsSealsList ??= $this->notes->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])->isEmpty()
+            || $this->fieldSuggestions()->where('status', 'approved')->where('field_name', 'ownership_and_seals')->exists()
+            || AuditLog::where('auditable_type', self::class)->where('auditable_id', $this->id)->where('action', 'verify')->get(['new_values'])
+                ->contains(fn ($log) => array_keys(array_diff_key($log->new_values ?? [], ['suggestion_id' => 1, 'direct_edit' => 1, 'updated_at' => 1])) === ['metadata']
+                    && str_contains((string) json_encode($log->new_values['metadata']), 'ownership_and_seals'));
+    }
+
+    /**
+     * How many seals, ownership notes, endowments and acquisitions the copy has, for the lists of results: its typed
+     * notes of provenance, or the metadata list of a copy without them. A list a reviewer corrected is not looked up
+     * here (keepsSealsList costs two queries a copy).
+     */
+    public function provenanceCount(): int
+    {
+        return $this->notes->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])->count() ?: count($this->ownership_and_seals_list);
+    }
+
+    /**
+     * The copy's typed notes by section of its page (ManuscriptNote::GROUPS), each section in the order of the text;
+     * a section without notes is left out (step 14.260).
+     *
+     * @return array<string, \Illuminate\Support\Collection<int, ManuscriptNote>>
+     */
+    public function noteGroups(): array
+    {
+        $groups = [];
+        foreach (ManuscriptNote::GROUPS as $key => $group) {
+            $notes = $this->notes->whereIn('type', $group['types'])->values();
+            if ($notes->isNotEmpty()) {
+                $groups[$key] = $notes;
+            }
+        }
+
+        return $groups;
+    }
+
     public function library(): BelongsTo
     {
         return $this->belongsTo(Library::class);
