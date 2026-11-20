@@ -553,12 +553,17 @@ class WorkRelationLinker
      * the side it stands on; and what a field of several entries says after them («notes»). A field the parser reads
      * no entry in is one unlinked row, as written: nothing of the texts is left out.
      *
-     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>, notes: list<string>}
+     * «entries» is every entry of the two texts in its place, tied or not, as works:materialize-related writes them to
+     * work_text_relations (step 14.283): side, position, type, text, the entry's key, the work it is tied to, and
+     * whether the catalogue's words differ from that work's record.
+     *
+     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>, notes: list<string>,
+     *     entries: list<array{side: string, position: int, type: string, text: string, key: ?string, work: ?\App\Models\Work, differs: bool}>}
      */
     public static function pageRows(\App\Models\Work $work): array
     {
         $linked = self::linkedEntries($work);
-        $out = ['printed' => [], 'unlinked' => [], 'notes' => []];
+        $out = ['printed' => [], 'unlinked' => [], 'notes' => [], 'entries' => []];
         $clean = fn ($text) => trim(preg_replace(['/<!--.*?-->/su', '/\s+/u'], ' ', (string) $text));
         $titlesOf = fn (\App\Models\Work $w) => array_values(array_filter([$w->clean_title, $w->primary_title,
             ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : (string) $a)->all()]));
@@ -586,7 +591,10 @@ class WorkRelationLinker
             // a field of one entry is shown as written, its note kept
             $text = count($entries) === 1 ? $field
                 : implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] . ($entry['born'] || $entry['died'] ? " ({$entry['born']}-{$entry['died']})" : '') : '');
-            if ($hit = $hits->get($n)) {
+            $hit = $hits->get($n);
+            $out['entries'][] = ['side' => 'related', 'position' => $n, 'type' => $type($entry), 'text' => $text, 'key' => self::entryKey($entry),
+                'work' => $hit[1] ?? null, 'differs' => $hit && $differs($entry, $hit)];
+            if ($hit) {
                 if ($differs($entry, $hit)) {
                     $out['printed'][$hit[1]->id] = $text;
                 }
@@ -597,6 +605,7 @@ class WorkRelationLinker
         if ($field !== '' && ! $entries) {
             // a long text with no «؛»: the parser takes it for a note
             $out['unlinked'][] = ['side' => 'related', 'text' => $field, 'type' => $type(['titles' => [], 'type' => null])];
+            $out['entries'][] = ['side' => 'related', 'position' => 0, 'type' => $type(['titles' => [], 'type' => null]), 'text' => $field, 'key' => null, 'work' => null, 'differs' => false];
         } elseif (count($entries) > 1) {
             // what the field says after its last entry
             $last = end($entries);
@@ -611,7 +620,12 @@ class WorkRelationLinker
         foreach (array_values($work->commentaries_and_glosses ?? []) as $i => $text) {
             $text = $clean($text);
             $entry = WorkRelationParser::parseEntries($text)[0] ?? null;
-            if ($hit = $linked['children'][$i][0] ?? null) {
+            $hit = $linked['children'][$i][0] ?? null;
+            if ($text !== '') {
+                $out['entries'][] = ['side' => 'children', 'position' => $i, 'type' => $entry['type'] ?? 'related', 'text' => $text,
+                    'key' => $entry ? self::entryKey($entry) : null, 'work' => $hit[1] ?? null, 'differs' => $hit && $entry && $differs($entry, $hit)];
+            }
+            if ($hit) {
                 if ($entry && $differs($entry, $hit)) {
                     $out['printed'][$hit[1]->id] = $text;
                 }

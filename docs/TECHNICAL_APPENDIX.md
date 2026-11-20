@@ -12781,3 +12781,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **حرکت‌ها:** `pointerdown/move/up` روی جعبه؛ روی نوار نمای کل با مقیاس همۀ سال‌ها و روی ردیف‌ها با مقیاس پنجره؛ دو اشاره‌گر = زوم؛ `wheel` تنها با Ctrl؛ `touch-action: pan-y` تا پیمایش عمودی صفحه آزاد بماند. کلیکی که پایان یک کشیدن است چیزی را برنمی‌گزیند.
 - **ECharts:** `GridComponent` و `DataZoomComponent` از `echarts-map.js` برداشته شد؛ این بسته دوباره تنها برای نقشه است.
 - **سنجیده نشد:** لمس واقعی (کشیدن و دو انگشت) روی گوشی؛ در مرورگر با رویدادهای اشاره‌گر شبیه‌سازی‌شده و پهنای ۳۷۵ پیکسل آزموده شد.
+
+### گام ۱۴.۲۸۳: `works:materialize-related` و ستون‌های تازۀ `work_text_relations`
+- **migration `2026_11_21_100001_add_catalogue_entries_to_work_text_relations`:** `text` از ۶۰۰ نویسه به `TEXT` (بلندترین متن روی رونوشت ۱٬۸۴۴ نویسه)؛ `source` (`suggestion` پیش‌فرض، `catalogue`)، `position`، `entry_key` (`WorkRelationLinker::entryKey`)، `linked_work_id` (با حذف اثر تهی می‌شود)، `link_source` (`auto`، `model`، `review`)، `link_status` (`linked`، `proposed`، `rejected`)، `differs`، `why`، `confidence`، `decided_by`، `decided_at` و `model_verdict` (`unsure`، `none`، `medium`). سطر با `type = note` یادداشت پایانی فیلد است (`position = 999`).
+- **[WorkRelationLinker::pageRows](../app/Support/WorkRelationLinker.php):** کلید تازۀ `entries`: هر مدخل دو متن با `side`، `position`، `type`، `text`، `key`، `work` و `differs`. `printed` و `unlinked` مانند پیش‌اند.
+- **[MaterializeRelatedWorksCommand](../app/Console/Commands/MaterializeRelatedWorksCommand.php):**
+  - برای هر اثری که یکی از دو فیلد را دارد، سطرهای `source = catalogue` آن پاک و از `pageRows()` دوباره نوشته می‌شود (یک تراکنش برای هر اثر). سطرهای `catalogue` آثاری که دیگر متنی ندارند در پایان پاک می‌شوند.
+  - مدخل پیوندخورده: `link_status = linked` و `link_source` از ردیف `work_entry_links` همان مدخل (اگر `linked` و به همان اثر باشد)، وگرنه `auto`.
+  - مدخل بی‌پیوند با ردیف `proposed` یا `rejected` در `work_entry_links`: اثر پیشنهادی، وضع، `why`، `confidence` و تصمیم‌گیرنده.
+  - `--decisions`: کلید «اثر > سو > کلید مدخل». متن پرونده «عنوان‌ها؛ پدیدآور (تولد-وفات)» است و کمانک تاریخ پایانی، اگر «؛» دارد، برداشته می‌شود. `match` با `high` نادیده است.
+  - پرس‌وجوی آثار در یک گروه `where` است: `lazyById` شرط `id > …` خودش را می‌افزاید و با `orWhere` بیرونی پیمایش بی‌پایان می‌شد (در تمرین نخست همین رخ داد).
+- **[RecordRelations::texts](../app/Suggestions/RecordRelations.php)** و **`WorkTextRelationController::destroy`** فقط `source = suggestion` را می‌خوانند، تا سطرهای فهرست تا انتشار دوم دوبار روی صفحه نیایند.
+- **تمرین روی `fahares_prod` (۳۰ آبان ۱۴۰۵):**
+  - «works 11209، entries 20916، linked 14209، linked, words differ 364، proposed 333، rejected 0، tied to no work 6374، with a verdict of the judging 1804، notes 2»؛ «Tied by: auto 13642, model 567»؛ «Saved: 20918 rows of the catalogue». ۱ دقیقه و ۱۸ ثانیه. اجرای دوم همان.
+  - `model_verdict`: unsure ۹۶۰، none ۵۳۰، medium ۳۱۴ سطر (مدخل تکراری در یک اثر هر دو سطرش نشان می‌گیرد).
+  - سنجش با پروندۀ تصمیم: از ۹۳۹ «نامطمئن»، ۹۱۷ سطر بی‌پیوند، ۲۱ پیوندخورده و ۱ بی سطرِ هم‌کلید. از ۷۳۵ «نیست»، ۱۹۱ بی سطرِ هم‌کلید: مدخل‌های دوم به بعدِ یک سطر «شروح و حواشی» (مانند نام تنها) که متنشان در سطر همان مدخل هست.
+  - سنجش با `work_entry_links`: از ۵۷۰ ردیف `model/linked`، ۵۶۷ همان؛ سه مدخل پیوندشان را به مدخل هم‌اثر دیگری داده‌اند (هر اثر یک مدخل). از ۳۴۵ ردیف `review/proposed`، ۳۱۷ همان، ۲۶ اکنون پیوندخورده‌اند و ۲ بی سطر.
+  - هیچ سطر `linked` بی رابطه‌ای در `work_relations` میان همان دو اثر نیست.
+- **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
+- **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
