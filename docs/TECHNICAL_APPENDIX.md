@@ -12513,3 +12513,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
 - **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
 - **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
+
+### گام ۱۴.۲۷۱: فیلتر `death_century` و سده‌های زندگی در `PersonQueue`
+- **چرا نمودار بازشماری نشد:** `Insights::authors` هر مؤلف را یک بار و با بازۀ وفات (`DEATH_FROM`، `DEATH_TO`) در لایه‌های «سال دانسته» و «فقط سده» می‌شمارد. شمارش با سده‌های زندگی هر مؤلفِ دوسده‌ای را دو بار می‌آورد و معنای لایه‌ها و پوشش را به هم می‌زد. پس پیوند اصلاح شد، نه نمودار.
+- **`SearchFilters`:** کلید `death_century` (۱ تا ۱۵) فقط برای زبانۀ `authors`: در موتور `century_hijri = c` و در پایگاه داده `people.century_hijri = c`؛ برچسب «سدۀ ۱۱ (وفات)». در فرم فیلترها فیلد ندارد و به‌صورت ورودی پنهان می‌ماند تا با تغییر فیلترهای دیگر نیفتد. `century` همان «سدۀ زندگی» است.
+- **`insights/charts/authors.blade.php`:** پیوند ستون‌ها `type=authors&role=author&death_century=c`.
+- **`App\Review\PersonQueue`:** `filterOptions` سده‌های هر گروه را از `lifeCenturies()` اشخاصش می‌سازد و `filter` با `Person::whereInCentury` می‌جوید. `JSON_CONTAINS(person_ids, CAST(people.id AS JSON))` در MariaDB خطای نحوی است و به `CAST(people.id AS CHAR)` تغییر کرد.
+- **آزمون:** `LifeCenturiesTest::test_the_review_queues_find_a_group_under_each_century_of_its_people`، بخش `death_century` در `test_the_century_filter_and_the_index_find_the_person_under_each_century`، و پیوند تازه در `InsightsPageTest`.

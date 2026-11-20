@@ -30,7 +30,7 @@
 <form action="{{ route('search') }}" method="GET" class="bg-surface p-5 rounded-sm border border-line shadow-sm space-y-5 text-sm"
     x-data @change="$event.target.name && $el.requestSubmit()" data-search-filters>
     @foreach(['q' => $query, 'type' => $type, 'scope' => $scope, 'sort' => $sortKey ?: null, 'per_page' => $perPage !== 20 ? $perPage : null,
-        'source_volume_id' => $v('source_volume_id'), 'work_id' => $v('work_id'), 'scribe_id' => $v('scribe_id'), 'author_id' => $v('author_id')] as $key => $value)
+        'source_volume_id' => $v('source_volume_id'), 'work_id' => $v('work_id'), 'scribe_id' => $v('scribe_id'), 'author_id' => $v('author_id'), 'death_century' => $v('death_century')] as $key => $value)
         @if($value !== null && $value !== '')<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
     @endforeach
 

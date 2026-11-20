@@ -103,6 +103,29 @@ class LifeCenturiesTest extends TestCase
 
         // the search page, by the database when the engine is not there
         $this->get(route('search', ['type' => 'authors', 'century' => 10]))->assertOk()->assertSee('سدۀ ۱۰ (زندگی)');
+
+        // the century of the death alone, which the chart of authors by death links to (step 14.271)
+        $this->assertSame([$set->id], $found(['death_century' => 10]));
+        $this->assertSame([$two->id, $one->id], $found(['death_century' => 11]));
+        $this->assertStringContainsString('(century_hijri = 11)', SearchFilters::fromRequest(Request::create('/search', 'GET', ['death_century' => 11]), 'authors')->engine());
+        $this->get(route('search', ['type' => 'authors', 'death_century' => 11]))->assertOk()->assertSee('سدۀ ۱۱ (وفات)')
+            ->assertSee('name="death_century" value="11"', false);
+        $this->assertStringContainsString('death_century', file_get_contents(resource_path('views/insights/charts/authors.blade.php')));
+    }
+
+    public function test_the_review_queues_find_a_group_under_each_century_of_its_people()
+    {
+        $two = $this->person('دوسده‌ای صف آزمایشی', ['birth_year_hijri' => 970, 'death_year_hijri' => 1050]);
+        $one = $this->person('یک‌سده‌ای صف آزمایشی', ['death_year_hijri' => 1080]);
+        $review = \App\Models\PersonReview::create(['type' => 'duplicate', 'key' => 'lc-' . uniqid(), 'person_ids' => [$two->id, $one->id], 'status' => 'open', 'reason' => 'test']);
+        $queue = new \App\Review\NamesakeQueue;
+        $found = fn (int $century) => $queue->filter(\App\Models\PersonReview::query()->whereKey($review->id), ['century' => $century])->count();
+
+        $this->assertSame([0, 1, 1, 0], [$found(9), $found(10), $found(11), $found(12)]);
+        \Illuminate\Support\Facades\Cache::forget('collective-review.' . $queue->key() . '.filters');
+        $options = $queue->filterOptions()['century']['options'];
+        $this->assertArrayHasKey(10, $options);
+        $this->assertArrayHasKey(11, $options);
     }
 
     public function test_the_backfill_fills_the_rows_written_before_the_column_and_keeps_a_reviewed_one()
