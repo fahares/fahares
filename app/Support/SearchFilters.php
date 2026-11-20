@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Helpers\TextNormalizer;
 use App\Models\Language;
 use App\Models\Library;
+use App\Models\ManuscriptNote;
 use App\Models\ManuscriptPerson;
 use App\Models\Script;
 use App\Models\Source;
@@ -31,10 +32,12 @@ class SearchFilters
         // composition may lie in it, and the order by composition falls back on the estimate (step 14.197)
         'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph', 'estimates'],
         'manuscripts' => ['work_id', 'scribe_id', 'author_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
-            'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'source_volume_id'],
+            'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'note_types', 'source_volume_id'],
         // The people in two tabs (step 14.154): the century is of the death of an author, of the copies of a scribe
         // «estimates» on the authors' tab: the century also takes those of no known century last seen alive in it (step 14.198)
-        'authors' => ['role', 'century', 'estimates'],
+        // «death_century» is no field of the form: the century of the death alone (century_hijri), which the chart
+        // of authors by death links to (step 14.271); «century» is any century of the life
+        'authors' => ['role', 'century', 'death_century', 'estimates'],
         'scribes' => ['role', 'century', 'copy_city'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
@@ -181,13 +184,13 @@ class SearchFilters
 
             return $ids ? array_slice($ids, 0, 30) : null;
         }
-        if (is_array($value) && $param !== 'flags') {
+        if (is_array($value) && ! in_array($param, ['flags', 'note_types'], true)) {
             return null;
         }
 
         return match ($param) {
             'subject_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id', 'source_volume_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
-            'century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
+            'century', 'death_century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
             'volume' => ctype_digit(TextNormalizer::normalize((string) $value)) && (int) TextNormalizer::normalize((string) $value) > 0 ? (int) TextNormalizer::normalize((string) $value) : null,
             'year_from', 'year_to', 'folios_from', 'folios_to' => ctype_digit(TextNormalizer::normalize((string) $value)) ? (int) TextNormalizer::normalize((string) $value) : null,
             'city' => is_string($value) && trim($value) !== '' ? mb_substr(trim($value), 0, 60) : null,
@@ -197,6 +200,8 @@ class SearchFilters
             'has_autograph', 'estimates' => $value === '1' ? '1' : null,
             'role' => isset(self::ROLES[$value]) ? $value : null,
             'flags' => array_values(array_unique(array_intersect(array_filter((array) $value, 'is_string'), array_keys(self::FLAGS)))) ?: null,
+            // The copies that have a note of every chosen type (step 14.269)
+            'note_types' => array_values(array_intersect(array_keys(ManuscriptNote::TYPES), array_filter((array) $value, 'is_string'))) ?: null,
             default => null,
         };
     }
@@ -276,6 +281,7 @@ class SearchFilters
                 'folios_from' => "folios >= {$value}",
                 'folios_to' => "folios <= {$value}",
                 'flags' => implode(' AND ', array_map(fn ($f) => "{$f} = true", $value)),
+                'note_types' => implode(' AND ', array_map(fn ($t) => 'note_types = ' . $quote($t), $value)),
                 'work_form' => 'work_form = ' . $quote($value),
                 'source_id' => $this->type === 'sources' ? "source_id = {$value}" : "bibliographies = {$value}",
                 'volume' => "volume_number = {$value}",
@@ -288,6 +294,7 @@ class SearchFilters
                     'scribes' => "copy_centuries = {$value}",
                     default => null,
                 },
+                'death_century' => "century_hijri = {$value}",
                 'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
@@ -349,6 +356,7 @@ class SearchFilters
                 'folios_from' => $query->where('folios', '>=', $value),
                 'folios_to' => $query->where('folios', '<=', $value),
                 'flags' => array_map(fn ($f) => $query->where($f, true), $value),
+                'note_types' => array_map(fn ($t) => $query->whereIn('manuscripts.id', ManuscriptNote::copiesWith($t)), $value),
                 'work_form' => $query->where('work_form', $value),
                 'volume' => $query->where('source_items.volume_number', $value),
                 'source_id' => $this->type === 'sources' ? $query->where('source_items.source_id', $value) : $query->whereExists(fn ($q) => $q->from('source_entries')->whereColumn('source_entries.citable_id', 'works.id')
@@ -366,6 +374,7 @@ class SearchFilters
                     'scribes' => $scribesOf(fn ($copies) => \App\Models\Manuscript::whereCopiedWithin($copies, ($value - 1) * 100 + 1, $value * 100)),
                     default => null,
                 },
+                'death_century' => $query->where('people.century_hijri', $value),
                 'fields' => $query->whereIn($this->idKey(), $this->fieldMatches()['ids']),
                 default => null,
             };
@@ -427,6 +436,7 @@ class SearchFilters
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
                 'role' => ($this->type === 'scribes' || $value === 'scribe' ? 'همچنین ' : 'نقش: ') . self::ROLES[$value],
+                'death_century' => 'سدۀ ' . $fa($value) . ' (وفات)',
                 'century' => 'سدۀ ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (زندگی)', default => ' (کتابت)' },
                 default => null,
             };
@@ -447,6 +457,11 @@ class SearchFilters
             if ($param === 'flags') {
                 foreach ($value as $flag) {
                     $chips[] = [self::FLAGS[$flag], ['flags' => array_values(array_diff($value, [$flag]))]];
+                }
+            }
+            if ($param === 'note_types') {
+                foreach ($value as $noteType) {
+                    $chips[] = ['یادداشت: ' . ManuscriptNote::TYPES[$noteType], ['note_types' => array_values(array_diff($value, [$noteType]))]];
                 }
             }
         }

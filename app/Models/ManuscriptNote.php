@@ -48,4 +48,31 @@ class ManuscriptNote extends Model
     {
         return $this->belongsTo(Manuscript::class);
     }
+
+    /**
+     * The types a copy's notes have, a note's other types (`also`) among them, in the order of TYPES: what the
+     * search index holds and the filter of the copies asks for (step 14.269)
+     *
+     * @param iterable<object{type: string, also: mixed}> $notes
+     * @return string[]
+     */
+    public static function typesOf(iterable $notes): array
+    {
+        $found = [];
+        foreach ($notes as $note) {
+            $also = is_string($note->also) ? json_decode($note->also, true) : $note->also;
+            foreach ([$note->type, ...(array) $also] as $type) {
+                $found[$type] = true;
+            }
+        }
+
+        return array_values(array_filter(array_keys(self::TYPES), fn ($type) => isset($found[$type])));
+    }
+
+    /** The copies that have a note of the type, as its own type or one of its others */
+    public static function copiesWith(string $type): \Illuminate\Database\Query\Builder
+    {
+        return \Illuminate\Support\Facades\DB::table('manuscript_notes')->where(fn ($q) => $q->where('type', $type)
+            ->orWhereRaw('JSON_CONTAINS(also, ?)', [json_encode($type)]))->select('manuscript_id');
+    }
 }

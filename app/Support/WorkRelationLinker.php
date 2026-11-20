@@ -134,10 +134,70 @@ class WorkRelationLinker
         return MatchCatalogEditionCommand::norm(TextNormalizer::normalize((string) $title));
     }
 
+    /** An entry as work_entry_links keeps it (step 14.270): its titles as written and its author, without the life dates */
+    public static function entryKey(array $entry): string
+    {
+        return implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] : '');
+    }
+
+    /** Whether the work is one this linker has read */
+    public function has(int $id): bool
+    {
+        return isset($this->works[$id]);
+    }
+
+    /**
+     * The relation an entry of a work gives when a decision, not the title and author, says which work it names
+     * (step 14.270): which is made on which, and the type as match() reads it.
+     *
+     * @return array{child: int, parent: int, type: string}
+     */
+    public function relationOf(int $workId, string $side, array $entry, int $found): array
+    {
+        [$child, $parent] = $side === 'related' ? [$workId, $found] : [$found, $workId];
+
+        return ['child' => $child, 'parent' => $parent, 'type' => self::typeOf($this->works[$child]['title'] ?? '', $this->works[$child]['form'] ?? null,
+            $this->titles[$child] ?? [], [...$this->titles[$parent] ?? [], ...($side === 'related' ? $entry['titles'] : [])], $side, $entry)];
+    }
+
+    /**
+     * The same for two works read on their own, with no index of every work: the panel's decision on one entry (step 14.274).
+     *
+     * @return array{child: int, parent: int, type: string}
+     */
+    public static function relationBetween(\App\Models\Work $host, string $side, array $entry, \App\Models\Work $found): array
+    {
+        [$child, $parent] = $side === 'related' ? [$host, $found] : [$found, $host];
+        $titles = fn (\App\Models\Work $w) => array_values(array_filter([$w->clean_title, $w->primary_title,
+            ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : (string) $a)->all()]));
+
+        return ['child' => $child->id, 'parent' => $parent->id, 'type' => self::typeOf((string) $child->clean_title, $child->work_form,
+            $titles($child), [...$titles($parent), ...($side === 'related' ? $entry['titles'] : [])], $side, $entry)];
+    }
+
+    /** The type of a relation a decision gives, as match() reads it: the form, the title, the entry's mark, the work's own mark */
+    private static function typeOf(string $childTitle, ?string $form, array $childTitles, array $parentTitles, string $side, array $entry): string
+    {
+        $made = WorkRelationParser::parseTitle($childTitle);
+
+        return match (true) {
+            $form === 'translation' => 'translation',
+            $made && collect($parentTitles)->contains(fn ($t) => Titles::agree($made['base'], $t)) => $made['type'],
+            ! $made && $side === 'children' && ($entry['type'] ?? null) !== null => $entry['type'],
+            default => self::markOf($childTitles) ?? self::MADE_FORMS[(string) $form] ?? 'related',
+        };
+    }
+
     /** The type the mark after one of the work's titles gives: «مجالس المؤمنین (منتخب)» → abridgment */
     private function markType(int $id): ?string
     {
-        foreach ($this->titles[$id] ?? [] as $title) {
+        return self::markOf($this->titles[$id] ?? []);
+    }
+
+    /** @param  list<string>  $titles */
+    private static function markOf(array $titles): ?string
+    {
+        foreach ($titles as $title) {
             if (preg_match('/\(([^()]+)\)\s*$/u', $title, $m) && ($type = WorkRelationParser::MARKS[TextNormalizer::normalize($m[1])] ?? null)) {
                 return $type;
             }
@@ -436,10 +496,15 @@ class WorkRelationLinker
     {
         $out = ['related' => [], 'children' => []];
         $rows = DB::table('work_relations')->where('work_id', $work->id)->orWhere('related_work_id', $work->id)->get();
-        if ($rows->isEmpty()) {
+        // the entries a decision ties to a work (work_entry_links, step 14.270): side => entry key => the work's id
+        $tied = ['related' => [], 'children' => []];
+        foreach (DB::table('work_entry_links')->where('work_id', $work->id)->where('status', 'linked')->get(['side', 'entry', 'linked_work_id']) as $link) {
+            $tied[$link->side][$link->entry] = $link->linked_work_id;
+        }
+        if ($rows->isEmpty() && ! array_filter($tied)) {
             return $out;
         }
-        $others = \App\Models\Work::whereIn('id', $rows->flatMap(fn ($r) => [$r->work_id, $r->related_work_id])->reject(fn ($id) => $id == $work->id))
+        $others = \App\Models\Work::whereIn('id', $rows->flatMap(fn ($r) => [$r->work_id, $r->related_work_id])->merge($tied['related'])->merge($tied['children'])->reject(fn ($id) => $id == $work->id))
             ->get(['id', 'clean_title', 'primary_title', 'alternative_titles', 'author_name', 'slug'])->keyBy('id');
         $keys = fn (\App\Models\Work $w) => collect([$w->clean_title, $w->primary_title, ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : $a)])
             ->map(fn ($t) => self::key($t))->filter()->unique()->all();
@@ -462,8 +527,26 @@ class WorkRelationLinker
 
             return null;
         };
+        // a tied entry links its title: the start of it that is the work's title when the author follows it with no «؛»
+        $byDecision = function (array $entry, string $side) use ($tied, $others, $keys) {
+            if (! ($w = $others->get($tied[$side][self::entryKey($entry)] ?? 0))) {
+                return null;
+            }
+            $text = $entry['titles'][0];
+            if (! array_intersect(array_map(fn ($t) => self::key($t), $entry['titles']), $keys($w))) {
+                foreach (str_contains($text, '،') ? self::heads($text) : [] as [$head]) {
+                    // the work's title, or the start of it in two words or more («تبصرة المتعلمین» of «… فی احکام الدین»)
+                    $key = self::key($head);
+                    if (in_array($key, $keys($w), true) || (str_contains($key, ' ') && collect($keys($w))->contains(fn ($k) => str_starts_with($k, "{$key} ")))) {
+                        return [$head, $w];
+                    }
+                }
+            }
+
+            return [$text, $w];
+        };
         foreach (WorkRelationParser::parseEntries($work->related_work) as $entry) {
-            if ($hit = $find($entry, $rows->where('work_id', $work->id)->pluck('related_work_id'))) {
+            if ($hit = $byDecision($entry, 'related') ?? $find($entry, $rows->where('work_id', $work->id)->pluck('related_work_id'))) {
                 $out['related'][] = $hit;
             }
         }
@@ -471,8 +554,9 @@ class WorkRelationLinker
         $entryOf = [];
         foreach (array_values($work->commentaries_and_glosses ?? []) as $i => $text) {
             $entry = WorkRelationParser::parseEntries((string) $text)[0] ?? null;
-            if ($entry && ($hit = $find($entry, $rows->where('related_work_id', $work->id)->pluck('work_id')))) {
-                $names = $entry['author'] !== null && self::authorKey($entry['author']) === self::authorKey($hit[1]->author_name);
+            $decided = $entry ? $byDecision($entry, 'children') : null;
+            if ($entry && ($hit = $decided ?? $find($entry, $rows->where('related_work_id', $work->id)->pluck('work_id')))) {
+                $names = $decided !== null || ($entry['author'] !== null && self::authorKey($entry['author']) === self::authorKey($hit[1]->author_name));
                 if (! isset($entryOf[$hit[1]->id]) || ($names && ! $entryOf[$hit[1]->id][1])) {
                     unset($out['children'][$entryOf[$hit[1]->id][0] ?? -1]);
                     $out['children'][$i] = [$hit];

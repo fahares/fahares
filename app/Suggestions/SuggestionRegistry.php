@@ -264,7 +264,7 @@ class SuggestionRegistry
         if (! $field || (isset($field['entry_id']) && ! SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
             || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))
             // a note of this very copy, or a new one where the page shows the copy's typed notes
-            || ((isset($field['note_id']) || isset($field['new_note_type'])) && ! array_key_exists($field['name'], self::recordFields($record)))) {
+            || ((isset($field['note_id']) || isset($field['new_note_type']) || isset($field['note_type_of'])) && ! array_key_exists($field['name'], self::recordFields($record)))) {
             return null;
         }
 
@@ -278,6 +278,10 @@ class SuggestionRegistry
     public static function submittedValue(array $field, ?string $value): string
     {
         $value = trim(str_replace(["\r\n", "\r"], "\n", (string) $value));
+        // one of the field's own values (step 14.269)
+        if ($field['input'] === 'choice' && ! in_array($value, $field['options'], true)) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['suggested_value' => 'یکی از گزینه‌های فهرست را برگزینید.']);
+        }
         if ($field['input'] !== 'catalog_page' || (! empty($field['can_be_absent']) && $value === self::ABSENT)) {
             return $value;
         }
@@ -417,11 +421,19 @@ class SuggestionRegistry
             // shows it (Manuscript::keepsSealsList)
             foreach ($record->notes as $note) {
                 $fields[self::NOTE_PREFIX . $note->id] = self::noteField(self::NOTE_PREFIX . $note->id, $note);
+                // ...and so is its type (step 14.269)
+                $fields[self::NOTE_TYPE_PREFIX . $note->id] = self::noteField(self::NOTE_TYPE_PREFIX . $note->id, $note);
             }
-            if (! $record->keepsSealsList() || ! $record->ownership_and_seals_list) {
+            $provenance = ! $record->keepsSealsList() || ! $record->ownership_and_seals_list;
+            if ($provenance) {
                 unset($fields['ownership_and_seals']);
-                foreach (ManuscriptNote::GROUPS['provenance']['types'] as $type) {
-                    $fields[self::NEW_NOTE_PREFIX . $type] = self::noteField(self::NEW_NOTE_PREFIX . $type);
+            }
+            // a note of any type can be added (step 14.269); one of provenance not beside the old list of them
+            foreach (ManuscriptNote::GROUPS as $key => $group) {
+                foreach ($key === 'provenance' && ! $provenance ? [] : $group['types'] as $type) {
+                    if ($field = self::noteField(self::NEW_NOTE_PREFIX . $type)) {
+                        $fields[self::NEW_NOTE_PREFIX . $type] = $field;
+                    }
                 }
             }
         }
@@ -461,13 +473,23 @@ class SuggestionRegistry
         ];
     }
 
-    /** One typed note of a copy, «note_{id}», and a new note of provenance, «note_new_{type}» (step 14.264). */
+    /** One typed note of a copy, «note_{id}», and a new note of a type, «note_new_{type}» (steps 14.264, 14.269). */
     public const NOTE_PREFIX = 'note_';
 
     public const NEW_NOTE_PREFIX = 'note_new_';
 
-    /** What the form calls a new note of each type of provenance */
-    public const NEW_NOTE_LABELS = ['ownership' => 'افزودن تملک', 'seal' => 'افزودن مهر', 'endowment' => 'افزودن وقف', 'acquisition' => 'افزودن ورود به کتابخانه'];
+    /** The type of one note, «note_type_{id}» (step 14.269) */
+    public const NOTE_TYPE_PREFIX = 'note_type_';
+
+    /** What the form calls a new note of a type, where «افزودن» and the type's short label do not say it */
+    public const NEW_NOTE_LABELS = ['acquisition' => 'افزودن ورود به کتابخانه', 'annex' => 'افزودن یادداشت افزوده‌ها', 'cataloguer' => 'افزودن یادداشت فهرست‌نگار',
+        'contents' => 'افزودن یادداشت محتوا', 'codicology' => 'افزودن یادداشت نسخه‌شناسی', 'transcription' => 'افزودن یادداشت کتابت'];
+
+    /** «افزودن مهر»; a note of no type («other») is not added, a type is always chosen */
+    public static function newNoteLabel(string $type): ?string
+    {
+        return $type === 'other' || ! isset(ManuscriptNote::TYPES[$type]) ? null : (self::NEW_NOTE_LABELS[$type] ?? 'افزودن ' . ManuscriptNote::TYPES[$type]);
+    }
 
     /**
      * The field of one note of a copy: its text, which an emptied value removes; or of a note to add, by its type.
@@ -477,7 +499,14 @@ class SuggestionRegistry
         if (str_starts_with($name, self::NEW_NOTE_PREFIX)) {
             $type = substr($name, strlen(self::NEW_NOTE_PREFIX));
 
-            return isset(self::NEW_NOTE_LABELS[$type]) ? ['label' => self::NEW_NOTE_LABELS[$type], 'input' => 'textarea', 'new_note_type' => $type, 'required' => true] : null;
+            return ($label = self::newNoteLabel($type)) ? ['label' => $label, 'input' => 'textarea', 'new_note_type' => $type, 'required' => true] : null;
+        }
+        if (str_starts_with($name, self::NOTE_TYPE_PREFIX)) {
+            $note ??= ctype_digit($id = substr($name, strlen(self::NOTE_TYPE_PREFIX))) ? ManuscriptNote::find((int) $id) : null;
+
+            // one of the types, by its label; «other» only where the note has it
+            return $note ? ['label' => 'نوع یادداشت «' . \Illuminate\Support\Str::limit($note->text, 40) . '»', 'input' => 'choice',
+                'options' => array_values(array_diff_key(ManuscriptNote::TYPES, $note->type === 'other' ? [] : ['other' => 1])), 'note_type_of' => $note->id, 'required' => true] : null;
         }
         if (! $note && preg_match('/^' . self::NOTE_PREFIX . '(\d+)$/', $name, $m)) {
             $note = ManuscriptNote::find((int) $m[1]);
@@ -537,6 +566,9 @@ class SuggestionRegistry
     {
         $name = $field['name'];
 
+        if (isset($field['note_type_of'])) {
+            return ManuscriptNote::TYPES[ManuscriptNote::find($field['note_type_of'])?->type] ?? null;
+        }
         if (isset($field['note_id']) || isset($field['new_note_type'])) {
             return isset($field['note_id']) ? ManuscriptNote::find($field['note_id'])?->text : null;
         }

@@ -30,10 +30,12 @@ abstract class PersonQueue extends ReviewQueue
     {
         return Cache::remember("collective-review.{$this->key()}.filters", 600, function () {
             $groups = $this->open()->pluck('person_ids');
-            $century = Person::whereIn('id', $groups->flatten()->unique()->values())->whereNotNull('century_hijri')->pluck('century_hijri', 'id');
+            // every century of each person's life (step 14.271)
+            $century = Person::whereIn('id', $groups->flatten()->unique()->values())->whereNotNull('century_hijri')->get(['id', 'century_hijri', 'century_from'])
+                ->mapWithKeys(fn (Person $p) => [$p->id => $p->lifeCenturies()]);
             $centuries = [];
             foreach ($groups as $ids) {
-                foreach (collect((array) $ids)->map(fn ($id) => $century[$id] ?? null)->filter()->unique() as $c) {
+                foreach (collect((array) $ids)->flatMap(fn ($id) => $century[$id] ?? [])->unique() as $c) {
                     $centuries[(int) $c] = ($centuries[(int) $c] ?? 0) + 1;
                 }
             }
@@ -50,8 +52,8 @@ abstract class PersonQueue extends ReviewQueue
             return $query;
         }
 
-        return $query->whereExists(fn ($q) => $q->from('people')->where('people.century_hijri', (int) $century)
-            ->whereRaw('JSON_CONTAINS(person_reviews.person_ids, CAST(people.id AS JSON))'));
+        return $query->whereExists(fn ($q) => Person::whereInCentury($q->from('people'), (int) $century)
+            ->whereRaw('JSON_CONTAINS(person_reviews.person_ids, CAST(people.id AS CHAR))'));
     }
 
     /** The groups the finder is surest of first, then in the panel's order. */

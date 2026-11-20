@@ -352,6 +352,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/author-links', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'index'])->name('author-links.index');
         Route::post('/author-links/{review}/link', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'link'])->name('author-links.link');
         Route::post('/author-links/{review}/reject', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'reject'])->name('author-links.reject');
+
+        // An entry of a work's related works, and the work of the site it may name (backlog item 6, step 14.274)
+        Route::get('/work-entry-links', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'index'])->name('work-entry-links.index');
+        Route::post('/work-entry-links/{link}/link', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'link'])->name('work-entry-links.link');
+        Route::post('/work-entry-links/{link}/reject', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'reject'])->name('work-entry-links.reject');
+        Route::post('/work-entry-links/{link}/reopen', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'reopen'])->name('work-entry-links.reopen');
     });
 
     // Catalogue references matched by machine (backlog item 51)

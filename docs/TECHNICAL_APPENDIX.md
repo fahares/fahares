@@ -12475,7 +12475,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - آزمون: `tests/Unit/MoayyedCatalogueExtractorTest.php` (۸ آزمون).
   - **تمرین دوم (`fahares_prod`):** پیش از آن ستون‌های متن و نشانی همۀ ۲٬۴۸۱ مدخل این سه جلد از پروداکشن (فقط‌خواندنی) برگردانده شد. `sources:take-texts catalogue-b6b3ae39f183 --extractor=moayyed`: **۱٬۸۶۶ گرفته** (۵۸۱ با نشانی تازه)، ۶۱۵ نیافته؛ اجرای دوم «0 taken». از ۶۱۵ نیافته، ۵۲۰ شمارۀ پنج‌رقمی رضوی‌اند که در فهرست چاپ نشده‌اند. بقیه بیشتر خطای شمارۀ فنخا (1272 به‌جای 1277، ص ۲۲۹ ج ۳) یا شمارۀ دوبارۀ چاپی بخش‌اند («3» دو بار در ۱۳۱۳).
   - **داوری دوم:** همۀ متن‌ها شمارۀ نسخه را دارند. تنها ۱۲ نسخه متنی دارند که با نسخۀ دیگری یکی است (پیش‌تر ۹۵۱). در ۱٬۶۲۸ از ۱٬۸۶۶ متن (۸۷٪)، واژه‌ای از عنوان رکورد هست. در نمونۀ ۱۶تایی از بقیۀ بخش‌ها، بیشتر همان اثر با نام دیگرند («القطیفیة» = «جواب مسائل… القطیفی»، «الرشیدیة» = رساله‌ای «في جواب الملّا رشید»)، و یکی دو تا مشکوک‌اند.
-  - **پروداکشن:** پس از انتشار، با تأیید کاربر و `prod-run`: نخست پشتیبان ستون‌های متن و نشانی مدخل‌های این سه جلد، سپس برای هر جلد `sources:import-pages moayyed <file> --volume=N` (پرونده‌ها در `/tmp` کانتینر، و پاک پس از اجرا)، و سپس `sources:take-texts catalogue-b6b3ae39f183 --extractor=moayyed`.
+  - **اجرای پروداکشن (انتشار ۱۶۶، `c52e77fe`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر، یکی‌یکی با `prod-run`):**
+    - **پشتیبان:** ستون‌های متن و نشانی ۲٬۴۸۱ مدخل این سه جلد (هیچ‌کدام متن نداشت)، شمار `source_pages` آن‌ها (۰) و `extractor` منبع (خالی)، در `../fahares-sources/backups/step13/before_step14_258_moayyed_texts_20261120_1305.json`.
+    - پرونده‌ها با `cat | ssh` به `/tmp` کانتینر رفتند (md5 یکسان). اجرای نخست پشت اجرای جلسۀ مرحلۀ ۲ ماند و با `--wait` در نوبت رفت.
+    - `sources:import-pages moayyed /tmp/moayyed-v0N.jsonl.gz --volume=N`: ۴۶۳، ۳۵۳ و ۶۶۴ صفحه، همانند تمرین.
+    - `sources:take-texts catalogue-b6b3ae39f183 --extractor=moayyed`: «taken 1,866، not found 615، address changed 581»، همانند تمرین. اجرای آزمایشی دوم «taken 0».
+    - سه نسخۀ تصادفی (`/manuscripts/153441`، `/manuscripts/240633`، `/manuscripts/55605`) در fahares.net پاسخ ۲۰۰ دادند و متن خود را نشان دادند. پرونده‌های `/tmp` پاک شدند.
 - **سپهسالار ج ۳ تا ۵ در کتاب‌خوان قائمیه (620340 تا 620342):** به خواست جلسۀ مرحلۀ ۲ سنجیده شد. در ۲۴ ارجاع تصادفی فنخا (ص ۱۷ تا ۳۴۳)، شمارۀ هیچ نسخه‌ای در صفحۀ ارجاع یا صفحۀ پیش و پس نبود، و ج ۳ در قائمیه ۳۵۶ صفحه است و در فهارس تا ص ۵۴۶. پس چاپ دیگری است، چنان‌که مورد ۵۱ گفته بود.
 
 ### گام ۱۴.۲۶۵: `App\Support\Dynasties`، `scripts/dev/dynasty-rule` و `Insights::dynasties`
@@ -12512,7 +12517,58 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** ۱۲۶ اصلاح و ۱۸ ادعای نامزد. سپس `sources:take-texts` بی `--extractor` (منبع از گام ۱۴.۲۵۹ قالب دارد) هر ۱۲۶ را برداشت.
 - **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
 - **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
-- **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
+- **اجرا در پروداکشن (۲۹ آبان):**
+  - پشتیبان JSON مدخل‌ها و `shelfmark`، `shelfmark_key` و `collection_key` ۲۸۳ نسخۀ بی‌متن در `../fahares-sources/backups/step13/before_step14_266_prod_20261120_1305.json.gz` است.
+  - یک `prod-run --wait` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0` را اجرا کرد.
+  - نتیجه: ۹، ۴۸ و ۶۹ اصلاح، که همه متن گرفتند؛ ۴، ۳ و ۱۱ ادعای نامزد.
+  - ادعاهای قاعده‌ای `shelfmark` پس از اجرا: ۱۲۶ پذیرفته و ۲۳۴ نامزد (با ادعاهای گام ۱۴.۲۵۰).
+
+### گام ۱۴.۲۶۷: چاپ دوم سپهسالار، `BracketedEntryCatalogueExtractor` و `extract_edition_pages.py --crop`
+
+- **منبع:** پنج ردیف `sepahsalar-motahhari` در `database/data/catalog_editions.json`، هر کدام `edition_of` جلد هم‌شمارۀ چاپ کهنه (`thran-sphsalar-22`). `catalogs:sync-editions` آن‌ها را می‌سازد و قلاب ذخیره منبع `sepahsalar-motahhari` را با `edition_of_id` منبع `catalogue-0ebf22c6bcd9` درست می‌کند. اکنون `sync-editions`، اگر چیزی ساخت یا دگرگون کرد، کش `sources:shelf` را هم پاک می‌کند.
+  - شناسه‌های قائمیه: ج ۱ تا ۵ به ترتیب ۶۲۰۳۳۴، ۶۲۰۳۳۹، ۶۲۰۳۴۰، ۶۲۰۳۴۱ و ۶۲۰۳۴۲. سرصفحۀ ج ۳ تا ۵ «جلد سوم/چهارم/پنجم» است، و جلد ج ۱ و ۲ همان جلد چاپ کهنه است.
+  - صفحۀ عنوان ج ۳ «دفتر نخست» دارد و سرصفحۀ ج ۱ و ۲ «… شهید مطهری / ۵». هر دو در `metadata.note` آمده است.
+- **تصویرها:** برگ PDF = صفحۀ چاپی + ۲ (جلد و صفحۀ قائمیه)، و برگ آخر از قائمیه است. این روی ۱۵ سرصفحه، سه صفحه در هر جلد، سنجیده شد.
+  - متن در همۀ صفحه‌ها قاب ثابتی دارد (x ۲۳۵–۸۶۶ و y ۱۳۹–۱۱۵۶ از صفحۀ ۱۱۰۰×۱۵۵۷). گزینۀ تازۀ `--crop X0,Y0,X1,Y1` (کسرهایی از صفحه) با `0.186,0.0707,0.815,0.775` آن را با حاشیه نگه می‌دارد. صفحه چنان ساخته می‌شود که قاب ۱۱۰۰ پیکسل پهنا بگیرد.
+  - کمترین فاصلۀ متن تا لبه در ۲٬۶۹۷ صفحه ۴۵ پیکسل است. حجم ۲۵۹ مگابایت است.
+  - اسکریپت: `../fahares-sources/sepahsalar-motahhari/extract.sh`.
+- **متن صفحه‌ها:**
+  - `ghaemiyeh-pages/fetch_range.py` همان `fetch_pages.py` گام ۱۴.۲۵۸ است، با بازۀ صفحه، تا چند بازه با هم گرفته شوند. نُه بازه نزدیک یک درخواست در ثانیه بود.
+  - `pages/build.py` پرونده‌های `vNN.jsonl.gz` را با `MD5SUMS` می‌سازد. صفحۀ ۱ خواننده (شناسنامۀ قائمیه) و صفحه‌های ۳ تا ۱۴ ج ۱ (پیش‌گفتار کتاب دیگر) کنار می‌روند.
+  - تطبیق خواننده با چاپ روی ج ۱ (ص ۱۵ تا ۱۸، ۱۰۰، ۲۸۶ و ۵۴۰)، ج ۲ (۱۵۰)، ج ۳ (۳ و ۱۹۸)، ج ۴ (۲۰۰ و ۳۹۵) و ج ۵ (۴۲۰ و ۸۳۰) سنجیده شد.
+- **`BracketedEntryCatalogueExtractor` (`bracketed_entries`)** از `NumberedCatalogueExtractor` ارث می‌برد. آن کلاس اکنون `index()` و `texts()` دارد، و `catalogs:match-edition` با خوانندۀ قالب منبع (`sources.extractor`) کار می‌کند اگر از همین خانواده باشد.
+  - **بند:** پس از سطر تهی آغاز می‌شود. سطر نخست بند سرعنوان است.
+  - **ج ۳:** دست‌کم سه سطر «ردیف شماره:» دارد. هر «[N] …» مدخلی می‌گشاید، حتی وقتی صفحۀ پیش سطر تهی ندارد. بندهای میانِ یک مدخل به آن می‌پیوندند.
+    - سطر نسخه `ردیف شماره[ صدر|مشیر|مکرر]:` است. ردیف و شماره گاهی چسبیده‌اند («12931:»)، و ردیفِ مورد انتظار (یک تا سه بیشتر از ردیف پیشین) آن‌ها را جدا می‌کند.
+    - «ش N» آغاز سطر بخش رساله است. سطرهای پس از سطر نسخه، تا سطر تهی یا سطر نسخۀ بعد، از آنِ همان نسخه‌اند.
+  - **ج ۱، ۲، ۴ و ۵:**
+    - سطر کوتاه «عنوان (k)» که سطر بعدش با شماره آغاز شود، بندی می‌گشاید.
+    - بندی که با «شماره واژه» آغاز شود (نه «1 -») به بند پیشین می‌پیوندد.
+    - نسخه سه گونه دارد:
+      - شمارۀ سطر نخست بند «(k)»؛ متن مدخل بند اثرِ هم‌عنوان است.
+      - شماره‌ای در آغاز سطر یا پس از نقطه که واژۀ وصف نسخه پس از آن بیاید (`DESCRIBED`: ش N، نسخ، نستعلیق، شکسته، سده، …)، یا «N: ش K» (`INLINE`).
+      - «شماره/نمره کتابخانه (N)» که «{» پس از آن نباشد (`LIBRARY_NUMBER`). متن نسخه از واپسین «(N) » پیش از آن است.
+  - **عنوان مدخل:** با شکل‌های کوتاه‌ترش سنجیده می‌شود (`titles()`: تا چهار واژۀ پایانی، یعنی موضوع، یکی‌یکی می‌افتند و شکل‌ها با «=» به هم می‌پیوندند).
+- **اجرا روی `fahares_prod`:** `sources:import-pages sepahsalar-motahhari … --volume=N --extractor=bracketed_entries`، سپس `catalogs:match-edition sepahsalar-motahhari … --volume=N`، برای ج ۱ تا ۵ پشت هم:
+
+  | جلد | صفحه | شماره در متن | نوشته‌شده | `shelfmark_title` | `single_page` | `shelfmark_only` | `ambiguous` |
+  |--|--:|--:|--:|--:|--:|--:|--:|
+  | ۱ | ۵۳۰ | ۶۰۹ | ۵۱۷ | ۲۹۸ | ۲۵۵ | ۱۱۲ | ۲۱ |
+  | ۲ | ۵۶۳ | ۳۴۵ | ۳۳۶ | ۲۶۰ | ۷۰ | ۱۱۹ | ۳ |
+  | ۳ | ۳۵۵ | ۱٬۰۳۰ | ۱٬۴۸۶ | ۱٬۱۷۱ | ۲۰۹ | ۱۶۸ | ۲۵ |
+  | ۴ | ۳۹۸ | ۹۵۶ | ۱٬۱۶۸ | ۹۱۵ | ۱۴۱ | ۲۱۶ | ۴۳ |
+  | ۵ | ۸۳۴ | ۱٬۹۸۰ | ۲٬۷۰۲ | ۱٬۹۳۷ | ۴۳۲ | ۳۷۹ | ۱۴۴ |
+
+  - ستون‌های روش پیش از کنار رفتن تطبیق‌های ضعیفی‌اند که جلد دیگری تأییدشده‌شان را دارد.
+  - جمع: ۶٬۲۰۹ مدخل برای ۵٬۴۳۳ نسخه، ۵٬۲۰۱ تأییدشده (`confirmed()`). همه `text_status = auto` دارند. اجرای دوم: `insert 0, update 0`.
+  - `Extractors::extract` در ۶۰۰ مدخل تصادفی همان `entry_text` و `copy_text` را برداشت. در `copy_text`، تنها ۳۸ مدخل شمارۀ نسخه را جدا ندارند، و همه شمارۀ چسبیده‌اند.
+- **آزمون:** `BracketedEntryCatalogueTest` (چهار آزمون: ج ۳، ج ۴ و ۵، ج ۱ و ۲، و `match-edition` با `sources.extractor` و برابری متن با `Extractors::extract`).
+- **اجرا در پروداکشن (پس از استقرار، با تأیید کاربر، هر فرمان با `prod-run`):**
+  1. انتقال تصویرها: `C=sepahsalar-motahhari ../fahares-sources/tehran-univ/work/send.sh` (۲٬۶۹۷ پرونده، ۲۵۹ مگابایت).
+  2. پشتیبان `sources`، `source_volumes`، `source_pages` و `source_entries`، و رونوشت پنج پروندۀ `../fahares-sources/sepahsalar-motahhari/pages/v0N.jsonl.gz` به `/tmp` با md5.
+  3. `catalogs:sync-editions`: باید `create` برای پنج جلد `sepahsalar-motahhari` باشد.
+  4. برای N از ۱ تا ۵: `sources:import-pages sepahsalar-motahhari /tmp/v0N.jsonl.gz --volume=N --extractor=bracketed_entries` و `catalogs:match-edition sepahsalar-motahhari /tmp/v0N.jsonl.gz --volume=N`. درج‌ها باید ۶۸۶، ۴۵۰، ۱٬۵۴۶، ۱٬۲۵۲ و ۲٬۷۰۲ باشد، اگر نسخه‌های سپهسالار از تمرین دگرگون نشده باشند.
+  5. اجرای دوم پنج `match-edition` باید `insert 0, update 0` بدهد. سپس پرونده‌ها از `/tmp` پاک شوند.
 
 ### گام ۱۴.۲۶۸: `App\Support\InsightsPresets` و `InsightsNotes::LEADS`
 
@@ -12526,6 +12582,66 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/InsightsPresetsTest.php`. آزمون «خوش‌ساخت بودن» خود فایل پیکربندی را می‌خواند (پارامترها، صفحه‌ها، شهرهای نقشه، املای «ۀ»)؛ بسنده بودن دادۀ هر دامنه را آزمون نمی‌تواند بسنجد (پایگاه آزمون داده ندارد) و همان سنجش هنگام نمایش این کار را می‌کند.
 - **پس از استقرار:** migration و فرمان داده ندارد. تا نخستین ساخت شبانه، هر دامنۀ آماده با نخستین بازدید ساخته می‌شود؛ `fahares:build-insights` آن را پیش می‌اندازد.
 
+### گام ۱۴.۲۶۹: `note_types` در نمایه، فیلد `note_type_{id}` و ورودی `choice`
+
+- **نمایه:** `Manuscript::toSearchableArray` کلید `note_types` دارد: `ManuscriptNote::typesOf($this->notes)`، یعنی `type` و `also` همۀ یادداشت‌ها، به ترتیب `TYPES`. `makeAllSearchableUsing` رابطۀ `notes` را بار می‌کند. `note_types` در `filterableAttributes` نمایۀ نسخه‌ها (`config/scout.php`).
+- **پالایه (`SearchFilters`):** پارامتر `note_types[]` در زبانۀ `manuscripts`؛ تنها کلیدهای `ManuscriptNote::TYPES` می‌مانند. موتور: `note_types = "seal" AND …`. پایگاه داده: برای هر نوع `manuscripts.id IN (ManuscriptNote::copiesWith($type))`، که `type = ?` یا `JSON_CONTAINS(also, ?)` است. برچسب فعال: «یادداشت: مهر»، هر کدام جدا برداشتنی.
+- **گزینه‌ها:** `SearchController::filterOptions` کلید `noteTypes` می‌دهد (به ترتیب `GROUPS`، بی `other`)، با شمار از facet `note_types`. نما: `search/filters.blade.php`، یک `<details>` که با انتخاب باز می‌ماند. `SearchStatsController` برچسب `note_types` دارد.
+- **`fahares:index-note-types [--apply] [--chunk=5000] [--from=] [--sleep=1] [--max-queued=1]`:** برای همۀ نسخه‌ها `{id, note_types}` را با `updateDocuments` می‌فرستد (به‌روزرسانی جزئی سند)؛ نسخۀ بی یادداشت فهرست تهی می‌گیرد، پس اجرای دوباره پس از `fahares:import-copy-notes` نوع‌های برداشته را هم پاک می‌کند. مانند `fahares:reindex-work-estimates` منتظر صف موتور می‌ماند. بی `--apply` تنها می‌شمارد. روی `fahares_prod`: ۳۲۳٬۲۴۹ نسخه، ۱۸۹٬۲۴۰ با یادداشت.
+- **`SuggestionRegistry`:**
+  - `NOTE_TYPE_PREFIX = 'note_type_'`: فیلد نوع هر یادداشت، `input` برابر `choice`، `options` برچسب‌های `TYPES` (بی «دیگر»، مگر یادداشت خودش «دیگر» باشد)، کلید `note_type_of`. مقدار کنونی برچسب نوع است.
+  - `newNoteLabel($type)`: «افزودن …» برای هر نوع جز `other`؛ `NEW_NOTE_LABELS` تنها برچسب‌های ناهمسان را دارد. `recordFields` برای نسخۀ یادداشت‌دار `note_new_{type}` همۀ نوع‌ها را می‌دهد؛ چهار نوع پیشینه مانند پیش تنها جایی که فهرست کهنه نمایش داده نمی‌شود.
+  - `submittedValue` مقدار ورودی `choice` را تنها از `options` می‌پذیرد.
+- **`SuggestionApplier::applyNote`:** با `note_type_of`، برچسب یا کلید نوع را می‌گیرد، `type` و `typed_by = editor` را می‌نویسد و نوع تازه را از `also` برمی‌دارد؛ نتیجه زیر کلید `notes` است، پس درون‌ریزی دوباره آن نسخه را نگه می‌دارد. پس از هر تغییر یادداشت، سند جست‌وجوی نسخه تازه می‌شود (`searchable()`).
+- **نما:** ورودی `choice` در `suggest/desk.blade.php` (`<select>`) و `admin/suggestions/partials/field-approve.blade.php`. در `manuscripts/show.blade.php` دکمۀ `note_type_{id}` تنها در حالت پیشنهاد دیده می‌شود.
+- **آزمون:** `ImportCopyNotesCommandTest`: `test_a_note_s_type_can_be_changed_and_a_note_of_any_type_added` و `test_the_types_of_a_copy_s_notes_are_a_filter_of_the_search`.
+- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:index-note-types --apply` (هر دو زیر `scripts/dev/prod-run`). تا پیش از آن موتور facet و پالایۀ `note_types` را رد می‌کند: پالایه از پایگاه داده پاسخ می‌گیرد و شمارهای کنار پالایه‌های زبانۀ نسخه‌ها نمی‌آید.
+
+### گام ۱۴.۲۷۰: `work_entry_links` و `works:link-decisions`
+- **migration `2026_11_20_100001_create_work_entry_links_table`:** `work_id` (اثر میزبان مدخل)، `side` (`related` یا `children`)، `entry` (متن)، `entry_hash` (sha1 همان، برای یکتایی `work_id + side + entry_hash`)، `linked_work_id`، `source` (پیش‌فرض `model`)، `confidence`. هر دو کلید خارجی با حذف اثر پاک می‌شوند. روی رونوشت محلی ۹۲ میلی‌ثانیه.
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - `entryKey($entry)`: عنوان‌های مدخل با « = » و سپس «؛ پدیدآور»، بی تاریخ زندگی. مدخلِ نام‌چسبیده تاریخ را در خود عنوان دارد.
+  - `relationOf($workId, $side, $entry, $found)`: جهت و نوع رابطه، مانند `match()`: `work_form = translation`، سپس `parseTitle` عنوان اثر فرعی که با عنوانی از اثر اصلی جور است، سپس نشان مدخل در سوی `children`، سپس `markType` و `MADE_FORMS`، وگرنه `related`.
+  - `linkedEntries()`: ردیف‌های `work_entry_links` اثر خوانده می‌شود و `byDecision` پیش از `$find` می‌آید. متن لینک نخستین عنوان مدخل است؛ اگر هیچ عنوان مدخل کلید اثر نباشد و عنوان «،» داشته باشد، بلندترین آغازی که کلید اثر است یا (با دست‌کم دو واژه) آغاز یکی از کلیدهای اثر. در `children`، مدخلِ دارای ردیف بر مدخل هم‌عنوان دیگر پیشی دارد.
+- **[LinkDecidedWorksCommand](../app/Console/Commands/LinkDecidedWorksCommand.php):**
+  - ورودی: پرونده‌ای با `decisions`؛ از هر ردیف `work_id`، `side`، `entry`، `verdict`، `confidence` و `found_id` خوانده می‌شود.
+  - مدخل با بازسازی همان متن پرونده از `parseEntries` میزبان پیدا می‌شود: «عنوان‌ها؛ پدیدآور (تولد-وفات)».
+  - کنار می‌ماند: اثری که نیست، مدخلی که در متن نیست، و جفتی که وارونه‌اش در `work_relations` (جز `model`) هست.
+  - رابطه فقط وقتی ساخته می‌شود که جفت در همان جهت رابطه‌ای جز `model` نداشته باشد. از دو تصمیم برای یک مدخل، نخستین می‌ماند.
+  - همگام‌سازی: `work_entry_links` با کلید `work>side>hash>linked` و `work_relations` با `child>parent>type`، هر دو فقط در ردیف‌های `source = model`. اثرهای فرعی تغییرکرده دوباره نمایه می‌شوند.
+  - `works:link-related` جفت‌های `model` را مانند رابطهٔ ویراستار کنار می‌گذارد، پس باید پیش از این فرمان اجرا شده باشد تا جفت‌های خودش `auto` بمانند.
+- **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):**
+  - «574 decisions to write»، «1 left: related the other way round» (#58517 ← #17378).
+  - «570 entries: 570 to add»، «236 relations: 236 to add»: related ۱۵۹، commentary ۲۵، abridgment ۲۴، translation ۱۷، gloss ۷، supplement ۲، versification ۲. «Indexed 226 works again».
+  - اجرای دوم: «0 to add, 0 to remove». `works:link-related --dry-run` پس از آن: «10680 relations: 0 to add, 0 to remove».
+  - `work_relations`: auto ۱۰٬۶۸۰، model ۲۳۶، suggestion ۱.
+  - `linkedEntries` برای هر ۵۷۰ ردیف همان اثر را لینک می‌کند. نمونه: #53288 «[تبصرة المتعلمین]؛ علامه حلی …» به #12336 «تبصرة المتعلمین فی احکام الدین».
+- **آزمون:** [LinkDecidedWorksTest](../tests/Feature/LinkDecidedWorksTest.php).
+- **اجرا در تولید، پس از استقرار (migration خودکار است):**
+  1. `works:link-related` گام ۱۴.۲۲۹، اگر هنوز اجرا نشده است (با پشتیبان `work_relations`).
+  2. پروندهٔ `reconciliations/related_works_model_decisions_20261116.json` پیکره به `/tmp` کانتینر برود.
+  3. `scripts/dev/prod-run <session> -- 'php artisan works:link-decisions /tmp/…json'`، سپس پاک کردن پرونده از `/tmp`.
+
+### گام ۱۴.۲۷۱: فیلتر `death_century` و سده‌های زندگی در `PersonQueue`
+- **چرا نمودار بازشماری نشد:** `Insights::authors` هر مؤلف را یک بار و با بازۀ وفات (`DEATH_FROM`، `DEATH_TO`) در لایه‌های «سال دانسته» و «فقط سده» می‌شمارد. شمارش با سده‌های زندگی هر مؤلفِ دوسده‌ای را دو بار می‌آورد و معنای لایه‌ها و پوشش را به هم می‌زد. پس پیوند اصلاح شد، نه نمودار.
+- **`SearchFilters`:** کلید `death_century` (۱ تا ۱۵) فقط برای زبانۀ `authors`: در موتور `century_hijri = c` و در پایگاه داده `people.century_hijri = c`؛ برچسب «سدۀ ۱۱ (وفات)». در فرم فیلترها فیلد ندارد و به‌صورت ورودی پنهان می‌ماند تا با تغییر فیلترهای دیگر نیفتد. `century` همان «سدۀ زندگی» است.
+- **`insights/charts/authors.blade.php`:** پیوند ستون‌ها `type=authors&role=author&death_century=c`.
+- **`App\Review\PersonQueue`:** `filterOptions` سده‌های هر گروه را از `lifeCenturies()` اشخاصش می‌سازد و `filter` با `Person::whereInCentury` می‌جوید. `JSON_CONTAINS(person_ids, CAST(people.id AS JSON))` در MariaDB خطای نحوی است و به `CAST(people.id AS CHAR)` تغییر کرد.
+- **آزمون:** `LifeCenturiesTest::test_the_review_queues_find_a_group_under_each_century_of_its_people`، بخش `death_century` در `test_the_century_filter_and_the_index_find_the_person_under_each_century`، و پیوند تازه در `InsightsPageTest`.
+
+### گام ۱۴.۲۷۲: «فهرست نسخه‌های عکسی مرعشی» ج ۱ و ۲ (`marashi-akasi`)
+- **پرونده‌ها:** خزانه‌ها 7873 (۴۶۴ برگ) و 7874 (۴۹۹ برگ)، JBIG2 تک‌رنگ ۶۰۰ dpi، حدود ۲۳۰۰ پیکسل، از کارت SD، در `../fahares-sources/marashi-akasi/v01.pdf` و `v02.pdf` با `MD5SUMS`. ج ۱ برگ = صفحه + ۷ (برگ ۸ = ص ۱ تا برگ ۴۶۰ = ص ۴۵۳)؛ ج ۲ برگ = صفحه + ۱ (برگ ۵ = ص ۴، برگ ۴۰۰ = ص ۳۹۹، برگ ۴۹۵ = ص ۴۹۴). خزانه‌ها 3505 («عکسی مرعشی.rar»، ۲۹۴ کیلوبایت) اسکن نیست.
+- **کد جدا:** کتابخانۀ `km-mraashy-2` جلدهای ۱ تا ۵ این فهرست و جلدهای ۱ تا ۳۸ فهرست بزرگ را با شمارۀ جلد یکسان دارد، پس ردیف‌ها با عنوان دقیق یافته می‌شوند و کد `marashi-akasi` گرفتند.
+- **تصویرها:** `extract_edition_pages.py --offset 7 --first 1 --last 457` و `--offset 1 --first 1 --last 498`، پهنای ۱۱۰۰، `--mupdf`: ۹۵۵ برگه، ۶۴ مگابایت.
+- **سنجش کور** (seed 142581، `marashi-akasi/work/check/`؛ از هر جلد ۸ ارجاع و ۲ فریب): ۱۶ از ۱۶ ارجاع روی برگه، ۴ از ۴ فریب «نیست».
+- **پوشش:** ج ۱ ۴۴۶ ارجاع از ۴۲۳ نسخه، ج ۲ ۴۸۶ از ۴۶۲؛ همه روی برگه (۸۸۵ نسخه).
+- **تمرین (`fahares_prod`):** «0 created, 2 updated, 190 unchanged»، و اجرای دوم «0 updated, 192 unchanged».
+- **مانده:** ج ۳ تا ۵ این فهرست (#۷۱۲ تا #۷۱۴، ۱٬۹۴۱ نسخه) فایل ندارند.
+- **سه فهرست قائمیه، سنجیده با کتاب‌خوان** (`get-page`، شمارۀ نسخه در متن صفحه‌ای که فنخا نشان داده، یا یک صفحه پیش و پس از آن):
+  - عبدالعظیم (#۶۸۰، ۹۵ نسخه؛ قائمیه 339673): ۴ از ۸، آن هم بیشتر در صفحۀ پیش یا پس. قائمیه ۷۸۸ صفحه دارد و فهارس ۲۶۴، پس چاپ دیگری است.
+  - روضاتی (#۵۰۴، ۲۲۸؛ 359815): ۰ از ۸.
+  - دلیل المخطوطات کاشف الغطاء (#۷۰۹، ۷۰۹؛ 506247): شمارۀ نسخه‌ها در فهارس «مجموعه بدون شماره» است و این راه سنجش به کار نمی‌آید.
+
 ### گام ۱۴.۲۷۳: `resources/js/chart-tip.js` و `data-tip`
 
 - **قرارداد:** `data-tip="متن"` (یا `:data-tip` در Alpine) روی هر بخش نمودار. متن هنگام نمایش خوانده می‌شود، پس مقدار پویا (دهه‌های سدۀ برگزیده) هم درست است. « · » در متن به شکست سطر بدل می‌شود (`whitespace-pre-line`).
@@ -12535,6 +12651,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آنچه `title` ماند:** توضیح پیوندها («آمار نسخه‌های این کتابخانه») و نام کامل عنوان‌های بریدۀ پیونددار؛ اگر `data-tip` می‌گرفتند، در گوشی باز کردنشان دو لمس می‌خواست.
 - **پیامد در گوشی:** ستون‌های سده و خانه‌های جدول که پیوند جست‌وجو هستند، اکنون با لمس دوم باز می‌شوند.
 - **آزمون:** `tests/Feature/InsightsChartTipTest.php`: کادر و `data-tip` در صفحه، و اینکه هیچ نمودار `title="{{ $tip }}"` یا `:title` پویا ندارد. رفتار اسکریپت در مرورگر سنجیده شد، نه در آزمون.
+
+### گام ۱۴.۲۷۴: صف `admin.work-entry-links` و `works:link-decisions --proposals`
+- **migration `2026_11_20_100002_add_review_to_work_entry_links`:** `status` (پیش‌فرض `linked`، نمایه‌دار)، `why` (۳۰۰ نویسه)، `decided_by` (کاربر، با حذف او تهی می‌شود) و `decided_at`. ردیف‌های `model` گام ۱۴.۲۷۰ با پیش‌فرض `linked` می‌مانند.
+- **[WorkEntryLink](../app/Models/WorkEntryLink.php):** ثابت‌های `LINKED`، `PROPOSED`، `REJECTED` و `SOURCE_REVIEW = 'review'`.
+- **[LinkDecidedWorksCommand](../app/Console/Commands/LinkDecidedWorksCommand.php)، `--proposals`:** ردیف‌های `match` با `confidence = medium`. همان وارسی‌های ردیف‌های «high» (اثر هست، مدخل در متن هست، جفت وارونه نیست). مدخلی که هر ردیفی در `work_entry_links` دارد (از هر `source` و `status`) یا در همین اجرا ردیف `model` می‌گیرد، کنار می‌ماند. `insertOrIgnore` با `source = review`، `status = proposed`، `confidence = 60` و `why` پرونده. همگام‌سازی ردیف‌های `model` به ردیف‌های `review` دست نمی‌زند.
+- **[WorkEntryLinkController](../app/Http/Controllers/Admin/WorkEntryLinkController.php)** (گروه `can:structure.link`):
+  - `index`: ردیف‌های `source = review`؛ «در انتظار» به ترتیب `id`، «تصمیم‌گرفته» به ترتیب `decided_at` نزولی؛ ۲۵ در هر صفحه.
+  - `link`: مدخل با `entryKey` در متن میزبان پیدا می‌شود؛ `WorkRelationLinker::relationBetween()` جهت و نوع را می‌دهد. اگر رابطه‌ای وارونه باشد، خطا. اگر جفت در همان جهت رابطه‌ای ندارد، ردیف `work_relations` با `source = review` ساخته می‌شود. `AuditLog` روی اثر میزبان، و نمایهٔ دوبارهٔ اثر فرعی.
+  - `reject`: فقط وضعیت.
+  - `reopen`: اگر «پیوند خورد» بود، رابطهٔ `source = review` دو اثر برداشته می‌شود، مگر مدخل تأییدشدهٔ دیگری میان همان دو اثر باشد.
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):** `relationBetween()` همان `relationOf()` است برای دو `Work`، بی ساختن نمایهٔ همهٔ آثار؛ هر دو از `typeOf()` می‌خوانند. `linkedEntries()` فقط `status = linked` را می‌خواند.
+- **[AdminNav](../app/Support/AdminNav.php):** «پیوند آثار مرتبط» پس از «پیوند پدیدآور»، با شمار ردیف‌های در انتظار.
+- **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):** «349 matches of confidence medium: 345 proposals to add»، «345 proposals queued for review». اجرای دوم: «0 proposals to add». `work_entry_links`: model/linked ۵۷۰، review/proposed ۳۴۵. `/admin/work-entry-links` و صفحهٔ ۷ آن با کاربر مدیر: ۲۰۰، ۲۵ کارت.
+- **آزمون:** `LinkDecidedWorksTest::test_a_proposal_is_linked_only_when_a_reviewer_confirms_it`.
+- **اجرا در تولید، پس از استقرار:** همان فرمان گام ۱۴.۲۷۰ با `--proposals`: `php artisan works:link-decisions /tmp/…json --proposals`.
 
 ### گام ۱۴.۲۷۵: `resources/js/insights-map.js`، `echarts-map.js` و دادۀ دهه‌ای `Insights::places`
 
