@@ -1528,6 +1528,60 @@ class SuggestionWorkflowTest extends TestCase
         AuditLog::where('auditable_type', Person::class)->whereIn('auditable_id', [$source->id, $target->id])->delete();
     }
 
+    /** Step 14.280: a relation with a work the site has no record of is a row of text on the work's own page */
+    public function test_a_relation_with_a_work_that_has_no_record()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $matn = $this->work(['primary_title' => 'تهذیب المنطق ' . uniqid()]);
+
+        // the kind of relation and the other work's title are both needed; a copy has no such relation
+        $this->relate($matn, 'work_relation_text', null, ['role' => '~commentary'])->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->relate($matn, 'work_relation_text', null, ['suggested_value' => 'شرح تهذیب؛ کسی، الف'])->assertStatus(422)->assertJsonValidationErrors('role');
+        $this->relate($this->manuscript(), 'work_relation_text', null, ['role' => 'gloss', 'suggested_value' => 'متنی'])->assertStatus(422);
+        $this->relate($matn, 'work_relation_text', null, ['role' => '~commentary', 'suggested_value' => 'شرح تهذیب؛ کسی، الف'])->assertOk();
+
+        $s = $this->pendingFor($matn);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('عنوان و پدیدآور آن اثر')->assertSee('اثری که نام می‌برید');
+        // the reviewer corrects the title on approval
+        $this->approve($s, ['role' => '~commentary', 'alias' => 'شرح تهذیب المنطق؛ کسی، الف (-900)', 'contributor_note' => 'ناتمام'])->assertRedirect('/admin/suggestions');
+        $row = DB::table('work_text_relations')->sole();
+        $this->assertSame([$matn->id, 'children', 'commentary', 'شرح تهذیب المنطق؛ کسی، الف (-900)', 'ناتمام', $s->id],
+            [$row->work_id, $row->side, $row->type, $row->text, $row->note, $row->suggestion_id]);
+        $this->assertSame(['applied' => true, 'text_relation_id' => $row->id, 'type' => 'commentary', 'side' => 'children', 'text' => $row->text], $s->fresh()->resolution);
+
+        // the page: under «شروح», as text; the reviewer may take it off, a reader may not
+        auth()->logout();
+        $this->get(route('works.show', $matn))->assertOk()
+            ->assertSeeInOrder(['رابطه با آثار دیگر', 'اثری که در فهارس نیست', 'شروح:', 'شرح تهذیب المنطق؛ کسی، الف (-۹۰۰)', 'ناتمام', 'بی پیوند به رکورد اثر'], false)
+            ->assertDontSee('برداشتن</button>', false);
+        $this->actingAs($this->admin)->get(route('works.show', $matn))->assertSee('برداشتن</button>', false);
+        $reader = User::create(['name' => 'خواننده', 'email' => uniqid('tr-') . '@example.test', 'password' => 'password123', 'role' => 'user']);
+        $this->actingAs($reader)->delete(route('admin.work-text-relations.destroy', $row->id))->assertForbidden();
+        auth()->logout();
+        $reader->delete();
+
+        // the same relation twice is refused
+        $this->relate($matn, 'work_relation_text', null, ['role' => '~commentary', 'suggested_value' => 'شرح تهذیب المنطق؛ کسی، الف (-900)'])->assertOk();
+        $this->approve($this->pendingFor($matn), ['role' => '~commentary'])->assertSessionHasErrors('applied_value');
+
+        // taken off by the reviewer, brought back by the audit log; the approval itself is undone the same way
+        $this->actingAs($this->admin)->delete(route('admin.work-text-relations.destroy', $row->id))->assertRedirect();
+        $this->assertSame(0, DB::table('work_text_relations')->count());
+        $this->rollbackLatest($matn);
+        $this->assertSame($row->text, DB::table('work_text_relations')->sole()->text);
+        $approval = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $matn->id)->where('action', 'verify')->oldest('id')->first();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$approval->id}/rollback")->assertSessionHas('success');
+        $this->assertSame(0, DB::table('work_text_relations')->count());
+
+        // a merged work's rows go to the work that is kept
+        $other = $this->work(['primary_title' => 'تهذیب دیگر ' . uniqid()]);
+        app(\App\Suggestions\RecordRelations::class)->addText($matn, 'gloss', 'متنی بی رکورد', null, null);
+        \App\Suggestions\RecordRelations::moveOnMerge($matn, $other);
+        $this->assertSame($other->id, DB::table('work_text_relations')->sole()->work_id);
+        $this->assertSame(['حاشیه‌ای است بر'], \App\Suggestions\RecordRelations::texts($other)->keys()->all());
+        DB::table('work_text_relations')->delete();
+    }
+
     public function test_relations_between_works_and_between_manuscripts()
     {
         \Illuminate\Support\Facades\Notification::fake();

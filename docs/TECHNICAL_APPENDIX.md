@@ -12712,15 +12712,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۲۷۷: `WorkRelationLinker::pageRows()` و مؤلفۀ `record-relations`
 - **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
-  - `linkedEntries()`: هر پیوند سوی `related` عنصر سومی دارد، جای مدخل در فیلد. `html()` فقط دو عنصر نخست را می‌خواند.
+  - `linkedEntries()`: هر پیوند سوی `related` عنصر سومی دارد، جای مدخل در فیلد. `html()` که متن دو فیلد را با لینک می‌کشید برداشته شد.
   - `pageRows($work)`: از `linkedEntries()` می‌خواند.
-    - `printed[شناسۀ اثر]`: متن مدخلِ پیوندخورده، اگر پدیدآور مدخل (`authorKey`) با `author_name` اثر برابر نباشد یا هیچ عنوان مدخل کلید یکی از عنوان‌های اثر نباشد.
+    - `printed[شناسۀ اثر]`: متن مدخلِ پیوندخورده، اگر عنوان یا پدیدآورش با رکورد اثر فرق کند. عنوان یکی است اگر عنوانی از مدخل، یا متن لینک‌شده (آغاز عنوانِ نام‌چسبیده)، کلید اثر یا آغاز دو واژه‌ای به بالای آن باشد. پدیدآور یکی است اگر `authorKey` برابر باشد یا کلید اثر (دست‌کم ۸ نویسه) پایان کلید مدخل باشد؛ برای مدخل نام‌چسبیده، ماندۀ عنوان پس از متن لینک‌شده نام شمرده می‌شود.
+    - `notes`: در فیلد «وابسته به» با بیش از یک مدخل، متن پس از آخرین مدخل (پس از نام یا عنوان آن و کمانک تاریخ)، اگر بیش از ۱۵ نویسه باشد.
+    - فیلد «وابسته به»ی که `parseEntries` در آن مدخلی نمی‌خواند (بیش از ۱۲۰ نویسه بی «؛»): یک سطر `unlinked` با همۀ متن.
     - `unlinked`: مدخل‌های بی‌پیوند با `side`، `text` و `type`. در `related` نوع از `typeOf()` (قالب و عنوان خود اثر)، وگرنه `related`؛ در `children` نوع خود مدخل (`parseEntries`)، وگرنه `related`.
     - متن: فیلد «وابسته به» اگر یک مدخل دارد همان‌طور که هست (با یادداشت پایانی‌اش)، وگرنه بازسازی هر مدخل؛ هر سطر «شروح و حواشی» همان‌طور که هست. نشان‌های صفحه (`<!-- … -->`) برداشته می‌شوند.
     - پیشنهادهای صف پنل (`status = proposed`) تا تأیید بی‌پیوند شمرده می‌شوند.
 - **[record-relations](../resources/views/components/record-relations.blade.php):** برای اثر، سطرهای `unlinked` با برچسب `RecordRelations::WORK_TYPES[type][0 یا 1]` به گروه‌ها افزوده می‌شود (سطر بی `record`، با `text`). گروه‌ها به ترتیب `WORK_TYPES` چیده می‌شوند. هر گروه `x-data="{ all: false }"` دارد و از سطر سیزدهم `x-show="all"`. برای نسخه چیزی تغییر نکرده است.
-- **[ui/meta](../resources/views/components/ui/meta.blade.php):** ویژگی `suggestOnly`: سطر مانند سطر تهی فقط با `$store.suggest.on` دیده می‌شود.
-- **[works/show](../resources/views/works/show.blade.php):** «وابسته به» با `:suggest-only="true"`؛ بخش «شروح، حواشی و منظومه‌ها» با `x-show="$store.suggest.on"`. هر دو همچنان در HTML هستند و لینک‌های `html()` را دارند.
+- **[works/show](../resources/views/works/show.blade.php):** سطر «وابسته به»، بخش «شروح، حواشی و منظومه‌ها»، `$textLinks` و سطر «شروح و حواشی» در «بخش‌های خالی این اثر» برداشته شد. `related_work` و `commentaries_and_glosses` در `SuggestionRegistry` مانده‌اند (پیشنهادهای ثبت‌شده و ابزارهای پنل)، ولی صفحه دیگر مدادی برایشان ندارد.
+- **سنجش پوشش روی `fahares_prod`:** ۱۱٬۲۰۹ اثر؛ ۹٬۴۰۶ فیلد «وابسته به»، بی سطر ۰؛ ۱۱٬۰۳۴ سطر «شروح و حواشی»، بی سطر ۰؛ پیوندخورده ۱۴٬۲۰۹ (با «در فهرست» ۳۶۴)، بی‌پیوند ۶٬۷۰۷، یادداشت ۲. پیش از بستن دو کاستی، فیلدهای بی‌مدخل (مانند #12805) هیچ سطری نداشتند.
 - **پیش‌نمایش (رونوشت `fahares_prod`، `php -S` روی نشانی کانتینر):** #52424 «الکافیة»: گروه‌ها «شروح (۳۸)، حواشی (۴۲)، ترجمه‌ها، تلخیص‌ها و مختصرها، آثار وابسته (۱۰۲)»؛ ۱۹۴ سطر، ۹۰ بی‌پیوند، ۳ با «در فهرست»، ۴۸ سطر دیدنی پیش از «نمایش همه». #3969: «الزایرجة · خزرجی، احمد بن مسعود · ۳ نسخه» و «در فهرست: الزايرجة؛ سبتی، ابوالعباس احمد بن جعفر (۵۲۴- ۶۰۱ق)».
 - **آزمون:** `LinkRelatedWorksTest::test_the_relations_section_holds_the_entries_tied_to_no_work`.
 
@@ -12750,3 +12752,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **انتقال تصویرها (۲۹ آبان ۱۴۰۵، به تأیید کاربر، پیش از انتشار):** `darolhadith`، `tehran-adabiyat/v02` و `feyziye/v02` روی سرور نبودند. `C=<code>/vNN send.sh`: ۴۳۸، ۱۱۰ و ۱۲۰ پرونده، و اجرای دوم هر سه «missing 0». سپس `chown` و `chmod`. دارالحدیث ص ۷۹، ادبیات ج ۲ ص ۵۰ و فیضیه ج ۲ ص ۴۰ از fahares.net پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
 - **فیضیه ج ۳ (#۴۵۹، ۱٬۱۷۶ نسخه؛ به پرسش کاربر):** «بخش سوم (مجموعه‌ها)» همان پروندۀ خزانه‌ها 570، همان ج ۳ فهارس است: ص ۱۰۰ آن مجموعۀ ۱۵۵۴ است با رساله‌های ۳ «الاستصحاب»، ۴ «اصالة الطهارة»، ۵ و ۹ «اصالة البرائة»، همان‌ها که فنخا از ج ۳ ص ۱۰۰ می‌آورد. نگاشت `feyziye/v03.map.json` (ص ۱ تا ۲۰۸ = برگ + ۱۲۲)، پهنای ۱۱۰۰: ۲۰۸ برگه، ۱۱ مگابایت. همۀ ۱٬۱۷۶ نسخه روی برگه‌اند. سنجش کور (seed 142732، `feyziye/work/check3/`): ۲ از ۲ فریب «نیست»، ۷ از ۸ ارجاع «هست»؛ یکی (949/10، ص ۴۱) در ص ۴۱ نیست و به صفحۀ پس از آن می‌رود. تمرین: «1 updated»، سپس «0 updated, 196 unchanged». تصویرها به سرور رفتند («missing 0»؛ ص ۱۰۰ پاسخ ۲۰۰). ۸ ارجاع ج ۲ در ص ۱۲ و ۱۷۰–۱۷۱ که مجموعه‌اند، احتمالاً از آنِ ج ۳اند.
 - **پس از انتشار:** پشتیبان ردیف‌های #۵۷۶، #۴۱۰، #۵۵ و #۴۵۹، سپس `catalogs:set-facsimiles` با `prod-run`. انتظار: «0 created, 4 updated».
+### گام ۱۴.۲۸۰: `work_text_relations` و رابطۀ `work_relation_text`
+- **migration `2026_11_20_100003_create_work_text_relations_table`:** `work_id` (با حذف اثر پاک می‌شود)، `side` (`related`: این اثر {نوع}ِ اثر نام‌برده است؛ `children`: اثر نام‌برده {نوع}ِ این اثر است)، `type` (کلیدهای `RecordRelations::WORK_TYPES`)، `text` (۶۰۰)، `note`، `suggestion_id`.
+- **[SuggestionRegistry](../app/Suggestions/SuggestionRegistry.php):** رابطۀ `work_relation_text` برای اثر: `target = null`، `needs_text`، `apply = text_relation`، `no_direct` (ابزار مستقیم پنل رکورد دومی ندارد). `relationOptions`: همان گزینه‌های `record_relation`، با «اثری که نام می‌برید» به‌جای «اثر انتخاب‌شده». `Permissions::FOR_APPLY['text_relation'] = structure.link`.
+- **[RelationInput](../app/Suggestions/RelationInput.php):** متن و `role` هر دو لازم‌اند؛ `role` در `payload` می‌ماند.
+- **[RecordRelations](../app/Suggestions/RecordRelations.php):**
+  - `addText($work, $option, $text, $note, $suggestionId)`: گزینۀ «~نوع» سوی `children` است. تکرار (همان اثر، سو، نوع و متن) رد می‌شود. خروجی برای ممیزی: `new.added_text_relation` و `resolution` با `text_relation_id`، `type`، `side` و `text`.
+  - `texts($work)`: سطرها گروه‌بندی‌شده با همان برچسب‌های `for()`.
+  - `moveOnMerge()`/`undoMove()`: شناسۀ سطرهای منتقل‌شده در `log['texts']`.
+- **[Admin\SuggestionController](../app/Http/Controllers/Admin/SuggestionController.php):** `text_relation` از `approveContributor` می‌گذرد؛ متن از `alias` فرم داور (وگرنه `suggested_value`) و یادداشت از `contributor_note`.
+- **[relation-approve](../resources/views/admin/suggestions/partials/relation-approve.blade.php):** شاخۀ `text_relation` با انتخاب نوع، ورودی متن (`alias`) و یادداشت‌ها.
+- **[AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php):** بازگردانی `added_text_relation` سطر را پاک می‌کند و `removed_text_relation` آن را برمی‌گرداند. هر دو کلید و `text_relations` در `ProtectedColumns::META_KEYS`.
+- **[WorkTextRelationController](../app/Http/Controllers/Admin/WorkTextRelationController.php):** `DELETE admin/work-text-relations/{relation}` (گروه `can:structure.link`)، با `AuditLog` نوع `verify` و `old_values.removed_text_relation`.
+- **[Contributions](../app/Suggestions/Contributions.php):** خلاصۀ پیشنهاد تأییدشده: متن اثر و جملۀ نوع رابطه.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** سطرهای `texts()` با `manual` پیش از سطرهای بی‌پیوند فهرست؛ دکمۀ دوم با `relation: work_relation_text`؛ «برداشتن» با `@can('structure.link')`؛ مدادهای `related_work` و `commentaries_and_glosses` در `$store.suggest.on`.
+- **[suggest/desk](../resources/views/components/suggest/desk.blade.php):** برچسب ورودی متن برای `text_relation`. جاوااسکریپت تغییری نکرده است: فرم گزینه‌ها و متن را برای هر رابطۀ `options` و `needs_text` می‌فرستد.
+- **آزمون:** `SuggestionWorkflowTest::test_a_relation_with_a_work_that_has_no_record`.

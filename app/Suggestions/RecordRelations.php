@@ -133,6 +133,52 @@ class RecordRelations
     }
 
     /**
+     * Adds a work's relation with a work the site has no record of (work_text_relations, step 14.280): "{work} is a
+     * {type} of {text}", or with an option starting with "~" the other way round.
+     */
+    public function addText(Work $work, string $option, string $text, ?string $note, ?int $suggestionId): array
+    {
+        $type = ltrim($option, '~');
+        $text = trim(preg_replace('/\s+/u', ' ', $text));
+        if (! isset(self::WORK_TYPES[$type])) {
+            throw new InvalidArgumentException('نوع رابطه نامعتبر است.');
+        }
+        if ($text === '') {
+            throw new InvalidArgumentException('عنوان اثر دیگر نوشته نشده است.');
+        }
+        $side = str_starts_with($option, '~') ? 'children' : 'related';
+        if (DB::table('work_text_relations')->where(['work_id' => $work->id, 'side' => $side, 'type' => $type, 'text' => mb_substr($text, 0, 600)])->exists()) {
+            throw new InvalidArgumentException('این رابطه هم‌اکنون ثبت شده است.');
+        }
+        $id = DB::table('work_text_relations')->insertGetId([
+            'work_id' => $work->id, 'side' => $side, 'type' => $type, 'text' => mb_substr($text, 0, 600),
+            'note' => $note ? mb_substr($note, 0, 500) : null, 'suggestion_id' => $suggestionId, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        return [
+            'old' => ['text_relations' => DB::table('work_text_relations')->where('work_id', $work->id)->count() - 1],
+            'new' => ['added_text_relation' => $id],
+            'resolution' => ['text_relation_id' => $id, 'type' => $type, 'side' => $side, 'text' => mb_substr($text, 0, 600)],
+        ];
+    }
+
+    /**
+     * A work's relations with works the site has no record of, grouped by the label shown on its page.
+     *
+     * @return Collection<string, Collection<int, array{id: int, text: string, note: ?string, credit: ?string}>>
+     */
+    public static function texts(Work $work): Collection
+    {
+        $rows = DB::table('work_text_relations')->where('work_id', $work->id)->orderBy('id')->get();
+        $credits = \App\Models\FieldSuggestion::whereIn('id', $rows->pluck('suggestion_id')->filter()->unique())
+            ->where('status', 'approved')->pluck('credit_name', 'id');
+
+        return $rows->filter(fn ($row) => isset(self::WORK_TYPES[$row->type]))->groupBy(fn ($row) => self::WORK_TYPES[$row->type][$row->side === 'related' ? 0 : 1])
+            ->map(fn ($group) => $group->map(fn ($row) => ['id' => $row->id, 'text' => $row->text, 'note' => $row->note,
+                'credit' => trim((string) ($row->suggestion_id ? $credits->get($row->suggestion_id) : '')) ?: null])->values());
+    }
+
+    /**
      * The record's relations in both directions, grouped by the label shown on its page.
      *
      * @return Collection<string, Collection<int, array{record: Model, note: ?string, credit: ?string}>>
@@ -170,7 +216,12 @@ class RecordRelations
     public static function moveOnMerge(Model $source, Model $target): array
     {
         [$table, $key, $relatedKey] = self::shape($source);
-        $log = ['table' => $table, 'updated' => [], 'deleted' => []];
+        $log = ['table' => $table, 'updated' => [], 'deleted' => [], 'texts' => []];
+        // a work's relations with works that have no record go with it
+        if ($source instanceof Work) {
+            $log['texts'] = DB::table('work_text_relations')->where('work_id', $source->id)->pluck('id')->all();
+            DB::table('work_text_relations')->whereIn('id', $log['texts'])->update(['work_id' => $target->id]);
+        }
         foreach ([$key, $relatedKey] as $column) {
             foreach (DB::table($table)->where($column, $source->id)->get() as $row) {
                 $from = $column === $key ? $target->id : $row->{$key};
@@ -201,5 +252,6 @@ class RecordRelations
         foreach ($log['deleted'] as $row) {
             DB::table($log['table'])->insertOrIgnore($row);
         }
+        DB::table('work_text_relations')->whereIn('id', $log['texts'] ?? [])->update(['work_id' => $sourceId]);
     }
 }

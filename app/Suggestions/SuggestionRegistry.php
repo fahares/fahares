@@ -107,6 +107,9 @@ class SuggestionRegistry
             // remove: the reviewer picks the row to delete; role, person or name only point at it
             'person_role_removed' => ['label' => 'یکی از اشخاص مرتبط با این اثر نادرست ثبت شده است و باید حذف شود', 'target' => 'person', 'target_optional' => true, 'action' => 'حذف شخص مرتبط با اثر', 'apply' => 'person_role', 'remove' => true],
             'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطۀ دو اثر', 'apply' => 'record_relation'],
+            // The other work has no record on the site (step 14.280): its title and author are the submitted text, and
+            // the relation is a row of work_text_relations. no_direct: there is no second record for the panel's tools.
+            'work_relation_text' => ['label' => 'این اثر با اثری رابطه دارد که در فهارس رکوردی ندارد (شرح، حاشیه، ترجمه…)', 'target' => null, 'action' => 'ثبت رابطه با اثری بیرون از فهارس', 'apply' => 'text_relation', 'needs_text' => true, 'no_direct' => true],
             'redundant' => ['label' => 'این رکورد زائد است (اثری وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه اثر ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
             'conflated' => ['label' => 'دو اثر متفاوت در این رکورد خلط شده‌اند (برخی نسخه‌ها از اثر دیگری‌اند)', 'target' => null, 'action' => 'تفکیک اثر', 'apply' => 'split', 'needs_text' => true],
         ],
@@ -176,6 +179,8 @@ class SuggestionRegistry
         return match ($relation['apply'] ?? null) {
             'person_role' => self::personRoles($type),
             'record_relation' => RecordRelations::options($type),
+            // the same kinds, the other work being the one the submitter names
+            'text_relation' => array_map(fn ($label) => str_replace('اثر انتخاب‌شده', 'اثری که نام می‌برید', $label), RecordRelations::options($type)),
             'volume_cataloger' => VolumeCatalogers::ROLES,
             'person_period' => \App\Models\PersonPeriod::KINDS,
             default => null,

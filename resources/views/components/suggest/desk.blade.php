@@ -271,7 +271,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block text-[13px] font-bold text-ink"
-                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : 'نام دیگر:'))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : (relation.apply === 'text_relation' ? 'عنوان و پدیدآور آن اثر (مثلاً «شرح الکافیة؛ قمولی، احمد بن محمد»):' : 'نام دیگر:')))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"

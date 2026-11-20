@@ -44,6 +44,30 @@
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $relInput }}">
             <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'text_relation' && $target)
+        {{-- A relation with a work the site has no record of (step 14.280): the reviewer may correct its title and author --}}
+        @php $relInput = 'admin-field w-full'; @endphp
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
+            @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
+            <p class="leading-relaxed text-ink">اثر دیگر در فهارس رکوردی ندارد؛ رابطه فقط در صفحۀ اثر #{{ \App\Support\Fa::digits($target->id) }} و به‌صورت متن نمایش داده می‌شود. اگر آن اثر در فهارس هست، پیشنهاد را رد کنید و «رابطۀ دو اثر» ثبت کنید. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            <label class="block space-y-1">
+                <span class="block font-bold text-ink">نوع رابطه:</span>
+                <select name="role" class="{{ $relInput }}">
+                    @foreach(\App\Suggestions\SuggestionRegistry::relationOptions($suggestion->suggestable_type, $relation) as $key => $label)
+                        <option value="{{ $key }}" @selected(old('role', $suggestion->payload['role'] ?? '') === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="block space-y-1">
+                <span class="block font-bold text-ink">عنوان و پدیدآور آن اثر:</span>
+                <input type="text" name="alias" value="{{ old('alias', \Illuminate\Support\Str::limit((string) $suggestion->suggested_value, 590, '')) }}" maxlength="600" required class="{{ $relInput }}">
+            </label>
+            <input type="text" name="contributor_note" value="{{ old('contributor_note') }}" placeholder="یادداشت رابطه (اختیاری؛ مثلاً «فقط جلد اول»)" class="{{ $relInput }}">
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $relInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $relInput }}">
+            <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
+        </form>
     @elseif($apply === 'person_role' && $target && ! empty($relation['remove']))
         @php
             $payload = $suggestion->payload ?? [];
