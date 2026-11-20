@@ -42,7 +42,7 @@ class AdminNav
                 ['label' => 'پیوند پدیدآور', 'route' => 'admin.author-links.index', 'active' => 'admin.author-links.*', 'can' => 'structure.link',
                     'count' => fn () => \App\Models\PersonReview::where('type', 'author_link')->where('status', 'open')->count()],
                 ['label' => 'پیوند آثار مرتبط', 'route' => 'admin.work-entry-links.index', 'active' => 'admin.work-entry-links.*', 'can' => 'structure.link',
-                    'count' => fn () => \App\Models\WorkEntryLink::where('source', \App\Models\WorkEntryLink::SOURCE_REVIEW)->where('status', \App\Models\WorkEntryLink::PROPOSED)->count(), 'soft' => true],
+                    'count' => fn () => \App\Models\WorkEntryLink::review()->where('link_status', \App\Models\WorkEntryLink::PROPOSED)->count(), 'soft' => true],
                 ['label' => 'تناقض‌های تاریخی', 'route' => 'admin.date-conflicts.index', 'active' => 'admin.date-conflicts.*', 'can' => 'suggestions.review',
                     'count' => fn () => \App\Models\DateConflict::open()->where('direct', true)->count(), 'soft' => true],
                 ['label' => 'ادعاهای فهرست‌های چاپی', 'route' => 'admin.claims.index', 'active' => 'admin.claims.*', 'can' => 'suggestions.review',
