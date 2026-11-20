@@ -3694,6 +3694,24 @@
      "step": "14.252"
     }
    }
+  },
+  {
+   "library_slug": "mshhd-shykh-aaly-hydr-205",
+   "volume_number": 3,
+   "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثالث",
+   "facsimile_code": "moayyed",
+   "page_first": 1,
+   "page_last": 665,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "moayyed/v03.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه 505426 (نسخۀ PDF تصویری، ۶۶۷ برگ)؛ برگ = صفحه + ۲؛ متن فارسی «فهرست کتب خطی کتابخانه شیخ علی حیدر در قم»",
+     "step": "14.252"
+    }
+   }
   }
  ]
 }
