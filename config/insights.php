@@ -50,6 +50,20 @@ return [
     // Scopes not yet in the cache that one visitor may have built in an hour
     'scope_builds_per_hour' => 30,
 
+    // The nisbas that are not the name of a city with «ی» (PersonOrigins::nisbas, backlog item 137): nisba => city of
+    // copy_places. «مشهدی» and «کربلایی» are left out there: they are mostly the title of a pilgrim.
+    'nisbas' => [
+        'هروی' => 'هرات', 'رازی' => 'ری', 'مروزی' => 'مرو', 'غروی' => 'نجف', 'حلی' => 'حله', 'کوفی' => 'کوفه', 'بصری' => 'بصره',
+        'مکی' => 'مکه', 'مدنی' => 'مدینه', 'ساوجی' => 'ساوه', 'ساوی' => 'ساوه', 'مراغی' => 'مراغه', 'میانجی' => 'میانه',
+        'گنجوی' => 'گنجه', 'حویزی' => 'حویزه', 'بخاری' => 'بخارا', 'بخارایی' => 'بخارا', 'سامرایی' => 'سامرا',
+        'احسایی' => 'احسا', 'صنعانی' => 'صنعا', 'فسایی' => 'فسا', 'فسوی' => 'فسا', 'خویی' => 'خوی', 'دهلوی' => 'دهلی', 'ساروی' => 'ساری',
+        'بحرانی' => 'بحرین', 'عاملی' => 'جبل عامل', 'جرجانی' => 'استرآباد', 'کاشی' => 'کاشان', 'قاسانی' => 'کاشان', 'لاهیجی' => 'لاهیجان',
+        'خونساری' => 'خوانسار', 'نایینی' => 'نائین', 'قاینی' => 'قائن', 'جرفادقانی' => 'گلپایگان', 'ارموی' => 'ارومیه',
+        'کاظمی' => 'کاظمین', 'قسطنطنی' => 'استانبول', 'قونوی' => 'قونیه', 'ادرنوی' => 'ادرنه', 'لکهنوی' => 'لکهنو', 'اسکندرانی' => 'اسکندریه',
+        'موصلی' => 'موصل', 'حیدرآبادی' => 'حیدرآباد', 'احمدآبادی' => 'احمدآباد', 'تویسرکانی' => 'تویسرکان',
+        'شهرضایی' => 'شهرضا', 'اصطهباناتی' => 'استهبان', 'بارفروشی' => 'بابل', 'باکویی' => 'باکو',
+    ],
+
     // «چند دامنه برای دیدن» under the filter form (backlog item 155): ready-made scopes worth a look. A record is named
     // by its slug (author, scribe, work, library) or its name (subject, language, script), never by an id, which
     // differs between copies of the data; the other filters take their value as the query string does. `topic` is the
