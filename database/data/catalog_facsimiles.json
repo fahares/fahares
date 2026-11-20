@@ -3840,6 +3840,64 @@
      "step": "14.272"
     }
    }
+  },
+  {
+   "library_slug": "km-daralhdyth-80",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه تخصصی مرکز تحقیقات دار الحدیث",
+   "facsimile_code": "darolhadith",
+   "page_first": 1,
+   "page_last": 438,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "darolhadith/v01.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "docibox 1168574؛ برگ = صفحه + ۱۹",
+     "step": "14.279"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-adbyat-17",
+   "volume_number": 2,
+   "title": "فهرست کتب خطی کتابخانه دانشکده ادبیات - جلد دوم: مجموعه وقفی علی‌اصغر حکمت",
+   "facsimile_code": "tehran-adabiyat",
+   "page_first": 2,
+   "page_last": 111,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-adabiyat/v02.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-adabiyat/v02.map.json"
+     ],
+     "note": "خزانه‌ها 3409؛ دوصفحه‌ای، راست = ۲·برگ − ۱۶",
+     "step": "14.279"
+    }
+   }
+  },
+  {
+   "library_slug": "km-fydyh-8",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه مبارکه مدرسه فیضیه قم - جلد دوم",
+   "facsimile_code": "feyziye",
+   "page_first": 1,
+   "page_last": 120,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "feyziye/v02.pdf"
+     ],
+     "leaf_maps": [
+      "feyziye/v02.map.json"
+     ],
+     "note": "خزانه‌ها 570؛ برگ = صفحه تا ص ۱۲۰ (بخش دوم)؛ بخش سوم (مجموعه‌ها) با شماره‌گذاری جدا (برگ ۱۲۳ به بعد) کنار ماند",
+     "step": "14.279"
+    }
+   }
   }
  ]
 }
