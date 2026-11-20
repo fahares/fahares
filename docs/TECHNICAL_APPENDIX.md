@@ -12444,6 +12444,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `TestCase::insightsPages($query)` صفحۀ اصلی و شش صفحه را با هم می‌خواند و هر هفت پاسخ را ۲۰۰ می‌خواهد؛ آزمون‌های نمودارها با آن نوشته شدند تا به جای نمودار وابسته نباشند. `InsightsTopicPagesTest`: هر فایل نمودار در یک صفحه است و برعکس؛ صفحۀ اصلی نمودار ندارد؛ صفحۀ موضوعی فقط نمودارهای خود را دارد؛ موضوع ناشناخته ۴۰۴ است؛ دامنه در نوار و فرم می‌ماند.
 - **سنجش در مرورگر (`fahares_prod`):** هر شش صفحه با `author=1110`، `library=4&century=11` و `scribe=1` (تهی) پاسخ ۲۰۰ دادند. `/insights?library=4#movement` به `/insights/places?library=4#movement` رفت.
 
+### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
+
+- **`SuggestionRegistry::noteField()`:** `note_{id}` با `input = textarea` و `note_id`، برچسب «یادداشت ‹نوع›»؛ `note_new_{type}` برای `ownership`، `seal`، `endowment` و `acquisition` با `new_note_type` و `required`، برچسب از `NEW_NOTE_LABELS`.
+- **`field()`:** برای نسخه، پس از `sourceEntryField()`. **`fieldOf()`:** فیلد یادداشت باید در `recordFields()` همان نسخه باشد.
+- **`recordFields()`:** برای نسخۀ دارای یادداشت، یک فیلد برای هر سطر. اگر `keepsSealsList()` نادرست است یا فهرست `metadata` تهی است، `ownership_and_seals` برداشته و چهار فیلد افزودن گذاشته می‌شود.
+- **`currentValue()`:** متن سطر؛ برای فیلد افزودن تهی.
+- **`SuggestionApplier::applyNote()`:** اصلاح متن با `typed_by = editor`، حذف سطر با مقدار تهی، یا سطر تازه با `position` آخر + ۱. `old` و `new` زیر کلید `notes` به `audit_logs` می‌رود.
+- **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
+- **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
+- **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.
+
 ### گام ۱۴.۲۶۵: `App\Support\Dynasties`، `scripts/dev/dynasty-rule` و `Insights::dynasties`
 
 - **منبع:** صفحۀ `https://dawawin.ir/stats/history/` (فهرست سلسله‌ها در `stats-data`) و `…/stats/territories/{سال}/` (GeoJSON قلمروها؛ مرزها از Cliopatria، بانک دادۀ Seshat). اسکریپت سال میانۀ هر دهه را می‌گیرد (۲۵۵، ۲۶۵، … ۱۳۴۵) و پاسخ‌ها را در پوشۀ cache نگه می‌دارد.
@@ -12457,13 +12468,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش روی `fahares_prod`:** ۱۶٬۹۷۱ نسخه سال و شهر دارند و ۱۶٬۰۲۸ نسخه حکومت گرفتند. نوار: سدۀ ۸ دمشق (ممالیک)، سدۀ ۹ شیراز (تیموریان، سپس آق‌قویونلو)، سدۀ ۱۱ اصفهان (صفویان)، سدۀ ۱۳ تهران (قاجاریان). دربارهای سفارش کتابت: قاجاریان ۳۴ نسخه و قطبشاهیان ۸.
 - **بازسازی داده:** پس از افزودن شهر تازه به `insights.copy_places`، اسکریپت دوباره اجرا شود؛ شیوه‌اش در سرآغاز خود اسکریپت است.
 - **پس از استقرار:** کلید cache تازه است؛ ساخت شبانه یا `fahares:build-insights` آن را پر می‌کند.
-### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
-
-- **`SuggestionRegistry::noteField()`:** `note_{id}` با `input = textarea` و `note_id`، برچسب «یادداشت ‹نوع›»؛ `note_new_{type}` برای `ownership`، `seal`، `endowment` و `acquisition` با `new_note_type` و `required`، برچسب از `NEW_NOTE_LABELS`.
-- **`field()`:** برای نسخه، پس از `sourceEntryField()`. **`fieldOf()`:** فیلد یادداشت باید در `recordFields()` همان نسخه باشد.
-- **`recordFields()`:** برای نسخۀ دارای یادداشت، یک فیلد برای هر سطر. اگر `keepsSealsList()` نادرست است یا فهرست `metadata` تهی است، `ownership_and_seals` برداشته و چهار فیلد افزودن گذاشته می‌شود.
-- **`currentValue()`:** متن سطر؛ برای فیلد افزودن تهی.
-- **`SuggestionApplier::applyNote()`:** اصلاح متن با `typed_by = editor`، حذف سطر با مقدار تهی، یا سطر تازه با `position` آخر + ۱. `old` و `new` زیر کلید `notes` به `audit_logs` می‌رود.
-- **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
-- **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
-- **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.
