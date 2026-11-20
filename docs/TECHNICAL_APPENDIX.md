@@ -12522,7 +12522,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - یک `prod-run --wait` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0` را اجرا کرد.
   - نتیجه: ۹، ۴۸ و ۶۹ اصلاح، که همه متن گرفتند؛ ۴، ۳ و ۱۱ ادعای نامزد.
   - ادعاهای قاعده‌ای `shelfmark` پس از اجرا: ۱۲۶ پذیرفته و ۲۳۴ نامزد (با ادعاهای گام ۱۴.۲۵۰).
-- **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
 
 ### گام ۱۴.۲۶۸: `App\Support\InsightsPresets` و `InsightsNotes::LEADS`
 
@@ -12535,6 +12534,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش روی `fahares_prod`:** هرات سدۀ ۹: ۷۸ نسخه؛ اصفهان سدۀ ۱۱: ۹۶۳؛ نجف: ۱٬۰۵۳؛ حیدرآباد: ۳۰۹؛ سده‌های ۵ تا ۷: ۳٬۳۵۱؛ طب: ۱۰٬۷۳۴؛ ترکی: ۲٬۱۷۳؛ شرایع الاسلام: ۹۰۰؛ وزیری یزد: ۶٬۳۱۱. «آثار ترکی» به صفحۀ آثار می‌رود، نه مکان: تنها ۷۱ نسخۀ ترکی محل کتابت روی نقشه دارند.
 - **آزمون:** `tests/Feature/InsightsPresetsTest.php`. آزمون «خوش‌ساخت بودن» خود فایل پیکربندی را می‌خواند (پارامترها، صفحه‌ها، شهرهای نقشه، املای «ۀ»)؛ بسنده بودن دادۀ هر دامنه را آزمون نمی‌تواند بسنجد (پایگاه آزمون داده ندارد) و همان سنجش هنگام نمایش این کار را می‌کند.
 - **پس از استقرار:** migration و فرمان داده ندارد. تا نخستین ساخت شبانه، هر دامنۀ آماده با نخستین بازدید ساخته می‌شود؛ `fahares:build-insights` آن را پیش می‌اندازد.
+
 ### گام ۱۴.۲۶۹: `note_types` در نمایه، فیلد `note_type_{id}` و ورودی `choice`
 
 - **نمایه:** `Manuscript::toSearchableArray` کلید `note_types` دارد: `ManuscriptNote::typesOf($this->notes)`، یعنی `type` و `also` همۀ یادداشت‌ها، به ترتیب `TYPES`. `makeAllSearchableUsing` رابطۀ `notes` را بار می‌کند. `note_types` در `filterableAttributes` نمایۀ نسخه‌ها (`config/scout.php`).
@@ -12549,6 +12549,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** ورودی `choice` در `suggest/desk.blade.php` (`<select>`) و `admin/suggestions/partials/field-approve.blade.php`. در `manuscripts/show.blade.php` دکمۀ `note_type_{id}` تنها در حالت پیشنهاد دیده می‌شود.
 - **آزمون:** `ImportCopyNotesCommandTest`: `test_a_note_s_type_can_be_changed_and_a_note_of_any_type_added` و `test_the_types_of_a_copy_s_notes_are_a_filter_of_the_search`.
 - **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:index-note-types --apply` (هر دو زیر `scripts/dev/prod-run`). تا پیش از آن موتور facet و پالایۀ `note_types` را رد می‌کند: پالایه از پایگاه داده پاسخ می‌گیرد و شمارهای کنار پالایه‌های زبانۀ نسخه‌ها نمی‌آید.
+
 ### گام ۱۴.۲۷۰: `work_entry_links` و `works:link-decisions`
 - **migration `2026_11_20_100001_create_work_entry_links_table`:** `work_id` (اثر میزبان مدخل)، `side` (`related` یا `children`)، `entry` (متن)، `entry_hash` (sha1 همان، برای یکتایی `work_id + side + entry_hash`)، `linked_work_id`، `source` (پیش‌فرض `model`)، `confidence`. هر دو کلید خارجی با حذف اثر پاک می‌شوند. روی رونوشت محلی ۹۲ میلی‌ثانیه.
 - **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
@@ -12573,12 +12574,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `works:link-related` گام ۱۴.۲۲۹، اگر هنوز اجرا نشده است (با پشتیبان `work_relations`).
   2. پروندهٔ `reconciliations/related_works_model_decisions_20261116.json` پیکره به `/tmp` کانتینر برود.
   3. `scripts/dev/prod-run <session> -- 'php artisan works:link-decisions /tmp/…json'`، سپس پاک کردن پرونده از `/tmp`.
+
 ### گام ۱۴.۲۷۱: فیلتر `death_century` و سده‌های زندگی در `PersonQueue`
 - **چرا نمودار بازشماری نشد:** `Insights::authors` هر مؤلف را یک بار و با بازۀ وفات (`DEATH_FROM`، `DEATH_TO`) در لایه‌های «سال دانسته» و «فقط سده» می‌شمارد. شمارش با سده‌های زندگی هر مؤلفِ دوسده‌ای را دو بار می‌آورد و معنای لایه‌ها و پوشش را به هم می‌زد. پس پیوند اصلاح شد، نه نمودار.
 - **`SearchFilters`:** کلید `death_century` (۱ تا ۱۵) فقط برای زبانۀ `authors`: در موتور `century_hijri = c` و در پایگاه داده `people.century_hijri = c`؛ برچسب «سدۀ ۱۱ (وفات)». در فرم فیلترها فیلد ندارد و به‌صورت ورودی پنهان می‌ماند تا با تغییر فیلترهای دیگر نیفتد. `century` همان «سدۀ زندگی» است.
 - **`insights/charts/authors.blade.php`:** پیوند ستون‌ها `type=authors&role=author&death_century=c`.
 - **`App\Review\PersonQueue`:** `filterOptions` سده‌های هر گروه را از `lifeCenturies()` اشخاصش می‌سازد و `filter` با `Person::whereInCentury` می‌جوید. `JSON_CONTAINS(person_ids, CAST(people.id AS JSON))` در MariaDB خطای نحوی است و به `CAST(people.id AS CHAR)` تغییر کرد.
 - **آزمون:** `LifeCenturiesTest::test_the_review_queues_find_a_group_under_each_century_of_its_people`، بخش `death_century` در `test_the_century_filter_and_the_index_find_the_person_under_each_century`، و پیوند تازه در `InsightsPageTest`.
+
 ### گام ۱۴.۲۷۲: «فهرست نسخه‌های عکسی مرعشی» ج ۱ و ۲ (`marashi-akasi`)
 - **پرونده‌ها:** خزانه‌ها 7873 (۴۶۴ برگ) و 7874 (۴۹۹ برگ)، JBIG2 تک‌رنگ ۶۰۰ dpi، حدود ۲۳۰۰ پیکسل، از کارت SD، در `../fahares-sources/marashi-akasi/v01.pdf` و `v02.pdf` با `MD5SUMS`. ج ۱ برگ = صفحه + ۷ (برگ ۸ = ص ۱ تا برگ ۴۶۰ = ص ۴۵۳)؛ ج ۲ برگ = صفحه + ۱ (برگ ۵ = ص ۴، برگ ۴۰۰ = ص ۳۹۹، برگ ۴۹۵ = ص ۴۹۴). خزانه‌ها 3505 («عکسی مرعشی.rar»، ۲۹۴ کیلوبایت) اسکن نیست.
 - **کد جدا:** کتابخانۀ `km-mraashy-2` جلدهای ۱ تا ۵ این فهرست و جلدهای ۱ تا ۳۸ فهرست بزرگ را با شمارۀ جلد یکسان دارد، پس ردیف‌ها با عنوان دقیق یافته می‌شوند و کد `marashi-akasi` گرفتند.
