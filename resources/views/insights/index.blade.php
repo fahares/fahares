@@ -55,11 +55,9 @@
 
         return $labels;
     };
-    $layers = ['copy' => $mapLabels('count'), 'composition' => $mapLabels('works')];
+    // The still map the page is sent with (charts/places): the cities of copying and the names of the largest
+    $layers = ['copy' => $mapLabels('count')];
     $maxPlace = max([1, ...array_column($p['cities'], 'count')]);
-    $mapCities = array_map(fn ($c) => ['n' => $c['name'], 'x' => $c['x'], 'y' => $c['y'], 't' => $c['count'], 'c' => (object) $c['centuries'],
-        'w' => $c['works'], 'wc' => (object) $c['work_centuries']], $p['cities']);
-    $mapCenturies = range(7, config('insights.centuries')[1]);
 @endphp
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 

@@ -147,9 +147,15 @@ class InsightsTables
         $works = $rows('works', 'work_centuries');
         usort($works, fn ($a, $b) => $b[1] <=> $a[1]);
 
+        // The people of the map (backlog item 137): the scribes and the authors of each city, each once per city
+        $people = array_map(fn ($city) => [$city['name'], $city['scribes'], $city['authors'], $city['count'], $city['works']],
+            array_filter($this->data['places']['cities'], fn ($city) => $city['scribes'] + $city['authors'] > 0));
+        usort($people, fn ($a, $b) => [$b[1], $b[2]] <=> [$a[1], $a[2]]);
+
         return [
             self::table('نسخه‌ها بر پایۀ محل کتابت', 'copy-places', $columns('همۀ نسخه‌ها'), $rows('count', 'centuries')),
             self::table('آثار بر پایۀ محل تألیف', 'composition-places', $columns('همۀ آثار'), $works),
+            self::table('کاتبان و مؤلفان هر شهر', 'people-places', [['شهر', 'text'], ['کاتب', 'num'], ['مؤلف', 'num'], ['نسخه', 'num'], ['اثر', 'num']], $people),
         ];
     }
 
