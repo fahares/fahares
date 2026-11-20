@@ -12666,6 +12666,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):** «349 matches of confidence medium: 345 proposals to add»، «345 proposals queued for review». اجرای دوم: «0 proposals to add». `work_entry_links`: model/linked ۵۷۰، review/proposed ۳۴۵. `/admin/work-entry-links` و صفحهٔ ۷ آن با کاربر مدیر: ۲۰۰، ۲۵ کارت.
 - **آزمون:** `LinkDecidedWorksTest::test_a_proposal_is_linked_only_when_a_reviewer_confirms_it`.
 - **اجرا در تولید، پس از استقرار:** همان فرمان گام ۱۴.۲۷۰ با `--proposals`: `php artisan works:link-decisions /tmp/…json --proposals`.
+
 ### گام ۱۴.۲۷۵: `resources/js/insights-map.js`، `echarts-map.js` و دادۀ دهه‌ای `Insights::places`
 
 - **وابستگی:** `echarts` ^5.6 در `package.json`. `resources/js/echarts-map.js` تنها `ScatterChart`، `CustomChart`، `GeoComponent`، `TooltipComponent`، `CanvasRenderer` و `LabelLayout` را می‌گیرد و `insights-map.js` آن را با `import()` پویا بار می‌کند، پس Vite بسته‌ای جدا می‌سازد و `app.js` سنگین نمی‌شود (آزمون همین را می‌سنجد).
