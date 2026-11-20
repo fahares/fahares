@@ -12335,7 +12335,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`ManuscriptNote`:** `TYPES` نوزده کلید دارد، با برچسب کوتاه صفحه. `GROUPS` چهار بخش با عنوان و ترتیب نوع‌ها: `contents` (شرح، بخش موجود، افتادگی، محتوا، افزوده‌ها، فهرست‌نگار، دیگر)، `provenance`، `marks` و `physical`.
 - **`Manuscript::noteGroups()`:** یادداشت‌ها به تفکیک بخش، بخش تهی حذف. `ManuscriptController::show` رابطۀ `notes` را بار می‌کند.
 - **`Manuscript::keepsSealsList()`:** فهرست `metadata` می‌ماند اگر نسخه یادداشت پیشینه ندارد، یا پیشنهاد `approved` روی `ownership_and_seals` دارد، یا ثبت `verify` دارد که تنها ستونش `metadata` است و این کلید را دارد. وگرنه بخش از جدول می‌آید.
-- **`SuggestionRegistry::listItems()`:** برای `ownership_and_seals` نسخه‌ای که فهرستش نمی‌ماند، `Manuscript::provenanceLines()` را می‌دهد (برچسب «مهر: »، «تملک: »، «واقف: » پیش از متن؛ ورود به کتابخانه بی برچسب).
+- **تکه‌های جامانده در خروجی:** هر تکۀ `metadata.editorial_notes` (شکسته با «؛» و سطر، بی ارجاع پایانی `[…]`) که حرف‌به‌حرف نه در یادداشت‌های نسخه است، نه در هیچ فیلد نسخۀ v2، و پاره‌های «،»اش هم همه در یادداشت‌ها نیست، با `type = other` و `typed_by = site` می‌آید: ۸۳۴ تکه. دسته‌بندی ۶۹٬۶۰۰ تکه: ۶۷٬۳۸۳ در جدول، ۶۳۹ در آغاز، ۵۹۸ در انجام، ۱۶۹ ارجاع، ۱۰۳ کاتب، ۹۳ تاریخ، ۱۲۶ «ادامۀ فیلد»، ۳۲۲ تنها در متن خام و ۵۴ هیچ‌جا.
+- **`Manuscript::provenanceCount()`:** شمار یادداشت‌های پیشینۀ جدول، وگرنه شمار فهرست `metadata`؛ `search.blade.php` همین را می‌شمارد و `SearchController::WITH` رابطۀ `notes` را بار می‌کند.
 - **`manuscripts/show.blade.php`:** حلقه روی `noteGroups()`؛ دو بخش «فوائد و رسائل» و «یادداشت‌های فهرست‌نگار» تنها وقتی `noteGroups()` تهی است.
 - **آزمون:** `test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_260.jsonl.gz --apply`.
+
+### گام ۱۴.۲۶۴: فیلدهای `note_{id}` و `note_new_{type}`
+
+- **`SuggestionRegistry::noteField()`:** `note_{id}` با `input = textarea` و `note_id`، برچسب «یادداشت ‹نوع›»؛ `note_new_{type}` برای `ownership`، `seal`، `endowment` و `acquisition` با `new_note_type` و `required`، برچسب از `NEW_NOTE_LABELS`.
+- **`field()`:** برای نسخه، پس از `sourceEntryField()`. **`fieldOf()`:** فیلد یادداشت باید در `recordFields()` همان نسخه باشد.
+- **`recordFields()`:** برای نسخۀ دارای یادداشت، یک فیلد برای هر سطر. اگر `keepsSealsList()` نادرست است یا فهرست `metadata` تهی است، `ownership_and_seals` برداشته و چهار فیلد افزودن گذاشته می‌شود.
+- **`currentValue()`:** متن سطر؛ برای فیلد افزودن تهی.
+- **`SuggestionApplier::applyNote()`:** اصلاح متن با `typed_by = editor`، حذف سطر با مقدار تهی، یا سطر تازه با `position` آخر + ۱. `old` و `new` زیر کلید `notes` به `audit_logs` می‌رود.
+- **`ImportCopyNotesCommand`:** نسخه‌هایی که ثبت `verify` با کلید `"notes"` دارند، یک بار در آغاز خوانده می‌شوند و مانند نسخۀ دارای سطر `editor` کنار می‌مانند (یادداشتِ برداشته‌شده بازنمی‌گردد).
+- **`manuscripts/show.blade.php`:** `<x-suggest.field :name="'note_' . $note->id" />` کنار هر یادداشت؛ دکمه‌های افزودن زیر بخش پیشینه با `x-show="$store.suggest.on"`. `Manuscript::provenanceLines()` و شاخۀ آن در `listItems()` (گام ۱۴.۲۶۰) برداشته شد.
+- **آزمون:** `test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed`.

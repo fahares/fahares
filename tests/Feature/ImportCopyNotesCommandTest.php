@@ -119,9 +119,57 @@ class ImportCopyNotesCommandTest extends TestCase
         $page->assertSeeInOrder(['محتوای نسخه', 'بخش موجود', 'از آغاز تا باب دوم', 'مهرها، تملک‌ها و وقف‌نامه‌ها', 'ناصرالدین شاه', 'نشان‌های متنی', 'حواشی با نشان منه', 'از مؤلف']);
         $page->assertDontSee('یادداشت کهنۀ فهرست‌نگار')->assertDontSee('فهرست کهنه')->assertDontSee('فوائد کهنه');
 
+        // the list of results counts the typed notes of provenance, not the old list
+        $this->assertSame(1, Manuscript::find($id)->provenanceCount());
+        $this->assertSame(1, Manuscript::find($plain)->provenanceCount());
+
         // a copy without typed notes keeps the three lists
         $this->get(route('manuscripts.show', ['id' => Manuscript::find($plain)->getRouteKey()]))->assertOk()
             ->assertSee('یادداشت کهنۀ فهرست‌نگار')->assertSee('مهر: فهرست کهنه')->assertSee('فوائد کهنه');
+    }
+
+    public function test_each_note_is_a_field_of_its_own_and_a_note_of_provenance_can_be_added_or_removed()
+    {
+        $id = $this->copy('40');
+        $other = $this->copy('41');
+        $records = [
+            ['id' => $id, 'shelfmark' => '40', 'notes' => [['type' => 'seal', 'text' => 'مهر نخست', 'typed_by' => 'field'], ['type' => 'ownership', 'text' => 'محمد', 'typed_by' => 'field']]],
+            ['id' => $other, 'shelfmark' => '41', 'notes' => [['type' => 'contents', 'text' => 'فهرست اشعار', 'typed_by' => 'sonnet']]],
+        ];
+        $this->file($records);
+        $this->run_()->assertExitCode(0);
+        $copy = Manuscript::find($id);
+        [$seal, $owner] = $copy->notes->all();
+
+        $fields = \App\Suggestions\SuggestionRegistry::recordFields($copy);
+        $this->assertArrayHasKey('note_' . $seal->id, $fields);
+        $this->assertArrayHasKey('note_new_seal', $fields);
+        $this->assertArrayNotHasKey('ownership_and_seals', $fields);
+        $this->assertSame('مهر نخست', \App\Suggestions\SuggestionRegistry::currentValue($copy, ['name' => 'note_' . $seal->id] + $fields['note_' . $seal->id]));
+        // another copy's note is no field of this one
+        $foreign = Manuscript::find($other)->notes->first();
+        $this->assertNull(\App\Suggestions\SuggestionRegistry::fieldOf($copy, 'note_' . $foreign->id));
+        $this->assertNotNull(\App\Suggestions\SuggestionRegistry::fieldOf($copy, 'note_' . $owner->id));
+
+        $applier = app(\App\Suggestions\SuggestionApplier::class);
+        $apply = fn (string $name, ?string $value) => $applier->apply($copy, \App\Suggestions\SuggestionRegistry::fieldOf($copy->fresh(), $name), ['applied_value' => $value]);
+        $changed = $apply('note_' . $seal->id, 'مهر «عبده محمد» (بیضی)');
+        $this->assertSame('مهر نخست', $changed['old']['notes']['text']);
+        $apply('note_' . $owner->id, null);
+        $added = $apply('note_new_endowment', 'وقف مدرسۀ سپهسالار، ۱۲۹۷');
+
+        $notes = $copy->fresh()->notes;
+        $this->assertSame([['seal', 'مهر «عبده محمد» (بیضی)', 'editor'], ['endowment', 'وقف مدرسۀ سپهسالار، ۱۲۹۷', 'editor']],
+            $notes->map(fn ($n) => [$n->type, $n->text, $n->typed_by])->all());
+        $this->assertSame($notes[1]->id, $added['new']['notes']['id']);
+
+        // a later import leaves the copy alone: an editor's note, and (for the other copy) a note a reviewer removed
+        $foreignRemoved = $applier->apply(Manuscript::find($other), \App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($other), 'note_' . $foreign->id), ['applied_value' => null]);
+        \App\Models\AuditLog::create(['auditable_type' => Manuscript::class, 'auditable_id' => $other, 'action' => 'verify', 'old_values' => $foreignRemoved['old'], 'new_values' => $foreignRemoved['new']]);
+        $this->file($records);
+        $this->run_()->expectsOutputToContain('Wrote 0 notes of 0 copies.')->assertExitCode(0);
+        $this->assertSame(0, DB::table('manuscript_notes')->where('manuscript_id', $other)->count());
+        \App\Models\AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $other)->delete();
     }
 
     public function test_a_note_of_an_unknown_type_stops_the_run()

@@ -774,17 +774,13 @@ class Manuscript extends Model
     }
 
     /**
-     * The notes of provenance as the lines of the seals list («مهر: …»، «تملک: …»، «واقف: …»), which is what a
-     * suggestion on that list starts from when the page shows the notes.
-     *
-     * @return string[]
+     * How many seals, ownership notes, endowments and acquisitions the copy has, for the lists of results: its typed
+     * notes of provenance, or the metadata list of a copy without them. A list a reviewer corrected is not looked up
+     * here (keepsSealsList costs two queries a copy).
      */
-    public function provenanceLines(): array
+    public function provenanceCount(): int
     {
-        $labels = ['seal' => 'مهر: ', 'ownership' => 'تملک: ', 'endowment' => 'واقف: '];
-
-        return $this->notes->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])
-            ->map(fn (ManuscriptNote $n) => ($labels[$n->type] ?? '') . $n->text)->values()->all();
+        return $this->notes->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])->count() ?: count($this->ownership_and_seals_list);
     }
 
     /**

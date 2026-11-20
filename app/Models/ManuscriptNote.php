@@ -31,8 +31,11 @@ class ManuscriptNote extends Model
         'physical' => ['title' => 'کالبد و آرایه', 'types' => ['decoration', 'illustration', 'diagram', 'codicology']],
     ];
 
-    /** Who gave a note its type; an editor's is kept by a later import */
-    public const TYPED_BY = ['field', 'rule', 'sonnet', 'opus', 'editor'];
+    /**
+     * Who gave a note its type; an editor's is kept by a later import. «site» is a piece of the site's old list of
+     * cataloguer's notes that parser v2 reads nowhere, kept as «other» (step 14.260).
+     */
+    public const TYPED_BY = ['field', 'rule', 'sonnet', 'opus', 'site', 'editor'];
 
     protected $fillable = ['manuscript_id', 'position', 'type', 'text', 'also', 'by_author', 'by_author_hedge', 'hedge', 'typed_by'];
 
