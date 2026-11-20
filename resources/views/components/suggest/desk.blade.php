@@ -26,6 +26,7 @@
             'withRow' => ! empty($def['with_row']),
             'canBeAbsent' => ! empty($def['can_be_absent']),
             'unit' => $def['unit'] ?? 'ص',
+            'options' => $def['options'] ?? [],
         ];
     }
 
@@ -309,6 +310,15 @@
                                 </template>
                                 <p class="text-xs text-muted">صفحه‌ای را بنویسید که مدخل از آن آغاز می‌شود.</p>
                             </div>
+                        </template>
+
+                        <!-- One of a few values, by its label: the type of a copy's note (step 14.269) -->
+                        <template x-if="mode === 'field' && field.input === 'choice'">
+                            <select x-model="value" required class="{{ $inputClass }} w-56">
+                                <template x-for="option in field.options" :key="option">
+                                    <option :value="option" x-text="option" :selected="option === value"></option>
+                                </template>
+                            </select>
                         </template>
 
                         <template x-if="mode === 'field' && field.input === 'boolean'">

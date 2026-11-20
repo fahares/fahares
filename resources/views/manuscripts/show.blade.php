@@ -477,11 +477,17 @@
                     'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
                     'ownership_and_seals' => $oldSeals && count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
                 ]);
-                // a copy with typed notes and no provenance yet: a note of it can be added
-                if ($noteGroups && ! isset($noteGroups['provenance']) && ! $manuscript->ownership_and_seals_list) {
-                    unset($emptySections['ownership_and_seals']);
-                    foreach (\App\Suggestions\SuggestionRegistry::NEW_NOTE_LABELS as $newType => $newLabel) {
-                        $emptySections['note_new_' . $newType] = $newLabel;
+                // a copy with typed notes: a note can be added to a section it does not have yet (steps 14.264, 14.269)
+                $addable = $noteGroups ? array_keys(array_filter(\App\Suggestions\SuggestionRegistry::recordFields($manuscript), fn ($f) => isset($f['new_note_type']))) : [];
+                foreach ($noteGroups ? \App\Models\ManuscriptNote::GROUPS : [] as $groupKey => $group) {
+                    if (isset($noteGroups[$groupKey]) && ! ($groupKey === 'provenance' && $oldSeals)) {
+                        continue;
+                    }
+                    foreach ($group['types'] as $newType) {
+                        if (in_array('note_new_' . $newType, $addable, true)) {
+                            unset($emptySections['ownership_and_seals']);
+                            $emptySections['note_new_' . $newType] = \App\Suggestions\SuggestionRegistry::newNoteLabel($newType);
+                        }
                     }
                 }
             @endphp
@@ -501,18 +507,17 @@
                         @foreach($groupNotes as $note)
                             <li class="flex items-start gap-3 leading-relaxed">
                                 <span class="mt-0.5 shrink-0 w-20 text-center text-[11px] font-bold py-0.5 border {{ $note->type === 'seal' ? 'border-cinnabar/40 text-cinnabar' : ($note->type === 'endowment' ? 'border-emerald-600/40 text-emerald-700 dark:text-emerald-300' : 'border-line-strong text-muted') }}">{{ \App\Models\ManuscriptNote::TYPES[$note->type] ?? $note->type }}</span>
-                                <span class="text-ink whitespace-pre-line">{{ Fa::digits($note->text) }}@if($note->by_author) <x-ui.chip tone="good" class="!text-[11px] !py-0 ms-1">{{ $note->by_author_hedge ? $note->by_author_hedge . ' ' : '' }}از مؤلف</x-ui.chip>@endif <x-suggest.field :name="'note_' . $note->id" /></span>
+                                <span class="text-ink whitespace-pre-line">{{ Fa::digits($note->text) }}@if($note->by_author) <x-ui.chip tone="good" class="!text-[11px] !py-0 ms-1">{{ $note->by_author_hedge ? $note->by_author_hedge . ' ' : '' }}از مؤلف</x-ui.chip>@endif <x-suggest.field :name="'note_' . $note->id" /> <x-suggest.field :name="'note_type_' . $note->id" x-show="$store.suggest.on" x-cloak title="پیشنهاد تغییر نوع این یادداشت" aria-label="پیشنهاد تغییر نوع این یادداشت" class="!border-line-strong !bg-surface !text-muted" /></span>
                             </li>
                         @endforeach
                     </ul>
-                    @if($groupKey === 'provenance')
-                        {{-- a seal, an ownership note, an endowment or an acquisition the catalogue lacks (step 14.264) --}}
-                        <div x-show="$store.suggest.on" x-cloak class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
-                            @foreach(\App\Suggestions\SuggestionRegistry::NEW_NOTE_LABELS as $newType => $newLabel)
-                                <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ $newLabel }} <x-suggest.field :name="'note_new_' . $newType" /></span>
-                            @endforeach
-                        </div>
-                    @endif
+                    {{-- a note of the section's types the catalogue lacks (steps 14.264, 14.269) --}}
+                    <div x-show="$store.suggest.on" x-cloak class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+                        @foreach(\App\Models\ManuscriptNote::GROUPS[$groupKey]['types'] as $newType)
+                            @continue(! in_array('note_new_' . $newType, $addable, true))
+                            <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ \App\Suggestions\SuggestionRegistry::newNoteLabel($newType) }} <x-suggest.field :name="'note_new_' . $newType" /></span>
+                        @endforeach
+                    </div>
                 </x-ui.section>
             @endforeach
 
