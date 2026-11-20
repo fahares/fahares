@@ -12351,3 +12351,38 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نوربخش ج ۱ (#۴۹۹):** نگاشت و PDF در `../fahares-sources/nurbakhsh/` آماده است. ۴۸۴ ارجاع «[نشریه: 13-…]» روی همین جلدند و باید نخست به دفتر ۱۳ نشریه (#۵۱۵، کد `tehran-univ-nashriyye`) بروند، وگرنه برگۀ نادرست باز می‌شود.
 - **ادبیات ج ۳ (#۴۱۱):** پروندۀ خزانه‌ها 3410 روی کارت SD است و کارت در این جلسه وصل نبود.
 - **سیاهۀ ۲۵ جلدِ پیدانشده:** `../fahares-sources/اسکن-پیدا-نشده-۲۵-جلد.csv` (عنوان، ناشر، سال، صفحه، بازۀ شماره‌ها، نسخه)، برای جست‌وجوی کاربر. ۲۰ تای آن‌ها در برگۀ «فایل نداریم» فایل اکسل ۲۵ آبان هم هستند.
+### گام ۱۴.۲۵۹: خوانندۀ سه قالب فهرست، و `sources:take-texts` دسته‌به‌دسته
+
+- **خواننده‌ها** (`app/Sources/Extractors/`، ثبت در `Extractors::FORMATS`). هر سه سطرهای صفحه را جدا می‌کنند و مدخل‌ها را با نشانی سطر می‌سازند. نسخه بر هر صفحه‌ای از سرعنوانش تا سرعنوان بعدی «می‌ایستد»، چون فنخا صفحۀ رسالۀ مجموعه را ارجاع می‌دهد. شمارۀ «N/M» رسالۀ M مجموعه را می‌گیرد و `strict_part` رسالۀ ناموجود را رد می‌کند.
+  - `ShelfmarkHeadedCatalogueExtractor` (`shelfmark_headings`، مجلس):
+    - سرعنوان `^\(?\d{2,6}\)?( مجموعه:?)?$` است. شمارۀ آن باید از پیشین بزرگ‌تر باشد و حداکثر ۶۰ بیشتر، تا عدد سرگردان سرعنوان گرفته نشود.
+    - رساله `^\d+\.` است.
+    - شرح نسخه از نخستین «خط:»، «کاغذ:»، «خط مجموعه:» یا «بخش اول» پس از آخرین رساله آغاز می‌شود و به آخرین سطر «ثبت» می‌رسد.
+  - `ListedShelfmarkCatalogueExtractor` (`listed_shelfmarks`، مروی):
+    - سرعنوان `( ش a و b )` است. «- خشتی» پس از شماره یعنی مجموعه.
+    - سطر نسخه `* ش n ،` است. شماره‌اش به شماره‌های سرعنوان افزوده می‌شود، چون سرعنوان گاهی ناخواناست («۰۰۰[؟]»).
+    - پانوشت پس از `---` کنار می‌رود.
+    - متن سه حالت دارد: اثر و سطر نسخه؛ رساله، و سرعنوان مجموعه همراه رساله؛ یا سرعنوان، و شرح قرآن‌ها.
+  - `SerialShelfmarkCatalogueExtractor` (`serial_shelfmarks`، ملک):
+    - سرعنوان شمارۀ ردیفی در سطری تنهاست که سطر بعدش با شمارۀ نسخه آغاز می‌شود (پس از آن نویسه، عدد شمار برگ، یا هیچ).
+    - `copy_text` سطرهای شرح تا نخستین رساله است. `entry_number` شمارۀ ردیف است.
+- **`TakeSourceTextsCommand`:**
+  - شناسه‌ها یک‌جا خوانده می‌شوند و مدخل‌ها با `sourceVolume` و `citable` هزارتا‌هزارتا. ۳۹٬۵۳۹ ارجاع مجلس با هم از `memory_limit` ۵۱۲M بیشتر می‌شد و با کد ۲۵۵ بی پیام می‌ایستاد.
+  - ارجاع بی صفحۀ منبع یک‌جلدی با `citation_text` «[ف: N]» در صفحۀ N خوانده می‌شود، و در جدول «page from the citation» شمرده می‌شود. در ثبت ممیزی، `page_start` پیشین `null` می‌ماند تا برگرداندن درست باشد.
+- **`PrintedPage::marks`:** مدخل‌های صفحه با `source_volume_id` جلد، یا اگر ندارند با `volume_number`، پیدا می‌شوند. ۱٬۳۹۷ ارجاع مروی `volume_number` ندارند، چون فنخا آن را «[ف: 150]» ارجاع می‌دهد.
+- **آزمون:** `ShelfmarkCataloguesTest` (پنج آزمون، با پیوند صفحۀ چاپی)؛ جدول `NumberedCopyCatalogueTest` سطر تازه را دارد.
+- **داده:**
+  - صفحه‌ها: `../fahares-sources/ocr-claude/load/{majlis_v20,majlis_v29,majlis_v32,malek_v05,marvi_v01}.jsonl.gz` با `MD5SUMS`.
+  - ج ۲۹ از دو PDF ساخته شد: `v29-1` با چاپی = pdf − ۱ از pdf ۹، و `v29` با چاپی = pdf + ۵۸۱ (از pdf ۲۸۶، + ۵۸۰) از pdf ۶. صفحه‌های ۸ تا ۱۰۴۶ است.
+- **اجرا در پروداکشن (پس از استقرار و با تأیید کاربر):**
+  1. پشتیبان `source_pages` و `source_entries` این پنج جلد، و رونوشت پنج پرونده به `/tmp` با md5.
+  2. یک `prod-run` با این فرمان‌ها:
+     - `sources:import-pages majlis /tmp/majlis_v20.jsonl.gz --volume=20`، و همین برای ۲۹ و ۳۲؛
+     - `sources:import-pages malek /tmp/malek_v05.jsonl.gz --volume=5`؛
+     - `sources:import-pages marvi /tmp/marvi_v01.jsonl.gz`.
+  3. سه `sources:take-texts` با `--extractor`:
+     - `catalogue-af2952129bfd --extractor=shelfmark_headings`؛
+     - `catalogue-7ac531af190e --extractor=serial_shelfmarks`؛
+     - `catalogue-4ae9dc5de46a --extractor=listed_shelfmarks`.
+     - شمارها باید همان تمرین باشد: ۵٬۵۱۸، ۲٬۷۷۰ و ۱٬۳۹۸.
+  4. پاک کردن پرونده‌ها از `/tmp`.
