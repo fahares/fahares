@@ -52,6 +52,26 @@
                 @endforeach
             </div>
         @endif
+        @if(count($pt['courts']) > 1)
+            @php $maxCourt = max([1, ...array_column($pt['courts'], 'count')]); @endphp
+            <p class="mt-5 mb-2 text-xs font-semibold text-ink">نسخه‌های سفارشی به تفکیک دربار</p>
+            <ul class="space-y-2 text-sm" data-insights-courts>
+                @foreach($pt['courts'] as $row)
+                    <li>
+                        <span class="flex items-baseline gap-2">
+                            <span class="text-ink">{{ $row['name'] }}</span>
+                            <span class="text-[11px] text-muted truncate min-w-0">{{ $row['people'] > 1 ? Fa::num($row['people']) . ' نام، بیش از همه ' : '' }}{{ $row['first'] }}</span>
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums">{{ Fa::num($row['count']) }}</span>
+                        </span>
+                        <span class="mt-1 block h-1 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                            <span class="block h-full bg-gold/70 rounded-full" style="width: max(2px, {{ round($row['count'] * 100 / $maxCourt, 2) }}%)"></span>
+                        </span>
+                    </li>
+                @endforeach
+            </ul>
+            <p class="mt-2 text-[11px] text-muted">تنها سفارش‌دهندگانی که به رکورد شخص پیوند خورده‌اند و دربارشان شناخته است.</p>
+        @endif
     </x-ui.card>
     <p class="mt-3 text-xs text-muted leading-relaxed">
         سفارش‌دهنده برای {{ Fa::num($pt['with_patron']) }} نسخه ({{ $pct($pt['coverage']) }}) ثبت است، با {{ Fa::num($pt['names']) }} نام گوناگون.

@@ -52,6 +52,26 @@
                 @endforeach
             </div>
         @endif
+        @if(count($dd['courts']) > 1)
+            @php $maxCourt = max([1, ...array_column($dd['courts'], 'count')]); @endphp
+            <p class="mt-5 mb-2 text-xs font-semibold text-ink">آثار تقدیم‌شده یا سفارشی به تفکیک دربار</p>
+            <ul class="space-y-2 text-sm" data-insights-courts>
+                @foreach($dd['courts'] as $row)
+                    <li>
+                        <span class="flex items-baseline gap-2">
+                            <span class="text-ink">{{ $row['name'] }}</span>
+                            <span class="text-[11px] text-muted truncate min-w-0">{{ $row['people'] > 1 ? Fa::num($row['people']) . ' نام، بیش از همه ' : '' }}{{ $row['first'] }}</span>
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums">{{ Fa::num($row['count']) }}</span>
+                        </span>
+                        <span class="mt-1 block h-1 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                            <span class="block h-full bg-gold/70 rounded-full" style="width: max(2px, {{ round($row['count'] * 100 / $maxCourt, 2) }}%)"></span>
+                        </span>
+                    </li>
+                @endforeach
+            </ul>
+            <p class="mt-2 text-[11px] text-muted">تنها پادشاهان، وزیران و عالمانِ دربار که نامشان به رکورد شخص پیوند خورده و دربارشان شناخته است؛ پس این شمار بخشی از تقدیم‌هاست.</p>
+        @endif
     </x-ui.card>
     <p class="mt-3 text-xs text-muted leading-relaxed">
         {{ Fa::num($dd['works']) }} اثر ({{ $pct($dd['coverage']) }} آثار این آمار) تقدیم‌نامه یا سفارش‌دهنده دارند، با {{ Fa::num($dd['names']) }} نام. {{ Fa::num($dd['linked']) }} نامِ پیوندخورده به رکورد شخص، {{ Fa::num($dd['linked_works']) }} اثر از این آثار را دربر دارند.
