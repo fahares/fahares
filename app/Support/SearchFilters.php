@@ -35,7 +35,9 @@ class SearchFilters
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'note_types', 'source_volume_id'],
         // The people in two tabs (step 14.154): the century is of the death of an author, of the copies of a scribe
         // «estimates» on the authors' tab: the century also takes those of no known century last seen alive in it (step 14.198)
-        'authors' => ['role', 'century', 'estimates'],
+        // «death_century» is no field of the form: the century of the death alone (century_hijri), which the chart
+        // of authors by death links to (step 14.271); «century» is any century of the life
+        'authors' => ['role', 'century', 'death_century', 'estimates'],
         'scribes' => ['role', 'century', 'copy_city'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
@@ -188,7 +190,7 @@ class SearchFilters
 
         return match ($param) {
             'subject_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id', 'source_volume_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
-            'century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
+            'century', 'death_century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
             'volume' => ctype_digit(TextNormalizer::normalize((string) $value)) && (int) TextNormalizer::normalize((string) $value) > 0 ? (int) TextNormalizer::normalize((string) $value) : null,
             'year_from', 'year_to', 'folios_from', 'folios_to' => ctype_digit(TextNormalizer::normalize((string) $value)) ? (int) TextNormalizer::normalize((string) $value) : null,
             'city' => is_string($value) && trim($value) !== '' ? mb_substr(trim($value), 0, 60) : null,
@@ -292,6 +294,7 @@ class SearchFilters
                     'scribes' => "copy_centuries = {$value}",
                     default => null,
                 },
+                'death_century' => "century_hijri = {$value}",
                 'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
@@ -371,6 +374,7 @@ class SearchFilters
                     'scribes' => $scribesOf(fn ($copies) => \App\Models\Manuscript::whereCopiedWithin($copies, ($value - 1) * 100 + 1, $value * 100)),
                     default => null,
                 },
+                'death_century' => $query->where('people.century_hijri', $value),
                 'fields' => $query->whereIn($this->idKey(), $this->fieldMatches()['ids']),
                 default => null,
             };
@@ -432,6 +436,7 @@ class SearchFilters
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
                 'role' => ($this->type === 'scribes' || $value === 'scribe' ? 'همچنین ' : 'نقش: ') . self::ROLES[$value],
+                'death_century' => 'سدۀ ' . $fa($value) . ' (وفات)',
                 'century' => 'سدۀ ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (زندگی)', default => ' (کتابت)' },
                 default => null,
             };

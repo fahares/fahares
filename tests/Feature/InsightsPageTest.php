@@ -104,7 +104,7 @@ class InsightsPageTest extends TestCase
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات'])), false)
             ->assertSee('پدیدآورندگان و آثار در گذر سده‌ها')
             ->assertSee('فاصلۀ کتابت تا وفات مؤلف')
-            ->assertSee(e(route('search', ['type' => 'authors', 'role' => 'author', 'century' => 11])), false)
+            ->assertSee(e(route('search', ['type' => 'authors', 'role' => 'author', 'death_century' => 11])), false)
             ->assertSee('کانون‌های تاریخی استنساخ')
             ->assertSee('سهم خطوط')
             ->assertSee('سهم زبان‌ها');

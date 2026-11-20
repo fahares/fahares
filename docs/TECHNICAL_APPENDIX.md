@@ -12568,3 +12568,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `works:link-related` گام ۱۴.۲۲۹، اگر هنوز اجرا نشده است (با پشتیبان `work_relations`).
   2. پروندهٔ `reconciliations/related_works_model_decisions_20261116.json` پیکره به `/tmp` کانتینر برود.
   3. `scripts/dev/prod-run <session> -- 'php artisan works:link-decisions /tmp/…json'`، سپس پاک کردن پرونده از `/tmp`.
+### گام ۱۴.۲۷۱: فیلتر `death_century` و سده‌های زندگی در `PersonQueue`
+- **چرا نمودار بازشماری نشد:** `Insights::authors` هر مؤلف را یک بار و با بازۀ وفات (`DEATH_FROM`، `DEATH_TO`) در لایه‌های «سال دانسته» و «فقط سده» می‌شمارد. شمارش با سده‌های زندگی هر مؤلفِ دوسده‌ای را دو بار می‌آورد و معنای لایه‌ها و پوشش را به هم می‌زد. پس پیوند اصلاح شد، نه نمودار.
+- **`SearchFilters`:** کلید `death_century` (۱ تا ۱۵) فقط برای زبانۀ `authors`: در موتور `century_hijri = c` و در پایگاه داده `people.century_hijri = c`؛ برچسب «سدۀ ۱۱ (وفات)». در فرم فیلترها فیلد ندارد و به‌صورت ورودی پنهان می‌ماند تا با تغییر فیلترهای دیگر نیفتد. `century` همان «سدۀ زندگی» است.
+- **`insights/charts/authors.blade.php`:** پیوند ستون‌ها `type=authors&role=author&death_century=c`.
+- **`App\Review\PersonQueue`:** `filterOptions` سده‌های هر گروه را از `lifeCenturies()` اشخاصش می‌سازد و `filter` با `Person::whereInCentury` می‌جوید. `JSON_CONTAINS(person_ids, CAST(people.id AS JSON))` در MariaDB خطای نحوی است و به `CAST(people.id AS CHAR)` تغییر کرد.
+- **آزمون:** `LifeCenturiesTest::test_the_review_queues_find_a_group_under_each_century_of_its_people`، بخش `death_century` در `test_the_century_filter_and_the_index_find_the_person_under_each_century`، و پیوند تازه در `InsightsPageTest`.
