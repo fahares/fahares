@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
- * works:link-decisions (backlog item 6, step 14.270): the entries a decisions file ties to their works get a row in
- * work_entry_links and, where the two works are not related yet, a relation of source «model»; only «match» of
+ * works:link-decisions (backlog item 6, steps 14.270 and 14.285): the entries a decisions file ties to their works are
+ * tied in work_text_relations and, where the two works are not related yet, get a relation of source «model»; only «match» of
  * confidence «high» is written; the work's page links the entry; a second run changes nothing, and a decision taken
  * out of the file takes its rows away.
  */
@@ -19,7 +19,7 @@ class LinkDecidedWorksTest extends TestCase
 {
     private function work(string $title, string $author, array $more = []): Work
     {
-        return Work::create(['primary_title' => $title, 'clean_title' => $title, 'author_name' => $author, 'slug' => 'dec-' . uniqid(),
+        return $this->workWithTexts(['primary_title' => $title, 'clean_title' => $title, 'author_name' => $author, 'slug' => 'dec-' . uniqid(),
             'volume_number' => 1, 'page_start' => 1] + $more);
     }
 
@@ -60,7 +60,7 @@ class LinkDecidedWorksTest extends TestCase
         $file = $this->file($decisions);
 
         $this->artisan('works:link-decisions', ['file' => $file, '--dry-run' => true])->assertSuccessful();
-        $this->assertSame(0, DB::table('work_entry_links')->count());
+        $this->assertSame(0, DB::table('work_text_relations')->where('link_source', 'model')->count());
 
         $this->artisan('works:link-decisions', ['file' => $file, '--no-index' => true])->assertSuccessful()
             ->expectsOutputToContain('3 entries: 3 to add')->expectsOutputToContain('2 relations: 2 to add');
@@ -72,11 +72,11 @@ class LinkDecidedWorksTest extends TestCase
             [$kafiya->id, 'children', 'شرح الکافیة', $sharh->id],
             [$kashf->id, 'related', 'تبصرة المتعلمین علامه حلی، حسن بن یوسف (648-726)', $tabsira->id],
             [$kafiya->id, 'children', 'حاشیة الکافیة؛ کسی، الف', $hashiya->id],
-        ], DB::table('work_entry_links')->get()->map(fn ($r) => [$r->work_id, $r->side, $r->entry, $r->linked_work_id])->all());
+        ], DB::table('work_text_relations')->where('link_source', 'model')->get()->map(fn ($r) => [$r->work_id, $r->side, $r->entry_key, $r->linked_work_id])->all());
 
         // the pages: the entry the decision names is linked, and of a glued author only the title
-        $links = WorkRelationLinker::linkedEntries($kafiya->fresh());
-        $this->assertSame([$sharh->id, $hashiya->id], [$links['children'][0][0][1]->id, $links['children'][1][0][1]->id]);
+        $this->assertSame([$sharh->id, $hashiya->id], DB::table('work_text_relations')->where('work_id', $kafiya->id)->where('link_status', 'linked')->orderBy('position')->pluck('linked_work_id')->all());
+        $this->assertSame([], \App\Support\WorkCatalogueEntries::page($kafiya)['unlinked']);
         $this->followingRedirects()->get(route('works.show', $kashf))->assertOk()
             ->assertSee('<a href="' . route('works.show', $tabsira) . '"', false)
             // the start of the work's title with its own author after it: the catalogue's words say nothing else
@@ -108,12 +108,13 @@ class LinkDecidedWorksTest extends TestCase
 
         // without the option nothing is queued; with it, once
         $this->artisan('works:link-decisions', ['file' => $file, '--no-index' => true])->assertSuccessful();
-        $this->assertSame(0, WorkEntryLink::count());
+        $this->assertSame(0, WorkEntryLink::review()->count());
         $this->artisan('works:link-decisions', ['file' => $file, '--no-index' => true, '--proposals' => true])->assertSuccessful()->expectsOutputToContain('2 proposals to add');
         $this->artisan('works:link-decisions', ['file' => $file, '--no-index' => true, '--proposals' => true])->assertSuccessful()->expectsOutputToContain('0 proposals to add');
-        [$first, $second] = WorkEntryLink::orderBy('id')->get()->all();
-        $this->assertSame(['review', 'proposed', 'Only commentary of the title'], [$first->source, $first->status, $first->why]);
-        $this->assertSame([], WorkRelationLinker::linkedEntries($kafiya->fresh())['children']);
+        [$first, $second] = WorkEntryLink::review()->orderBy('id')->get()->all();
+        $this->assertSame(['review', 'proposed', 'Only commentary of the title'], [$first->link_source, $first->link_status, $first->why]);
+        // a proposal is not a tie: the page still shows both entries as text
+        $this->assertCount(2, \App\Support\WorkCatalogueEntries::page($kafiya)['unlinked']);
         $this->assertSame(0, DB::table('work_relations')->count());
 
         // the queue is the reviewers'
@@ -127,24 +128,25 @@ class LinkDecidedWorksTest extends TestCase
         // the type is the entry's own: «شرح الکافیة»
         $this->assertSame([[$sharh->id, $kafiya->id, 'commentary', 'review']],
             DB::table('work_relations')->get()->map(fn ($r) => [$r->work_id, $r->related_work_id, $r->type, $r->source])->all());
-        $this->assertSame(['linked', $admin->id], [$first->fresh()->status, $first->fresh()->decided_by]);
-        $this->assertSame($sharh->id, WorkRelationLinker::linkedEntries($kafiya->fresh())['children'][0][0][1]->id);
+        $this->assertSame(['linked', $admin->id], [$first->fresh()->link_status, $first->fresh()->decided_by]);
+        $this->assertSame(['نظم الکافیة'], array_column(\App\Support\WorkCatalogueEntries::page($kafiya)['unlinked'], 'text'));
+        $this->followingRedirects()->get(route('works.show', $kafiya))->assertOk()->assertSee('<a href="' . route('works.show', $sharh) . '"', false);
         // works:link-related and a later run of the decisions leave the reviewer's rows alone
         $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
         $this->artisan('works:link-decisions', ['file' => $file, '--no-index' => true, '--proposals' => true])->assertSuccessful();
         $this->assertSame(1, DB::table('work_relations')->where('source', 'review')->count());
-        $this->assertSame('linked', $first->fresh()->status);
+        $this->assertSame('linked', $first->fresh()->link_status);
 
         // «اثر دیگری است» leaves the entry as text; a decided item is not decided twice
         $this->actingAs($admin)->post(route('admin.work-entry-links.reject', $second))->assertRedirect();
-        $this->assertSame('rejected', $second->fresh()->status);
+        $this->assertSame('rejected', $second->fresh()->link_status);
         $this->actingAs($admin)->post(route('admin.work-entry-links.link', $second))->assertNotFound();
         $this->actingAs($admin)->get(route('admin.work-entry-links.index', ['view' => 'done']))->assertOk()->assertSee('نظم الکافیة')->assertSee('بازگشایی');
 
         // «بازگشایی» takes the link and its relation back
         $this->actingAs($admin)->post(route('admin.work-entry-links.reopen', $first))->assertRedirect();
-        $this->assertSame('proposed', $first->fresh()->status);
+        $this->assertSame('proposed', $first->fresh()->link_status);
         $this->assertSame(0, DB::table('work_relations')->count());
-        $this->assertSame([], WorkRelationLinker::linkedEntries($kafiya->fresh())['children']);
+        $this->assertCount(2, \App\Support\WorkCatalogueEntries::page($kafiya)['unlinked']);
     }
 }

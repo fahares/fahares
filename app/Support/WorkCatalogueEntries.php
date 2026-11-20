@@ -73,19 +73,22 @@ class WorkCatalogueEntries
     /**
      * Writes the work's two texts as its rows of the catalogue: a row whose side and text are there already is kept,
      * with whatever it is tied to; the others are added, and the rows no longer given removed. Then the rules tie
-     * what the work's relations say (tie()).
+     * what the work's relations say (tie()). A side given as false is left as it is.
      *
+     * @param  string|false|null  $related  the text of «وابسته به»
+     * @param  array|false  $children  the lines of «شروح و حواشی»
      * @return array{added: int, removed: int, kept: int}
      */
-    public static function sync(Work $work, ?string $related, array $children): array
+    public static function sync(Work $work, string|false|null $related, array|false $children): array
     {
-        $have = DB::table('work_text_relations')->where('work_id', $work->id)->where('source', self::SOURCE)->orderBy('id')->get()
+        $sides = array_keys(array_filter(['related' => $related !== false, 'children' => $children !== false]));
+        $have = DB::table('work_text_relations')->where('work_id', $work->id)->where('source', self::SOURCE)->whereIn('side', $sides)->orderBy('id')->get()
             ->groupBy(fn ($r) => "{$r->side}>{$r->text}")->map(fn ($g) => $g->all())->all();
         $count = ['added' => 0, 'removed' => 0, 'kept' => 0];
         $now = now();
-        foreach (self::fromTexts($work, $related, $children) as $row) {
+        foreach (self::fromTexts($work, $related ?: null, $children ?: []) as $row) {
             $key = "{$row['side']}>{$row['text']}";
-            if ($kept = array_shift($have[$key])) {
+            if (isset($have[$key]) && ($kept = array_shift($have[$key]))) {
                 DB::table('work_text_relations')->where('id', $kept->id)->update(['position' => $row['position'], 'type' => $row['type'], 'entry_key' => $row['entry_key']]);
                 $count['kept']++;
             } else {
@@ -98,6 +101,15 @@ class WorkCatalogueEntries
         self::tie($work);
 
         return $count;
+    }
+
+    /** Whether the work's rows of «وابسته به» are what this text gives: an importer's «is the field still as it was» */
+    public static function relatedIs(Work $work, ?string $text): bool
+    {
+        $have = DB::table('work_text_relations')->where('work_id', $work->id)->where('source', self::SOURCE)->where('side', 'related')
+            ->orderBy('position')->orderBy('id')->pluck('text')->all();
+
+        return $have === array_column(self::fromTexts($work, $text, []), 'text');
     }
 
     /**

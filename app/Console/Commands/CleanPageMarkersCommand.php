@@ -40,9 +40,9 @@ class CleanPageMarkersCommand extends Command
     private const FIELDS = [
         'works' => [
             'model' => Work::class,
-            'text' => ['description', 'incipit_text', 'explicit_text', 'print_info', 'dedication', 'related_work',
+            'text' => ['description', 'incipit_text', 'explicit_text', 'print_info', 'dedication',
                 'composition_date_raw', 'composition_place'],
-            'json' => ['bibliography', 'commentaries_and_glosses'],
+            'json' => ['bibliography'],
         ],
         'manuscripts' => [
             'model' => Manuscript::class,

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The related works recorded as text matched to the works' records (backlog item 6, step 14.104). A work's «وابسته
- * به» (related_work) names the works it is made on, and its «شروح و حواشی» (commentaries_and_glosses) the works made
+ * به» names the works it is made on, and its «شروح و حواشی» the works made
  * on it, each as «عنوان = عنوان دیگر؛ پدیدآور (تولد-وفات)» (WorkRelationParser::parseEntries). An entry is matched
  * to the one other work that has one of its titles and the same author as Fankha writes him («سعدی چلپی، سعدالله بن
  * عیسی»): by the user's decision, only such pairs are linked, and weaker matches (title only, several works, another
@@ -134,7 +134,7 @@ class WorkRelationLinker
         return MatchCatalogEditionCommand::norm(TextNormalizer::normalize((string) $title));
     }
 
-    /** An entry as work_entry_links keeps it (step 14.270): its titles as written and its author, without the life dates */
+    /** An entry's key, as work_text_relations.entry_key keeps it (steps 14.270 and 14.285): its titles as written and its author, without the life dates */
     public static function entryKey(array $entry): string
     {
         return implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] : '');
