@@ -370,7 +370,7 @@ class InsightsScopeTest extends TestCase
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'century' => 11, 'library_id' => $library->id])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات', 'library_id' => $library->id])), false)
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'flags' => ['is_illuminated'], 'century' => 11, 'library_id' => $library->id])), false)
-            ->assertSee('از جای کتابت تا کتابخانۀ امروز')
+            ->assertSee('از محل کتابت تا کتابخانۀ امروز')
             ->assertSee('ویژگی‌های نسخه‌ها در گذر سده‌ها')
             // The scope has one work: no table of its most-copied works
             ->assertDontSee('آثار پرنسخه در این دامنه');

@@ -61,7 +61,7 @@
         @if($scope->isEmpty())
             <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">نسخه‌ها در گذر سده‌ها</h1>
             <p class="text-sm text-muted max-w-2xl leading-relaxed">
-                آنچه {{ Fa::approx($data['totals']['manuscripts']) }} نسخۀ خطی و {{ Fa::approx($data['totals']['works']) }} اثرِ ثبت‌شده در فهارس دربارۀ زمان و جای کتابت، آثار پرنسخه و خطوط و زبان‌ها می‌گوید.
+                آنچه {{ Fa::approx($data['totals']['manuscripts']) }} نسخۀ خطی و {{ Fa::approx($data['totals']['works']) }} اثرِ ثبت‌شده در فهارس دربارۀ زمان و محل کتابت، آثار پرنسخه و خطوط و زبان‌ها می‌گوید.
                 هر نمودار تنها بر بخشی از نسخه‌ها تکیه دارد که آن آگاهی را دارند؛ سهم هر یک زیر نمودار آمده است.
             </p>
         @else
@@ -93,7 +93,7 @@
             ['نسخۀ خطی', Fa::num($data['totals']['manuscripts']), 'متعلق به ' . Fa::num($data['totals']['works']) . ' اثر'],
             ['نسخۀ تاریخ‌دار', Fa::num($t['shown']), $pct($t['coverage']) . ' نسخه‌ها، با سده‌ای‌ها'],
             ['اوج کتابت', $peak['count'] ? 'سدۀ ' . Fa::digits($peak['century']) : '—', Fa::num($peak['count']) . ' نسخه'],
-            ['کانون استنساخ', Fa::num(count($p['cities'])) . ' شهر', 'از ' . Fa::num($p['mapped']) . ' نسخۀ جای‌دار'],
+            ['کانون استنساخ', Fa::num(count($p['cities'])) . ' شهر', 'از ' . Fa::num($p['mapped']) . ' نسخۀ دارای محل کتابت'],
         ] as [$label, $value, $note])
             <div class="bg-surface p-4 grid gap-0.5">
                 <dt class="text-xs text-muted">{{ $label }}</dt>
@@ -269,7 +269,7 @@
     <x-ui.section title="کانون‌های تاریخی استنساخ و تألیف" id="places">
         <x-ui.card>
             @if($p['mapped'] < $min && $cp['mapped'] < $min)
-                @include('insights.thin', ['n' => max($p['mapped'], $cp['mapped']), 'what' => 'نسخه یا اثر با جای شناخته'])
+                @include('insights.thin', ['n' => max($p['mapped'], $cp['mapped']), 'what' => 'نسخه یا اثر با محل شناخته'])
             @else
             <div x-data="{
                 c: 'all',
@@ -290,7 +290,7 @@
             }">
             <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
                 <span class="text-muted me-1">لایه:</span>
-                @foreach(['copy' => 'جای کتابت', 'composition' => 'جای تألیف', 'both' => 'هر دو'] as $key => $name)
+                @foreach(['copy' => 'محل کتابت', 'composition' => 'محل تألیف', 'both' => 'هر دو'] as $key => $name)
                     <button type="button" @click="layer = '{{ $key }}'" :aria-pressed="(layer === '{{ $key }}').toString()"
                             :class="layer === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
                             class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
@@ -353,8 +353,8 @@
                         <span class="text-muted tabular-nums" x-text="hover ? tip(hover) : ''"></span>
                     </div>
                     <ul x-show="layer === 'both'" x-cloak class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
-                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full bg-cinnabar/55" aria-hidden="true"></span>جای کتابت (نسخه)</li>
-                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full border-2 border-gold" aria-hidden="true"></span>جای تألیف (اثر)</li>
+                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full bg-cinnabar/55" aria-hidden="true"></span>محل کتابت (نسخه)</li>
+                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full border-2 border-gold" aria-hidden="true"></span>محل تألیف (اثر)</li>
                         <li>اندازۀ دایره‌های هر لایه جدا سنجیده شده است.</li>
                     </ul>
                 </div>
@@ -375,22 +375,22 @@
                             </li>
                         </template>
                     </ol>
-                    <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این سده جایی ثبت نشده است.</p>
+                    <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این سده محلی ثبت نشده است.</p>
                 </div>
             </div>
 
             <p x-show="layer !== 'composition'" class="mt-5 text-xs text-muted leading-relaxed">
-                جای کتابت: بر پایۀ {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
-                جای کتابت برای {{ Fa::num($p['with_place']) }} نسخه ({{ $pct($p['place_coverage']) }}) ثبت شده و {{ $pct($p['mapped_share']) }} آن‌ها به یکی از {{ Fa::num(count(config('insights.copy_places'))) }} شهر شناخته‌شده رسید؛
-                نام‌های کهن و گونه‌گون یک شهر (طهران، سپاهان، توس، قسطنطنیه …) یکی شمرده شده‌اند و جاهایی چون «ایران» یا «هندوستان» که شهر نیستند، روی نقشه نیامده‌اند.
+                محل کتابت: بر پایۀ {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
+                محل کتابت برای {{ Fa::num($p['with_place']) }} نسخه ({{ $pct($p['place_coverage']) }}) ثبت شده و {{ $pct($p['mapped_share']) }} آن‌ها به یکی از {{ Fa::num(count(config('insights.copy_places'))) }} شهر شناخته‌شده رسید؛
+                نام‌های کهن و گونه‌گون یک شهر (طهران، سپاهان، توس، قسطنطنیه …) یکی شمرده شده‌اند و نام‌هایی چون «ایران» یا «هندوستان» که شهر نیستند، روی نقشه نیامده‌اند.
                 سدۀ هر نسخه، سده‌ای است که کل بازۀ تاریخش در آن است. از نسخه‌های روی نقشه، سدۀ {{ Fa::num($p['by_century']) }} نسخه روشن است و {{ Fa::num($p['century_only']) }} نسخه از آن‌ها تنها سده یا بخشی از سده دارند («قرن ۱۱»، «اواخر قرن ۱۲»).
                 نسخه‌ای که بازه‌اش از دو سده می‌گذرد یا تاریخ ندارد، تنها در «همه» شمرده می‌شود.
-                <span x-show="c !== 'all' && layer === 'copy'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخۀ جای‌دار و تاریخ‌دار هست.</span>
+                <span x-show="c !== 'all' && layer === 'copy'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخۀ تاریخ‌دار با محل کتابت هست.</span>
             </p>
             <p x-show="layer !== 'copy'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
-                جای تألیف: تنها {{ Fa::num($cp['with_place']) }} اثر، یعنی {{ $pct($cp['place_coverage']) }} آثار، جای تألیف دارند و {{ Fa::num($cp['mapped']) }} اثر از آن‌ها ({{ $pct($cp['mapped_share']) }}) به یکی از همین شهرها رسید.
+                محل تألیف: تنها {{ Fa::num($cp['with_place']) }} اثر، یعنی {{ $pct($cp['place_coverage']) }} آثار، محل تألیف دارند و {{ Fa::num($cp['mapped']) }} اثر از آن‌ها ({{ $pct($cp['mapped_share']) }}) به یکی از همین شهرها رسید.
                 پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند. سدۀ هر اثر، سده‌ای است که کل بازۀ تاریخ تألیفش در آن است؛ از آثار روی نقشه، سدۀ {{ Fa::num($cp['by_century']) }} اثر روشن است.
-                جست‌وجو فیلتر جای تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
+                جست‌وجو فیلتر محل تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
             </p>
             @include('insights.explain', ['note' => $notes['places']])
             </div>
@@ -399,12 +399,12 @@
     </x-ui.section>
 
     {{-- 2b. From the place of copying to the present library --}}
-    <x-ui.section title="از جای کتابت تا کتابخانۀ امروز" id="movement">
+    <x-ui.section title="از محل کتابت تا کتابخانۀ امروز" id="movement">
         <x-ui.card>
             @if($mv['mapped'] < $min)
-                @include('insights.thin', ['n' => $mv['mapped'], 'what' => 'نسخه با جای کتابت شناخته'])
+                @include('insights.thin', ['n' => $mv['mapped'], 'what' => 'نسخه با محل کتابت شناخته'])
             @else
-            @include('insights.small', ['n' => $mv['mapped'], 'what' => 'نسخه با جای کتابت شناخته'])
+            @include('insights.small', ['n' => $mv['mapped'], 'what' => 'نسخه با محل کتابت شناخته'])
             <div x-data="{
                 {{-- A scope of one library or city has one city of today: where its copies came from is the question --}}
                 dir: '{{ $scope->get('library') || $scope->get('city') ? 'to' : 'from' }}', sel: 0,
@@ -419,7 +419,7 @@
             }">
             <p class="text-xs text-muted mb-3">نسخه‌هایی که در یک شهر کتابت شده‌اند امروز در کتابخانه‌های کدام شهرها هستند، یا نسخه‌های کتابخانه‌های یک شهر از کجا آمده‌اند.</p>
             <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
-                @foreach(['from' => 'از جای کتابت', 'to' => 'به شهر امروز'] as $key => $name)
+                @foreach(['from' => 'از محل کتابت', 'to' => 'به شهر امروز'] as $key => $name)
                     <button type="button" @click="dir = '{{ $key }}'; sel = 0" :aria-pressed="(dir === '{{ $key }}').toString()"
                             :class="dir === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
                             class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
@@ -436,7 +436,7 @@
             </div>
             <div x-show="city" x-cloak>
                 <p class="text-sm text-ink mb-2">
-                    <span x-text="dir === 'from' ? `${city.total.toLocaleString('fa-IR')} نسخۀ کتابت‌شده در ${city.name}، امروز در این شهرها:` : `${city.total.toLocaleString('fa-IR')} نسخۀ جای‌دارِ کتابخانه‌های ${city.name}، کتابت‌شده در این شهرها:`"></span>
+                    <span x-text="dir === 'from' ? `${city.total.toLocaleString('fa-IR')} نسخۀ کتابت‌شده در ${city.name}، امروز در این شهرها:` : `${city.total.toLocaleString('fa-IR')} نسخۀ دارای محل کتابت در کتابخانه‌های ${city.name}، کتابت‌شده در این شهرها:`"></span>
                 </p>
                 <ul class="space-y-2 text-sm">
                     <template x-for="row in city.items" :key="row.name">
@@ -462,7 +462,7 @@
                 </ul>
             </div>
             <p class="mt-5 text-xs text-muted leading-relaxed">
-                بر پایۀ {{ Fa::num($mv['mapped']) }} نسخه که جای کتابتشان به یکی از شهرهای نقشه رسید و کتابخانه‌شان شهر دارد.
+                بر پایۀ {{ Fa::num($mv['mapped']) }} نسخه که محل کتابتشان به یکی از شهرهای نقشه رسید و کتابخانه‌شان شهر دارد.
                 {{ $pct($mv['stayed_share']) }} آن‌ها امروز در همان شهری‌اند که کتابت شده‌اند.
                 شهر امروز، شهر کتابخانۀ دارندۀ نسخه است.
             </p>
@@ -550,7 +550,7 @@
             <p class="mt-3 text-xs text-muted leading-relaxed">
                 کاتب شناخته (پیوندشده به یک شخص) برای {{ Fa::num($sb['with_scribe']) }} نسخه از {{ Fa::num($sb['scribes']) }} کاتب ثبت است.
                 سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است (تاریخی که تا {{ Fa::num(config('insights.exact_span')) }} سال دامنه دارد، با میانه‌اش). کاتبی که نسخۀ سال‌دار ندارد، سدۀ نسخه‌هایی را دارد که تنها سده‌شان آمده است.
-                شهر، شهری است که بیشترین نسخۀ جای‌دارش در آن کتابت شده است.
+                شهر، شهری است که بیشترین نسخه‌اش در آن کتابت شده است.
             </p>
             @include('insights.explain', ['note' => $notes['scribes']])
         </x-ui.section>
@@ -755,7 +755,7 @@
                 </p>
             </x-ui.card>
             <p class="mt-3 text-xs text-muted leading-relaxed">
-                نسخۀ عکسی، عکس نسخه‌ای است که در کتابخانۀ دیگری نگه داشته می‌شود، و تاریخ و جای کتابتش همان نسخۀ اصل است.
+                نسخۀ عکسی، عکس نسخه‌ای است که در کتابخانۀ دیگری نگه داشته می‌شود، و تاریخ و محل کتابتش همان نسخۀ اصل است.
                 پس نمودارهای این صفحه آن نسخه را، اگر اصلش هم در فهارس باشد، دو بار می‌شمارند. «آمار بی نسخه‌های عکسی» این دوباره‌شماری را کنار می‌گذارد.
             </p>
             @include('insights.explain', ['note' => $notes['facsimiles']])
