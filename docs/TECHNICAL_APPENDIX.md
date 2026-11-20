@@ -12735,3 +12735,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پایتخت روی نقشه:** سری `capitals` (`scatter`، مربع ۷ پیکسلی)؛ پایتختی نشان داده می‌شود که سال میانۀ دهۀ لغزنده (سال − ۵) در بازه‌اش باشد. در «همۀ سال‌ها» پایتختی نیست.
 - **یک سلسله در چند منطقه:** دادۀ دواوین سلسله‌ای مانند صفویان را در هر منطقه‌ای که بر آن حکومت داشته جدا می‌آورد؛ پس نوارش در چند منطقه هست و شمار نسخه در همه یکی است (شمار کل سلسله، نه سهم آن منطقه).
 - **سنجیده نشد:** نمای گوشی این نمودار (ارتفاع ۹۵۴ پیکسل و نام‌های ریز)، که باید روی گوشی واقعی دیده شود.
+
+### گام ۱۴.۲۸۰: `work_text_relations` و رابطۀ `work_relation_text`
+- **migration `2026_11_20_100003_create_work_text_relations_table`:** `work_id` (با حذف اثر پاک می‌شود)، `side` (`related`: این اثر {نوع}ِ اثر نام‌برده است؛ `children`: اثر نام‌برده {نوع}ِ این اثر است)، `type` (کلیدهای `RecordRelations::WORK_TYPES`)، `text` (۶۰۰)، `note`، `suggestion_id`.
+- **[SuggestionRegistry](../app/Suggestions/SuggestionRegistry.php):** رابطۀ `work_relation_text` برای اثر: `target = null`، `needs_text`، `apply = text_relation`، `no_direct` (ابزار مستقیم پنل رکورد دومی ندارد). `relationOptions`: همان گزینه‌های `record_relation`، با «اثری که نام می‌برید» به‌جای «اثر انتخاب‌شده». `Permissions::FOR_APPLY['text_relation'] = structure.link`.
+- **[RelationInput](../app/Suggestions/RelationInput.php):** متن و `role` هر دو لازم‌اند؛ `role` در `payload` می‌ماند.
+- **[RecordRelations](../app/Suggestions/RecordRelations.php):**
+  - `addText($work, $option, $text, $note, $suggestionId)`: گزینۀ «~نوع» سوی `children` است. تکرار (همان اثر، سو، نوع و متن) رد می‌شود. خروجی برای ممیزی: `new.added_text_relation` و `resolution` با `text_relation_id`، `type`، `side` و `text`.
+  - `texts($work)`: سطرها گروه‌بندی‌شده با همان برچسب‌های `for()`.
+  - `moveOnMerge()`/`undoMove()`: شناسۀ سطرهای منتقل‌شده در `log['texts']`.
+- **[Admin\SuggestionController](../app/Http/Controllers/Admin/SuggestionController.php):** `text_relation` از `approveContributor` می‌گذرد؛ متن از `alias` فرم داور (وگرنه `suggested_value`) و یادداشت از `contributor_note`.
+- **[relation-approve](../resources/views/admin/suggestions/partials/relation-approve.blade.php):** شاخۀ `text_relation` با انتخاب نوع، ورودی متن (`alias`) و یادداشت‌ها.
+- **[AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php):** بازگردانی `added_text_relation` سطر را پاک می‌کند و `removed_text_relation` آن را برمی‌گرداند. هر دو کلید و `text_relations` در `ProtectedColumns::META_KEYS`.
+- **[WorkTextRelationController](../app/Http/Controllers/Admin/WorkTextRelationController.php):** `DELETE admin/work-text-relations/{relation}` (گروه `can:structure.link`)، با `AuditLog` نوع `verify` و `old_values.removed_text_relation`.
+- **[Contributions](../app/Suggestions/Contributions.php):** خلاصۀ پیشنهاد تأییدشده: متن اثر و جملۀ نوع رابطه.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** سطرهای `texts()` با `manual` پیش از سطرهای بی‌پیوند فهرست؛ دکمۀ دوم با `relation: work_relation_text`؛ «برداشتن» با `@can('structure.link')`؛ مدادهای `related_work` و `commentaries_and_glosses` در `$store.suggest.on`.
+- **[suggest/desk](../resources/views/components/suggest/desk.blade.php):** برچسب ورودی متن برای `text_relation`. جاوااسکریپت تغییری نکرده است: فرم گزینه‌ها و متن را برای هر رابطۀ `options` و `needs_text` می‌فرستد.
+- **آزمون:** `SuggestionWorkflowTest::test_a_relation_with_a_work_that_has_no_record`.

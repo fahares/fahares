@@ -72,6 +72,7 @@ final class Permissions
         'person_role' => 'structure.link',
         'person_period' => 'people.edit',
         'record_relation' => 'structure.link',
+        'text_relation' => 'structure.link',
         'move' => 'structure.move',
         'relocate' => 'structure.move',
         'merge' => 'structure.merge_records',
