@@ -109,7 +109,7 @@ class DateConflictQueueTest extends TestCase
             ->assertSee('ورود و پاسخ');
 
         $this->actingAs($this->user('پژوهشگر'))->get(route('contribute.show', ['date', $conflict->id]))->assertOk()
-            ->assertSee('تألیف «اثر آزمایشی صف تاریخ»')->assertSee('وفات «مؤلف آزمایشی صف»')
+            ->assertSee('تاریخ تألیف «اثر آزمایشی صف تاریخ»')->assertSee('تاریخ وفات «مؤلف آزمایشی صف»')
             ->assertSee('این اثر از این شخص نیست')->assertSee('هیچ‌کدام؛ هر دو درست‌اند');
     }
 
@@ -131,7 +131,7 @@ class DateConflictQueueTest extends TestCase
         $this->assertSame(['date', $conflict->id, 'b', $conflict->id, 'pending', 'general'],
             [$opinion->review_queue, (int) $opinion->review_item_id, $opinion->review_answer, (int) $opinion->date_conflict_id, $opinion->status, $opinion->kind]);
         $this->assertSame([Person::class, $this->author->id], [$opinion->suggestable_type, (int) $opinion->suggestable_id]);
-        $this->assertStringContainsString('وفات «مؤلف آزمایشی صف» نادرست است', $opinion->suggested_value);
+        $this->assertStringContainsString('تاریخ وفات «مؤلف آزمایشی صف» نادرست است', $opinion->suggested_value);
         $this->assertSame('وفات او 1320 است.', $opinion->rationale_citation);
         $this->assertSame(1280, (int) $this->author->fresh()->death_year_hijri);
 
@@ -163,6 +163,61 @@ class DateConflictQueueTest extends TestCase
         // nothing was decided: the opinions wait for the reviewer and the dates stand
         $this->assertSame(3, FieldSuggestion::where('status', 'pending')->count());
         $this->assertSame(1280, (int) $this->author->fresh()->death_year_hijri);
+        $this->assertNull($conflict->fresh()->dismissed_at);
+    }
+
+    /** Past answers of «تصحیح جمعی» that reviewers decided: $agreed approved, the rest rejected. */
+    private function record(User $user, int $settled, int $agreed): void
+    {
+        for ($i = 0; $i < $settled; $i++) {
+            FieldSuggestion::create(['suggestable_type' => Work::class, 'suggestable_id' => $this->work->id, 'kind' => 'general', 'suggested_value' => 'پاسخ پیشین',
+                'review_queue' => 'catalog', 'review_item_id' => 900000 + $i, 'review_answer' => 'yes', 'user_id' => $user->id,
+                'guest_name' => $user->name, 'guest_email' => $user->email, 'status' => $i < $agreed ? 'approved' : 'rejected']);
+        }
+    }
+
+    public function test_the_weight_follows_the_track_record_over_every_queue()
+    {
+        $this->assertSame([1, 2], [CollectiveReview::weightOf(false), CollectiveReview::weightOf(true)]);
+        // too few decided answers say nothing; then 60% earns 2 and 80% earns 3
+        $this->assertSame(1, CollectiveReview::weightOf(false, 9, 9));
+        $this->assertSame([1, 2, 3], [CollectiveReview::weightOf(false, 10, 5), CollectiveReview::weightOf(false, 10, 6), CollectiveReview::weightOf(false, 10, 8)]);
+        // a scholar keeps the scholar's weight whatever the record, and a good record raises it
+        $this->assertSame([2, 3], [CollectiveReview::weightOf(true, 20, 2), CollectiveReview::weightOf(true, 20, 16)]);
+
+        $conflict = $this->conflict();
+        $trusted = $this->user('کارآزموده');
+        $this->record($trusted, 10, 8);
+        $fair = $this->user('میانه');
+        $this->record($fair, 10, 6);
+        $new = $this->user('تازه‌وارد');
+        $this->record($new, 9, 9);
+        $this->assertSame([3, 2, 1], [CollectiveReview::weight($trusted), CollectiveReview::weight($fair), CollectiveReview::weight($new)]);
+
+        // 2 + 1 for «a»: the SQL count agrees with the PHP one, and the item leaves the public queue
+        $this->answer($fair, 'a');
+        $this->assertSame([$conflict->id], $this->waiting());
+        $this->answer($new, 'a');
+        $this->assertSame(3, (int) CollectiveReview::agreement('date')->first()->agreement);
+        $this->assertSame(3, CollectiveReview::opinionsOn([['date', $conflict->id]])["date:{$conflict->id}"]['weight']);
+        $this->assertSame([], $this->waiting());
+
+        // the desk shows whose opinion weighs more, and the researcher sees their own weight
+        $this->actingAs($this->admin())->get(route('admin.suggestions.show', FieldSuggestion::where('user_id', $fair->id)->where('status', 'pending')->sole()))
+            ->assertOk()->assertSee('data-opinion-weight', false)->assertSee('وزن ۲', false);
+        $this->actingAs($trusted)->get(route('contributions.index'))->assertOk()->assertSee('وزن نظر شما');
+    }
+
+    public function test_one_trusted_researcher_alone_reaches_enough()
+    {
+        $conflict = $this->conflict();
+        $trusted = $this->user('کارآزموده');
+        $this->record($trusted, 12, 11);
+
+        $this->answer($trusted, 'b');
+        $this->assertSame([], $this->waiting());
+        // still only an opinion: the reviewer decides
+        $this->assertSame('pending', FieldSuggestion::where('review_queue', 'date')->sole()->status);
         $this->assertNull($conflict->fresh()->dismissed_at);
     }
 

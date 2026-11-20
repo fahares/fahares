@@ -11375,6 +11375,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان ستون‌های `TextRefresh::COLUMNS` مأخذهای منبع ۱۰۰۰۲۰، و ستون `extractor` منبع.
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:take-texts 100020 --extractor=numbered_copies'`.
   3. اجرای دوم باید «taken 0» بدهد.
+- **اجرای پروداکشن (۲۷ آبان ۱۴۰۵، انتشار ۱۵۹):**
+  - پشتیبان: `../fahares-sources/backups/step13/step14_206_golpa_entries_before.jsonl.gz`، با md5 `dd10e7249997a30a2bdabcd48ef36a42`. در آن ستون‌های `TextRefresh::COLUMNS` همۀ ۱۳٬۷۲۴ مدخل منبع ۱۰۰۰۲۰ آمده است، و سطر پایانی `extractor` پیشین منبع را دارد (`null`).
+  - اجرای آزمایشی و اجرای اصلی هر دو این را دادند: ۱۳٬۷۲۴ بی‌متن، ۱ بی صفحه، ۷۹ یافت‌نشده، ۱۳٬۶۴۴ برداشته، ۲۸۰ با غلط چاپی، و ۷٬۸۰۰ نشانی تازه. اجرای دوم «taken 0» داد.
 
 ### گام ۱۴.۲۰۷: `App\Support\PersonPlaces` و بخش «حضور در شهرها»
 
@@ -11609,6 +11612,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲۱ یادداشت افزوده شد و ۱ `is_illuminated` روشن شد.
 - **تمرین روی `fahares_prod` محلی:** `fahares:rebuild-copies --file=database/data/glued_notes_step14_215_copies.json --apply` ۱۳۴ نسخه نوشت. اجرای دوم: `Would rebuild 0 copies`.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از آغاز، انجام، کاتب، تاریخ، جا، `is_ruled`، `is_illuminated` و `metadata` ۱۳۴ نسخه. سپس همان فرمان و اجرای دوباره.
+
+### گام ۱۴.۲۱۶: وزن از روی سابقه در `CollectiveReview`
+
+- **سابقه (`trackRecords()`):** از `field_suggestions` با `review_queue` پر و `status` در `approved` یا `rejected`، به تفکیک `user_id`: `settled` (شمار) و `agreed` (شمار `approved`). `pending`، `converted` و پس‌گرفته شمرده نمی‌شوند. همه‌ی صف‌ها با هم.
+- **ثابت‌ها:** `RECORD_MIN = 10`؛ `RECORD_WEIGHTS = [80 => 3, 60 => 2]` (درصد پذیرفته ← وزن). `SCHOLAR_WEIGHT = 2` و `ENOUGH = 3` بی‌تغییر.
+- **وزن:** `max(وزن پژوهشگر تأییدشده یا ۱، وزن سابقه)`. `weightOf(bool, settled, agreed)` در PHP و `weightSql('u', 'tr')` در SQL (با `GREATEST`) یک قاعده‌اند؛ `pendingOpinions()` زیرپرس‌وجوی سابقه را با نام `tr` پیوند می‌دهد، پس `agreement()`، `settledEnough()` و `waiting()` همه‌ی صف‌ها از آن می‌خوانند.
+- **بی ستون و بی فرمان:** سابقه هنگام شمارش حساب می‌شود؛ بازگشایی یک تصمیم خودبه‌خود در آن دیده می‌شود. روی `fahares_prod` پاسخ تصمیم‌گرفته‌ای در صف‌ها نیست (۱ سطر `converted`)، پس هزینه‌ی پرس‌وجو ناچیز است؛ اگر شمار پاسخ‌ها به ده‌ها هزار برسد، ستون شمارنده روی `users` جای زیرپرس‌وجو را می‌گیرد.
+- **نمایش:** `opinionsOn()` برای هر پاسخ `weights` (شناسه‌ی نظر ← وزن) می‌دهد؛ `admin/suggestions/partials/collective.blade.php` وزن بیش از ۱ را کنار نام می‌آورد. `contributionsOf()` کلید `weight` دارد و `contributions/review.blade.php` «وزن نظر شما» را برای وزن بیش از ۱ نشان می‌دهد.
+- **پیامد:** کاربری با وزن ۳ به‌تنهایی به `ENOUGH` می‌رسد و مورد از صف عمومی بیرون می‌رود. داده عوض نمی‌شود.
+- **تست:** `DateConflictQueueTest::test_the_weight_follows_the_track_record_over_every_queue` و `test_one_trusted_researcher_alone_reaches_enough`.
 
 ### گام ۱۴.۲۱۷: `CopyExtent` با «صفحه» و قید، و `prose_folios_step14_217_copies.json`
 
@@ -12002,6 +12015,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سند جستجوی این ۹ شخص در ۲۶ آبان، با تأیید کاربر، بازنمایه شد: `fahares:reindex-work-estimates --people --from=<id> --to=<id> --sleep=0` برای هر شناسه، هر بار «Reindexed 1 of 1 people». صف Meilisearch خالی، کار ناموفق ۰؛ سند فیاض زنجانی `death_year_hijri` و `era_year` برابر ۱۳۵۹ دارد.
 - **مانده:** حدود ۱۵ شخص همان گروه که در منابع سایت زندگی‌نامه ندارند (سبحانی تبریزی، مجتهد کرمانشاهی، مخصوص، رشیدی، مردوخ، مظفری و دیگران)، و ۱۲ نفری که تاریخشان درست است و پیوند نسخه یا اثرشان باید بازبینی شود.
 
+### گام ۱۴.۲۳۴: `App\Support\InsightsNotes` و `insights/explain.blade.php`
+
+- **ساختار:** `InsightsNotes::for($data)` برای هر نمودار `['reading' => [بندها], 'examples' => [جمله‌ها]]` برمی‌گرداند، با ۲۴ کلید: `timeline`، `authors`، `works`، `copyGap`، `places`، `movement`، `subjects`، `features`، `scribes`، `libraries`، `dedications`، `patrons`، `facsimiles`، `sizes`، `languageScripts`، `topWorks`، `copiesPerWork`، `centuryWorks`، `unprinted`، `collections`، `scripts`، `languages`، `sources` و `sourceOverlap`.
+- **جای اجرا:** هنگام نمایش صفحه و از روی همان آرایۀ cacheشدۀ `Insights::get()`. پس کلید cache (`insights.v9`) و ساخت شبانه تغییری نکرد، و اصلاح متن یک توضیح بازسازی آمار نمی‌خواهد.
+- **متن‌ها:** بندهای «چگونه بخوانیم» ثابت‌اند و هیچ ادعایی دربارۀ ارقام ندارند، تا در هر دامنه درست بمانند. هر چه به رقم بسته است در «نمونه‌ها» آمده و از داده ساخته می‌شود.
+- **نمونه‌های جدول‌های سده (`gridExamples`):** دو نمونه: پرشمارترین ردیف با سدۀ بیشترین سهمش، و ردیفی که سهمش میان دو سده بیشترین فاصله را دارد. تنها سده‌هایی سنجیده می‌شوند که دست‌کم `insights.grid_min_copies` نسخه دارند.
+- **نمونۀ کاتبان:** اگر بازۀ سال‌های نسخه‌های کاتب نخست از ۷۰ سال بگذرد، نمونه می‌گوید که زیر آن نام شاید چند کاتب هم‌نام گرد آمده‌اند.
+- **قالب:** `resources/views/insights/explain.blade.php`، با `data-insights-note`. فراخوانی‌اش درون شاخۀ «داده بسنده است» هر نمودار است.
+- **سنجش در مرورگر (`fahares_prod`):** آمار کل ۲۴ توضیح؛ دامنه‌ها: `author=1110` با ۲۳، `work=52504` با ۱۲، `library=4&century=11` با ۲۲، `facsimile=1` با ۲۳، `subject=1&language=1` با ۱۶، `copy_city=هرات` با ۲۳، `century=5` با ۱۸، و `scribe=1` (دامنۀ تهی) بی توضیح. همه با پاسخ ۲۰۰.
+- **آزمون:** دو آزمون در `InsightsMoreFiguresTest`: دامنه‌ای با یک نسخۀ بی‌آگاهی هیچ توضیحی را نمی‌شکند، و نمونه‌ها رقم‌های نمودار خود را می‌آورند.
+
 ### گام ۱۴.۲۳۵: `fahares:remove-pseudo-people`، `pseudo_people_step14_235.json` و `fankha_parser_v2` 2.3.1
 
 - **سنجش (`fahares_prod`، ۲۵ آبان ۱۴۰۵):** ۴۴٬۹۴۸ پیوند `work_people` با نقش `author`. نشانه: نخستین سطر بدنۀ `works.raw_text` (پس از سرعنوان و آوانویسی عنوان) که سطر پس از آن لاتینی نیست. ۳۱۱ پیوند (۳۰۱ شخص) این نشانه را دارند؛ ۲۰۳ تای آن‌ها سرعنوان درست‌اند که آوانویسی‌شان در همان سطر یا سطر پیش است.
@@ -12188,6 +12212,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - در هر خانه: تأییدشده / ادعا (اختلاف و پرکردن). سطر هم در گلپایگانی ۱۱٬۱۱۳ / ۲۸ است.
   - هر دو فرمان روی `fahares_prod` اجرا شدند (`--apply`): گلپایگانی در ۲۶ ثانیه.
 - **آزمون:** `FirstHandReadingTest` (پنج آزمون: دو خواننده، سنجش، اجرای دوباره و ماندن ادعای پذیرفته، و معیار پایان). کل مجموعه پس از ادغام origin/main: ۹۸۳ آزمون موفق.
+- **اجرای پروداکشن (۲۷ آبان ۱۴۰۵، انتشار ۱۵۹، با `prod-run`، هر بار یک دستور):**
+  - پیش از آن، `sources:take-texts 100020` (گام ۱۴.۲۰۶) اجرا شد، چون مدخل‌های گلپایگانی در پروداکشن هنوز متن نداشتند.
+  - گلپایگانی: ۱۳٬۶۴۴ سطر خوانده شد. هم‌خوان / پرکردن / اختلاف: شمارۀ نسخه ۱۳٬۴۳۰ / ۰ / ۲۱۴، برگ ۱۳٬۲۷۴ / ۴۲ / ۱۵۸، سطر ۱۱٬۱۲۷ / ۱۷ / ۱۱، اندازه ۱۱٬۰۴۷ / ۹۱ / ۱۶، تاریخ ۹٬۲۱۸ / ۳۶ / ۱۰۳، کاتب ۱۲٬۷۰۷ / ۱۰۹ / ۹۰، و خط ۱۳٬۱۴۶ / ۸۹ / ۱۸.
+  - مسجد اعظم: ۶٬۱۲۴ سطر خوانده شد، با همان شمارهای تمرین.
+  - `fahares:firsthand-coverage`: ۱۹٬۷۰۷ نسخه خوانده شد، ۱۳٬۸۷۷ کامل (۴٫۳٪)، و ۱٬۹۶۳ ادعای نامزد.
+  - برای خوانش‌ها پشتیبان گرفته نشد. `claims` و `confirmed_fields` پیش از آن خالی بودند، و برگرداندن یعنی خالی کردن همان دو.
 
 ### گام ۱۴.۲۵۱: PDF و پیوست‌های نگه‌داشته‌نشده در `EmailAttachments`
 - **`EmailAttachments::download(string $emailId, array &$skipped = [])`:** `application/pdf` اگر در ۱۰۲۴ بایت نخست `%PDF-` دارد نگه داشته می‌شود (`extension` برابر `pdf`). `$skipped` برای هر پیوست کنارگذاشته `filename`، `content_type`، `size` و `reason` (`type`، `size`، `count`، `fetch`) می‌گیرد. مهلت دانلود ۶۰ ثانیه شد.
@@ -12234,6 +12264,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پیش از فرستادن، هیچ‌کدام از دو پوشه روی سرور نبود و چیزی بازنویسی نشد. حجم: ۶۱ مگابایت میکروفیلم و ۹۸ مگابایت سنا؛ سرور ۱۱۳ گیگابایت جای خالی داشت.
   - `C=tehran-univ-microfilm` و `C=majlis-sena` با `tehran-univ/work/send.sh`: ۱٬۵۳۴ پرونده در حدود ۴۵ ثانیه و ۹۲۸ پرونده در حدود ۷۰ ثانیه. اجرای دوم هر دو «missing 0» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - چهار برگۀ نمونه (میکروفیلم ج ۱ ص ۹۴ و ج ۳ ص ۳۷۱، سنا ج ۱ ص ۱۳۸ و ج ۲ ص ۵۲۰) از `https://fahares.net/storage/catalogs/` پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
+- **اجرای پروداکشن (انتشار ۱۵۹، `e27fb732`؛ ۲۷ آبان ۱۴۰۵، به تأیید کاربر):**
+  - فایل داده در کانتینر با شاخه یکی بود (md5 `005ebdf4…`). اجرای آزمایشی «0 created, 5 updated, 179 unchanged» داد.
+  - **پشتیبان:** پنج ردیف `catalog_volumes` و `source_volumes` (#۵۳۹، ۱۵۴، ۱۴۹، ۶۵۰ و ۱۴۵) به JSON، از راه `tinker` به خروجی ssh، در `../fahares-sources/backups/step13/before_step14_252_set_facsimiles_20261118_1450.json`. `facsimile_code` هر پنج ردیف پیش‌تر خالی بود. پرونده‌ای در کانتینر نماند.
+  - `prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 5 updated, 179 unchanged». اجرای آزمایشی دوم «0 created, 0 updated, 184 unchanged».
+  - **در fahares.net:** صفحۀ یک نسخۀ تصادفی از هر جلد نشانی برگۀ درست را دارد: `/manuscripts/270634` (میکروفیلم ج ۱ ص ۱۸۳)، `/manuscripts/158509` (ج ۲ ص ۱۶)، `/manuscripts/244002` (ج ۳ ص ۸۷)، `/manuscripts/305611` (سنا ج ۱ ص ۲۱) و `/manuscripts/329933` (سنا ج ۲ ص ۱۴۸). `laravel.log` خطای تازه‌ای نداشت.
+
+### گام ۱۴.۲۵۳: `DateConflict::answerLabel`
+- **`DateConflict::answerLabel(string $field)`:** «تاریخ » + `FIELD_LABELS[$field]`؛ برای `period` همان `FIELD_LABELS` بی پیشوند.
+- **`DateConflictNote::note`** (دو پاسخ نخست) و **`DateConflictQueue::labels`** (پاسخ‌های `a` و `b`) به‌جای `FIELD_LABELS` آن را می‌خوانند. متن نظری که صف ذخیره می‌کند هم «تاریخ وفات «…» نادرست است» می‌شود.
+- `otherField` یادداشت، پیش‌نوشت پاسخ دوره («دورۀ زندگی نادرست ثبت شده است: ») و `admin/date-conflicts` همچنان `FIELD_LABELS` را نشان می‌دهند.
 - **پس از انتشار:** `catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان این پنج ردیف. انتظار: «0 created, 5 updated».
 
 ### گام ۱۴.۲۵۴: `manuscript_notes`، `ManuscriptNote` و `fahares:import-copy-notes`
@@ -12255,3 +12295,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` محلی:** migration، سپس `Wrote 249932 notes of 146476 copies` در ۲۳ ثانیه. اجرای دوم: `same 146476`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_254.jsonl.gz --apply`. جدول تازه است و پشتیبان نمی‌خواهد.
 - **اجرای تولید (۲۹ آبان ۱۴۰۵، `prod-run`):** شمارش، سپس `--apply`: `Wrote 249924 notes of 146474 copies`، با `skipped: no such copy 1` و `skipped: another shelfmark 1`. اجرای دوم: `same 146474`. جدول: ۲۴۹٬۹۲۴ سطر و ۱۴۶٬۴۷۴ نسخه.
+
+### گام ۱۴.۲۵۵: `Admin\ClaimController` و `App\Sources\FirstHand\ClaimReview`
+
+- **نشانی‌ها** (با `can:suggestions.review`):
+  - `GET /admin/claims` (`admin.claims.index`)، با صافی‌های `status`، `kind=differs|fills`، `field` و `source`؛
+  - `POST /admin/claims/{claim}/suggest`، `/reject` و `/reopen`.
+- **`ClaimReview::suggestion()`:** یک `FieldSuggestion` می‌سازد:
+  - `kind = field`؛ `field_name` از `SuggestionRegistry::fieldOf` (`copy_date` → `copy_date_raw`)؛ `current_value` از `SuggestionRegistry::currentValue`؛
+  - `user_id = null`، با `guest_name` و `resolution.origin` برابر `first_hand`، که در `FieldSuggestion::MACHINE_ORIGINS` افزوده شد؛
+  - `rationale_citation`: `cardLabel` مدخل و عبارت فهرست.
+  - شمارۀ پیشنهاد در `claims.suggestion_id` می‌رود. اگر پیشنهاد هست، همان دوباره به کار می‌رود.
+- **همگام‌سازی:** قلاب `saved` در `FieldSuggestion` با تغییر `status` تابع `ClaimReview::sync` را صدا می‌زند: `approved` ادعا را `accepted` می‌کند، `rejected` آن را `rejected`، و `pending` (بازگشایی) آن را `candidate`.
+- **رد** (`ClaimReview::reject`): وضع ادعا `rejected` می‌شود، و پیشنهاد در انتظارش هم رد می‌شود.
+- **منو:** «ادعاهای فهرست‌های چاپی» در `AdminNav`، با شمار ادعاهای در انتظار.
+- **آزمون:** `FirstHandReadingTest::test_the_review_queue_sends_a_claim_to_the_suggestion_page_and_follows_its_decision`. ساخت پیشنهاد، تأیید آن از مسیر عادی `admin.suggestions.approve` (برگ رکورد ۳۷۹ → ۳۹۷)، رد، و بازگرداندن را می‌سنجد.
+- **وارسی:** صفحه روی `fahares_prod` با ادعاهای گام ۱۴.۲۵۰ ساخته و دیده شد. برای ورود رمزی وارد نشد: صفحه در خود برنامه برای کاربر مدیر ساخته شد.
+
+### گام ۱۴.۲۵۶: `App\Support\FirsthandCoverage`
+
+- **خواندن کش:** `report()` گزارش کلید `firsthand-coverage` را برمی‌گرداند، و اگر کش خالی است یا `total.copies` و `libraries` ندارد، `null`.
+  - `summary()` برای صفحۀ آمار: جمع‌ها و کتابخانه‌هایی که `was_read > 0` دارند، به ترتیب شمار سنجیده. ۱۵ کتابخانۀ نخست می‌آیند و بقیه در `more` شمرده می‌شوند.
+    - نام، شهر و کلید پیوند هر کتابخانه از جدول `libraries` خوانده می‌شود. کتابخانه‌ای که پس از سنجش ادغام یا حذف شده کنار می‌رود.
+  - `forLibrary($id)` برای صفحۀ کتابخانه: سطر همان کتابخانه، تنها اگر نسخۀ سنجیده دارد.
+  - سهم: `complete / copies` با یک رقم اعشار.
+- **نماها:**
+  - `insights/index.blade.php`: بخش `#firsthand` پس از بخش فهرست‌ها. `InsightsController` آن را تنها برای آمار بی‌دامنه می‌فرستد. داده بیرون از `insights.v9` است، پس نسخۀ کش آمار عوض نشد.
+  - `libraries/show.blade.php`: سطر `data-library-firsthand` زیر شمار نسخه‌ها، از `LibraryController::show`.
+- **زمان‌بندی:** `fahares:firsthand-coverage` هر روز ساعت ۰۳:۱۰ (`withoutOverlapping(30)`) در `routes/console.php`. روی `fahares_prod` ۳۶ ثانیه طول کشید.
+- **آزمون:** `FirsthandCoveragePageTest`: نمایش در دو صفحه، نبودن در آمار دامنه‌دار و در کتابخانۀ نسنجیده، کش خالی یا نادرست، کتابخانۀ حذف‌شده، و زمان‌بندی.

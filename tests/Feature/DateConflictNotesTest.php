@@ -55,7 +55,7 @@ class DateConflictNotesTest extends TestCase
         // the work's page: its own date opens the form in place, the author's death goes to the author's page
         $this->get(route('works.show', $this->work))->assertOk()
             ->assertSee('ناسازگاری تاریخ:')->assertSee('تألیف پس از وفات مؤلف')->assertSee('مؤلف آزمایشی یادداشت')->assertSee('کدام نادرست است؟')
-            ->assertSee('تألیف این اثر')->assertSee('وفات «مؤلف آزمایشی یادداشت»')
+            ->assertSee('تاریخ تألیف این اثر')->assertSee('تاریخ وفات «مؤلف آزمایشی یادداشت»')
             ->assertSee('این اثر از این شخص نیست')->assertSee('هیچ‌کدام؛ هر دو درست‌اند')
             ->assertSee('suggest=field.death_year_hijri&amp;conflict=' . $conflict->id, false)
             // the answer that leaves the page names where it goes, with no bare arrow (step 14.238)
@@ -65,7 +65,7 @@ class DateConflictNotesTest extends TestCase
 
         // the person's page: the tie is the work's, so that answer goes to the work's page with its text
         $this->get(route('people.show', $this->author))->assertOk()
-            ->assertSee('تألیف پس از وفات مؤلف')->assertSee('وفات این شخص')->assertSee('تألیف «اثر یادداشت‌دار آزمایشی»')
+            ->assertSee('تألیف پس از وفات مؤلف')->assertSee('تاریخ وفات این شخص')->assertSee('تاریخ تألیف «اثر یادداشت‌دار آزمایشی»')
             ->assertSee('suggest=general&amp;conflict=' . $conflict->id . '&amp;prefill=', false)
             ->assertSee('(در صفحۀ اثر)')->assertSee('پیشنهاد در صفحۀ اثر باز می‌شود');
 
@@ -127,7 +127,7 @@ class DateConflictNotesTest extends TestCase
         $page = $this->get(route('manuscripts.show', $copy))->assertOk()->getContent();
         $this->assertSame(1, substr_count($page, 'ناسازگاری تاریخ:'));
 
-        $page = $this->get(route('people.show', $old))->assertOk()->assertSee('عمر بیش از ۱۰۰ سال')->assertSee('تولد این شخص')->getContent();
+        $page = $this->get(route('people.show', $old))->assertOk()->assertSee('عمر بیش از ۱۰۰ سال')->assertSee('تاریخ تولد این شخص')->getContent();
         $this->assertSame(1, substr_count($page, 'ناسازگاری تاریخ:'));
     }
 }

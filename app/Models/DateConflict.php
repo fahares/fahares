@@ -18,6 +18,15 @@ class DateConflict extends Model
 {
     public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت', 'period' => 'دورۀ زندگی'];
 
+    /**
+     * A date as an answer to «کدام نادرست است؟»: «تاریخ کتابت», since the doubt is on the year, not on the copying
+     * (step 14.253). A period of the life is no single date and keeps its name.
+     */
+    public static function answerLabel(string $field): string
+    {
+        return ($field === 'period' ? '' : 'تاریخ ') . self::FIELD_LABELS[$field];
+    }
+
     /** What is wrong, by the rule and the two dates it ties: rule => [a_field > b_field => label]. */
     public const LABELS = [
         Loader::RULE_LIFE => ['death>birth' => 'عمر بیش از ۱۰۰ سال', 'birth>death' => 'وفات پیش از تولد'],

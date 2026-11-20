@@ -78,6 +78,9 @@ class LibraryController extends Controller
                 ->sortBy(fn ($p) => [$p->sourceVolume->source->title, $p->sourceVolume->volume_number ?? 0, $p->sort])->values();
         }
 
-        return view('libraries.show', compact('library', 'manuscripts', 'catalogues', 'parts'));
+        // how many of its copies stand on its own printed catalogue, when some were read against it (step 14.256)
+        $coverage = \App\Support\FirsthandCoverage::forLibrary($library->id);
+
+        return view('libraries.show', compact('library', 'manuscripts', 'catalogues', 'parts', 'coverage'));
     }
 }

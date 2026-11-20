@@ -286,6 +286,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
         Route::post('/suggestions/{suggestion}/reviewer-note', [AdminSuggestionController::class, 'saveReviewerNote'])->name('suggestions.reviewer-note');
         Route::post('/suggestions/{suggestion}/close-converted', [AdminSuggestionController::class, 'closeConverted'])->name('suggestions.close-converted');
+
+        // Claims of the libraries' printed catalogues against the records (backlog item 147, step 14.255)
+        Route::get('/claims', [\App\Http\Controllers\Admin\ClaimController::class, 'index'])->name('claims.index');
+        Route::post('/claims/{claim}/suggest', [\App\Http\Controllers\Admin\ClaimController::class, 'suggest'])->name('claims.suggest');
+        Route::post('/claims/{claim}/reject', [\App\Http\Controllers\Admin\ClaimController::class, 'reject'])->name('claims.reject');
+        Route::post('/claims/{claim}/reopen', [\App\Http\Controllers\Admin\ClaimController::class, 'reopen'])->name('claims.reopen');
         Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
         Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
         Route::get('/suggestions/{suggestion}/convert-fields', [AdminSuggestionController::class, 'convertFields'])->name('suggestions.convert-fields');

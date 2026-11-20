@@ -11,6 +11,7 @@ use App\Models\Script;
 use App\Models\Subject;
 use App\Models\Work;
 use App\Support\CopyPlaces;
+use App\Support\FirsthandCoverage;
 use App\Support\Insights;
 use App\Support\InsightsScope;
 use Illuminate\Http\Request;
@@ -30,7 +31,11 @@ class InsightsController extends Controller
             RateLimiter::hit($key, 3600);
         }
 
-        return view('insights.index', ['data' => Insights::get($scope), 'map' => Insights::MAP, 'scope' => $scope]);
+        // How far the copies stand on their libraries' own catalogues (step 14.256): a measure of the whole site, so
+        // only on the page that is not narrowed to a scope
+        $coverage = $scope->isEmpty() ? FirsthandCoverage::summary() : null;
+
+        return view('insights.index', ['data' => Insights::get($scope), 'map' => Insights::MAP, 'scope' => $scope, 'coverage' => $coverage]);
     }
 
     /**

@@ -16,11 +16,22 @@ use Illuminate\Support\Facades\DB;
  * replaced when the user answers again. A verified scholar's opinion weighs more. Agreeing opinions move an item up the
  * reviewers' desk, and an item with enough agreeing weight leaves the public queue. A reviewer's decision on the item
  * settles every pending opinion on it: the agreeing ones are approved (and credited), the others rejected.
+ *
+ * The weight also follows the researcher's track record over every queue (step 14.216, backlog item 126): of their
+ * answers that reviewers have decided (approved or rejected), the share that was approved. It is counted from
+ * field_suggestions whenever opinions are weighed, so it needs no stored column and follows a reopened decision. The
+ * weight only orders the desk and closes the public queue; the decision stays the reviewer's.
  */
 class CollectiveReview
 {
     /** The weight of a verified scholar's opinion; anyone else's is 1. */
     public const SCHOLAR_WEIGHT = 2;
+
+    /** Decided answers a researcher needs before the track record counts. */
+    public const RECORD_MIN = 10;
+
+    /** Share of decided answers that were approved, in percent, and the weight it earns; the first that fits. */
+    public const RECORD_WEIGHTS = [80 => 3, 60 => 2];
 
     /** Agreeing weight at which an item leaves the public queue and waits only for the reviewer. */
     public const ENOUGH = 3;
@@ -53,14 +64,64 @@ class CollectiveReview
         return isset(self::QUEUES[$key]) ? app(self::QUEUES[$key]) : null;
     }
 
-    public static function weightSql(string $users = 'u'): string
+    /**
+     * The weight of an opinion in SQL: the greater of the scholar's weight and what the track record earns. $users is
+     * the users table's alias and $records that of trackRecords(), both left-joined.
+     */
+    public static function weightSql(string $users = 'u', string $records = 'tr'): string
     {
-        return "CASE WHEN {$users}.is_verified_scholar = 1 THEN " . self::SCHOLAR_WEIGHT . ' ELSE 1 END';
+        $sql = "CASE WHEN {$users}.is_verified_scholar = 1 THEN " . self::SCHOLAR_WEIGHT . ' ELSE 1 END';
+        // the lowest step first, so each higher one wraps it: GREATEST(3-if-80%, GREATEST(2-if-60%, base))
+        foreach (array_reverse(self::RECORD_WEIGHTS, true) as $percent => $weight) {
+            $sql = "GREATEST({$sql}, CASE WHEN {$records}.settled >= " . self::RECORD_MIN
+                . " AND {$records}.agreed * 100 >= {$percent} * {$records}.settled THEN {$weight} ELSE 1 END)";
+        }
+
+        return $sql;
+    }
+
+    /** The same in PHP, from the counts of trackRecords(). */
+    public static function weightOf(bool $scholar, int $settled = 0, int $agreed = 0): int
+    {
+        $weight = $scholar ? self::SCHOLAR_WEIGHT : 1;
+        if ($settled >= self::RECORD_MIN) {
+            foreach (self::RECORD_WEIGHTS as $percent => $earned) {
+                if ($agreed * 100 >= $percent * $settled) {
+                    return max($weight, $earned);
+                }
+            }
+        }
+
+        return $weight;
     }
 
     public static function weight(?User $user): int
     {
-        return $user?->is_verified_scholar ? self::SCHOLAR_WEIGHT : 1;
+        if (! $user) {
+            return 1;
+        }
+        $record = self::trackRecord($user);
+
+        return self::weightOf((bool) $user->is_verified_scholar, $record['settled'], $record['agreed']);
+    }
+
+    /**
+     * Per researcher, the answers of every queue that reviewers decided, and those they approved: user_id, settled,
+     * agreed. An answer still pending, withdrawn or converted is not counted.
+     */
+    public static function trackRecords(): QueryBuilder
+    {
+        return DB::table('field_suggestions')->whereNotNull('review_queue')->whereNotNull('user_id')
+            ->whereIn('status', ['approved', 'rejected'])->groupBy('user_id')
+            ->selectRaw("user_id, COUNT(*) AS settled, SUM(status = 'approved') AS agreed");
+    }
+
+    /** @return array{settled: int, agreed: int} */
+    public static function trackRecord(User $user): array
+    {
+        $row = self::trackRecords()->where('user_id', $user->id)->first();
+
+        return ['settled' => (int) ($row->settled ?? 0), 'agreed' => (int) ($row->agreed ?? 0)];
     }
 
     /** Pending opinions of one queue, with the weight of each: the base of the counts below. */
@@ -68,6 +129,7 @@ class CollectiveReview
     {
         return DB::table('field_suggestions as fs')
             ->leftJoin('users as u', 'u.id', '=', 'fs.user_id')
+            ->leftJoinSub(self::trackRecords(), 'tr', 'tr.user_id', '=', 'fs.user_id')
             ->whereNotNull('fs.review_queue')->where('fs.status', 'pending')
             ->when($queue, fn ($q) => $q->where('fs.review_queue', $queue));
     }
@@ -198,7 +260,7 @@ class CollectiveReview
      * opinions and weighted count, best supported first.
      *
      * @param  iterable<FieldSuggestion>  $suggestions
-     * @return array<string, array{total: int, weight: int, answers: list<array{answer: string, label: string, weight: int, opinions: Collection}>}>
+     * @return array<string, array{total: int, weight: int, answers: list<array{answer: string, label: string, weight: int, weights: array<int, int>, opinions: Collection}>}>
      */
     public static function opinionsFor(iterable $suggestions, bool $withOpinions = false): array
     {
@@ -222,13 +284,19 @@ class CollectiveReview
                 }
             })->orderBy('id')->get();
 
+        // each researcher's weight once, with their track record
+        $records = self::trackRecords()->whereIn('user_id', $opinions->pluck('user_id')->filter()->unique()->all())->get()->keyBy('user_id');
+        $weights = $opinions->mapWithKeys(fn ($o) => [$o->id => self::weightOf((bool) $o->user?->is_verified_scholar,
+            (int) ($records[$o->user_id]->settled ?? 0), (int) ($records[$o->user_id]->agreed ?? 0))]);
+
         $out = [];
         foreach ($opinions->groupBy(fn ($o) => "{$o->review_queue}:{$o->review_item_id}") as $itemKey => $group) {
             $queue = self::queue($group->first()->review_queue);
             $answers = $group->groupBy('review_answer')->map(fn ($same, $answer) => [
                 'answer' => (string) $answer,
                 'label' => $queue ? $queue->describe($same->first()) : (string) $answer,
-                'weight' => $same->sum(fn ($o) => self::weight($o->user)),
+                'weight' => $same->sum(fn ($o) => $weights[$o->id]),
+                'weights' => $weights->only($same->modelKeys())->all(),
                 'count' => $same->count(),
                 'opinions' => $withOpinions ? $same->values() : collect(),
             ])->sortByDesc('weight')->values()->all();
@@ -247,7 +315,7 @@ class CollectiveReview
     {
         $mine = FieldSuggestion::where('user_id', $user->id)->whereNotNull('review_queue');
 
-        return ['answers' => (clone $mine)->count(), 'approved' => (clone $mine)->where('status', 'approved')->count()];
+        return ['answers' => (clone $mine)->count(), 'approved' => (clone $mine)->where('status', 'approved')->count(), 'weight' => self::weight($user)];
     }
 
     /** Per queue: open items, and how many still wait for researchers. */

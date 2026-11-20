@@ -21,6 +21,11 @@ Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')
     ->withoutOverlapping(5);
 Schedule::command('queue:prune-failed --hours=720')->daily();
 
+// How far the copies stand on their libraries' own printed catalogues (item 147, step 14.256): the report the insights
+// page and the library pages read from the cache. It reads all copies and their first-hand entries (some 25 s), so
+// once a night, after the day's `sources:read-copy-lines` runs and before the insights build
+Schedule::command('fahares:firsthand-coverage')->dailyAt('03:10')->withoutOverlapping(30);
+
 // Figures of the insights page (/insights): heavy queries, so built once a night, not per view
 Schedule::command('fahares:build-insights')->dailyAt('03:30')->withoutOverlapping(30);
 
