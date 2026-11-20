@@ -10,12 +10,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ManuscriptNote extends Model
 {
-    /** The approved types (docs/plans/fankha-parser-v2.md, section 10), in their four groups */
+    /**
+     * The approved types (docs/plans/fankha-parser-v2.md, section 10) and, since step 14.260, three labelled fields
+     * of the description the site has no column for: the copy's description, the part of the work it holds and
+     * what it lacks. The label is the short one the copy's page sets before a note.
+     */
     public const TYPES = [
-        'acquisition' => 'ورود به کتابخانه', 'ownership' => 'تملک', 'seal' => 'مهر', 'endowment' => 'وقف',
-        'certificate' => 'اجازه، سماع و بلاغ', 'collation' => 'مقابله و تصحیح', 'marginalia' => 'حواشی', 'transcription' => 'کتابت',
-        'decoration' => 'تذهیب و آرایه', 'illustration' => 'نگاره', 'diagram' => 'شکل و جدول', 'codicology' => 'نسخه‌شناسی',
-        'annex' => 'افزوده‌ها', 'contents' => 'محتوای نسخه', 'cataloguer' => 'یادداشت فهرست‌نگار', 'other' => 'دیگر',
+        'acquisition' => 'ورود', 'ownership' => 'تملک', 'seal' => 'مهر', 'endowment' => 'وقف',
+        'certificate' => 'اجازه و سماع', 'collation' => 'مقابله', 'marginalia' => 'حواشی', 'transcription' => 'کتابت',
+        'decoration' => 'آرایه', 'illustration' => 'نگاره', 'diagram' => 'شکل و جدول', 'codicology' => 'نسخه‌شناسی',
+        'description' => 'شرح نسخه', 'scope' => 'بخش موجود', 'defect' => 'افتادگی',
+        'contents' => 'محتوا', 'annex' => 'افزوده‌ها', 'cataloguer' => 'فهرست‌نگار', 'other' => 'دیگر',
+    ];
+
+    /** The sections of the copy's page, in their order, and the types of each in theirs */
+    public const GROUPS = [
+        'contents' => ['title' => 'محتوای نسخه', 'types' => ['description', 'scope', 'defect', 'contents', 'annex', 'cataloguer', 'other']],
+        'provenance' => ['title' => 'مهرها، تملک‌ها و وقف‌نامه‌ها', 'types' => ['ownership', 'seal', 'endowment', 'acquisition']],
+        'marks' => ['title' => 'نشان‌های متنی', 'types' => ['certificate', 'collation', 'marginalia', 'transcription']],
+        'physical' => ['title' => 'کالبد و آرایه', 'types' => ['decoration', 'illustration', 'diagram', 'codicology']],
     ];
 
     /** Who gave a note its type; an editor's is kept by a later import */

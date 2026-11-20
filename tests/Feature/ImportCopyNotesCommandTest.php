@@ -102,6 +102,28 @@ class ImportCopyNotesCommandTest extends TestCase
         $this->assertSame(['collation'], DB::table('manuscript_notes')->where('manuscript_id', $edited)->pluck('type')->all());
     }
 
+    public function test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists()
+    {
+        $id = $this->copy('30');
+        $plain = $this->copy('31');
+        $old = json_encode(['editorial_notes' => ['یادداشت کهنۀ فهرست‌نگار'], 'ownership_and_seals' => ['مهر: فهرست کهنه'], 'residual_notes' => ['فوائد کهنه']], JSON_UNESCAPED_UNICODE);
+        DB::table('manuscripts')->whereIn('id', [$id, $plain])->update(['metadata' => $old]);
+        $this->file([['id' => $id, 'shelfmark' => '30', 'notes' => [
+            ['type' => 'scope', 'text' => 'از آغاز تا باب دوم', 'typed_by' => 'field'],
+            ['type' => 'marginalia', 'text' => 'حواشی با نشان منه', 'typed_by' => 'sonnet', 'by_author' => true],
+            ['type' => 'seal', 'text' => 'ناصرالدین شاه', 'typed_by' => 'field'],
+        ]]]);
+        $this->run_()->assertExitCode(0);
+
+        $page = $this->get(route('manuscripts.show', ['id' => Manuscript::find($id)->getRouteKey()]))->assertOk();
+        $page->assertSeeInOrder(['محتوای نسخه', 'بخش موجود', 'از آغاز تا باب دوم', 'مهرها، تملک‌ها و وقف‌نامه‌ها', 'ناصرالدین شاه', 'نشان‌های متنی', 'حواشی با نشان منه', 'از مؤلف']);
+        $page->assertDontSee('یادداشت کهنۀ فهرست‌نگار')->assertDontSee('فهرست کهنه')->assertDontSee('فوائد کهنه');
+
+        // a copy without typed notes keeps the three lists
+        $this->get(route('manuscripts.show', ['id' => Manuscript::find($plain)->getRouteKey()]))->assertOk()
+            ->assertSee('یادداشت کهنۀ فهرست‌نگار')->assertSee('مهر: فهرست کهنه')->assertSee('فوائد کهنه');
+    }
+
     public function test_a_note_of_an_unknown_type_stops_the_run()
     {
         $id = $this->copy('20');

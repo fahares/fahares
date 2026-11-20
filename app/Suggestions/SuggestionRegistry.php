@@ -530,6 +530,10 @@ class SuggestionRegistry
     /** @return string[] */
     public static function listItems(Model $record, array $field): array
     {
+        // the copy's page shows its typed notes of provenance in place of the metadata list (step 14.260)
+        if ($record instanceof Manuscript && ($field['meta_key'] ?? null) === 'ownership_and_seals' && ! $record->keepsSealsList()) {
+            return $record->provenanceLines();
+        }
         $items = isset($field['meta_key']) ? self::metaList($record, $field['meta_key']) : (array) ($record->{$field['name']} ?? []);
         if (isset($field['item_key'])) {
             $items = array_map(fn ($item) => is_array($item) ? ($item[$field['item_key']] ?? '') : (string) $item, $items);

@@ -12324,3 +12324,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `libraries/show.blade.php`: سطر `data-library-firsthand` زیر شمار نسخه‌ها، از `LibraryController::show`.
 - **زمان‌بندی:** `fahares:firsthand-coverage` هر روز ساعت ۰۳:۱۰ (`withoutOverlapping(30)`) در `routes/console.php`. روی `fahares_prod` ۳۶ ثانیه طول کشید.
 - **آزمون:** `FirsthandCoveragePageTest`: نمایش در دو صفحه، نبودن در آمار دامنه‌دار و در کتابخانۀ نسنجیده، کش خالی یا نادرست، کتابخانۀ حذف‌شده، و زمان‌بندی.
+
+### گام ۱۴.۲۶۰: `ManuscriptNote::GROUPS`، `Manuscript::noteGroups()` و `keepsSealsList()`
+
+- **سنجش (`fahares_prod` محلی):** هر تکۀ سه فهرست `metadata`، پس از برداشتن برچسب («مهر:»، «تملک:»، «واقف:» …) و شکستن با «؛»، حرف‌به‌حرف با متن یادداشت‌های جدول، فیلدهای v2 و `raw_text` سنجیده شد.
+  - `editorial_notes`: ۳۵٬۹۱۶ در جدول، ۱۲٬۹۸۶ در `contents_scope`، ۲٬۳۹۲ در `copy_description`، ۱٬۳۳۰ در ستون‌های دیگر نسخه، ۱٬۳۰۰ تنها در متن خام و ۸۷ هیچ‌جا.
+  - `ownership_and_seals`: ۶۵٬۱۴۸ در جدول، ۵٬۲۹۵ تنها در متن خام (بیشتر با ارجاع چسبیده، «تملک: فرهاد میرزا [نشریه: 11-881]») و ۷۳ هیچ‌جا.
+  - `residual_notes`: ۳۰٬۱۱۵ در جدول و ۲۰٬۴۹۳ هیچ‌جا، چون این فهرست نقطه‌گذاری و حرف ربط ندارد.
+- **`fankha_v2_copy_notes_export.py`:** `copy_description` → `description`، `contents_scope` → `scope`، `defects` → `defect`، با `typed_by = field`. خروجی `copy_notes_step14_260.jsonl.gz`: افتادگی ۴۸٬۷۵۴، بخش موجود ۳۵٬۷۰۳ و شرح نسخه ۱۰٬۹۸۴. پروندۀ گام ۱۴.۲۵۴ دست نخورد.
+- **`ManuscriptNote`:** `TYPES` نوزده کلید دارد، با برچسب کوتاه صفحه. `GROUPS` چهار بخش با عنوان و ترتیب نوع‌ها: `contents` (شرح، بخش موجود، افتادگی، محتوا، افزوده‌ها، فهرست‌نگار، دیگر)، `provenance`، `marks` و `physical`.
+- **`Manuscript::noteGroups()`:** یادداشت‌ها به تفکیک بخش، بخش تهی حذف. `ManuscriptController::show` رابطۀ `notes` را بار می‌کند.
+- **`Manuscript::keepsSealsList()`:** فهرست `metadata` می‌ماند اگر نسخه یادداشت پیشینه ندارد، یا پیشنهاد `approved` روی `ownership_and_seals` دارد، یا ثبت `verify` دارد که تنها ستونش `metadata` است و این کلید را دارد. وگرنه بخش از جدول می‌آید.
+- **`SuggestionRegistry::listItems()`:** برای `ownership_and_seals` نسخه‌ای که فهرستش نمی‌ماند، `Manuscript::provenanceLines()` را می‌دهد (برچسب «مهر: »، «تملک: »، «واقف: » پیش از متن؛ ورود به کتابخانه بی برچسب).
+- **`manuscripts/show.blade.php`:** حلقه روی `noteGroups()`؛ دو بخش «فوائد و رسائل» و «یادداشت‌های فهرست‌نگار» تنها وقتی `noteGroups()` تهی است.
+- **آزمون:** `test_the_copy_page_shows_the_typed_notes_in_their_sections_in_place_of_the_old_lists`.
+- **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_260.jsonl.gz --apply`.
