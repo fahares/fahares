@@ -17,6 +17,7 @@ class Extractors
         'shelfmark_headings' => ShelfmarkHeadedCatalogueExtractor::class,
         'listed_shelfmarks' => ListedShelfmarkCatalogueExtractor::class,
         'serial_shelfmarks' => SerialShelfmarkCatalogueExtractor::class,
+        'moayyed' => MoayyedCatalogueExtractor::class,
         'bracketed_entries' => BracketedEntryCatalogueExtractor::class,
     ];
 
