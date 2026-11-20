@@ -12666,6 +12666,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):** «349 matches of confidence medium: 345 proposals to add»، «345 proposals queued for review». اجرای دوم: «0 proposals to add». `work_entry_links`: model/linked ۵۷۰، review/proposed ۳۴۵. `/admin/work-entry-links` و صفحهٔ ۷ آن با کاربر مدیر: ۲۰۰، ۲۵ کارت.
 - **آزمون:** `LinkDecidedWorksTest::test_a_proposal_is_linked_only_when_a_reviewer_confirms_it`.
 - **اجرا در تولید، پس از استقرار:** همان فرمان گام ۱۴.۲۷۰ با `--proposals`: `php artisan works:link-decisions /tmp/…json --proposals`.
+- **اجرای تولید گام‌های ۱۴.۲۲۹، ۱۴.۲۷۰ و ۱۴.۲۷۴ (۲۹ آبان ۱۴۰۵، جلسهٔ `item6-rule-links`، پس از استقرار دستهٔ ۱۶۷):**
+  - هر دو migration در دستهٔ ۸۳ اجرا شده بود (`migrate:status`).
+  - پشتیبان، خواندنی و مستقیم به این دستگاه: `work_relations` (۹٬۵۷۱ ردیف: auto ۹٬۵۷۰، suggestion ۱) و `work_entry_links` (تهی) در `fahares-sources/backups/step13/step14_270_work_relations_backup.json` (md5 `35e28726…`). چیزی در کانتینر نماند.
+  - `works:link-related --dry-run` و سپس اجرا: «10676 relations: 1176 to add, 70 to remove, 9500 kept»، «Indexed 1158 works again». نوع‌ها: related ۵٬۵۶۷، commentary ۲٬۱۴۳، gloss ۱٬۲۹۱، translation ۹۵۵، abridgment ۵۸۹، supplement ۷۶، versification ۳۶، refutation ۱۹.
+  - `works:link-decisions /tmp/item6_decisions.json --proposals`، نخست با `--dry-run`: «570 entries: 570 to add»، «236 relations: 236 to add»، «345 proposals queued for review»، «Indexed 226 works again». پرونده از ورودی استاندارد به `/tmp` رفت و در همان فرمان پاک شد («tmp clean»).
+  - پس از اجرا: `work_relations` auto ۱۰٬۶۷۶، model ۲۳۶، suggestion ۱؛ `work_entry_links` model/linked ۵۷۰، review/proposed ۳۴۵.
+  - سایت: `/works/53288` «تبصرة المتعلمین» را به #12336، `/works/3969` «الزايرجة» را به #34346 و `/works/4354` «الکافی» را به #52408 لینک می‌کند.
 
 ### گام ۱۴.۲۷۵: `resources/js/insights-map.js`، `echarts-map.js` و دادۀ دهه‌ای `Insights::places`
 
