@@ -155,23 +155,49 @@ class WorkRelationLinker
     public function relationOf(int $workId, string $side, array $entry, int $found): array
     {
         [$child, $parent] = $side === 'related' ? [$workId, $found] : [$found, $workId];
-        $parentTitles = [...$this->titles[$parent] ?? [], ...($side === 'related' ? $entry['titles'] : [])];
-        $form = $this->works[$child]['form'] ?? null;
-        $made = WorkRelationParser::parseTitle($this->works[$child]['title'] ?? '');
-        $type = match (true) {
+
+        return ['child' => $child, 'parent' => $parent, 'type' => self::typeOf($this->works[$child]['title'] ?? '', $this->works[$child]['form'] ?? null,
+            $this->titles[$child] ?? [], [...$this->titles[$parent] ?? [], ...($side === 'related' ? $entry['titles'] : [])], $side, $entry)];
+    }
+
+    /**
+     * The same for two works read on their own, with no index of every work: the panel's decision on one entry (step 14.274).
+     *
+     * @return array{child: int, parent: int, type: string}
+     */
+    public static function relationBetween(\App\Models\Work $host, string $side, array $entry, \App\Models\Work $found): array
+    {
+        [$child, $parent] = $side === 'related' ? [$host, $found] : [$found, $host];
+        $titles = fn (\App\Models\Work $w) => array_values(array_filter([$w->clean_title, $w->primary_title,
+            ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : (string) $a)->all()]));
+
+        return ['child' => $child->id, 'parent' => $parent->id, 'type' => self::typeOf((string) $child->clean_title, $child->work_form,
+            $titles($child), [...$titles($parent), ...($side === 'related' ? $entry['titles'] : [])], $side, $entry)];
+    }
+
+    /** The type of a relation a decision gives, as match() reads it: the form, the title, the entry's mark, the work's own mark */
+    private static function typeOf(string $childTitle, ?string $form, array $childTitles, array $parentTitles, string $side, array $entry): string
+    {
+        $made = WorkRelationParser::parseTitle($childTitle);
+
+        return match (true) {
             $form === 'translation' => 'translation',
             $made && collect($parentTitles)->contains(fn ($t) => Titles::agree($made['base'], $t)) => $made['type'],
-            ! $made && $side === 'children' && $entry['type'] !== null => $entry['type'],
-            default => $this->markType($child) ?? self::MADE_FORMS[(string) $form] ?? 'related',
+            ! $made && $side === 'children' && ($entry['type'] ?? null) !== null => $entry['type'],
+            default => self::markOf($childTitles) ?? self::MADE_FORMS[(string) $form] ?? 'related',
         };
-
-        return ['child' => $child, 'parent' => $parent, 'type' => $type];
     }
 
     /** The type the mark after one of the work's titles gives: «مجالس المؤمنین (منتخب)» → abridgment */
     private function markType(int $id): ?string
     {
-        foreach ($this->titles[$id] ?? [] as $title) {
+        return self::markOf($this->titles[$id] ?? []);
+    }
+
+    /** @param  list<string>  $titles */
+    private static function markOf(array $titles): ?string
+    {
+        foreach ($titles as $title) {
             if (preg_match('/\(([^()]+)\)\s*$/u', $title, $m) && ($type = WorkRelationParser::MARKS[TextNormalizer::normalize($m[1])] ?? null)) {
                 return $type;
             }
@@ -472,7 +498,7 @@ class WorkRelationLinker
         $rows = DB::table('work_relations')->where('work_id', $work->id)->orWhere('related_work_id', $work->id)->get();
         // the entries a decision ties to a work (work_entry_links, step 14.270): side => entry key => the work's id
         $tied = ['related' => [], 'children' => []];
-        foreach (DB::table('work_entry_links')->where('work_id', $work->id)->get(['side', 'entry', 'linked_work_id']) as $link) {
+        foreach (DB::table('work_entry_links')->where('work_id', $work->id)->where('status', 'linked')->get(['side', 'entry', 'linked_work_id']) as $link) {
             $tied[$link->side][$link->entry] = $link->linked_work_id;
         }
         if ($rows->isEmpty() && ! array_filter($tied)) {
