@@ -27,7 +27,8 @@ class Insights
     // v10: copies under each dynasty, and dedications and patrons by court (backlog item 154, step 14.265)
     // v11: the cities of the map by decade, with their scribes and authors (backlog item 137, step 14.275)
     // v12: the origins, birthplaces and places of death of the map (backlog item 137, step 14.276)
-    private const CACHE_KEY = 'insights.v12';
+    // v13: every dynasty's count, for the chart of rows (step 14.278)
+    private const CACHE_KEY = 'insights.v13';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -803,6 +804,8 @@ class Insights
 
         return [
             'items' => array_slice($dynasties, 0, (int) config('insights.dynasties_shown')),
+            // Every dynasty with a copy, for the chart of rows (step 14.278)
+            'counts' => array_column($dynasties, 'count', 'name'),
             'kinds' => count($dynasties),
             'counted' => $counted,
             'ruled' => $ruled,

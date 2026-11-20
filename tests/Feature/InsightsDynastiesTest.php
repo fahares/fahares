@@ -140,4 +140,38 @@ class InsightsDynastiesTest extends TestCase
             ->assertSee('data-insights-table="copies-by-dynasty"', false)
             ->assertSee('بیشترین نسخه از روزگار صفویان است: ۱۲ نسخه');
     }
+
+    public function test_the_dynasties_are_rows_of_a_chart_and_their_capitals_are_on_the_map()
+    {
+        $work = $this->work('اثر آزمایشی نمودار ردیفی');
+        foreach (range(1, 12) as $i) {
+            $this->copy($work, ['copy_date_raw' => (1040 + $i) . 'ق', 'copy_place' => 'اصفهان']);
+        }
+        $this->copy($work, ['copy_date_raw' => '1040ق', 'copy_place' => 'لاهور']);
+
+        // Every dynasty with a copy has its count, beyond the largest ones the list shows
+        config(['insights.dynasties_shown' => 1]);
+        $figures = $this->figures()['dynasties'];
+        $this->assertCount(1, $figures['items']);
+        $this->assertSame(['صفویان' => 12, 'گورکانیان هند (تیموریان هند)' => 1], $figures['counts']);
+
+        $capitals = Dynasties::capitals();
+        $names = array_column(Dynasties::all(), 'name');
+        $this->assertNotEmpty($capitals);
+        foreach ($capitals as $capital) {
+            $this->assertSame(['name', 'dynasty', 'lat', 'lon', 'from', 'to'], array_keys($capital));
+            $this->assertLessThanOrEqual($capital['to'], $capital['from'], $capital['name']);
+        }
+        $this->assertNotEmpty(array_intersect(array_column($capitals, 'dynasty'), $names));
+        $this->assertContains('ایران', Dynasties::regions());
+
+        $this->get(route('insights.topic', ['topic' => 'time', 'library' => $this->library->id]))->assertOk()
+            ->assertSee('data-insights-dynasty-rows', false)
+            ->assertSee('x-data="insightsDynasties(', false);
+        $this->get(route('insights.topic', ['topic' => 'places', 'library' => $this->library->id]))->assertOk()
+            ->assertSee('capitals', false)
+            ->assertSee('پایتخت');
+        // One chunk of ECharts for the two charts, never in the site's own script
+        $this->assertStringContainsString("import('./echarts-map')", file_get_contents(resource_path('js/insights-dynasties.js')));
+    }
 }

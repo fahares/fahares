@@ -26,7 +26,9 @@
                 'frame' => \Illuminate\Support\Arr::only($map, ['lon0', 'lon1', 'lat0', 'lat1']),
                 'basemap' => asset('data/insights/basemap.json'),
                 'territories' => asset('data/insights/territories/__YEAR__.json'),
-                'regions' => array_values(array_unique(array_column(\App\Support\Dynasties::all(), 'region'))),
+                'regions' => \App\Support\Dynasties::regions(),
+                'capitals' => array_map(fn ($c) => ['n' => $c['name'], 'd' => $c['dynasty'], 'lat' => $c['lat'], 'lon' => $c['lon'], 'f' => $c['from'], 't' => $c['to']],
+                    \App\Support\Dynasties::capitals()),
                 // The searches that take a city of copying; the scribes' search cannot carry a scope
                 'search' => ['copy' => $search('manuscripts'), 'scribes' => $scope->isEmpty() ? route('search', ['type' => 'scribes']) : null],
             ];
@@ -93,6 +95,7 @@
                     <template x-for="region in regions" :key="region">
                         <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-sm opacity-60" :style="`background: ${regionColor(region)}`" aria-hidden="true"></span><span x-text="region"></span></li>
                     </template>
+                    <li class="flex items-center gap-1.5"><span class="inline-block size-2 border-[1.5px] border-ink bg-surface" aria-hidden="true"></span>پایتخت</li>
                 </ul>
                 <p x-show="ready" x-cloak class="mt-2 text-[11px] text-muted">
                     با چرخ موس یا دو انگشت بزرگ و کوچک کنید و نقشه را بکشید. روی هر شهر بزنید تا ارقامش کنار نقشه بیاید.

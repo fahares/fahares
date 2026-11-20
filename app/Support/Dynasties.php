@@ -26,6 +26,18 @@ class Dynasties
         return self::data()['dynasties'];
     }
 
+    /** The regions of the dynasties, in the order of the data: the order of their tints and of the rows of the chart */
+    public static function regions(): array
+    {
+        return array_values(array_unique(array_column(self::all(), 'region')));
+    }
+
+    /** @return array<int, array{name: string, dynasty: string, lat: float, lon: float, from: int, to: int}> the seats of the dynasties */
+    public static function capitals(): array
+    {
+        return self::data()['capitals'] ?? [];
+    }
+
     /** The dynasty a city was under in a Hijri year, or null */
     public static function of(string $city, int $year): ?string
     {

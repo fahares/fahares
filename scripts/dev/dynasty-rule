@@ -77,6 +77,9 @@ def main():
     page = fetch(f'{SITE}/stats/history/', f'{cache}/history.html')
     data = json.loads(re.search(r'<script[^>]*id="stats-data"[^>]*>(.*?)</script>', page, re.S).group(1))
     dynasties = [{'name': d['name'], 'region': d['region'], 'from': d['start'], 'to': d['end']} for d in data['timeline']['dynasties']]
+    # The seats of the dynasties, for the map (step 14.278): the years a town was a capital
+    capitals = [{'name': c['name'], 'dynasty': c['dynasty'], 'lat': round(c['lat'], 3), 'lon': round(c['lon'], 3), 'from': c['start'], 'to': c['end']}
+                for c in data['capitals']]
 
     rule = {city: [] for city in cities}
     for year in range(FIRST, LAST + 1, STEP):
@@ -95,10 +98,11 @@ def main():
     rule = {city: runs for city, runs in rule.items() if runs}
 
     head = ("<?php\n\n// Written by scripts/dev/dynasty-rule; do not edit by hand. The dynasties with their regions and years, and for each\n"
-            "// city of copying the dynasty whose territory held it in each decade: [from, to, dynasty] in Hijri years.\n"
+            "// city of copying the dynasty whose territory held it in each decade: [from, to, dynasty] in Hijri years; and the\n"
+            "// capitals of the dynasties with the years they were one.\n"
             "// Source: the statistics of dawawin.ir; borders after Cliopatria (Seshat Global History Databank, CC BY 4.0).\n\n")
-    open('database/data/dynasties.php', 'w', encoding='utf-8').write(head + 'return ' + php({'dynasties': dynasties, 'rule': rule}) + ';\n')
-    print(f'{len(dynasties)} dynasties; {len(rule)} of {len(cities)} cities under a dynasty in some decade; '
+    open('database/data/dynasties.php', 'w', encoding='utf-8').write(head + 'return ' + php({'dynasties': dynasties, 'capitals': capitals, 'rule': rule}) + ';\n')
+    print(f'{len(dynasties)} dynasties; {len(capitals)} capitals; {len(rule)} of {len(cities)} cities under a dynasty in some decade; '
           f'{sum(len(r) for r in rule.values())} runs')
 
 
