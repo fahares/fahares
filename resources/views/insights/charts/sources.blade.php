@@ -14,7 +14,7 @@
                 <li>
                     <span class="flex items-baseline gap-2">
                         {{-- The volume, unless the title already names it («جلد شانزدهم») --}}
-                        <span class="text-ink truncate min-w-0" title="{{ $row['title'] }}">{{ $row['title'] }}@if($row['volume'] && ! str_contains($row['title'], 'جلد')) <span class="text-muted">ج {{ Fa::digits($row['volume']) }}</span>@endif</span>
+                        <span class="text-ink truncate min-w-0" data-tip="{{ $row['title'] }}">{{ $row['title'] }}@if($row['volume'] && ! str_contains($row['title'], 'جلد')) <span class="text-muted">ج {{ Fa::digits($row['volume']) }}</span>@endif</span>
                         <span class="leader" aria-hidden="true"></span>
                         <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($row['count']) }} · {{ $pct(round($row['count'] * 100 / max(1, $data['totals']['manuscripts']), 1)) }}</span>
                         <a href="{{ route('insights', ['catalog' => $row['id']] + $scope->query()) }}" class="text-[11px] text-cinnabar hover:underline">آمار</a>

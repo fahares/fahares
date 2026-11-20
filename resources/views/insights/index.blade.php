@@ -193,6 +193,10 @@
 
     @include('insights.request-card')
 
+    {{-- The one box of exact figures the marks of every chart share (resources/js/chart-tip.js, backlog item 156) --}}
+    <div id="chart-tip" data-chart-tip role="tooltip" hidden
+         class="fixed z-50 top-0 left-0 max-w-[min(20rem,calc(100vw-1rem))] bg-ink text-paper text-xs leading-relaxed whitespace-pre-line tabular-nums px-2.5 py-1.5 rounded-[4px] shadow-md pointer-events-none"></div>
+
     <p class="text-xs text-muted text-center">
         @if($scope->isEmpty())
             این آمار هر شب از روی داده‌های فهارس از نو ساخته می‌شود؛ آخرین بار {{ Jalali::format(\Illuminate\Support\Carbon::parse($data['built_at']), 'long') }}.

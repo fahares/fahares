@@ -25,7 +25,7 @@
                         <a href="{{ route('libraries.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a>
                         <span class="text-xs text-muted">{{ $row['city'] }}</span>
                         <span class="leader" aria-hidden="true"></span>
-                        <span class="text-[11px] text-muted tabular-nums" title="سهم عکسی‌ها در نسخه‌های این کتابخانه">{{ $pct($row['share']) }}</span>
+                        <span class="text-[11px] text-muted tabular-nums" data-tip="سهم عکسی‌ها در نسخه‌های این کتابخانه">{{ $pct($row['share']) }}</span>
                         <a href="{{ $search('manuscripts', ['facsimile' => '1', 'library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
                     </li>
                 @endforeach

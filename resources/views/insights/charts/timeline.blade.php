@@ -45,7 +45,7 @@
                 <div class="flex items-end gap-1 h-28 border-b border-line">
                     <template x-for="(n, i) in decades" :key="i">
                         <div class="flex-1 h-full flex flex-col justify-end items-center gap-0.5 min-w-0"
-                             :title="`${((sel - 1) * 100 + i * 10 + 1).toLocaleString('fa-IR', {useGrouping: false})} تا ${((sel - 1) * 100 + i * 10 + 10).toLocaleString('fa-IR', {useGrouping: false})}: ${n.toLocaleString('fa-IR')} نسخه` + (cs[sel].decades_doubtful[i] ? `، ${cs[sel].decades_doubtful[i].toLocaleString('fa-IR')} مردد` : '')">
+                             :data-tip="`${((sel - 1) * 100 + i * 10 + 1).toLocaleString('fa-IR', {useGrouping: false})} تا ${((sel - 1) * 100 + i * 10 + 10).toLocaleString('fa-IR', {useGrouping: false})}: ${n.toLocaleString('fa-IR')} نسخه` + (cs[sel].decades_doubtful[i] ? `، ${cs[sel].decades_doubtful[i].toLocaleString('fa-IR')} مردد` : '')">
                             <span class="text-[10px] text-muted tabular-nums" x-text="n.toLocaleString('fa-IR')"></span>
                             <span class="w-full max-w-10 flex flex-col-reverse rounded-t-[4px] overflow-hidden"
                                   :style="`height: max(${n ? 2 : 0}px, ${n * 100 / Math.max(1, ...decades)}%)`">
@@ -65,7 +65,7 @@
                         <template x-for="(part, i) in band" :key="sel + '-' + i">
                             <span role="listitem" class="min-w-0 truncate text-center px-1" :style="`flex: ${part.years} 1 0`"
                                   :class="part.name ? (i % 2 ? 'bg-gold/35' : 'bg-gold/55') : 'bg-line/60'"
-                                  :title="part.name ? `${part.name}: ${part.from.toLocaleString('fa-IR', {useGrouping: false})} تا ${part.to.toLocaleString('fa-IR', {useGrouping: false})}` : 'حکومتی شناخته نیست'"
+                                  :data-tip="part.name ? `${part.name}: ${part.from.toLocaleString('fa-IR', {useGrouping: false})} تا ${part.to.toLocaleString('fa-IR', {useGrouping: false})}` : 'حکومتی شناخته نیست'"
                                   x-text="part.name || ''"></span>
                         </template>
                     </div>

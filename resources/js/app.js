@@ -11,6 +11,7 @@ import catalogViewer from './catalog-viewer';
 import sendOnce from './send-once';
 import insightsCombo from './insights-filter';
 import announcement from './announcement';
+import chartTip from './chart-tip';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -66,4 +67,5 @@ Alpine.data('insightsCombo', insightsCombo);
 Alpine.data('announcement', announcement);
 
 sendOnce();
+chartTip();
 Alpine.start();
