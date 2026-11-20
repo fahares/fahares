@@ -587,10 +587,11 @@ class WorkRelationLinker
         $field = $clean($work->related_work);
         $entries = WorkRelationParser::parseEntries($work->related_work);
         $hits = collect($linked['related'])->keyBy(fn ($hit) => $hit[2]);
+        $slices = self::slices($field, $entries);
         foreach ($entries as $n => $entry) {
             // a field of one entry is shown as written, its note kept
-            $text = count($entries) === 1 ? $field
-                : implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] . ($entry['born'] || $entry['died'] ? " ({$entry['born']}-{$entry['died']})" : '') : '');
+            $text = count($entries) === 1 ? $field : ($slices[$n]
+                ?? implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] . ($entry['born'] || $entry['died'] ? " ({$entry['born']}-{$entry['died']})" : '') : ''));
             $hit = $hits->get($n);
             $out['entries'][] = ['side' => 'related', 'position' => $n, 'type' => $type($entry), 'text' => $text, 'key' => self::entryKey($entry),
                 'work' => $hit[1] ?? null, 'differs' => $hit && $differs($entry, $hit)];
@@ -611,7 +612,7 @@ class WorkRelationLinker
             $last = end($entries);
             $needle = $last['author'] ?? end($last['titles']);
             if (($at = mb_strrpos($field, $needle)) !== false) {
-                $rest = trim(preg_replace('/^\s*\([^()]*\)/u', '', mb_substr($field, $at + mb_strlen($needle))), " \t؛;،.-");
+                $rest = preg_replace(['/^\s*\([^()]*\)/u', '/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u'], '', mb_substr($field, $at + mb_strlen($needle)));
                 if (mb_strlen($rest) > 15) {
                     $out['notes'][] = $rest;
                 }
@@ -635,5 +636,46 @@ class WorkRelationLinker
         }
 
         return $out;
+    }
+
+    /**
+     * Each entry of a field of several, as the field writes it: from its first title to the next entry's, its author's
+     * life dates as written («(سده 1م)», which the parser reads no years in). An entry whose slice does not read back
+     * as itself is left out, and written out again from its parts.
+     *
+     * @return array<int, string>
+     */
+    private static function slices(string $field, array $entries): array
+    {
+        $starts = [];
+        $at = 0;
+        foreach ($entries as $entry) {
+            if (($start = mb_strpos($field, $entry['titles'][0], $at)) === false) {
+                return [];
+            }
+            $starts[] = $start;
+            $at = $start + mb_strlen($entry['titles'][0]);
+        }
+        $slices = [];
+        foreach ($entries as $n => $entry) {
+            if (isset($starts[$n + 1])) {
+                $slice = mb_substr($field, $starts[$n], $starts[$n + 1] - $starts[$n]);
+            } else {
+                // the last entry ends with its author and life dates: what follows is the field's note
+                $needle = $entry['author'] ?? end($entry['titles']);
+                $end = mb_strpos($field, $needle, $starts[$n]);
+                $tail = $end === false ? '' : mb_substr($field, $end + mb_strlen($needle));
+                $slice = $end === false ? mb_substr($field, $starts[$n])
+                    : mb_substr($field, $starts[$n], $end + mb_strlen($needle) - $starts[$n]) . (preg_match('/^\s*\([^()]*\)/u', $tail, $m) ? $m[0] : '');
+            }
+            // by a pattern, not trim(): trim() works on bytes and would cut the first byte of a letter that shares it with «؛»
+            $slice = preg_replace('/^[\s؛;]+|[\s؛;]+$/u', '', $slice);
+            $read = WorkRelationParser::parseEntries($slice);
+            if (count($read) === 1 && $read[0]['titles'] === $entry['titles'] && $read[0]['author'] === $entry['author']) {
+                $slices[$n] = $slice;
+            }
+        }
+
+        return $slices;
     }
 }

@@ -73,6 +73,13 @@ class MaterializeRelatedWorksTest extends TestCase
         ], $this->rows($two));
         $this->assertSame('Only gloss of the title', DB::table('work_text_relations')->where('link_status', 'proposed')->value('why'));
 
+        // an entry of a field of several keeps its words as the field writes them: life dates the parser reads no years in
+        $odd = $this->work('اثر سوم', 'کسی، ح', ['related_work' => 'الحشائش؛ دیوسکوریدس (سده 1م)؛ کتاب دوم = نام دیگر؛ کسی، ز (-800)']);
+        $this->artisan('works:materialize-related', ['--decisions' => $file])->assertSuccessful();
+        $this->assertSame(['الحشائش؛ دیوسکوریدس (سده 1م)', 'کتاب دوم = نام دیگر؛ کسی، ز (-800)'],
+            DB::table('work_text_relations')->where('work_id', $odd->id)->orderBy('position')->pluck('text')->all());
+        $odd->update(['related_work' => null]);
+
         // a second run writes the same rows; the row by hand keeps its id
         $before = [$this->rows($nahj), $this->rows($two)];
         $this->artisan('works:materialize-related', ['--decisions' => $file])->assertSuccessful();
