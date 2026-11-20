@@ -12513,3 +12513,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فهرست تکراری‌ها:** `../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv` (۷۱ سطر، مورد ۱۵۹).
 - **آزمون:** `ShelfmarkCataloguesTest::test_a_misprinted_shelfmark_is_corrected_or_claimed_from_the_print`: اصلاح با پیشینه، ادعای نامزد با سطر چاپی، رکورد تکراری بی ادعا، و برداشت متن پس از اصلاح.
 - **اجرا در پروداکشن (پس از استقرار):** پشتیبان `manuscripts.shelfmark` نسخه‌های بی‌متن سه منبع، سپس در یک `prod-run` برای هر منبع `sources:shelfmark-claims <کد> --apply --correct` و `sources:take-texts <کد> --show=0`. شمارها باید ۹ و ۴، ۴۸ و ۳، و ۶۹ و ۱۱ باشد.
+
+### گام ۱۴.۲۷۰: `work_entry_links` و `works:link-decisions`
+- **migration `2026_11_20_100001_create_work_entry_links_table`:** `work_id` (اثر میزبان مدخل)، `side` (`related` یا `children`)، `entry` (متن)، `entry_hash` (sha1 همان، برای یکتایی `work_id + side + entry_hash`)، `linked_work_id`، `source` (پیش‌فرض `model`)، `confidence`. هر دو کلید خارجی با حذف اثر پاک می‌شوند. روی رونوشت محلی ۹۲ میلی‌ثانیه.
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - `entryKey($entry)`: عنوان‌های مدخل با « = » و سپس «؛ پدیدآور»، بی تاریخ زندگی. مدخلِ نام‌چسبیده تاریخ را در خود عنوان دارد.
+  - `relationOf($workId, $side, $entry, $found)`: جهت و نوع رابطه، مانند `match()`: `work_form = translation`، سپس `parseTitle` عنوان اثر فرعی که با عنوانی از اثر اصلی جور است، سپس نشان مدخل در سوی `children`، سپس `markType` و `MADE_FORMS`، وگرنه `related`.
+  - `linkedEntries()`: ردیف‌های `work_entry_links` اثر خوانده می‌شود و `byDecision` پیش از `$find` می‌آید. متن لینک نخستین عنوان مدخل است؛ اگر هیچ عنوان مدخل کلید اثر نباشد و عنوان «،» داشته باشد، بلندترین آغازی که کلید اثر است یا (با دست‌کم دو واژه) آغاز یکی از کلیدهای اثر. در `children`، مدخلِ دارای ردیف بر مدخل هم‌عنوان دیگر پیشی دارد.
+- **[LinkDecidedWorksCommand](../app/Console/Commands/LinkDecidedWorksCommand.php):**
+  - ورودی: پرونده‌ای با `decisions`؛ از هر ردیف `work_id`، `side`، `entry`، `verdict`، `confidence` و `found_id` خوانده می‌شود.
+  - مدخل با بازسازی همان متن پرونده از `parseEntries` میزبان پیدا می‌شود: «عنوان‌ها؛ پدیدآور (تولد-وفات)».
+  - کنار می‌ماند: اثری که نیست، مدخلی که در متن نیست، و جفتی که وارونه‌اش در `work_relations` (جز `model`) هست.
+  - رابطه فقط وقتی ساخته می‌شود که جفت در همان جهت رابطه‌ای جز `model` نداشته باشد. از دو تصمیم برای یک مدخل، نخستین می‌ماند.
+  - همگام‌سازی: `work_entry_links` با کلید `work>side>hash>linked` و `work_relations` با `child>parent>type`، هر دو فقط در ردیف‌های `source = model`. اثرهای فرعی تغییرکرده دوباره نمایه می‌شوند.
+  - `works:link-related` جفت‌های `model` را مانند رابطهٔ ویراستار کنار می‌گذارد، پس باید پیش از این فرمان اجرا شده باشد تا جفت‌های خودش `auto` بمانند.
+- **تمرین روی `fahares_prod` (۲۹ آبان ۱۴۰۵):**
+  - «574 decisions to write»، «1 left: related the other way round» (#58517 ← #17378).
+  - «570 entries: 570 to add»، «236 relations: 236 to add»: related ۱۵۹، commentary ۲۵، abridgment ۲۴، translation ۱۷، gloss ۷، supplement ۲، versification ۲. «Indexed 226 works again».
+  - اجرای دوم: «0 to add, 0 to remove». `works:link-related --dry-run` پس از آن: «10680 relations: 0 to add, 0 to remove».
+  - `work_relations`: auto ۱۰٬۶۸۰، model ۲۳۶، suggestion ۱.
+  - `linkedEntries` برای هر ۵۷۰ ردیف همان اثر را لینک می‌کند. نمونه: #53288 «[تبصرة المتعلمین]؛ علامه حلی …» به #12336 «تبصرة المتعلمین فی احکام الدین».
+- **آزمون:** [LinkDecidedWorksTest](../tests/Feature/LinkDecidedWorksTest.php).
+- **اجرا در تولید، پس از استقرار (migration خودکار است):**
+  1. `works:link-related` گام ۱۴.۲۲۹، اگر هنوز اجرا نشده است (با پشتیبان `work_relations`).
+  2. پروندهٔ `reconciliations/related_works_model_decisions_20261116.json` پیکره به `/tmp` کانتینر برود.
+  3. `scripts/dev/prod-run <session> -- 'php artisan works:link-decisions /tmp/…json'`، سپس پاک کردن پرونده از `/tmp`.
