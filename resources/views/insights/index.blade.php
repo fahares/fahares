@@ -88,6 +88,11 @@
     @else
 
     @php $notes = \App\Support\InsightsNotes::for($data); @endphp
+    @php
+        $tables = \App\Support\InsightsTables::for($data);
+        // The scope in the name of a downloaded file: «-author=1110-century=5-8»
+        $csvSuffix = $scope->isEmpty() ? '' : '-' . trim(preg_replace('/[^\p{L}\p{N}=._-]+/u', '-', urldecode(http_build_query($scope->query()))), '-');
+    @endphp
     <dl class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-line border border-line">
         @foreach([
             ['نسخۀ خطی', Fa::num($data['totals']['manuscripts']), 'متعلق به ' . Fa::num($data['totals']['works']) . ' اثر'],
@@ -163,7 +168,7 @@
                 @if($t['outside'] > 0){{ Fa::num($t['outside']) }} نسخۀ بیرون از سده‌های {{ Fa::digits(config('insights.centuries')[0]) }} تا {{ Fa::digits(config('insights.centuries')[1]) }} در نمودار نیامده است.@endif
                 @if($t['open'] > 0){{ Fa::num($t['open']) }} نسخه با بازۀ باز («پیش از ۱۱۰۰»، «پس از ۱۲۰۰») جدا شمرده شده و در نمودار نیامده است.@endif
             </p>
-            @include('insights.explain', ['note' => $notes['timeline']])
+            @include('insights.explain', ['note' => $notes['timeline'], 'tables' => $tables['timeline']])
             </div>
             @endif
         </x-ui.card>
@@ -195,7 +200,7 @@
                     {{ Fa::num($a['exact']) }} با سال معین و {{ Fa::num($a['range']) }} تنها با سده.
                     @include('insights.doubtful-note', ['layers' => $a, 'unit' => 'مؤلف', 'what' => 'سال وفاتشان'])
                 </p>
-                @include('insights.explain', ['note' => $notes['authors']])
+                @include('insights.explain', ['note' => $notes['authors'], 'tables' => $tables['authors']])
             </div>
 
             <div x-show="by === 'works'" @if($a['counted'] >= $min) x-cloak @endif>
@@ -209,7 +214,7 @@
                     @if($w['open'] > 0){{ Fa::num($w['open']) }} اثر با بازۀ باز («پیش از …») جدا شمرده شده است.@endif
                     جست‌وجوی هر سده، آثاری را هم که تاریخ تألیف ندارند به سدۀ وفات مؤلفشان می‌آورد.
                 </p>
-                @include('insights.explain', ['note' => $notes['works']])
+                @include('insights.explain', ['note' => $notes['works'], 'tables' => $tables['works']])
             </div>
             </div>
             @endif
@@ -260,7 +265,7 @@
                 {{ Fa::num($g['doubtful']) }} نسخه ({{ $pct($g['doubtful_share']) }}) تاریخ کتابت یا وفات مردد دارند و کم‌رنگ آمده‌اند.
                 ردیف نخست، کتابتِ بیش از {{ Fa::digits(-config('insights.copy_gap')[0]) }} سال پیش از وفات، نشان خطایی در تاریخ یا در نسبت اثر به مؤلف است.
             </p>
-            @include('insights.explain', ['note' => $notes['copyGap']])
+            @include('insights.explain', ['note' => $notes['copyGap'], 'tables' => $tables['copyGap']])
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -392,7 +397,7 @@
                 پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند. سدۀ هر اثر، سده‌ای است که کل بازۀ تاریخ تألیفش در آن است؛ از آثار روی نقشه، سدۀ {{ Fa::num($cp['by_century']) }} اثر روشن است.
                 جست‌وجو فیلتر محل تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
             </p>
-            @include('insights.explain', ['note' => $notes['places']])
+            @include('insights.explain', ['note' => $notes['places'], 'tables' => $tables['places']])
             </div>
             @endif
         </x-ui.card>
@@ -466,7 +471,7 @@
                 {{ $pct($mv['stayed_share']) }} آن‌ها امروز در همان شهری‌اند که کتابت شده‌اند.
                 شهر امروز، شهر کتابخانۀ دارندۀ نسخه است.
             </p>
-            @include('insights.explain', ['note' => $notes['movement']])
+            @include('insights.explain', ['note' => $notes['movement'], 'tables' => $tables['movement']])
             </div>
             @endif
         </x-ui.card>
@@ -490,7 +495,7 @@
                     {{ Fa::num(count($sg['rows'])) }} {{ $sg['children'] ? 'زیرموضوع' : 'موضوع' }} پرنسخه از {{ Fa::num($sg['kinds']) }} آمده است.
                     اثری که چند موضوع دارد در هر موضوعش شمرده شده است، پس جمع یک ستون می‌تواند از ۱۰۰ بیشتر شود.
                 </p>
-                @include('insights.explain', ['note' => $notes['subjects']])
+                @include('insights.explain', ['note' => $notes['subjects'], 'tables' => $tables['subjects']])
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -510,7 +515,7 @@
                     بر پایۀ {{ Fa::num($fg['counted']) }} نسخه که تاریخ کتابتشان در یک سده است.
                     این ویژگی‌ها همان‌اند که فهرست‌نگار یاد کرده است؛ یاد نشدن یک ویژگی همیشه به معنای نبودن آن نیست، و فهرست‌ها در یاد کردن آن یکسان نیستند.
                 </p>
-                @include('insights.explain', ['note' => $notes['features']])
+                @include('insights.explain', ['note' => $notes['features'], 'tables' => $tables['features']])
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -552,7 +557,7 @@
                 سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است (تاریخی که تا {{ Fa::num(config('insights.exact_span')) }} سال دامنه دارد، با میانه‌اش). کاتبی که نسخۀ سال‌دار ندارد، سدۀ نسخه‌هایی را دارد که تنها سده‌شان آمده است.
                 شهر، شهری است که بیشترین نسخه‌اش در آن کتابت شده است.
             </p>
-            @include('insights.explain', ['note' => $notes['scribes']])
+            @include('insights.explain', ['note' => $notes['scribes'], 'tables' => $tables['scribes']])
         </x-ui.section>
         @endif
 
@@ -599,7 +604,7 @@
                     «کهن‌ترین» بر پایۀ میانگین سال کتابت نسخه‌های تاریخ‌دار هر کتابخانه است و تنها کتابخانه‌هایی که دست‌کم {{ Fa::num($lb['min_dated']) }} نسخۀ تاریخ‌دار دارند در آن آمده‌اند.
                     نسخه‌ای که تاریخش تا یک سده دامنه دارد («قرن ۱۱») با میانۀ بازه‌اش (۱۰۵۰) شمرده می‌شود. بازه‌های بازتر و تاریخ‌های باز («پیش از ۱۱۰۰») کنار می‌مانند.
                 </p>
-                @include('insights.explain', ['note' => $notes['libraries']])
+                @include('insights.explain', ['note' => $notes['libraries'], 'tables' => $tables['libraries']])
                 </div>
             </x-ui.card>
         </x-ui.section>
@@ -663,7 +668,7 @@
             نام‌های پیوندخورده با همۀ صورت‌هایشان یک‌جا شمرده می‌شوند و به صفحۀ شخص می‌روند؛ نام‌های بی‌پیوند با صورت نوشتاری‌شان.
             سده‌ها، سدۀ آثاری است که کل بازۀ تاریخ تألیفشان در یک سده است؛ سده‌هایی که کمتر از {{ Fa::num(config('insights.min_sample') * 10) }} اثر دارند، در نمودار نیامده‌اند.
         </p>
-        @include('insights.explain', ['note' => $notes['dedications']])
+        @include('insights.explain', ['note' => $notes['dedications'], 'tables' => $tables['dedications']])
     </x-ui.section>
     @endif
 
@@ -725,7 +730,7 @@
                 @if($pt['kin']) {{ Fa::num($pt['kin']) }} نسخه که سفارش‌دهنده‌شان «مؤلف»، «خودش» یا یکی از خویشان کاتب («پدرش …») است، در فهرست نام‌ها نیامده‌اند. @endif
                 سده‌ها، سدۀ نسخه‌هایی است که کل بازۀ تاریخشان در یک سده است؛ سده‌هایی که کمتر از {{ Fa::num(config('insights.min_sample') * 10) }} نسخه دارند، در نمودار نیامده‌اند.
             </p>
-            @include('insights.explain', ['note' => $notes['patrons']])
+            @include('insights.explain', ['note' => $notes['patrons'], 'tables' => $tables['patrons']])
         </x-ui.section>
         @endif
 
@@ -758,7 +763,7 @@
                 نسخۀ عکسی، عکس نسخه‌ای است که در کتابخانۀ دیگری نگه داشته می‌شود، و تاریخ و محل کتابتش همان نسخۀ اصل است.
                 پس نمودارهای این صفحه آن نسخه را، اگر اصلش هم در فهارس باشد، دو بار می‌شمارند. «آمار بی نسخه‌های عکسی» این دوباره‌شماری را کنار می‌گذارد.
             </p>
-            @include('insights.explain', ['note' => $notes['facsimiles']])
+            @include('insights.explain', ['note' => $notes['facsimiles'], 'tables' => $tables['facsimiles']])
         </x-ui.section>
         @endif
     </div>
@@ -825,7 +830,7 @@
                     بر پایۀ {{ Fa::num($sz['with_folios']) }} نسخه که شمار برگشان ثبت شده و {{ Fa::num($sz['with_lines']) }} نسخه که شمار سطرشان ثبت شده است.
                     در مجموعه‌ها، شمار برگ گاه برگ‌های همان رساله است و گاه برگ‌های کل مجموعه، بسته به فهرست. سده‌هایی که کمتر از {{ Fa::digits(config('insights.min_sample')) }} نسخه دارند نیامده‌اند.
                 </p>
-                @include('insights.explain', ['note' => $notes['sizes']])
+                @include('insights.explain', ['note' => $notes['sizes'], 'tables' => $tables['sizes']])
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -858,7 +863,7 @@
                 <p class="mt-4 text-xs text-muted leading-relaxed">
                     بر پایۀ نسخه‌هایی که تاریخ کتابتشان در یک سده است: {{ Fa::num($ls['languages']['counted']) }} نسخه با زبان و {{ Fa::num($ls['scripts']['counted']) }} نسخه با خط.
                 </p>
-                @include('insights.explain', ['note' => $notes['languageScripts']])
+                @include('insights.explain', ['note' => $notes['languageScripts'], 'tables' => $tables['languageScripts']])
             </div>
             @endif
         </x-ui.card>
@@ -914,7 +919,7 @@
                 @endforeach
             </p>
         @endif
-        @include('insights.explain', ['note' => $notes['topWorks']])
+        @include('insights.explain', ['note' => $notes['topWorks'], 'tables' => $tables['topWorks']])
     </x-ui.section>
     @endif
 
@@ -963,7 +968,7 @@
                         @endforeach
                     @endif
                 </p>
-                @include('insights.explain', ['note' => $notes['copiesPerWork']])
+                @include('insights.explain', ['note' => $notes['copiesPerWork'], 'tables' => $tables['copiesPerWork']])
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -996,7 +1001,7 @@
             <p class="mt-5 text-xs text-muted leading-relaxed">
                 بر پایۀ {{ Fa::num($cw['counted']) }} نسخه که تاریخ کتابتشان در یک سده است. رکوردهای بی‌پدیدآوری که عنوانشان نام یک گونۀ متن است («اشعار»، «جنگ») نیامده‌اند.
             </p>
-            @include('insights.explain', ['note' => $notes['centuryWorks']])
+            @include('insights.explain', ['note' => $notes['centuryWorks'], 'tables' => $tables['centuryWorks']])
         </x-ui.card>
     </x-ui.section>
     @endif
@@ -1044,7 +1049,7 @@
             آثارِ دارای پدیدآور که فهارس برایشان چاپی یاد نکرده است: بخش «چاپ» رکوردشان خالی است و واژۀ «چاپ» در متنشان نیامده.
             این به معنای چاپ‌نشدن اثر نیست؛ فهارس چاپ همۀ آثار را ثبت نکرده است و تنها {{ Fa::num($up['printed']) }} اثر ({{ $pct($up['coverage']) }}){{ $scope->isEmpty() ? '' : ' در این دامنه' }} آگاهی چاپ دارند. پیش از تصحیح، چاپ اثر را در منابع دیگر هم بجویید.
         </p>
-        @include('insights.explain', ['note' => $notes['unprinted']])
+        @include('insights.explain', ['note' => $notes['unprinted'], 'tables' => $tables['unprinted']])
     </x-ui.section>
     @endif
 
@@ -1108,7 +1113,7 @@
                     @if($col['lone'] > 0){{ Fa::num($col['lone']) }} مجلد که{{ $scope->isEmpty() ? '' : ' در این دامنه' }} تنها یک رساله‌شان هست شمرده نشده‌اند.@endif
                     @unless($scope->isEmpty())در یک دامنه، تنها رساله‌هایی از هر مجموعه شمرده می‌شوند که در همان دامنه‌اند.@endunless
                 </p>
-                @include('insights.explain', ['note' => $notes['collections']])
+                @include('insights.explain', ['note' => $notes['collections'], 'tables' => $tables['collections']])
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -1151,7 +1156,7 @@
                     @endif
                 </ul>
                 <p class="mt-4 text-xs text-muted">بر پایۀ {{ Fa::num($s['counted']) }} نسخه، یعنی {{ $pct($s['coverage']) }} نسخه‌ها، که خطشان ثبت شده است.</p>
-                @include('insights.explain', ['note' => $notes['scripts']])
+                @include('insights.explain', ['note' => $notes['scripts'], 'tables' => $tables['scripts']])
                 @endif
             </x-ui.card>
         </x-ui.section>
@@ -1206,7 +1211,7 @@
                     {{ Fa::num($l['multilingual']) }} اثرِ چندزبانه در هر زبانِ خود شمرده شده‌اند، پس جمع سهم‌ها کمی بیش از شمار آثار است.
                     در شمارش «نسخه‌ها» نسخه‌های هر اثر به زبان آن اثر نسبت داده شده است.
                 </p>
-                @include('insights.explain', ['note' => $notes['languages']])
+                @include('insights.explain', ['note' => $notes['languages'], 'tables' => $tables['languages']])
             </div>
             @endif
             </x-ui.card>
@@ -1247,7 +1252,7 @@
                 نشانی هر نسخه در فهرست چاپی کتابخانه‌اش آمده است.
                 {{ Fa::num($src['counted']) }} نسخه ({{ $pct($src['coverage']) }}) به یکی از {{ Fa::num($src['volumes']) }} جلد فهرست پیوند دارند@if($src['unknown'] > 0) و جلد فهرست {{ Fa::num($src['unknown']) }} نسخۀ دیگر هنوز شناخته نیست@endif.
             </p>
-            @include('insights.explain', ['note' => $notes['sources']])
+            @include('insights.explain', ['note' => $notes['sources'], 'tables' => $tables['sources']])
         </x-ui.card>
     </x-ui.section>
     @endif
@@ -1286,6 +1291,7 @@
                 نسخه‌ای در این شمار آمده که وصفش در فهرست چاپی کتابخانه خوانده شده و هر یک از این شناسه‌ها که در فهارس دارد، با آن وصف یکی است یا اختلافش بررسی و روشن شده است.
                 فهرست‌های چاپی کتابخانه‌ها یکی‌یکی خوانده می‌شوند و این ارقام هر شب از نو سنجیده می‌شود@if($coverage['measured_at'])؛ آخرین بار {{ Jalali::format(\Illuminate\Support\Carbon::parse($coverage['measured_at']), 'long') }}@endif.
             </p>
+            @include('insights.data-table', ['tables' => \App\Support\InsightsTables::firsthand($coverage)])
         </x-ui.card>
     </x-ui.section>
     @endif
@@ -1341,7 +1347,7 @@
                 {{ Fa::num($ov['several']) }} نسخه در بیش از یک فهرست کتابخانه وصف شده‌اند: بیشتر، فهرست کهنه و فهرست تازۀ یک کتابخانه، یا فهرست نسخه‌های اصل و فهرست عکس‌ها و میکروفیلم‌هایشان.
                 فهرستی که هنوز به فهارس افزوده نشده در این شمارش نیست.
             </p>
-            @include('insights.explain', ['note' => $notes['sourceOverlap']])
+            @include('insights.explain', ['note' => $notes['sourceOverlap'], 'tables' => $tables['sourceOverlap']])
         </x-ui.card>
     </x-ui.section>
     @endif
