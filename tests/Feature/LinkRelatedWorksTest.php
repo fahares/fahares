@@ -63,10 +63,12 @@ class LinkRelatedWorksTest extends TestCase
         $hashiya->delete();
         $this->assertCount(3, $this->relations());
 
-        // the pages: the text as Fankha wrote it, its titles linked to the works, and the relation both ways
+        // the pages: the relation both ways, in the one relations section (step 14.277); the text's own fields are off
+        // the page, and its words show only where they are not the work's title and author
         $page = $this->followingRedirects()->get(route('works.show', $sharh))->assertOk();
-        $page->assertSee('<a href="' . route('works.show', $nahj) . '"', false)->assertSee('؛ سید رضی، محمد بن حسین (۳۵۹-۴۰۶)', false)
-            ->assertSee('شرحی است بر');
+        $page->assertSee('<a href="' . route('works.show', $nahj) . '"', false)->assertSee('شرحی است بر')
+            ->assertDontSee('در فهرست:')->assertDontSee('وابسته به</dt>', false)->assertDontSee('field="commentaries_and_glosses"', false);
+        $this->followingRedirects()->get(route('works.show', $nahj))->assertOk()->assertDontSee('<span>شروح، حواشی و منظومه‌ها</span>', false);
         $page = $this->followingRedirects()->get(route('works.show', $nahj))->assertOk();
         $page->assertSee('<a href="' . route('works.show', $sharh) . '"', false)->assertSee('<a href="' . route('works.show', $tarjama) . '"', false)->assertSee('ترجمه‌ها');
         $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها و مجلدها');
@@ -90,6 +92,16 @@ class LinkRelatedWorksTest extends TestCase
             'entry_hash' => sha1('الزایرجة؛ سبتی، احمد بن جعفر'), 'linked_work_id' => $zayirja->id, 'source' => 'model', 'created_at' => now(), 'updated_at' => now()]);
         DB::table('work_relations')->insert(['work_id' => $adwar->id, 'related_work_id' => $zayirja->id, 'type' => 'related', 'source' => 'model', 'created_at' => now(), 'updated_at' => now()]);
         $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
+
+        // a field the parser reads no entry in (long, with no «؛») is one row as written; a field of several entries keeps its note
+        $long = 'الفرائض النصیریة علی مذهب اهل البیت = جواهر الفرائض = رسالة الدرة = الرسالة المیراثیة = رساله‌ای دیگر با نامی بلند نصیرالدین طوسی، محمد بن محمد';
+        $unread = $this->work('شرحی بر فرائض', 'کسی، ج', ['related_work' => $long]);
+        $note = 'گزیده‌ای است از این دو کتاب که در ده باب، برای هر روز از دهۀ نخست ماه یک باب، مرتب شده و در پایان آن فهرستی از مطالب هر باب آمده است';
+        $two = $this->work('منتخب دو کتاب', 'کسی، د', ['related_work' => "کتاب یکم؛ کسی، ه (-700)؛ کتاب دوم؛ کسی، و (-800)؛ {$note}"]);
+        $this->assertSame([['side' => 'related', 'text' => $long, 'type' => 'related']], WorkRelationLinker::pageRows($unread)['unlinked']);
+        $this->assertSame([$note], WorkRelationLinker::pageRows($two)['notes']);
+        $this->followingRedirects()->get(route('works.show', $two))->assertOk()
+            ->assertSeeInOrder(['وابسته است به:', 'کتاب یکم؛ کسی، ه (-۷۰۰)', 'کتاب دوم؛ کسی، و (-۸۰۰)', "یادداشت فهرست: {$note}"], false);
 
         $rows = WorkRelationLinker::pageRows($nahj->fresh());
         $this->assertSame([], $rows['printed']);
@@ -196,8 +208,8 @@ class LinkRelatedWorksTest extends TestCase
         $this->assertSame([1], array_keys(WorkRelationLinker::linkedEntries($base)['children']));
         $this->assertSame($qutb->id, WorkRelationLinker::linkedEntries($base)['children'][1][0][1]->id);
 
-        // the page links the title alone, and leaves the author after it as text
+        // the page links the work; the author written after the title is the work's own, so the catalogue's words are not repeated
         $this->followingRedirects()->get(route('works.show', $glued))->assertOk()
-            ->assertSee('>تهذیب المنطق</a> تفتازانی، مسعود بن عمر (۷۲۲-۷۹۲)', false);
+            ->assertSee('<a href="' . route('works.show', $tahdhib) . '"', false)->assertDontSee('در فهرست:');
     }
 }

@@ -7,10 +7,11 @@
     // A work's related works the catalogue records as text (step 14.277, backlog item 6): the entries tied to no work
     // stand in this section as text, under the label of their type; a tied one shows the catalogue's words where
     // they are not its work's title and author
-    $printed = [];
+    $printed = $notes = [];
     if ($record instanceof \App\Models\Work) {
         $rows = \App\Support\WorkRelationLinker::pageRows($record);
         $printed = $rows['printed'];
+        $notes = $rows['notes'];
         foreach ($rows['unlinked'] as $row) {
             $label = \App\Suggestions\RecordRelations::WORK_TYPES[$row['type']][$row['side'] === 'related' ? 0 : 1] ?? null;
             if ($label) {
@@ -65,5 +66,9 @@
                 </div>
             @endforeach
         </dl>
+        {{-- what the catalogue says after the works it names («وابسته به» of several entries) --}}
+        @foreach($notes as $note)
+            <p class="mt-3 text-[13px] text-muted leading-relaxed max-w-[72ch]">یادداشت فهرست: {{ Fa::digits($note) }}</p>
+        @endforeach
 </x-ui.section>
 @endif

@@ -57,8 +57,6 @@
 
     @php
         use App\Support\Fa;
-        // the related works recorded as text that work_relations links (step 14.104)
-        $textLinks = \App\Support\WorkRelationLinker::linkedEntries($work);
         // the record's sources (steps 13.2 and 13.4), all alike in the order of their rank; its Fankha entry gives the
         // addendum chip and the Fankha citation format
         $sources = $work->sources();
@@ -250,9 +248,6 @@
                     </x-ui.meta>
                     <x-ui.meta label="اهدا / به درخواست" field="dedication" :empty="empty($work->dedication)">{{ $work->dedication }}</x-ui.meta>
                     <x-ui.meta label="محل تألیف" field="composition_place" :empty="empty($work->composition_place)">{{ $work->composition_place }}</x-ui.meta>
-                    {{-- an entry linked to its work by work_relations is a link to it, Fankha's words kept (step 14.104). The
-                         entries stand in «رابطه با آثار دیگر» (step 14.277); the field as written shows in suggestion mode, to be corrected --}}
-                    <x-ui.meta label="وابسته به" field="related_work" :empty="empty($work->related_work)" :suggest-only="true">{{ \App\Support\WorkRelationLinker::html((string) $work->related_work, $textLinks['related']) }}</x-ui.meta>
                 </x-ui.meta-list>
             </x-ui.section>
 
@@ -295,7 +290,6 @@
                     'incipit_text' => empty($work->incipit_text) ? 'آغاز اثر' : null,
                     'explicit_text' => empty($work->explicit_text) ? 'انجام اثر' : null,
                     'print_info' => empty($work->print_info) ? 'چاپ‌ها و سوابق' : null,
-                    'commentaries_and_glosses' => empty($work->commentaries_and_glosses) ? 'شروح و حواشی' : null,
                 ]);
             @endphp
             @if($emptySections)
@@ -310,23 +304,6 @@
             @if(! empty($work->print_info))
                 <x-ui.section title="چاپ‌ها و سوابق" field="print_info">
                     <div class="text-sm leading-loose text-ink whitespace-pre-line max-w-[72ch]">{{ Fa::digits($work->print_info) }}</div>
-                </x-ui.section>
-            @endif
-
-            @if(! empty($work->commentaries_and_glosses) && count($work->commentaries_and_glosses) > 0)
-                {{-- the list as written shows in suggestion mode only: its entries stand in «رابطه با آثار دیگر» (step 14.277) --}}
-                <x-ui.section title="شروح، حواشی و منظومه‌ها" field="commentaries_and_glosses" :count="count($work->commentaries_and_glosses)" x-show="$store.suggest.on" x-cloak>
-                    <ul class="space-y-1.5 text-sm" x-data="{ all: false }">
-                        @foreach($work->commentaries_and_glosses as $comm)
-                            <li class="flex gap-2.5 leading-relaxed" @if($loop->index >= 12) x-show="all" x-cloak @endif>
-                                <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                                <span class="text-ink">{{ \App\Support\WorkRelationLinker::html((string) $comm, $textLinks['children'][$loop->index] ?? []) }}</span>
-                            </li>
-                        @endforeach
-                        @if(count($work->commentaries_and_glosses) > 12)
-                            <li x-show="! all"><button type="button" @click="all = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش همۀ {{ Fa::num(count($work->commentaries_and_glosses)) }} مدخل</button></li>
-                        @endif
-                    </ul>
                 </x-ui.section>
             @endif
 
