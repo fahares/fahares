@@ -12560,3 +12560,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `catalogs:sync-editions`: باید `create` برای پنج جلد `sepahsalar-motahhari` باشد.
   4. برای N از ۱ تا ۵: `sources:import-pages sepahsalar-motahhari /tmp/v0N.jsonl.gz --volume=N --extractor=bracketed_entries` و `catalogs:match-edition sepahsalar-motahhari /tmp/v0N.jsonl.gz --volume=N`. درج‌ها باید ۶۸۶، ۴۵۰، ۱٬۵۴۶، ۱٬۲۵۲ و ۲٬۷۰۲ باشد، اگر نسخه‌های سپهسالار از تمرین دگرگون نشده باشند.
   5. اجرای دوم پنج `match-edition` باید `insert 0, update 0` بدهد. سپس پرونده‌ها از `/tmp` پاک شوند.
+- **اجرای پروداکشن (انتشار `a2f93e99`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر):**
+  - **تصویرها:** ۲٬۶۹۷ پرونده با `send.sh` در شش جریان منتقل شد (۱۹:۳۹ تا ۲۰:۱۳). شمار پرونده‌های سرور ۲٬۶۹۷ است.
+  - **پشتیبان:** وضع پیش از اجرا در `../fahares-sources/backups/step13/before_step14_267_sepahsalar_20261120_1949.json`: منبع ۱۰۰۰۴۴، پنج ردیف `catalog_volumes` کتابخانۀ ۲۲، ۵٬۹۵۸ مدخل منبع کهنه، و ۵٬۹۸۵ نسخه. هنوز ردیفی از `sepahsalar-motahhari` نبود.
+  - **اجرا:** یک `prod-run`. پنج پرونده در یک جریان tar رفتند و `md5sum -c` گذشت. `sync-editions` پنج `create` داد.
+  - **درج‌ها:** ۶۸۶، ۴۵۰، ۱٬۵۴۶، ۱٬۲۵۲ و ۲٬۷۰۲، برابر تمرین. اجرای دوم: `insert 0, update 0`. `/tmp` پاک ماند.
+  - **وارسی:** چهار صفحۀ نسخه (۱۰۱۵۸، ۲۳۲۶۷، ۶۲۵۶۴ و ۱۲۹۶۲) چاپ دوم را با نشانی تمرین نشان دادند. تصویر و صفحۀ متن پاسخ ۲۰۰ دادند، منبع در `/sources` بود، و `laravel.log` خطایی نداشت.
