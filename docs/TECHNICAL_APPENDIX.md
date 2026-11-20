@@ -12254,3 +12254,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `ImportCopyNotesCommandTest` (۳ آزمون): ترتیب و ویژگی‌ها و اجرای دوم، جانشینی و نگه‌داشتن کار ویراستار، و توقف با نوع ناشناخته.
 - **تمرین روی `fahares_prod` محلی:** migration، سپس `Wrote 249932 notes of 146476 copies` در ۲۳ ثانیه. اجرای دوم: `same 146476`.
 - **اجرا در تولید (پس از استقرار و تأیید):** `php artisan fahares:import-copy-notes --file=database/data/copy_notes_step14_254.jsonl.gz --apply`. جدول تازه است و پشتیبان نمی‌خواهد.
+- **اجرای تولید (۲۹ آبان ۱۴۰۵، `prod-run`):** شمارش، سپس `--apply`: `Wrote 249924 notes of 146474 copies`، با `skipped: no such copy 1` و `skipped: another shelfmark 1`. اجرای دوم: `same 146474`. جدول: ۲۴۹٬۹۲۴ سطر و ۱۴۶٬۴۷۴ نسخه.
