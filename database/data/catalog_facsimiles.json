@@ -3712,6 +3712,98 @@
      "step": "14.252"
     }
    }
+  },
+  {
+   "library_slug": "mshhd-shykh-aaly-hydr-205",
+   "volume_number": 1,
+   "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الأول",
+   "facsimile_code": "moayyed",
+   "page_first": 1,
+   "page_last": 464,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "moayyed/v01.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه 505416 (PDF تصویری، ۴۶۶ برگ)؛ برگ = صفحه + ۲",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-shykh-aaly-hydr-205",
+   "volume_number": 2,
+   "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثانی",
+   "facsimile_code": "moayyed",
+   "page_first": 1,
+   "page_last": 354,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "moayyed/v02.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه 505421 (PDF تصویری، ۳۵۶ برگ)؛ برگ = صفحه + ۲",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-adbyat-17",
+   "volume_number": 3,
+   "title": "فهرست کتب خطی کتابخانه دانشکده ادبیات - جلد سوم: مجموعه امام جمعه کرمان اهدایی احمد جوادی",
+   "facsimile_code": "tehran-adabiyat",
+   "page_first": 10,
+   "page_last": 253,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-adabiyat/v03.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-adabiyat/v03.map.json"
+     ],
+     "note": "خزانه‌ها 3410؛ دوصفحه‌ای، راست = ۲·برگ − ۱۸؛ پیش‌گفتار ابجد کنار ماند",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 28,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد بیست و هشتم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 792,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v28.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (noorlib 16412، ج ۲۸، دانلود کاربر)؛ برگ = صفحه + ۹",
+     "step": "14.258"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 31,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و یکم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 960,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v31.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (noorlib 16412، ج ۳۱، دانلود کاربر)؛ برگ = صفحه",
+     "step": "14.258"
+    }
+   }
   }
  ]
 }
