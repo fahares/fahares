@@ -5,7 +5,7 @@
  * for the city that is clicked. ECharts and the base map are fetched when the map comes into view; until then, and
  * without script, the page shows the still map it was sent with.
  *
- * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad}: for each layer its whole count and its counts by decade,
+ * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad, o, od, b, bd, x, xd}: for each layer its whole count and its counts by decade,
  * [[the year the decade ends in, count], …]. A copy is «by a year» once the whole range of its date has passed.
  */
 const LAYERS = {
@@ -13,6 +13,10 @@ const LAYERS = {
     composition: { total: 'w', decades: 'wd', unit: 'اثر', color: '--gold' },
     scribes: { total: 's', decades: 'sd', unit: 'کاتب', color: '--ink' },
     authors: { total: 'a', decades: 'ad', unit: 'مؤلف', color: '--muted' },
+    // Where the authors and scribes were from (the nisba of the name), were born and died (their lives)
+    origin: { total: 'o', decades: 'od', unit: 'شخص', row: 'با نسبت این شهر', color: '--ink' },
+    birth: { total: 'b', decades: 'bd', unit: 'شخص', row: 'زادۀ این شهر', color: '--gold' },
+    death: { total: 'x', decades: 'xd', unit: 'شخص', row: 'درگذشته در این شهر', color: '--muted' },
 };
 // The tints of the territories, by the region of the dynasty (in the order the page lists the regions)
 const REGION_COLORS = ['#B5651D', '#3F7F6B', '#5B6BA8', '#A8843F', '#8C4A6E', '#4F8FA8', '#7A8A3A', '#A2553F', '#6E5BA8', '#3F6F8F'];
@@ -120,7 +124,7 @@ export default (config) => {
 
     /** The figures of the chosen city in every layer, for the panel */
     get figures() {
-        return this.selected ? Object.entries(LAYERS).map(([key, layer]) => ({ key, unit: layer.unit, n: this.value(this.selected, key) })) : [];
+        return this.selected ? Object.entries(LAYERS).map(([key, layer]) => ({ key, unit: layer.row ?? layer.unit, n: this.value(this.selected, key) })) : [];
     },
 
     /** The state whose territory holds the chosen city in the decade of the slider */

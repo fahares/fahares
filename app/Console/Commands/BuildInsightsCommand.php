@@ -30,7 +30,7 @@ class BuildInsightsCommand extends Command
             $data['authors']['counted'],
             $data['copy_gap']['placed'],
             $data['places']['mapped'],
-            count($data['places']['cities']),
+            $data['places']['copy_cities'],
             $data['places']['coverage'],
             $data['places']['composition']['mapped'],
             $data['places']['composition']['cities'],

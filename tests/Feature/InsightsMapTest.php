@@ -98,7 +98,7 @@ class InsightsMapTest extends TestCase
         $this->assertSame(1, $places['authors_mapped']);
 
         $table = collect(InsightsTables::for(Insights::build(InsightsScope::fromArray(['library' => $this->library->id])))['places'])->firstWhere('file', 'people-places');
-        $this->assertSame([['اصفهان', 2, 0, 4, 0], ['مشهد', 1, 1, 1, 1]], $table['rows']);
+        $this->assertSame([['اصفهان', 2, 0, 0, 0, 0, 4, 0], ['مشهد', 1, 1, 0, 0, 0, 1, 1]], $table['rows']);
     }
 
     public function test_the_places_page_carries_the_map_its_data_and_the_still_map()
@@ -138,5 +138,49 @@ class InsightsMapTest extends TestCase
         // ECharts is a chunk of its own, loaded by the map alone
         $this->assertStringContainsString("import('./echarts-map')", file_get_contents(resource_path('js/insights-map.js')));
         $this->assertStringNotContainsString('echarts', file_get_contents(resource_path('js/app.js')));
+    }
+
+    public function test_the_people_of_a_scope_are_placed_by_their_nisba_and_their_lives()
+    {
+        $person = fn (string $name, array $more = []) => Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'insights-map-' . uniqid()] + $more);
+        $author = $person('حسینی اصفهانی، محمد بن علی', ['death_year_hijri' => 1095, 'death_from' => 1095, 'death_to' => 1095]);
+        $scribe = $person('محمد حسین بن علی تفرشی نجفی');
+        $outside = $person('کسی از شیراز، شیرازی');
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copy($work, ['copy_date_raw' => '1061ق', 'copy_place' => 'اصفهان', 'scribe_id' => $scribe->id]);
+
+        $code = 'insights-map-' . uniqid();
+        $source = \App\Models\Source::create(['code' => $code, 'kind' => \App\Models\Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'الأعلام', 'short_name' => 'الأعلام']);
+        $volume = \App\Models\SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => $code]);
+        $life = function (Person $of, string $text, array $more = []) use ($source, $volume) {
+            $item = \App\Models\SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 1, 'item_key' => uniqid(),
+                'position' => 1, 'kind' => 'entry', 'page_start' => 10, 'page_end' => 10, 'title' => $of->name, 'title_normalized' => $of->name, 'text' => $text, 'text_status' => 'auto']);
+            \App\Models\SourceEntry::create($more + ['citable_type' => Person::class, 'citable_id' => $of->id, 'source_id' => $source->id, 'source_volume_id' => $volume->id,
+                'source_item_id' => $item->id, 'volume_number' => 1, 'page_start' => 10, 'role' => \App\Models\SourceEntry::ROLE_ENTRY,
+                'origin' => \App\Models\SourceEntry::ORIGIN_MATCH, 'match_method' => 'name_death', 'confidence' => 90]);
+        };
+        $life($author, 'ولد بأصفهان سنة 1020 و توفي في النجف.');
+        // A tie a reviewer rejected, and the life of a person outside the scope, are not read
+        $life($author, 'توفي في بغداد.', ['status' => \App\Models\SourceEntry::STATUS_REJECTED]);
+        $life($outside, 'ولد في شيراز.');
+
+        $places = $this->places();
+        $cities = collect($places['cities'])->keyBy('name');
+
+        $this->assertSame(1, $cities['اصفهان']['origins']);
+        $this->assertSame([1100 => 1], $cities['اصفهان']['origin_decades']);
+        $this->assertSame(1, $cities['اصفهان']['births']);
+        // A city known only from persons is on the map too, and is no city of copying
+        $this->assertSame(['count' => 0, 'origins' => 1, 'deaths' => 1, 'death_decades' => [1100 => 1]],
+            array_intersect_key($cities['نجف'], ['count' => 1, 'origins' => 1, 'deaths' => 1, 'death_decades' => 1]));
+        // The scribe has no year of death: counted in the decade of the last copy, when the record has it
+        $this->assertSame(1, $cities['تفرش']['origins']);
+        $this->assertArrayNotHasKey('شیراز', $cities);
+        $this->assertArrayNotHasKey('بغداد', $cities);
+        $this->assertSame(2, $places['origins_mapped']);
+        $this->assertSame(1, $places['births_mapped']);
+        $this->assertSame(1, $places['deaths_mapped']);
+        $this->assertSame(1, $places['lives_read']);
+        $this->assertSame(1, $places['copy_cities']);
     }
 }
