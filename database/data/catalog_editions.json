@@ -88,6 +88,111 @@
                 "pdf_leaf_offset": 2,
                 "note": "PDF leaf = printed page + 2, checked on the headers of pp. 100, 400 and 766. No colophon; the cover names Reza Ostadi, Sadegh Hasanzadeh and Mahmud Tayyar Maraghi, with no year."
             }
+        },
+        {
+            "facsimile_code": "sepahsalar-motahhari",
+            "volume_number": 1,
+            "library_slug": "thran-sphsalar-22",
+            "edition_of": {
+                "volume_number": 1
+            },
+            "title": "فهرست نسخه‌های خطی مدرسۀ عالی شهید مطهری (سپهسالار سابق) - جلد اول: کتب خطی عربی و فارسی",
+            "edition_label": "دوم، به تصحیح ابوالقاسم نقیبی و عبدالله غفرانی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 543,
+            "pages_count": 543,
+            "source_url": "https://ghaemiyeh.com/show-book/620334",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "step": "14.267",
+                "note": "Typeset second edition; PDF leaf = printed page + 2 (cover and Ghaemiyeh title first, Ghaemiyeh back page last). Ghaemiyeh's catalogue record names the first printing. No year in the book. The running head reads «… شهید مطهری / ۵»."
+            }
+        },
+        {
+            "facsimile_code": "sepahsalar-motahhari",
+            "volume_number": 2,
+            "library_slug": "thran-sphsalar-22",
+            "edition_of": {
+                "volume_number": 2
+            },
+            "title": "فهرست نسخه‌های خطی مدرسۀ عالی شهید مطهری (سپهسالار سابق) - جلد دوم: کتب خطی فارسی، عربی، ترکی",
+            "edition_label": "دوم، به تصحیح ابوالقاسم نقیبی و عبدالله غفرانی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 564,
+            "pages_count": 564,
+            "source_url": "https://ghaemiyeh.com/show-book/620339",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "step": "14.267",
+                "note": "Typeset second edition; PDF leaf = printed page + 2 (cover and Ghaemiyeh title first, Ghaemiyeh back page last). Ghaemiyeh's catalogue record names the first printing. No year in the book. The running head reads «… شهید مطهری / ۵»."
+            }
+        },
+        {
+            "facsimile_code": "sepahsalar-motahhari",
+            "volume_number": 3,
+            "library_slug": "thran-sphsalar-22",
+            "edition_of": {
+                "volume_number": 3
+            },
+            "title": "فهرست نسخه‌های خطی مدرسۀ عالی شهید مطهری (سپهسالار سابق) - جلد سوم: کتب خطی آ - ث",
+            "edition_label": "دوم، به تصحیح ابوالقاسم نقیبی و عبدالله غفرانی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 356,
+            "pages_count": 356,
+            "source_url": "https://ghaemiyeh.com/show-book/620340",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "step": "14.267",
+                "note": "Typeset second edition; PDF leaf = printed page + 2 (cover and Ghaemiyeh title first, Ghaemiyeh back page last). Ghaemiyeh's catalogue record names the first printing. No year in the book. The title page reads «دفتر نخست», the running head «جلد سوم»."
+            }
+        },
+        {
+            "facsimile_code": "sepahsalar-motahhari",
+            "volume_number": 4,
+            "library_slug": "thran-sphsalar-22",
+            "edition_of": {
+                "volume_number": 4
+            },
+            "title": "فهرست نسخه‌های خطی مدرسۀ عالی شهید مطهری (سپهسالار سابق) - جلد چهارم: کتب خطی ج - ذ",
+            "edition_label": "دوم، به تصحیح ابوالقاسم نقیبی و عبدالله غفرانی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 399,
+            "pages_count": 399,
+            "source_url": "https://ghaemiyeh.com/show-book/620341",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "step": "14.267",
+                "note": "Typeset second edition; PDF leaf = printed page + 2 (cover and Ghaemiyeh title first, Ghaemiyeh back page last). Ghaemiyeh's catalogue record names the first printing. No year in the book."
+            }
+        },
+        {
+            "facsimile_code": "sepahsalar-motahhari",
+            "volume_number": 5,
+            "library_slug": "thran-sphsalar-22",
+            "edition_of": {
+                "volume_number": 5
+            },
+            "title": "فهرست نسخه‌های خطی مدرسۀ عالی شهید مطهری (سپهسالار سابق) - جلد پنجم: کتب خطی ر - ی",
+            "edition_label": "دوم، به تصحیح ابوالقاسم نقیبی و عبدالله غفرانی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 835,
+            "pages_count": 835,
+            "source_url": "https://ghaemiyeh.com/show-book/620342",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "step": "14.267",
+                "note": "Typeset second edition; PDF leaf = printed page + 2 (cover and Ghaemiyeh title first, Ghaemiyeh back page last). Ghaemiyeh's catalogue record names the first printing. No year in the book."
+            }
         }
     ]
 }
