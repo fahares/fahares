@@ -2,132 +2,172 @@
     use App\Support\Fa;
     use App\Support\Jalali;
 @endphp
-{{-- 2. Centres of copying and of composition --}}
+{{--
+    2. Centres of copying and of composition: the map (backlog item 137, step 14.275). The page is sent with a still
+    map of the copies; resources/js/insights-map.js puts the map that is zoomed and dragged in its place when it comes
+    into view, with the layers, the slider of years, the territories and the panel of the chosen city.
+--}}
 <x-ui.section title="کانون‌های تاریخی استنساخ و تألیف" id="places">
     <x-ui.card>
         @if($p['mapped'] < $min && $cp['mapped'] < $min)
             @include('insights.thin', ['n' => max($p['mapped'], $cp['mapped']), 'what' => 'نسخه یا اثر با محل شناخته'])
         @else
-        <div x-data="{
-            c: 'all',
-            layer: '{{ $p['mapped'] >= $min ? 'copy' : 'composition' }}',
-            hover: null,
-            cities: @js($mapCities),
-            n(city) { return this.c === 'all' ? city.t : (city.c[this.c] || 0) },
-            w(city) { return this.c === 'all' ? city.w : (city.wc[this.c] || 0) },
-            key(city) { return this.layer === 'composition' ? this.w(city) : this.n(city) },
-            get maxN() { return Math.max(1, ...this.cities.map(city => this.n(city))) },
-            get maxW() { return Math.max(1, ...this.cities.map(city => this.w(city))) },
-            r(city) { const v = this.layer === 'composition' ? 0 : this.n(city); return v ? Math.max(3, 34 * Math.sqrt(v / this.maxN)) : 0 },
-            rw(city) { const v = this.layer === 'copy' ? 0 : this.w(city); return v ? Math.max(3, 34 * Math.sqrt(v / this.maxW)) : 0 },
-            href(city) { return this.layer === 'composition' ? null : `{{ $search('manuscripts') }}&amp;copy_city=${encodeURIComponent(city.n)}` + (this.c === 'all' ? '' : `&century=${this.c}`) },
-            tip(city) { return [this.layer !== 'composition' ? this.n(city).toLocaleString('fa-IR') + ' نسخه' : null, this.layer !== 'copy' ? this.w(city).toLocaleString('fa-IR') + ' اثر' : null].filter(Boolean).join(' · ') },
-            get ranked() { return this.cities.filter(city => this.key(city) > 0).sort((a, b) => this.key(b) - this.key(a)).slice(0, 15) },
-            get total() { return this.cities.reduce((s, city) => s + this.key(city), 0) },
-        }">
+        @php
+            $pairs = fn (array $decades) => array_map(null, array_keys($decades), array_values($decades));
+            $mapData = [
+                'layer' => $p['mapped'] >= $min ? 'copy' : 'composition',
+                // The decades of the slider, by the year they end in
+                'years' => [300, config('insights.centuries')[1] * 100 - 50],
+                'cities' => array_map(fn ($c) => ['n' => $c['name'], 'lat' => $c['lat'], 'lon' => $c['lon'],
+                    't' => $c['count'], 'd' => $pairs($c['decades']), 'w' => $c['works'], 'wd' => $pairs($c['work_decades']),
+                    's' => $c['scribes'], 'sd' => $pairs($c['scribe_decades']), 'a' => $c['authors'], 'ad' => $pairs($c['author_decades'])], $p['cities']),
+                'frame' => \Illuminate\Support\Arr::only($map, ['lon0', 'lon1', 'lat0', 'lat1']),
+                'basemap' => asset('data/insights/basemap.json'),
+                'territories' => asset('data/insights/territories/__YEAR__.json'),
+                'regions' => array_values(array_unique(array_column(\App\Support\Dynasties::all(), 'region'))),
+                // The searches that take a city of copying; the scribes' search cannot carry a scope
+                'search' => ['copy' => $search('manuscripts'), 'scribes' => $scope->isEmpty() ? route('search', ['type' => 'scribes']) : null],
+            ];
+            $layerNames = ['copy' => 'نسخه‌ها (محل کتابت)', 'composition' => 'آثار (محل تألیف)', 'scribes' => 'کاتبان', 'authors' => 'مؤلفان'];
+            $chip = fn (string $on) => "{$on} ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'";
+        @endphp
+        <div x-data="insightsMap(@js($mapData))" data-insights-map>
         <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
             <span class="text-muted me-1">لایه:</span>
-            @foreach(['copy' => 'محل کتابت', 'composition' => 'محل تألیف', 'both' => 'هر دو'] as $key => $name)
+            @foreach($layerNames as $key => $name)
                 <button type="button" @click="layer = '{{ $key }}'" :aria-pressed="(layer === '{{ $key }}').toString()"
-                        :class="layer === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
+                        :class="{{ $chip("layer === '{$key}'") }}"
                         class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
             @endforeach
         </div>
-        <div class="flex flex-wrap items-center gap-1.5 text-xs mb-4">
-            <span class="text-muted me-1">سده:</span>
-            <button type="button" @click="c = 'all'" :aria-pressed="(c === 'all').toString()"
-                    :class="c === 'all' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
-                    class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">همه</button>
-            @foreach($mapCenturies as $c)
-                <button type="button" @click="c = {{ $c }}" :aria-pressed="(c === {{ $c }}).toString()"
-                        :class="c === {{ $c }} ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
-                        class="min-w-8 px-2 py-0.5 rounded-full border tabular-nums transition cursor-pointer">{{ Fa::digits($c) }}</button>
-            @endforeach
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-4">
+            <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-muted me-1">زمان:</span>
+                @foreach(['all' => 'همۀ سال‌ها', 'until' => 'تا این سال', 'century' => 'صد سال پیش از آن'] as $key => $name)
+                    <button type="button" @click="mode = '{{ $key }}'" :aria-pressed="(mode === '{{ $key }}').toString()"
+                            :class="{{ $chip("mode === '{$key}'") }}"
+                            class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
+                @endforeach
+            </div>
+            <div class="flex items-center gap-2 grow min-w-56" :class="mode === 'all' && 'opacity-60'">
+                <button type="button" @click="play()" :aria-pressed="playing.toString()" :aria-label="playing ? 'ایست' : 'پخش سال‌ها'"
+                        class="size-7 shrink-0 rounded-full border border-line-strong bg-surface text-ink hover:border-cinnabar transition cursor-pointer" x-text="playing ? '❚❚' : '▶'">▶</button>
+                <input type="range" min="{{ $mapData['years'][0] }}" max="{{ $mapData['years'][1] }}" step="10" x-model.number="year" @input="if (mode === 'all') { mode = 'until' }"
+                       aria-label="سال هجری قمری" class="grow accent-cinnabar cursor-pointer">
+                <output class="w-16 shrink-0 text-ink font-semibold tabular-nums text-center" x-text="mode === 'all' ? '—' : fa(year, false) + ' ق'">—</output>
+            </div>
         </div>
 
         <div class="grid lg:grid-cols-[1fr_16rem] gap-6">
-            <div class="relative">
-                <svg viewBox="0 0 {{ $map['width'] }} {{ $map['height'] }}" class="w-full h-auto bg-paper border border-line" role="img"
-                     aria-label="نقشۀ کانون‌های استنساخ و تألیف؛ اندازۀ هر دایره شمار نسخه‌های کتابت‌شده یا آثار تألیف‌شده در آن شهر است">
+            <div class="relative min-w-0">
+                <div x-ref="map" class="w-full h-72 sm:h-[32rem] bg-paper border border-line" x-show="ready" x-cloak role="img"
+                     aria-label="نقشۀ کانون‌های استنساخ و تألیف؛ اندازۀ هر دایره شمار نسخه‌ها، آثار، کاتبان یا مؤلفان آن شهر است. همین ارقام در جدول زیر نمودار آمده است."></div>
+                {{-- The still map of the copies, until the other one is ready and where there is no script --}}
+                <svg x-show="! ready" viewBox="0 0 {{ $map['width'] }} {{ $map['height'] }}" class="w-full h-auto bg-paper border border-line" role="img"
+                     aria-label="نقشۀ کانون‌های استنساخ؛ اندازۀ هر دایره شمار نسخه‌های کتابت‌شده در آن شهر است">
                     @include('insights.map-base')
-                    <g>
-                        @foreach($p['cities'] as $i => $city)
-                            <a href="{{ $search('manuscripts', ['copy_city' => $city['name']]) }}"
-                               :href="href(cities[{{ $i }}])"
-                               @mouseenter="hover = cities[{{ $i }}]" @mouseleave="hover = null" @focus="hover = cities[{{ $i }}]" @blur="hover = null"
-                               aria-label="{{ $city['name'] }}">
-                                <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}"
-                                        r="{{ $city['count'] ? max(3, round(34 * sqrt($city['count'] / $maxPlace), 1)) : 0 }}"
-                                        :r="r(cities[{{ $i }}])"
-                                        class="fill-cinnabar/55 stroke-surface hover:fill-cinnabar transition-colors cursor-pointer" stroke-width="2"/>
-                            </a>
-                        @endforeach
-                    </g>
-                    {{-- The places of composition: discs alone, rings over the copies when both are shown --}}
-                    <g>
-                        @foreach($p['cities'] as $i => $city)
-                            @if($city['works'] > 0)
-                                <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}" r="0" :r="rw(cities[{{ $i }}])"
-                                        :class="layer === 'both' ? 'fill-transparent stroke-gold' : 'fill-gold/60 stroke-surface hover:fill-gold'"
-                                        :stroke-width="layer === 'both' ? 3 : 2" class="transition-colors"
-                                        @mouseenter="hover = cities[{{ $i }}]" @mouseleave="hover = null"/>
-                            @endif
-                        @endforeach
-                    </g>
-                    @foreach($layers as $layer => $labels)
-                        <g class="hidden sm:inline pointer-events-none" font-size="19" font-weight="600"
-                           @if($layer === 'copy') x-show="layer !== 'composition'" @else x-show="layer === 'composition'" x-cloak @endif>
-                            @foreach($labels as $city)
-                                {{-- RTL text: «start» is the right edge, so a name sits left of its dot, or right of it near the left edge --}}
-                                <text x="{{ $city['x'] < 90 ? $city['x'] + $city['gap'] : $city['x'] - $city['gap'] }}" y="{{ $city['y'] + 6 }}" text-anchor="{{ $city['x'] < 90 ? 'end' : 'start' }}"
-                                      class="fill-ink" paint-order="stroke" stroke="var(--paper)" stroke-width="5" stroke-linejoin="round">{{ $city['name'] }}</text>
-                            @endforeach
-                        </g>
+                    @foreach($p['cities'] as $city)
+                        @if($city['count'] > 0)
+                            <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}" r="{{ max(3, round(34 * sqrt($city['count'] / $maxPlace), 1)) }}" class="fill-cinnabar/55 stroke-surface" stroke-width="2"/>
+                        @endif
                     @endforeach
+                    <g class="hidden sm:inline" font-size="19" font-weight="600">
+                        @foreach($layers['copy'] as $city)
+                            {{-- RTL text: «start» is the right edge, so a name sits left of its dot, or right of it near the left edge --}}
+                            <text x="{{ $city['x'] < 90 ? $city['x'] + $city['gap'] : $city['x'] - $city['gap'] }}" y="{{ $city['y'] + 6 }}" text-anchor="{{ $city['x'] < 90 ? 'end' : 'start' }}"
+                                  class="fill-ink" paint-order="stroke" stroke="var(--paper)" stroke-width="5" stroke-linejoin="round">{{ $city['name'] }}</text>
+                        @endforeach
+                    </g>
                 </svg>
-                <div x-cloak x-show="hover" class="absolute top-2 right-2 bg-surface border border-line-strong shadow-sm px-3 py-1.5 text-xs pointer-events-none">
-                    <strong class="text-ink" x-text="hover?.n"></strong>
-                    <span class="text-muted tabular-nums" x-text="hover ? tip(hover) : ''"></span>
+                <div x-show="ready" x-cloak class="absolute top-2 left-2 grid gap-1 text-sm">
+                    @foreach([['zoomBy(1.6)', '+', 'بزرگ‌نمایی'], ['zoomBy(0.625)', '−', 'کوچک‌نمایی'], ['reset()', '⤢', 'بازگشت به نمای کل']] as [$action, $sign, $name])
+                        <button type="button" @click="{{ $action }}" aria-label="{{ $name }}" title="{{ $name }}"
+                                class="size-8 bg-surface border border-line-strong text-ink hover:border-cinnabar hover:text-cinnabar transition cursor-pointer shadow-sm">{{ $sign }}</button>
+                    @endforeach
                 </div>
-                <ul x-show="layer === 'both'" x-cloak class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
-                    <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full bg-cinnabar/55" aria-hidden="true"></span>محل کتابت (نسخه)</li>
-                    <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full border-2 border-gold" aria-hidden="true"></span>محل تألیف (اثر)</li>
-                    <li>اندازۀ دایره‌های هر لایه جدا سنجیده شده است.</li>
+                <p x-show="failed" x-cloak class="mt-2 text-xs text-muted">نقشۀ تعاملی بار نشد؛ نقشۀ ثابتِ محل کتابت نسخه‌ها نشان داده شده است.</p>
+                <ul x-show="ready && mode !== 'all'" x-cloak class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted" aria-label="رنگ قلمروها به تفکیک منطقه">
+                    <template x-for="region in regions" :key="region">
+                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-sm opacity-60" :style="`background: ${regionColor(region)}`" aria-hidden="true"></span><span x-text="region"></span></li>
+                    </template>
                 </ul>
+                <p x-show="ready" x-cloak class="mt-2 text-[11px] text-muted">
+                    با چرخ موس یا دو انگشت بزرگ و کوچک کنید و نقشه را بکشید. روی هر شهر بزنید تا ارقامش کنار نقشه بیاید.
+                </p>
             </div>
 
-            <div>
+            <div class="min-w-0">
+                {{-- The chosen city: its figures in every layer, who ruled it then, and the searches that have it --}}
+                <div x-show="selected" x-cloak class="mb-4 border border-line-strong bg-paper p-3" data-insights-city>
+                    <div class="flex items-baseline justify-between gap-2">
+                        <strong class="font-naskh text-lg text-ink" x-text="selected?.n"></strong>
+                        <button type="button" @click="select(null)" class="text-muted hover:text-cinnabar cursor-pointer px-1" aria-label="بستن">×</button>
+                    </div>
+                    <p class="text-[11px] text-muted" x-text="span"></p>
+                    <p x-show="ruler" class="text-xs text-ink mt-1">در قلمرو <span class="font-semibold" x-text="ruler?.name"></span> <span class="text-muted" x-text="ruler ? '(' + ruler.span + ')' : ''"></span></p>
+                    <ul class="mt-2 text-sm">
+                        <template x-for="row in figures" :key="row.key">
+                            <li class="flex items-baseline gap-2 py-0.5">
+                                <span class="text-ink" x-text="row.unit"></span>
+                                <span class="leader" aria-hidden="true"></span>
+                                <a x-show="link(row.key) && row.n" :href="link(row.key)" class="text-xs text-cinnabar tabular-nums hover:underline" x-text="fa(row.n) + ' ←'"></a>
+                                <span x-show="! (link(row.key) && row.n)" class="text-xs text-muted tabular-nums" x-text="fa(row.n)"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+
                 <p class="text-xs text-muted mb-2">
-                    <span x-text="layer === 'composition' ? 'شهرهای تألیف' : 'پرکارترین شهرها'"></span>
-                    <span x-show="c !== 'all'" x-cloak>در سدۀ <span x-text="Number(c).toLocaleString('fa-IR')"></span></span>
+                    <span x-text="{ copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف' }[layer] + (mode === 'all' ? '' : '، ' + span)">پرکارترین شهرهای کتابت</span>
                 </p>
                 <ol class="text-sm">
-                    <template x-for="city in ranked" :key="city.n">
+                    <template x-for="row in ranked" :key="row.city.n">
                         <li class="border-b border-line">
-                            <a :href="href(city)" class="flex items-baseline gap-2 py-1.5 group">
-                                <span class="text-ink transition" :class="layer !== 'composition' && 'group-hover:text-cinnabar'" x-text="city.n"></span>
+                            <button type="button" @click="select(row.city)" class="w-full flex items-baseline gap-2 py-1.5 group cursor-pointer text-right">
+                                <span class="text-ink group-hover:text-cinnabar transition" :class="selected?.n === row.city.n && 'text-cinnabar font-semibold'" x-text="row.city.n"></span>
                                 <span class="leader" aria-hidden="true"></span>
-                                <span class="text-xs text-muted tabular-nums" x-text="layer === 'both' ? tip(city) : key(city).toLocaleString('fa-IR')"></span>
-                            </a>
+                                <span class="text-xs text-muted tabular-nums" x-text="fa(row.n)"></span>
+                            </button>
                         </li>
                     </template>
                 </ol>
-                <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این سده محلی ثبت نشده است.</p>
+                {{-- Without script: the cities of copying as they stand --}}
+                <noscript>
+                    <ol class="text-sm">
+                        @foreach(array_slice($p['cities'], 0, 15) as $city)
+                            <li class="border-b border-line flex items-baseline gap-2 py-1.5">
+                                <a href="{{ $search('manuscripts', ['copy_city' => $city['name']]) }}" class="text-ink hover:text-cinnabar">{{ $city['name'] }}</a>
+                                <span class="leader" aria-hidden="true"></span>
+                                <span class="text-xs text-muted tabular-nums">{{ Fa::num($city['count']) }}</span>
+                            </li>
+                        @endforeach
+                    </ol>
+                </noscript>
+                <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این لایه و این سال‌ها محلی ثبت نشده است.</p>
+                <p x-show="ranked.length" x-cloak class="mt-2 text-[11px] text-muted">روی هم <span class="tabular-nums" x-text="fa(total)"></span> <span x-text="unit"></span> در شهرهای نقشه<span x-show="layer === 'scribes' || layer === 'authors'">؛ کسی که در دو شهر کار کرده در هر دو شمرده شده است</span>.</p>
             </div>
         </div>
 
-        <p x-show="layer !== 'composition'" class="mt-5 text-xs text-muted leading-relaxed">
+        <p x-show="layer === 'copy' || layer === 'scribes'" class="mt-5 text-xs text-muted leading-relaxed">
             محل کتابت: بر پایۀ {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
             محل کتابت برای {{ Fa::num($p['with_place']) }} نسخه ({{ $pct($p['place_coverage']) }}) ثبت شده و {{ $pct($p['mapped_share']) }} آن‌ها به یکی از {{ Fa::num(count(config('insights.copy_places'))) }} شهر شناخته‌شده رسید؛
             نام‌های کهن و گونه‌گون یک شهر (طهران، سپاهان، توس، قسطنطنیه …) یکی شمرده شده‌اند و نام‌هایی چون «ایران» یا «هندوستان» که شهر نیستند، روی نقشه نیامده‌اند.
-            سدۀ هر نسخه، سده‌ای است که کل بازۀ تاریخش در آن است. از نسخه‌های روی نقشه، سدۀ {{ Fa::num($p['by_century']) }} نسخه روشن است و {{ Fa::num($p['century_only']) }} نسخه از آن‌ها تنها سده یا بخشی از سده دارند («قرن ۱۱»، «اواخر قرن ۱۲»).
-            نسخه‌ای که بازه‌اش از دو سده می‌گذرد یا تاریخ ندارد، تنها در «همه» شمرده می‌شود.
-            <span x-show="c !== 'all' && layer === 'copy'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخۀ تاریخ‌دار با محل کتابت هست.</span>
         </p>
-        <p x-show="layer !== 'copy'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
+        <p x-show="layer === 'composition' || layer === 'authors'" x-cloak class="mt-5 text-xs text-muted leading-relaxed">
             محل تألیف: تنها {{ Fa::num($cp['with_place']) }} اثر، یعنی {{ $pct($cp['place_coverage']) }} آثار، محل تألیف دارند و {{ Fa::num($cp['mapped']) }} اثر از آن‌ها ({{ $pct($cp['mapped_share']) }}) به یکی از همین شهرها رسید.
-            پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند. سدۀ هر اثر، سده‌ای است که کل بازۀ تاریخ تألیفش در آن است؛ از آثار روی نقشه، سدۀ {{ Fa::num($cp['by_century']) }} اثر روشن است.
-            جست‌وجو فیلتر محل تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
+            پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند.
+            جست‌وجو فیلتر محل تألیف ندارد، پس ارقام این لایه پیوند ندارند.
+        </p>
+        <p x-show="layer === 'scribes'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
+            کاتبان: {{ Fa::num($p['scribes_mapped']) }} کاتبِ شناخته که دست‌کم یک نسخه‌شان محل کتابت روی نقشه دارد. محل هر کاتب، شهر کتابت نسخه‌های اوست، نه زادگاه یا محل زندگی‌اش؛ این آگاهی‌ها هنوز در فهارس ثبت نشده است.
+        </p>
+        <p x-show="layer === 'authors'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
+            مؤلفان: {{ Fa::num($p['authors_mapped']) }} مؤلف که دست‌کم یک اثرشان محل تألیف روی نقشه دارد. محل هر مؤلف، شهر تألیف آثار اوست، نه زادگاه یا محل زندگی‌اش.
+        </p>
+        <p class="mt-3 text-xs text-muted leading-relaxed">
+            لغزندۀ سال: «تا این سال» نسخه یا اثری را می‌شمارد که کل بازۀ تاریخش تا آن سال گذشته است؛ پس نسخۀ «قرن ۱۱» از سال ۱۱۰۰ شمرده می‌شود و نسخۀ بی تاریخ تنها در «همۀ سال‌ها» هست.
+            کاتب و مؤلف در نخستین دهه‌ای شمرده می‌شوند که نسخه یا اثر تاریخ‌داری از آنان در آن شهر هست.
+            قلمرو حکومت‌ها از نقشه‌های تاریخی آمار دواوین است (مرزها: Cliopatria، بانک دادۀ Seshat)، به دقت دهه؛ مرز حکومت‌های پیشامدرن تقریبی است و چند سلسلۀ محلی هنوز مرز ندارند.
         </p>
         @include('insights.explain', ['note' => $notes['places'], 'tables' => $tables['places']])
         </div>
