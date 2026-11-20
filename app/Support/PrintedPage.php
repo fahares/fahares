@@ -413,7 +413,9 @@ class PrintedPage
     {
         // an entry is read from its first page on; a catalogue's entries are short, so a few pages back is enough, but
         // a copy may stand far after its work's heading (Golpaygani prints a work's copies one after another, step 14.206)
-        $entries = SourceEntry::with('citable')->where('source_id', $source->id)->where('volume_number', $volume->volume_number)
+        // by its volume, or by the volume's number where it has none (a one-volume catalogue Fankha cites by page alone)
+        $entries = SourceEntry::with('citable')->where('source_id', $source->id)
+            ->where(fn ($q) => $q->where('source_volume_id', $volume->id)->orWhere(fn ($q) => $q->whereNull('source_volume_id')->where('volume_number', $volume->volume_number)))
             ->where(fn ($q) => $q->whereBetween('page_start', [$page - 5, $page])
                 ->orWhere(fn ($q) => $q->whereBetween('page_start', [$page - 40, $page - 6])->where('shelfmark_page', $page)))->where('role', SourceEntry::ROLE_ENTRY)->where('status', '!=', SourceEntry::STATUS_REJECTED)
             ->get()->filter(fn (SourceEntry $e) => $e->citable && in_array($page, array_filter([$e->text_page, $e->shelfmark_page, $e->page_start]), true)

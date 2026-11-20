@@ -46,6 +46,20 @@ abstract class TestCase extends BaseTestCase
         return $user;
     }
 
+    /**
+     * The statistics of a scope as one response: the hub and every topic page (backlog item 153), each of which
+     * must answer 200, so a test of a chart need not know which page has it.
+     */
+    protected function insightsPages(array $query = []): \Illuminate\Testing\TestResponse
+    {
+        $html = $this->get(route('insights', $query))->assertOk()->getContent();
+        foreach (array_keys(config('insights.topics')) as $topic) {
+            $html .= $this->get(route('insights.topic', ['topic' => $topic] + $query))->assertOk()->getContent();
+        }
+
+        return \Illuminate\Testing\TestResponse::fromBaseResponse(new \Illuminate\Http\Response($html));
+    }
+
     private function asResearcher(callable $send): \Illuminate\Testing\TestResponse
     {
         $previous = auth()->user();

@@ -140,7 +140,7 @@ class NumberedCopyCatalogueTest extends TestCase
         $this->assertSame(SourceEntry::TEXT_NONE, $broken->fresh()->text_status);
 
         $this->artisan('sources:take-texts', ['source' => $source->code, '--extractor' => 'numbered_copies'])
-            ->expectsTable(['', 'count'], [['without text', '4'], ['no page or pages', '0'], ['not found', '1'], ['taken', '3'], ['by a misprint', '1'], ['address changed', '2']])
+            ->expectsTable(['', 'count'], [['without text', '4'], ['no page or pages', '0'], ['not found', '1'], ['taken', '3'], ['page from the citation', '0'], ['by a misprint', '1'], ['address changed', '2']])
             ->assertSuccessful();
         $this->assertSame('numbered_copies', $source->fresh()->extractor);
         $broken->refresh();
@@ -157,7 +157,7 @@ class NumberedCopyCatalogueTest extends TestCase
 
         // a second run has nothing to take
         $this->artisan('sources:take-texts', ['source' => $source->code])
-            ->expectsTable(['', 'count'], [['without text', '1'], ['no page or pages', '0'], ['not found', '1'], ['taken', '0'], ['by a misprint', '0'], ['address changed', '0']])
+            ->expectsTable(['', 'count'], [['without text', '1'], ['no page or pages', '0'], ['not found', '1'], ['taken', '0'], ['page from the citation', '0'], ['by a misprint', '0'], ['address changed', '0']])
             ->assertSuccessful();
 
         // the page view links the copy eight pages after its work's heading, and the heading where it stands

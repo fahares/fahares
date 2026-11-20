@@ -35,7 +35,7 @@
             <p class="text-xs text-muted max-w-[60ch] leading-relaxed" data-library-firsthand>
                 شناسه‌های اصلی <span class="font-bold text-ink tabular-nums">{{ Fa::num($coverage['complete']) }}</span> نسخه
                 ({{ Fa::digits(str_replace('.', '٫', (string) $coverage['share'])) }}٪ نسخه‌ها) با فهرست چاپی کتابخانه سنجیده و تأیید شده است.
-                <a href="{{ route('insights') }}#firsthand" class="text-cinnabar hover:underline">دربارۀ این رقم</a>
+                <a href="{{ route('insights.topic', 'libraries') }}#firsthand" class="text-cinnabar hover:underline">دربارۀ این رقم</a>
             </p>
         @endif
         @if($library->full_name || $library->aliases)
