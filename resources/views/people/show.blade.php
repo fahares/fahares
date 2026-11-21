@@ -47,22 +47,24 @@
     <header class="text-center grid justify-items-center gap-2 pb-6">
         <p class="text-xs font-bold text-cinnabar">شناسنامۀ شخص</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
-            {{ $person->name }}
-            <x-suggest.field name="name" class="ms-1 align-middle" />
+            <x-suggest.centered name="name">{{ $person->name }}</x-suggest.centered>
         </h1>
         @if($person->life_span)
             <p class="text-base text-muted">{{ $person->life_span }}</p>
         @endif
         <p class="text-xs text-muted" dir="ltr" @unless($person->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
-            {{ $person->transliteration ?? 'آوانگاری نام: —' }}
-            <x-suggest.field name="transliteration" class="ms-1" />
+            <x-suggest.centered name="transliteration">{{ $person->transliteration ?? 'آوانگاری نام: —' }}</x-suggest.centered>
         </p>
         <div class="flex flex-wrap justify-center items-center gap-1.5 mt-1 text-sm" @if(empty($person->aliases)) x-show="$store.suggest.on" x-cloak @endif>
             <span class="text-muted text-xs">نام‌های دیگر:</span>
-            @foreach($person->aliases ?? [] as $alias)
-                <x-ui.chip>{{ $alias }}</x-ui.chip>
+            {{-- Each other name with its transliteration and its own edit button; the last button adds a name (step 14.299) --}}
+            @foreach($person->aliasItems() as $alias)
+                <span class="inline-flex items-center gap-1">
+                    <x-ui.chip>{{ $alias['name'] }}@if($alias['transliteration']) <span class="text-[11px] text-muted" dir="ltr">({{ $alias['transliteration'] }})</span>@endif</x-ui.chip>
+                    <x-suggest.field :name="\App\Suggestions\SuggestionRegistry::aliasName($alias['name'])" />
+                </span>
             @endforeach
-            <x-suggest.field name="aliases" />
+            <x-suggest.field :name="\App\Suggestions\SuggestionRegistry::ALIAS_NEW" />
         </div>
         {{-- Misspelt forms (backlog item 90): searchable, named once here, not listed with the other names --}}
         @if(! empty($person->wrong_names))

@@ -5,6 +5,12 @@
 #
 #   scripts/dev/test-suite [artisan test options]   wait for the lock, then run, e.g. --filter=ImportVolumePartsTest
 #   scripts/dev/test-suite --status                 who holds the lock now, and the last runs
+#   scripts/dev/test-suite --tested                 exit 0 if this commit's code already passed a full run (no run)
+#
+# A full run (no options) that passes on a checkout whose tracked files are committed records the commit's code tree
+# in tested.tsv: the hash of every committed file except docs/ and the top-level *.md, which no test reads. --tested
+# looks the current commit up there, so a release whose code some session has already tested whole need not run the
+# suite again (a merge of docs only, or a fast-forward to a session's own commit). Untracked files are not counted.
 #
 # A run started without this script holds no lock, so after taking the lock it also waits for any phpunit still running.
 # A checkout outside the main repository (the only folder mounted in the container) cannot be tested this way.
@@ -14,10 +20,24 @@ DIR="${FAHARES_STATE_DIR:-$HOME/.fahares}"
 LOCK="$DIR/test.lock"
 HOLDER="$DIR/test.holder"
 LOG="$DIR/test-runs.log"
+TESTED="$DIR/tested.tsv"
 CONTAINER="${FAHARES_APP_CONTAINER:-fahares_app}"
 
 mkdir -p "$DIR"
 touch "$LOG"
+
+# The hash of the committed code of HEAD (docs/ and top-level *.md left out), and whether the tracked code is committed.
+code_tree() { git ls-tree -r HEAD | grep -vP '\t(docs/|[^/]+\.md$)' | sha1sum | cut -d' ' -f1; }
+code_clean() { git diff --quiet HEAD -- . ':(exclude)docs' ':(exclude,glob)*.md'; }
+
+if [[ "${1:-}" == "--tested" ]]; then
+    if ! code_clean; then echo "uncommitted code changes: not counted as tested" >&2; exit 1; fi
+    t="$(code_tree)"
+    hit=""
+    [[ -f "$TESTED" ]] && hit="$(awk -F'\t' -v t="$t" '$1 == t' "$TESTED" | tail -n 1)"
+    if [[ -n "$hit" ]]; then echo "tested: $hit"; exit 0; fi
+    echo "not tested: code tree $t"; exit 1
+fi
 
 if [[ "${1:-}" == "--status" ]]; then
     exec 9>>"$LOCK"
@@ -46,8 +66,12 @@ while pgrep -f '[v]endor/phpunit/phpunit/phpunit|[v]endor/bin/phpunit' >/dev/nul
     echo "a phpunit run without the lock is still going; waiting…" >&2
     sleep 15
 done
+full=0; if [[ $# -eq 0 ]] && code_clean; then full=1; tree="$(code_tree)"; commit="$(git rev-parse --short HEAD)"; fi
 status=0
 docker exec -w "$workdir" "$CONTAINER" php artisan test "$@" || status=$?
 printf '%s\t%s\t%s\texit %s\t%s\n' "$started" "$(date '+%H:%M:%S')" "${rel:-/}" "$status" "$*" >> "$LOG"
 : > "$HOLDER"
+if [[ "$status" -eq 0 && "$full" -eq 1 ]]; then
+    printf '%s\t%s\t%s\t%s\n' "$tree" "$commit" "$started" "${rel:-/}" >> "$TESTED"
+fi
 exit "$status"

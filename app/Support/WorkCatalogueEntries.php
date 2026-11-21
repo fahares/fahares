@@ -140,22 +140,47 @@ class WorkCatalogueEntries
             $works = $ids->map(fn ($id) => $others->get($id))->filter()->unique('id');
             $hits = $works->filter(fn ($w) => array_intersect($want, $keys($w)));
             if ($several) {
+                if ($entry['author'] === null && ! $entry['unread']) {
+                    // «اعتقادات صدوق (ترجمه) سرکانی، محمد صادق (-11)»: the author after the title with no «؛»
+                    foreach ($entry['titles'] as $title) {
+                        foreach (str_contains($title, '،') ? WorkRelationLinker::heads($title) : [] as [$head, $rest]) {
+                            $name = WorkRelationLinker::authorKey(preg_replace('/\s*\([^()]*\d[^()]*\)\s*$/u', '', $rest));
+                            $named = $name === '' ? collect() : $works->filter(fn ($w) => in_array(WorkRelationLinker::key($head), $keys($w), true) && WorkRelationLinker::authorKey($w->author_name) === $name);
+                            if ($named->count() === 1) {
+                                return [$head, $named->first()];
+                            }
+                        }
+                    }
+                }
                 if ($hits->count() < 2) {
                     return null;
                 }
-                // those that have every title of the entry as written, «(ترجمه)» and all, when any has
-                $full = $hits->filter(fn ($w) => ! array_diff($marked($entry['titles']), $marked(self::titlesOf($w))));
-                $hits = $full->isNotEmpty() ? $full : $hits;
-                // then the entry's author says which. An entry with no author is a work with none: the first that no
-                // entry has yet, as the catalogue lists one entry for each. «… (4عنوان)» stands for several works and
-                // is no one of them, and an author the entry names in a way not read is no reason to take a work.
+                // a work that has every title of the entry as written, «(ترجمه)» and all
+                $full = fn ($w) => ! array_diff($marked($entry['titles']), $marked(self::titlesOf($w)));
                 $author = WorkRelationLinker::authorKey($entry['author']);
-                $hits = match (true) {
-                    $entry['author'] !== null => $hits->filter(fn ($w) => WorkRelationLinker::authorKey($w->author_name) === $author),
-                    $entry['unread'] || preg_grep('/\(\s*\d+\s*عنوان\s*\)/u', $entry['titles']) => collect(),
-                    // (a work that has every title of the entry: «الحاشية المتوسطة = حاشية شرح الكافية» is not any gloss of the second title)
-                    default => $hits->filter(fn ($w) => WorkRelationLinker::authorKey($w->author_name) === '' && ! isset($entryOf[$w->id]) && ! array_diff($want, $keys($w)))->sortBy('id')->take(1),
-                };
+                if ($entry['author'] !== null) {
+                    // the entry's author says which
+                    $same = $hits->filter(fn ($w) => WorkRelationLinker::authorKey($w->author_name) === $author);
+                    // «… = شرح اعتقادات صدوق مفید، محمد بن محمد (336-413)»: another title read before the author
+                    $same = $same->isNotEmpty() ? $same : $hits->filter(fn ($w) => mb_strlen($a = WorkRelationLinker::authorKey($w->author_name)) >= WorkRelationLinker::SUFFIX_MIN && str_ends_with($author, $a));
+                    // several works of the title and the author: those with every title of the entry; then the one whose
+                    // own title it is, not another name of it («الاربعین فی اصول الدین» is also a name of «جواهر القرآن»);
+                    // then the first of those no entry has yet, as the catalogue lists one entry for each
+                    $same = $same->count() > 1 && $same->filter($full)->isNotEmpty() ? $same->filter($full) : $same;
+                    $own = $same->filter(fn ($w) => array_intersect($want, [WorkRelationLinker::key($w->clean_title), WorkRelationLinker::key($w->primary_title)]));
+                    $same = $same->count() > 1 && $own->count() === 1 ? $own : $same;
+                    $hits = $same->count() > 1 ? $same->reject(fn ($w) => isset($entryOf[$w->id]))->sortBy('id')->take(1) : $same;
+                } elseif ($entry['unread'] || $entry['many']) {
+                    // «… (4عنوان)» stands for several works and is no one of them, and an author the entry names in a
+                    // way not read is no reason to take a work
+                    $hits = collect();
+                } else {
+                    // an entry with no author is a work with none that has every title of the entry («الحاشية المتوسطة =
+                    // حاشية شرح الكافية» is not any gloss of the second title, «تهذیب المنطق (ترجمه)» not its «(مختصر)»):
+                    // the first that no entry has yet, as the catalogue lists one entry for each
+                    $hits = $hits->filter(fn ($w) => WorkRelationLinker::authorKey($w->author_name) === '' && ! isset($entryOf[$w->id]) && $full($w))->sortBy('id')->take(1)
+                        ->filter(fn ($w) => $entry['only'] === null || $entry['only'] === $w->id);
+                }
 
                 return $hits->count() === 1 ? [$entry['titles'][0], $hits->first()] : null;
             }
@@ -180,13 +205,21 @@ class WorkCatalogueEntries
             if (! ($entry = $parts[0] ?? null)) {
                 return null;
             }
-            // a row waiting for a reviewer is not given a work with no author by its place in the list: the reviewer says which
-            $entry['unread'] = $row->link_status === 'proposed';
+            // «(4عنوان)», «ناشناس (6 عنوان مختلف)», «(همراه با 12 ترجمه ناشناس دیگر)»: the entry stands for several works
+            $entry['many'] = (bool) preg_match('/\([^()]*(?:عنوان|ناشناس|همراه)[^()]*\)/u', $row->text);
+            $entry['unread'] = false;
+            // a row waiting for a reviewer is given a work with no author only when it is the one proposed
+            $entry['only'] = $row->link_status === 'proposed' ? (int) $row->linked_work_id : null;
             if ($row->side === 'children' && $entry['author'] === null && count($parts) > 1) {
                 $entry['unread'] = true;
                 if (count($parts) === 2 && $parts[1]['author'] === null && count($parts[1]['titles']) === 1) {
-                    [$entry['author'], $entry['unread']] = [$parts[1]['titles'][0], false];
+                    // «نراقی، احمد بن محمد مهدی (1185- (1245)»: life dates the parser does not read are no part of the name
+                    [$entry['author'], $entry['unread']] = [trim(preg_replace('/\s*\((?=[^()]*\d).*$/su', '', $parts[1]['titles'][0])), false];
                 }
+            }
+            // «؛ ناشناس» is the catalogue's word for no author
+            if ($entry['author'] !== null && WorkRelationLinker::authorKey($entry['author']) === WorkRelationLinker::authorKey('ناشناس')) {
+                $entry['author'] = null;
             }
 
             return $entry;

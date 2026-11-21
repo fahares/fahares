@@ -254,6 +254,7 @@ class SuggestionRegistry
         $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
             'manuscript' => self::sourceEntryField($name) ?? self::noteField($name),
             'work' => self::bibliographyPageField($name) ?? self::altTitleField($name),
+            'person' => self::aliasField($name),
             default => null,
         };
 
@@ -268,7 +269,7 @@ class SuggestionRegistry
     {
         $field = self::field($record::class, $name);
         // one of the record's other titles, or the field that adds one: the record's own, with its title in the label
-        if ($field && isset($field['alt_title'])) {
+        if ($field && (isset($field['alt_title']) || isset($field['alias']))) {
             $own = self::recordFields($record)[$field['name']] ?? null;
 
             return $own ? ['name' => $field['name']] + $own : null;
@@ -449,6 +450,15 @@ class SuggestionRegistry
                 }
             }
         }
+        if ($record instanceof Person) {
+            // each other name is a field of its own, and one more adds a name (step 14.299)
+            foreach ((array) $record->aliases as $alias) {
+                if (is_string($alias) && trim($alias) !== '') {
+                    $fields[self::aliasName($alias)] = self::aliasField(self::aliasName($alias), trim($alias));
+                }
+            }
+            $fields[self::ALIAS_NEW] = self::aliasField(self::ALIAS_NEW);
+        }
         if ($record instanceof Work) {
             foreach (\App\Support\BibliographyLinks::viewerPages($record->sources()->bibliography()->pluck('citation_text')) as $vp) {
                 $name = self::bibliographyPageName($vp);
@@ -465,6 +475,46 @@ class SuggestionRegistry
         }
 
         return $fields;
+    }
+
+    public const ALIAS_PREFIX = 'alias_';
+
+    /** The field that adds another name to a person. */
+    public const ALIAS_NEW = 'alias_new';
+
+    /** «alias_3f2a9c01de»: one of a person's other names, named by its text (as altTitleName). */
+    public static function aliasName(string $alias): string
+    {
+        return self::ALIAS_PREFIX . substr(md5(trim($alias)), 0, 10);
+    }
+
+    /**
+     * The field of one of a person's other names (step 14.299), or of the name to add: the name with its
+     * transliteration beside it. Emptied, the name is removed. `alias` is the field's own name, or «new».
+     */
+    public static function aliasField(string $name, ?string $alias = null): ?array
+    {
+        $pair = ['label' => 'آوانگاری'];
+        if ($name === self::ALIAS_NEW) {
+            return ['label' => 'افزودن نام دیگر', 'input' => 'text', 'alias' => 'new', 'required' => true, 'pair' => $pair];
+        }
+        if (! preg_match('/^' . self::ALIAS_PREFIX . '[0-9a-f]{10}$/', $name)) {
+            return null;
+        }
+
+        return ['label' => $alias !== null ? "نام دیگر «{$alias}»" : 'نام دیگر', 'input' => 'text', 'alias' => $name, 'pair' => $pair];
+    }
+
+    /** The other name of the person a field names, with its place in the list and its transliteration; null for the adding field. */
+    public static function aliasItem(Model $record, array $field): ?array
+    {
+        foreach ($record->aliasItems() as $index => $item) {
+            if (self::aliasName($item['name']) === ($field['alias'] ?? null)) {
+                return ['index' => $index] + $item;
+            }
+        }
+
+        return null;
     }
 
     public const ALT_TITLE_PREFIX = 'alternative_title_';
@@ -515,6 +565,9 @@ class SuggestionRegistry
         }
         if (isset($field['alt_title'])) {
             return self::altTitleItem($record, $field)['transliteration'] ?? null;
+        }
+        if (isset($field['alias'])) {
+            return self::aliasItem($record, $field)['transliteration'] ?? null;
         }
 
         return $record->{$field['pair']['column']};
@@ -641,6 +694,9 @@ class SuggestionRegistry
 
         if (isset($field['alt_title'])) {
             return self::altTitleItem($record, $field)['title'] ?? null;
+        }
+        if (isset($field['alias'])) {
+            return self::aliasItem($record, $field)['name'] ?? null;
         }
         if (isset($field['note_type_of'])) {
             return ManuscriptNote::TYPES[ManuscriptNote::find($field['note_type_of'])?->type] ?? null;

@@ -39,8 +39,8 @@
         </x-admin.field>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <x-admin.field label="نام‌های دیگر (شهرت، لقب، کنیه؛ هر نام در یک سطر)" for="aliases">
-                <textarea name="aliases" id="aliases" rows="4" class="admin-field w-full leading-7">{{ old('aliases', implode("\n", (array) ($person->aliases ?? []))) }}</textarea>
+            <x-admin.field label="نام‌های دیگر (شهرت، لقب، کنیه؛ هر نام در یک سطر؛ آوانگاری پس از «|»: «مجنون مشهدی | majnūn-e mašhadī»)" for="aliases">
+                <textarea name="aliases" id="aliases" rows="4" class="admin-field w-full leading-7">{{ old('aliases', implode("\n", array_map(fn ($a) => $a['name'] . ($a['transliteration'] ? ' | ' . $a['transliteration'] : ''), $person->aliasItems()))) }}</textarea>
             </x-admin.field>
             <x-admin.field label="صورت‌های نادرست (فقط برای جست‌وجو؛ هر نام در یک سطر)" for="wrong_names">
                 <textarea name="wrong_names" id="wrong_names" rows="4" class="admin-field w-full leading-7">{{ old('wrong_names', implode("\n", (array) ($person->wrong_names ?? []))) }}</textarea>

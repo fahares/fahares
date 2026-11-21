@@ -56,15 +56,18 @@ class LinkDecidedWorksCommand extends Command
         $related = DB::table('work_relations')->where('source', '<>', self::SOURCE)->get(['work_id', 'related_work_id'])
             ->mapWithKeys(fn ($r) => ["{$r->work_id}>{$r->related_work_id}" => true]);
         // the catalogue's entries of the works the file names, by work, side and the entry's key
-        $rows = DB::table('work_text_relations')->where('source', WorkCatalogueEntries::SOURCE)->whereNotNull('entry_key')
-            ->whereIn('work_id', array_unique(array_column([...$decisions, ...$medium], 'work_id')))->orderBy('position')->orderBy('id')->get()
-            ->groupBy(fn ($r) => "{$r->work_id}>{$r->side}>{$r->entry_key}")->map(fn ($g) => $g->all())->all();
+        $all = DB::table('work_text_relations')->where('source', WorkCatalogueEntries::SOURCE)->whereNotNull('entry_key')
+            ->whereIn('work_id', array_unique(array_column([...$decisions, ...$medium], 'work_id')))->orderBy('position')->orderBy('id')->get();
+        $rows = $all->groupBy(fn ($r) => "{$r->work_id}>{$r->side}>{$r->entry_key}")->map(fn ($g) => $g->all())->all();
+        // (step 14.296) a decision that gives the row's whole text: an author written with no life dates, or with dates
+        // not read, is no part of the key
+        $byText = $all->groupBy(fn ($r) => "{$r->work_id}>{$r->side}>{$r->text}")->map(fn ($g) => $g->all())->all();
         $taken = [];
         // the row a decision is about: the file writes an entry as «titles؛ author (born-died)», its key has no life dates
-        $rowOf = function (array $d) use (&$rows, &$taken) {
+        $rowOf = function (array $d) use (&$rows, &$byText, &$taken) {
             $entry = (string) $d['entry'];
             $key = str_contains($entry, '؛') ? preg_replace('/\s\(\d*-\d*\)$/u', '', $entry) : $entry;
-            foreach ($rows["{$d['work_id']}>{$d['side']}>{$key}"] ?? [] as $row) {
+            foreach ([...($byText["{$d['work_id']}>{$d['side']}>{$entry}"] ?? []), ...($rows["{$d['work_id']}>{$d['side']}>{$key}"] ?? [])] as $row) {
                 if (! isset($taken[$row->id])) {
                     return $row;
                 }

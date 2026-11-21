@@ -51,9 +51,14 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
   directly: every checkout tests against the same `fahares_test` database, and two runs at once deadlock on its
   migrations. The script waits for a lock shared by all sessions (and for any phpunit started without it);
   `--status` shows who holds it. A session that tests against its own database may keep doing so.
+- A full run (no options) that passes with the code committed records the commit's code tree (every file but `docs/`
+  and the top-level `*.md`) in `~/.fahares/tested.tsv`. `scripts/dev/test-suite --tested` exits 0 when the current
+  commit's code is there, so the releasing session runs the suite only when a batch's code is new: several branches
+  together, `main` moved on since a session's run, or a commit after it. So commit before your last full run.
 - The task-management session releases: it first reads `scripts/dev/release-queue --list`, merges the ready branches
-  into `main`, runs the full suite once on the merged result, and pushes once, when the user asks for a release. After
-  the push it marks each one `scripts/dev/release-queue done <branch> <release-commit>` (or `drop <branch> "why"`).
+  into `main`, runs the full suite once on the merged result (unless `--tested` finds that code already tested), and
+  pushes once, when the user asks for a release. After the push it marks each one
+  `scripts/dev/release-queue done <branch> <release-commit>` (or `drop <branch> "why"`).
   Only one session releases at a time: if a task-management session of another account is active, agree with the user
   which one releases.
 - When a session needs its code on production soon (for example to run a data command), it says so in its

@@ -80,7 +80,9 @@ class PersonController extends Controller
             'transliteration' => $validated['transliteration'] ?? null,
             'bio_notes' => $validated['bio_notes'] ?? null,
             // One name a line; a misspelt form stays searchable but is not listed (backlog item 90)
-            'aliases' => self::nameLines($validated['aliases'] ?? null),
+            // «نام | آوانگاری»: the name goes to the list, its transliteration to the map beside it (step 14.299)
+            'aliases' => self::nameLines(self::withoutTransliterations($validated['aliases'] ?? null)),
+            'alias_transliterations' => self::transliterations($validated['aliases'] ?? null),
             'wrong_names' => self::nameLines($validated['wrong_names'] ?? null),
         ]);
 
@@ -205,6 +207,26 @@ class PersonController extends Controller
 
         return redirect()->route('admin.people.index')
             ->with('success', 'شخص تکراری «' . $source->name . '» (#' . \App\Support\Fa::digits($source->id) . ') در «' . $target->name . '» (#' . \App\Support\Fa::digits($target->id) . ') ادغام شد.');
+    }
+
+    /** The lines of the other names without what follows «|». */
+    private static function withoutTransliterations(?string $text): string
+    {
+        return implode("\n", array_map(fn ($line) => trim(explode('|', $line, 2)[0]), preg_split('/\R/u', (string) $text)));
+    }
+
+    /** name => transliteration, from the lines written «نام | آوانگاری». */
+    private static function transliterations(?string $text): ?array
+    {
+        $map = [];
+        foreach (preg_split('/\R/u', (string) $text) as $line) {
+            [$name, $transliteration] = array_pad(array_map('trim', explode('|', $line, 2)), 2, '');
+            if ($name !== '' && $transliteration !== '') {
+                $map[$name] = $transliteration;
+            }
+        }
+
+        return $map ?: null;
     }
 
     private static function nameLines(?string $text): ?array

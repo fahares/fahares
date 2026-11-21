@@ -160,6 +160,10 @@ class SuggestionApplier
                     $resolution = $this->altTitle($record, $field, $value, $input);
                     break;
                 }
+                if (isset($field['alias'])) {
+                    $resolution = $this->otherName($record, $field, $value, $input);
+                    break;
+                }
                 if (! empty($field['leaf_range'])) {
                     $range = $value === null ? [null, null, null, null] : \App\Support\CopyExtent::parseRange($value);
                     if ($range === null) {
@@ -396,6 +400,53 @@ class SuggestionApplier
         }
         $person->life_dates_raw = $text;
         $person->death_year_gregorian = null;
+    }
+
+    /**
+     * One of a person's other names (step 14.299), as altTitle for a work's other titles: the adding field appends a
+     * name, a name's own field rewrites it, and emptied removes it; the transliteration is written when the form
+     * sent one. The names stay a list of strings; their transliterations are a map beside it.
+     */
+    private function otherName(Model $record, array $field, ?string $value, array $input): array
+    {
+        $names = array_values((array) ($record->aliases ?? []));
+        $map = (array) ($record->alias_transliterations ?? []);
+        $pairGiven = array_key_exists('pair_value', $input);
+        $pair = $pairGiven ? $this->clean($input['pair_value']) : null;
+        $taken = fn (string $name, ?int $except = null) => trim((string) $record->name) === $name
+            || (($at = array_search($name, $names, true)) !== false && $at !== $except);
+
+        if ($field['alias'] === 'new') {
+            if ($taken((string) $value)) {
+                throw new InvalidArgumentException('این نام هم‌اکنون در رکورد هست.');
+            }
+            $names[] = $value;
+            $map = array_filter([$value => $pair] + $map, fn ($t) => $t !== null);
+        } else {
+            $item = SuggestionRegistry::aliasItem($record, $field);
+            if (! $item) {
+                throw new InvalidArgumentException('این نام دیگر اکنون در رکورد نیست؛ شاید پیش‌تر ویرایش یا حذف شده است.');
+            }
+            $before = $item['name'];
+            if ($value === null) {
+                array_splice($names, $item['index'], 1);
+            } else {
+                if ($taken($value, $item['index'])) {
+                    throw new InvalidArgumentException('این نام هم‌اکنون در رکورد هست.');
+                }
+                $names[$item['index']] = $value;
+                // the transliteration stays with the name unless the form sent another, or an empty one
+                $kept = $pairGiven ? $pair : ($map[$before] ?? null);
+                unset($map[$before]);
+                if ($kept !== null) {
+                    $map[$value] = $kept;
+                }
+            }
+        }
+        $record->aliases = $names ?: null;
+        $record->alias_transliterations = $map ?: null;
+
+        return $value !== null ? ['field_name' => SuggestionRegistry::aliasName($value)] : [];
     }
 
     private function listColumn(array $existing, array $lines, ?string $itemKey): array

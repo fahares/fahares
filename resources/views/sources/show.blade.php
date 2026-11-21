@@ -39,7 +39,7 @@
         <x-source.cover :source="$source" size="large" class="w-44 sm:w-52 md:w-full mx-auto" />
         <div class="grid gap-2 justify-items-center md:justify-items-start text-center md:text-start md:pt-4">
             <p class="text-xs font-bold text-cinnabar">{{ $kind }}</p>
-            <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">{{ $source->title }} <x-suggest.field name="title" class="ms-1 align-middle" /></h1>
+            <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance"><x-suggest.centered name="title" class="md:ms-0">{{ $source->title }}</x-suggest.centered></h1>
             {{-- the compiler, publisher and year, each correctable (step 14.52); an empty one shows only in suggestion mode --}}
             @php
                 $makers = ['compiler' => ['پدیدآورنده', $source->compiler], 'publisher' => ['ناشر', $source->publisher], 'publication_year' => ['سال نشر', $source->publication_year]];

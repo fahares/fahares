@@ -12971,15 +12971,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۲۹۶: دور دوم `WorkCatalogueEntries::tie` برای عنوانِ چند اثر مرتبط
 - **علت:** `$find` فقط وقتی اثر می‌داد که `$hits->count() === 1`. برای عنوانی که چند اثر مرتبط دارند `null` می‌داد و پدیدآور مدخل را نمی‌سنجید. `WorkRelationLinker::match()` همان مدخل را با عنوان و پدیدآور یافته و رابطه را نوشته بود، ولی سطر بی‌پیوند می‌ماند.
 - **[WorkCatalogueEntries::tie](../app/Support/WorkCatalogueEntries.php):**
-  - حلقۀ هر سو دو بار اجرا می‌شود (`$several = false` و سپس `true`). دور یکم همان رفتار پیشین است، پس پیوندهای پیشین پیش از دور دوم جای خود را دارند (`$entryOf`). دور دوم فقط سطرهایی را می‌بیند که در `$ties` نیستند و `$hits` آن‌ها دو یا بیشتر است.
-  - `$marked`: کلید عنوان با نشانش (`WorkRelationLinker::markKey`، اکنون عمومی)، پس از برداشتن «(N عنوان)». اگر اثری همۀ عنوان‌های نشان‌دار مدخل را دارد، `$hits` به همان‌ها کم می‌شود.
-  - مدخلِ پدیدآوردار: `authorKey` برابر، و دقیقاً یک اثر. قاعدۀ موجودِ «اثر از آنِ مدخلی است که پدیدآورش را نام می‌برد» برقرار است، پس مدخلی که در دور یکم با عنوان تنها اثری را گرفته بود آن را به مدخلِ نام‌برنده می‌دهد.
-  - `$read($row)`: در سوی `children`، اگر متن سطر دو بخش دارد و بخش دوم تاریخ ندارد، همان بخش پدیدآور است. اگر بخش‌های بیشتری هست و پدیدآوری خوانده نشده، `unread = true` و قاعدۀ بی‌پدیدآور اجرا نمی‌شود. سطر `proposed` هم `unread` است.
-  - مدخل بی پدیدآور: اثرهای `author_name` تهی که در `$entryOf` نیستند و همۀ کلیدهای عنوان مدخل را دارند (`! array_diff($want, $keys($w))`)، به ترتیب `id`، نخستین.
+  - حلقۀ هر سو دو بار اجرا می‌شود (`$several = false` و سپس `true`). دور یکم همان رفتار پیشین است، پس پیوندهای پیشین پیش از دور دوم جای خود را دارند (`$entryOf`). دور دوم فقط سطرهایی را می‌بیند که در `$ties` نیستند.
+  - `$read($row)`: `many` (کمانکی با «عنوان»، «ناشناس» یا «همراه» در متن سطر)، `only` (اثر پیشنهادی سطر `proposed`)، `unread` (در `children`، بخش‌های بیشتری هست و پدیدآوری خوانده نشده). اگر متن دو بخش دارد و بخش دوم تاریخ خوانا ندارد، همان بخش پدیدآور است، پس از برداشتن کمانکِ تاریخ‌دار (`/\s*\((?=[^()]*\d).*$/su`). پدیدآور «ناشناس» `null` می‌شود.
+  - پدیدآور چسبیده به عنوان (`heads()`): پیش از شرط `$hits->count() < 2`، برای مدخل بی پدیدآور، آغاز عنوان و نام پس از آن با اثر سنجیده می‌شود.
+  - مدخل پدیدآوردار: `authorKey` برابر؛ اگر هیچ، اثری که `authorKey`ش پایان `authorKey` مدخل است (`SUFFIX_MIN`). اگر چند اثر ماند: `$full` (همۀ عنوان‌های نشان‌دار مدخل، `markKey` که اکنون عمومی است)، سپس `$own` (کلید `clean_title` یا `primary_title` در عنوان‌های مدخل)، سپس نخستینِ بیرون از `$entryOf` به ترتیب `id`. قاعدۀ «اثر از آنِ مدخلی است که پدیدآورش را نام می‌برد» برقرار است.
+  - مدخل بی پدیدآور (نه `unread`، نه `many`): اثرهای `author_name` تهی که در `$entryOf` نیستند و `$full`اند، نخستین به ترتیب `id`؛ برای سطر `proposed` فقط اگر همان `only` باشد (وگرنه اجرای دوم اثر دیگری می‌داد).
+- **[LinkDecidedWorksCommand](../app/Console/Commands/LinkDecidedWorksCommand.php):** `$rowOf` نخست سطری را می‌جوید که `text` آن همان `entry` تصمیم است (`$byText`)، سپس با `entry_key`. کلید سطرِ پدیدآورِ بی‌تاریخ فقط عنوان است و با کلید پیدا نمی‌شد.
+- **پروندۀ تصمیم:** `fahares-corpus/reconciliations/related_works_model_decisions_20261121.json`: ۲٬۶۰۱ تصمیم دور یکم و ۴۰ تصمیم دور ۲ (`round: 2`، `row`: شناسۀ سطر در پروداکشن، `entry`: متن کامل سطر). پروندۀ `…20261116.json` می‌ماند ولی فرمان را باید با پروندۀ تازه اجرا کرد، چون پیوندهای `model` که در پرونده نیستند باز می‌شوند.
 - **آزمون:** `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
-- **تمرین (`fahares_prod` محلی، سطرها از پشتیبان پروداکشن `step14_285_relations_backup.json`):** `works:link-related --no-index`: «Saved: 0 added, 0 removed»، «Entries: 4058 tied or untied»؛ اجرای دوم «Entries: 0 tied or untied». سطرها: `linked/auto` ۱۳٬۶۳۵ ← ۱۷٬۶۱۳، `linked/model` ۵۶۷، `proposed` ۳۳۳ ← ۳۱۲، بی `link_status` ۶٬۳۸۳ ← ۲٬۴۲۶. صفحه‌ها: «در فهرست» ۳۹۶، «بی پیوند» ۲٬۷۳۶. سنجش سطر به سطر با پروداکشن: ۱۴٬۱۸۰ پیوند همان ماند؛ ۲۲ سطر باز شد و اثرشان اکنون به مدخلی بسته است که پدیدآورش را نام می‌برد (نمونه: #37424 ← #40016، #3649 ← #56045).
-- **باقی‌مانده پس از این گام (شمارش پیش از دو اصلاح آخر، تقریبی):** حدود ۲٬۰۵۰ سطر در اثری‌اند که هیچ اثرِ مرتبطِ هم‌عنوانِ بی‌مدخلی ندارد (اثرشان رکورد ندارد یا رابطه‌اش ثبت نیست)؛ حدود ۶۵۰ سطر اثرِ مرتبطِ هم‌عنوانِ بی‌مدخل دارند ولی نام پدیدآورشان با رکورد یکی نیست، یا دو اثر از یک پدیدآورند، یا «(N عنوان)»اند.
-- **اجرا در تولید، پس از استقرار:** `scripts/dev/prod-run <session> -- 'cd /app && php -d memory_limit=1G artisan works:link-related'` (حالت `--dry-run` شمار سطرها را نمی‌دهد؛ پشتیبان `work_text_relations` پیش از اجرا).
+- **تمرین (`fahares_prod` محلی، سطرها از پشتیبان پروداکشن `step14_285_relations_backup.json`):**
+  - `works:link-related --no-index`: «Saved: 0 added, 0 removed»، «Entries: 4174 tied or untied»؛ اجرای دوم «Entries: 0 tied or untied». سطرها: `linked/auto` ۱۳٬۶۳۵ ← ۱۷٬۷۴۷، `proposed` ۳۳۳ ← ۲۷۳، بی `link_status` ۶٬۳۸۳ ← ۲٬۳۳۱.
+  - `works:link-decisions …20261121.json --proposals --no-index`: روی هم ۶۱۳ سطر `model` (۵۶۷ + ۶ تصمیم دور یکم که با متن کامل پیدا شدند + ۴۰ دور ۲)، «236 relations: 0 to add»، ۳ پیشنهاد به صف برگشت؛ اجرای دوم همه صفر؛ `works:link-related` پس از آن «Entries: 0».
+  - پایان: `linked/auto` ۱۷٬۷۴۵، `linked/model` ۶۱۳، `proposed` ۲۷۶، بی `link_status` ۲٬۲۸۴؛ صفحه‌ها: «در فهرست» ۴۱۳، «بی پیوند» ۲٬۵۵۸، #52424 ۴۳.
+  - سنجش سطر به سطر با پروداکشن (پیش از دو اصلاح آخر): ۱۴٬۱۸۰ پیوند همان ماند؛ ۲۲ سطر باز شد و اثرشان اکنون به مدخلی بسته است که پدیدآورش را نام می‌برد (نمونه: #37424 ← #40016، #3649 ← #56045).
+- **اجرا در تولید، پس از استقرار (پشتیبان `work_text_relations` پیش از آن):** `works:link-related`، سپس پروندۀ تازه به `/tmp` و `works:link-decisions /tmp/…json --proposals`، سپس پاک‌کردن پرونده. حالت `--dry-run` فرمان یکم شمار سطرها را نمی‌دهد.
 
 ### گام ۱۴.۲۹۷: `fahares:tidy-copy-scribes`
 
@@ -12997,3 +13002,42 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **الگوهای رد (۹۰):** جمله دربارۀ پدر، پسر، برادر یا شخص دیگری در همان مدخل؛ جمله از مدخل کناری؛ «مدینة X» که مدینه خوانده شده (بُست، مراکش، تریم، کحلان، خوی، البیضاء)؛ دفن یا انتقال جنازه به‌جای وفات؛ «المشهد الغروی» که نجف است؛ و مدخلِ شخصی دیگر.
 - **الگوهای مشکوک (۶۷، مانده برای بازبینان):** «خوارزم» که به خیوه نگاشته شده (ناحیه است)؛ محل وفاتِ محل اختلاف در خود مدخل؛ «قیل»؛ ناهمخوانی سال مدخل و رکورد؛ روستایی از جبل عامل.
 - **پس از استقرار:** پشتیبان `person_periods`، سپس `fahares:review-life-periods database/data/person_place_decisions_step14_298.json --apply` و `fahares:build-insights`.
+
+### گام ۱۴.۲۹۹: `people.alias_transliterations` و فیلدهای `alias_*`
+- **migration:** `2026_11_21_200001_add_alias_transliterations_to_people` (ستون `json` تهی‌پذیر پس از `aliases`).
+- **`Person`:** cast آرایه؛ قلاب `saving` با تغییر `aliases` یا این ستون، فقط آوانگاری نام‌هایی را نگه می‌دارد که در `aliases` هستند. `aliasItems()` فهرست `name` و `transliteration`. `toSearchableArray` آوانگاری نام‌های دیگر را به `transliteration` سند می‌افزاید (تنظیم نمایه عوض نشد).
+- **`SuggestionRegistry`:** `aliasName` (ده رقم نخست md5 نام)، `aliasField`، `aliasItem`، `ALIAS_NEW`؛ `recordFields` شخص برای هر نام یک فیلد و یک `alias_new` می‌دهد؛ `fieldOf`، `currentValue` و `pairCurrent` این فیلدها را می‌شناسند.
+- **`SuggestionApplier::otherName`:** افزودن (نام تکراری یا برابر نام اصلی رد می‌شود)، بازنویسی (آوانگاری با نام می‌ماند مگر فرم آوانگاری دیگری یا تهی بفرستد) و حذف. `resolution.field_name` مثل عنوان دیگر اثر.
+- **قالب‌ها:** `people/show.blade.php`، `suggest/field.blade.php` (نشان «+» برای `alias_new`)، `suggest/desk.blade.php` (`adds` اکنون برچسب مقدار است: «عنوان دیگر:» یا «نام دیگر:»)، `admin/people/edit.blade.php`.
+- **`Admin\PersonController::update`:** سطر «نام | آوانگاری»؛ `withoutTransliterations` و `transliterations`.
+- **`PersonMerger::merge`:** نگاشت شخص ماندنی، نگاشت شخص حذف‌شونده و آوانگاری نام خود او با هم می‌آیند و قلاب مدل اضافه‌ها را می‌اندازد.
+- **آزمون:** `SuggestionWorkflowTest::test_each_other_name_of_a_person_has_its_transliteration_and_its_own_field`.
+
+### گام ۱۴.۳۰۰: `x-suggest.centered`
+
+- **`resources/views/components/suggest/centered.blade.php`:** `<span class="suggest-row relative inline-block sm:mx-20">` متن، سپس `<span data-suggest-controls>` با `<x-suggest.field>` که از sm به بالا `absolute top-1/2 -translate-y-1/2 start-full ms-2` است (در راست‌به‌چپ سمت چپ متن، در سطر `dir="ltr"` سمت راست). `suggest-row` همان قاعدۀ hover در `app.css` است که مداد کم‌رنگ را پررنگ می‌کند؛ پدرِ مستقیم دکمه دیگر سطر نیست.
+- **چرا حاشیه و نه `max-width` درصدی:** سطرهای سرصفحه در گرید `justify-items-center` به اندازۀ محتوا جمع می‌شوند و درصد بر همان عرض حساب می‌شد و متن را می‌شکست. `mx-20` (۸۰ پیکسل) جای برچسب و مداد (حداکثر حدود ۷۶ پیکسل) را در هر دو طرف نگه می‌دارد و مرکز را جابه‌جا نمی‌کند.
+- **منبع:** `class="md:ms-0"`، چون عنوان از md به بالا راست‌چین است.
+- **سنجش:** مرکز بازۀ متن (`Range` تا پیش از کنترل‌ها) منهای مرکز `header` = ۰ در `/people/346`، `/works/47272` (عنوان دوسطری)، `/libraries/99` و `/sources/dharia`؛ `scrollWidth` ≤ عرض پنجره.
+
+### گام ۱۴.۳۰۱: `test-suite --tested` و `~/.fahares/tested.tsv`
+
+- **درخت کد:** `git ls-tree -r HEAD | grep -vP '\t(docs/|[^/]+\.md$)' | sha1sum`، یعنی مسیر، حالت و blob همۀ فایل‌های کامیت‌شده جز `docs/` و `*.md` ریشه. دو کامیت که تنها در مستندات فرق دارند یک درخت کد دارند.
+- **کد کامیت‌شده:** `git diff --quiet HEAD -- . ':(exclude)docs' ':(exclude,glob)*.md'`. فایل‌های دنبال‌نشده (مثل `public/build`) شمرده نمی‌شوند.
+- **ثبت:** تنها اجرای بی گزینه (نه `--filter`) با وضع خروج صفر و کد کامیت‌شده، سطری `درخت<TAB>کامیت<TAB>آغاز<TAB>checkout` به `tested.tsv` می‌افزاید.
+- **`--tested`:** اگر کد کامیت‌نشده داشته باشد ۱، اگر درخت کد در `tested.tsv` باشد ۰ (با چاپ همان سطر)، و گرنه ۱. قفل آزمون را نمی‌گیرد.
+- **زنجیرۀ انتشار** (`~/.fahares/task-mgmt/release-chain.sh`، بیرون از git): `test-suite --tested || test-suite`، سپس انتظار برای انتقال‌ها و `release-push.sh`.
+- **اجرا در پروداکشن (۲۱ نوامبر ۲۰۲۶):** `scripts/dev/prod-run --wait jolly-tharp -- '… fahares:tidy-copy-scribes --file=… --apply'`: همان خروجی تمرین؛ `curl` نشانی `/people/63486` → ۳۰۱ به اثر.
+
+### گام ۱۴.۳۰۲: تجزیه‌گر v2.7.0 (ویرگول جابه‌جا)، اصلاح متن و دو برون‌بری
+
+- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `6f4cb9c`):**
+  - `unshift(text)` در آغاز `parse_physical()`: `SHIFTED` («واژه ،واژه [واژه][:]» پیش از «بی‌کا»، «تا»، «کا»، «جلد» یا شمار برگ و سطر) ویرگول را پس از واژۀ دوم می‌برد؛ اگر واژۀ نخست خود برچسب است (`SHIFT_LABELS`) دونقطه می‌گیرد، و اگر آن برچسب پس از «،» یا «؛» نیامده دست نمی‌خورد. `SHIFTED_WORD` برای وصف‌های خط و قطع («نستعلیق ،زیبا،») تنها ویرگول را برمی‌دارد. هر جایگزینی با `log_fix('chunk', …)` ثبت می‌شود.
+  - `_repair_chunk()`: «کاغذ[:] X جلد[:] Y» دو تکه می‌شود (نه وقتی X به «و» پایان یابد)؛ «N گ M سطر» دو تکه؛ «کا <نام>» (دست‌کم دو واژه، بی رقم و «=») همان «کا:»؛ «تا احتمالاً/حدود [سال]/ظاهراً/گویا <تاریخ>» همان «تا:».
+  - تکۀ کوتاه پس از کاغذ یا جلد که شمار برگ به آن چسبیده (`GLUED_LEAVES`) برگ را جدا می‌دهد.
+- **اصلاح متن:** `fankha_label_fixes.py --all` (فهرست کامل اجرای آزمایشی)، سپس `--apply`: «Fixed 200 places» و در اجرای دوم «Fixed 2»؛ `LOG` اکنون پروندۀ همین گام است (`fankha_label_fixes_step14_302.jsonl`، ۲۰۲ سطر) و پروندۀ گام ۱۴.۲۸۲ با ۷۰۳ سطر خودش مانده. چهار جای گام پیش همچنان در سطر خود یافت نمی‌شوند.
+- **`fankha_v2_changed_columns_export.py --before DIR --copies FILE --step N` (کامیت `5f135f4`):** نسخه‌هایی که `copy_date_raw`، `copy_place`، `paper`، `binding`، `dimensions`، `folios`، `lines` یا «بی‌کا» آن‌ها میان دو خروجی دگرگون شده، با متن پیش یا پس از اصلاح به نسخۀ سایت می‌رسند. ستون متنی وقتی نوشته می‌شود که سایت همان مقدار پیشین v2 را داشته باشد (یا تهی، اگر v2 مقداری نداشت)؛ شمارها تنها اگر تهی باشند. کنار گذاشته: «سایت از پیش دارد» (کاغذ ۶۳)، مقدار دیگر (کاغذ ۱۴، جلد ۹)، جلدی که هنوز برگ یا سطر در خود دارد (۶)، «بی‌کا» که سایت کاتب یا نشان دارد (۱۱). `pages` را `rebuild-copies` نمی‌پذیرد و برداشته شد.
+- **`fankha_label_fixes_site_export.py --step 14.302`:** همان اسکریپت گام ۱۴.۲۸۲ با گزینۀ `--step` برای پروندۀ ثبت.
+- **پرونده‌ها:** `database/data/fankha_changed_columns_step14_302.json` (۱۴۰ رکورد) و `fankha_label_fixes_text_step14_302.json` (۱۵۹ رکورد). شناسۀ هیچ رکوردی در بازۀ جابه‌جای انتهای جدول (۳۳۴۸۹۴ به بالا) نیست.
+- **تمرین روی `fahares_prod`:** ستون‌ها «dates=22»؛ متن «extents=6»؛ اجرای دوم هر دو «already». سنجش ستون‌های برگرفتۀ ۱۶۴ نسخه پیش و پس: بازۀ تاریخ ۲۲، `extent_raw` ۶، برگ و صفحه ۲؛ `script_names` بی تغییر.
+
