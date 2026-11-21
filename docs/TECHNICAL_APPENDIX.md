@@ -13055,7 +13055,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 18» و سپس «already 18»؛ `tidy-copy-scribes` «removed 2 people»؛ دو `rebuild-copies` هر کدام «write 8» و سپس «already 8»؛ `rebuild-scripts --dry-run` چیزی از این نسخه‌ها نیاورد.
 - **آزمون:** `AddCopyScribesCommandTest` چهار آزمون.
 
-
 ### گام ۱۴.۳۰۷: قلم Mtif Lotus برای متن منابع
 
 - **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2` و `MtifLotus-Bold.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`، هر کدام ~۴۰ KB به‌جای ~۹۲ KB)، با دو `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
