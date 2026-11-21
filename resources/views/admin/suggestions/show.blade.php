@@ -206,6 +206,10 @@
                             </div>
                         @endforeach
                     </div>
+                    @if(($relation['apply'] ?? null) === 'record_relation' && $target && $relationTarget && ($sentence = \App\Suggestions\RecordRelations::sentence($target, $relationTarget, $payload['role'] ?? null)))
+                        {{-- The relation as the submitter chose it, with both records named (step 14.290) --}}
+                        <p class="font-naskh text-base leading-8 text-ink font-bold" data-relation-sentence>{{ $sentence }}</p>
+                    @endif
                     @if(trim((string) $suggestion->suggested_value) !== '')
                         <div class="whitespace-pre-line leading-7 text-ink"><span class="text-xs text-muted">متن پیشنهاددهنده:</span> {{ $suggestion->suggested_value }}</div>
                     @endif

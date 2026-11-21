@@ -44,6 +44,8 @@
         'lookupUrl' => route('suggestions.lookup'),
         // Relations with options carry them: roles of people in the copy, or the kinds of relation between records
         'relations' => SuggestionRegistry::relationChoices($type),
+        // this record's name, for a relation's wording once the other record is chosen (step 14.290)
+        'recordLabel' => in_array(SuggestionRegistry::typeKey($type), ['work', 'manuscript'], true) ? SuggestionRegistry::describe($record)['label'] : null,
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
         'creditName' => auth()->user() ? \App\Models\FieldSuggestion::creditNameFor(auth()->user()) : null,
@@ -144,7 +146,7 @@
                                     <label class="block text-[13px] font-bold text-ink" x-text="['person_role', 'volume_cataloger'].includes(relation.apply) ? 'نقش:' : (relation.apply === 'person_period' ? 'نوع دوره:' : 'نوع رابطه:')"></label>
                                     <select x-model="roleKey" class="{{ $inputClass }}">
                                         <option value="">انتخاب کنید…</option>
-                                        <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label"></option></template>
+                                        <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="relationLabel(label)"></option></template>
                                     </select>
                                     <p x-show="errors.role" x-text="errors.role" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
                                 </div>

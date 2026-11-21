@@ -98,6 +98,11 @@ class SuggestionApplier
                         throw new InvalidArgumentException('نخستین سدۀ زندگی نمی‌تواند پس از سدۀ شخص (سدۀ ' . \App\Support\Fa::digits((string) $record->century_hijri) . ') باشد.');
                     }
                 }
+                // A death year taken away must leave the life dates' wording too, or the model reads it back from
+                // there and the approval changes nothing (step 14.293; suggestion 598)
+                if ($record instanceof Person && $name === 'death_year_hijri' && $value === null && $record->death_year_hijri !== null) {
+                    $this->dropDeathFromLifeDates($record);
+                }
                 $record->{$name} = $value === null ? null : (int) $value;
                 break;
 
@@ -368,6 +373,29 @@ class SuggestionApplier
         $record->alternative_titles = $items ?: null;
 
         return $value !== null ? ['field_name' => SuggestionRegistry::altTitleName($value)] : [];
+    }
+
+    /**
+     * The death year is cleared: where the catalogue's life dates give that very year («- 940 ؟ ق», «817 - 898 قمری»),
+     * the wording loses it («817 - قمری» keeps the birth year; with no birth year the wording goes), and the
+     * Gregorian year with it. Where the wording would still give a year of death, the reviewer is told to correct
+     * the life dates instead of being shown an approval that did nothing.
+     */
+    private function dropDeathFromLifeDates(Person $person): void
+    {
+        $text = $person->life_dates_raw;
+        $given = Person::deathColumns($text, null);
+        if ($given['death_from'] !== null && $given['death_from'] === $given['death_to'] && $given['death_from'] === (int) $person->death_year_hijri
+            && Person::lifeCalendar($text) === null) {
+            $birth = Person::yearBeforeDash($text);
+            $text = $birth ? "{$birth} - قمری" : null;
+        }
+        $left = Person::deathColumns($text, null);
+        if ($left['death_from'] !== null && $left['death_from'] === $left['death_to']) {
+            throw new InvalidArgumentException('سال وفات این شخص از متن «تاریخ زندگی» («' . $person->life_dates_raw . '») خوانده می‌شود. نخست فیلد «تاریخ زندگی» را اصلاح کنید.');
+        }
+        $person->life_dates_raw = $text;
+        $person->death_year_gregorian = null;
     }
 
     private function listColumn(array $existing, array $lines, ?string $itemKey): array
