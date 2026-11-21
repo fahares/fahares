@@ -559,6 +559,54 @@ class SuggestionWorkflowTest extends TestCase
         User::whereKey($user->id)->delete();
     }
 
+    /** Step 14.295: a renamed person's works and copies take the new name; pages and the search read the person. */
+    public function test_a_renamed_person_is_named_anew_on_their_works_and_copies()
+    {
+        $person = $this->person('مجنون مشهدی');
+        $old = $person->name;
+        $work = $this->work(['author_id' => $person->id, 'author_name' => $old, 'raw_text' => "● رسم الخط\n{$old}، - 940 ؟ ق"]);
+        $shared = $this->work(['author_id' => $person->id, 'author_name' => "{$old} و دیگری", 'has_other_authors' => true]);
+        $longer = $this->work(['author_id' => $person->id, 'author_name' => "منسوب به {$old}"]);
+        $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1, 'scribe_id' => $person->id, 'scribe_name' => $old, 'library' => 'آزمون', 'shelfmark' => '77/1', 'collection_key' => '77']);
+        $sibling = Manuscript::create(['work_id' => $shared->id, 'sequence_number' => 2, 'volume_number' => 1, 'page_start' => 1, 'library' => 'آزمون', 'shelfmark' => '77/2', 'collection_key' => '77']);
+
+        $new = "مجنون رفیقی هروی {$this->tag}";
+        $this->suggest($person, ['field_name' => 'name', 'suggested_value' => $new, 'rationale_citation' => 'دیباچۀ سواد الخط'])->assertOk();
+        $this->approve($this->pendingFor($person))->assertRedirect('/admin/suggestions');
+
+        // The column that held the old name follows; the catalogue's text, a work of several authors and a longer wording do not
+        $this->assertSame([$new, "● رسم الخط\n{$old}، - 940 ؟ ق"], [$work->fresh()->author_name, $work->fresh()->raw_text]);
+        $this->assertSame(["{$old} و دیگری", "منسوب به {$old}", $new], [$shared->fresh()->author_name, $longer->fresh()->author_name, $copy->fresh()->scribe_name]);
+        // ...and it is logged on the work, which keeps a corpus sync from writing the catalogue's name back
+        $log = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->where('action', 'verify')->sole();
+        $this->assertSame([['author_name' => $old], $person->id], [$log->old_values, $log->new_values['followed_person']]);
+        $guard = \App\Suggestions\ProtectedColumns::for(Work::class);
+        $this->assertSame(['primary_title' => 'x'], $guard->strip($work->id, ['author_name' => $old, 'primary_title' => 'x']));
+
+        // Pages name the author by the linked person: the longer wording too, a work of several authors by its own text
+        $this->assertSame([$new, "{$old} و دیگری", $new], [$work->fresh()->author_label, $shared->fresh()->author_label, $longer->fresh()->author_label]);
+        $this->get(route('manuscripts.show', $sibling))->assertOk()->assertSee('رساله‌های این مجموعه')->assertSee($new)->assertDontSee("· {$old}<", false);
+        // The search document of a work holds the person's name as it is now beside the record's own text
+        $this->assertStringContainsString(\App\Helpers\TextNormalizer::normalize($new), $longer->fresh()->toSearchableArray()['author_name']);
+        $this->assertContains(\App\Helpers\TextNormalizer::normalize($new), $longer->fresh()->toSearchableArray()['titles_names']);
+
+        // Undoing the rename takes the works and copies back with it
+        $rename = AuditLog::where('auditable_type', Person::class)->where('auditable_id', $person->id)->where('action', 'verify')->latest('id')->first();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$rename->id}/rollback")->assertSessionHas('success');
+        $this->assertSame([$old, $old, $old], [$person->fresh()->name, $work->fresh()->author_name, $copy->fresh()->scribe_name]);
+
+        // A work left with an earlier name (renamed before this step) is found and written by the command
+        $person->update(['name' => $new]);
+        DB::table('works')->where('id', $work->id)->update(['author_name' => $old]);
+        AuditLog::create(['auditable_type' => Person::class, 'auditable_id' => $person->id, 'action' => 'verify', 'old_values' => ['name' => $old], 'new_values' => ['name' => $new]]);
+        $this->artisan('fahares:follow-person-names', ['--person' => $person->id])->expectsOutputToContain('renamed   1')->expectsOutputToContain('several   1')->expectsOutputToContain('other     1')->assertSuccessful();
+        $this->assertSame($old, $work->fresh()->author_name);
+        $this->artisan('fahares:follow-person-names', ['--person' => $person->id, '--apply' => true])->expectsOutputToContain('Done: 1 works written.')->assertSuccessful();
+        $this->assertSame([$new, "منسوب به {$old}"], [$work->fresh()->author_name, $longer->fresh()->author_name]);
+        $this->artisan('fahares:follow-person-names', ['--person' => $person->id, '--apply' => true, '--reindex' => true])
+            ->expectsOutputToContain('Reindexed: 2 works.')->expectsOutputToContain('Done: 0 works written.')->assertSuccessful();
+    }
+
     /** Step 14.286: a title is corrected with its transliteration, and each other title is a field of its own. */
     public function test_a_title_goes_with_its_transliteration_and_each_other_title_is_its_own_field()
     {

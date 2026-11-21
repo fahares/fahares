@@ -1018,7 +1018,7 @@ class Manuscript extends Model
             ->when($this->collection_key !== null || $base === null,
                 fn ($q) => $q->where('collection_key', $key),
                 fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%'))
-            ->with(['work', 'scribe'])
+            ->with(['work.author', 'scribe'])
             ->limit(400)
             ->get()
             ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)

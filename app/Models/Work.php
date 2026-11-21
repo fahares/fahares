@@ -313,7 +313,10 @@ class Work extends Model
             $authorWrongNames = (array) ($this->author?->wrong_names ?? []);
         }
 
-        $authorSearchText = $this->author_name;
+        // The linked person's name as it is now, beside the name the record carries: a person renamed after the
+        // work was made is found by either (step 14.295)
+        $authorNow = ! empty($this->author_id) ? $this->author?->name : null;
+        $authorSearchText = trim($this->author_name . ($authorNow && $authorNow !== $this->author_name ? ' ' . $authorNow : ''));
         if (!empty($authorAliases)) {
             $authorSearchText = trim($authorSearchText . ' ' . implode(' ', $authorAliases));
         }
@@ -324,7 +327,7 @@ class Work extends Model
         $cleanTitles = \App\Helpers\TextNormalizer::titleForms($cleanTitle);
         $forms = fn (array $list) => array_merge([], ...array_map(fn ($t) => \App\Helpers\TextNormalizer::titleForms($t), $list));
         [$namingTitles, $derivativeTitles] = $this->searchTitles();
-        $authorNames = array_map(fn ($a) => \App\Helpers\TextNormalizer::normalize($a), array_filter([$this->author_name, ...$authorAliases]));
+        $authorNames = array_map(fn ($a) => \App\Helpers\TextNormalizer::normalize($a), array_filter([$this->author_name, $authorNow, ...$authorAliases]));
         $authorNames = array_filter($authorNames, fn ($a) => ! in_array(strtok($a, ' '), self::AUTHOR_EPITHETS, true));
 
         return [
@@ -384,6 +387,16 @@ class Work extends Model
     public function catalog(): BelongsTo
     {
         return $this->belongsTo(Catalog::class);
+    }
+
+    /**
+     * The author as a page names them (step 14.295): the linked person's name as it is now, since the person may have
+     * been renamed after the work was made; the record's own text for a work of several authors («الف و ب») or of no
+     * linked person.
+     */
+    public function getAuthorLabelAttribute(): ?string
+    {
+        return $this->author_id && ! $this->has_other_authors ? ($this->author?->name ?? $this->author_name) : $this->author_name;
     }
 
     public function author(): BelongsTo
