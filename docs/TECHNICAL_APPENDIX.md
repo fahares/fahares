@@ -13058,6 +13058,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۳۰۷: قلم Mtif Lotus برای متن منابع
 
-- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2` و `MtifLotus-Bold.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`، هر کدام ~۴۰ KB به‌جای ~۹۲ KB)، با دو `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
+- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2`، `MtifLotus-Bold.woff2`، `MtifLotus-Italic.woff2` و `MtifLotus-BoldItalic.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`؛ معمولی و سیاه هر کدام ~۴۰ KB به‌جای ~۹۲ KB، دو ایتالیک ~۳۳ KB)، با چهار `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
 - **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
 - **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
