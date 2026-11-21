@@ -229,6 +229,28 @@ class WorkRelationLinker
     }
 
     /**
+     * The entries of a row of the catalogue. In «شروح و حواشی» a row is one work, so in «حاشية شرح هداية الحكمة؛ خلیل بن
+     * فاضل بن اسحاق» the second part is its author, written with no life dates (step 14.310), unless it is itself the
+     * title of a work; «ناشناس» there is the catalogue's word for no author.
+     *
+     * @return list<array{titles: list<string>, author: ?string, born: ?int, died: ?int, type: ?string, base: ?string}>
+     */
+    private function entries(string $text, string $side): array
+    {
+        $entries = WorkRelationParser::parseEntries($text);
+        if ($side !== 'children' || count($entries) !== 2 || $entries[0]['author'] !== null || $entries[1]['author'] !== null || count($entries[1]['titles']) !== 1) {
+            return $entries;
+        }
+        $name = trim(preg_replace('/\s*\((?=[^()]*\d).*$/su', '', $entries[1]['titles'][0]));
+        if ($name === '' || isset($this->byTitle[self::key($name)])) {
+            return $entries;
+        }
+        $entries[0]['author'] = self::authorKey($name) === self::authorKey('ناشناس') ? null : $name;
+
+        return [$entries[0]];
+    }
+
+    /**
      * Every pair the related works recorded as text give, once: «child» is made on «parent». $each, when given, is
      * told every entry and how it was matched: (work id, side, how, entry).
      *
@@ -244,7 +266,7 @@ class WorkRelationLinker
             ->select('id', 'work_id', 'side', 'position', 'text')->orderBy('work_id')->orderBy('side', 'desc')->orderBy('position')->orderBy('id');
         $rows = [];
         foreach ($texts->get() as $w) {
-            foreach (WorkRelationParser::parseEntries((string) $w->text) as $entry) {
+            foreach ($this->entries((string) $w->text, $w->side) as $entry) {
                 $rows[$w->work_id][$w->side][] = $entry;
                 foreach ($entry['titles'] as $title) {
                     $this->named[$w->side][$w->work_id][self::key($title)] = true;
