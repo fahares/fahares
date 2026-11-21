@@ -13126,3 +13126,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`show.blade.php`:** فرم `data-discard-derived` کنار «این پیشنهاد را داور از روی … ساخته است».
 - **آزمون:** `SuggestionWorkflowTest::test_convert_shows_the_current_value_and_a_made_suggestion_is_taken_back_without_a_rejection`.
 
+### گام ۱۴.۳۱۴: `Insights::topAuthors()` و `Insights::formats()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها دو ستون تازه دارد، `page_height` و `page_width` (`DECIMAL(6,1)`). `dimensions` تنها وقتی خوانده می‌شود که با `^[0-9]+(/[0-9]+){0,1}×[0-9]+(/[0-9]+){0,1} {0,1}(سم){0,1}$` بخواند؛ «/» ممیز است؛ `GREATEST` بلندی و `LEAST` پهناست. در الگو «?» نیامده، چون دستور ساخت جدول با binding اجرا می‌شود و «?» جای‌نگهدار شمرده می‌شد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v17`.
+  - `top_authors`: `by_works` و `by_copies` (هر ردیف `id, key, name, death, works, copies`)، `authors`، `single`، `works`. شمارش از `work_people` با نقش `author`، پیوسته به جدول موقت آثار و نسخه‌های دامنه؛ همان تعریفی که پالایۀ «مؤلف» دامنه دارد.
+  - `formats`: `bands` (لبه‌ها از `insights.height_bands`: ۱۵، ۱۸، ۲۱، ۲۴، ۲۸، ۳۴)، `with_size`، `left_out` (بیرون از `insights.page_cm` = ۳ تا ۷۰)، `median` (با رتبه، نه با بار کردن در PHP)، `centuries` (`height, width, count`؛ تنها نسخه‌های یک‌سده‌ای)، `common` (`insights.sizes_shown` = ۸ اندازۀ دقیق)، `subjects` (موضوع اصلی با `COALESCE(parent_id, id)`، دست‌کم `min_sample` نسخه، ده موضوع پرنسخه، چیده از بلندترین).
+- **نما:** `charts/top-authors.blade.php` (در دامنۀ یک مؤلف یا یک اثر نمی‌آید) و `charts/formats.blade.php`؛ در `insights.topics` به `people` و `copies` افزوده شدند. عنوان صفحۀ اشخاص «مؤلفان، کاتبان و حامیان» شد.
+- **[InsightsNotes](../app/Support/InsightsNotes.php) و [InsightsTables](../app/Support/InsightsTables.php):** کلیدهای `topAuthors` و `formats`؛ جدول‌ها `authors-by-works`، `authors-by-copies`، `page-heights`، `page-sizes`، `page-by-century`، `page-by-subject`.
+- **آزمون:** `InsightsAuthorsFormatsTest` (سه آزمون: رتبه‌بندی مؤلفان، دسته‌بندی بلندی با ابعاد وارونه و ناخوانا و بیرون از دامنه، و رندر دو صفحه).
+- **سنجش ابعاد (رونوشت محلی):** از ۳۲۳٬۲۴۹ نسخه ۲۳۶٬۰۸۴ ابعاد دارند و ۲۳۵٬۷۷۵ با الگو می‌خوانند؛ ۲٬۲۸۹ تا ضلع بلندتر را نخست نوشته‌اند. دسته‌ها: ۱۲٬۴۱۲، ۳۶٬۷۲۲، ۷۴٬۸۶۸، ۴۹٬۲۸۱، ۲۹٬۹۴۴، ۲۶٬۵۳۹، ۵٬۷۷۷.
+
