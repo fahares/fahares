@@ -24,6 +24,36 @@ class Manuscript extends Model
 
     protected $guarded = ['id'];
 
+    public const PROVENANCE_RESEARCHER = 'researcher';
+
+    public const PROVENANCE_CATALOGUE = 'catalogue';
+
+    /** The copies Fankha lists; one made in the panel has no catalog (backlog item 149). The corpus commands look among these. */
+    public function scopeFromFankha($query)
+    {
+        return $query->whereNotNull($query->qualifyColumn('catalog_id'));
+    }
+
+    /**
+     * Where the knowledge of a copy made in the panel came from (ManuscriptCreator, backlog item 149): a researcher
+     * who saw the copy, or a printed catalogue. Null for a copy of the catalogues' records.
+     *
+     * @return array{kind: string, text: ?string, suggestion_id: ?int, label: string, chip: string}|null
+     */
+    public function provenance(): ?array
+    {
+        $p = $this->metadata['provenance'] ?? null;
+        if (! is_array($p) || empty($p['kind'])) {
+            return null;
+        }
+        $text = filled($p['text'] ?? null) ? trim($p['text']) : null;
+        [$label, $chip] = $p['kind'] === self::PROVENANCE_CATALOGUE
+            ? [$text ?? 'برگرفته از فهرست چاپی', 'افزوده از فهرست']
+            : [$text ? "به گزارش {$text}، که نسخه را دیده است" : 'بر پایۀ دیدن نسخه', 'افزودۀ پژوهشگر'];
+
+        return ['kind' => $p['kind'], 'text' => $text, 'suggestion_id' => isset($p['suggestion_id']) ? (int) $p['suggestion_id'] : null, 'label' => $label, 'chip' => $chip];
+    }
+
     /**
      * The copy's extent as a reader sees it: «۱۰ برگ (۳۴پ–۴۳ر)», «۲۸ صفحه (۱–۲۸)», «۸۶ برگ، ۱۷۰ صفحه» (backlog item 97).
      * The range is the leaves or pages the copy takes in its volume.

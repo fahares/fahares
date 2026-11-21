@@ -38,6 +38,8 @@ final class Permissions
         'structure.remove' => ['review', 'حذف رکورد زائد', 'حذف اثر، نسخه یا شخص زائد.', []],
         // Backlog item 45: the same tools without a suggestion; each still needs its own permission above
         'structure.direct' => ['review', 'اقدام ساختاری مستقیم', 'اجرای ابزارهای ساختاری (ادغام، تفکیک، انتقال، حذف…) از پنل، بی‌آنکه پیشنهادی ثبت و تأیید شود؛ هر ابزار دسترسی خودش را هم می‌خواهد.', []],
+        // Backlog item 149: a copy the catalogues do not list, from what a researcher saw
+        'manuscripts.create' => ['review', 'ساختن رکورد نسخه', 'ساختن رکورد نسخه‌ای که در فهرست‌ها نیامده است، زیر اثری موجود، اثری تازه یا بی‌عنوان؛ از لاگ ممیزی بازگرداندنی است.', []],
         'catalog_refs.review' => ['review', 'نشانی‌های خودکار فهرست', 'تأیید و رد نشانی‌ها و داده‌های هوشواره، در پنل و در صفحه‌های سایت.', ['editor']],
         'source_entries.edit' => ['review', 'اصلاح متن مأخذ', 'ویرایش متن مدخل‌های مأخذ و فهرست چاپی.', ['editor']],
         'people.edit' => ['data', 'ویرایش اشخاص', 'فهرست، جست‌وجو و ویرایش مشخصات اشخاص.', ['editor']],

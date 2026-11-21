@@ -21,6 +21,7 @@ class AdminNav
                 ['label' => 'پیشنهادهای اصلاح', 'route' => 'admin.suggestions.index', 'active' => 'admin.suggestions.*', 'can' => 'suggestions.review',
                     'count' => fn () => FieldSuggestion::inQueue()->count()],
                 ['label' => 'ابزارهای ساختاری', 'route' => 'admin.structure.index', 'active' => 'admin.structure.*', 'can' => 'structure.direct'],
+                ['label' => 'نسخۀ تازه', 'route' => 'admin.manuscripts.create', 'active' => 'admin.manuscripts.*', 'can' => 'manuscripts.create'],
                 ['label' => 'نشانی‌های خودکار فهرست', 'route' => 'admin.catalog-references.index', 'active' => 'admin.catalog-references.*', 'can' => 'catalog_refs.review',
                     'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Manuscript::class)->count()],
                 ['label' => 'پیوندهای خودکار آثار', 'route' => 'admin.source-links.index', 'active' => 'admin.source-links.*', 'can' => 'catalog_refs.review',
