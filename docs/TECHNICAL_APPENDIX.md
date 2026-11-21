@@ -13055,9 +13055,33 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 18» و سپس «already 18»؛ `tidy-copy-scribes` «removed 2 people»؛ دو `rebuild-copies` هر کدام «write 8» و سپس «already 8»؛ `rebuild-scripts --dry-run` چیزی از این نسخه‌ها نیاورد.
 - **آزمون:** `AddCopyScribesCommandTest` چهار آزمون.
 
+### گام ۱۴.۳۰۶: `ManuscriptCreator` و فرم «نسخۀ تازه»
+
+- **migration `2026_11_21_300001_allow_records_without_a_fankha_place`:** `catalog_id` (پیش‌فرض ۱ می‌ماند)، `volume_number` و `page_start` در `manuscripts` و `works` اختیاری می‌شوند (یک `ALTER TABLE … MODIFY` برای هر جدول). رکورد پنل هر سه را تهی دارد؛ **`catalog_id` تهی نشانۀ «این رکورد از فنخا نیست»** است. `down()` اگر چنین رکوردی باشد خطا می‌دهد.
+- **`App\Suggestions\ManuscriptCreator`:**
+  - `duplicates($libraryId, $shelfmark)`: نسخه‌های همان کتابخانه با همان `shelfmark_key` (رقم لاتین و فارسی).
+  - `create($data, $userId, $ip)` در یک تراکنش: اثر (`existing`، `new` با `author_id` یا فقط `author_name`، یا `untitled` با عنوان «بی‌عنوان (کتابخانه، ش شماره)»؛ اثر تازه هم بی `catalog_id`)، نسخه با `sequence_number` = بیشینۀ اثر + ۱، `library` و `city` از رکورد کتابخانه، بازۀ برگ از `CopyExtent::parseRange`، و `metadata.provenance = {kind: researcher|catalogue, text, suggestion_id}`.
+  - `collection_key` = `Manuscript::resolvedCollectionKey(shelfmark, null, شمارۀ مجموعۀ فرم)`: شمارۀ بخش‌دار («2897/3») خودش مجموعه را می‌دهد؛ شمارۀ سادۀ برابر با شمارۀ مجموعه («3522») کلید را نگه می‌دارد؛ ناسازگاری خطاست.
+  - `keySiblings()`: اگر فرم از صفحۀ نسخه‌ای باز شده (`from_id`) که `collection_key` ندارد و شمارۀ ساده‌اش همان کلید است، آن نسخه هم کلید می‌گیرد، با سطر ممیزی `verify` (`direct_edit`) تا `fahares:link-plain-volumes` کلید را پاک نکند.
+  - `catalogueEntry()`: با منبع «فهرست چاپی»، شناسۀ منبع و نشانی («ج ۶، ص ۶۰۱»، `SuggestionRegistry::parseCatalogPage`) یک `SourceEntry` دستی و تأییدشده (`origin = manual`) می‌سازد که کارت عادی همان فهرست است.
+  - سطر ممیزی `create` با `new_values.panel = true` و ستون‌های پرشده، و `old_values.created = {manuscript_id, work_id, source_entry_ids, keyed_manuscript_ids}`. شمارۀ پیشنهاد زیر `suggestion_id` نمی‌آید، چون `AuditLog::activeForSuggestion` آن را تغییرِ تأیید آن پیشنهاد می‌گرفت.
+  - `undo($log)`: مدخل‌های منبع نسخه، خود نسخه (`RecordRemover::remove`)، اثری که برایش ساخته شده (اگر نسخۀ دیگری نگرفته)، و کلید مجموعۀ نسخۀ همراه (اگر نسخۀ دیگری از آن مجلد نمانده) برداشته می‌شوند و شمارها دوباره شمرده می‌شوند.
+- **لاگ ممیزی:** `create` به `AuditLog::UNDOABLE` افزوده شد؛ `AuditLogController::rollbackCreate` فقط سطر دارای `panel` را برمی‌گرداند و `rollback_create` می‌نویسد. سطرهای `create` فرمان‌های پیکره (`old_values` تهی) مثل پیش برگرداندنی نیستند.
+- **محافظت در برابر پیکره:**
+  - `ProtectedColumns::for()` سطر `create` دارای `panel` را هم می‌خواند: ستون‌های آن مثل ستون اصلاح‌شده محافظت می‌شوند (`DerivedData::collectionChange`، `link-plain-volumes`، `CopyExtent::columns`).
+  - `Manuscript::scopeFromFankha()` (`catalog_id` ناتهی) در جست‌وجوی نسخه با اثر، ردیف و شماره: `ApplyCorpusStructureCommand` (چهار جا)، `AddCorpusWorksCommand::findMove`، و شرط `whereNotNull('catalog_id')` در `ApplyCorpusCitationsCommand::find`.
+  - `RebuildCopiesCommand::check`: رکورد بی `catalog_id` → «not a copy of Fankha (made in the panel)».
+  - `SourceEntrySync::syncRecord` از پیش برای `catalog_id` تهی مدخل فنخا نمی‌سازد؛ `SyncWorkDetailsCommand` و `SyncFixedShelfmarksCommand` با `volume_number` می‌گردند و رکورد بی‌جلد را نمی‌بینند.
+- **پنل:** `Admin\ManuscriptController` (`create`، `store`)، مسیرهای `admin.manuscripts.create` و `admin.manuscripts.store` زیر `can:manuscripts.create` (دسترسی تازه در `Permissions::ALL`، گروه داوری، بی نقش پیش‌فرض)، و سطر «نسخۀ تازه» در `AdminNav`. `?from={id}` کتابخانه و کلید مجموعه را از آن نسخه می‌گیرد (`collection_key`، وگرنه `collectionKeyOf`، وگرنه `plainVolumeKeyOf`). هشدار تکراری با `session('duplicates')` و تیک `confirm_duplicate`.
+- **`x-admin.record-picker`:** انتخاب رکورد (اثر، شخص، کتابخانه، منبع) با نام، نشانی یا شناسه از `suggestions.lookup`؛ فیلد پنهان شناسه را نگه می‌دارد.
+- **نمایش:** `Manuscript::provenance()` برچسب («به گزارش …، که نسخه را دیده است»، «بر پایۀ دیدن نسخه»، یا متن ارجاع فهرست) و نشان («افزودۀ پژوهشگر»، «افزوده از فهرست») را می‌دهد. `manuscripts/show.blade.php`: بلوک «منبع اطلاع» در کارت «در مآخذ نسخه‌شناسی»، با پیوند پیشنهاد فقط برای `suggestions.review`. `manuscript-collection.blade.php`: نشان کنار جزء افزوده، و پیوند «جزء دیگری از همین مجموعه» برای `manuscripts.create`.
+- **آزمون:** `tests/Feature/Admin/NewManuscriptTest.php`، ۸ آزمون: دسترسی؛ نسخه زیر اثر موجود با شمارها و صفحه؛ اثر تازه و بی‌عنوان؛ هشدار تکراری؛ جزء دیگر مجموعه و کلید نسخۀ همراه؛ کارت فهرست چاپی؛ بازگرداندن؛ و دوام در برابر `DerivedData::syncCopies`، `fahares:refresh-derived --apply`، `SourceEntrySync::syncIds` و `fahares:rebuild-copies`.
+- **پیش‌نمایش:** روی `fahares_test` با رکوردهای موقت (پاک شدند). اجرای هم‌زمان آزمون نشست دیگر پایگاه را از نو ساخت و رکوردها را برد؛ پیش‌نمایش پس از آزادشدن قفل `test-suite` تکرار شد.
+- **انتشار:** migration در استقرار خودکار اجرا می‌شود و دو جدول بزرگ را بازسازی می‌کند. فرمان دادۀ پس از استقرار ندارد.
+
 ### گام ۱۴.۳۰۷: قلم Mtif Lotus برای متن منابع
 
-- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2` و `MtifLotus-Bold.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`، هر کدام ~۴۰ KB به‌جای ~۹۲ KB)، با دو `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
+- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2`، `MtifLotus-Bold.woff2`، `MtifLotus-Italic.woff2` و `MtifLotus-BoldItalic.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`؛ معمولی و سیاه هر کدام ~۴۰ KB به‌جای ~۹۲ KB، دو ایتالیک ~۳۳ KB)، با چهار `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
 - **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
 - **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
 
