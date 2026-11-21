@@ -12782,3 +12782,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ECharts:** `GridComponent` و `DataZoomComponent` از `echarts-map.js` برداشته شد؛ این بسته دوباره تنها برای نقشه است.
 - **سنجیده نشد:** لمس واقعی (کشیدن و دو انگشت) روی گوشی؛ در مرورگر با رویدادهای اشاره‌گر شبیه‌سازی‌شده و پهنای ۳۷۵ پیکسل آزموده شد.
 - **اجرای پروداکشن (انتشار ۱۷۰، `3ecc3c65`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر):** فایل داده با کامیت گام یکی بود (md5 `3333d55d…`)، و اجرای آزمایشی «4 updated». پشتیبان چهار ردیف `catalog_volumes` و `source_volumes` (کد همه خالی) در `../fahares-sources/backups/step13/before_step14_279_set_facsimiles_20261120_2115.json`. `prod-run`: «0 created, 4 updated, 192 unchanged»؛ اجرای آزمایشی دوم «0 updated, 196 unchanged». `/manuscripts/191460` (دارالحدیث ص ۶۶)، `/manuscripts/31802` (ادبیات ج ۲ ص ۵۰)، `/manuscripts/160473` (فیضیه ج ۲ ص ۶۳) و `/manuscripts/75973` (فیضیه ج ۳ ص ۱۵۶) برگۀ درست را دارند.
+
+### گام ۱۴.۲۸۴: `storageQuotaExceeded` در مخزن restic، کار `prune` و `RCLONE_DRIVE_USE_TRASH`
+
+- **خطا:** `googleapi: Error 403: The user's Drive storage quota has been exceeded., storageQuotaExceeded` در `media` ‏۲۰ نوامبر ۲۰۲۶، در گام `restic-backup`؛ restic پس از آن `unable to create lock in backend` داد. `rclone about gdrive:`: ‏Total 15 GiB، ‏Used 15.086 GiB، ‏Trashed 128.5 MiB.
+- **سنجش (`restic --no-lock stats --mode raw-data`):** کل ۱۱٫۶۶ گیگابایت؛ `--tag db` ‏۲٫۹۲ (۲۹ snapshot، ۱۷٫۷ فشرده‌نشده)؛ `--tag media` ‏۸٫۷۴ (۳ snapshot: ۱۳ اکتبر، ۲ و ۶ نوامبر). `MEDIA_DIR` ‏۱۹ گیگابایت است، که ۹٫۳ گیگابایت آن (۱۲۲٬۱۳۷ فایل در `catalogs/`) پس از ۶ نوامبر آمده است. تفاوت Used با مخزن، packهای بی‌ارجاع بکاپ‌های ناموفق `media` بود.
+- **با سهمیۀ پر:** هر فرمان restic، از جمله `snapshots`، برای نوشتن فایل قفل تا پایان `rclone.timeout` تلاش می‌کند و می‌ایستد. خواندن فقط با `--no-lock` ممکن است.
+- **اقدام روی میزبان (۲۱ نوامبر، ۰۰:۳۷ تا ۰۰:۵۲ تهران):**
+  - `rclone cleanup gdrive:`: ‏۱۳۴ فایل سطل زباله، همه زیر `fahares-restic/` (`locks`، `data`، `index`، `snapshots`).
+  - `restic prune --max-repack-size 0` زیر `flock` روی `$STATE_DIR/.lock`: ‏۲۰۴ pack بی‌ارجاع، ۳٫۱۹۸ گیگابایت؛ repack نشد، چون repack پیش از حذف جا می‌خواهد. لاگ در `~/fahares-backups/prune-20261121.log`.
+  - `export RCLONE_DRIVE_USE_TRASH=false` به `/etc/fahares-backup/backup.env` افزوده شد (نسخۀ پیشین: `backup.env.bak-20261121`).
+  - خط `52 4 * * 5 … media` در crontab کامنت شد (نسخۀ پیشین: `~/fahares-backups/crontab.bak-20261121`).
+  - پس از آن: Used 11.763 GiB، ‏Free 3.236 GiB؛ `restic check`: ‏`no errors were found`؛ ۳۶ snapshot.
+- **`fahares-backup.sh`:**
+  - `job_prune`: همان `forget --prune --group-by host,tags` با `KEEP_DAILY/WEEKLY/MONTHLY` که پیش‌تر دنبالۀ `job_media` بود. با شکست `media`، ‏`forget` هیچ‌گاه اجرا نمی‌شد و snapshotهای `db` و packهای نیمه‌کاره می‌ماندند.
+  - `export RCLONE_DRIVE_USE_TRASH="${RCLONE_DRIVE_USE_TRASH:-false}"`: ‏`rclone serve restic` این متغیر را از محیط می‌خواند. با پیش‌فرض rclone (`true`)، حذف‌های `prune` تا ۳۰ روز در سهمیه می‌مانند.
+  - `crontab.example`: ‏`52 4 * * 6 … prune` (شنبه، یک روز پس از `media`، چون دو کار یک `flock` دارند و دومی بی‌انتظار خارج می‌شود).
+- **آزمایش `prune` روی میزبان:** از نسخۀ تازۀ اسکریپت اجرا شد: ۳۶ ← ۲۶ snapshot (`db` ‏۲۹ ← ۱۹، ‏`config` ‏۴، ‏`media` ‏۳)؛ Used 11.566 GiB، ‏Free 3.433 GiB، ‏Trashed 0 B، یعنی حذف‌ها دیگر به سطل زباله نمی‌روند. خط `prune` به crontab میزبان افزوده شد.
+- **نصب:** `/usr/local/bin/fahares-backup.sh` از آنِ root است و `sudo` رمز می‌خواهد، پس کاربر نسخۀ تازه را با `sudo install -m 755` نصب کرد (۲۱ نوامبر، ۰۰:۵۶ تهران)؛ sha256 آن با نسخۀ مخزن یکی است. نسخۀ پیشین: `~/fahares-backups/fahares-backup.sh.bak-20261121`.
+- **مانده:**
+  - `media` تا افزایش گنجایش Drive خاموش است و `last.json` آن `failed` می‌ماند، پس `watch` هر روز هشدار می‌دهد.
+  - نخستین `media` پس از روشن شدن حدود ۱۰ گیگابایت بارگذاری می‌کند.

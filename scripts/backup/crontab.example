@@ -7,8 +7,10 @@ LOG=/var/backups/fahares/backup.log
 
 # Daily database backup -> Telegram + Google Drive
 47 3 * * *  /usr/local/bin/fahares-backup.sh db     >>$LOG 2>&1
-# Weekly media (page images) + restic prune, Friday
+# Weekly media (page images), Friday
 52 4 * * 5  /usr/local/bin/fahares-backup.sh media  >>$LOG 2>&1
+# Weekly retention + prune of the Drive repository, Saturday (a day after media, so the two never overlap)
+52 4 * * 6  /usr/local/bin/fahares-backup.sh prune  >>$LOG 2>&1
 # Weekly configuration/secrets, Friday
 15 4 * * 5  /usr/local/bin/fahares-backup.sh config >>$LOG 2>&1
 # Daily check that the last DB backup is recent and OK; alerts on Telegram otherwise
