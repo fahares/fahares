@@ -12867,3 +12867,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_joined_pieces_export.py --before DIR --copies FILE [--step N]`:** نسخه‌هایی که `copy_date_raw`، `copy_place`، `paper` یا `binding` آن‌ها در v2 با «، …» بلندتر شده یا `copy_date.note` گرفته‌اند (۸۱۴)، با متن به نسخۀ سایت می‌رسند. ستون سایت همان دنباله را می‌گیرد اگر با مقدار پیشین v2 یکی باشد (`tight`)؛ `copy_date_note` تنها اگر تهی باشد. کنار گذاشته: «سایت از پیش دارد» (یادداشت تاریخ ۱۶۳، جلد ۲۰۴، محل ۴۰، کاغذ ۱۶، تاریخ ۴)، مقدار یا یادداشت دیگر ۸، متن غیر یکتا ۴.
 - **پرونده:** `database/data/fankha_joined_pieces_step14_287.json` (۳۸۵ رکورد).
 - **تمرین روی `fahares_prod`:** «Rebuilding 385 copies … dates=1, pointers_linked=6»، اجرای دوم «already 385». تمرین نخست نشان داد تاریخ دوم پس از «قرن N» سال مرتب‌سازی ۹ نسخه را عوض می‌کند؛ با پروندۀ وارونه برگردانده و قاعده اصلاح شد.
+- **اجرا در پروداکشن (۲۱ نوامبر ۲۰۲۶، همه با `scripts/dev/prod-run --wait jolly-tharp`):**
+  - پشتیبان با `tinker` مستقیم به لپ‌تاپ (چیزی در کانتینر نوشته نشد): سطر کامل ۱٬۱۷۳ نسخه و ۱٬۱۵۸ سطر `manuscript_script`.
+  - `fankha_repaired_labels_step14_282.json`: «write 586, shelfmark differs 1 (#334896)»، «dates=173, pointers_linked=13».
+  - `fankha_label_fixes_text_step14_282.json`: «write 599, shelfmark differs 1 (#334896)»، «extents=5, lines=87, pointers_linked=8».
+  - `fahares:rebuild-scripts --sync-search`: ۷ نسخه (تحریری ۲، نسخ + پهلوی ۱، پهلوی ۱، سیاق ۱، نسخ ۱، نستعلیق ۱)؛ «Re-indexed 7 manuscripts».
+  - `fankha_joined_pieces_step14_287.json`: «write 385»، «dates=1, pointers_linked=6».
+
