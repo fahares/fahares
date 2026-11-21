@@ -40,8 +40,15 @@
                     @endforeach
                 </select>
             </label>
-            <input type="text" name="contributor_note" value="{{ old('contributor_note') }}" placeholder="یادداشت رابطه (اختیاری؛ مثلاً «فقط جلد اول»)" class="{{ $relInput }}">
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $relInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            {{-- Two notes that were taken for each other (step 14.292): the relation's own is shown with it on both records' pages, the public one is the reviewer's word to the submitter --}}
+            <label class="block space-y-1" data-relation-note>
+                <span class="block font-bold text-ink">یادداشت رابطه <span class="font-normal text-xs text-muted">(در صفحۀ هر دو رکورد، زیر همین رابطه نمایش داده می‌شود؛ اختیاری)</span></span>
+                <textarea name="contributor_note" rows="2" maxlength="500" placeholder="مثلاً «فقط جلد اول»، یا مستند رابطه" class="{{ $relInput }}">{{ old('contributor_note') }}</textarea>
+            </label>
+            <label class="block space-y-1">
+                <span class="block font-bold text-ink">یادداشت عمومی <span class="font-normal text-xs text-muted">(پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)</span></span>
+                <textarea name="public_note" rows="2" class="{{ $relInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            </label>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $relInput }}">
             <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
@@ -64,8 +71,15 @@
                 <span class="block font-bold text-ink">عنوان و پدیدآور آن اثر:</span>
                 <input type="text" name="alias" value="{{ old('alias', \Illuminate\Support\Str::limit((string) $suggestion->suggested_value, 590, '')) }}" maxlength="600" required class="{{ $relInput }}">
             </label>
-            <input type="text" name="contributor_note" value="{{ old('contributor_note') }}" placeholder="یادداشت رابطه (اختیاری؛ مثلاً «فقط جلد اول»)" class="{{ $relInput }}">
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $relInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            {{-- Two notes that were taken for each other (step 14.292): the relation's own is shown with it on both records' pages, the public one is the reviewer's word to the submitter --}}
+            <label class="block space-y-1" data-relation-note>
+                <span class="block font-bold text-ink">یادداشت رابطه <span class="font-normal text-xs text-muted">(در صفحۀ هر دو رکورد، زیر همین رابطه نمایش داده می‌شود؛ اختیاری)</span></span>
+                <textarea name="contributor_note" rows="2" maxlength="500" placeholder="مثلاً «فقط جلد اول»، یا مستند رابطه" class="{{ $relInput }}">{{ old('contributor_note') }}</textarea>
+            </label>
+            <label class="block space-y-1">
+                <span class="block font-bold text-ink">یادداشت عمومی <span class="font-normal text-xs text-muted">(پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)</span></span>
+                <textarea name="public_note" rows="2" class="{{ $relInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            </label>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $relInput }}">
             <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
@@ -139,7 +153,7 @@
                 <span class="block font-bold text-ink">یادداشت (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):</span>
                 <input type="text" name="contributor_note" value="{{ old('contributor_note', $suggestion->suggested_value !== $relation['label'] ? $suggestion->suggested_value : '') }}" class="{{ $roleInput }}">
             </label>
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $roleInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $roleInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $roleInput }}">
             <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
@@ -212,7 +226,7 @@
                 <span class="block font-bold text-ink">شمارۀ نسخه:</span>
                 <input type="text" name="shelfmark" value="{{ old('shelfmark', $suggestion->payload['shelfmark'] ?? $target->shelfmark) }}" class="{{ $locInput }} font-bold">
             </label>
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $locInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $locInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $locInput }}">
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
@@ -268,7 +282,7 @@
                     <label class="flex items-center gap-2"><input type="radio" name="mode" value="add" @checked($vcMode === 'add') class="accent-cinnabar"> کنار آن‌ها بیاید</label>
                 </div>
             </div>
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $vcInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $vcInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $vcInput }}">
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
@@ -336,7 +350,7 @@
                 </div>
             @endforeach
 
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $splitInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $splitInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $splitInput }}">
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
@@ -359,7 +373,7 @@
                     رکورد #{{ \App\Support\Fa::digits($target->id) }} حذف می‌شود و نشانی‌اش صفحۀ «این رکورد حذف شده است» را نشان می‌دهد{{ $target instanceof \App\Models\Manuscript ? '، و به صفحۀ اثرش هدایت می‌شود' : '' }}.
                     اطلاعات کامل آن در گزارش ممیزی می‌ماند و از همان‌جا با همان شناسه بازگرداندنی است.
                 </div>
-                <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $removeInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+                <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $removeInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
                 <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $removeInput }}">
                 <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                     class="w-full py-2.5 px-4 rounded-sm bg-cinnabar hover:opacity-90 text-on-cinnabar font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
@@ -379,7 +393,7 @@
                 <input type="text" name="name" value="{{ old('name', $suggestion->suggested_value) }}" required class="{{ $libInput }} font-bold">
             </label>
             <label class="flex items-center gap-2"><input type="hidden" name="keep_former_name" value="0"><input type="checkbox" name="keep_former_name" value="1" @checked(old('keep_former_name', '1') === '1') class="accent-cinnabar"> نام کنونی در «نام‌های دیگر» کتابخانه بماند (اگر فقط غلط املایی بوده، تیک را بردارید)</label>
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $libInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $libInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $libInput }}">
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
@@ -400,7 +414,7 @@
                 این ادغام از «گزارش ممیزی» بازگرداندنی است.
             </div>
             @include('admin.suggestions.partials.merge-directions')
-            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $libInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
+            <textarea name="public_note" rows="2" placeholder="یادداشت عمومی (پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود؛ اختیاری)" class="{{ $libInput }}">{{ old('public_note', $suggestion->public_note) }}</textarea>
             <input type="text" name="admin_notes" value="{{ old('admin_notes', $suggestion->admin_notes) }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $libInput }}">
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>

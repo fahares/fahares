@@ -1675,6 +1675,8 @@ class SuggestionWorkflowTest extends TestCase
         // The panel says the relation with both works named, in the direction chosen and in the other (step 14.290)
         $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('نوع رابطه')
             ->assertSeeInOrder(['data-relation-sentence', "«{$sharh->primary_title}» حاشیه‌ای است بر «{$matn->primary_title}»"], false)
+            // the relation's own note is told apart from the word to the submitter (step 14.292)
+            ->assertSeeInOrder(['data-relation-note', 'در صفحۀ هر دو رکورد، زیر همین رابطه نمایش داده می‌شود', 'name="contributor_note"', 'در صفحۀ رکورد نمایش داده نمی‌شود', 'name="public_note"'], false)
             ->assertSee("«{$matn->primary_title}» حاشیه‌ای است بر «{$sharh->primary_title}»", false);
         $this->assertSame('«الف» تلخیص یا مختصری است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], 'الف', 'ب'));
         $this->assertSame('«ب» تلخیص یا مختصری است از «الف»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['~abridgment'], 'الف', 'ب'));

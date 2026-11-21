@@ -12797,3 +12797,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پنل:** `show.blade.php` جملۀ `data-relation-sentence` را برای `record_relation` نشان می‌دهد؛ `partials/relation-approve.blade.php` گزینه‌های `select[data-relation-options]` را با `sentence` می‌نویسد.
 - **فرم پیشنهاد:** `config.recordLabel` و `relationLabel()` در `resources/js/suggest-desk.js`؛ تا رکورد مقصد برگزیده نشده، گزینه‌ها همان متن عمومی‌اند.
 - **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.
+
+### گام ۱۴.۲۹۲: برچسب `contributor_note` و `public_note` در `partials/relation-approve.blade.php`
+- **دو شاخۀ `record_relation` و `text_relation`:** `contributor_note` یک `textarea` برچسب‌دار با `data-relation-note` و `maxlength="500"` شد (به `work_relations.note` یا `manuscript_relations.note` می‌رود)، و `public_note` زیر آن برچسب جدا دارد.
+- **هفت فرم دیگر:** `placeholder` یادداشت عمومی «پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود» شد.
+- **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.
