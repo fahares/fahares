@@ -591,6 +591,17 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame(['جوهر سیمی', 'جوهر مسمی', 'جوهریه'], array_column($work->fresh()->alternative_titles, 'title'));
         $this->approve($edit->fresh(), ['pair_value' => 'javāher-e sīmī'])->assertRedirect('/admin/suggestions');
 
+        // The site's own addition: the reviewer adds a title at once, with no suggestion and no reading of anyone's
+        $before = FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $work->id)->count();
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => 'alternative_title_new', 'suggested_value' => 'رسالۀ جوهریه', 'pair_value' => 'resāle-ye jowharīyye'])->assertOk();
+        $this->assertSame(['title' => 'رسالۀ جوهریه', 'transliteration' => 'resāle-ye jowharīyye'], collect($work->fresh()->alternative_titles)->last());
+        $this->assertSame($before, FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $work->id)->count());
+        $this->assertTrue(AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->latest('id')->first()->new_values['direct_edit']);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => 'alternative_title_new', 'suggested_value' => 'رسالۀ جوهریه'])->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => 'alternative_title_new', 'suggested_value' => ''])->assertStatus(422);
+        $this->get(route('works.show', $work))->assertOk()->assertSee('رسالۀ جوهریه')->assertSee('افزودن مستقیم');
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => \App\Suggestions\SuggestionRegistry::altTitleName('رسالۀ جوهریه'), 'suggested_value' => ''])->assertOk();
+
         // A reviewer's direct edit removes a title by emptying its field; the list field takes «عنوان | آوانگاری»
         $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => \App\Suggestions\SuggestionRegistry::altTitleName('جوهریه'), 'suggested_value' => ''])->assertOk();
         $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => \App\Suggestions\SuggestionRegistry::altTitleName('جوهر مسمی'), 'suggested_value' => ''])->assertOk();
