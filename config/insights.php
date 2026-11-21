@@ -290,7 +290,8 @@ return [
 
         'بخارا' => ['lat' => 39.77, 'lon' => 64.42, 'aliases' => []],
         'سمرقند' => ['lat' => 39.65, 'lon' => 66.96, 'aliases' => []],
-        'خیوه' => ['lat' => 41.38, 'lon' => 60.36, 'aliases' => ['خوارزم']],
+        // «خوارزم» is the region, not this town: it is a region of copy_regions (step 14.305)
+        'خیوه' => ['lat' => 41.38, 'lon' => 60.36, 'aliases' => []],
         'مرو' => ['lat' => 37.60, 'lon' => 61.83, 'aliases' => []],
         'بلخ' => ['lat' => 36.76, 'lon' => 66.90, 'aliases' => []],
         'کابل' => ['lat' => 34.53, 'lon' => 69.17, 'aliases' => []],
@@ -385,6 +386,7 @@ return [
         'شام' => ['kind' => 'region', 'aliases' => ['سوریه']],
         'حجاز' => ['kind' => 'region', 'aliases' => []],
         'خراسان' => ['kind' => 'region', 'aliases' => []],
+        'خوارزم' => ['kind' => 'region', 'aliases' => []],
         'گیلان' => ['kind' => 'region', 'aliases' => []],
         'مازندران' => ['kind' => 'region', 'aliases' => ['طبرستان']],
         'کردستان' => ['kind' => 'region', 'aliases' => []],

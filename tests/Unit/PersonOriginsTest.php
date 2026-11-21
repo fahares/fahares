@@ -92,4 +92,15 @@ class PersonOriginsTest extends TestCase
         $this->assertSame('هرات', PersonOrigins::nisbas()['هروی']);
         $this->assertArrayNotHasKey('مشهدی', PersonOrigins::nisbas());
     }
+
+    public function test_khwarazm_is_a_region_and_no_other_name_of_khiva()
+    {
+        // step 14.305: «من أهل خوارزم» and «خوارزمی» name the region, which is no city of the map
+        $this->assertNull(\App\Support\CopyPlaces::cityOf('خوارزم'));
+        $this->assertSame('خوارزم', \App\Support\CopyPlaces::regionOf('گرگانج خوارزم'));
+        $this->assertSame('خیوه', \App\Support\CopyPlaces::cityOf('خیوه'));
+        $this->assertSame([], PersonOrigins::fromName('خوارزمی، محمد بن موسی'));
+        $this->assertSame([], PersonOrigins::fromBiography('فيلسوف رياضي مؤرخ، من أهل خوارزم. مات في بلده.'));
+        $this->assertSame(['birth خیوه'], array_map(fn ($hit) => $hit['kind'] . ' ' . $hit['city'], PersonOrigins::fromBiography('در خیوه متولد شده و به مصر رفت')));
+    }
 }
