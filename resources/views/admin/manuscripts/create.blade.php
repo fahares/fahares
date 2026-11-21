@@ -137,9 +137,70 @@
             </x-admin.field>
         </fieldset>
 
-        {{-- 4. Where the knowledge came from --}}
+        {{-- 4. The copy's body --}}
         <fieldset class="space-y-4">
-            <legend class="rubric text-base">۴. منبع اطلاع</legend>
+            <legend class="rubric text-base">۴. کتابت و کالبد نسخه</legend>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-admin.field label="محل کتابت" for="copy_place" error="copy_place">
+                    <input type="text" name="copy_place" id="copy_place" value="{{ $val('copy_place') }}" maxlength="300" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="به سفارش" for="commissioned_by" error="commissioned_by">
+                    <input type="text" name="commissioned_by" id="commissioned_by" value="{{ $val('commissioned_by') }}" maxlength="500" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="نوع خط" for="script_names" error="script_names" hint="«نستعلیق»، «نسخ و نستعلیق»: خط‌های شناختۀ سایت پیوند می‌گیرند.">
+                    <input type="text" name="script_names" id="script_names" value="{{ $val('script_names') }}" maxlength="300" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="کیفیت خط" for="script_style" error="script_style" hint="«خوش»، «تحریری»، «ریز»">
+                    <input type="text" name="script_style" id="script_style" value="{{ $val('script_style') }}" maxlength="300" class="admin-field w-full">
+                </x-admin.field>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <x-admin.field label="شمار سطر" for="lines" error="lines">
+                    <input type="number" name="lines" id="lines" value="{{ $val('lines') }}" min="1" max="99" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field class="sm:col-span-2" label="اندازه" for="dimensions" error="dimensions" hint="«۱۱×۱۳/۵ سم»">
+                    <input type="text" name="dimensions" id="dimensions" value="{{ $val('dimensions') }}" maxlength="255" class="admin-field w-full">
+                </x-admin.field>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-admin.field label="کاغذ" for="paper" error="paper">
+                    <input type="text" name="paper" id="paper" value="{{ $val('paper') }}" maxlength="500" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="جلد" for="binding" error="binding">
+                    <input type="text" name="binding" id="binding" value="{{ $val('binding') }}" maxlength="500" class="admin-field w-full">
+                </x-admin.field>
+            </div>
+            <div class="space-y-1">
+                <span class="block font-bold text-ink">ویژگی‌ها</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                    @foreach(Creator::FLAGS as $flag => $label)
+                        <label class="flex items-center gap-2"><input type="checkbox" name="flags[{{ $flag }}]" value="1" @checked(old('flags.' . $flag)) class="accent-cinnabar"> {{ $label }}</label>
+                    @endforeach
+                </div>
+            </div>
+        </fieldset>
+
+        {{-- 5. The copy's notes, each with its type --}}
+        <fieldset class="space-y-3" x-data="{ notes: @js(array_values(array_filter((array) old('notes', []), fn ($n) => filled($n['text'] ?? null)))) }">
+            <legend class="rubric text-base">۵. یادداشت‌های نسخه</legend>
+            <p class="text-xs text-muted leading-6">مهر، تملک، وقف، افتادگی، شرح نسخه و مانند آن؛ هر یادداشت با نوعش در بخش خود صفحۀ نسخه می‌آید.</p>
+            <template x-for="(note, i) in notes" :key="i">
+                <div class="flex items-start gap-2" data-note-row>
+                    <select :name="`notes[${i}][type]`" x-model="note.type" class="admin-field w-40 shrink-0">
+                        @foreach(\App\Models\ManuscriptNote::TYPES as $type => $label)
+                            <option value="{{ $type }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <textarea :name="`notes[${i}][text]`" x-model="note.text" rows="2" class="admin-field flex-1 font-naskh"></textarea>
+                    <button type="button" @click="notes.splice(i, 1)" class="mt-1.5 text-xs font-bold text-cinnabar hover:underline cursor-pointer">حذف</button>
+                </div>
+            </template>
+            <button type="button" @click="notes.push({ type: 'description', text: '' })" class="text-xs font-bold text-cinnabar hover:underline cursor-pointer" data-add-note>＋ یادداشت</button>
+        </fieldset>
+
+        {{-- 6. Where the knowledge came from --}}
+        <fieldset class="space-y-4">
+            <legend class="rubric text-base">۶. منبع اطلاع</legend>
             <div class="flex flex-wrap gap-x-6 gap-y-1.5">
                 @foreach(Creator::SOURCE_KINDS as $key => $label)
                     <label class="flex items-center gap-2"><input type="radio" name="source_kind" value="{{ $key }}" x-model="sourceKind" class="accent-cinnabar"> <b class="text-ink">{{ $label }}</b></label>

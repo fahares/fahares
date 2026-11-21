@@ -6,12 +6,15 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
+use App\Models\ManuscriptNote;
 use App\Models\Person;
+use App\Models\Script;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\Work;
 use App\Sources\SourceEntrySync;
 use App\Support\CopyExtent;
+use App\Support\ScriptNameCleaner;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -35,6 +38,23 @@ class ManuscriptCreator
 
     /** Where the knowledge of the copy came from */
     public const SOURCE_KINDS = [Manuscript::PROVENANCE_RESEARCHER => 'پژوهشگری که نسخه را دیده است', Manuscript::PROVENANCE_CATALOGUE => 'فهرست چاپی'];
+
+    /** The yes-or-no features of a copy, as its page names them */
+    public const FLAGS = [
+        'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
+        'has_author_marginalia' => 'حواشی به خط مؤلف',
+        'corrected_by_author' => 'مقابله یا تصحیح به دست مؤلف',
+        'collated_with_author_copy' => 'مقابله با نسخۀ مؤلف',
+        'copied_from_author_copy' => 'کتابت از روی نسخۀ مؤلف',
+        'is_illuminated' => 'تذهیب و سرلوح',
+        'is_illustrated' => 'نگاره و نقاشی',
+        'is_corrected' => 'تصحیح‌شده',
+        'has_marginal_notes' => 'حواشی (محشّی)',
+        'is_ruled' => 'جدول‌کشی',
+        'has_catchwords' => 'رکابه',
+        'is_collated' => 'مقابله و بلاغ',
+        'is_facsimile' => 'نسخۀ عکسی یا میکروفیلم',
+    ];
 
     /** The copies a library already has under the shelfmark, written with either digits. */
     public function duplicates(?int $libraryId, ?string $shelfmark): Collection
@@ -98,8 +118,20 @@ class ManuscriptCreator
                 'incipit_text' => self::text($data['incipit_text'] ?? null),
                 'explicit_text' => self::text($data['explicit_text'] ?? null),
                 'metadata' => ['provenance' => $this->provenance($data)],
+                // the copy's body, as its maker describes it
+                'copy_place' => self::text($data['copy_place'] ?? null),
+                'commissioned_by' => self::text($data['commissioned_by'] ?? null),
+                'dimensions' => self::text($data['dimensions'] ?? null),
+                'paper' => self::text($data['paper'] ?? null),
+                'binding' => self::text($data['binding'] ?? null),
+                // the count alone: lines_raw is the wording of a catalogue's text, which this copy has none of
+                'lines' => filled($data['lines'] ?? null) ? (int) $data['lines'] : null,
+                'script_style' => self::text($data['script_style'] ?? null),
+                ...array_fill_keys(array_values(array_intersect(array_keys(self::FLAGS), array_keys(array_filter($data['flags'] ?? [])))), true),
             ]);
             $made['manuscript_id'] = $manuscript->id;
+            $this->scripts($manuscript, self::text($data['script_names'] ?? null));
+            $this->notes($manuscript, $data['notes'] ?? []);
 
             if ($entry = $this->catalogueEntry($manuscript, $data, $userId)) {
                 $made['source_entry_ids'][] = $entry->id;
@@ -119,12 +151,56 @@ class ManuscriptCreator
                 // would make this entry the change that suggestion's approval made (AuditLog::activeForSuggestion)
                 'new_values' => ['panel' => true]
                     + array_filter($manuscript->only(['work_id', 'library_id', 'shelfmark', 'collection_key', 'scribe_id', 'scribe_name', 'copy_date_raw',
-                        'folios', 'pages', 'range_from', 'range_to', 'incipit_text', 'explicit_text', 'metadata']), fn ($v) => $v !== null),
+                        'folios', 'pages', 'range_from', 'range_to', 'incipit_text', 'explicit_text', 'metadata', 'copy_place', 'commissioned_by', 'dimensions', 'paper', 'binding',
+                        'lines', 'script_names', 'script_style', ...array_keys(self::FLAGS)]), fn ($v) => $v !== null && $v !== false),
                 'ip_address' => $ip,
             ]);
 
             return $manuscript;
         });
+    }
+
+    /**
+     * «نوع خط» as the copy's page shows it, and the scripts it names as links (manuscript_script), which the filters
+     * and counts read: the first, in the order ScriptNameCleaner gives them, is the copy's main hand. A wording that names no script the site knows is kept as text.
+     */
+    private function scripts(Manuscript $manuscript, ?string $names): void
+    {
+        if ($names === null) {
+            return;
+        }
+        $clean = ScriptNameCleaner::clean($names);
+        $manuscript->update(['script_names' => $clean['scripts'] ? ($clean['wording'] ?? $names) : $names]);
+        foreach (array_values($clean['scripts']) as $i => $name) {
+            $script = Script::where('name', $name)->first();
+            if (! $script) {
+                $script = Script::create(['name' => $name, 'slug' => Str::uuid()->toString()]);
+                $script->update(['slug' => (Str::slug($name) ?: 'script') . '-' . $script->id]);
+            }
+            DB::table('manuscript_script')->insertOrIgnore(['manuscript_id' => $manuscript->id, 'script_id' => $script->id, 'is_primary' => $i === 0]);
+            $script->update(['manuscripts_count' => DB::table('manuscript_script')->where('script_id', $script->id)->count()]);
+        }
+    }
+
+    /**
+     * The copy's notes with their types (ManuscriptNote), in the order given: seals, ownership, endowment, what the
+     * copy lacks and the rest. Typed by an editor, so a later import of notes keeps them.
+     *
+     * @param  array<int, array{type?: string, text?: string}>  $notes
+     */
+    private function notes(Manuscript $manuscript, array $notes): void
+    {
+        $position = 0;
+        foreach ($notes as $note) {
+            $text = self::text($note['text'] ?? null);
+            if ($text === null) {
+                continue;
+            }
+            if (! isset(ManuscriptNote::TYPES[$note['type'] ?? ''])) {
+                throw new InvalidArgumentException('نوع یادداشت را انتخاب کنید.');
+            }
+            ManuscriptNote::create(['manuscript_id' => $manuscript->id, 'position' => $position++, 'type' => $note['type'], 'text' => $text, 'typed_by' => 'editor']);
+        }
     }
 
     /**
