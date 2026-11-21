@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Work;
 use App\Sources\SourceEntrySync;
 use App\Support\DerivedData;
+use App\Support\ScriptNameCleaner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -247,5 +248,51 @@ class NewManuscriptTest extends TestCase
         $this->artisan('fahares:rebuild-copies', ['--file' => $file, '--apply' => true])->expectsOutputToContain('not a copy of Fankha')->assertSuccessful();
         @unlink($file);
         $this->assertSame($before, (array) DB::table('manuscripts')->where('id', $copy->id)->first($columns));
+    }
+
+    public function test_the_copys_body_scripts_features_and_notes_are_made_with_it_and_go_with_the_undo()
+    {
+        $this->actingAs($this->admin)->get(route('admin.manuscripts.create'))->assertOk()->assertSee('کتابت و کالبد نسخه')->assertSee('data-add-note', false);
+
+        $this->store([
+            'shelfmark' => '900/2', 'copy_place' => 'اصفهان', 'commissioned_by' => 'میرزا حسن', 'script_names' => 'نسخ و نستعلیق', 'script_style' => 'خوش',
+            'lines' => 15, 'dimensions' => '11×13/5سم', 'paper' => 'دولت‌آبادی', 'binding' => 'تیماج مشکی',
+            'flags' => ['is_illuminated' => 1, 'has_catchwords' => 1, 'is_autograph' => 0, 'no_such_flag' => 1],
+            'notes' => [['type' => 'seal', 'text' => 'مهر بیضی «عبده محمد»'], ['type' => 'description', 'text' => ''], ['type' => 'defect', 'text' => 'افتادگی از آغاز']],
+        ])->assertRedirect()->assertSessionHasNoErrors()->assertSessionMissing('error');
+
+        $copy = $this->created();
+        $this->assertSame(['اصفهان', 'میرزا حسن', 'خوش', 15, '11×13/5سم', 'دولت‌آبادی', 'تیماج مشکی'],
+            [$copy->copy_place, $copy->commissioned_by, $copy->script_style, $copy->lines, $copy->dimensions, $copy->paper, $copy->binding]);
+        $this->assertSame([true, true, false, false], [$copy->is_illuminated, $copy->has_catchwords, $copy->is_autograph, $copy->is_corrected]);
+        $this->assertNull($copy->lines_raw);
+        // the scripts it names are linked, the first as its main hand, and counted
+        $scripts = $copy->scripts()->orderByDesc('manuscript_script.is_primary')->get();
+        // in the order ScriptNameCleaner gives them, as fahares:rebuild-scripts links the catalogues' copies
+        $this->assertSame(ScriptNameCleaner::clean('نسخ و نستعلیق')['scripts'], $scripts->pluck('name')->all());
+        $this->assertEqualsCanonicalizing(['نسخ', 'نستعلیق'], $scripts->pluck('name')->all());
+        $this->assertSame([1, 0], $scripts->map(fn ($s) => (int) $s->pivot->is_primary)->all());
+        $this->assertSame([1, 1], $scripts->pluck('manuscripts_count')->all());
+        $this->assertStringContainsString('نسخ', $copy->script_names);
+        // the notes with a text, typed by an editor, in the order given
+        $this->assertSame([[0, 'seal', 'مهر بیضی «عبده محمد»', 'editor'], [1, 'defect', 'افتادگی از آغاز', 'editor']],
+            $copy->notes->map(fn ($n) => [$n->position, $n->type, $n->text, $n->typed_by])->all());
+        $this->get(route('manuscripts.show', $copy))->assertOk()->assertSee('مهر بیضی «عبده محمد»')->assertSee('افتادگی از آغاز')->assertSee('دولت‌آبادی');
+
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $copy->id)->where('action', 'create')->firstOrFail();
+        $this->assertTrue($log->new_values['is_illuminated']);
+        $this->assertArrayNotHasKey('is_autograph', $log->new_values);
+
+        // a fill of the line layouts from the catalogues' text leaves its count alone
+        $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500])->assertSuccessful();
+        $this->assertSame(15, $copy->fresh()->lines);
+
+        $this->actingAs($this->admin)->post(route('admin.audit-logs.rollback', $log))->assertSessionHas('success');
+        $this->assertSame(0, DB::table('manuscript_notes')->where('manuscript_id', $copy->id)->count());
+        $this->assertSame(0, DB::table('manuscript_script')->where('manuscript_id', $copy->id)->count());
+        $this->assertSame([0, 0], \App\Models\Script::whereIn('id', $scripts->pluck('id'))->pluck('manuscripts_count')->all());
+
+        // a note without a type is refused
+        $this->store(['shelfmark' => '901', 'notes' => [['type' => 'nonsense', 'text' => 'متن']]])->assertSessionHasErrors('notes.0.type');
     }
 }
