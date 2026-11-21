@@ -12968,6 +12968,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **شمار روی production (پرس‌وجوی فقط‌خواندن با همان قاعده):** renamed ۹، alias ۴۹۶، spelling ۲۸۵، several ۱، other ۸. نسخه‌هایی که `scribe_name` با نام شخص کاتب فرق دارد ۱۲٬۳۱۰ است و فرمان به آن‌ها دست نمی‌زند.
 - **آزمون:** `SuggestionWorkflowTest::test_a_renamed_person_is_named_anew_on_their_works_and_copies`.
 
+### گام ۱۴.۲۹۶: دور دوم `WorkCatalogueEntries::tie` برای عنوانِ چند اثر مرتبط
+- **علت:** `$find` فقط وقتی اثر می‌داد که `$hits->count() === 1`. برای عنوانی که چند اثر مرتبط دارند `null` می‌داد و پدیدآور مدخل را نمی‌سنجید. `WorkRelationLinker::match()` همان مدخل را با عنوان و پدیدآور یافته و رابطه را نوشته بود، ولی سطر بی‌پیوند می‌ماند.
+- **[WorkCatalogueEntries::tie](../app/Support/WorkCatalogueEntries.php):**
+  - حلقۀ هر سو دو بار اجرا می‌شود (`$several = false` و سپس `true`). دور یکم همان رفتار پیشین است، پس پیوندهای پیشین پیش از دور دوم جای خود را دارند (`$entryOf`). دور دوم فقط سطرهایی را می‌بیند که در `$ties` نیستند و `$hits` آن‌ها دو یا بیشتر است.
+  - `$marked`: کلید عنوان با نشانش (`WorkRelationLinker::markKey`، اکنون عمومی)، پس از برداشتن «(N عنوان)». اگر اثری همۀ عنوان‌های نشان‌دار مدخل را دارد، `$hits` به همان‌ها کم می‌شود.
+  - مدخلِ پدیدآوردار: `authorKey` برابر، و دقیقاً یک اثر. قاعدۀ موجودِ «اثر از آنِ مدخلی است که پدیدآورش را نام می‌برد» برقرار است، پس مدخلی که در دور یکم با عنوان تنها اثری را گرفته بود آن را به مدخلِ نام‌برنده می‌دهد.
+  - `$read($row)`: در سوی `children`، اگر متن سطر دو بخش دارد و بخش دوم تاریخ ندارد، همان بخش پدیدآور است. اگر بخش‌های بیشتری هست و پدیدآوری خوانده نشده، `unread = true` و قاعدۀ بی‌پدیدآور اجرا نمی‌شود. سطر `proposed` هم `unread` است.
+  - مدخل بی پدیدآور: اثرهای `author_name` تهی که در `$entryOf` نیستند و همۀ کلیدهای عنوان مدخل را دارند (`! array_diff($want, $keys($w))`)، به ترتیب `id`، نخستین.
+- **آزمون:** `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
+- **تمرین (`fahares_prod` محلی، سطرها از پشتیبان پروداکشن `step14_285_relations_backup.json`):** `works:link-related --no-index`: «Saved: 0 added, 0 removed»، «Entries: 4058 tied or untied»؛ اجرای دوم «Entries: 0 tied or untied». سطرها: `linked/auto` ۱۳٬۶۳۵ ← ۱۷٬۶۱۳، `linked/model` ۵۶۷، `proposed` ۳۳۳ ← ۳۱۲، بی `link_status` ۶٬۳۸۳ ← ۲٬۴۲۶. صفحه‌ها: «در فهرست» ۳۹۶، «بی پیوند» ۲٬۷۳۶. سنجش سطر به سطر با پروداکشن: ۱۴٬۱۸۰ پیوند همان ماند؛ ۲۲ سطر باز شد و اثرشان اکنون به مدخلی بسته است که پدیدآورش را نام می‌برد (نمونه: #37424 ← #40016، #3649 ← #56045).
+- **باقی‌مانده پس از این گام (شمارش پیش از دو اصلاح آخر، تقریبی):** حدود ۲٬۰۵۰ سطر در اثری‌اند که هیچ اثرِ مرتبطِ هم‌عنوانِ بی‌مدخلی ندارد (اثرشان رکورد ندارد یا رابطه‌اش ثبت نیست)؛ حدود ۶۵۰ سطر اثرِ مرتبطِ هم‌عنوانِ بی‌مدخل دارند ولی نام پدیدآورشان با رکورد یکی نیست، یا دو اثر از یک پدیدآورند، یا «(N عنوان)»اند.
+- **اجرا در تولید، پس از استقرار:** `scripts/dev/prod-run <session> -- 'cd /app && php -d memory_limit=1G artisan works:link-related'` (حالت `--dry-run` شمار سطرها را نمی‌دهد؛ پشتیبان `work_text_relations` پیش از اجرا).
+
 ### گام ۱۴.۲۹۷: `fahares:tidy-copy-scribes`
 
 - **`app/Console/Commands/TidyCopyScribesCommand.php`:** نسخه‌های پرونده که در `audit_logs` سطر `corpus_update` با `"category":"scribes"` دارند. ردیف‌های `manuscript_people` همان نسخه که از پنج ثانیه پیش از آن سطر به بعد ساخته یا به‌روز شده‌اند و شخص دارند داوری می‌شوند؛ شخصی که خودش از همان زمان ساخته شده کنار است.

@@ -129,7 +129,7 @@ class WorkRelationLinker
     }
 
     /** The title's key with the mark after it kept: «الرجعة (منتخب)» is not «الرجعة» */
-    private static function markKey(?string $title): string
+    public static function markKey(?string $title): string
     {
         return MatchCatalogEditionCommand::norm(TextNormalizer::normalize((string) $title));
     }
