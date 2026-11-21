@@ -434,6 +434,10 @@ class AuditLogController extends Controller
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
         unset($old['contributors'], $old['people_roles'], $old['relations'], $old['text_relations']);
+        // the two texts of related works are no longer columns of the work (step 14.285): an earlier change of one is not put back
+        if ($target instanceof \App\Models\Work) {
+            unset($old['related_work'], $old['commentaries_and_glosses']);
+        }
         // «Two copies, not one» took a possibly_same link away (step 14.16): it comes back
         if ($removedRelations = $old['removed_record_relations'] ?? null) {
             unset($old['removed_record_relations']);

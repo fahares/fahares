@@ -79,6 +79,18 @@ abstract class TestCase extends BaseTestCase
      * really points at a dedicated test database (e.g. a cached config or a
      * missing force="true" in phpunit.xml would otherwise hit fahares_db).
      */
+    /**
+     * A work with its two texts of related works, «related_work» and «commentaries_and_glosses», which are rows of
+     * work_text_relations and no longer columns of the work (WorkCatalogueEntries, step 14.285).
+     */
+    protected function workWithTexts(array $attributes): \App\Models\Work
+    {
+        $work = \App\Models\Work::create(array_diff_key($attributes, ['related_work' => 0, 'commentaries_and_glosses' => 0]));
+        \App\Support\WorkCatalogueEntries::sync($work, $attributes['related_work'] ?? null, $attributes['commentaries_and_glosses'] ?? []);
+
+        return $work;
+    }
+
     protected function beforeRefreshingDatabase()
     {
         $database = DB::connection()->getDatabaseName();

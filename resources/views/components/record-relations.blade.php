@@ -11,7 +11,7 @@
     // (work_text_relations, step 14.280).
     $printed = $notes = [];
     if ($isWork) {
-        $rows = \App\Support\WorkRelationLinker::pageRows($record);
+        $rows = \App\Support\WorkCatalogueEntries::page($record);
         $printed = $rows['printed'];
         $notes = $rows['notes'];
         foreach (\App\Suggestions\RecordRelations::texts($record) as $label => $items) {
