@@ -51,6 +51,9 @@ class PersonOriginsTest extends TestCase
         $this->assertSame([], $hits('توفي بمصر و كان من أهل الشام'));
         $this->assertSame([], $hits('توفي سنة 948. من أجداد السيد علي خان و صاحب المدرسة المنصورية بشيراز'));
         $this->assertSame([], $hits('توفي بها'));
+        // «some of the people of Isfahan» are others, not the person
+        $this->assertSame([], $hits('در شرح بعضی احادیث مشکله که بدرخواست بعضی از اهالی اصفهان تألیف شده'));
+        $this->assertSame([], $hits('روى عنه جمع من أهل بغداد'));
         $this->assertSame([], PersonOrigins::fromBiography(null));
     }
 
