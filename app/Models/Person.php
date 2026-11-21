@@ -56,6 +56,16 @@ class Person extends Model
                     $person->isDirty('century_from'));
             }
         });
+        // The works and copies that carried the person's old name take the new one, and the works' search documents
+        // are made again when a name they hold changes (step 14.295)
+        static::updated(function (Person $person) {
+            if ($person->wasChanged('name')) {
+                \App\Support\PersonNames::follow($person, (string) $person->getOriginal('name'));
+            }
+            if ($person->wasChanged(['name', 'aliases', 'wrong_names'])) {
+                Work::where('author_id', $person->id)->with('author')->chunkById(500, fn ($works) => $works->each->searchable());
+            }
+        });
         // The author and scribe rows go with the person, as their old tables' cascade did; the other roles keep the name
         static::deleting(function (Person $person) {
             WorkPerson::where('person_id', $person->id)->where('role', WorkPerson::AUTHOR)->delete();
