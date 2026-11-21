@@ -12874,3 +12874,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `fahares:rebuild-scripts --sync-search`: ۷ نسخه (تحریری ۲، نسخ + پهلوی ۱، پهلوی ۱، سیاق ۱، نسخ ۱، نستعلیق ۱)؛ «Re-indexed 7 manuscripts».
   - `fankha_joined_pieces_step14_287.json`: «write 385»، «dates=1, pointers_linked=6».
 
+### گام ۱۴.۲۸۹: `fankha_v2_copy_notes_export.py` و تکه‌های نپیوسته
+
+- **برون‌بری (`fahares-corpus`):** سطر دارای «c» در `fankha_note_types.jsonl` دیگر کنار نمی‌رود؛ `CONTINUES` فیلد را به نوع یادداشت می‌برد (پیش‌فرض `other`)، `typed_by` همان مدل است. تکۀ با کمتر از چهار حرف (`letters`) کنار می‌ماند. نوع‌های `date_guess` و `scribe_guess` خود تجزیه‌گر، وقتی مدل نوعی نداده، `transcription` می‌شوند (۷ یادداشت).
+- **خروجی کامل:** ۱۸۹٬۴۱۸ نسخه و ۳۴۷٬۱۹۹ یادداشت. سنجش با `manuscript_notes` رونوشت پروداکشن: ۳۶۰ نسخۀ تازه، ۱٬۸۳۳ دگرگون، ۱۸۲ نسخه که دیگر یادداشتی ندارند (در پرونده نمی‌آیند؛ فرمان سطر بی یادداشت نمی‌پذیرد).
+- **پرونده:** `database/data/copy_notes_step14_289.jsonl.gz` (۲٬۱۹۳ سطر، تنها نسخه‌های دگرگون). شناسه‌های ۳۳۴۸۹۴ به بالا، که در پروداکشن یکی کمترند، در آن نیستند.
+- **تمرین:** `fahares:import-copy-notes --file=… --apply` → «new 360, changed 1832, same 1»؛ اجرای دوم «same 2193». `fahares:index-note-types` بی `--apply`: ۱۸۹٬۶۰۰ نسخه با یادداشت.
+- **شناسه‌های انتهای جدول:** چهار نسخۀ آخر `manuscripts` در رونوشت محلی شناسه‌ای یکی بیشتر از پروداکشن دارند (۳۳۴۸۹۵ تا ۳۳۴۸۹۸ محلی = ۳۳۴۸۹۴ تا ۳۳۴۸۹۷ پروداکشن). در گام ۱۴.۲۸۲ رکورد ۳۳۴۸۹۶ با «shelfmark differs» رد شد؛ همان دو تغییر با پروندۀ تک‌رکوردی و پشتیبان روی شناسۀ ۳۳۴۸۹۵ پروداکشن اجرا شد (۲۱ نوامبر ۲۰۲۶).
+
