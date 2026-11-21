@@ -207,4 +207,44 @@ class PersonPeriodsTest extends TestCase
             ['kind' => 'birth', 'place' => 'بغداد', 'mode' => 'point', 'start' => 1200, 'source_text' => 'معجم آزمایشی زادگاه 1: 5'])->assertRedirect();
         $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('تولد')->assertSee('بغداد')->assertDontSee('دمشق');
     }
+
+    public function test_reviewed_decisions_on_the_places_of_a_life_are_applied_by_a_command()
+    {
+        $person = $this->person('شخص آزمایشی داوری محل‌ها');
+        $proposal = fn (string $kind, string $place, string $status = PersonPeriod::PROPOSED) => PersonPeriod::create(
+            ['person_id' => $person->id, 'kind' => $kind, 'place' => $place, 'status' => $status, 'origin' => 'machine', 'note' => 'جملۀ مأخذ']);
+        [$birth, $death, $origin, $wrong, $residence, $done] = [$proposal('birth', 'اصفهان'), $proposal('death', 'نجف'), $proposal('origin', 'مشهد'),
+            $proposal('origin', 'نیشابور'), $proposal('residence', 'تهران'), $proposal('death', 'قم', PersonPeriod::REJECTED)];
+        $file = storage_path('framework/testing-period-decisions.json');
+        file_put_contents($file, json_encode([
+            ['id' => $birth->id, 'verdict' => 'approve', 'place' => 'أصبهان', 'year' => 1118],
+            ['id' => $death->id, 'verdict' => 'approve', 'place' => 'النجف', 'year' => null],
+            ['id' => $origin->id, 'verdict' => 'approve', 'place' => 'طوس'],
+            ['id' => $wrong->id, 'verdict' => 'reject', 'reason' => 'the entry is the life of another person'],
+            // not a place of a life, a reviewer's own word, an unknown row, a verdict that is none: all left alone
+            ['id' => $residence->id, 'verdict' => 'approve'],
+            ['id' => $done->id, 'verdict' => 'approve'],
+            ['id' => 999999999, 'verdict' => 'reject'],
+            ['id' => $birth->id, 'verdict' => 'doubt'],
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:review-life-periods', ['file' => $file])->assertSuccessful();
+        $this->assertSame(PersonPeriod::PROPOSED, $birth->fresh()->status);
+        $this->artisan('fahares:review-life-periods', ['file' => $file, '--apply' => true])->assertSuccessful();
+        unlink($file);
+
+        $this->assertSame(['approved', 'أصبهان', 'اصفهان', 1118, 1118], array_values($birth->fresh()->only(['status', 'place', 'city', 'period_from', 'period_to'])));
+        $this->assertSame(['approved', 'النجف', 'نجف', null], array_values($death->fresh()->only(['status', 'place', 'city', 'period_from'])));
+        $this->assertSame(['approved', 'طوس', 'مشهد'], array_values($origin->fresh()->only(['status', 'place', 'city'])));
+        $this->assertSame('rejected', $wrong->fresh()->status);
+        $this->assertSame(['proposed', 'rejected'], [$residence->fresh()->status, $done->fresh()->status]);
+        $log = \App\Models\AuditLog::where('auditable_type', Person::class)->where('auditable_id', $person->id)->orderBy('id')->get();
+        $this->assertSame(['approve', 'approve', 'approve', 'reject'], $log->map(fn ($l) => $l->new_values['person_period_change'])->all());
+        $this->assertSame('the entry is the life of another person', $log[3]->new_values['reason']);
+        // readers see the approved places, one of them without a year
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('تولد')->assertSee('۱۱۱۸ ق')->assertSee('وفات')->assertSee('خاستگاه')->assertDontSee('نیشابور');
+        // and a reviewer may save a place of a life with no year by the form, which a period of residence may not
+        $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'origin', 'place' => 'کاشان', 'mode' => 'point'])->assertRedirect()->assertSessionHasNoErrors();
+        $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'residence', 'place' => 'کاشان', 'mode' => 'point'])->assertSessionHasErrors('start');
+    }
 }

@@ -12975,3 +12975,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برداشتن:** `Person::where('name', old_values.scribe_name)` از همان سطر ممیزی، اگر `RecordRemover::blockers()` تهی باشد: `RecordRemover::remove()` و سطر `remove` با `redirect_work_id` اثر نسخه (همان راهی که `goneResponse()` از گام ۱۴.۲۳۵ می‌شناسد).
 - **تمرین روی `fahares_prod`:** «Unlinked 14 scribes and removed 41 people, of 60 copies»؛ اجرای دوم «0 و 0». یک شخص («مظفر دماوندی، ملقب به قاضی…») نسخۀ دیگری دارد و ماند.
 - **آزمون:** `AddCopyScribesCommandTest::test_the_tidy_command_removes_the_lists_person_and_unlinks_a_name_many_share`.
+
+### گام ۱۴.۲۹۸: `fahares:review-life-periods` و داوری پیشنهادهای محل
+
+- **فرمان:** `fahares:review-life-periods <file> [--apply]`. هر داوری `id`، `verdict` (`approve` یا `reject`)، و برای تأیید `place` و `year`، برای رد `reason`. ردیفی که دیگر پیشنهاد منتظر یکی از `PersonPeriod::PLACE_KINDS` نیست رد می‌شود (`skipped`)؛ نظر بازبین هرگز بازنویسی نمی‌شود. تأیید: `status = approved`، `place` به عبارت مأخذ، سال به شکل «در سال …» یا همۀ ستون‌های تاریخ تهی. اگر عبارت مأخذ به شهر دیگری برسد، `city` همان شهر پیشنهاد می‌ماند. `AuditLog` برای هر تغییر، با `by = fahares:review-life-periods` و دلیل.
+- **فرم:** `PersonPeriodController::columns` برای سه نوع محل، نبودِ سال را می‌پذیرد؛ دوره‌های دیگر همچنان دست‌کم یک سال می‌خواهند.
+- **روش داوری:** برای هر پیشنهاد، نام و سال‌های شخص، عنوان و ۴۲۰ نویسۀ نخست مدخل، متن پیرامون جمله و خود جمله داده شد؛ خروجی `same_person`، `claim`، `verdict`، `year`، `place_as_written` و `reason`. «تأیید» تنها وقتی هر دو پرسش «بله» بود.
+- **الگوهای رد (۹۰):** جمله دربارۀ پدر، پسر، برادر یا شخص دیگری در همان مدخل؛ جمله از مدخل کناری؛ «مدینة X» که مدینه خوانده شده (بُست، مراکش، تریم، کحلان، خوی، البیضاء)؛ دفن یا انتقال جنازه به‌جای وفات؛ «المشهد الغروی» که نجف است؛ و مدخلِ شخصی دیگر.
+- **الگوهای مشکوک (۶۷، مانده برای بازبینان):** «خوارزم» که به خیوه نگاشته شده (ناحیه است)؛ محل وفاتِ محل اختلاف در خود مدخل؛ «قیل»؛ ناهمخوانی سال مدخل و رکورد؛ روستایی از جبل عامل.
+- **پس از استقرار:** پشتیبان `person_periods`، سپس `fahares:review-life-periods database/data/person_place_decisions_step14_298.json --apply` و `fahares:build-insights`.
