@@ -90,21 +90,23 @@ class WorkCatalogueEntriesTest extends TestCase
     {
         $base = $this->work('الکتاب', 'کسی، الف', ['commentaries_and_glosses' => [
             'شرح الکتاب؛ کسی، ب (-900)', 'شرح الکتاب', 'شرح الکتاب؛ کسی، ناشناس (-950)', 'شرح الکتاب', 'شرح الکتاب', 'حاشیة الکتاب (2عنوان)',
-            'شرح الکتاب؛ کسی، ج',
+            'شرح الکتاب؛ کسی، ج', 'حاشیة الکتاب؛ ناشناس', 'شرح الکتاب کسی، ه (-800)', 'حاشیة الکتاب؛ ناشناس (3 عنوان مختلف)',
         ]]);
         $by = $this->work('شرح الکتاب', 'کسی، ب');
         $other = $this->work('شرح الکتاب', 'کسی، ج');
+        $glued = $this->work('شرح الکتاب', 'کسی، ه');
         $anon = [$this->work('شرح الکتاب', null), $this->work('شرح الکتاب', null)];
         $glosses = [$this->work('حاشیة الکتاب', null), $this->work('حاشیة الکتاب', null)];
-        foreach ([$by, $other, ...$anon, ...$glosses] as $w) {
+        foreach ([$by, $other, $glued, ...$anon, ...$glosses] as $w) {
             DB::table('work_relations')->insert(['work_id' => $w->id, 'related_work_id' => $base->id, 'type' => 'commentary', 'source' => 'auto', 'created_at' => now(), 'updated_at' => now()]);
         }
-        $this->assertSame(4, WorkCatalogueEntries::tie($base));
+        $this->assertSame(6, WorkCatalogueEntries::tie($base));
         $this->assertSame(0, WorkCatalogueEntries::tie($base));
         // the named author's; the two works with no author, in order, for the first two entries with none; the third
         // such entry, the entry of an author no work has, and the entry that stands for two works are tied to none;
-        // the last entry's author is written with no life dates
-        $this->assertSame([$by->id, $anon[0]->id, null, $anon[1]->id, null, null, $other->id],
+        // an author written with no life dates; «ناشناس» for no author; the author after the title with no «؛»; and
+        // «ناشناس» that stands for three works
+        $this->assertSame([$by->id, $anon[0]->id, null, $anon[1]->id, null, null, $other->id, $glosses[0]->id, $glued->id, null],
             DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->pluck('linked_work_id')->all());
     }
 }
