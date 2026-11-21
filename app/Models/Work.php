@@ -22,6 +22,9 @@ class Work extends Model
 
     protected $guarded = ['id'];
 
+    /** What the work reads of its whole, kept for the life of the instance (whole, wholes, traitSource) */
+    private array $partsMemo = [];
+
     protected static function booted(): void
     {
         // Keep the sortable year in step with the date text unless the caller set both
@@ -37,6 +40,12 @@ class Work extends Model
             if ($work->isDirty('composition_place')) {
                 $work->composition_city = \App\Support\CopyPlaces::cityOf($work->composition_place);
                 $work->composition_region = \App\Support\CopyPlaces::regionOf($work->composition_place);
+            }
+        });
+        // The parts that read their author, subject or language from this work are searched by them (step 14.308)
+        static::saved(function (Work $work) {
+            if ($work->wasChanged(['author_id', 'author_name', 'has_other_authors', 'subject_summary', 'language_summary'])) {
+                \App\Support\WorkParts::reindexBelow($work->id);
             }
         });
     }
@@ -307,20 +316,18 @@ class Work extends Model
             }
         }
 
-        $authorAliases = [];
-        $authorWrongNames = [];
-        if ($this->relationLoaded('author') && $this->author) {
-            $authorAliases = (array) ($this->author->aliases ?? []);
-            $authorWrongNames = (array) ($this->author->wrong_names ?? []);
-        } elseif (!empty($this->author_id)) {
-            $authorAliases = (array) ($this->author?->aliases ?? []);
-            $authorWrongNames = (array) ($this->author?->wrong_names ?? []);
-        }
+        // A part with no author, subject or language of its own is found by those of the work it is a part of (step 14.308)
+        $from = $this->traitSource('author');
+        $subjectFrom = $this->traitSource('subject');
+        $languageFrom = $this->traitSource('language');
+        $author = $from->author_id ? $from->author : null;
+        $authorAliases = (array) ($author?->aliases ?? []);
+        $authorWrongNames = (array) ($author?->wrong_names ?? []);
 
         // The linked person's name as it is now, beside the name the record carries: a person renamed after the
         // work was made is found by either (step 14.295)
-        $authorNow = ! empty($this->author_id) ? $this->author?->name : null;
-        $authorSearchText = trim($this->author_name . ($authorNow && $authorNow !== $this->author_name ? ' ' . $authorNow : ''));
+        $authorNow = $author?->name;
+        $authorSearchText = trim($from->author_name . ($authorNow && $authorNow !== $from->author_name ? ' ' . $authorNow : ''));
         if (!empty($authorAliases)) {
             $authorSearchText = trim($authorSearchText . ' ' . implode(' ', $authorAliases));
         }
@@ -331,7 +338,7 @@ class Work extends Model
         $cleanTitles = \App\Helpers\TextNormalizer::titleForms($cleanTitle);
         $forms = fn (array $list) => array_merge([], ...array_map(fn ($t) => \App\Helpers\TextNormalizer::titleForms($t), $list));
         [$namingTitles, $derivativeTitles] = $this->searchTitles();
-        $authorNames = array_map(fn ($a) => \App\Helpers\TextNormalizer::normalize($a), array_filter([$this->author_name, $authorNow, ...$authorAliases]));
+        $authorNames = array_map(fn ($a) => \App\Helpers\TextNormalizer::normalize($a), array_filter([$from->author_name, $authorNow, ...$authorAliases]));
         $authorNames = array_filter($authorNames, fn ($a) => ! in_array(strtok($a, ' '), self::AUTHOR_EPITHETS, true));
 
         return [
@@ -355,20 +362,20 @@ class Work extends Model
             // him, after the works whose title or author matches (backlog item 35)
             'related_people' => $this->relatedPeopleNames(),
             'related_person_ids' => $this->workPeople->pluck('person_id')->filter()->map(fn ($id) => (int) $id)->unique()->values()->all(),
-            'author_id' => $this->author_id ? (int) $this->author_id : null,
+            'author_id' => $from->author_id ? (int) $from->author_id : null,
             'composition_year_hijri' => $this->composition_year_hijri ? (int) $this->composition_year_hijri : null,
             'volume_number' => (int) $this->volume_number,
             'page_start' => (int) $this->page_start,
             'page_end' => $this->page_end ? (int) $this->page_end : null,
             'work_form' => $this->work_form,
-            'subject_summary' => $this->subject_summary,
-            'language_summary' => $this->language_summary,
+            'subject_summary' => $subjectFrom->subject_summary,
+            'language_summary' => $languageFrom->language_summary,
             'manuscripts_count' => (int) $this->manuscripts_count,
             // Search filters and orders of backlog item 83, phase 5: the work's era is its composition, or else its
             // author's death, which only 14% of works lack against 86% without a composition year
             // an author known by the century alone counts by its middle (Person::eraYear, step 14.213)
-            'author_death_year' => $this->author?->eraYear(),
-            'era_year' => ($era = $this->composition_year_hijri ?: $this->author?->eraYear()) ? (int) $era : null,
+            'author_death_year' => $author?->eraYear(),
+            'era_year' => ($era = $this->composition_year_hijri ?: $author?->eraYear()) ? (int) $era : null,
             // A work with no era may be found by its estimated composition, when the reader asks for estimates
             // (step 14.197); and the order by composition may fall back on the middle of the estimate
             'era_estimate_from' => $era ? null : ($this->compositionEstimate()[0] ?? null),
@@ -378,13 +385,13 @@ class Work extends Model
             'has_autograph' => $this->manuscripts->contains('is_autograph', true),
             'bibliographies' => $this->bibliographyIds(),
             // Every author, not only the first: «the works of this person» (backlog item 83, phase 6)
-            'author_ids' => $this->authors->pluck('id')->map(fn ($id) => (int) $id)->all(),
+            'author_ids' => $from->authors->pluck('id')->map(fn ($id) => (int) $id)->all(),
             'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
             'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
             'description' => $this->description ? \App\Helpers\TextNormalizer::normalize(mb_substr($this->description, 0, 500)) : null,
             'manuscript_texts' => $this->manuscriptSearchTexts(),
-            'subjects' => $this->relationLoaded('subjects') ? $this->subjects->pluck('name')->all() : [],
-            'languages' => $this->relationLoaded('languages') ? $this->languages->pluck('name')->all() : [],
+            'subjects' => $subjectFrom->is($this) ? ($this->relationLoaded('subjects') ? $this->subjects->pluck('name')->all() : []) : $subjectFrom->subjects->pluck('name')->all(),
+            'languages' => $languageFrom->is($this) ? ($this->relationLoaded('languages') ? $this->languages->pluck('name')->all() : []) : $languageFrom->languages->pluck('name')->all(),
         ];
     }
 
@@ -400,7 +407,88 @@ class Work extends Model
      */
     public function getAuthorLabelAttribute(): ?string
     {
+        return $this->traitSource('author')->own_author_label;
+    }
+
+    /** The author this record itself names, without what a part reads from its whole */
+    public function getOwnAuthorLabelAttribute(): ?string
+    {
         return $this->author_id && ! $this->has_other_authors ? ($this->author?->name ?? $this->author_name) : $this->author_name;
+    }
+
+    /** The linked author a page shows: the work's own, or for a part with no author that of its whole (step 14.308) */
+    public function getEffectiveAuthorAttribute(): ?Person
+    {
+        $from = $this->traitSource('author');
+
+        return $from->author_id ? $from->author : null;
+    }
+
+    /** The author's name as the record carries it, the work's own or its whole's */
+    public function getEffectiveAuthorNameAttribute(): ?string
+    {
+        return $this->traitSource('author')->author_name;
+    }
+
+    /**
+     * The one work this work is a part of (work_relations of type «part», step 14.308); null for a work that is a
+     * part of none, or of more than one: such a work reads nothing from either.
+     */
+    public function whole(): ?Work
+    {
+        if (! array_key_exists('whole', $this->partsMemo)) {
+            $id = \App\Support\WorkParts::wholeId((int) $this->id);
+            $this->partsMemo['whole'] = $id ? self::find($id) : null;
+        }
+
+        return $this->partsMemo['whole'];
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Work> the wholes above the work, the nearest first */
+    public function wholes(): \Illuminate\Support\Collection
+    {
+        if (! array_key_exists('wholes', $this->partsMemo)) {
+            $ids = \App\Support\WorkParts::chainIds((int) $this->id);
+            $found = $ids ? self::whereIn('id', $ids)->get()->keyBy('id') : collect();
+            $this->partsMemo['wholes'] = collect($ids)->map(fn ($id) => $found->get($id))->filter()->values();
+        }
+
+        return $this->partsMemo['wholes'];
+    }
+
+    /** Has the record this trait itself? An author: a person or a name; a subject or a language: its text or a link */
+    public function hasOwn(string $trait): bool
+    {
+        return match ($trait) {
+            'author' => (bool) $this->author_id || trim((string) $this->author_name) !== '',
+            'subject' => trim((string) $this->subject_summary) !== '' || ($this->relationLoaded('subjects') ? $this->subjects->isNotEmpty() : $this->subjects()->exists()),
+            'language' => trim((string) $this->language_summary) !== '' || ($this->relationLoaded('languages') ? $this->languages->isNotEmpty() : $this->languages()->exists()),
+            default => throw new \InvalidArgumentException("No such trait: {$trait}"),
+        };
+    }
+
+    /**
+     * The work a trait of this one is read from (WorkParts::TRAITS): the work itself when it has the trait or is no
+     * part of another, else the nearest whole above it that has it. A part keeps what it has: «مرکب‌سازی» with an
+     * author of its own stays that author's, whatever its whole says.
+     */
+    public function traitSource(string $trait): Work
+    {
+        if (! isset($this->partsMemo['source'][$trait])) {
+            $source = $this;
+            if (\App\Support\WorkParts::wholeId((int) $this->id) !== null && ! $this->hasOwn($trait)) {
+                $source = $this->wholes()->first(fn (Work $whole) => $whole->hasOwn($trait)) ?? $this;
+            }
+            $this->partsMemo['source'][$trait] = $source;
+        }
+
+        return $this->partsMemo['source'][$trait];
+    }
+
+    /** Is the trait read from a whole? */
+    public function inherits(string $trait): bool
+    {
+        return ! $this->traitSource($trait)->is($this);
     }
 
     public function author(): BelongsTo

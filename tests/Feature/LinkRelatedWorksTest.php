@@ -71,7 +71,7 @@ class LinkRelatedWorksTest extends TestCase
         $this->followingRedirects()->get(route('works.show', $nahj))->assertOk()->assertDontSee('<span>شروح، حواشی و منظومه‌ها</span>', false);
         $page = $this->followingRedirects()->get(route('works.show', $nahj))->assertOk();
         $page->assertSee('<a href="' . route('works.show', $sharh) . '"', false)->assertSee('<a href="' . route('works.show', $tarjama) . '"', false)->assertSee('ترجمه‌ها');
-        $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها و مجلدها');
+        $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها، گزیده‌ها و مجلدها');
 
         // the base titles feed the search: the relation's and the text's
         $this->assertSame(['نهج البلاغة', 'خطب علی'], $sharh->fresh()->baseTitles());
@@ -210,5 +210,22 @@ class LinkRelatedWorksTest extends TestCase
         // the page links the work; the author written after the title is the work's own, so the catalogue's words are not repeated
         $this->followingRedirects()->get(route('works.show', $glued))->assertOk()
             ->assertSee('<a href="' . route('works.show', $tahdhib) . '"', false)->assertDontSee('در فهرست:');
+    }
+
+    /** Step 14.310: in «شروح و حواشی» the part after «؛» is the work's author also when it has no life dates */
+    public function test_an_author_written_with_no_life_dates_is_read()
+    {
+        $base = $this->work('هدایة الحکمة', 'ابهری، مفضل بن عمر', ['commentaries_and_glosses' => [
+            'حاشیة شرح هدایة الحکمة؛ خلیل بن فاضل', 'حاشیة شرح هدایة الحکمة؛ ناشناس', 'شرح هدایة الحکمة؛ کتابی دیگر', 'حاشیة شرح هدایة الحکمة؛ کسی، دیگر (-900)',
+        ]]);
+        $gloss = $this->work('حاشیة شرح هدایة الحکمة', 'خلیل بن فاضل');
+        $this->work('حاشیة شرح هدایة الحکمة', 'لاری، عبدالغفور');
+        // the second part is itself the title of a work: two entries, as before, and no author for the first
+        $this->work('شرح هدایة الحکمة', 'میبدی، حسین');
+        $this->work('کتابی دیگر', 'کسی');
+        $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful()->expectsOutputToContain('1 relations: 1 to add');
+        $this->assertSame([[$gloss->id, $base->id, 'related', 'auto', 70]], $this->relations());
+        $this->assertSame([$gloss->id, null, null, null],
+            DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->pluck('linked_work_id')->all());
     }
 }

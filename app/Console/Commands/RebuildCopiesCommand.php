@@ -53,7 +53,7 @@ class RebuildCopiesCommand extends Command
         $apply = (bool) $this->option('apply');
         $guard = ProtectedColumns::for(Manuscript::class);
         $rows = DB::table('manuscripts')->whereIn('id', array_column($plan['records'], 'id'))
-            ->get(['id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::EXTENT, ...self::COLUMNS])->keyBy('id');
+            ->get(['id', 'catalog_id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::EXTENT, ...self::COLUMNS])->keyBy('id');
         $counts = [];
         $problems = [];
         $writes = [];
@@ -199,6 +199,10 @@ class RebuildCopiesCommand extends Command
     {
         if (! $row) {
             return 'copy gone (merged or deleted)';
+        }
+        // a copy made in the panel (item 149) has no text of Fankha to be rebuilt from
+        if ($row->catalog_id === null) {
+            return 'not a copy of Fankha (made in the panel)';
         }
         // a shelfmark this file corrects is the record's own on a second run
         if ($row->shelfmark !== $rec['shelfmark'] && $row->shelfmark !== ($rec['changes']['shelfmark']['to'] ?? null)) {

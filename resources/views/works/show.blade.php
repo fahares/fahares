@@ -63,6 +63,14 @@
         $fankha = $sources->primary();
         $bibliography = $sources->bibliography()->pluck('citation_text');
         $hasAltTitles = collect($work->alternative_titles ?? [])->contains(fn ($alt) => is_array($alt) && ! empty($alt['title']));
+        // A part of another work reads the author, subject and language it lacks from that work (step 14.308)
+        $wholes = \App\Models\Work::whereIn('id', \App\Support\WorkParts::wholeIds($work->id))->get();
+        $authorFrom = $work->traitSource('author');
+        $subjectFrom = $work->traitSource('subject');
+        $languageFrom = $work->traitSource('language');
+        $partCount = count(\App\Support\WorkParts::partIds($work->id));
+        // the whole's date of composition is shown beside the part's own, never in its place
+        $datedWhole = $work->wholes()->first(fn ($w) => $w->composition_date_raw || $w->composition_year_hijri);
     @endphp
 
     <!-- Breadcrumb -->
@@ -77,6 +85,11 @@
     <!-- WORK HEADER -->
     <header class="text-center grid justify-items-center gap-2 pb-6">
         <p class="text-xs font-bold text-cinnabar">شناسنامۀ اثر</p>
+        @if($wholes->isNotEmpty())
+            <p class="text-sm text-muted" data-part-of>بخشی از:
+                @foreach($wholes as $whole)<a href="{{ route('works.show', $whole) }}" class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $whole->primary_title }}</a>@unless($loop->last)، @endunless @endforeach
+            </p>
+        @endif
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
             <x-suggest.centered name="primary_title">{{ $work->primary_title }}</x-suggest.centered>
         </h1>
@@ -91,29 +104,31 @@
 
         <p class="text-base text-ink mt-1">
             <x-suggest.centered name="author_name">
-            @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id || $e->certainty) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
-                <x-contributors :entries="$work->authorEntries" :others="$work->has_other_authors" :life="true"
+            @if($authorFrom->authorEntries->count() > 1 || $authorFrom->authorEntries->contains(fn($e) => ! $e->person_id || $e->certainty) || ($authorFrom->has_other_authors && $authorFrom->authorEntries->isNotEmpty()))
+                <x-contributors :entries="$authorFrom->authorEntries" :others="$authorFrom->has_other_authors" :life="true"
                     link-class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" />
-            @elseif($work->author)
-                <a href="{{ route('people.show', $work->author) }}" class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $work->author->name }}</a>
-                <x-ui.life :person="$work->author" />
-            @elseif($work->author_name)
-                <span class="font-bold">{{ $work->author_name }}</span>
+            @elseif($authorFrom->author)
+                <a href="{{ route('people.show', $authorFrom->author) }}" class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $authorFrom->author->name }}</a>
+                <x-ui.life :person="$authorFrom->author" />
+            @elseif($authorFrom->author_name)
+                <span class="font-bold">{{ $authorFrom->author_name }}</span>
             @else
                 <span class="text-muted">پدیدآور ناشناخته</span>
             @endif
+            @if($work->inherits('author'))<x-work-inherited :from="$authorFrom" />@endif
             </x-suggest.centered>
         </p>
 
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">
-            @if($work->language_summary)<x-ui.chip>{{ $work->language_summary }}</x-ui.chip>@endif
+            @if($languageFrom->language_summary)<x-ui.chip>{{ $languageFrom->language_summary }}</x-ui.chip>@endif
             @if($work->work_form)<x-ui.chip>{{ $work->work_form }}</x-ui.chip>@endif
             @if($work->composition_year_hijri)
                 <x-ui.chip>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</x-ui.chip>
             @endif
-            @foreach($work->subjects ?? [] as $subj)
+            @foreach($subjectFrom->subjects ?? [] as $subj)
                 <x-ui.chip :href="route('subjects.show', $subj)">{{ $subj->title }}</x-ui.chip>
             @endforeach
+            @if($partCount)<x-ui.chip href="#relations" data-part-count>{{ Fa::num($partCount) }} بخش جدا</x-ui.chip>@endif
             @if($status = \App\Models\Work::ENTRY_STATUSES[$work->entry_status] ?? null)<x-ui.chip tone="accent" :title="$status[1]">{{ $status[0] }}</x-ui.chip>@endif
             @if($work->has_autograph)<x-ui.chip tone="good">نسخۀ اصل (دستخط مؤلف)</x-ui.chip>@endif
             @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
@@ -229,13 +244,20 @@
                     </x-ui.meta>
                     @if($compositionEstimate)<x-date-estimate-why :estimate="$compositionEstimate" name="composition" />@endif
                     <x-date-conflict-note type="work" :id="$work->id" field="composition" />
-                    <x-ui.meta label="زبان" field="language_summary" :empty="! $work->language_summary">{{ $work->language_summary }}</x-ui.meta>
+                    @if($datedWhole)
+                        <x-ui.meta label="تاریخ تألیف اصل">
+                            {{ Fa::digits($datedWhole->composition_date_raw ?: $datedWhole->composition_year_hijri . ' ق') }}
+                            <x-work-inherited :from="$datedWhole" label="اثر اصل" />
+                        </x-ui.meta>
+                    @endif
+                    <x-ui.meta label="زبان" field="language_summary" :empty="! $languageFrom->language_summary">{{ $languageFrom->language_summary }}@if($work->inherits('language')) <x-work-inherited :from="$languageFrom" />@endif</x-ui.meta>
                     <x-ui.meta label="قالب" field="work_form" :empty="! $work->work_form">{{ $work->work_form }}</x-ui.meta>
-                    @if($work->subjects && $work->subjects->count())
+                    @if($subjectFrom->subjects && $subjectFrom->subjects->count())
                         <x-ui.meta label="رده‌های موضوعی">
-                            @foreach($work->subjects as $subj)
+                            @foreach($subjectFrom->subjects as $subj)
                                 <a href="{{ route('subjects.show', $subj) }}" class="border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $subj->title }}</a>@unless($loop->last)، @endunless
                             @endforeach
+                            @if($work->inherits('subject')) <x-work-inherited :from="$subjectFrom" />@endif
                         </x-ui.meta>
                     @endif
                     {{-- Each other title has its own edit button; the row's own button adds a title (step 14.286) --}}
@@ -484,7 +506,7 @@
                                         <x-ui.life :person="$ms->scribe" />
                                         @if($ms->is_autograph)<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 ms-1">(مؤلف)</span>@endif
                                     @elseif($ms->is_autograph)
-                                        <span class="text-emerald-700 dark:text-emerald-400">{{ $work->author?->name ?? $work->author_name ?? '' }} <span class="text-xs font-semibold">(مؤلف)</span></span>
+                                        <span class="text-emerald-700 dark:text-emerald-400">{{ $work->effective_author?->name ?? $work->effective_author_name ?? '' }} <span class="text-xs font-semibold">(مؤلف)</span></span>
                                     @else
                                         <span class="text-muted">نامشخص</span>
                                     @endif
@@ -569,10 +591,10 @@
                     <span class="text-stone-400">عنوان اثر:</span>
                     <span class="font-bold text-cinnabar truncate max-w-[200px]">{{ $work->primary_title }}</span>
                 </div>
-                @if($work->author || $work->author_name)
+                @if($work->effective_author || $work->effective_author_name)
                     <div class="flex justify-between items-center">
                         <span class="text-stone-400">مؤلف:</span>
-                        <span class="font-bold text-ink truncate max-w-[200px]">{{ $work->author?->name ?? $work->author_name }}</span>
+                        <span class="font-bold text-ink truncate max-w-[200px]">{{ $work->effective_author?->name ?? $work->effective_author_name }}</span>
                     </div>
                 @endif
                 <div class="flex justify-between items-center pt-1.5 border-t border-stone-200/60 dark:border-stone-700/60">
@@ -642,11 +664,11 @@
                 $citedEntry = $sources->citable();
                 $workSourceCitation = $citedEntry ? rtrim($citedEntry->referenceCitation($work), '.') . ($citedEntry->sourceItem ? '' : '، مدخل «' . $work->primary_title . '»') . '.' : null;
                 
-                $authorPrefix = $work->author ? $work->author->name . '. ' : ($work->author_name ? $work->author_name . '. ' : '');
+                $authorPrefix = $work->effective_author ? $work->effective_author->name . '. ' : ($work->effective_author_name ? $work->effective_author_name . '. ' : '');
                 $shortUrlWork = url('/w/' . $work->id);
                 $workGeneralCitation = "{$authorPrefix}«{$work->primary_title}». پایگاه فهارس: {$shortUrlWork}";
 
-                $authorEn = $work->author?->name ?? ($work->author_name ?? 'Unknown');
+                $authorEn = $work->effective_author?->name ?? ($work->effective_author_name ?? 'Unknown');
                 $workChicagoCitation = "{$authorEn}. \"{$work->primary_title}.\" Fahares Database: {$shortUrlWork}";
             @endphp
 
@@ -740,7 +762,7 @@
  "@@context": "https://schema.org",
  "@type": "Book",
  "name": "{{ addcslashes($work->primary_title, '"\\') }}",
-  @if($work->author)"author": { "@type": "Person", "name": "{{ addcslashes($work->author->name, '"\\') }}" },@endif
+  @if($work->effective_author)"author": { "@type": "Person", "name": "{{ addcslashes($work->effective_author->name, '"\\') }}" },@endif
  "inLanguage": "fa",
  "url": "{{ route('works.show', $work) }}",
  "description": "{{ addcslashes(str_replace(["\r", "\n"], ' ', Str::limit(strip_tags($work->description ?? $fankha?->cleanEntryText() ?? ''), 250)), '"\\') }}"

@@ -178,7 +178,7 @@
                                 <div class="min-w-0 flex-1">
                                     <a href="{{ route('manuscripts.show', $m) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar transition">{{ $m->work?->clean_title ?: ($m->work?->primary_title ?: 'نسخۀ خطی') }}</a>
                                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-0.5">
-                                        <span>از {{ $m->work?->author?->name ?? 'ناشناخته' }}</span>
+                                        <span>از {{ $m->work?->effective_author?->name ?? 'ناشناخته' }}</span>
                                         <span class="text-ink" title="{{ $m->libraryRecord?->display_name }}">{{ $m->libraryRecord?->short_name ?? $m->library }}</span>
                                         @if($m->shelfmark)<span>شمارۀ <span dir="ltr">{{ Fa::digits($m->shelfmark) }}</span></span>@endif
                                         @if($place)<span>{{ $place->cardLabel($m) }}</span>@endif

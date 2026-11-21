@@ -86,6 +86,8 @@ class AuditLogController extends Controller
             'split' => $this->rollbackSplit($log, $request),
             'remove' => $this->rollbackRemove($log, $request),
             'update' => $this->rollbackUpdate($log, $request),
+            // a copy made in the panel (backlog item 149): the record goes, with the work made for it
+            'create' => $this->rollbackCreate($log, $request),
             // the people of a source's volumes, set by an approved suggestion (step 14.58)
             'volume_people' => app(\App\Suggestions\VolumeCatalogers::class)->undo($log),
             default => throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد."),
@@ -481,7 +483,12 @@ class AuditLogController extends Controller
             DB::table('work_text_relations')->insertOrIgnore($removedText);
         }
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
+            $made = $relationRow['table'] === 'work_relations' ? DB::table('work_relations')->where('id', $relationRow['id'])->value('work_id') : null;
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
+            // a part taken off its whole is searched by its own author, subject and language again (step 14.308)
+            if ($made) {
+                \App\Suggestions\RecordRelations::partsChanged([$made]);
+            }
         }
         if ($roleId = $log->new_values['added_person_role'] ?? null) {
             ($target instanceof \App\Models\Work ? \App\Models\WorkPerson::class : \App\Models\ManuscriptPerson::class)::whereKey($roleId)->delete();
@@ -639,6 +646,22 @@ class AuditLogController extends Controller
             'action' => 'rollback_remove',
             'old_values' => ['rolled_back_log_id' => $log->id],
             'new_values' => ['restored_id' => $restored->id],
+            'ip_address' => $request->ip(),
+        ]);
+    }
+
+    /** A copy made in the panel (ManuscriptCreator) is removed, with what was made for it. */
+    protected function rollbackCreate(AuditLog $log, Request $request): void
+    {
+        app(\App\Suggestions\ManuscriptCreator::class)->undo($log);
+
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'auditable_type' => $log->auditable_type,
+            'auditable_id' => $log->auditable_id,
+            'action' => 'rollback_create',
+            'old_values' => ['rolled_back_log_id' => $log->id],
+            'new_values' => ['removed' => $log->old_values['created'] ?? null],
             'ip_address' => $request->ip(),
         ]);
     }

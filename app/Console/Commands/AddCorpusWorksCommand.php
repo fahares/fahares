@@ -192,7 +192,7 @@ class AddCorpusWorksCommand extends Command
 
     private function findMove(array $m): ?Manuscript
     {
-        $rows = Manuscript::whereHas('work', fn ($q) => $q->where('slug', $m['from_slug']))
+        $rows = Manuscript::fromFankha()->whereHas('work', fn ($q) => $q->where('slug', $m['from_slug']))
             ->where('city', $m['city'])->where('library', $m['library'])->where('shelfmark', $m['shelfmark'])
             // a shelfmark the work holds twice (two volumes of one copy) is told by its sequence (step 14.23)
             ->when(isset($m['from_sequence']), fn ($q) => $q->where('sequence_number', $m['from_sequence']))->get();

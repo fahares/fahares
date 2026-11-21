@@ -245,10 +245,10 @@
                                     </div>
                                 @endif
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
-                                    @if($work->author)
-                                        <span>از <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($work->author->name, $query)</a> <x-ui.life :person="$work->author" /></span>
-                                    @elseif($work->author_name)
-                                        <span>از <span class="font-semibold text-ink">@highlight($work->author_name, $query)</span></span>
+                                    @if($work->effective_author)
+                                        <span>از <a href="{{ route('people.show', $work->effective_author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($work->effective_author->name, $query)</a> <x-ui.life :person="$work->author" /></span>
+                                    @elseif($work->effective_author_name)
+                                        <span>از <span class="font-semibold text-ink">@highlight($work->effective_author_name, $query)</span></span>
                                     @else
                                         <span class="text-muted">پدیدآور ناشناخته</span>
                                     @endif
@@ -278,10 +278,10 @@
                                     @if($ms->century_text)<span class="ms-auto text-xs text-muted whitespace-nowrap">{{ Fa::digits($ms->century_text) }}</span>@endif
                                 </div>
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
-                                    @if($ms->work?->author)
-                                        <span>از <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($ms->work->author->name, $query)</a> <x-ui.life :person="$ms->work->author" /></span>
-                                    @elseif($ms->work?->author_name)
-                                        <span>از <span class="font-semibold text-ink">@highlight($ms->work->author_name, $query)</span></span>
+                                    @if($ms->work?->effective_author)
+                                        <span>از <a href="{{ route('people.show', $ms->work->effective_author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($ms->work->effective_author->name, $query)</a> <x-ui.life :person="$ms->work->author" /></span>
+                                    @elseif($ms->work?->effective_author_name)
+                                        <span>از <span class="font-semibold text-ink">@highlight($ms->work->effective_author_name, $query)</span></span>
                                     @endif
                                     <span><span class="font-semibold text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</span>@if($ms->city)، {{ $ms->city }}@endif</span>
                                     <span>شمارۀ <span dir="ltr" class="font-semibold text-cinnabar">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</span></span>

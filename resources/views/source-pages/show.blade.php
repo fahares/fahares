@@ -235,13 +235,26 @@
     </div>
 </div>
 <script>
-    // a poem wider than its page goes in steps (.book-poem.is-stepped in app.css), measured again on a resize
+    // a poem wider than its page first closes up (a narrower gap, and type down to 85%) to keep its two hemistichs side
+    // by side, and goes in steps (.book-poem.is-stepped in app.css) only when that is not enough; measured again on a
+    // resize and once the page's font (Mtif Lotus, step 14.307) has loaded, since the fallback is wider
     (() => {
         const step = () => document.querySelectorAll('[data-poem]').forEach((p) => {
             p.classList.remove('is-stepped');
-            if (p.scrollWidth > p.parentElement.clientWidth + 1) p.classList.add('is-stepped');
+            p.style.fontSize = p.style.columnGap = '';
+            const room = p.parentElement.clientWidth + 1;
+            if (p.scrollWidth <= room) return;
+            p.style.columnGap = '1.5em';
+            const scale = Math.floor(room / p.scrollWidth * 100) / 100;
+            if (scale >= 0.85) {
+                p.style.fontSize = scale + 'em';
+                if (p.scrollWidth <= room) return;
+            }
+            p.style.fontSize = p.style.columnGap = '';
+            p.classList.add('is-stepped');
         });
         step();
+        document.fonts?.ready.then(step);
         window.addEventListener('resize', step);
     })();
 </script>

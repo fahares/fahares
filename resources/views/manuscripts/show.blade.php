@@ -112,10 +112,11 @@
             <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">
                 <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-cinnabar transition">{{ $manuscript->work->primary_title }}</a>
             </h1>
-            @if($manuscript->work->author)
+            @if($manuscript->work->effective_author)
                 <p class="text-sm text-ink">
-                    از <a href="{{ route('people.show', $manuscript->work->author) }}" class="font-bold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $manuscript->work->author->name }}</a>
-                    <x-ui.life :person="$manuscript->work->author" />
+                    از <a href="{{ route('people.show', $manuscript->work->effective_author) }}" class="font-bold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $manuscript->work->effective_author->name }}</a>
+                    <x-ui.life :person="$manuscript->work->effective_author" />
+                    @if($manuscript->work->inherits('author'))<x-work-inherited :from="$manuscript->work->traitSource('author')" />@endif
                 </p>
             @endif
         @endif
@@ -270,6 +271,18 @@
                         @endforeach
                     </x-source.secondary>
                 @endif
+                {{-- A copy made in the panel (backlog item 149): where the knowledge of it came from --}}
+                @if($provenance = $manuscript->provenance())
+                    <div class="space-y-1 pb-4 border-b border-line last:border-b-0 last:pb-0" data-provenance="{{ $provenance['kind'] }}">
+                        <div class="text-xs text-muted">منبع اطلاع</div>
+                        <p class="text-sm font-bold text-ink leading-6">{{ Fa::digits($provenance['label']) }}</p>
+                        @if($provenance['suggestion_id'])
+                            @can('suggestions.review')
+                                <a href="{{ route('admin.suggestions.show', $provenance['suggestion_id']) }}" class="text-[11px] text-muted hover:text-cinnabar" data-provenance-suggestion>پیشنهاد #{{ Fa::digits($provenance['suggestion_id']) }}</a>
+                            @endcan
+                        @endif
+                    </div>
+                @endif
                 @if($manuscript->cataloger)
                     @php
                         // A copy in a volume compiled under someone else (an article of «اوراق عتیق»): name the volume and its supervisor
@@ -317,7 +330,7 @@
                             <x-contributors :entries="$manuscript->scribeEntries" :others="$manuscript->has_other_scribes" :life="true"
                                 link-class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" />
                         @elseif($manuscript->is_autograph)
-                            @php $autographPerson = $manuscript->work?->author ?? $manuscript->scribe; @endphp
+                            @php $autographPerson = $manuscript->work?->effective_author ?? $manuscript->scribe; @endphp
                             @if($autographPerson)
                                 <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }})</a>
                                 <x-ui.life :person="$autographPerson" />
@@ -705,14 +718,14 @@
                 $catalogCitation = $citedEntry?->referenceCitation($manuscript);
                 
                 $workTitle = $manuscript->work?->primary_title ?? 'نسخه خطی';
-                $authorName = $manuscript->work?->author?->name ?? 'ناشناخته';
+                $authorName = $manuscript->work?->effective_author?->name ?? 'ناشناخته';
                 $libName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'نامشخص';
                 $shelfmark = $manuscript->shelfmark ?? 'بی‌شماره';
                 $shortUrl = url('/m/' . $manuscript->id);
 
                 $persianArticleCitation = "{$workTitle} (مؤلف: {$authorName})، نسخه خطی {$libName}، شماره بازیابی: {$shelfmark}. پایگاه فهارس: {$shortUrl}";
 
-                $authorEn = $manuscript->work?->author?->name ?? 'Unknown';
+                $authorEn = $manuscript->work?->effective_author?->name ?? 'Unknown';
                 $cityEn = $manuscript->city ?? 'Iran';
                 $chicagoCitation = "{$authorEn}. \"{$workTitle}.\" Manuscript {$shelfmark}, {$libName}, {$cityEn}. Fahares: {$shortUrl}";
             @endphp

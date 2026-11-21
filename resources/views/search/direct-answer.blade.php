@@ -73,7 +73,7 @@
                                 @if($direct->kind === DirectAnswer::CITATION)<span class="text-xs text-muted">{{ $item->libraryRecord?->short_name ?? $item->library }}</span>@endif
                             @endif
                             <a href="{{ $list === 'works' ? route('works.show', $item) : route('manuscripts.show', $item) }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar">{{ $work?->primary_title ?? 'نسخۀ بی‌عنوان' }}</a>
-                            @if($work?->author ?? null)<span class="text-xs text-muted">{{ $work->author->name }}</span>@elseif($work?->author_name)<span class="text-xs text-muted">{{ $work->author_name }}</span>@endif
+                            @if($work?->effective_author ?? null)<span class="text-xs text-muted">{{ $work->effective_author->name }}</span>@elseif($work?->effective_author_name)<span class="text-xs text-muted">{{ $work->effective_author_name }}</span>@endif
                         </li>
                     @endforeach
                 </ul>

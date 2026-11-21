@@ -303,6 +303,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit');
 
+    // A copy's record made from the panel: a treatise the catalogues do not list (backlog item 149)
+    Route::middleware('can:manuscripts.create')->controller(\App\Http\Controllers\Admin\ManuscriptController::class)->group(function () {
+        Route::get('/manuscripts/create', 'create')->name('manuscripts.create');
+        Route::post('/manuscripts', 'store')->name('manuscripts.store');
+    });
+
     // Structural tools run directly, with a preview and confirmation, through the same code as an approved suggestion (backlog item 45)
     Route::middleware('can:structure.direct')->group(function () {
         Route::get('/structure', [AdminStructureController::class, 'index'])->name('structure.index');

@@ -1,0 +1,109 @@
+{
+ "source": "columns a new parser output reads otherwise (before: scratch/fankha_v2_270), 2026-11-21; fahares step 14.303",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 133905,
+   "shelfmark": "1631/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فمثله کمثل صفوان علیه تراب فاصابه وابل فترکه صلداً حضرت شاه طهماسب که در آن اوان شاهرود و بسطام را."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135756,
+   "shelfmark": "3583",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "مخلد داراد بمنه و کرمه."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136454,
+   "shelfmark": "1935",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "مالیات ماضیه یوئی ... فارس که جای ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136582,
+   "shelfmark": "1113/10",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "اكثر من مائة الف رجل و احسب كل من في المصر كذلك ... ليعلم له الارض لاتسعهم قياماً متواصيين فكيف قعوداً و متصرفین و لابقـى."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136680,
+   "shelfmark": "14",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "مشمولاً لمحل التعارض فی اخبار العلاج و بذلک حصل خاتمه الکلام جعل الله ... تع خواتیم امورنا خیرا و وفقنا لما یجب و یرضی و الحمدلله اولاً و آخراً و قد وقع الفراق فی الربع الثانی من النصف الاول من لیلة السبت من العشر الثالث من الشهر الثانی من السنة الرابعه من العشر السابع من المائه الثالثه من الالف الثانی من الهجره الشریفه 1274"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136755,
+   "shelfmark": "1267/5",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "السين مستقر مخرجها عنه ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136926,
+   "shelfmark": "398",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و آباد الدنیا و آباد الآخرة و اکثر من ذلك لا ينقطع اوله و لا ینفد آخره ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 137814,
+   "shelfmark": "3090/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "او را غسل دهد کفن کند."
+    }
+   }
+  }
+ ]
+}

@@ -27,6 +27,38 @@
     --color-brand-border: #E8DDCA;
 
     --font-naskh: 'Noto Naskh Arabic', 'Amiri', serif;
+    /* the printed text of a source, on its page sheet and in an entry's text (step 14.307) */
+    --font-lotus: 'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif;
+}
+
+/* Mtif Lotus, the type of the source texts (step 14.307), served with the build from resources/fonts */
+@font-face {
+    font-family: 'Mtif Lotus';
+    src: url('../fonts/mtif-lotus/MtifLotus-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Mtif Lotus';
+    src: url('../fonts/mtif-lotus/MtifLotus-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Mtif Lotus';
+    src: url('../fonts/mtif-lotus/MtifLotus-Italic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Mtif Lotus';
+    src: url('../fonts/mtif-lotus/MtifLotus-BoldItalic.woff2') format('woff2');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
 }
 
 /* Design tokens of the 1405 redesign (paper, ink, cinnabar, gold). Components use these through
@@ -330,9 +362,9 @@ body {
     padding-bottom: 0.15rem;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--ink);
-    font-family: var(--font-naskh);
+    font-family: var(--font-lotus);
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 .book-sheet__title {
     flex: 1;
@@ -342,7 +374,7 @@ body {
     letter-spacing: 0.01em;
 }
 .book-sheet__folio {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--ink);
     min-width: 3rem;
@@ -360,14 +392,14 @@ body {
     letter-spacing: 0.04em;
 }
 .book-sheet__body {
-    font-family: var(--font-naskh);
-    font-size: 1.0625rem;
+    font-family: var(--font-lotus);
+    font-size: 1.25rem;
     line-height: 2.15;
     text-align: justify;
     min-height: 24rem;
 }
 @media (min-width: 640px) {
-    .book-sheet__body { font-size: 1.1875rem; }
+    .book-sheet__body { font-size: 1.375rem; }
 }
 .book-sheet__entry + .book-sheet__entry { margin-top: 1.1rem; }
 .book-sheet__heading {
@@ -460,7 +492,7 @@ body {
         column-count: 2;
         column-gap: 2.5rem;
         column-rule: 1px solid var(--line);
-        font-size: 1rem;
+        font-size: 1.125rem;
         line-height: 2;
     }
 }
@@ -477,8 +509,8 @@ body {
 /* the page's footnotes, smaller, under a short rule on the start side */
 .book-sheet__notes {
     margin-top: 1.75rem;
-    font-family: var(--font-naskh);
-    font-size: 0.9375rem;
+    font-family: var(--font-lotus);
+    font-size: 1.0625rem;
     line-height: 1.9;
     text-align: justify;
 }
@@ -493,8 +525,8 @@ body {
 .book-sheet__foot {
     margin-top: 2rem;
     text-align: center;
-    font-family: var(--font-naskh);
-    font-size: 0.9rem;
+    font-family: var(--font-lotus);
+    font-size: 1rem;
     color: var(--muted);
 }
 .book-sheet__foot::before,
