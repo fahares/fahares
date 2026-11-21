@@ -12826,6 +12826,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`trim()` با نویسه‌های عربی:** `trim($text, " \t؛;،.-")` بایتی کار می‌کند و بایت نخست حرفی را که با «؛» و «،» هم‌بایت است (حروف `D8 xx`، مانند «ا» و «ب») از آغاز متن می‌برد. یادداشت پایانی فیلد و برش مدخل اکنون با `preg_replace('/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u', …)` پیراسته می‌شوند.
 - **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
 - **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
+- **اجرای پروداکشن (انتشار ۱۷۱، `4c1d417c`؛ ۳۰ آبان ۱۴۰۵، به تأیید کاربر):** جدول پیش از اجرا تهی بود؛ پشتیبانش (`[]`) در `../fahares-sources/backups/step13/step14_283_work_text_relations_backup.json`. پروندۀ تصمیم از stdin به `/tmp` رفت و پس از هر اجرا پاک شد. `prod-run --wait` (پشت `fahares:rebuild-copies` جلسۀ دیگر)، نخست `--dry-run` و سپس اجرا، هر دو با همین شمارها: works 11209، entries 20916، linked 14202، linked words differ 364، proposed 333، rejected 0، tied to no work 6381، with a verdict of the judging 1804، notes 2؛ «Tied by: auto 13635, model 567»؛ «Saved: 20918 rows of the catalogue; 0 of works with no text any more removed». وارسی: سطرها `linked/auto` ۱۳٬۶۳۵، `linked/model` ۵۶۷، `proposed/review` ۳۳۳، بی `link_status` ۶٬۳۸۳ (با ۲ یادداشت)؛ آثارِ دارای متن ۱۱٬۲۰۹ و آثارِ دارای سطر `catalogue` ۱۱٬۲۰۹؛ `work_relations` همان auto ۱۰٬۶۷۶، model ۲۳۶، suggestion ۱. تفاوت با تمرین محلی (۱۴٬۲۰۹ پیونددار) به احتمال از رابطه‌هایی است که `works:link-related` در پروداکشن هنوز با کد تازه ننوشته (۱۰٬۶۷۶ در برابر ۱۰٬۶۸۰)؛ اجرای آن فرمان پس از انتشار گام ۱۴.۲۸۵ سطرها را هم می‌بندد.
+
+### گام ۱۴.۲۸۴: `storageQuotaExceeded` در مخزن restic، کار `prune` و `RCLONE_DRIVE_USE_TRASH`
+
+- **خطا:** `googleapi: Error 403: The user's Drive storage quota has been exceeded., storageQuotaExceeded` در `media` ‏۲۰ نوامبر ۲۰۲۶، در گام `restic-backup`؛ restic پس از آن `unable to create lock in backend` داد. `rclone about gdrive:`: ‏Total 15 GiB، ‏Used 15.086 GiB، ‏Trashed 128.5 MiB.
+- **سنجش (`restic --no-lock stats --mode raw-data`):** کل ۱۱٫۶۶ گیگابایت؛ `--tag db` ‏۲٫۹۲ (۲۹ snapshot، ۱۷٫۷ فشرده‌نشده)؛ `--tag media` ‏۸٫۷۴ (۳ snapshot: ۱۳ اکتبر، ۲ و ۶ نوامبر). `MEDIA_DIR` ‏۱۹ گیگابایت است، که ۹٫۳ گیگابایت آن (۱۲۲٬۱۳۷ فایل در `catalogs/`) پس از ۶ نوامبر آمده است. تفاوت Used با مخزن، packهای بی‌ارجاع بکاپ‌های ناموفق `media` بود.
+- **با سهمیۀ پر:** هر فرمان restic، از جمله `snapshots`، برای نوشتن فایل قفل تا پایان `rclone.timeout` تلاش می‌کند و می‌ایستد. خواندن فقط با `--no-lock` ممکن است.
+- **اقدام روی میزبان (۲۱ نوامبر، ۰۰:۳۷ تا ۰۰:۵۲ تهران):**
+  - `rclone cleanup gdrive:`: ‏۱۳۴ فایل سطل زباله، همه زیر `fahares-restic/` (`locks`، `data`، `index`، `snapshots`).
+  - `restic prune --max-repack-size 0` زیر `flock` روی `$STATE_DIR/.lock`: ‏۲۰۴ pack بی‌ارجاع، ۳٫۱۹۸ گیگابایت؛ repack نشد، چون repack پیش از حذف جا می‌خواهد. لاگ در `~/fahares-backups/prune-20261121.log`.
+  - `export RCLONE_DRIVE_USE_TRASH=false` به `/etc/fahares-backup/backup.env` افزوده شد (نسخۀ پیشین: `backup.env.bak-20261121`).
+  - خط `52 4 * * 5 … media` در crontab کامنت شد (نسخۀ پیشین: `~/fahares-backups/crontab.bak-20261121`).
+  - پس از آن: Used 11.763 GiB، ‏Free 3.236 GiB؛ `restic check`: ‏`no errors were found`؛ ۳۶ snapshot.
+- **`fahares-backup.sh`:**
+  - `job_prune`: همان `forget --prune --group-by host,tags` با `KEEP_DAILY/WEEKLY/MONTHLY` که پیش‌تر دنبالۀ `job_media` بود. با شکست `media`، ‏`forget` هیچ‌گاه اجرا نمی‌شد و snapshotهای `db` و packهای نیمه‌کاره می‌ماندند.
+  - `export RCLONE_DRIVE_USE_TRASH="${RCLONE_DRIVE_USE_TRASH:-false}"`: ‏`rclone serve restic` این متغیر را از محیط می‌خواند. با پیش‌فرض rclone (`true`)، حذف‌های `prune` تا ۳۰ روز در سهمیه می‌مانند.
+  - `crontab.example`: ‏`52 4 * * 6 … prune` (شنبه، یک روز پس از `media`، چون دو کار یک `flock` دارند و دومی بی‌انتظار خارج می‌شود).
+- **آزمایش `prune` روی میزبان:** از نسخۀ تازۀ اسکریپت اجرا شد: ۳۶ ← ۲۶ snapshot (`db` ‏۲۹ ← ۱۹، ‏`config` ‏۴، ‏`media` ‏۳)؛ Used 11.566 GiB، ‏Free 3.433 GiB، ‏Trashed 0 B، یعنی حذف‌ها دیگر به سطل زباله نمی‌روند. خط `prune` به crontab میزبان افزوده شد.
+- **نصب:** `/usr/local/bin/fahares-backup.sh` از آنِ root است و `sudo` رمز می‌خواهد، پس کاربر نسخۀ تازه را با `sudo install -m 755` نصب کرد (۲۱ نوامبر، ۰۰:۵۶ تهران)؛ sha256 آن با نسخۀ مخزن یکی است. نسخۀ پیشین: `~/fahares-backups/fahares-backup.sh.bak-20261121`.
+- **مانده:**
+  - `media` تا افزایش گنجایش Drive خاموش است و `last.json` آن `failed` می‌ماند، پس `watch` هر روز هشدار می‌دهد.
+  - نخستین `media` پس از روشن شدن حدود ۱۰ گیگابایت بارگذاری می‌کند.
 
 ### گام ۱۴.۲۸۵: `WorkCatalogueEntries` و حذف `works.related_work`، `works.commentaries_and_glosses` و `work_entry_links`
 - **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):**
@@ -12849,27 +12871,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پایان: سطرها auto ۱۳٬۶۴۰، model ۵۷۳، proposed ۳۳۳، بی‌پیوند ۶٬۳۷۲ (با ۲ یادداشت)؛ رابطه‌ها auto ۱۰٬۶۸۰، model ۲۳۶، suggestion ۱؛ صفحه‌ها روی هم ۳۶۵ «در فهرست»، ۶٬۷۰۳ سطر بی‌پیوند و ۲ یادداشت؛ صف ۳۳۳.
   - مرورگر: #52424 (۱۹۴ سطر، ۹۰ بی‌پیوند)، #3969، #19305 و #24104 («ترجمه‌ای است از: الحشائش» و «ترجمه: مسیحی، مهران بن منصور (قرن ۶) · بی پیوند»).
 - **ترتیب انتشار:** نخست گام ۱۴.۲۸۳ منتشر و `works:materialize-related` در تولید اجرا شود (درست پیش از این انتشار، تا تصمیم‌های تازۀ صف پنل هم بیاید)؛ سپس این شاخه. دستور داده‌ای پس از استقرار ندارد.
-### گام ۱۴.۲۸۴: `storageQuotaExceeded` در مخزن restic، کار `prune` و `RCLONE_DRIVE_USE_TRASH`
-
-- **خطا:** `googleapi: Error 403: The user's Drive storage quota has been exceeded., storageQuotaExceeded` در `media` ‏۲۰ نوامبر ۲۰۲۶، در گام `restic-backup`؛ restic پس از آن `unable to create lock in backend` داد. `rclone about gdrive:`: ‏Total 15 GiB، ‏Used 15.086 GiB، ‏Trashed 128.5 MiB.
-- **سنجش (`restic --no-lock stats --mode raw-data`):** کل ۱۱٫۶۶ گیگابایت؛ `--tag db` ‏۲٫۹۲ (۲۹ snapshot، ۱۷٫۷ فشرده‌نشده)؛ `--tag media` ‏۸٫۷۴ (۳ snapshot: ۱۳ اکتبر، ۲ و ۶ نوامبر). `MEDIA_DIR` ‏۱۹ گیگابایت است، که ۹٫۳ گیگابایت آن (۱۲۲٬۱۳۷ فایل در `catalogs/`) پس از ۶ نوامبر آمده است. تفاوت Used با مخزن، packهای بی‌ارجاع بکاپ‌های ناموفق `media` بود.
-- **با سهمیۀ پر:** هر فرمان restic، از جمله `snapshots`، برای نوشتن فایل قفل تا پایان `rclone.timeout` تلاش می‌کند و می‌ایستد. خواندن فقط با `--no-lock` ممکن است.
-- **اقدام روی میزبان (۲۱ نوامبر، ۰۰:۳۷ تا ۰۰:۵۲ تهران):**
-  - `rclone cleanup gdrive:`: ‏۱۳۴ فایل سطل زباله، همه زیر `fahares-restic/` (`locks`، `data`، `index`، `snapshots`).
-  - `restic prune --max-repack-size 0` زیر `flock` روی `$STATE_DIR/.lock`: ‏۲۰۴ pack بی‌ارجاع، ۳٫۱۹۸ گیگابایت؛ repack نشد، چون repack پیش از حذف جا می‌خواهد. لاگ در `~/fahares-backups/prune-20261121.log`.
-  - `export RCLONE_DRIVE_USE_TRASH=false` به `/etc/fahares-backup/backup.env` افزوده شد (نسخۀ پیشین: `backup.env.bak-20261121`).
-  - خط `52 4 * * 5 … media` در crontab کامنت شد (نسخۀ پیشین: `~/fahares-backups/crontab.bak-20261121`).
-  - پس از آن: Used 11.763 GiB، ‏Free 3.236 GiB؛ `restic check`: ‏`no errors were found`؛ ۳۶ snapshot.
-- **`fahares-backup.sh`:**
-  - `job_prune`: همان `forget --prune --group-by host,tags` با `KEEP_DAILY/WEEKLY/MONTHLY` که پیش‌تر دنبالۀ `job_media` بود. با شکست `media`، ‏`forget` هیچ‌گاه اجرا نمی‌شد و snapshotهای `db` و packهای نیمه‌کاره می‌ماندند.
-  - `export RCLONE_DRIVE_USE_TRASH="${RCLONE_DRIVE_USE_TRASH:-false}"`: ‏`rclone serve restic` این متغیر را از محیط می‌خواند. با پیش‌فرض rclone (`true`)، حذف‌های `prune` تا ۳۰ روز در سهمیه می‌مانند.
-  - `crontab.example`: ‏`52 4 * * 6 … prune` (شنبه، یک روز پس از `media`، چون دو کار یک `flock` دارند و دومی بی‌انتظار خارج می‌شود).
-- **آزمایش `prune` روی میزبان:** از نسخۀ تازۀ اسکریپت اجرا شد: ۳۶ ← ۲۶ snapshot (`db` ‏۲۹ ← ۱۹، ‏`config` ‏۴، ‏`media` ‏۳)؛ Used 11.566 GiB، ‏Free 3.433 GiB، ‏Trashed 0 B، یعنی حذف‌ها دیگر به سطل زباله نمی‌روند. خط `prune` به crontab میزبان افزوده شد.
-- **نصب:** `/usr/local/bin/fahares-backup.sh` از آنِ root است و `sudo` رمز می‌خواهد، پس کاربر نسخۀ تازه را با `sudo install -m 755` نصب کرد (۲۱ نوامبر، ۰۰:۵۶ تهران)؛ sha256 آن با نسخۀ مخزن یکی است. نسخۀ پیشین: `~/fahares-backups/fahares-backup.sh.bak-20261121`.
-- **مانده:**
-  - `media` تا افزایش گنجایش Drive خاموش است و `last.json` آن `failed` می‌ماند، پس `watch` هر روز هشدار می‌دهد.
-  - نخستین `media` پس از روشن شدن حدود ۱۰ گیگابایت بارگذاری می‌کند.
-
 ### گام ۱۴.۲۸۶: `pair` و فیلدهای `alternative_title_*` در `SuggestionRegistry`
 - **`pair`:** گزینۀ تازۀ یک فیلد، مقداری که با مقدار خود فیلد می‌آید. `primary_title` آن را با `column` برابر `transliteration` دارد. فرم عمومی `pair_value` می‌فرستد و `SuggestionController::store` آن را در `payload.pair` و مقدار همان لحظۀ رکورد را در `payload.pair_current` نگه می‌دارد. فرمی که `pair_value` نفرستد چیزی از آوانگاری عوض نمی‌کند.
 - **تأیید:** `approve` و `directEdit` ورودی `pair_value` را به `SuggestionApplier::apply` می‌دهند؛ مقدار اعمال‌شده در `resolution.pair` می‌ماند.
