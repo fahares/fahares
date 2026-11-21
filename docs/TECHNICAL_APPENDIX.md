@@ -12914,6 +12914,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین:** `fahares:import-copy-notes --file=… --apply` → «new 360, changed 1832, same 1»؛ اجرای دوم «same 2193». `fahares:index-note-types` بی `--apply`: ۱۸۹٬۶۰۰ نسخه با یادداشت.
 - **شناسه‌های انتهای جدول:** چهار نسخۀ آخر `manuscripts` در رونوشت محلی شناسه‌ای یکی بیشتر از پروداکشن دارند (۳۳۴۸۹۵ تا ۳۳۴۸۹۸ محلی = ۳۳۴۸۹۴ تا ۳۳۴۸۹۷ پروداکشن). در گام ۱۴.۲۸۲ رکورد ۳۳۴۸۹۶ با «shelfmark differs» رد شد؛ همان دو تغییر با پروندۀ تک‌رکوردی و پشتیبان روی شناسۀ ۳۳۴۸۹۵ پروداکشن اجرا شد (۲۱ نوامبر ۲۰۲۶).
 
+### گام ۱۴.۲۹۰: `RecordRelations::named` و `sentence`
+- **`named($recordType, $label, $thisName, $chosenName)`:** در متن یک گزینه «این اثر» و «اثر انتخاب‌شده» (برای نسخه «این نسخه» و «نسخۀ انتخاب‌شده») را با نام درون گیومه جایگزین می‌کند؛ نام تا ۷۰ نویسه، و طرف بی‌نام همان عبارت پیشین را نگه می‌دارد.
+- **`sentence($record, $other, $option)`:** همان، با برچسب `SuggestionRegistry::describe` دو رکورد.
+- **پنل:** `show.blade.php` جملۀ `data-relation-sentence` را برای `record_relation` نشان می‌دهد؛ `partials/relation-approve.blade.php` گزینه‌های `select[data-relation-options]` را با `sentence` می‌نویسد.
+- **فرم پیشنهاد:** `config.recordLabel` و `relationLabel()` در `resources/js/suggest-desk.js`؛ تا رکورد مقصد برگزیده نشده، گزینه‌ها همان متن عمومی‌اند.
+- **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.
+
 ### گام ۱۴.۲۹۱: `PersonPeriod::PLACE_KINDS`، پیشنهاد تولد و وفات، و نظر بازبین در `Insights::origins`
 
 - **انواع:** `birth`، `death`، `origin` در `PersonPeriod::KINDS`؛ `PLACE_KINDS` همین سه است. نام نوع‌ها با ثابت‌های `PersonOrigins::BIRTH/DEATH/ORIGIN` یکی است. migration لازم نبود (`kind` رشته است).
@@ -12923,12 +12930,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Insights::origins`:** پس از خوانش خودکار، ردیف‌های `person_periods` اشخاص دامنه با `kind` در `PLACE_KINDS` یا `residence` و `city` شهر نقشه: `rejected` همان (شخص، نوع، شهر) را برمی‌دارد و `approved` و `proposed` آن را می‌افزاید. کلیدهای تازه: `residences`، `residence_decades` برای هر شهر و `residences_mapped`. اقامت نیز در دهۀ وفات شخص شمرده می‌شود، نه در سال‌های دوره.
 - **نقشه:** لایۀ `residence` (`r`/`rd`) در `LAYERS`؛ جدول «اشخاص هر شهر» ستون «ساکن این شهر» گرفت.
 - **آزمون‌ها:** `PersonPeriodsTest` (آزمون قدیمی بی دو جملۀ تولد و وفات، و آزمون تازه برای پیشنهاد و تأیید آن‌ها)، `InsightsMapTest` (تقدم نظر بازبین، لایۀ اقامت، سطر نسبت).
-### گام ۱۴.۲۹۰: `RecordRelations::named` و `sentence`
-- **`named($recordType, $label, $thisName, $chosenName)`:** در متن یک گزینه «این اثر» و «اثر انتخاب‌شده» (برای نسخه «این نسخه» و «نسخۀ انتخاب‌شده») را با نام درون گیومه جایگزین می‌کند؛ نام تا ۷۰ نویسه، و طرف بی‌نام همان عبارت پیشین را نگه می‌دارد.
-- **`sentence($record, $other, $option)`:** همان، با برچسب `SuggestionRegistry::describe` دو رکورد.
-- **پنل:** `show.blade.php` جملۀ `data-relation-sentence` را برای `record_relation` نشان می‌دهد؛ `partials/relation-approve.blade.php` گزینه‌های `select[data-relation-options]` را با `sentence` می‌نویسد.
-- **فرم پیشنهاد:** `config.recordLabel` و `relationLabel()` در `resources/js/suggest-desk.js`؛ تا رکورد مقصد برگزیده نشده، گزینه‌ها همان متن عمومی‌اند.
-- **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.
 
 ### گام ۱۴.۲۹۲: برچسب `contributor_note` و `public_note` در `partials/relation-approve.blade.php`
 - **دو شاخۀ `record_relation` و `text_relation`:** `contributor_note` یک `textarea` برچسب‌دار با `data-relation-note` و `maxlength="500"` شد (به `work_relations.note` یا `manuscript_relations.note` می‌رود)، و `public_note` زیر آن برچسب جدا دارد.
