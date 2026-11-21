@@ -120,7 +120,7 @@
                                     <td class="py-2.5 px-3">
                                         <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" onclick="event.stopPropagation()">{{ $ms->work?->primary_title ?? 'نسخۀ بی‌عنوان' }}</a>
                                     </td>
-                                    <td class="py-2.5 px-3">{{ $ms->work?->author?->name ?? $ms->work?->author_name ?? '—' }}</td>
+                                    <td class="py-2.5 px-3">{{ $ms->work?->effective_author?->name ?? $ms->work?->effective_author_name ?? '—' }}</td>
                                     <td class="py-2.5 px-3 font-semibold">@if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif</td>
                                     <td class="py-2.5 px-3">
                                         @if($ms->scribe_name)

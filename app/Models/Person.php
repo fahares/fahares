@@ -69,6 +69,8 @@ class Person extends Model
             }
             if ($person->wasChanged(['name', 'aliases', 'wrong_names'])) {
                 Work::where('author_id', $person->id)->with('author')->chunkById(500, fn ($works) => $works->each->searchable());
+                // ...and those of the parts that read the author from these works (step 14.308)
+                Work::where('author_id', $person->id)->pluck('id')->each(fn ($id) => \App\Support\WorkParts::reindexBelow($id));
             }
         });
         // The author and scribe rows go with the person, as their old tables' cascade did; the other roles keep the name

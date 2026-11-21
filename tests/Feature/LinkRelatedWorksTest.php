@@ -71,7 +71,7 @@ class LinkRelatedWorksTest extends TestCase
         $this->followingRedirects()->get(route('works.show', $nahj))->assertOk()->assertDontSee('<span>شروح، حواشی و منظومه‌ها</span>', false);
         $page = $this->followingRedirects()->get(route('works.show', $nahj))->assertOk();
         $page->assertSee('<a href="' . route('works.show', $sharh) . '"', false)->assertSee('<a href="' . route('works.show', $tarjama) . '"', false)->assertSee('ترجمه‌ها');
-        $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها و مجلدها');
+        $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها، گزیده‌ها و مجلدها');
 
         // the base titles feed the search: the relation's and the text's
         $this->assertSame(['نهج البلاغة', 'خطب علی'], $sharh->fresh()->baseTitles());

@@ -76,6 +76,10 @@ class RecordRemover
 
         $record->delete();
         $this->recount($record::class, $record->getAttributes(), $pivots);
+        // the parts of a removed work no longer read its author, subject and language (step 14.308)
+        if ($record instanceof Work) {
+            RecordRelations::partsChanged(array_values(array_diff(array_column($relations['rows'] ?? [], 'work_id'), [$record->id])));
+        }
 
         return ['snapshot' => ['attributes' => $record->getAttributes(), 'pivots' => $pivots], 'relations' => $relations, 'referral_ids' => $referrals];
     }
@@ -105,6 +109,9 @@ class RecordRemover
         }
         if ($relations = $old['relations'] ?? null) {
             DB::table($relations['table'])->insertOrIgnore($relations['rows']);
+            if ($relations['table'] === 'work_relations') {
+                RecordRelations::partsChanged(array_column($relations['rows'], 'work_id'));
+            }
         }
         DB::table('referrals')->whereIn('id', $old['referral_ids'] ?? [])->whereNull('target_work_id')->update(['target_work_id' => $attributes['id']]);
 

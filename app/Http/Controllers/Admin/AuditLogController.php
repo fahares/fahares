@@ -481,7 +481,12 @@ class AuditLogController extends Controller
             DB::table('work_text_relations')->insertOrIgnore($removedText);
         }
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
+            $made = $relationRow['table'] === 'work_relations' ? DB::table('work_relations')->where('id', $relationRow['id'])->value('work_id') : null;
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
+            // a part taken off its whole is searched by its own author, subject and language again (step 14.308)
+            if ($made) {
+                \App\Suggestions\RecordRelations::partsChanged([$made]);
+            }
         }
         if ($roleId = $log->new_values['added_person_role'] ?? null) {
             ($target instanceof \App\Models\Work ? \App\Models\WorkPerson::class : \App\Models\ManuscriptPerson::class)::whereKey($roleId)->delete();

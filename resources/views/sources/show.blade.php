@@ -240,7 +240,7 @@
                                 <td class="py-2.5 px-3">
                                     <a href="{{ $linked['type'] === 'works' ? route('works.show', $record) : route('manuscripts.show', $record) }}" class="font-semibold hover:text-cinnabar">{{ $work?->primary_title ?? 'بی‌عنوان' }}</a>
                                 </td>
-                                <td class="py-2.5 px-3">{{ $work?->author?->name ?? $work?->author_name ?? '—' }}</td>
+                                <td class="py-2.5 px-3">{{ $work?->effective_author?->name ?? $work?->effective_author_name ?? '—' }}</td>
                                 @if($linked['type'] === 'manuscripts')
                                     <td class="py-2.5 px-3">{{ $record->libraryRecord?->display_name ?? $record->library ?? '—' }}@if($record->shelfmark)<span class="text-muted"> · <span dir="ltr">{{ Fa::digits($record->shelfmark) }}</span></span>@endif</td>
                                 @endif
