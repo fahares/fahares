@@ -12975,3 +12975,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برداشتن:** `Person::where('name', old_values.scribe_name)` از همان سطر ممیزی، اگر `RecordRemover::blockers()` تهی باشد: `RecordRemover::remove()` و سطر `remove` با `redirect_work_id` اثر نسخه (همان راهی که `goneResponse()` از گام ۱۴.۲۳۵ می‌شناسد).
 - **تمرین روی `fahares_prod`:** «Unlinked 14 scribes and removed 41 people, of 60 copies»؛ اجرای دوم «0 و 0». یک شخص («مظفر دماوندی، ملقب به قاضی…») نسخۀ دیگری دارد و ماند.
 - **آزمون:** `AddCopyScribesCommandTest::test_the_tidy_command_removes_the_lists_person_and_unlinks_a_name_many_share`.
+
+### گام ۱۴.۲۹۹: `people.alias_transliterations` و فیلدهای `alias_*`
+- **migration:** `2026_11_21_200001_add_alias_transliterations_to_people` (ستون `json` تهی‌پذیر پس از `aliases`).
+- **`Person`:** cast آرایه؛ قلاب `saving` با تغییر `aliases` یا این ستون، فقط آوانگاری نام‌هایی را نگه می‌دارد که در `aliases` هستند. `aliasItems()` فهرست `name` و `transliteration`. `toSearchableArray` آوانگاری نام‌های دیگر را به `transliteration` سند می‌افزاید (تنظیم نمایه عوض نشد).
+- **`SuggestionRegistry`:** `aliasName` (ده رقم نخست md5 نام)، `aliasField`، `aliasItem`، `ALIAS_NEW`؛ `recordFields` شخص برای هر نام یک فیلد و یک `alias_new` می‌دهد؛ `fieldOf`، `currentValue` و `pairCurrent` این فیلدها را می‌شناسند.
+- **`SuggestionApplier::otherName`:** افزودن (نام تکراری یا برابر نام اصلی رد می‌شود)، بازنویسی (آوانگاری با نام می‌ماند مگر فرم آوانگاری دیگری یا تهی بفرستد) و حذف. `resolution.field_name` مثل عنوان دیگر اثر.
+- **قالب‌ها:** `people/show.blade.php`، `suggest/field.blade.php` (نشان «+» برای `alias_new`)، `suggest/desk.blade.php` (`adds` اکنون برچسب مقدار است: «عنوان دیگر:» یا «نام دیگر:»)، `admin/people/edit.blade.php`.
+- **`Admin\PersonController::update`:** سطر «نام | آوانگاری»؛ `withoutTransliterations` و `transliterations`.
+- **`PersonMerger::merge`:** نگاشت شخص ماندنی، نگاشت شخص حذف‌شونده و آوانگاری نام خود او با هم می‌آیند و قلاب مدل اضافه‌ها را می‌اندازد.
+- **آزمون:** `SuggestionWorkflowTest::test_each_other_name_of_a_person_has_its_transliteration_and_its_own_field`.

@@ -17,6 +17,11 @@ class Person extends Model
     {
         // Derived columns follow their source unless the caller set them too
         static::saving(function (Person $person) {
+            // The transliterations of the other names go with the names: one of a name that is gone is dropped (step 14.299)
+            if ($person->isDirty('aliases') || $person->isDirty('alias_transliterations')) {
+                $kept = array_intersect_key(array_filter((array) ($person->alias_transliterations ?? []), fn ($t) => is_string($t) && trim($t) !== ''), array_flip((array) ($person->aliases ?? [])));
+                $person->alias_transliterations = $kept ?: null;
+            }
             if ($person->isDirty('name') && ! $person->isDirty('normalized_name') && $person->exists) {
                 $person->normalized_name = mb_substr(\App\Helpers\TextNormalizer::normalize($person->name), 0, 600);
             }
@@ -388,6 +393,8 @@ class Person extends Model
     {
         return [
             'aliases' => 'array',
+            // name => transliteration, for the other names that have one (step 14.299)
+            'alias_transliterations' => 'array',
             // Misspelt forms (backlog item 90): searchable, not listed among the other names
             'wrong_names' => 'array',
             'birth_year_hijri' => 'integer',
@@ -449,6 +456,18 @@ class Person extends Model
     public function searchableAs(): string
     {
         return 'people_index';
+    }
+
+    /**
+     * The other names with their transliterations (step 14.299).
+     *
+     * @return list<array{name: string, transliteration: ?string}>
+     */
+    public function aliasItems(): array
+    {
+        $map = (array) ($this->alias_transliterations ?? []);
+
+        return array_map(fn ($name) => ['name' => (string) $name, 'transliteration' => $map[$name] ?? null], array_values((array) ($this->aliases ?? [])));
     }
 
     /** Other names and misspelt forms: a search by either finds the person (backlog item 90). */
@@ -568,7 +587,8 @@ class Person extends Model
             'normalized_name' => \App\Helpers\TextNormalizer::expandVariants($normalizedWithAliases),
             'aliases' => array_map(fn($a) => \App\Helpers\TextNormalizer::expandVariants($a), $aliases),
             'slug' => $this->slug,
-            'transliteration' => $this->transliteration,
+            // with the transliterations of the other names, so a search in Latin letters finds the person by them too (step 14.299)
+            'transliteration' => trim($this->transliteration . ' ' . implode(' ', (array) ($this->alias_transliterations ?? []))) ?: null,
             'death_year_hijri' => $this->death_year_hijri ? (int) $this->death_year_hijri : null,
             'century_hijri' => $this->century_hijri ? (int) $this->century_hijri : null,
             // Every century of the life, which the century filter matches (step 14.247); century_hijri stays for the order

@@ -29,7 +29,12 @@
             // a title's transliteration, corrected with it (step 14.286)
             'pair' => isset($def['pair']) ? ['label' => $def['pair']['label'], 'current' => SuggestionRegistry::pairCurrent($record, $field)] : null,
             // the field that adds another title has no value now
-            'adds' => ($def['alt_title'] ?? null) === 'new',
+            // ...nor has the one that adds another name (step 14.299); the value's label, or false
+            'adds' => match (true) {
+                ($def['alt_title'] ?? null) === 'new' => 'عنوان دیگر:',
+                ($def['alias'] ?? null) === 'new' => 'نام دیگر:',
+                default => false,
+            },
             'options' => $def['options'] ?? [],
         ];
     }
@@ -279,7 +284,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block text-[13px] font-bold text-ink"
-                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : (relation.apply === 'text_relation' ? 'عنوان و پدیدآور آن اثر (مثلاً «شرح الکافیة؛ قمولی، احمد بن محمد»):' : 'نام دیگر:')))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : (field.adds ? 'عنوان دیگر:' : 'مقدار درست:')"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : (relation.apply === 'text_relation' ? 'عنوان و پدیدآور آن اثر (مثلاً «شرح الکافیة؛ قمولی، احمد بن محمد»):' : 'نام دیگر:')))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : (field.adds ? field.adds : 'مقدار درست:')"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"
@@ -295,7 +300,7 @@
                             <div class="space-y-1 pt-2">
                                 <label class="block text-[13px] font-bold text-ink" x-text="field.pair.label + ' (اختیاری):'"></label>
                                 <input type="text" x-model="pairValue" dir="ltr" data-pair-value class="{{ $inputClass }} text-left">
-                                <p class="text-xs text-muted" x-show="!field.adds">اگر عنوان را عوض می‌کنید، آوانگاری‌اش را هم درست کنید.</p>
+                                <p class="text-xs text-muted" x-show="!field.adds">اگر این را عوض می‌کنید، آوانگاری‌اش را هم درست کنید.</p>
                             </div>
                         </template>
 

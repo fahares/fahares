@@ -559,6 +559,53 @@ class SuggestionWorkflowTest extends TestCase
         User::whereKey($user->id)->delete();
     }
 
+    /** Step 14.299: each other name of a person has its transliteration and its own field, and one field adds a name. */
+    public function test_each_other_name_of_a_person_has_its_transliteration_and_its_own_field()
+    {
+        $person = $this->person('مجنون رفیقی هروی');
+        $person->update(['aliases' => ['مجنون مشهدی'], 'transliteration' => 'majnūn-e rafīqī-e heravī']);
+        $first = \App\Suggestions\SuggestionRegistry::aliasName('مجنون مشهدی');
+        $this->actingAs($this->admin)->get(route('people.show', $person))->assertOk()
+            ->assertSee('data-suggest-field="' . $first . '"', false)->assertSee('data-suggest-field="alias_new"', false);
+
+        // A name is added with its transliteration, and the suggestion stays with the name it made
+        $this->suggest($person, ['field_name' => 'alias_new', 'suggested_value' => 'مجنون چپ‌نویس', 'pair_value' => 'majnūn-e čap-nevīs', 'rationale_citation' => 'تحفۀ سامی'])->assertOk();
+        $add = $this->pendingFor($person);
+        $this->assertSame(['افزودن نام دیگر', 'majnūn-e čap-nevīs'], [$add->field_label, $add->payload['pair']]);
+        $this->approve($add, ['pair_value' => 'majnūn-e čap-nevīs'])->assertRedirect('/admin/suggestions');
+        $person->refresh();
+        $this->assertSame([['مجنون مشهدی', 'مجنون چپ‌نویس'], ['مجنون چپ‌نویس' => 'majnūn-e čap-nevīs']], [$person->aliases, $person->alias_transliterations]);
+        $this->assertSame(\App\Suggestions\SuggestionRegistry::aliasName('مجنون چپ‌نویس'), $add->fresh()->field_name);
+        $this->get(route('people.show', $person))->assertOk()->assertSee('(majnūn-e čap-nevīs)', false);
+
+        // An existing name gets its transliteration by its own field; the name itself may stay as it is
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $person->id, 'field_name' => $first, 'suggested_value' => 'مجنون مشهدی', 'pair_value' => 'majnūn-e mašhadī'])->assertOk();
+        $this->assertSame('majnūn-e mašhadī', $person->fresh()->alias_transliterations['مجنون مشهدی']);
+        // Renamed, it keeps its transliteration unless another is sent; a name the person has is not added twice
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $person->id, 'field_name' => $first, 'suggested_value' => 'مجنون مشهدی هروی'])->assertOk();
+        $this->assertEquals(['مجنون مشهدی هروی' => 'majnūn-e mašhadī', 'مجنون چپ‌نویس' => 'majnūn-e čap-nevīs'], $person->fresh()->alias_transliterations);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $person->id, 'field_name' => 'alias_new', 'suggested_value' => 'مجنون چپ‌نویس'])->assertStatus(422);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $person->id, 'field_name' => 'alias_new', 'suggested_value' => $person->name])->assertStatus(422);
+        // Emptied, the name goes, and its transliteration with it
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $person->id, 'field_name' => \App\Suggestions\SuggestionRegistry::aliasName('مجنون مشهدی هروی'), 'suggested_value' => ''])->assertOk();
+        $this->assertSame([['مجنون چپ‌نویس'], ['مجنون چپ‌نویس' => 'majnūn-e čap-nevīs']], [$person->fresh()->aliases, $person->fresh()->alias_transliterations]);
+
+        // The search document holds the transliterations of the other names beside the person's own
+        $this->assertSame('majnūn-e rafīqī-e heravī majnūn-e čap-nevīs', $person->fresh()->toSearchableArray()['transliteration']);
+
+        // The panel's form writes «نام | آوانگاری», one name a line
+        $this->actingAs($this->admin)->get(route('admin.people.edit', $person))->assertOk()->assertSee('مجنون چپ‌نویس | majnūn-e čap-nevīs');
+        $this->put(route('admin.people.update', $person), ['name' => $person->name, 'aliases' => "مجنون مشهدی | majnūn-e mašhadī\nمجنون هروی\nمجنون رفیقی | majnūn-e rafīqī"])->assertSessionHasNoErrors();
+        $person->refresh();
+        $this->assertEquals([['مجنون مشهدی', 'مجنون هروی', 'مجنون رفیقی'], ['مجنون مشهدی' => 'majnūn-e mašhadī', 'مجنون رفیقی' => 'majnūn-e rafīqī']], [$person->aliases, $person->alias_transliterations]);
+
+        // A merged person's name comes with its transliteration
+        $twin = $this->person('مجنون بن محمود رفیقی');
+        $twin->update(['transliteration' => 'majnūn ebn-e mahmūd rafīqī']);
+        app(\App\Services\PersonMerger::class)->merge($twin, $person);
+        $this->assertSame('majnūn ebn-e mahmūd rafīqī', $person->fresh()->alias_transliterations[$twin->name] ?? null);
+    }
+
     /** Step 14.295: a renamed person's works and copies take the new name; pages and the search read the person. */
     public function test_a_renamed_person_is_named_anew_on_their_works_and_copies()
     {

@@ -115,6 +115,10 @@ class PersonMerger
                 'is_scribe' => $newManuscriptsCount > 0,
                 'is_translator' => $target->is_translator || DB::table('work_people')->where('person_id', $target->id)->where('role', 'translator')->exists(),
                 'aliases' => array_values(array_merge((array) ($target->aliases ?? []), $addedAliases)),
+                // the removed person's name comes with its transliteration, its other names with theirs (step 14.299);
+                // the model keeps only those of names that are in the list
+                'alias_transliterations' => (array) ($target->alias_transliterations ?? []) + (array) ($source->alias_transliterations ?? [])
+                    + ($source->transliteration ? [(string) $source->name => (string) $source->transliteration] : []),
                 'wrong_names' => array_values(array_merge((array) ($target->wrong_names ?? []), $addedWrongNames)) ?: null,
             ]);
 
