@@ -13006,3 +13006,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **الگوهای رد (۹۰):** جمله دربارۀ پدر، پسر، برادر یا شخص دیگری در همان مدخل؛ جمله از مدخل کناری؛ «مدینة X» که مدینه خوانده شده (بُست، مراکش، تریم، کحلان، خوی، البیضاء)؛ دفن یا انتقال جنازه به‌جای وفات؛ «المشهد الغروی» که نجف است؛ و مدخلِ شخصی دیگر.
 - **الگوهای مشکوک (۶۷، مانده برای بازبینان):** «خوارزم» که به خیوه نگاشته شده (ناحیه است)؛ محل وفاتِ محل اختلاف در خود مدخل؛ «قیل»؛ ناهمخوانی سال مدخل و رکورد؛ روستایی از جبل عامل.
 - **پس از استقرار:** پشتیبان `person_periods`، سپس `fahares:review-life-periods database/data/person_place_decisions_step14_298.json --apply` و `fahares:build-insights`.
+### گام ۱۴.۳۰۰: `x-suggest.centered`
+
+- **`resources/views/components/suggest/centered.blade.php`:** `<span class="suggest-row relative inline-block sm:mx-20">` متن، سپس `<span data-suggest-controls>` با `<x-suggest.field>` که از sm به بالا `absolute top-1/2 -translate-y-1/2 start-full ms-2` است (در راست‌به‌چپ سمت چپ متن، در سطر `dir="ltr"` سمت راست). `suggest-row` همان قاعدۀ hover در `app.css` است که مداد کم‌رنگ را پررنگ می‌کند؛ پدرِ مستقیم دکمه دیگر سطر نیست.
+- **چرا حاشیه و نه `max-width` درصدی:** سطرهای سرصفحه در گرید `justify-items-center` به اندازۀ محتوا جمع می‌شوند و درصد بر همان عرض حساب می‌شد و متن را می‌شکست. `mx-20` (۸۰ پیکسل) جای برچسب و مداد (حداکثر حدود ۷۶ پیکسل) را در هر دو طرف نگه می‌دارد و مرکز را جابه‌جا نمی‌کند.
+- **منبع:** `class="md:ms-0"`، چون عنوان از md به بالا راست‌چین است.
+- **سنجش:** مرکز بازۀ متن (`Range` تا پیش از کنترل‌ها) منهای مرکز `header` = ۰ در `/people/346`، `/works/47272` (عنوان دوسطری)، `/libraries/99` و `/sources/dharia`؛ `scrollWidth` ≤ عرض پنجره.
+
