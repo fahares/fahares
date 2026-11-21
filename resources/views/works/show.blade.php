@@ -78,8 +78,7 @@
     <header class="text-center grid justify-items-center gap-2 pb-6">
         <p class="text-xs font-bold text-cinnabar">شناسنامۀ اثر</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
-            {{ $work->primary_title }}
-            <x-suggest.field name="primary_title" class="ms-1 align-middle" />
+            <x-suggest.centered name="primary_title">{{ $work->primary_title }}</x-suggest.centered>
         </h1>
 
         @if($work->clean_title && $work->clean_title !== $work->primary_title)
@@ -87,11 +86,11 @@
         @endif
 
         <p class="text-xs text-muted" dir="ltr" @unless($work->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
-            {{ $work->transliteration ?? 'آوانگاری عنوان: —' }}
-            <x-suggest.field name="transliteration" class="ms-1" />
+            <x-suggest.centered name="transliteration">{{ $work->transliteration ?? 'آوانگاری عنوان: —' }}</x-suggest.centered>
         </p>
 
         <p class="text-base text-ink mt-1">
+            <x-suggest.centered name="author_name">
             @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id || $e->certainty) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
                 <x-contributors :entries="$work->authorEntries" :others="$work->has_other_authors" :life="true"
                     link-class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" />
@@ -103,7 +102,7 @@
             @else
                 <span class="text-muted">پدیدآور ناشناخته</span>
             @endif
-            <x-suggest.field name="author_name" class="ms-1" />
+            </x-suggest.centered>
         </p>
 
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">

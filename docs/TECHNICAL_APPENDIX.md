@@ -12975,3 +12975,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برداشتن:** `Person::where('name', old_values.scribe_name)` از همان سطر ممیزی، اگر `RecordRemover::blockers()` تهی باشد: `RecordRemover::remove()` و سطر `remove` با `redirect_work_id` اثر نسخه (همان راهی که `goneResponse()` از گام ۱۴.۲۳۵ می‌شناسد).
 - **تمرین روی `fahares_prod`:** «Unlinked 14 scribes and removed 41 people, of 60 copies»؛ اجرای دوم «0 و 0». یک شخص («مظفر دماوندی، ملقب به قاضی…») نسخۀ دیگری دارد و ماند.
 - **آزمون:** `AddCopyScribesCommandTest::test_the_tidy_command_removes_the_lists_person_and_unlinks_a_name_many_share`.
+
+### گام ۱۴.۳۰۰: `x-suggest.centered`
+
+- **`resources/views/components/suggest/centered.blade.php`:** `<span class="suggest-row relative inline-block sm:mx-20">` متن، سپس `<span data-suggest-controls>` با `<x-suggest.field>` که از sm به بالا `absolute top-1/2 -translate-y-1/2 start-full ms-2` است (در راست‌به‌چپ سمت چپ متن، در سطر `dir="ltr"` سمت راست). `suggest-row` همان قاعدۀ hover در `app.css` است که مداد کم‌رنگ را پررنگ می‌کند؛ پدرِ مستقیم دکمه دیگر سطر نیست.
+- **چرا حاشیه و نه `max-width` درصدی:** سطرهای سرصفحه در گرید `justify-items-center` به اندازۀ محتوا جمع می‌شوند و درصد بر همان عرض حساب می‌شد و متن را می‌شکست. `mx-20` (۸۰ پیکسل) جای برچسب و مداد (حداکثر حدود ۷۶ پیکسل) را در هر دو طرف نگه می‌دارد و مرکز را جابه‌جا نمی‌کند.
+- **منبع:** `class="md:ms-0"`، چون عنوان از md به بالا راست‌چین است.
+- **سنجش:** مرکز بازۀ متن (`Range` تا پیش از کنترل‌ها) منهای مرکز `header` = ۰ در `/people/346`، `/works/47272` (عنوان دوسطری)، `/libraries/99` و `/sources/dharia`؛ `scrollWidth` ≤ عرض پنجره.
+

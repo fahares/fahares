@@ -47,15 +47,13 @@
     <header class="text-center grid justify-items-center gap-2 pb-6">
         <p class="text-xs font-bold text-cinnabar">شناسنامۀ شخص</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
-            {{ $person->name }}
-            <x-suggest.field name="name" class="ms-1 align-middle" />
+            <x-suggest.centered name="name">{{ $person->name }}</x-suggest.centered>
         </h1>
         @if($person->life_span)
             <p class="text-base text-muted">{{ $person->life_span }}</p>
         @endif
         <p class="text-xs text-muted" dir="ltr" @unless($person->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
-            {{ $person->transliteration ?? 'آوانگاری نام: —' }}
-            <x-suggest.field name="transliteration" class="ms-1" />
+            <x-suggest.centered name="transliteration">{{ $person->transliteration ?? 'آوانگاری نام: —' }}</x-suggest.centered>
         </p>
         <div class="flex flex-wrap justify-center items-center gap-1.5 mt-1 text-sm" @if(empty($person->aliases)) x-show="$store.suggest.on" x-cloak @endif>
             <span class="text-muted text-xs">نام‌های دیگر:</span>

@@ -21,12 +21,10 @@
         <x-library-logo :library="$library" size="lg" class="mb-2" />
         <p class="text-xs font-bold text-cinnabar">کتابخانه و مرکز نگهداری</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
-            {{ $library->display_name }}
-            <x-suggest.field name="full_name" class="ms-1 align-middle" />
+            <x-suggest.centered name="full_name">{{ $library->display_name }}</x-suggest.centered>
         </h1>
         <p class="text-sm text-ink">
-            {{ $library->city ?? 'ایران' }}@if($library->country && $library->country !== 'ایران')، {{ $library->country }}@endif
-            <x-suggest.field name="country" class="ms-1" />
+            <x-suggest.centered name="country">{{ $library->city ?? 'ایران' }}@if($library->country && $library->country !== 'ایران')، {{ $library->country }}@endif</x-suggest.centered>
         </p>
         <a href="#manuscripts" class="text-sm text-muted hover:text-cinnabar transition">
             <span class="font-bold text-cinnabar tabular-nums">{{ Fa::num($library->manuscripts_count) }}</span> نسخۀ ثبت‌شده
