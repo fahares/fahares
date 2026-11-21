@@ -34,14 +34,14 @@
 /* Mtif Lotus, the type of the source texts (step 14.307), served with the build from resources/fonts */
 @font-face {
     font-family: 'Mtif Lotus';
-    src: url('../fonts/mtif-lotus/MtifLotus-Regular.ttf') format('truetype');
+    src: url('../fonts/mtif-lotus/MtifLotus-Regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Mtif Lotus';
-    src: url('../fonts/mtif-lotus/MtifLotus-Bold.ttf') format('truetype');
+    src: url('../fonts/mtif-lotus/MtifLotus-Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
