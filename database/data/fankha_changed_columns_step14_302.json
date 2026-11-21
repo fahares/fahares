@@ -1,0 +1,1977 @@
+{
+ "source": "columns a new parser output reads otherwise (before: scratch/fankha_v2_260), 2026-11-21; fahares step 14.302",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 15918,
+   "shelfmark": "7436/1/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1032ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16212,
+   "shelfmark": "8975/61",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن عنابی ضربی با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16245,
+   "shelfmark": "671/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فستقی جلد: میشن رویه روغنی",
+     "to": "فستقی"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن رویه روغنی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24760,
+   "shelfmark": "704",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "ترمه جلد: تیماج سبز",
+     "to": "ترمه"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29408,
+   "shelfmark": "24429",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 20 جمادی الاول 958ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29410,
+   "shelfmark": "5286",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ ضربی مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 37061,
+   "shelfmark": "3651/5",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "ترمه گرد تیماج مشکی، هامش 138ص (1-138)",
+     "to": "ترمه گرد تیماج مشکی، هامش"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38467,
+   "shelfmark": "491",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38479,
+   "shelfmark": "20374",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن قهوه ای ضربی با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38487,
+   "shelfmark": "31788",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج فرنگی سرمه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38577,
+   "shelfmark": "1207",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی آهار مهره جلد تیماج مشکی ضربی دار",
+     "to": "فرنگی آهار مهره"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی ضربی دار"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38627,
+   "shelfmark": "657/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن لائی قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38900,
+   "shelfmark": "33266",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "گالینگور با عطف و گوشه تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38901,
+   "shelfmark": "182/10-ج",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی جلد: تیماج سرخ ضربی مقوایی",
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ ضربی مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49184,
+   "shelfmark": "4714",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی جلد تیماج قرمز لولادار زرکوب",
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز لولادار زرکوب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51587,
+   "shelfmark": "2144/2-عکسی",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "حدود 1046ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51884,
+   "shelfmark": "6357/9",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1010ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 58498,
+   "shelfmark": "4196/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "رویه میشن یک‌لا آلبالوئی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 58501,
+   "shelfmark": "4136/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای ضربی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59266,
+   "shelfmark": "29",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "25 ربیع الاول 1360ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61449,
+   "shelfmark": "7",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61450,
+   "shelfmark": "1541",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی کبود جلد تیماج مشکی ضربی با ترنج زرد",
+     "to": "فرنگی کبود"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی ضربی با ترنج زرد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61453,
+   "shelfmark": "2616",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63192,
+   "shelfmark": "2004",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "سمرقندی شکری آهار مهره جلد میشن خرمایی",
+     "to": "سمرقندی شکری آهار مهره"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن خرمایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67763,
+   "shelfmark": "9057",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه ای با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67821,
+   "shelfmark": "2701",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی آهار مهره جلد: تیماج سرخ",
+     "to": "فرنگی آهار مهره"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78243,
+   "shelfmark": "2530",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "بیاض تیماج، مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78359,
+   "shelfmark": "369/21",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78361,
+   "shelfmark": "4137/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زنگاری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78370,
+   "shelfmark": "13527/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79348,
+   "shelfmark": "13527/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "حدود سال 1103ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79349,
+   "shelfmark": "3266",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80368,
+   "shelfmark": "25233",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن ماشی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80646,
+   "shelfmark": "637",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی فستقی جلد تیماج ،لعابدار",
+     "to": "فرنگی فستقی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج، لعابدار"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80648,
+   "shelfmark": "21277",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "شکری آهار مهره جلد تیماج قهوه‌ای",
+     "to": "شکری آهار مهره"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80650,
+   "shelfmark": "21282",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81324,
+   "shelfmark": "17026",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84067,
+   "shelfmark": "15749",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87531,
+   "shelfmark": "24544",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا رویه گالینگور"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87876,
+   "shelfmark": "35005",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87878,
+   "shelfmark": "12514",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج نیلی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92756,
+   "shelfmark": "3100/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93166,
+   "shelfmark": "15657/4",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93425,
+   "shelfmark": "3530/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95590,
+   "shelfmark": "3199",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95592,
+   "shelfmark": "584",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "دولت",
+     "to": "دولت آبادی"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوایی با تیماج آلبالویی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95594,
+   "shelfmark": "1033",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "ساغری مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95597,
+   "shelfmark": "9306",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا عطف تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96390,
+   "shelfmark": "1672/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1048ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99501,
+   "shelfmark": "163",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی جلد تیماج سرخ ضربی",
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ ضربی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101366,
+   "shelfmark": "55",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج نقاشی شده"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102365,
+   "shelfmark": "217/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102366,
+   "shelfmark": "2722/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "اصفهانی",
+     "to": "اصفهانی نازک"
+    },
+    "binding": {
+     "from": null,
+     "to": "ساغری سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106139,
+   "shelfmark": "1638",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "نخودی آهار مهره جلد مقوا رویه کاغذ گلی، عطف پارچه زرد",
+     "to": "نخودی آهار مهره"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا رویه کاغذ گلی، عطف پارچه زرد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106143,
+   "shelfmark": "15698",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "مقوا ،گالینگور 57گ",
+     "to": "مقوا گالینگور"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106145,
+   "shelfmark": "2961",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1097ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106146,
+   "shelfmark": "4041",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "سپاهانی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106522,
+   "shelfmark": "3207/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "تیماج ،تریاکی 95 ص (1-95)",
+     "to": "تیماج تریاکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106523,
+   "shelfmark": "1383/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106869,
+   "shelfmark": "84",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "سپاهانی جلد تیماج عنابی",
+     "to": "سپاهانی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107637,
+   "shelfmark": "۸۲۶۳",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا با روکش پارچه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110277,
+   "shelfmark": "491/4",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا با پارچه سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110475,
+   "shelfmark": "8264",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی نخودی جلد تیماج ،قهوه ای",
+     "to": "فرنگی نخودی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110476,
+   "shelfmark": "39-ر/210",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا با تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111329,
+   "shelfmark": "14775",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116001,
+   "shelfmark": "9096",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "نخودی ،کشمری جلد تیماج عنابی",
+     "to": "نخودی کشمری"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116143,
+   "shelfmark": "14421/4",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا با روکش پارچه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116449,
+   "shelfmark": "166",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوای روکش چرم مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124528,
+   "shelfmark": "941عکسی",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1235ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125264,
+   "shelfmark": "1194",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "صیقلی جلد تیماج مشکی",
+     "to": "صیقلی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128398,
+   "shelfmark": "4571/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129238,
+   "shelfmark": "1479/4",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129240,
+   "shelfmark": "15228/7",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 130711,
+   "shelfmark": "737/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1121ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 130713,
+   "shelfmark": "38/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "15 رمضان 1181ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131447,
+   "shelfmark": "2398/40",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131448,
+   "shelfmark": "4379/33",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "ساغری سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131449,
+   "shelfmark": "4275/27",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "رویه روغنی گل و بوته زمینه قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133322,
+   "shelfmark": "71",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "اواخر قرن 9"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133326,
+   "shelfmark": "361",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمادی الثانی 998ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133339,
+   "shelfmark": "70",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "بخارایی جلد مقوای روکش چرم سورمه ای مذهب",
+     "to": "بخارایی"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوای روکش چرم سورمه ای مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 134545,
+   "shelfmark": "294",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "کاغذی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135014,
+   "shelfmark": "9790",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135016,
+   "shelfmark": "2737",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135017,
+   "shelfmark": "17158",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "نخودی جلد میشن قهوه‌ای",
+     "to": "نخودی"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135020,
+   "shelfmark": "413",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "980 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135021,
+   "shelfmark": "20601",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "نخودی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135022,
+   "shelfmark": "2738",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "4 شوال 982ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144886,
+   "shelfmark": "55/2-طباطبائی",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149148,
+   "shelfmark": "5242",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "روغنی زمینه قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149149,
+   "shelfmark": "4776",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "15 ربیع الثانی 1266ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149153,
+   "shelfmark": "1848",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی",
+     "to": "فرنگی نباتی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150097,
+   "shelfmark": "5223",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "رویه پارچه بنفش"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150099,
+   "shelfmark": "3973",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151653,
+   "shelfmark": "119 خوئی",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 153359,
+   "shelfmark": "14345/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "تیماج، مشکی 131گ",
+     "to": "تیماج، مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154612,
+   "shelfmark": "11996",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 155258,
+   "shelfmark": "2473/4",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "پلاستیک ابری مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157394,
+   "shelfmark": "4184/13",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "رویه میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161568,
+   "shelfmark": "6587/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1106ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164873,
+   "shelfmark": "137/3-5780",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "سپاهانی جلد: تیماج مشکی",
+     "to": "سپاهانی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167456,
+   "shelfmark": "1328",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز، مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172392,
+   "shelfmark": "22214",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "حنایی جلد مقوا 3گ 23 سطر",
+     "to": "حنایی"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172393,
+   "shelfmark": "28562",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172590,
+   "shelfmark": "148",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن خرمائی سیر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172591,
+   "shelfmark": "2987",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "تیماج مشکی 153 ،گ 16 سطر (8/5×14)",
+     "to": "تیماج مشکی"
+    },
+    "folios": {
+     "from": null,
+     "to": 153
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173127,
+   "shelfmark": "12580",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 176083,
+   "shelfmark": "13708",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی جلد تیماج زرشکی",
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178843,
+   "shelfmark": "995/1",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "تیماج ،قهوه‌ای 25 گ (1پ-26پ)",
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178849,
+   "shelfmark": "35150",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 179030,
+   "shelfmark": "35994",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی نخودی جلد تیماج قهوه‌ای مذهب",
+     "to": "فرنگی نخودی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 179032,
+   "shelfmark": "3301",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "فرنگی آبی جلد تیماج یشمی",
+     "to": "فرنگی آبی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج یشمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190767,
+   "shelfmark": "4651/3",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "ترمه جلد میشن سیاه",
+     "to": "ترمه"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196040,
+   "shelfmark": "72 - ج",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "سپاهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196155,
+   "shelfmark": "9572",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196157,
+   "shelfmark": "5169",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198803,
+   "shelfmark": "1872/20",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "تیماج تریاکی، مذهب 207گ",
+     "to": "تیماج تریاکی، مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200836,
+   "shelfmark": "10/3-6066",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "سپاهانی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200921,
+   "shelfmark": "28100",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201685,
+   "shelfmark": "5755",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "سمرقندی جلد: تیماج سبز",
+     "to": "سمرقندی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206318,
+   "shelfmark": "561",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "رمضان 1085ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206319,
+   "shelfmark": "6091",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206320,
+   "shelfmark": "27582",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208452,
+   "shelfmark": "NULL",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1268ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 210126,
+   "shelfmark": "2990/4",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215988,
+   "shelfmark": "622",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوای مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222970,
+   "shelfmark": "5401/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225130,
+   "shelfmark": "989/2-طباطبائی",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225712,
+   "shelfmark": "11598/2",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": "تیماج ،مذهب 74گ (51-124)",
+     "to": "تیماج مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228571,
+   "shelfmark": "1564/5",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "سپاهانی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235417,
+   "shelfmark": "8587",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "دولت آبادی جلد: تیماج",
+     "to": "دولت آبادی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235418,
+   "shelfmark": "4313",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235421,
+   "shelfmark": "14264",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "چرم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235423,
+   "shelfmark": "15324",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235424,
+   "shelfmark": "15371",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235429,
+   "shelfmark": "4393",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "درون سوخت معرق طلاپوش (قرن 8)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 246573,
+   "shelfmark": "6645/11",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287596,
+   "shelfmark": "3295",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "اصفهانی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مذهب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304528,
+   "shelfmark": "395",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 21 صفر 1288ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323539,
+   "shelfmark": "7797",
+   "category": "columns",
+   "v2": "changed",
+   "changes": {
+    "paper": {
+     "from": "سمرقندی جلد تیماج مذهب",
+     "to": "سمرقندی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مذهب"
+    }
+   }
+  }
+ ]
+}
