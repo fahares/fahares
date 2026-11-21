@@ -12943,14 +12943,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`people/show.blade.php`:** سطر `life_dates_raw` با `x-show="$store.suggest.on"`.
 - **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.
 
-### گام ۱۴.۲۹۵: `App\Support\PersonNames`، `Work::author_label` و `fahares:follow-person-names`
-- **`PersonNames::follow($person, $old)`:** `works.author_name` را در آثار `author_id` همان شخص با `author_name` برابر نام پیشین و `has_other_authors` نادرست، و `manuscripts.scribe_name` را با همان قاعده (`scribe_id`، `has_other_scribes`) به نام تازه می‌نویسد. برای هر رکورد یک لاگ `verify` با `old_values` همان ستون و `new_values` شامل `followed_person`؛ این کلید به `ProtectedColumns::META_KEYS` افزوده شد. رکوردها `searchable()` می‌شوند.
-- **`Person::booted`، رویداد `updated`:** با `wasChanged(name)`، `follow`؛ با تغییر `name`، `aliases` یا `wrong_names`، `searchable()` آثار `author_id` شخص. بازگرداندن لاگ تغییر نام (`forceFill()->save()`) همین رویداد را در جهت عکس اجرا می‌کند.
-- **`Work::getAuthorLabelAttribute`:** نام شخص پیوندخورده اگر `author_id` هست و `has_other_authors` نیست، وگرنه `author_name`. در `components/manuscript-collection`، `people/show` (دو جا)، `source-pages/show` و `source-items/show`. `Manuscript::collectionSiblings` اکنون `work.author` را بار می‌کند.
-- **`Work::toSearchableArray`:** نام فعلی شخص به `author_name` و `titles_names` افزوده می‌شود.
-- **`fahares:follow-person-names`:** دسته‌های `renamed` (متن برابر نامی که لاگ `verify` یا `update` شخص در `old_values.name` دارد)، `alias`، `spelling`، `several` و `other`. `--apply` دستۀ `renamed` را می‌نویسد، `--aliases` دستۀ `alias` را هم؛ `--reindex` سند جست‌وجوی همۀ آثار شمرده‌شده را دوباره می‌سازد؛ `--person=`.
-- **شمار روی production (پرس‌وجوی فقط‌خواندن با همان قاعده):** renamed ۹، alias ۴۹۶، spelling ۲۸۵، several ۱، other ۸. نسخه‌هایی که `scribe_name` با نام شخص کاتب فرق دارد ۱۲٬۳۱۰ است و فرمان به آن‌ها دست نمی‌زند.
-- **آزمون:** `SuggestionWorkflowTest::test_a_renamed_person_is_named_anew_on_their_works_and_copies`.
 ### گام ۱۴.۲۹۴: تجزیه‌گر v2.6.0 (کاتبان بعدی) و `fahares:add-copy-scribes`
 
 - **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `6fa65ec`):**
@@ -12965,3 +12957,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** «write 60, already 12, several 7, another 4»؛ «Added 145 scribes: 19 linked to a person, 57 to a new person, 69 as a name»؛ اجرای دوم «already 72». پیش از تمرین نهایی، ردیف‌های کاتب این نسخه‌ها از پروداکشن به رونوشت محلی برگردانده شد.
 - **آزمون:** `tests/Feature/AddCopyScribesCommandTest.php` (۲ آزمون).
 
+### گام ۱۴.۲۹۵: `App\Support\PersonNames`، `Work::author_label` و `fahares:follow-person-names`
+- **`PersonNames::follow($person, $old)`:** `works.author_name` را در آثار `author_id` همان شخص با `author_name` برابر نام پیشین و `has_other_authors` نادرست، و `manuscripts.scribe_name` را با همان قاعده (`scribe_id`، `has_other_scribes`) به نام تازه می‌نویسد. برای هر رکورد یک لاگ `verify` با `old_values` همان ستون و `new_values` شامل `followed_person`؛ این کلید به `ProtectedColumns::META_KEYS` افزوده شد. رکوردها `searchable()` می‌شوند.
+- **`Person::booted`، رویداد `updated`:** با `wasChanged(name)`، `follow`؛ با تغییر `name`، `aliases` یا `wrong_names`، `searchable()` آثار `author_id` شخص. بازگرداندن لاگ تغییر نام (`forceFill()->save()`) همین رویداد را در جهت عکس اجرا می‌کند.
+- **`Work::getAuthorLabelAttribute`:** نام شخص پیوندخورده اگر `author_id` هست و `has_other_authors` نیست، وگرنه `author_name`. در `components/manuscript-collection`، `people/show` (دو جا)، `source-pages/show` و `source-items/show`. `Manuscript::collectionSiblings` اکنون `work.author` را بار می‌کند.
+- **`Work::toSearchableArray`:** نام فعلی شخص به `author_name` و `titles_names` افزوده می‌شود.
+- **`fahares:follow-person-names`:** دسته‌های `renamed` (متن برابر نامی که لاگ `verify` یا `update` شخص در `old_values.name` دارد)، `alias`، `spelling`، `several` و `other`. `--apply` دستۀ `renamed` را می‌نویسد، `--aliases` دستۀ `alias` را هم؛ `--reindex` سند جست‌وجوی همۀ آثار شمرده‌شده را دوباره می‌سازد؛ `--person=`.
+- **شمار روی production (پرس‌وجوی فقط‌خواندن با همان قاعده):** renamed ۹، alias ۴۹۶، spelling ۲۸۵، several ۱، other ۸. نسخه‌هایی که `scribe_name` با نام شخص کاتب فرق دارد ۱۲٬۳۱۰ است و فرمان به آن‌ها دست نمی‌زند.
+- **آزمون:** `SuggestionWorkflowTest::test_a_renamed_person_is_named_anew_on_their_works_and_copies`.
