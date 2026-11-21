@@ -12867,3 +12867,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_joined_pieces_export.py --before DIR --copies FILE [--step N]`:** نسخه‌هایی که `copy_date_raw`، `copy_place`، `paper` یا `binding` آن‌ها در v2 با «، …» بلندتر شده یا `copy_date.note` گرفته‌اند (۸۱۴)، با متن به نسخۀ سایت می‌رسند. ستون سایت همان دنباله را می‌گیرد اگر با مقدار پیشین v2 یکی باشد (`tight`)؛ `copy_date_note` تنها اگر تهی باشد. کنار گذاشته: «سایت از پیش دارد» (یادداشت تاریخ ۱۶۳، جلد ۲۰۴، محل ۴۰، کاغذ ۱۶، تاریخ ۴)، مقدار یا یادداشت دیگر ۸، متن غیر یکتا ۴.
 - **پرونده:** `database/data/fankha_joined_pieces_step14_287.json` (۳۸۵ رکورد).
 - **تمرین روی `fahares_prod`:** «Rebuilding 385 copies … dates=1, pointers_linked=6»، اجرای دوم «already 385». تمرین نخست نشان داد تاریخ دوم پس از «قرن N» سال مرتب‌سازی ۹ نسخه را عوض می‌کند؛ با پروندۀ وارونه برگردانده و قاعده اصلاح شد.
+
+### گام ۱۴.۲۸۸: `Insights::underDynasties` و `dynasties['works']`
+
+- **بازآرایی:** شمارش زیر سلسله‌ها از `Insights::dynasties` به `underDynasties(iterable $rows)` رفت (ردیف‌های `place`، `y`، `n` => سلسله‌ها با `count`، `from`، `to`، `cities`، `rule_from`، `rule_to`، `years`، `density`، `share`، `city_kinds`؛ شمار ردیف‌های شهردار؛ شمار زیر یک سلسله؛ و شمار هر سده به تفکیک شهر). برای نسخه‌ها و آثار یکی است.
+- **آثار:** `composition_place` و سال میانۀ `composition_date_from/to` با دامنۀ تا `exact_span` سال. خروجی در `dynasties['works']`: `items`، `kinds`، `counted`، `ruled`، `coverage` (از همۀ آثار دامنه). مخرج سهم، آثار سال‌دار و شهردار همان سال‌هاست.
+- **نما:** `<ul data-insights-dynasties="works-density|works-count|works-share">` کنار سه فهرست نسخه‌ها؛ وضعیت Alpine `{ kind, by }`. دکمۀ «شمردن» تنها وقتی می‌آید که دست‌کم یک اثر (در دامنه: `min_sample` اثر) زیر سلسله‌ای باشد. شهرهای چینش آثار پیوند ندارند (جست‌وجو فیلتر محل تألیف ندارد).
+- **جدول:** `works-by-dynasty` با همان ستون‌های `copies-by-dynasty`.
+- **احتیاط داده:** تنها ۲٫۱٪ آثار این دو آگاهی را دارند و بیشترشان متأخرند؛ شمار بالای عثمانی‌ها از آثاری است که در نجف و کربلا تألیف شده‌اند.
