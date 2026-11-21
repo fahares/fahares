@@ -745,12 +745,10 @@ class SuggestionRegistry
             'language_summary' => ['label' => 'زبان', 'input' => 'text'],
             'work_form' => ['label' => 'قالب (نثر، نظم و…)', 'input' => 'text'],
             'dedication' => ['label' => 'اهدا / به درخواست', 'input' => 'text'],
-            'related_work' => ['label' => 'اثر مرتبط / وابسته به', 'input' => 'textarea'],
             'description' => ['label' => 'معرفی اثر', 'input' => 'textarea'],
             'incipit_text' => ['label' => 'آغاز اثر', 'input' => 'textarea'],
             'explicit_text' => ['label' => 'انجام اثر', 'input' => 'textarea'],
             'print_info' => ['label' => 'چاپ‌ها و سوابق اثر', 'input' => 'textarea'],
-            'commentaries_and_glosses' => ['label' => 'شروح، حواشی و منظومه‌ها', 'input' => 'list'],
             'bibliography' => ['label' => 'مآخذ کتاب‌شناسی', 'input' => 'list'],
             // Where the work's entry starts in Fankha (page_end moves with it); each cited bibliography page gets a
             // bibliography_page_{catalog}_{volume}_{page} field

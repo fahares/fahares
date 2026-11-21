@@ -429,9 +429,11 @@
                             </button>
                         </template>
                         <template x-if="config.directUrl && mode === 'field'">
-                            <button type="button" @click="submitDirect()" :disabled="submitting"
-                                title="فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید"
-                                class="px-4 py-2.5 rounded-sm border border-gold text-cinnabar hover:bg-amber-50 dark:hover:bg-amber-950/30 disabled:opacity-60 font-bold transition">
+                            {{-- adding a title is no typo fix: the same action under its own name (step 14.286) --}}
+                            <button type="button" @click="submitDirect()" :disabled="submitting" data-direct-edit
+                                :title="field.adds ? 'بی‌درنگ افزوده می‌شود، مستند نمی‌خواهد و پیشنهاد یا قول به‌شمار نمی‌آید' : 'فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید'"
+                                class="px-4 py-2.5 rounded-sm border border-gold text-cinnabar hover:bg-amber-50 dark:hover:bg-amber-950/30 disabled:opacity-60 font-bold transition"
+                                x-text="field.adds ? 'افزودن مستقیم' : 'ویرایش مستقیم (غلط تایپی)'">
                                 ویرایش مستقیم (غلط تایپی)
                             </button>
                         </template>

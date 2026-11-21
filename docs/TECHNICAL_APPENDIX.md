@@ -12826,6 +12826,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`trim()` با نویسه‌های عربی:** `trim($text, " \t؛;،.-")` بایتی کار می‌کند و بایت نخست حرفی را که با «؛» و «،» هم‌بایت است (حروف `D8 xx`، مانند «ا» و «ب») از آغاز متن می‌برد. یادداشت پایانی فیلد و برش مدخل اکنون با `preg_replace('/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u', …)` پیراسته می‌شوند.
 - **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
 - **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
+- **اجرای پروداکشن (انتشار ۱۷۱، `4c1d417c`؛ ۳۰ آبان ۱۴۰۵، به تأیید کاربر):** جدول پیش از اجرا تهی بود؛ پشتیبانش (`[]`) در `../fahares-sources/backups/step13/step14_283_work_text_relations_backup.json`. پروندۀ تصمیم از stdin به `/tmp` رفت و پس از هر اجرا پاک شد. `prod-run --wait` (پشت `fahares:rebuild-copies` جلسۀ دیگر)، نخست `--dry-run` و سپس اجرا، هر دو با همین شمارها: works 11209، entries 20916، linked 14202، linked words differ 364، proposed 333، rejected 0، tied to no work 6381، with a verdict of the judging 1804، notes 2؛ «Tied by: auto 13635, model 567»؛ «Saved: 20918 rows of the catalogue; 0 of works with no text any more removed». وارسی: سطرها `linked/auto` ۱۳٬۶۳۵، `linked/model` ۵۶۷، `proposed/review` ۳۳۳، بی `link_status` ۶٬۳۸۳ (با ۲ یادداشت)؛ آثارِ دارای متن ۱۱٬۲۰۹ و آثارِ دارای سطر `catalogue` ۱۱٬۲۰۹؛ `work_relations` همان auto ۱۰٬۶۷۶، model ۲۳۶، suggestion ۱. تفاوت با تمرین محلی (۱۴٬۲۰۹ پیونددار) به احتمال از رابطه‌هایی است که `works:link-related` در پروداکشن هنوز با کد تازه ننوشته (۱۰٬۶۷۶ در برابر ۱۰٬۶۸۰)؛ اجرای آن فرمان پس از انتشار گام ۱۴.۲۸۵ سطرها را هم می‌بندد.
 
 ### گام ۱۴.۲۸۴: `storageQuotaExceeded` در مخزن restic، کار `prune` و `RCLONE_DRIVE_USE_TRASH`
 
@@ -12847,6 +12848,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مانده:**
   - `media` تا افزایش گنجایش Drive خاموش است و `last.json` آن `failed` می‌ماند، پس `watch` هر روز هشدار می‌دهد.
   - نخستین `media` پس از روشن شدن حدود ۱۰ گیگابایت بارگذاری می‌کند.
+
+### گام ۱۴.۲۸۵: `WorkCatalogueEntries` و حذف `works.related_work`، `works.commentaries_and_glosses` و `work_entry_links`
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):**
+  - `fromTexts($work, $related, $children)`: سطرهای دو متن. مدخل تکِ «وابسته به» همان متن فیلد است؛ در فیلد چندمدخلی، برش هر مدخل (`slices`)؛ فیلد بی مدخل یک سطر؛ یادداشت پایانی سطر `type = note` با `position = 999`؛ هر سطر «شروح و حواشی» یک سطر با نوع نخستین مدخلش.
+  - `sync($work, $related, $children)`: سطر هم‌سو و هم‌متن می‌ماند (با پیوندش) و فقط `position`، `type` و `entry_key` آن تازه می‌شود؛ بقیه افزوده و سطرهای نیامده پاک می‌شوند؛ سپس `tie()`. سویی که `false` داده شود دست نمی‌خورد. `relatedIs()` برای واردکننده: آیا سطرهای «وابسته به» همان‌اند که این متن می‌دهد.
+  - `tie($work)`: همان قاعدۀ `linkedEntries` پیشین روی سطرها: مدخل به اثری از `work_relations` می‌رسد که کلید یکی از عنوان‌هایش (یا آغاز عنوانِ نام‌چسبیده) را دارد. در `children` هر اثر یک مدخل دارد: آن که پدیدآور را نام برده، وگرنه نخستین. سطر `linked` با `link_source` جز `auto` دست نمی‌خورد و اثرش از آنِ سطر دیگری نمی‌شود. نامزدی که داور رد کرده دوباره همان پیوند را نمی‌گیرد. سطری که قاعده دیگر نمی‌بندد باز می‌شود.
+  - `page($work)`: `printed` (سطر `linked` با `differs`)، `unlinked` (هر سطر جز `linked` و `note`) و `notes`.
+  - `wordsDiffer()` و `linkedPart()`: همان سنجش «در فهرست» گام ۱۴.۲۷۷.
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):** `pairs()` مدخل‌ها را از سطرهای `source = catalogue` (جز `note`) می‌خواند، به ترتیب اثر، سو و جا. `linkedEntries()` و `pageRows()` برداشته شدند؛ `typeOf()` و `SUFFIX_MIN` عمومی شدند.
+- **[LinkRelatedWorksCommand](../app/Console/Commands/LinkRelatedWorksCommand.php):** پس از ذخیره، `tie()` برای هر اثری که سطر فهرست دارد؛ خط «Entries: N tied or untied».
+- **[LinkDecidedWorksCommand](../app/Console/Commands/LinkDecidedWorksCommand.php):** سطر تصمیم با «اثر > سو > `entry_key`» پیدا می‌شود (کمانک تاریخ پایانی متن پرونده برداشته می‌شود). پیوند: `link_source = model`، `confidence = 80`، `differs`. سطرهای `model` که دیگر در پرونده نیستند باز می‌شوند و `tie()` برای اثرشان اجرا می‌شود. `--proposals` فقط سطر بی `link_status` را `proposed` می‌کند.
+- **[WorkEntryLink](../app/Models/WorkEntryLink.php)** اکنون مدل همان جدول است (`$table = work_text_relations`، دامنۀ `review()`)؛ **[WorkEntryLinkController](../app/Http/Controllers/Admin/WorkEntryLinkController.php)** با `link_status`، `link_source` و `text` کار می‌کند و «وابسته به»ی اثر پیشنهادی را از سطرهای خود آن اثر می‌خواند.
+- **واردکننده‌ها:** `AddCorpusWorksCommand::makeWork` دو متن را از ستون‌ها جدا و `sync` می‌کند؛ در به‌روزرسانی، `related_work` با `relatedIs()` سنجیده و با `sync($work, $text, false)` نوشته می‌شود. `SyncWorkDetailsCommand` دو کلید را پس از `ProtectedColumns::strip` از بارِ `works` جدا می‌کند.
+- **[Work::baseTitles](../app/Models/Work.php):** عنوان‌های مدخل‌های سطرهای `related`؛ `casts` دیگر `commentaries_and_glosses` ندارد. `SuggestionRegistry` و `CleanPageMarkersCommand` دو فیلد را ندارند. بازگردانی ممیزی، کلیدهای `related_work` و `commentaries_and_glosses` یک تغییر کهنه را نادیده می‌گیرد.
+- **migration `2026_11_21_100002_drop_related_work_texts_from_works`:** در محیط `production`، اگر شمار آثارِ دارای یکی از دو متن بیش از شمار آثارِ دارای سطر `catalogue` باشد، `RuntimeException` می‌دهد. سپس `dropColumn` و `dropIfExists('work_entry_links')`. `down()` دو ستون را تهی برمی‌گرداند.
+- **آزمون‌ها:** `TestCase::workWithTexts()` دو کلید را از ویژگی‌های اثر جدا و `sync` می‌کند. [WorkCatalogueEntriesTest](../tests/Feature/WorkCatalogueEntriesTest.php) تازه است؛ `LinkRelatedWorksTest`، `LinkDecidedWorksTest` و `WorkBaseTitlesTest` با آن بازنویسی شدند؛ `MaterializeRelatedWorksTest` حذف شد.
+- **تمرین روی `fahares_prod` (۳۰ آبان ۱۴۰۵):**
+  - پشتیبان دو ستون رونوشت محلی: `fahares-sources/backups/step13/local_fahares_prod_related_texts_20261121.json`.
+  - پس از حذف ستون‌ها، `works:link-related`: «10677 relations: 0 to add, 3 to remove»: سه رابطۀ #24104، #24105 و #55734، از خطای بازسازی متن مدخل. پس از اصلاح و نوشتن دوبارۀ همان سه اثر: «10680 relations: 3 to add»، سپس «0 to add, 0 to remove» و «Entries: 0 tied or untied».
+  - `works:link-decisions --proposals`: «573 entries: 6 to add, 0 to remove, 567 kept»، «236 relations: 0 to add»، «0 proposals to add»؛ اجرای دوم همه صفر.
+  - پایان: سطرها auto ۱۳٬۶۴۰، model ۵۷۳، proposed ۳۳۳، بی‌پیوند ۶٬۳۷۲ (با ۲ یادداشت)؛ رابطه‌ها auto ۱۰٬۶۸۰، model ۲۳۶، suggestion ۱؛ صفحه‌ها روی هم ۳۶۵ «در فهرست»، ۶٬۷۰۳ سطر بی‌پیوند و ۲ یادداشت؛ صف ۳۳۳.
+  - مرورگر: #52424 (۱۹۴ سطر، ۹۰ بی‌پیوند)، #3969، #19305 و #24104 («ترجمه‌ای است از: الحشائش» و «ترجمه: مسیحی، مهران بن منصور (قرن ۶) · بی پیوند»).
+- **ترتیب انتشار:** نخست گام ۱۴.۲۸۳ منتشر و `works:materialize-related` در تولید اجرا شود (درست پیش از این انتشار، تا تصمیم‌های تازۀ صف پنل هم بیاید)؛ سپس این شاخه. دستور داده‌ای پس از استقرار ندارد.
 
 ### گام ۱۴.۲۸۶: `pair` و فیلدهای `alternative_title_*` در `SuggestionRegistry`
 - **`pair`:** گزینۀ تازۀ یک فیلد، مقداری که با مقدار خود فیلد می‌آید. `primary_title` آن را با `column` برابر `transliteration` دارد. فرم عمومی `pair_value` می‌فرستد و `SuggestionController::store` آن را در `payload.pair` و مقدار همان لحظۀ رکورد را در `payload.pair_current` نگه می‌دارد. فرمی که `pair_value` نفرستد چیزی از آوانگاری عوض نمی‌کند.
@@ -12875,3 +12899,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `<ul data-insights-dynasties="works-density|works-count|works-share">` کنار سه فهرست نسخه‌ها؛ وضعیت Alpine `{ kind, by }`. دکمۀ «شمردن» تنها وقتی می‌آید که دست‌کم یک اثر (در دامنه: `min_sample` اثر) زیر سلسله‌ای باشد. شهرهای چینش آثار پیوند ندارند (جست‌وجو فیلتر محل تألیف ندارد).
 - **جدول:** `works-by-dynasty` با همان ستون‌های `copies-by-dynasty`.
 - **احتیاط داده:** تنها ۲٫۱٪ آثار این دو آگاهی را دارند و بیشترشان متأخرند؛ شمار بالای عثمانی‌ها از آثاری است که در نجف و کربلا تألیف شده‌اند.
+- **اجرا در پروداکشن (۲۱ نوامبر ۲۰۲۶، همه با `scripts/dev/prod-run --wait jolly-tharp`):**
+  - پشتیبان با `tinker` مستقیم به لپ‌تاپ (چیزی در کانتینر نوشته نشد): سطر کامل ۱٬۱۷۳ نسخه و ۱٬۱۵۸ سطر `manuscript_script`.
+  - `fankha_repaired_labels_step14_282.json`: «write 586, shelfmark differs 1 (#334896)»، «dates=173, pointers_linked=13».
+  - `fankha_label_fixes_text_step14_282.json`: «write 599, shelfmark differs 1 (#334896)»، «extents=5, lines=87, pointers_linked=8».
+  - `fahares:rebuild-scripts --sync-search`: ۷ نسخه (تحریری ۲، نسخ + پهلوی ۱، پهلوی ۱، سیاق ۱، نسخ ۱، نستعلیق ۱)؛ «Re-indexed 7 manuscripts».
+  - `fankha_joined_pieces_step14_287.json`: «write 385»، «dates=1, pointers_linked=6».
+
+### گام ۱۴.۲۸۹: `fankha_v2_copy_notes_export.py` و تکه‌های نپیوسته
+
+- **برون‌بری (`fahares-corpus`):** سطر دارای «c» در `fankha_note_types.jsonl` دیگر کنار نمی‌رود؛ `CONTINUES` فیلد را به نوع یادداشت می‌برد (پیش‌فرض `other`)، `typed_by` همان مدل است. تکۀ با کمتر از چهار حرف (`letters`) کنار می‌ماند. نوع‌های `date_guess` و `scribe_guess` خود تجزیه‌گر، وقتی مدل نوعی نداده، `transcription` می‌شوند (۷ یادداشت).
+- **خروجی کامل:** ۱۸۹٬۴۱۸ نسخه و ۳۴۷٬۱۹۹ یادداشت. سنجش با `manuscript_notes` رونوشت پروداکشن: ۳۶۰ نسخۀ تازه، ۱٬۸۳۳ دگرگون، ۱۸۲ نسخه که دیگر یادداشتی ندارند (در پرونده نمی‌آیند؛ فرمان سطر بی یادداشت نمی‌پذیرد).
+- **پرونده:** `database/data/copy_notes_step14_289.jsonl.gz` (۲٬۱۹۳ سطر، تنها نسخه‌های دگرگون). شناسه‌های ۳۳۴۸۹۴ به بالا، که در پروداکشن یکی کمترند، در آن نیستند.
+- **تمرین:** `fahares:import-copy-notes --file=… --apply` → «new 360, changed 1832, same 1»؛ اجرای دوم «same 2193». `fahares:index-note-types` بی `--apply`: ۱۸۹٬۶۰۰ نسخه با یادداشت.
+- **شناسه‌های انتهای جدول:** چهار نسخۀ آخر `manuscripts` در رونوشت محلی شناسه‌ای یکی بیشتر از پروداکشن دارند (۳۳۴۸۹۵ تا ۳۳۴۸۹۸ محلی = ۳۳۴۸۹۴ تا ۳۳۴۸۹۷ پروداکشن). در گام ۱۴.۲۸۲ رکورد ۳۳۴۸۹۶ با «shelfmark differs» رد شد؛ همان دو تغییر با پروندۀ تک‌رکوردی و پشتیبان روی شناسۀ ۳۳۴۸۹۵ پروداکشن اجرا شد (۲۱ نوامبر ۲۰۲۶).
+

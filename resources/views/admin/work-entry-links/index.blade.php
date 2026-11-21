@@ -35,7 +35,7 @@
                         <div class="text-muted">اثر دیگر وجود ندارد.</div>
                     @endif
                     <div class="pt-2 text-[11px] text-muted">مدخل در «{{ $link->side === 'related' ? 'وابسته به' : 'شروح و حواشی' }}»</div>
-                    <div class="px-3 py-2 bg-paper border border-s-4 border-gold leading-7">{{ Fa::digits($link->entry) }}</div>
+                    <div class="px-3 py-2 bg-paper border border-s-4 border-gold leading-7">{{ Fa::digits($link->text) }}</div>
                     <div class="text-muted">{{ WorkEntryLinkController::SIDES[$link->side] ?? $link->side }}</div>
                 </div>
                 <div class="min-w-0 space-y-1">
@@ -55,8 +55,8 @@
                                 $found->manuscripts_count ? Fa::num($found->manuscripts_count) . ' نسخه' : null,
                             ])) }}
                         </div>
-                        @if($found->related_work)
-                            <div class="text-muted leading-6">وابسته به: {{ Fa::digits(\Illuminate\Support\Str::limit($found->related_work, 220)) }}</div>
+                        @if($base = $madeOn[$found->id] ?? null)
+                            <div class="text-muted leading-6">وابسته به: {{ Fa::digits(\Illuminate\Support\Str::limit($base, 220)) }}</div>
                         @endif
                     @else
                         <div class="text-muted">اثر دیگر وجود ندارد.</div>
@@ -68,7 +68,7 @@
                 <div class="text-xs text-muted leading-6">دلیل مدل: <span dir="ltr" class="inline-block">{{ $link->why }}</span></div>
             @endif
 
-            @if($link->status === WorkEntryLink::PROPOSED)
+            @if($link->link_status === WorkEntryLink::PROPOSED)
                 <div class="flex flex-wrap gap-2">
                     <form method="POST" action="{{ route('admin.work-entry-links.link', $link) }}">@csrf
                         <button class="px-3 py-1.5 bg-ink text-paper text-xs font-bold">پیوند بده</button>
@@ -79,7 +79,7 @@
                 </div>
             @else
                 <div class="flex flex-wrap items-center gap-3 text-xs text-muted">
-                    <span>{{ WorkEntryLink::STATUSES[$link->status] ?? $link->status }} @if($link->decider) · {{ $link->decider->name }} @endif</span>
+                    <span>{{ WorkEntryLink::STATUSES[$link->link_status] ?? $link->link_status }} @if($link->decider) · {{ $link->decider->name }} @endif</span>
                     <form method="POST" action="{{ route('admin.work-entry-links.reopen', $link) }}">@csrf
                         <button class="px-2 py-1 border border-line">بازگشایی</button>
                     </form>

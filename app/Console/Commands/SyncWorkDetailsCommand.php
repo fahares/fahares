@@ -196,6 +196,13 @@ class SyncWorkDetailsCommand extends Command
                             'page_start' => $w['page_start'],
                             'page_end' => $w['page_end'],
                         ]);
+                        // the two texts of related works are rows of their own (WorkCatalogueEntries, step 14.285)
+                        $texts = array_intersect_key($payload, ['related_work' => 0, 'commentaries_and_glosses' => 0]);
+                        $payload = array_diff_key($payload, $texts);
+                        if ($texts && ($model = Work::find($w['id']))) {
+                            \App\Support\WorkCatalogueEntries::sync($model, array_key_exists('related_work', $texts) ? $texts['related_work'] : false,
+                                array_key_exists('commentaries_and_glosses', $texts) ? (json_decode((string) $texts['commentaries_and_glosses'], true) ?: []) : false);
+                        }
                         if ($payload) {
                             DB::table('works')->where('id', $w['id'])->update($payload);
                             $synced['works'][] = $w['id'];
