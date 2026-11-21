@@ -12957,4 +12957,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پرونده:** `database/data/copy_scribes_step14_294.json` (۸۳ رکورد، ۱۶۳ کاتب).
 - **تمرین روی `fahares_prod`:** «write 60, already 12, several 7, another 4»؛ «Added 145 scribes: 19 linked to a person, 57 to a new person, 69 as a name»؛ اجرای دوم «already 72». پیش از تمرین نهایی، ردیف‌های کاتب این نسخه‌ها از پروداکشن به رونوشت محلی برگردانده شد.
 - **آزمون:** `tests/Feature/AddCopyScribesCommandTest.php` (۲ آزمون).
+- **اجرا در پروداکشن (۲۱ نوامبر ۲۰۲۶):** پشتیبان با `tinker` مستقیم به لپ‌تاپ؛ `scripts/dev/prod-run --wait jolly-tharp -- '… fahares:add-copy-scribes --file=… --apply'` همان خروجی تمرین را داد.
+
+### گام ۱۴.۲۹۷: `fahares:tidy-copy-scribes`
+
+- **`app/Console/Commands/TidyCopyScribesCommand.php`:** نسخه‌های پرونده که در `audit_logs` سطر `corpus_update` با `"category":"scribes"` دارند. ردیف‌های `manuscript_people` همان نسخه که از پنج ثانیه پیش از آن سطر به بعد ساخته یا به‌روز شده‌اند و شخص دارند داوری می‌شوند؛ شخصی که خودش از همان زمان ساخته شده کنار است.
+- **`doubt()`:** بازۀ `copy_date_from` تا `copy_date_to` نسخه‌های دیگر آن شخص (نقش کاتب). «بیش از `SPAN` = ۱۰۰ سال» یا «سال این ردیف (نخستین عدد سه یا چهار رقمی یادداشت، وگرنه `copy_date_from` نسخه) بیش از `MARGIN` = ۶۰ سال بیرون از بازه» → `person_id` تهی، `name` نام شخص، و `manuscripts.scribe_id` تهی اگر ردیف صفر باشد. `AuditLog` با `category: scribe_unlinked`.
+- **برداشتن:** `Person::where('name', old_values.scribe_name)` از همان سطر ممیزی، اگر `RecordRemover::blockers()` تهی باشد: `RecordRemover::remove()` و سطر `remove` با `redirect_work_id` اثر نسخه (همان راهی که `goneResponse()` از گام ۱۴.۲۳۵ می‌شناسد).
+- **تمرین روی `fahares_prod`:** «Unlinked 14 scribes and removed 41 people, of 60 copies»؛ اجرای دوم «0 و 0». یک شخص («مظفر دماوندی، ملقب به قاضی…») نسخۀ دیگری دارد و ماند.
+- **آزمون:** `AddCopyScribesCommandTest::test_the_tidy_command_removes_the_lists_person_and_unlinks_a_name_many_share`.
 
