@@ -131,7 +131,7 @@ final class PersonOrigins
                     $after = ltrim(mb_strcut($text, $match[1][1] + strlen($raw), 80));
                     $place = $name === 'مشهد' ? self::shrine($after) : $cityOf[$name];
                     if ($place !== null) {
-                        $found[$kind . '|' . $place] ??= ['kind' => $kind, 'city' => $place, 'text' => trim($match[0][0])];
+                        $found[$kind . '|' . $place] ??= ['kind' => $kind, 'city' => $place, 'text' => self::clause($text, $match[0][1], strlen($match[0][0]))];
                     }
                 }
             }
@@ -157,6 +157,17 @@ final class PersonOrigins
             (bool) preg_match('/^کاظم/u', $word) => 'کاظمین',
             default => null,
         };
+    }
+
+    /** The words around what was found, up to the marks that end a clause, for a reviewer to judge the reading by */
+    private static function clause(string $text, int $at, int $length): string
+    {
+        $before = mb_strcut($text, max(0, $at - 120), min(120, $at));
+        $after = mb_strcut($text, $at + $length, 120);
+        $before = preg_replace('/^.*[.؛:!?؟]/us', '', $before);
+        $after = preg_replace('/[.؛:!?؟].*$/us', '', $after);
+
+        return trim($before . mb_strcut($text, $at, $length) . $after);
     }
 
     /** @return array{0: string, 1: array<string, string>} */

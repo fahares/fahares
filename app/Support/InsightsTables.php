@@ -156,15 +156,15 @@ class InsightsTables
         usort($works, fn ($a, $b) => $b[1] <=> $a[1]);
 
         // The people of the map (backlog item 137): the scribes and the authors of each city, each once per city
-        $people = array_map(fn ($city) => [$city['name'], $city['scribes'], $city['authors'], $city['origins'], $city['births'], $city['deaths'], $city['count'], $city['works']],
-            array_filter($this->data['places']['cities'], fn ($city) => $city['scribes'] + $city['authors'] + $city['origins'] + $city['births'] + $city['deaths'] > 0));
+        $people = array_map(fn ($city) => [$city['name'], $city['scribes'], $city['authors'], $city['origins'], $city['births'], $city['deaths'], $city['residences'], $city['count'], $city['works']],
+            array_filter($this->data['places']['cities'], fn ($city) => $city['scribes'] + $city['authors'] + $city['origins'] + $city['births'] + $city['deaths'] + $city['residences'] > 0));
         usort($people, fn ($a, $b) => [$b[1], $b[2]] <=> [$a[1], $a[2]]);
 
         return [
             self::table('نسخه‌ها بر پایۀ محل کتابت', 'copy-places', $columns('همۀ نسخه‌ها'), $rows('count', 'centuries')),
             self::table('آثار بر پایۀ محل تألیف', 'composition-places', $columns('همۀ آثار'), $works),
             self::table('اشخاص هر شهر', 'people-places', [['شهر', 'text'], ['کاتب', 'num'], ['مؤلف', 'num'], ['با نسبت این شهر', 'num'], ['زادۀ این شهر', 'num'],
-                ['درگذشته در این شهر', 'num'], ['نسخه', 'num'], ['اثر', 'num']], $people),
+                ['درگذشته در این شهر', 'num'], ['ساکن این شهر', 'num'], ['نسخه', 'num'], ['اثر', 'num']], $people),
         ];
     }
 

@@ -5,7 +5,7 @@
  * for the city that is clicked. ECharts and the base map are fetched when the map comes into view; until then, and
  * without script, the page shows the still map it was sent with.
  *
- * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad, o, od, b, bd, x, xd}: for each layer its whole count and its counts by decade,
+ * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad, o, od, b, bd, x, xd, r, rd}: for each layer its whole count and its counts by decade,
  * [[the year the decade ends in, count], …]. A copy is «by a year» once the whole range of its date has passed.
  */
 const LAYERS = {
@@ -17,6 +17,8 @@ const LAYERS = {
     origin: { total: 'o', decades: 'od', unit: 'شخص', row: 'با نسبت این شهر', color: '--ink' },
     birth: { total: 'b', decades: 'bd', unit: 'شخص', row: 'زادۀ این شهر', color: '--gold' },
     death: { total: 'x', decades: 'xd', unit: 'شخص', row: 'درگذشته در این شهر', color: '--muted' },
+    // The periods of residence the lives name (person_periods, step 14.291)
+    residence: { total: 'r', decades: 'rd', unit: 'شخص', row: 'ساکن این شهر', color: '--cinnabar' },
 };
 import { regionColor } from './insights-regions';
 

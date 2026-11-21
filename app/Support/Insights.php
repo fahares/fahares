@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Helpers\TextNormalizer;
 use App\Models\Person;
+use App\Models\PersonPeriod;
 use App\Models\SourceEntry;
 use App\Models\Work;
 use Illuminate\Support\Facades\Cache;
@@ -30,7 +31,8 @@ class Insights
     // v13: every dynasty's count, for the chart of rows (step 14.278)
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
-    private const CACHE_KEY = 'insights.v15';
+    // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
+    private const CACHE_KEY = 'insights.v16';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -453,7 +455,7 @@ class Insights
         $list = [];
         foreach ($cities as $name => $info) {
             [$x, $y] = self::project($config[$name]['lat'], $config[$name]['lon']);
-            foreach (['decades', 'work_decades', 'scribe_decades', 'author_decades', 'origin_decades', 'birth_decades', 'death_decades'] as $key) {
+            foreach (['decades', 'work_decades', 'scribe_decades', 'author_decades', 'origin_decades', 'birth_decades', 'death_decades', 'residence_decades'] as $key) {
                 ksort($info[$key]);
             }
             $list[] = ['name' => $name, 'x' => $x, 'y' => $y, 'lat' => $config[$name]['lat'], 'lon' => $config[$name]['lon']] + $info;
@@ -478,6 +480,7 @@ class Insights
             'origins_mapped' => $origins[PersonOrigins::ORIGIN],
             'births_mapped' => $origins[PersonOrigins::BIRTH],
             'deaths_mapped' => $origins[PersonOrigins::DEATH],
+            'residences_mapped' => $origins['residence'],
             'lives_read' => $origins['lives'],
             'composition' => [
                 'cities' => count(array_filter($list, fn ($c) => $c['works'] > 0)),
@@ -1548,14 +1551,15 @@ class Insights
     // A city of the map with nothing counted in it yet
     private const CITY = ['count' => 0, 'centuries' => [], 'works' => 0, 'work_centuries' => [], 'decades' => [], 'work_decades' => [],
         'scribes' => 0, 'scribe_decades' => [], 'authors' => 0, 'author_decades' => [],
-        'origins' => 0, 'origin_decades' => [], 'births' => 0, 'birth_decades' => [], 'deaths' => 0, 'death_decades' => []];
+        'origins' => 0, 'origin_decades' => [], 'births' => 0, 'birth_decades' => [], 'deaths' => 0, 'death_decades' => [],
+        'residences' => 0, 'residence_decades' => []];
 
     /**
      * Where the authors and scribes of the scope were from, were born and died (PersonOrigins, backlog item 137, step
      * 14.276): from the nisbas of their names and from their entries in the biographical dictionaries. Each person
      * once per city and kind, in the decade of the death (or of the last copy written): «by a year» they have lived.
      *
-     * @return array{origin: int, birth: int, death: int, lives: int} the persons of each kind, and those with a life read
+     * @return array{origin: int, birth: int, death: int, residence: int, lives: int} the persons of each kind, and those with a life read
      */
     private static function origins(InsightsScope $scope, array &$cities): array
     {
@@ -1583,8 +1587,24 @@ class Insights
             }
         }
 
+        // The reviewers' word comes first (person_periods, step 14.291): a reading they rejected is dropped, and a
+        // place they approved or the machine proposed is counted; the periods of residence are a layer of their own
+        $periods = DB::table('person_periods')->joinSub($ids(), 'scope_people', 'scope_people.id', '=', 'person_periods.person_id')
+            ->whereNotNull('person_periods.city')->whereIn('person_periods.kind', [...PersonPeriod::PLACE_KINDS, 'residence'])
+            ->get(['person_periods.person_id', 'person_periods.kind', 'person_periods.city', 'person_periods.status']);
+        foreach ($periods as $period) {
+            if (! CopyPlaces::isCity($period->city)) {
+                continue;
+            }
+            if ($period->status === PersonPeriod::REJECTED) {
+                unset($found[$period->kind][$period->city][$period->person_id]);
+            } else {
+                $found[$period->kind][$period->city][$period->person_id] = true;
+            }
+        }
+
         $sums = ['lives' => count($lives)];
-        foreach ([PersonOrigins::ORIGIN => 'origin', PersonOrigins::BIRTH => 'birth', PersonOrigins::DEATH => 'death'] as $kind => $key) {
+        foreach ([PersonOrigins::ORIGIN => 'origin', PersonOrigins::BIRTH => 'birth', PersonOrigins::DEATH => 'death', 'residence' => 'residence'] as $kind => $key) {
             $persons = [];
             foreach ($found[$kind] ?? [] as $city => $list) {
                 $cities[$city] ??= self::CITY;
