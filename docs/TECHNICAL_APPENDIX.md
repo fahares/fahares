@@ -13055,11 +13055,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 18» و سپس «already 18»؛ `tidy-copy-scribes` «removed 2 people»؛ دو `rebuild-copies` هر کدام «write 8» و سپس «already 8»؛ `rebuild-scripts --dry-run` چیزی از این نسخه‌ها نیاورد.
 - **آزمون:** `AddCopyScribesCommandTest` چهار آزمون.
 
-### گام ۱۴.۳۰۷: قلم Mtif Lotus برای متن منابع
-
-- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2`، `MtifLotus-Bold.woff2`، `MtifLotus-Italic.woff2` و `MtifLotus-BoldItalic.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`؛ معمولی و سیاه هر کدام ~۴۰ KB به‌جای ~۹۲ KB، دو ایتالیک ~۳۳ KB)، با چهار `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
-- **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
-- **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
 ### گام ۱۴.۳۰۶: `ManuscriptCreator` و فرم «نسخۀ تازه»
 
 - **migration `2026_11_21_300001_allow_records_without_a_fankha_place`:** `catalog_id` (پیش‌فرض ۱ می‌ماند)، `volume_number` و `page_start` در `manuscripts` و `works` اختیاری می‌شوند (یک `ALTER TABLE … MODIFY` برای هر جدول). رکورد پنل هر سه را تهی دارد؛ **`catalog_id` تهی نشانۀ «این رکورد از فنخا نیست»** است. `down()` اگر چنین رکوردی باشد خطا می‌دهد.
@@ -13083,4 +13078,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/Admin/NewManuscriptTest.php`، ۸ آزمون: دسترسی؛ نسخه زیر اثر موجود با شمارها و صفحه؛ اثر تازه و بی‌عنوان؛ هشدار تکراری؛ جزء دیگر مجموعه و کلید نسخۀ همراه؛ کارت فهرست چاپی؛ بازگرداندن؛ و دوام در برابر `DerivedData::syncCopies`، `fahares:refresh-derived --apply`، `SourceEntrySync::syncIds` و `fahares:rebuild-copies`.
 - **پیش‌نمایش:** روی `fahares_test` با رکوردهای موقت (پاک شدند). اجرای هم‌زمان آزمون نشست دیگر پایگاه را از نو ساخت و رکوردها را برد؛ پیش‌نمایش پس از آزادشدن قفل `test-suite` تکرار شد.
 - **انتشار:** migration در استقرار خودکار اجرا می‌شود و دو جدول بزرگ را بازسازی می‌کند. فرمان دادۀ پس از استقرار ندارد.
+
+### گام ۱۴.۳۰۷: قلم Mtif Lotus برای متن منابع
+
+- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2`، `MtifLotus-Bold.woff2`، `MtifLotus-Italic.woff2` و `MtifLotus-BoldItalic.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`؛ معمولی و سیاه هر کدام ~۴۰ KB به‌جای ~۹۲ KB، دو ایتالیک ~۳۳ KB)، با چهار `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
+- **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
+- **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
 
