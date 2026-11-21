@@ -208,6 +208,16 @@
                 </x-ui.section>
             @endif
 
+            {{-- The city a nisba of the name points to (PersonOrigins, backlog item 137, step 14.291): read by rule, shown as such --}}
+            @php $nisbaCities = \App\Support\PersonOrigins::fromName($person->name); @endphp
+            @if($nisbaCities)
+                <p class="text-sm text-muted" data-person-nisba>
+                    <span class="text-xs font-bold text-cinnabar">نسبت نام</span>
+                    <span class="text-ink">{{ implode('، ', $nisbaCities) }}</span>
+                    <span class="text-xs">خوانده‌شده از نام، بی بازبینی. نسبت خاستگاه شخص یا خاندان اوست و گاه از پدر یا استاد است؛ زادگاه یا محل زندگی را نمی‌گوید.</span>
+                </p>
+            @endif
+
             {{-- Where the person was and when, read from their dated copies and works that name a place (item 139, step 14.207) --}}
             @php $places = \App\Support\PersonPlaces::for($person); @endphp
             @if($places)

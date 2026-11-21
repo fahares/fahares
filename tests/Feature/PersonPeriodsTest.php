@@ -119,7 +119,7 @@ class PersonPeriodsTest extends TestCase
         $volume = \App\Models\SourceVolume::create(['source_id' => $source->id, 'volume_number' => 2, 'facsimile_code' => $code]);
         $item = \App\Models\SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 2, 'item_key' => '77#1', 'position' => 77, 'kind' => 'entry',
             'page_start' => 77, 'page_end' => 77, 'title' => $person->name, 'title_normalized' => $person->name, 'text_status' => 'auto',
-            'text' => 'فقيه اصولي. ولد ببغداد. ثم انتقل الى طهران سنة 1250، و بقى فيها. و تولى القضاء بحلب. و توفي بدمشق.'])->id;
+            'text' => 'فقيه اصولي. ثم انتقل الى طهران سنة 1250، و بقى فيها. و تولى القضاء بحلب.'])->id;
         $entry = DB::table('source_entries')->insertGetId(['citable_type' => Person::class, 'citable_id' => $person->id, 'source_id' => $source->id, 'source_item_id' => $item,
             'volume_number' => 2, 'page_start' => 77, 'role' => 'entry', 'origin' => 'match', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
 
@@ -179,5 +179,32 @@ class PersonPeriodsTest extends TestCase
 
         $log = AuditLog::where('action', 'merge')->where('auditable_type', Person::class)->latest('id')->first();
         $this->assertSame([$period->id], $log->old_values['transferred_period_ids'] ?? $log->new_values['transferred_period_ids'] ?? null);
+    }
+
+    public function test_the_cities_of_birth_death_and_origin_of_a_biography_are_proposed_too()
+    {
+        $person = $this->person('شخص آزمایشی زادگاه و وفات');
+        $code = 'period-test-' . uniqid();
+        $source = \App\Models\Source::create(['code' => $code, 'kind' => \App\Models\Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'معجم آزمایشی زادگاه', 'short_name' => 'معجم آزمایشی زادگاه']);
+        $volume = \App\Models\SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => $code]);
+        $item = \App\Models\SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 1, 'item_key' => '5#1', 'position' => 5, 'kind' => 'entry',
+            'page_start' => 5, 'page_end' => 5, 'title' => $person->name, 'title_normalized' => $person->name, 'text_status' => 'auto',
+            'text' => 'فقيه، من أهل أستراباد. ولد ببغداد سنة 1200. و توفي بدمشق.'])->id;
+        DB::table('source_entries')->insert(['citable_type' => Person::class, 'citable_id' => $person->id, 'source_id' => $source->id, 'source_item_id' => $item,
+            'volume_number' => 1, 'page_start' => 5, 'role' => 'entry', 'origin' => 'match', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
+
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true])->assertSuccessful();
+        $proposals = PersonPeriod::where('person_id', $person->id)->orderBy('kind')->get();
+
+        $this->assertSame([['birth', 'بغداد', 'تولد'], ['death', 'دمشق', 'وفات'], ['origin', 'استرآباد', 'خاستگاه']],
+            $proposals->map(fn ($p) => [$p->kind, $p->city, $p->kind_label])->all());
+        $this->assertSame(['proposed', 'machine', 'معجم آزمایشی زادگاه 1: 5'], [$proposals[0]->status, $proposals[0]->origin, $proposals[0]->source_text]);
+        // the clause the reading stands in, for the reviewer
+        $this->assertStringContainsString('ولد ببغداد', $proposals[0]->note);
+        // readers see none of it until a reviewer saves it; then it is a line of the person's page
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertDontSee('بغداد');
+        $this->actingAs($this->admin)->put(route('admin.people.periods.update', [$person->id, $proposals[0]->id]),
+            ['kind' => 'birth', 'place' => 'بغداد', 'mode' => 'point', 'start' => 1200, 'source_text' => 'معجم آزمایشی زادگاه 1: 5'])->assertRedirect();
+        $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('تولد')->assertSee('بغداد')->assertDontSee('دمشق');
     }
 }

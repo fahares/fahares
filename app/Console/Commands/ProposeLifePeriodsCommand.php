@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Person;
 use App\Models\PersonPeriod;
 use App\Support\LifePeriodExtractor;
+use App\Support\PersonOrigins;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,8 @@ use Illuminate\Support\Facades\DB;
  * periods of their lives, and files what it finds as proposals for the reviewers (backlog item 139, step 14.220):
  * person_periods rows with status «proposed» and origin «machine», shown to reviewers on the person's page and at
  * admin/period-proposals, never to readers. Nothing is proposed twice: a person who has a period of the same kind in
- * the same city, approved, proposed or rejected, gets no other. Without --apply it only counts.
+ * the same city, approved, proposed or rejected, gets no other. Without --apply it only counts. Beside the periods
+ * (LifePeriodExtractor), the cities of birth, of death and of origin are proposed (PersonOrigins, step 14.291).
  *
  * With --prune (step 14.227) the proposals a tighter reading no longer gives are taken back: a row that is still
  * «proposed» and of origin «machine» is deleted when the biographies no longer yield its kind and city for the person,
@@ -55,7 +57,11 @@ class ProposeLifePeriodsCommand extends Command
                 }
                 foreach ($entries as $entry) {
                     $counts['entries']++;
-                    foreach (LifePeriodExtractor::extract($entry->text) as $found) {
+                    // The periods of the life, and the cities of birth, death and origin the entry names (step 14.291)
+                    $readings = array_merge(LifePeriodExtractor::extract($entry->text), array_map(
+                        fn (array $hit) => ['kind' => $hit['kind'], 'city' => $hit['city'], 'years' => [], 'snippet' => $hit['text']],
+                        PersonOrigins::fromBiography($entry->text)));
+                    foreach ($readings as $found) {
                         $counts['read']++;
                         $key = "{$entry->person_id}|{$found['kind']}|{$found['city']}";
                         $source = trim($entry->source . ($entry->volume ? ' ' . $entry->volume . ':' : '') . ($entry->page ? ' ' . $entry->page : ''));

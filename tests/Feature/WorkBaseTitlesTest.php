@@ -23,7 +23,7 @@ class WorkBaseTitlesTest extends TestCase
 
     protected function work(array $attrs): Work
     {
-        $work = Work::create($attrs + ['slug' => 'test-base-titles-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $work = $this->workWithTexts($attrs + ['slug' => 'test-base-titles-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         $this->workIds[] = $work->id;
 
         return $work;

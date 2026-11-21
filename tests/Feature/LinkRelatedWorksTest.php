@@ -17,7 +17,7 @@ class LinkRelatedWorksTest extends TestCase
 {
     private function work(string $title, string $author, array $more = []): Work
     {
-        return Work::create(['primary_title' => $title, 'clean_title' => $title, 'author_name' => $author, 'slug' => 'rel-' . uniqid(),
+        return $this->workWithTexts(['primary_title' => $title, 'clean_title' => $title, 'author_name' => $author, 'slug' => 'rel-' . uniqid(),
             'volume_number' => 1, 'page_start' => 1] + $more);
     }
 
@@ -88,8 +88,7 @@ class LinkRelatedWorksTest extends TestCase
         // a decision ties an entry to a work the catalogue itself records under another author
         $zayirja = $this->work('الزایرجة', 'خزرجی، احمد بن مسعود');
         $adwar = $this->work('الادوار العنصریة', 'ابن غزی، احمد', ['related_work' => 'الزایرجة؛ سبتی، احمد بن جعفر (524-601)']);
-        DB::table('work_entry_links')->insert(['work_id' => $adwar->id, 'side' => 'related', 'entry' => 'الزایرجة؛ سبتی، احمد بن جعفر',
-            'entry_hash' => sha1('الزایرجة؛ سبتی، احمد بن جعفر'), 'linked_work_id' => $zayirja->id, 'source' => 'model', 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('work_text_relations')->where('work_id', $adwar->id)->update(['linked_work_id' => $zayirja->id, 'link_status' => 'linked', 'link_source' => 'model', 'differs' => true]);
         DB::table('work_relations')->insert(['work_id' => $adwar->id, 'related_work_id' => $zayirja->id, 'type' => 'related', 'source' => 'model', 'created_at' => now(), 'updated_at' => now()]);
         $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
 
@@ -98,14 +97,14 @@ class LinkRelatedWorksTest extends TestCase
         $unread = $this->work('شرحی بر فرائض', 'کسی، ج', ['related_work' => $long]);
         $note = 'گزیده‌ای است از این دو کتاب که در ده باب، برای هر روز از دهۀ نخست ماه یک باب، مرتب شده و در پایان آن فهرستی از مطالب هر باب آمده است';
         $two = $this->work('منتخب دو کتاب', 'کسی، د', ['related_work' => "کتاب یکم؛ کسی، ه (-700)؛ کتاب دوم؛ کسی، و (-800)؛ {$note}"]);
-        $this->assertSame([['side' => 'related', 'text' => $long, 'type' => 'related']], WorkRelationLinker::pageRows($unread)['unlinked']);
-        $this->assertSame([$note], WorkRelationLinker::pageRows($two)['notes']);
+        $this->assertEquals([['side' => 'related', 'text' => $long, 'type' => 'related']], \App\Support\WorkCatalogueEntries::page($unread)['unlinked']);
+        $this->assertSame([$note], \App\Support\WorkCatalogueEntries::page($two)['notes']);
         $this->followingRedirects()->get(route('works.show', $two))->assertOk()
             ->assertSeeInOrder(['وابسته است به:', 'کتاب یکم؛ کسی، ه (-۷۰۰)', 'کتاب دوم؛ کسی، و (-۸۰۰)', "یادداشت فهرست: {$note}"], false);
 
-        $rows = WorkRelationLinker::pageRows($nahj->fresh());
+        $rows = \App\Support\WorkCatalogueEntries::page($nahj->fresh());
         $this->assertSame([], $rows['printed']);
-        $this->assertSame([
+        $this->assertEquals([
             ['side' => 'children', 'text' => 'شرح نهج البلاغة؛ کسی، که نیست (-900)', 'type' => 'commentary'],
             ['side' => 'children', 'text' => 'نهج البلاغة (ترجمه)', 'type' => 'translation'],
         ], $rows['unlinked']);
@@ -117,7 +116,7 @@ class LinkRelatedWorksTest extends TestCase
         $this->followingRedirects()->get(route('works.show', $orphan))->assertOk()
             ->assertSeeInOrder(['رابطه با آثار دیگر', 'وابسته است به:', 'کتابی که نیست؛ کسی، ب (-۸۰۰)', 'بی پیوند به رکورد اثر'], false);
         // the catalogue's words beside a tied work, where its author there is another name
-        $this->assertSame([$zayirja->id => 'الزایرجة؛ سبتی، احمد بن جعفر (524-601)'], WorkRelationLinker::pageRows($adwar->fresh())['printed']);
+        $this->assertSame([$zayirja->id => 'الزایرجة؛ سبتی، احمد بن جعفر (524-601)'], \App\Support\WorkCatalogueEntries::page($adwar->fresh())['printed']);
         $this->followingRedirects()->get(route('works.show', $adwar))->assertOk()
             ->assertSeeInOrder(['وابسته است به:', '<a href="' . route('works.show', $zayirja) . '"', 'در فهرست: الزایرجة؛ سبتی، احمد بن جعفر (۵۲۴-۶۰۱)'], false);
         // a work the texts say nothing of keeps the invitation to add a relation
@@ -205,8 +204,8 @@ class LinkRelatedWorksTest extends TestCase
         $base = $this->work('الشمسیة', 'کاتبی، علی بن عمر', ['commentaries_and_glosses' => ['شرح الشمسیة', 'شرح الشمسیة؛ قطب الدین رازی، محمد بن محمد (694-766)']]);
         $qutb = $this->work('شرح الشمسیة', 'قطب الدین رازی، محمد بن محمد');
         $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
-        $this->assertSame([1], array_keys(WorkRelationLinker::linkedEntries($base)['children']));
-        $this->assertSame($qutb->id, WorkRelationLinker::linkedEntries($base)['children'][1][0][1]->id);
+        $this->assertSame([[null, null], [$qutb->id, 'linked']], DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->get()
+            ->map(fn ($r) => [$r->linked_work_id, $r->link_status])->all());
 
         // the page links the work; the author written after the title is the work's own, so the catalogue's words are not repeated
         $this->followingRedirects()->get(route('works.show', $glued))->assertOk()

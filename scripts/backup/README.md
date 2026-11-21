@@ -12,7 +12,7 @@ Meilisearch پشتیبان‌گیری نمی‌شود و پس از بازیاب�
 
 ## فایل‌ها
 
-- `fahares-backup.sh`: زیرفرمان‌های `db`، `media`، `config`، `verify` و `status`
+- `fahares-backup.sh`: زیرفرمان‌های `db`، `media`، `config`، `prune`، `verify` و `status`
 - `fahares-restore.sh`: بازیابی از فایل، تلگرام یا restic در یک پایگاه داده‌ی مقصد که صریحاً نام برده شود
 - `backup.env.example`: نمونه‌ی تنظیمات (`/etc/fahares-backup/backup.env`)
 - `crontab.example`: زمان‌بندی روی میزبان
@@ -100,6 +100,18 @@ fahares-restore.sh --file dump.sql.zst.age --identity ~/fahares-age.key --contai
   php artisan scout:import "App\Models\Person"
   ```
 - داده‌ی جدول‌های `cache`، `sessions` و `jobs` عمداً در بکاپ نیست، ولی ساختارشان هست. پس از بازیابی کاربران باید دوباره وارد شوند.
+
+## گنجایش Google Drive
+
+- تصاویر مآخذ فشرده نمی‌شوند، پس مخزن دست‌کم به اندازۀ `MEDIA_DIR` جا می‌خواهد، به‌اضافۀ چند گیگابایت برای پایگاه داده. پیش از افزودن انبوه تصویر، `rclone about gdrive:` را ببینید.
+- حذف نسخه‌های کهنه کار `prune` است (شنبه‌ها)، جدا از `media`: اگر بکاپ تصاویر شکست بخورد، نگهداری نسخه‌های پایگاه داده و حذف تکه‌های نیمه‌کارۀ همان شکست باز هم انجام می‌شود.
+- اسکریپت `RCLONE_DRIVE_USE_TRASH=false` می‌گذارد. بدون آن، rclone فایل‌های حذف‌شده را به سطل زبالۀ Drive می‌برد که تا ۳۰ روز در سهمیه شمرده می‌شود.
+- اگر Drive پر شود (`storageQuotaExceeded`)، restic حتی فایل قفل را نمی‌تواند بنویسد و همۀ فرمان‌ها، از جمله خواندن، می‌ایستند. راه بیرون آمدن:
+  ```bash
+  rclone cleanup gdrive:                 # خالی کردن سطل زباله
+  restic prune --max-repack-size 0       # فقط حذف تکه‌های بی‌مصرف، بدون بازنویسی که جا می‌خواهد
+  ```
+  تا آن زمان، خواندن و بازیابی با `restic --no-lock …` ممکن است.
 
 ## مانور بازیابی
 

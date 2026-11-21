@@ -22,7 +22,7 @@
                     't' => $c['count'], 'd' => $pairs($c['decades']), 'w' => $c['works'], 'wd' => $pairs($c['work_decades']),
                     's' => $c['scribes'], 'sd' => $pairs($c['scribe_decades']), 'a' => $c['authors'], 'ad' => $pairs($c['author_decades']),
                     'o' => $c['origins'], 'od' => $pairs($c['origin_decades']), 'b' => $c['births'], 'bd' => $pairs($c['birth_decades']),
-                    'x' => $c['deaths'], 'xd' => $pairs($c['death_decades'])], $p['cities']),
+                    'x' => $c['deaths'], 'xd' => $pairs($c['death_decades']), 'r' => $c['residences'], 'rd' => $pairs($c['residence_decades'])], $p['cities']),
                 'frame' => \Illuminate\Support\Arr::only($map, ['lon0', 'lon1', 'lat0', 'lat1']),
                 'basemap' => asset('data/insights/basemap.json'),
                 'territories' => asset('data/insights/territories/__YEAR__.json'),
@@ -33,7 +33,7 @@
                 'search' => ['copy' => $search('manuscripts'), 'scribes' => $scope->isEmpty() ? route('search', ['type' => 'scribes']) : null],
             ];
             $layerNames = ['copy' => 'نسخه‌ها (محل کتابت)', 'composition' => 'آثار (محل تألیف)', 'scribes' => 'کاتبان', 'authors' => 'مؤلفان',
-                'origin' => 'خاستگاه (از نسبت)', 'birth' => 'زادگاه', 'death' => 'محل وفات'];
+                'origin' => 'خاستگاه (از نسبت)', 'birth' => 'زادگاه', 'death' => 'محل وفات', 'residence' => 'اقامت'];
             $chip = fn (string $on) => "{$on} ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'";
         @endphp
         <div x-data="insightsMap(@js($mapData))" data-insights-map>
@@ -124,7 +124,7 @@
                 </div>
 
                 <p class="text-xs text-muted mb-2">
-                    <span x-text="{ copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف', origin: 'شهرهای نسبت', birth: 'زادگاه‌ها', death: 'شهرهای وفات' }[layer] + (mode === 'all' ? '' : '، ' + span)">پرکارترین شهرهای کتابت</span>
+                    <span x-text="{ copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف', origin: 'شهرهای نسبت', birth: 'زادگاه‌ها', death: 'شهرهای وفات', residence: 'شهرهای اقامت' }[layer] + (mode === 'all' ? '' : '، ' + span)">پرکارترین شهرهای کتابت</span>
                 </p>
                 <ol class="text-sm">
                     <template x-for="row in ranked" :key="row.city.n">
@@ -179,7 +179,11 @@
             زادگاه و محل وفات: از متن زندگی‌نامۀ {{ Fa::num($p['lives_read']) }} شخص در کتاب‌های تراجم (طبقات اعلام الشیعه، اعیان الشیعه، الاعلام و مانند آن) خوانده شده است.
             زادگاه {{ Fa::num($p['births_mapped']) }} نفر و محل وفات {{ Fa::num($p['deaths_mapped']) }} نفر یکی از شهرهای نقشه بود.
             تنها عبارتی گرفته شده که شهر را درست پس از «ولد»، «توفی»، «متولد» یا «درگذشت» می‌آورد؛ پس این لایه بخش کوچکی از اشخاص را دارد.
-            قاعده‌ای خودکار آن را خوانده و پیوند زندگی‌نامه‌ها به اشخاص هم هنوز بازبینی نشده است.
+            قاعده‌ای خودکار آن را خوانده و پیوند زندگی‌نامه‌ها به اشخاص هم هنوز بازبینی نشده است؛ آنچه بازبینان در صفحۀ شخص رد کرده‌اند شمرده نمی‌شود و آنچه خود ثبت کرده‌اند شمرده می‌شود.
+        </p>
+        <p x-show="layer === 'residence'" x-cloak class="mt-5 text-xs text-muted leading-relaxed">
+            اقامت: {{ Fa::num($p['residences_mapped']) }} مؤلف و کاتب که زندگی‌نامه‌شان اقامت در یکی از شهرهای نقشه را می‌گوید («سکن»، «نزل»، «أقام» …)، از «دوره‌های زندگی» صفحۀ اشخاص.
+            بیشتر این دوره‌ها هنوز پیشنهاد خودکارند و بازبینی نشده‌اند؛ آنچه بازبینان رد کرده‌اند شمرده نمی‌شود. هر شخص در دهۀ وفاتش شمرده می‌شود، نه در سال‌های اقامت.
         </p>
         <p class="mt-3 text-xs text-muted leading-relaxed">
             لغزندۀ سال: «تا این سال» نسخه یا اثری را می‌شمارد که کل بازۀ تاریخش تا آن سال گذشته است؛ پس نسخۀ «قرن ۱۱» از سال ۱۱۰۰ شمرده می‌شود و نسخۀ بی تاریخ تنها در «همۀ سال‌ها» هست.

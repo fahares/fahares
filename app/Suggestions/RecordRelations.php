@@ -193,7 +193,8 @@ class RecordRelations
      */
     public static function texts(Work $work): Collection
     {
-        $rows = DB::table('work_text_relations')->where('work_id', $work->id)->orderBy('id')->get();
+        // the rows added by hand; the catalogue's own entries (step 14.283) reach the page by WorkRelationLinker::pageRows
+        $rows = DB::table('work_text_relations')->where('work_id', $work->id)->where('source', 'suggestion')->orderBy('id')->get();
         $credits = \App\Models\FieldSuggestion::whereIn('id', $rows->pluck('suggestion_id')->filter()->unique())
             ->where('status', 'approved')->pluck('credit_name', 'id');
 

@@ -22,7 +22,14 @@ class PersonPeriod extends Model
         'teaching' => 'تدریس',
         'travel' => 'سفر',
         'office' => 'منصب',
+        // Where the person was born, died and was from (backlog item 137, step 14.291): a place, and a year when known
+        'birth' => 'تولد',
+        'death' => 'وفات',
+        'origin' => 'خاستگاه',
     ];
+
+    /** The kinds that say one place of a life, not a stretch of it: the map of the statistics has a layer for each */
+    public const PLACE_KINDS = ['birth', 'death', 'origin'];
 
     public const APPROVED = 'approved';
 

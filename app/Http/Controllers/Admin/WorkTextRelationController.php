@@ -17,7 +17,8 @@ class WorkTextRelationController extends Controller
 {
     public function destroy(Request $request, int $relation)
     {
-        $row = DB::table('work_text_relations')->where('id', $relation)->first();
+        // only a row added by hand: the catalogue's own entries are not taken off from the page
+        $row = DB::table('work_text_relations')->where('id', $relation)->where('source', 'suggestion')->first();
         abort_unless($row, 404);
         DB::transaction(function () use ($row, $request) {
             DB::table('work_text_relations')->where('id', $row->id)->delete();

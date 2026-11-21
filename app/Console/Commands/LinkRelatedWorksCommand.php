@@ -99,6 +99,17 @@ class LinkRelatedWorksCommand extends Command
         });
         $this->info("Saved: {$add->count()} added, {$remove->count()} removed.");
 
+        // each entry tied to its work, as the relations now say (WorkCatalogueEntries::tie, step 14.285): the page shows
+        // a tied entry as its work, and an entry tied to no work as text
+        $tied = 0;
+        $hosts = DB::table('work_text_relations')->where('source', \App\Support\WorkCatalogueEntries::SOURCE)->distinct()->pluck('work_id');
+        foreach ($hosts->chunk(500) as $ids) {
+            foreach (Work::whereIn('id', $ids)->get(['id']) as $work) {
+                $tied += \App\Support\WorkCatalogueEntries::tie($work);
+            }
+        }
+        $this->info("Entries: {$tied} tied or untied.");
+
         $changed = $add->pluck('child')->merge($remove->pluck('work_id'))->unique()->values();
         if (! $this->option('no-index') && $changed->isNotEmpty()) {
             foreach ($changed->chunk(500) as $ids) {

@@ -12,6 +12,7 @@ use App\Suggestions\ContributorRelations;
 use App\Suggestions\ProtectedColumns;
 use App\Suggestions\RecordMerger;
 use App\Support\DerivedData;
+use App\Support\WorkCatalogueEntries;
 use App\Support\SenateLibrary;
 use App\Support\PersonNameMatcher;
 use Illuminate\Console\Command;
@@ -251,12 +252,16 @@ class AddCorpusWorksCommand extends Command
     private function makeWork(array $w, ContributorRelations $relations, string $note): Work
     {
         $cols = array_intersect_key($w['columns'], array_flip(self::WORK_COLUMNS));
+        // the two texts of related works are rows of their own, not columns of the work (step 14.285)
+        $texts = [$cols['related_work'] ?? null, $cols['commentaries_and_glosses'] ?? []];
+        unset($cols['related_work'], $cols['commentaries_and_glosses']);
         $base = Str::slug($cols['transliteration'] ?: $cols['clean_title']) ?: 'work';
         $author = $this->person($w['author'] ?? null);
         $work = Work::create($cols + [
             'slug' => mb_substr($base, 0, 180) . $w['slug_suffix'],
             'author_id' => $author?->id,
         ]);
+        WorkCatalogueEntries::sync($work, $texts[0], is_array($texts[1]) ? $texts[1] : (json_decode((string) $texts[1], true) ?: []));
         $this->log(Work::class, $work->id, 'create', [], ['slug' => $work->slug, 'author_id' => $author?->id, 'corpus_fix' => $note, 'v2' => $w['v2']]);
 
         SourceEntrySync::syncRecord($work);
@@ -342,12 +347,13 @@ class AddCorpusWorksCommand extends Command
             if (! in_array($field, self::UPDATE_COLUMNS, true)) {
                 return "field {$field} not allowed";
             }
-            $current = $work->{$field};
-            if ($this->same($current, $change['to'])) {
+            // «وابسته به» is the work's rows of the catalogue, compared as the entries the text gives (step 14.285)
+            $is = fn ($text) => $field === 'related_work' ? WorkCatalogueEntries::relatedIs($work, $text) : $this->same($work->{$field}, $text);
+            if ($is($change['to'])) {
                 continue;
             }
             $fields[$field] = true;
-            if (! $this->same($current, $change['from'])) {
+            if (! $is($change['from'])) {
                 return "{$field} changed on the site since the export";
             }
         }
@@ -370,7 +376,10 @@ class AddCorpusWorksCommand extends Command
             $old['author_id'] = $work->author_id;
             $new['author_id'] = $this->person($u['author'] ?? null)?->id;
         }
-        $work->update($new);
+        $work->update(array_diff_key($new, ['related_work' => 0]));
+        if (array_key_exists('related_work', $new)) {
+            WorkCatalogueEntries::sync($work, $new['related_work'], false);
+        }
         // the person the work leaves and the one it goes to count their works again (step 14.137)
         if (array_key_exists('author_id', $new) && $old['author_id'] !== $new['author_id']) {
             foreach (Person::whereIn('id', array_filter([$old['author_id'], $new['author_id']]))->get() as $person) {
