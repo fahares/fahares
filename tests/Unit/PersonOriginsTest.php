@@ -54,6 +54,18 @@ class PersonOriginsTest extends TestCase
         // «some of the people of Isfahan» are others, not the person
         $this->assertSame([], $hits('در شرح بعضی احادیث مشکله که بدرخواست بعضی از اهالی اصفهان تألیف شده'));
         $this->assertSame([], $hits('روى عنه جمع من أهل بغداد'));
+        // «of the people of …» far into an entry, or said of the father, is not the person's; «أصله من» is, anywhere
+        $long = str_repeat('كان عالما فاضلا جليلا له كتب كثيرة في الفقه و الأصول. ', 8);
+        $this->assertSame([], $hits($long . 'و قال يهجو رجلا من أهل الموصل يدعي المعرفة بالشعر'));
+        $this->assertSame(['origin شوشتر'], $hits($long . 'أصله من شوشتر و بها ولد أبوه'));
+        $this->assertSame([], $hits('عبد الله پدر ابن سینا در اصل، از اهالی بلخ بود'));
+        // said outright of the person, it counts anywhere; said of the father, nowhere
+        $this->assertSame(['origin شوشتر'], $hits($long . 'كان من أهل شوشتر، ارتحل الى أصفهان'));
+        $this->assertSame([], $hits($long . 'كان أبوه من أهل دمشق من جند مروان'));
+        // a name that ends in «زاده», and the killing of another
+        $this->assertSame([], $hits('ابراهیم الهمدانی المشتهر بقاضی زاده همدان'));
+        $this->assertSame([], $hits('و قتل الباب رميا بالرصاص في تبريز سنة 1266'));
+        $this->assertSame(['death مرو'], $hits('سافر الى العراق، و قتل في الواقعة الخوارزمشاهية بمرو'));
         $this->assertSame([], PersonOrigins::fromBiography(null));
     }
 
