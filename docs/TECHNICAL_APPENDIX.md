@@ -13084,6 +13084,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2`، `MtifLotus-Bold.woff2`، `MtifLotus-Italic.woff2` و `MtifLotus-BoldItalic.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`؛ معمولی و سیاه هر کدام ~۴۰ KB به‌جای ~۹۲ KB، دو ایتالیک ~۳۳ KB)، با چهار `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
 - **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
 - **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
+- **اندازه (۱۵٪ بزرگ‌تر):** `.book-sheet__head` ۰٫۹rem، `__folio` ۱٫۰۵rem، `__body` ۱٫۲۵ و از sm ۱٫۳۷۵rem، دوستونی ۱٫۱۲۵rem، `__notes` ۱٫۰۶۲۵rem، `__foot` ۱rem؛ متن مدخل `text-[1.15rem]`.
+- **شعر (`source-pages/show.blade.php`):** `step()` پس از `document.fonts.ready` هم اجرا می‌شود. بیت پهن‌تر از برگه نخست `column-gap: 1.5em` و `font-size` برابر `floor(room / scrollWidth, 0.01)em` می‌گیرد اگر این نسبت ≥ ۰٫۸۵ باشد؛ اگر باز نگنجد، سبک‌های درون‌خطی برداشته و `.is-stepped` افزوده می‌شود.
 
 ### گام ۱۴.۳۰۸: ارث‌بری بخش از اثر اصل (`WorkParts`)
 
@@ -13097,15 +13099,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **محدودیت‌های دانسته:** صفحۀ موضوع و شمار آثار موضوع از `subject_work` خوانده می‌شود و بخشِ بی موضوع در آن‌ها نیست، ولی جست‌وجو با فیلتر موضوع، زبان یا پدیدآور آن را می‌آورد (سند جست‌وجو). `SuggestionRegistry::describe()` و فرم‌های مدیریت مقدار خود رکورد را نشان می‌دهند. قالب، محل تألیف و اهدا ارث برده نمی‌شود.
 - **production:** ۱۰٬۹۱۴ ردیف `work_relations`، از آن‌ها یک ردیف `part` (شناسۀ ۳، `source = suggestion`). `WorkRelationLinker`، `WorkRelationParser` و `LinkDecidedWorksCommand` هرگز `part` نمی‌سازند (`MARKS` و `OPENERS` این نوع را ندارند)؛ `DateEstimates\Loader` آن را کنار می‌گذارد.
 - **آزمون:** `WorkPartsTest` ده آزمون (مقدار مؤثر و مؤلف اختصاصی، موضوع و زبان اختصاصی بخش، هر خصوصیت از نزدیک‌ترین اصل دارای آن و نمایه‌سازی همۀ بخش‌های زیر یک اصل، دو صفحه، زنجیره و رد دور، دورِ نوشته‌شده بیرون از بررسی و سقف عمق، سند جست‌وجو و نمایه‌سازی دوباره، تأیید پیشنهاد و بازگردانی، ادغام و حذف اثر اصل، صفحۀ شخص).
-### گام ۱۴.۳۱۰: `WorkRelationLinker::entries()`
-- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):** `entries($text, $side)` به‌جای `WorkRelationParser::parseEntries` در `pairs()`. در سوی `children`، اگر تجزیه دو مدخل می‌دهد، هر دو بی پدیدآور، و دومی یک عنوان دارد: نام = همان عنوان پس از برداشتن کمانکِ تاریخ‌دار (`/\s*\((?=[^()]*\d).*$/su`). اگر نام تهی نیست و `byTitle[key(نام)]` نیست، مدخل یکم پدیدآورش را می‌گیرد (یا `null` اگر «ناشناس» است) و مدخل دوم کنار می‌رود. در غیر این صورت رفتار پیشین. `named[]` دیگر نام پدیدآور را عنوان نمی‌شمارد.
-- همان خواندنی است که `WorkCatalogueEntries::tie` از گام ۱۴.۲۹۶ دارد (`$read`)؛ آنجا شرطِ «عنوان اثری نباشد» نیست، چون فقط میان آثار مرتبط می‌جوید.
-- **آزمون:** `LinkRelatedWorksTest::test_an_author_written_with_no_life_dates_is_read`.
-- **سنجش پیش از ساخت (رونوشت محلی، ۱٬۸۰۵ سطرِ بی اثر مرتبطِ هم‌عنوان، با الگوی متنی):** «وابسته به»ی فقط پدیدآور ۴۰۷؛ «وابسته به»ی بی رکورد ۷۱؛ `children` پدیدآوردارِ بی رکورد ۲۴۴ و بی پدیدآورِ بی رکورد ۱۵۴؛ «N عنوان» ۲۹۱؛ همۀ آثار هم‌عنوان بسته به مدخل دیگر ۱۰۹؛ پدیدآوردار با یک اثر هم‌عنوان و هم‌پدیدآور ۱۶۱ (۱۱۵ بی‌تاریخ، ۴۶ تاریخ‌دار) و با دو اثر ۲۷؛ پدیدآوردار بی اثری از آن پدیدآور ۱۸۴؛ بی پدیدآور با آثار هم‌عنوانِ نامرتبط ۲۱۰.
-- **تمرین (`fahares_prod` محلی، ۳۰ آبان ۱۴۰۵):** `works:link-related --no-index`: «10827 relations: 151 to add, 4 to remove, 10676 kept»، «Left to the editors' relations: 30»، «Entries: 151 tied or untied»؛ اجرای دوم همه صفر. `works:link-decisions … --dry-run`: «613 entries: 0 to add»، «0 proposals to add». پایان: `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۲٬۱۶۵؛ رابطه‌ها auto ۱۰٬۸۲۷، model ۲۳۶؛ صفحه‌ها «بی پیوند» ۲٬۴۱۱. چهار حذف همان چهار رابطه‌ای‌اند که فقط رونوشت محلی داشت (۱۰٬۶۸۰ در برابر ۱۰٬۶۷۶ پروداکشن)، پس در پروداکشن انتظار حذف نیست.
-- **اجرا در تولید، پس از استقرار (پشتیبان `work_relations` و `work_text_relations` پیش از آن):** `works:link-related --dry-run` و سپس اجرا.
-- **اندازه (۱۵٪ بزرگ‌تر):** `.book-sheet__head` ۰٫۹rem، `__folio` ۱٫۰۵rem، `__body` ۱٫۲۵ و از sm ۱٫۳۷۵rem، دوستونی ۱٫۱۲۵rem، `__notes` ۱٫۰۶۲۵rem، `__foot` ۱rem؛ متن مدخل `text-[1.15rem]`.
-- **شعر (`source-pages/show.blade.php`):** `step()` پس از `document.fonts.ready` هم اجرا می‌شود. بیت پهن‌تر از برگه نخست `column-gap: 1.5em` و `font-size` برابر `floor(room / scrollWidth, 0.01)em` می‌گیرد اگر این نسبت ≥ ۰٫۸۵ باشد؛ اگر باز نگنجد، سبک‌های درون‌خطی برداشته و `.is-stepped` افزوده می‌شود.
 
 ### گام ۱۴.۳۰۹: فیلدهای کالبد، خط، ویژگی‌ها و یادداشت‌ها در `ManuscriptCreator`
 
@@ -13117,4 +13110,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرم:** بخش‌های «۴. کتابت و کالبد نسخه» و «۵. یادداشت‌های نسخه» (ردیف‌های Alpine، با نگه‌داشتن ورودی پس از خطا)؛ «منبع اطلاع» بخش ۶ شد.
 - **آزمون:** `test_the_copys_body_scripts_features_and_notes_are_made_with_it_and_go_with_the_undo`.
 - **پیش‌نمایش:** هنگام ثبت فرم، `fahares_test` به دست اجرای آزمون نشست دیگری (شاخه‌ای بی migration گام ۱۴.۳۰۶) از نو ساخته شده بود و درج اثر با «Column 'catalog_id' cannot be null» خطا داد؛ خطا از پایگاه مشترک بود، نه از کد.
+
+### گام ۱۴.۳۱۰: `WorkRelationLinker::entries()`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):** `entries($text, $side)` به‌جای `WorkRelationParser::parseEntries` در `pairs()`. در سوی `children`، اگر تجزیه دو مدخل می‌دهد، هر دو بی پدیدآور، و دومی یک عنوان دارد: نام = همان عنوان پس از برداشتن کمانکِ تاریخ‌دار (`/\s*\((?=[^()]*\d).*$/su`). اگر نام تهی نیست و `byTitle[key(نام)]` نیست، مدخل یکم پدیدآورش را می‌گیرد (یا `null` اگر «ناشناس» است) و مدخل دوم کنار می‌رود. در غیر این صورت رفتار پیشین. `named[]` دیگر نام پدیدآور را عنوان نمی‌شمارد.
+- همان خواندنی است که `WorkCatalogueEntries::tie` از گام ۱۴.۲۹۶ دارد (`$read`)؛ آنجا شرطِ «عنوان اثری نباشد» نیست، چون فقط میان آثار مرتبط می‌جوید.
+- **آزمون:** `LinkRelatedWorksTest::test_an_author_written_with_no_life_dates_is_read`.
+- **سنجش پیش از ساخت (رونوشت محلی، ۱٬۸۰۵ سطرِ بی اثر مرتبطِ هم‌عنوان، با الگوی متنی):** «وابسته به»ی فقط پدیدآور ۴۰۷؛ «وابسته به»ی بی رکورد ۷۱؛ `children` پدیدآوردارِ بی رکورد ۲۴۴ و بی پدیدآورِ بی رکورد ۱۵۴؛ «N عنوان» ۲۹۱؛ همۀ آثار هم‌عنوان بسته به مدخل دیگر ۱۰۹؛ پدیدآوردار با یک اثر هم‌عنوان و هم‌پدیدآور ۱۶۱ (۱۱۵ بی‌تاریخ، ۴۶ تاریخ‌دار) و با دو اثر ۲۷؛ پدیدآوردار بی اثری از آن پدیدآور ۱۸۴؛ بی پدیدآور با آثار هم‌عنوانِ نامرتبط ۲۱۰.
+- **تمرین (`fahares_prod` محلی، ۳۰ آبان ۱۴۰۵):** `works:link-related --no-index`: «10827 relations: 151 to add, 4 to remove, 10676 kept»، «Left to the editors' relations: 30»، «Entries: 151 tied or untied»؛ اجرای دوم همه صفر. `works:link-decisions … --dry-run`: «613 entries: 0 to add»، «0 proposals to add». پایان: `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۲٬۱۶۵؛ رابطه‌ها auto ۱۰٬۸۲۷، model ۲۳۶؛ صفحه‌ها «بی پیوند» ۲٬۴۱۱. چهار حذف همان چهار رابطه‌ای‌اند که فقط رونوشت محلی داشت (۱۰٬۶۸۰ در برابر ۱۰٬۶۷۶ پروداکشن)، پس در پروداکشن انتظار حذف نیست.
+- **اجرا در تولید، پس از استقرار (پشتیبان `work_relations` و `work_text_relations` پیش از آن):** `works:link-related --dry-run` و سپس اجرا.
 
