@@ -40,6 +40,7 @@ class SuggestionController extends Controller
             'suggested_value' => 'required_if:kind,field,general|nullable|string|max:20000',
             'rationale_citation' => 'nullable|string|max:5000',
             'person_id' => 'nullable|integer|exists:people,id',
+            'pair_value' => 'nullable|string|max:600',
             'target_id' => 'nullable|integer',
             'credit_name' => 'nullable|string|max:150',
             'role' => 'nullable|string|max:30',
@@ -95,6 +96,10 @@ class SuggestionController extends Controller
         $payload = array_filter([
             'person_id' => $field && $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null,
         ]) + $relationPayload;
+        // the transliteration sent with a title, and the one the record had then (step 14.286)
+        if ($field && isset($field['pair']) && $request->has('pair_value')) {
+            $payload += ['pair' => trim((string) ($validated['pair_value'] ?? '')), 'pair_current' => (string) SuggestionRegistry::pairCurrent($record, $field)];
+        }
 
         $suggestion = FieldSuggestion::create([
             'suggestable_type' => $record::class,

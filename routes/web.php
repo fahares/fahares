@@ -358,6 +358,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/work-entry-links/{link}/link', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'link'])->name('work-entry-links.link');
         Route::post('/work-entry-links/{link}/reject', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'reject'])->name('work-entry-links.reject');
         Route::post('/work-entry-links/{link}/reopen', [\App\Http\Controllers\Admin\WorkEntryLinkController::class, 'reopen'])->name('work-entry-links.reopen');
+        // A work's relation with a work that has no record, taken off from the work's page (step 14.280)
+        Route::delete('/work-text-relations/{relation}', [\App\Http\Controllers\Admin\WorkTextRelationController::class, 'destroy'])->name('work-text-relations.destroy');
     });
 
     // Catalogue references matched by machine (backlog item 51)

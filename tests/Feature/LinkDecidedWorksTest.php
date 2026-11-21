@@ -78,7 +78,9 @@ class LinkDecidedWorksTest extends TestCase
         $links = WorkRelationLinker::linkedEntries($kafiya->fresh());
         $this->assertSame([$sharh->id, $hashiya->id], [$links['children'][0][0][1]->id, $links['children'][1][0][1]->id]);
         $this->followingRedirects()->get(route('works.show', $kashf))->assertOk()
-            ->assertSee('<a href="' . route('works.show', $tabsira) . '"', false)->assertSee('>تبصرة المتعلمین</a> علامه حلی، حسن بن یوسف (۶۴۸-۷۲۶)', false);
+            ->assertSee('<a href="' . route('works.show', $tabsira) . '"', false)
+            // the start of the work's title with its own author after it: the catalogue's words say nothing else
+            ->assertDontSee('در فهرست:');
         $this->followingRedirects()->get(route('works.show', $kafiya))->assertOk()->assertSee('<a href="' . route('works.show', $sharh) . '"', false);
 
         // works:link-related leaves the pairs of the decisions alone; a second run changes nothing

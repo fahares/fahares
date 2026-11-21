@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Fahares production backup: MariaDB dump -> Telegram (age-encrypted chunks) + Google Drive (restic).
 #
-# Usage: fahares-backup.sh <db|media|config|verify|status|watch|tg-chats|tg-test>
+# Usage: fahares-backup.sh <db|media|config|prune|verify|status|watch|tg-chats|tg-test>
 #   db      dump the database, upload to Telegram and restic, rotate local copies
-#   media   back up storage/app/public (catalog page images) to restic, then prune the repo
+#   media   back up storage/app/public (catalog page images) to restic
 #   config  back up app/DB container environments (secrets) to Telegram and restic
+#   prune   drop restic snapshots beyond the retention and delete data no snapshot uses
 #   verify  restic integrity check + stream the latest DB snapshot and confirm it is complete
 #   status  print the last result of each job; exits 1 if the last DB backup is stale or any job's last run failed
 #   watch   run status quietly and send a Telegram alert if it fails (daily cron; catches a backup that never ran)
@@ -49,6 +50,10 @@ export RESTIC_REPOSITORY RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-}"
 # restic waits only one minute for rclone to answer its first request; under Google Drive rate limits
 # (rclone's shared OAuth client, busiest around 00:00 UTC) rclone's backoff takes longer than that.
 RESTIC_OPTS=(-o "rclone.timeout=${RCLONE_TIMEOUT}")
+# rclone moves deleted Drive files to the trash, which counts against the quota for 30 days; with that,
+# a prune frees nothing when the Drive is full. The repository is encrypted and restic deletes only
+# what no snapshot uses, so the trash protects nothing here.
+export RCLONE_DRIVE_USE_TRASH="${RCLONE_DRIVE_USE_TRASH:-false}"
 
 STATE_FILE="$STATE_DIR/last.json"
 HOST="$(hostname -s)"
@@ -276,10 +281,19 @@ job_media() {
     [ -d "$MEDIA_DIR" ] || die "media dir not found: $MEDIA_DIR"
     STEP="restic-backup"
     retry_restic nice_io restic "${RESTIC_OPTS[@]}" backup --quiet --tag media --host "$HOST" "$MEDIA_DIR"
+    record ok "$(restic "${RESTIC_OPTS[@]}" snapshots --json --latest 1 --tag media | jq -r '.[0].short_id')"
+    log "done"
+}
+
+# A job of its own, not the tail of `media`: a media backup that fails (a full Drive, for one) must not
+# stop the retention of the db and config snapshots, nor the removal of the packs its own failed upload left.
+job_prune() {
+    require_tools restic jq
+    restic_enabled || die "RESTIC_REPOSITORY is not set"
     STEP="restic-forget"
     retry_restic nice_io restic "${RESTIC_OPTS[@]}" forget --quiet --prune --host "$HOST" --group-by host,tags \
         --keep-daily "$KEEP_DAILY" --keep-weekly "$KEEP_WEEKLY" --keep-monthly "$KEEP_MONTHLY"
-    record ok "$(restic "${RESTIC_OPTS[@]}" snapshots --json --latest 1 --tag media | jq -r '.[0].short_id')"
+    record ok "$(restic "${RESTIC_OPTS[@]}" snapshots --json | jq -r 'length') snapshots kept"
     log "done"
 }
 
@@ -387,12 +401,12 @@ job_tg_test() {
 }
 
 case "$JOB" in
-    db|media|config|verify) ;;
+    db|media|config|prune|verify) ;;
     status) job_status; exit ;;
     watch) job_watch; exit ;;
     tg-chats) job_tg_chats; exit ;;
     tg-test) job_tg_test; exit ;;
-    *) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+    *) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac
 
 mkdir -p "$WORK_DIR" "$STATE_DIR"

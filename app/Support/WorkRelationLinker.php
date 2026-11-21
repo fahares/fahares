@@ -462,35 +462,12 @@ class WorkRelationLinker
     }
 
     /**
-     * Fankha's text as it is, escaped and in Persian digits, with the first title of each entry a relation links made a
-     * link to that work's page (backlog item 6, point 6: the text is kept as written).
-     *
-     * @param  list<array{0: string, 1: \App\Models\Work}>  $links  the title as written and its work, in the text's order
-     */
-    public static function html(string $text, array $links): \Illuminate\Support\HtmlString
-    {
-        $html = '';
-        $at = 0;
-        foreach ($links as [$title, $work]) {
-            $pos = mb_strpos($text, $title, $at);
-            if ($pos === false) {
-                continue;
-            }
-            $html .= e(Fa::digits(mb_substr($text, $at, $pos - $at)))
-                . '<a href="' . e(route('works.show', $work)) . '" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" title="'
-                . e('صفحۀ اثر: ' . $work->clean_title) . '">' . e(Fa::digits($title)) . '</a>';
-            $at = $pos + mb_strlen($title);
-        }
-
-        return new \Illuminate\Support\HtmlString($html . e(Fa::digits(mb_substr($text, $at))));
-    }
-
-    /**
      * The entries of a work's related work recorded as text that a relation links, for its page: the title as
      * written => the work. Only relations made from these texts are read, both ways.
      *
-     * @return array{related: list<array{0: string, 1: \App\Models\Work}>, children: array<int, list<array{0: string, 1: \App\Models\Work}>>}
-     *     for html(): the related work's links, and each commentary line's by its index
+     * @return array{related: list<array{0: string, 1: \App\Models\Work, 2: int}>, children: array<int, list<array{0: string, 1: \App\Models\Work}>>}
+     *     for pageRows(): the related work's entries that are tied (the title as written, the work, the entry's place),
+     *     and each commentary line's by its index
      */
     public static function linkedEntries(\App\Models\Work $work): array
     {
@@ -570,46 +547,87 @@ class WorkRelationLinker
     }
 
     /**
-     * For the one relations section of the work's page (step 14.277): the catalogue's words for a work an entry is
-     * tied to, where they are not that work's title and author («printed», by the work's id), and the entries tied
-     * to no work («unlinked»), each with the type its text tells and the side it stands on.
+     * For the one relations section of the work's page (step 14.277), which shows the two texts in the fields' place:
+     * the catalogue's words for a work an entry is tied to, where they are not that work's title and author
+     * («printed», by the work's id); the entries tied to no work («unlinked»), each with the type its text tells and
+     * the side it stands on; and what a field of several entries says after them («notes»). A field the parser reads
+     * no entry in is one unlinked row, as written: nothing of the texts is left out.
      *
-     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>}
+     * «entries» is every entry of the two texts in its place, tied or not, as works:materialize-related writes them to
+     * work_text_relations (step 14.283): side, position, type, text, the entry's key, the work it is tied to, and
+     * whether the catalogue's words differ from that work's record.
+     *
+     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>, notes: list<string>,
+     *     entries: list<array{side: string, position: int, type: string, text: string, key: ?string, work: ?\App\Models\Work, differs: bool}>}
      */
     public static function pageRows(\App\Models\Work $work): array
     {
         $linked = self::linkedEntries($work);
-        $out = ['printed' => [], 'unlinked' => []];
+        $out = ['printed' => [], 'unlinked' => [], 'notes' => [], 'entries' => []];
+        $clean = fn ($text) => trim(preg_replace(['/<!--.*?-->/su', '/\s+/u'], ' ', (string) $text));
         $titlesOf = fn (\App\Models\Work $w) => array_values(array_filter([$w->clean_title, $w->primary_title,
             ...collect($w->alternative_titles ?? [])->map(fn ($a) => is_array($a) ? ($a['title'] ?? '') : (string) $a)->all()]));
-        // the catalogue's words differ when its author is another name, or none of its titles is the work's
-        $differs = function (array $entry, \App\Models\Work $w) use ($titlesOf) {
+        // The catalogue's words differ when none of its titles is the work's, or its author is another name. An author
+        // written after the title with no «؛», or after another title, is the work's own and no difference.
+        $differs = function (array $entry, array $hit) use ($titlesOf) {
+            [$text, $w] = $hit;
             $keys = array_map(fn ($t) => self::key($t), $titlesOf($w));
+            $key = self::key($text);
+            $title = array_intersect(array_map(fn ($t) => self::key($t), $entry['titles']), $keys) || in_array($key, $keys, true)
+                || (str_contains($key, ' ') && collect($keys)->contains(fn ($k) => str_starts_with($k, "{$key} ")));
+            $own = self::authorKey($w->author_name);
+            $named = $entry['author'] ?? (str_starts_with($entry['titles'][0], $text) && $text !== $entry['titles'][0]
+                ? preg_replace('/\s*\([^()]*\d[^()]*\)\s*$/u', '', mb_substr($entry['titles'][0], mb_strlen($text))) : null);
+            $name = self::authorKey($named);
 
-            return ($entry['author'] !== null && self::authorKey($entry['author']) !== self::authorKey($w->author_name))
-                || ! array_intersect(array_map(fn ($t) => self::key($t), $entry['titles']), $keys);
+            return ! $title || ($name !== '' && $name !== $own && ! ($own !== '' && mb_strlen($own) >= self::SUFFIX_MIN && str_ends_with($name, $own)));
         };
+        $type = fn (array $entry) => self::typeOf((string) $work->clean_title, $work->work_form, $titlesOf($work), $entry['titles'], 'related', $entry);
 
+        $field = $clean($work->related_work);
         $entries = WorkRelationParser::parseEntries($work->related_work);
         $hits = collect($linked['related'])->keyBy(fn ($hit) => $hit[2]);
+        $slices = self::slices($field, $entries);
         foreach ($entries as $n => $entry) {
             // a field of one entry is shown as written, its note kept
-            $text = count($entries) === 1 ? trim(preg_replace(['/<!--.*?-->/su', '/\s+/u'], ' ', (string) $work->related_work))
-                : implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] . ($entry['born'] || $entry['died'] ? " ({$entry['born']}-{$entry['died']})" : '') : '');
-            if ($hit = $hits->get($n)) {
-                if ($differs($entry, $hit[1])) {
+            $text = count($entries) === 1 ? $field : ($slices[$n]
+                ?? implode(' = ', $entry['titles']) . ($entry['author'] ? '؛ ' . $entry['author'] . ($entry['born'] || $entry['died'] ? " ({$entry['born']}-{$entry['died']})" : '') : ''));
+            $hit = $hits->get($n);
+            $out['entries'][] = ['side' => 'related', 'position' => $n, 'type' => $type($entry), 'text' => $text, 'key' => self::entryKey($entry),
+                'work' => $hit[1] ?? null, 'differs' => $hit && $differs($entry, $hit)];
+            if ($hit) {
+                if ($differs($entry, $hit)) {
                     $out['printed'][$hit[1]->id] = $text;
                 }
             } else {
-                $out['unlinked'][] = ['side' => 'related', 'text' => $text,
-                    'type' => self::typeOf((string) $work->clean_title, $work->work_form, $titlesOf($work), $entry['titles'], 'related', $entry)];
+                $out['unlinked'][] = ['side' => 'related', 'text' => $text, 'type' => $type($entry)];
+            }
+        }
+        if ($field !== '' && ! $entries) {
+            // a long text with no «؛»: the parser takes it for a note
+            $out['unlinked'][] = ['side' => 'related', 'text' => $field, 'type' => $type(['titles' => [], 'type' => null])];
+            $out['entries'][] = ['side' => 'related', 'position' => 0, 'type' => $type(['titles' => [], 'type' => null]), 'text' => $field, 'key' => null, 'work' => null, 'differs' => false];
+        } elseif (count($entries) > 1) {
+            // what the field says after its last entry
+            $last = end($entries);
+            $needle = $last['author'] ?? end($last['titles']);
+            if (($at = mb_strrpos($field, $needle)) !== false) {
+                $rest = preg_replace(['/^\s*\([^()]*\)/u', '/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u'], '', mb_substr($field, $at + mb_strlen($needle)));
+                if (mb_strlen($rest) > 15) {
+                    $out['notes'][] = $rest;
+                }
             }
         }
         foreach (array_values($work->commentaries_and_glosses ?? []) as $i => $text) {
-            $text = trim(preg_replace(['/<!--.*?-->/su', '/\s+/u'], ' ', (string) $text));
+            $text = $clean($text);
             $entry = WorkRelationParser::parseEntries($text)[0] ?? null;
-            if ($hit = $linked['children'][$i][0] ?? null) {
-                if ($entry && $differs($entry, $hit[1])) {
+            $hit = $linked['children'][$i][0] ?? null;
+            if ($text !== '') {
+                $out['entries'][] = ['side' => 'children', 'position' => $i, 'type' => $entry['type'] ?? 'related', 'text' => $text,
+                    'key' => $entry ? self::entryKey($entry) : null, 'work' => $hit[1] ?? null, 'differs' => $hit && $entry && $differs($entry, $hit)];
+            }
+            if ($hit) {
+                if ($entry && $differs($entry, $hit)) {
                     $out['printed'][$hit[1]->id] = $text;
                 }
             } elseif ($text !== '') {
@@ -618,5 +636,46 @@ class WorkRelationLinker
         }
 
         return $out;
+    }
+
+    /**
+     * Each entry of a field of several, as the field writes it: from its first title to the next entry's, its author's
+     * life dates as written («(سده 1م)», which the parser reads no years in). An entry whose slice does not read back
+     * as itself is left out, and written out again from its parts.
+     *
+     * @return array<int, string>
+     */
+    private static function slices(string $field, array $entries): array
+    {
+        $starts = [];
+        $at = 0;
+        foreach ($entries as $entry) {
+            if (($start = mb_strpos($field, $entry['titles'][0], $at)) === false) {
+                return [];
+            }
+            $starts[] = $start;
+            $at = $start + mb_strlen($entry['titles'][0]);
+        }
+        $slices = [];
+        foreach ($entries as $n => $entry) {
+            if (isset($starts[$n + 1])) {
+                $slice = mb_substr($field, $starts[$n], $starts[$n + 1] - $starts[$n]);
+            } else {
+                // the last entry ends with its author and life dates: what follows is the field's note
+                $needle = $entry['author'] ?? end($entry['titles']);
+                $end = mb_strpos($field, $needle, $starts[$n]);
+                $tail = $end === false ? '' : mb_substr($field, $end + mb_strlen($needle));
+                $slice = $end === false ? mb_substr($field, $starts[$n])
+                    : mb_substr($field, $starts[$n], $end + mb_strlen($needle) - $starts[$n]) . (preg_match('/^\s*\([^()]*\)/u', $tail, $m) ? $m[0] : '');
+            }
+            // by a pattern, not trim(): trim() works on bytes and would cut the first byte of a letter that shares it with «؛»
+            $slice = preg_replace('/^[\s؛;]+|[\s؛;]+$/u', '', $slice);
+            $read = WorkRelationParser::parseEntries($slice);
+            if (count($read) === 1 && $read[0]['titles'] === $entry['titles'] && $read[0]['author'] === $entry['author']) {
+                $slices[$n] = $slice;
+            }
+        }
+
+        return $slices;
     }
 }

@@ -194,6 +194,11 @@ class Contributions
                     : null,
             ],
             'record_relation' => self::recordRelation($s, $resolution, $target),
+            // the other work has no record: its title and author as text (step 14.280)
+            'text_relation' => [
+                'after' => self::plain($resolution['text'] ?? $s->suggested_value),
+                'text' => RecordRelations::options($s->suggestable_type)[(($resolution['side'] ?? null) === 'children' ? '~' : '') . ($resolution['type'] ?? '')] ?? null,
+            ],
             'relocate' => [
                 'before' => self::plain(self::location($old['library'] ?? null, $old['shelfmark'] ?? null)),
                 'after' => self::plain(self::location($log?->new_values['library'] ?? null, $log?->new_values['shelfmark'] ?? null))
