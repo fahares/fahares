@@ -221,8 +221,9 @@ class PersonPeriodsTest extends TestCase
             ['id' => $death->id, 'verdict' => 'approve', 'place' => 'النجف', 'year' => null],
             ['id' => $origin->id, 'verdict' => 'approve', 'place' => 'طوس'],
             ['id' => $wrong->id, 'verdict' => 'reject', 'reason' => 'the entry is the life of another person'],
-            // not a place of a life, a reviewer's own word, an unknown row, a verdict that is none: all left alone
-            ['id' => $residence->id, 'verdict' => 'approve'],
+            // a period of another kind, with its kind corrected and the year it began (step 14.311)
+            ['id' => $residence->id, 'verdict' => 'approve', 'place' => 'طهران', 'kind' => 'study', 'year' => 1290, 'year_is' => 'from'],
+            // a reviewer's own word, an unknown row, a verdict that is none: all left alone
             ['id' => $done->id, 'verdict' => 'approve'],
             ['id' => 999999999, 'verdict' => 'reject'],
             ['id' => $birth->id, 'verdict' => 'doubt'],
@@ -237,14 +238,15 @@ class PersonPeriodsTest extends TestCase
         $this->assertSame(['approved', 'النجف', 'نجف', null], array_values($death->fresh()->only(['status', 'place', 'city', 'period_from'])));
         $this->assertSame(['approved', 'طوس', 'مشهد'], array_values($origin->fresh()->only(['status', 'place', 'city'])));
         $this->assertSame('rejected', $wrong->fresh()->status);
-        $this->assertSame(['proposed', 'rejected'], [$residence->fresh()->status, $done->fresh()->status]);
+        $this->assertSame(['approved', 'study', 'طهران', 'تهران', 1290, null], array_values($residence->fresh()->only(['status', 'kind', 'place', 'city', 'period_from', 'period_to'])));
+        $this->assertSame('rejected', $done->fresh()->status);
         $log = \App\Models\AuditLog::where('auditable_type', Person::class)->where('auditable_id', $person->id)->orderBy('id')->get();
-        $this->assertSame(['approve', 'approve', 'approve', 'reject'], $log->map(fn ($l) => $l->new_values['person_period_change'])->all());
+        $this->assertSame(['approve', 'approve', 'approve', 'reject', 'approve'], $log->map(fn ($l) => $l->new_values['person_period_change'])->all());
         $this->assertSame('the entry is the life of another person', $log[3]->new_values['reason']);
         // readers see the approved places, one of them without a year
         $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('تولد')->assertSee('۱۱۱۸ ق')->assertSee('وفات')->assertSee('خاستگاه')->assertDontSee('نیشابور');
-        // and a reviewer may save a place of a life with no year by the form, which a period of residence may not
+        // and a reviewer may save a period with no year by the form, of any kind (step 14.311)
         $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'origin', 'place' => 'کاشان', 'mode' => 'point'])->assertRedirect()->assertSessionHasNoErrors();
-        $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'residence', 'place' => 'کاشان', 'mode' => 'point'])->assertSessionHasErrors('start');
+        $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'residence', 'place' => 'کاشان', 'mode' => 'point'])->assertRedirect()->assertSessionHasNoErrors();
     }
 }
