@@ -133,10 +133,32 @@ class WorkCatalogueEntries
         $others = Work::whereIn('id', $relations->flatMap(fn ($r) => [$r->work_id, $r->related_work_id])->reject(fn ($id) => $id == $work->id)->unique())
             ->get(['id', 'clean_title', 'primary_title', 'alternative_titles', 'author_name'])->keyBy('id');
         $keys = fn (Work $w) => array_values(array_unique(array_filter(array_map(fn ($t) => WorkRelationLinker::key($t), self::titlesOf($w)))));
-        $find = function (array $entry, Collection $ids) use ($others, $keys) {
+        $marked = fn (array $titles) => array_values(array_filter(array_map(fn ($t) => WorkRelationLinker::markKey(preg_replace('/\(\s*\d+\s*عنوان\s*\)/u', '', $t)), $titles)));
+        // $several: the second pass, for the entries whose title several related works have (step 14.296)
+        $find = function (array $entry, Collection $ids, array $entryOf, bool $several) use ($others, $keys, $marked) {
             $want = array_filter(array_map(fn ($t) => WorkRelationLinker::key($t), $entry['titles']));
             $works = $ids->map(fn ($id) => $others->get($id))->filter()->unique('id');
             $hits = $works->filter(fn ($w) => array_intersect($want, $keys($w)));
+            if ($several) {
+                if ($hits->count() < 2) {
+                    return null;
+                }
+                // those that have every title of the entry as written, «(ترجمه)» and all, when any has
+                $full = $hits->filter(fn ($w) => ! array_diff($marked($entry['titles']), $marked(self::titlesOf($w))));
+                $hits = $full->isNotEmpty() ? $full : $hits;
+                // then the entry's author says which. An entry with no author is a work with none: the first that no
+                // entry has yet, as the catalogue lists one entry for each. «… (4عنوان)» stands for several works and
+                // is no one of them, and an author the entry names in a way not read is no reason to take a work.
+                $author = WorkRelationLinker::authorKey($entry['author']);
+                $hits = match (true) {
+                    $entry['author'] !== null => $hits->filter(fn ($w) => WorkRelationLinker::authorKey($w->author_name) === $author),
+                    $entry['unread'] || preg_grep('/\(\s*\d+\s*عنوان\s*\)/u', $entry['titles']) => collect(),
+                    // (a work that has every title of the entry: «الحاشية المتوسطة = حاشية شرح الكافية» is not any gloss of the second title)
+                    default => $hits->filter(fn ($w) => WorkRelationLinker::authorKey($w->author_name) === '' && ! isset($entryOf[$w->id]) && ! array_diff($want, $keys($w)))->sortBy('id')->take(1),
+                };
+
+                return $hits->count() === 1 ? [$entry['titles'][0], $hits->first()] : null;
+            }
             if ($hits->count() === 1) {
                 return [$entry['titles'][0], $hits->first()];
             }
@@ -152,27 +174,47 @@ class WorkCatalogueEntries
             return null;
         };
         $fixed = fn ($row) => $row->link_status === 'linked' && $row->link_source !== 'auto';
+        // «شرح بیست باب؛ کرمانی، علاء الدین بن محمود»: an author written with no life dates reads as a second title
+        $read = function ($row) {
+            $parts = WorkRelationParser::parseEntries($row->text);
+            if (! ($entry = $parts[0] ?? null)) {
+                return null;
+            }
+            // a row waiting for a reviewer is not given a work with no author by its place in the list: the reviewer says which
+            $entry['unread'] = $row->link_status === 'proposed';
+            if ($row->side === 'children' && $entry['author'] === null && count($parts) > 1) {
+                $entry['unread'] = true;
+                if (count($parts) === 2 && $parts[1]['author'] === null && count($parts[1]['titles']) === 1) {
+                    [$entry['author'], $entry['unread']] = [$parts[1]['titles'][0], false];
+                }
+            }
+
+            return $entry;
+        };
 
         // the tie each row should have: row id => [the work's id, whether the catalogue's words differ]
         $ties = [];
         foreach (['related' => $relations->where('work_id', $work->id)->pluck('related_work_id'), 'children' => $relations->where('related_work_id', $work->id)->pluck('work_id')] as $side => $ids) {
             // a work is one entry's: the rows a decision or a reviewer tied have theirs
             $entryOf = $rows->where('side', $side)->filter($fixed)->mapWithKeys(fn ($row) => [$row->linked_work_id => [$row->id, true]])->all();
-            foreach ($rows->where('side', $side)->reject($fixed) as $row) {
-                $entry = WorkRelationParser::parseEntries($row->text)[0] ?? null;
-                $hit = $entry ? $find($entry, $ids) : null;
-                if (! $hit || ($row->link_status === 'rejected' && (int) $row->linked_work_id === $hit[1]->id)) {
-                    continue;
+            // first the entries whose title one related work has, then those whose title several have
+            foreach ([false, true] as $several) {
+                foreach ($rows->where('side', $side)->reject($fixed) as $row) {
+                    $entry = isset($ties[$row->id]) ? null : $read($row);
+                    $hit = $entry ? $find($entry, $ids, $entryOf, $several) : null;
+                    if (! $hit || ($row->link_status === 'rejected' && (int) $row->linked_work_id === $hit[1]->id)) {
+                        continue;
+                    }
+                    $names = $entry['author'] !== null && WorkRelationLinker::authorKey($entry['author']) === WorkRelationLinker::authorKey($hit[1]->author_name);
+                    if ($side === 'children' && isset($entryOf[$hit[1]->id]) && ! ($names && ! $entryOf[$hit[1]->id][1])) {
+                        continue;
+                    }
+                    if ($side === 'children') {
+                        unset($ties[$entryOf[$hit[1]->id][0] ?? 0]);
+                        $entryOf[$hit[1]->id] = [$row->id, $names];
+                    }
+                    $ties[$row->id] = [$hit[1]->id, self::wordsDiffer($entry, $hit[0], $hit[1])];
                 }
-                $names = $entry['author'] !== null && WorkRelationLinker::authorKey($entry['author']) === WorkRelationLinker::authorKey($hit[1]->author_name);
-                if ($side === 'children' && isset($entryOf[$hit[1]->id]) && ! ($names && ! $entryOf[$hit[1]->id][1])) {
-                    continue;
-                }
-                if ($side === 'children') {
-                    unset($ties[$entryOf[$hit[1]->id][0] ?? 0]);
-                    $entryOf[$hit[1]->id] = [$row->id, $names];
-                }
-                $ties[$row->id] = [$hit[1]->id, self::wordsDiffer($entry, $hit[0], $hit[1])];
             }
         }
 
