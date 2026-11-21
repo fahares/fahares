@@ -33,7 +33,8 @@ code_clean() { git diff --quiet HEAD -- . ':(exclude)docs' ':(exclude,glob)*.md'
 if [[ "${1:-}" == "--tested" ]]; then
     if ! code_clean; then echo "uncommitted code changes: not counted as tested" >&2; exit 1; fi
     t="$(code_tree)"
-    hit="$(awk -F'\t' -v t="$t" '$1 == t' "$TESTED" 2>/dev/null | tail -n 1)"
+    hit=""
+    [[ -f "$TESTED" ]] && hit="$(awk -F'\t' -v t="$t" '$1 == t' "$TESTED" | tail -n 1)"
     if [[ -n "$hit" ]]; then echo "tested: $hit"; exit 0; fi
     echo "not tested: code tree $t"; exit 1
 fi
