@@ -12833,3 +12833,37 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`trim()` با نویسه‌های عربی:** `trim($text, " \t؛;،.-")` بایتی کار می‌کند و بایت نخست حرفی را که با «؛» و «،» هم‌بایت است (حروف `D8 xx`، مانند «ا» و «ب») از آغاز متن می‌برد. یادداشت پایانی فیلد و برش مدخل اکنون با `preg_replace('/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u', …)` پیراسته می‌شوند.
 - **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
 - **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
+
+### گام ۱۴.۲۸۲: تجزیه‌گر v2.4.0 و `fankha_v2_repaired_labels_export.py`
+
+- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `84e304d`):**
+  - `repair_chunk()` پیش از خواندن هر تکۀ سطر فیزیکی: «بی‌کا تا …» و «بی‌کا بی‌تا» دو تکه می‌شوند؛ «تا <تاریخ>» همان «تا:» است؛ «بی‌تا: قرن 11» همان «بی‌تا (قرن 11)»؛ «اندازه/ادنازه/انداز [جلد] [:] N×N»؛ «نوع جلد:» و «: جلد …»؛ «: کاغذ …»؛ «تعداد صفحات: N…»؛ «Nسط»، «N س» و «Nسطری».
+  - برچسب تنها («کاغذ»، «جلد»، «جا») تکۀ پس از خود را مقدار می‌گیرد (`BARE_LABELS`).
+  - `LINES_QUALIFIER`: «غالباً»، «بعضاً»، «میانگین» و مانند آن پیش از شمار سطر، که به `lines_note` می‌رود. هر تکۀ کوتاه دارای «چلیپا» `lines_note` است.
+  - اندازۀ بی برچسب با «سم» در نسخۀ بی اندازه؛ تاریخ بی «تا:» (`CENTURY_CHUNK`، `DATE_CHUNK`، و سال تنها میان ۶۰۰ و ۱۴۵۰ پس از کاتب) تنها پس از کاتب، خط، «بی‌کا» یا «بی‌تا»، یا وقتی یک گروه «؛» کامل است. پس از «بی‌تا» یادداشت `date_guess` است.
+  - `PHYS_GROUP_LOOSE`: «خط تحریری، بی‌کا» و «…؛ کاتب: …، تا: …» سطر فیزیکی را باز می‌کنند (دومی نه پس از «نسخه اصل»).
+  - `ie_marked()`: «آغاز و انجام برابر»، «آغا و انجام: برابر»، و «آغاز …» یا «؛ انجام …» بی دونقطه، مگر شرح وضعیت باشد (`IE_BARE_PROSE`: «افتاده»، «ندارد»، «است»، «تا» و مانند آن).
+  - «جلد …» و «کاغذ …» دیگر به مقدار کاغذ یا جلد پیش از خود نمی‌چسبند.
+- **سنجش با خروجی پیشین (۳۲۳ هزار نسخه):** پر شدن `copy_date` ۲۷۳، `explicit` ۲۵۱، `incipit` ۱۶۴، `binding` ۱۳۷، `lines` ۱۱۲، `text_dimensions` ۱۰۶، `dimensions` ۹۵، `no_scribe` ۹۹، `scribes` ۳۴، `undated` ۲۶، `folios` ۲۰، `paper` ۱۸، `script_raw` ۱۲، `lines_note` ۶۲۲؛ `incipit` دگرگون ۱۰۵ («آغاز: برابر؛ انجام …» که انجام را در آغاز داشت)، `paper` دگرگون ۷۸. شمار یادداشت‌ها از ۱۸۵٬۴۰۰ به حدود ۱۸۴٬۴۰۰.
+- **مقایسه با سایت:** `fankha_v2_db_compare.py --out reports/fankha_v2_db_review10`.
+- **`fankha_v2_repaired_labels_export.py --before DIR --diffs … --copies FILE`:** نسخه‌هایی که فیلدهای v2 آن‌ها میان دو خروجی دگرگون شده (۸۷۶، ۸۷۴ تا با متن یکتا در سایت)، و از تفاوت‌های «filled» همان‌ها ستون‌های `copy_date_raw`، `binding`، `lines`، `dimensions`، `explicit_text`، `incipit_text`، `paper`، `folios` و `copy_place`، بی اصلاح بازبینی‌شده و دیده‌شده در `raw_text` رکورد. `is_bika` و `is_bita` روشن می‌شوند جایی که ستون همتا تهی است، و با پر شدن تاریخ یا کاتب خاموش. کاغذ و جلد پیش از «جلد …» یا شمار برگ بریده می‌شوند.
+- **پرونده:** `database/data/fankha_repaired_labels_step14_282.json` (۵۸۷ رکورد)، برای `fahares:rebuild-copies`.
+- **تمرین روی `fahares_prod`:** «write 587»، سپس «Rebuilding 587 copies … dates=174, pointers_linked=13»، و اجرای دوم «already 587».
+- **اصلاح متن (`fahares-corpus`، کامیت‌های `a8082c7` و `7cf6945`):**
+  - تجزیه‌گر هر «تعمیر» را در `FIX_LOG` می‌نویسد (`log_fix`: سطر، گونه، متن پیشین، متن تازه)؛ `FIX_NOT` شیوه‌های خود فهرست را بیرون می‌گذارد.
+  - `scripts/fankha_label_fixes.py [--apply] [VOL …]`: هر جلد را می‌خواند و هر جا را در همان سطر پروندۀ متن جایگزین می‌کند، تنها اگر متن پیشین درست یک بار در سطر باشد. اجرا: «Fixed 703 places {chunk: 368, explicit: 142, head: 169, bare: 24}; 2 not found on their line» (جلد ۸ سطر ۵۱۲۸۱ و جلد ۲۰ سطر ۲۷۸۹۹)؛ اجرای دوم «Would fix 0 places».
+  - «بی‌کا تا <غیر تاریخ>» دیگر دو تکه نمی‌شود (۱۴ نسخه `no_scribe` نمی‌گیرند و تکه یادداشت می‌ماند).
+  - `scripts/fankha_label_fixes_site_export.py --before DIR --copies FILE`: نسخۀ سایت را با متن پیشین می‌یابد، همان جایگزینی‌ها را در `raw_text` سایت (با برچسب صفحه و فاصله‌های خودش) می‌کند و تنها وقتی می‌نویسد که نتیجه با متن تازۀ v2 یکی باشد. ۶۰۴ نسخه: ۶۰۳ یافته، ۳ کنار گذاشته (خط دارند و سطر «خط:» ندارند).
+- **پروندۀ دوم:** `database/data/fankha_label_fixes_text_step14_282.json` (۶۰۰ رکورد، تنها `raw_text`).
+- **تمرین روی `fahares_prod`:** «Rebuilding 603 copies … extents=5, lines=87, pointers_linked=8» (با سه نسخه‌ای که سپس برگردانده و از پرونده برداشته شد)، اجرای دوم «already 600». مقایسه با پروداکشن: جز ستون‌های گام نخست، `extent_raw` ۶، `range_from/to` ۳، `catalog_volume_id` و `cataloger_id` ۱۳ پر شدند. `fahares:rebuild-scripts --dry-run`: ۷ نسخه خط می‌گیرند (تحریری ۲، پهلوی ۲، سیاق، نسخ، نستعلیق).
+
+### گام ۱۴.۲۸۷: تجزیه‌گر v2.5.0 (پیوستن تکه به فیلد) و `fankha_v2_joined_pieces_export.py`
+
+- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `8aa0b49`):**
+  - `continues(ch)`: شناسۀ تکه (`sha1(text)[:12]`) را در سطرهای دارای «c» از `reconciliations/fankha_note_types.jsonl` می‌جوید و با `CONT_LAST` به مقدار `last` تجزیه‌گر برمی‌گرداند (`date`، `binding`، `paper`، `place`، `ownership`، `seal → seals`، `endowment → donor`).
+  - در `parse_physical()`، درست پیش از آن که تکۀ بی برچسب یادداشت `remark` شود: `at = last or (carry if ci == 0 else None)`؛ `carry` فیلدی است که گروه «؛» پیشین با آن پایان یافته. اگر `continues(ch) == at`، `join_field()` تکه را با «، » می‌افزاید و `last` می‌ماند.
+  - `join_field()`: تاریخ دوم (`is_date_chunk` یا `MORE_DATES`، پرانتز پایانی کنار) تنها وقتی `raw` سال سه یا چهار رقمی دارد به `copy_date.raw` می‌رود و `century` و `sort_year` دست نمی‌خورد؛ وگرنه به `copy_date.note`. تکۀ دارای «N سطر» یا «اندازه:» نمی‌پیوندد؛ برای کاغذ، واقف و محل، تکۀ دارای «جلد»، «کاغذ:»، «خط:»، شمار برگ یا «[» هم نه.
+- **سنجش با خروجی پیشین:** `copy_date` ۵۲۲، `binding` ۲۱۵، `ownership` ۱۹۳، `copy_place` ۴۸، `paper` ۳۱، `seals` ۲۷، `donor` ۱۴؛ پیامد: `commissioned_by` ۵ نسخه پر شد و `ruled` از ۷ نسخه برداشته شد («مجدول» پس از جلد، وصف جلد است). تکه‌های «ادامه» در یادداشت‌ها از ۳٬۵۴۴ به ۲٬۳۵۷ رسید.
+- **`fankha_v2_joined_pieces_export.py --before DIR --copies FILE [--step N]`:** نسخه‌هایی که `copy_date_raw`، `copy_place`، `paper` یا `binding` آن‌ها در v2 با «، …» بلندتر شده یا `copy_date.note` گرفته‌اند (۸۱۴)، با متن به نسخۀ سایت می‌رسند. ستون سایت همان دنباله را می‌گیرد اگر با مقدار پیشین v2 یکی باشد (`tight`)؛ `copy_date_note` تنها اگر تهی باشد. کنار گذاشته: «سایت از پیش دارد» (یادداشت تاریخ ۱۶۳، جلد ۲۰۴، محل ۴۰، کاغذ ۱۶، تاریخ ۴)، مقدار یا یادداشت دیگر ۸، متن غیر یکتا ۴.
+- **پرونده:** `database/data/fankha_joined_pieces_step14_287.json` (۳۸۵ رکورد).
+- **تمرین روی `fahares_prod`:** «Rebuilding 385 copies … dates=1, pointers_linked=6»، اجرای دوم «already 385». تمرین نخست نشان داد تاریخ دوم پس از «قرن N» سال مرتب‌سازی ۹ نسخه را عوض می‌کند؛ با پروندۀ وارونه برگردانده و قاعده اصلاح شد.

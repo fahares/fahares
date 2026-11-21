@@ -1,0 +1,8044 @@
+{
+ "source": "columns parser v2.4.0 newly reads (reports/fankha_v2_db_review10/diffs.jsonl), 2026-11-20; fahares step 14.282",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 10183,
+   "shelfmark": "197/18",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 3 ربیع الثانی 1008"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10376,
+   "shelfmark": "3120",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "20×31سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10382,
+   "shelfmark": "1203",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1147"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10856,
+   "shelfmark": "236/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10975,
+   "shelfmark": "9151",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا عطف گالینگور"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10976,
+   "shelfmark": "3154",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11/6×18سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11092,
+   "shelfmark": "6043",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1025"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11155,
+   "shelfmark": "1182/31",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 6 ذیقعده 1060"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11157,
+   "shelfmark": "14302/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "6/5×11/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11223,
+   "shelfmark": "25089",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11267,
+   "shelfmark": "1/31",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 9"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11357,
+   "shelfmark": "18435 ض",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "775"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11365,
+   "shelfmark": "3585",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1101"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11945,
+   "shelfmark": "7091",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن8"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12014,
+   "shelfmark": "4746/15",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12021,
+   "shelfmark": "3439/6",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12155,
+   "shelfmark": "714/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12288,
+   "shelfmark": "6982/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1279"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12381,
+   "shelfmark": "1055",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1233"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12717,
+   "shelfmark": "7412",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و حسن علیه السلام فرمود شما آخرت را خراب کرده و دنیا را تعمیر نموده اید و اکراه دارید که از معمورده بخرابه منتقل شوید."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 13335,
+   "shelfmark": "25009",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1240"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 13481,
+   "shelfmark": "3161",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "22/5×11سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 13496,
+   "shelfmark": "2301",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 8 ربیع الاول 1261ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 13512,
+   "shelfmark": "16597",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "12×19سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14008,
+   "shelfmark": "5850",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "18×22سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا با روکش، پارچه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14518,
+   "shelfmark": "13843",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13×20/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15615,
+   "shelfmark": "16909",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک شنبه 23 جمادی الثانی 1301ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15780,
+   "shelfmark": "1010/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15915,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "979 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15917,
+   "shelfmark": "655/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "ترمه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15968,
+   "shelfmark": "ض 5725",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16744,
+   "shelfmark": "206/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17120,
+   "shelfmark": "1719/12",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18562,
+   "shelfmark": "3622/18",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "15×21سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19139,
+   "shelfmark": "2038/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×17سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19902,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16×21سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20457,
+   "shelfmark": "498/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک شنبه 7 محرم 994 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20459,
+   "shelfmark": "13816",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21639,
+   "shelfmark": "13933",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22411,
+   "shelfmark": "2188/14",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج 24، سطر اندازه 17×27سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22412,
+   "shelfmark": "6894/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی بدون مقوا"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و زراعت بسیار بود و اندر تابستان گرمای سخت بود و بیماری مردمان را بسیار بود"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22688,
+   "shelfmark": "1846/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22689,
+   "shelfmark": "14462/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "گالینگور، قهوه‌ای"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "از حبس چاه خلاص شد و در این روز توبه حضرت آدم مقبول شد و توبه قوم یونس در این روز قبول شد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24276,
+   "shelfmark": "12622",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "dimensions": {
+     "from": null,
+     "to": "9/5×15/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25021,
+   "shelfmark": "801",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×18سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25043,
+   "shelfmark": "6345",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25343,
+   "shelfmark": "11887",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و رحمة الله و برکاته السلام على صاحب السكينة"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25865,
+   "shelfmark": "1490",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 23 ذیقعده 1324ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26220,
+   "shelfmark": "143",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "10/5×16سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26221,
+   "shelfmark": "145",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "9/5×19/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26225,
+   "shelfmark": "146",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11/5×21/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26227,
+   "shelfmark": "152",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×22سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26230,
+   "shelfmark": "117",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "6×10/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26247,
+   "shelfmark": "734",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×18سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26260,
+   "shelfmark": "183",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×17سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26280,
+   "shelfmark": "3692",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "8×16/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26341,
+   "shelfmark": "8-فیروز",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26732,
+   "shelfmark": "3062/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "24×15 سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27276,
+   "shelfmark": "479",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27544,
+   "shelfmark": "1061",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27687,
+   "shelfmark": "14146/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای روشن با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27939,
+   "shelfmark": "3004/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "10/5×20/2سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28532,
+   "shelfmark": "3162",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "18×24 سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29148,
+   "shelfmark": "2132/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13/5×22سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29414,
+   "shelfmark": "11178",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "روى عن النبى صلى الله عليه و آله انه قال لاخي على بن ابی طالب عليه السلام فضائل لاتحصى"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "حيث قال و عاد من عاداه و وال من والاه يا بن عباس احذر ان يدخلك شك فيه فان الشك في علی کفر (ناتمام)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29415,
+   "shelfmark": "29617",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "اتخذوا الارض بساطا و ترابها فراشا و ماؤها طيبا و القرآن شعارا و الدعاء دثارا .. آغاز) جلد (2) لله در القايل الله تحت قبيل العرش طايفة اخفاهم عن عيون الناس اجلالا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29467,
+   "shelfmark": "2956",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×20 سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30000,
+   "shelfmark": "2545",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "18×29سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30107,
+   "shelfmark": "141/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 31972,
+   "shelfmark": "4013/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "8/5×17/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32011,
+   "shelfmark": "8099/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16×21/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32574,
+   "shelfmark": "5469/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13×18/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32622,
+   "shelfmark": "1315",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 20 محرم 1046ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32926,
+   "shelfmark": "171/6",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "20/5×35/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33006,
+   "shelfmark": "308/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33235,
+   "shelfmark": "14109",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه ای با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33306,
+   "shelfmark": "13982",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی مجدول با ترنج و سرترنج طلایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34286,
+   "shelfmark": "13814/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع مشکی عطف: تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34474,
+   "shelfmark": "2779",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی با تیماج تریاکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35758,
+   "shelfmark": "14025/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 36219,
+   "shelfmark": "2207/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 37372,
+   "shelfmark": "2631",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38228,
+   "shelfmark": "5077",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و منافات عاشق و معشوق را نیز گویند حجاب سر و دل را نیز گویند. و سلام علی خیر خلقه محمد و آله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38392,
+   "shelfmark": "2077/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی یک لا"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "رب کم من نعمة انعمت بها علينا و نقمة برحمتک صرفتها عنا ... من ركبها نجی و تخلف عنها غرق و بعد فهذه رسالة في بیان عقاید الشيعة الامامية و الجماعة الا شعرية ... موسومة باصلاح ذات البين اذ لعل الله تعالى يرفع الشين"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و لنختم الرسالة بنبذ من احوال صاحب الزمان ... ذكر فى المجموع الرايق عن السيد المحقق رضی الدین علی بن طاوس ان الامام ... العسكرى لما ادركه الوفاة جمع شيعته و اخبرهم ان ولده ... الحجة القائم و هو المهدى. ... الى يوم الدين"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38461,
+   "shelfmark": "31636",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "19×26سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج فرنگی قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38478,
+   "shelfmark": "9064",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 23 جمادی الثانی 1240ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38485,
+   "shelfmark": "289",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38526,
+   "shelfmark": "1081/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "ترمه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38553,
+   "shelfmark": "7702/8",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 14 شوال 1263ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38554,
+   "shelfmark": "627/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی لایه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38564,
+   "shelfmark": "248/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38627,
+   "shelfmark": "657/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "ترمه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38686,
+   "shelfmark": "12714/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 29 ربیع الاول 1372ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38959,
+   "shelfmark": "4805/14",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "29×16"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 41057,
+   "shelfmark": "1945/1 و عکسی 1653 و 1826 و 1827",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "10×13سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 41816,
+   "shelfmark": "13904",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع سرمه ای عطف: تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 42689,
+   "shelfmark": "14181",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوای سورمه‌ای عطف تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43677,
+   "shelfmark": "1719/10",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44012,
+   "shelfmark": "6984",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی ساده فستقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44013,
+   "shelfmark": "1900/22",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج تریاکی روشن، کوبیده مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46158,
+   "shelfmark": "79/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "17/5×22سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 47364,
+   "shelfmark": "14121/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48256,
+   "shelfmark": "22/2-عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "17×25سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48435,
+   "shelfmark": "14034",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48574,
+   "shelfmark": "14170",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی مجدول ضربی با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48932,
+   "shelfmark": "13989",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز مجدول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49000,
+   "shelfmark": "13835",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع قهوه‌ای عطف: تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49469,
+   "shelfmark": "3667/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "12×19سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49540,
+   "shelfmark": "143/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 50529,
+   "shelfmark": "1824/10",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51696,
+   "shelfmark": "493/10",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "12×18"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51755,
+   "shelfmark": "5031/20",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و انجا» برابر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51876,
+   "shelfmark": "14115/6",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای ضربی مجدول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51882,
+   "shelfmark": "2216/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11/5×18/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51883,
+   "shelfmark": "223/8",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 2 شعبان 1008ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52380,
+   "shelfmark": "4400",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و قيل يعنى به السموات و الأرض و الجبال. قد فرغ من تسويد هذا الجزؤ من المجلد الثامن عشر مؤلفه ... و صلى الله على سيد المرسلين محمد و عترته الأكرمين الأقدسين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52492,
+   "shelfmark": "13981",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53375,
+   "shelfmark": "13713",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53658,
+   "shelfmark": "14013",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی با ترنج و سر ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54688,
+   "shelfmark": "13927/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی مجدول ضربی با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55452,
+   "shelfmark": "509/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "5/16×5/11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55584,
+   "shelfmark": "174",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 26
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55701,
+   "shelfmark": "13829",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع قهوه‌ای، عطف تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 57004,
+   "shelfmark": "810/3-5/100",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "یکی گفت از نیان ملک را نهان ×× که ای حلقه در گوش حکمت جهان / پسندیدگان در بزرگی رسند ×× زما بندگات چه آمد پسند"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 58760,
+   "shelfmark": "3269-ف",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "داخل سختیان سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59267,
+   "shelfmark": "1490/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×18سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوایی عطف تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60044,
+   "shelfmark": "13848/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی مجدول ضربی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60396,
+   "shelfmark": "14017",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زیتونی با ترنج و سرترنج طلایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60611,
+   "shelfmark": "14178",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی سبز با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61451,
+   "shelfmark": "4082",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "کاغذ فستقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61452,
+   "shelfmark": "2024",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61976,
+   "shelfmark": "923",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "18×28سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63087,
+   "shelfmark": "9710",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13×21سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63193,
+   "shelfmark": "1443/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63195,
+   "shelfmark": "612/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 4 شوال 1243ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63196,
+   "shelfmark": "1981/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "دلهاست بل تكون حروف و کلمات و تحف تحیات زاکیات"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "لتاركوا آلهتنا و کلمه ائن در سوره شعرا مرسوم است."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63613,
+   "shelfmark": "14161",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63687,
+   "shelfmark": "13921",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63820,
+   "shelfmark": "14189",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای ضربی با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63855,
+   "shelfmark": "11850",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64012,
+   "shelfmark": "701عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 27
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64338,
+   "shelfmark": "1464/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1216ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64339,
+   "shelfmark": "627/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 28 ذیقعده 1233 ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "چرم مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64341,
+   "shelfmark": "695/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ این رساله تجوید از تألیف عالیجناب مقدس القاب آخو ملا ابوالحسن القاری الاصفهانی تمت."
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ این رساله تجوید از تألیف عالیجناب مقدس القاب آخو ملا ابوالحسن القاری الاصفهانی تمت."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65024,
+   "shelfmark": "2048/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65054,
+   "shelfmark": "11257/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    },
+    "paper": {
+     "from": null,
+     "to": "شرقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65055,
+   "shelfmark": "4453/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج تریاکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65147,
+   "shelfmark": "543",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه ربیع الثانی 857"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 66484,
+   "shelfmark": "43-د",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "شکل 1 فصل 1 مقاله 12 می‌رسد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67541,
+   "shelfmark": "2673/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "130×220"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67565,
+   "shelfmark": "15195",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی مجدول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67765,
+   "shelfmark": "4996",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، افضل جزائل نعما واجزل فواضل آلاکه از حضرت جلت.؛ انجام که دو توام حجره موافقت اند جز تسلیم چاره یی متصور نیست آخر الامر بندگان."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68363,
+   "shelfmark": "67",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "18/5×25سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68364,
+   "shelfmark": "2876",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "17×29 سم"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "برابر امید که باشد همگی خیر و صواب ... و الصلوات على رسوله و اصحابه اجمعين."
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر امید که باشد همگی خیر و صواب ... و الصلوات على رسوله و اصحابه اجمعين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68901,
+   "shelfmark": "3007",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70299,
+   "shelfmark": "2741",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×18/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70861,
+   "shelfmark": "14075/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71457,
+   "shelfmark": "9368",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72640,
+   "shelfmark": "6418-عکس",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16×23سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72949,
+   "shelfmark": "12632/30",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72950,
+   "shelfmark": "13016/24",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72951,
+   "shelfmark": "2296/17",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×17/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72952,
+   "shelfmark": "6465/30",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1265ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73128,
+   "shelfmark": "5577/4-27/247",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "dimensions": {
+     "from": null,
+     "to": "11×17سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 74319,
+   "shelfmark": "13895",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای با ترنج و سرترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 74389,
+   "shelfmark": "13900",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج زرشکی با ترنج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 75641,
+   "shelfmark": "21669",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 76069,
+   "shelfmark": "612/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13/5×21/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77110,
+   "shelfmark": "8872/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "25 ربیع الاول 1098ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78115,
+   "shelfmark": "817/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16/5×29سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78245,
+   "shelfmark": "20811",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و بعد قوله لا اله الا هو اشارة الى توحيد الذات و نفى المماثل في الوجود و الشريك في الايجاد و الشبيه في الصفة و قوله الحي القيوم اشارة الى نعت الذات و جلالتها عظمتها لما فيه من معنى الحياة المأخوذ فيه العلم و القدرة و ساير ما يتعلق به"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78263,
+   "shelfmark": "32604",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78356,
+   "shelfmark": "7716/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1030ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78360,
+   "shelfmark": "6222/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ ناقلنا عن خطه الشريف محمد باقر بن زين العابدين في جمادى الاولى ببلدة قم 1034"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ ناقلنا عن خطه الشريف محمد باقر بن زين العابدين في جمادى الاولى ببلدة قم 1034"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78361,
+   "shelfmark": "4137/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "للخاطر الذى خطرت فيه خطرات البلايا و ظهر على خده اثر من وقع عليه الردايا حمد الربى و ما للزمان و صبرا على الهموم و الاحزان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79144,
+   "shelfmark": "4655/74",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79834,
+   "shelfmark": "5845/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80368,
+   "shelfmark": "25233",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1305ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80649,
+   "shelfmark": "17914",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فان الطرق الى رواية الكتب و القراين على ذلك ايضا كثيرة منها انه صرح في اول كتابه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80650,
+   "shelfmark": "21282",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله الحمدلله على افضاله و الصلاة و السلام على محمد و آله كتاب الزكاة من كتاب تفصيل وسائل الشيعة الى تحصيل مسائل الشريعة"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "اقول و الاحاديث فى ذلك كثيرة لكن ورد لها معارضات غير صريحة فى الزيادة فالاحوط الترك ... في اواخر شهر جمادی الاولى في سنة 1085"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80651,
+   "shelfmark": "17918",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و قد روى الصدوق و غيره احاديث فى انه الرضا (ع) اخرج من المدينة الى مرو مكرها والله تعالى اعلم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80658,
+   "shelfmark": "2360",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81120,
+   "shelfmark": "8323",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "20 رمضان 1367ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81265,
+   "shelfmark": "20879",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، زرشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81266,
+   "shelfmark": "6710",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "اصل من جملة الادلة العقلية لا الاصول العلمية المجعولة في حق الشاك فان لها مقاما آخر ياتي الكلام فيها"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81320,
+   "shelfmark": "16946",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81321,
+   "shelfmark": "16959",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسم الله تعالى الحمد لله و صلى الله ... الباب السادس في"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81323,
+   "shelfmark": "16958",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "هو الحالي عن الفرض لا الخالي عن الفائده صح."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81324,
+   "shelfmark": "17026",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "پس از بسمله و خطبه مختصر کتاب الصوم الذي هو من الطاعات و القربات"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و بمجرد بیعة رفع ... احرام و ... شان و نقل نمکردن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81325,
+   "shelfmark": "17022",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، الحمدلله الذی فطر"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "لاحتمال كون الواجب هو الاكثر من حيث الكم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81647,
+   "shelfmark": "866",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 19 جمادی الاول 1299ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82677,
+   "shelfmark": "5887/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82678,
+   "shelfmark": "2581/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "حمد بیحد خدای را که آفرید ما را باحسن تقویم و هدایت کرد ما را بنهج قویم و صراط مستقیم و شکر واهبی را که بخشید حیات بر عالمین و افراشت آسمان را بر بالای زمین تدبیر کننده اسباب و امور؛ انجام یا اخیار یا افراد یا رجال یا قطب یا قوس البته ان کار بحسب دلخواه برآید و درین هیچ شکی نیست و معرفت جهات هر روزه بنوعی است که درین جدول مرقوم است"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82680,
+   "shelfmark": "6368/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 83677,
+   "shelfmark": "438/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84067,
+   "shelfmark": "15749",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 9"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84068,
+   "shelfmark": "2283",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 10"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن، قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84071,
+   "shelfmark": "2930/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 29 ربیع الاول 845ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84391,
+   "shelfmark": "14072/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84847,
+   "shelfmark": "1266",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13/9×21/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 86077,
+   "shelfmark": "300/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13×5/19"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 86335,
+   "shelfmark": "50",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "روغنی دارای تذهیب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 86337,
+   "shelfmark": "2845",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "خواص خیار اصحاب و محرمان اسرار جناب سید اخیار و سلاله اطهار امام المغارب والمشارق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87284,
+   "shelfmark": "13983",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87530,
+   "shelfmark": "26488",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "19×32سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87531,
+   "shelfmark": "24544",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "19/5×25/2سم"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و قد ذكرنا نحن متوفی کتاب فهرست كتب الشيعة فمن اراده وقف عليه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87547,
+   "shelfmark": "13999",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87586,
+   "shelfmark": "14010",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87651,
+   "shelfmark": "95/1-5994",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "می‌رسد به پایان جزو پنجم که جزو ششم باید در طلاق باشد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87729,
+   "shelfmark": "9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "33×5/19"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87878,
+   "shelfmark": "12514",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 88518,
+   "shelfmark": "13972/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مشمع قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89344,
+   "shelfmark": "14110",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سورمه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92019,
+   "shelfmark": "4868/19",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "14×25/5"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92537,
+   "shelfmark": "3157",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13×22سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92757,
+   "shelfmark": "16109/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "22 محرم 1328ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92865,
+   "shelfmark": "14112/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93167,
+   "shelfmark": "4650/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93169,
+   "shelfmark": "5333/10",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "فرنگی آبی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93424,
+   "shelfmark": "643/8",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "قهوه ای سیر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93425,
+   "shelfmark": "3530/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "9×17سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93684,
+   "shelfmark": "9691",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 11 جمادی الاول 1340ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95589,
+   "shelfmark": "4590",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "خاتمه اذا اردت معرفة القمر في اى برج هو فاضعف ما مضى معك من الشهر العربی و زد على ذلك خمسة ايام فما اجتمع معك فالق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95596,
+   "shelfmark": "12493",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "ساغری، خرمایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96388,
+   "shelfmark": "3315",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله و به نستعین، عن امام جعفر بن محمد الصادق عن ابيه محمد الباقر عن ابيه على الساجد زين العابدين"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96389,
+   "shelfmark": "34",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96390,
+   "shelfmark": "1672/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "سلام کالدر الساطع و دعاء كالنور اللامع و تحية يملى بها ذهن السامع مهذبات مرفوعات الى عالى جناب سيدنا الاعظم و مولانا الاكرم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96687,
+   "shelfmark": "16903",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "چرم قهوه‌ای 81گ، ابعاد متن 11×16"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "عندالله و عندالرسول ضایع نخواهد شد ان الله لا يضيع اجر المحسنين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98887,
+   "shelfmark": "73",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و الصدفين بفتحتين جانبا الجبلين لأنهما يتصادفان يتقابلان و قرى الصدفين بضمتين وبضمة و سكون والقطر النحاس ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 100728,
+   "shelfmark": "10746",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "10/3×16سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101365,
+   "shelfmark": "237",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101368,
+   "shelfmark": "5249",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "2 رمضان 1274ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102365,
+   "shelfmark": "217/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "اصفهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102368,
+   "shelfmark": "474",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "المنطق من المهيه من حيث هى فى الجمله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102721,
+   "shelfmark": "130",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11 و 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 103344,
+   "shelfmark": "14096",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 104462,
+   "shelfmark": "2239/1-12/129",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105567,
+   "shelfmark": "14041",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106149,
+   "shelfmark": "249",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106150,
+   "shelfmark": "4453/2-22/173",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "12×18سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106151,
+   "shelfmark": "2986/2-15/226",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "نحمدك اللهم على ما اعطيتنا من سوابغ النعم وبوالغ الحكم ونصلى على نبيك الهادى ... قوله نحمدك آثر الحمد على الشكر لان الحمد يعم الفضايل والفواضل"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "قوله وانما قال تخييل لان العدولة ليس محققا وانما هو على سبيل التخييل ... بحصر الادلة في اللفظ مع ظهور مدخلية العقل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106528,
+   "shelfmark": "2383/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 28 ذیحجه 1123ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106868,
+   "shelfmark": "818",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "25 رمضان 1059ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106873,
+   "shelfmark": "1422",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "علی التقدیر الاخیر لا يلزم اختلاف المفروض انه تلبيس ان خلاف المفروض و انه لم يلزم من جهة انه الاختلاف المفروض في الذاتي يلزم في الخارج لكنه لزم من جهة انه الاختلاف المفروض في عرضى يلزم فى عرضى اخر ... فان قلت اذا فرضنا اقول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106954,
+   "shelfmark": "311/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106967,
+   "shelfmark": "97",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 10"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107628,
+   "shelfmark": "۶۰۲۷",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107630,
+   "shelfmark": "۲۶۰۰۷",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107636,
+   "shelfmark": "۶۹۲۵-۳۵/۱۲۵",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن ۱۳"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107891,
+   "shelfmark": "14129",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110277,
+   "shelfmark": "491/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "كلام الامام فى المحصل و الكلام ناقده تبین ضعف هذه النسخه كذا نقل عنه."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110279,
+   "shelfmark": "512",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "قال الشارح الحكمة استكمال النفس، الاستكمال مصدر و المصادر قد يطلق ويراد بها معانيها النسبية و قد يطلق و يراد بها الاسم الحاصل بالمصدر"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و ذلك لان ما يمتنع عدمه لو كان معدوماً اجتمع النقيضان اذ يلزم ان يمتنع العدم و ان لا يمتنع العدم و يمكن ان يقال مراده ...."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110280,
+   "shelfmark": "6194-31/74",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله الحمد لله الذى لامشاركة بينه و بين الممكنات من جهة الذات و جملة المصنفات ... و بعد فلما رأيت علم الكلام انفع المطالب مآلاً وارفع المآرب كمالاً خصوصاً منه بحث العلة و المعلول ... قال الشريف عامله الله بلطفه اللطيف في شرحه للمواقف في بحث العلة والمعلول المرصد الخامس؛ انجام فلیلزم عدم التكافؤ مع لزومه فينقطع السلسة من الجانبين تامل ولا تغفل. قال المقصد التاسع الفرق بين جزء العلة و شرطها آه فائدة. هذا المقصد غير ظاهرة بل مسلوبة فمن ادعى فعليه البيان حاشیه‌ای بالقول بر شرح میرسید شریف جرجانی بر کتاب مواقف در علم کلام، محشی آنچه در هنگام تدریس شرح مواقف به ذهنش آمده، جمع‌آوری و این حاشیه را سامان داده و در آغاز به سلطان سلیم شاه بن سلطان بایزید خان تقدیم نموده است. این حاشیه را از «قاسم کرمیانی بغدادی» دانسته‌اند، برای ما ثابت نشد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110473,
+   "shelfmark": "7164/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و لمان كان اكثر الايرادات مندقعة ... قوله الهداية امر من لديه قيل هي الدلالةعلى ما يوصل الى المطلوب"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "بحيث لا يمكن ان يرجع بريح"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110474,
+   "shelfmark": "16372/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، الحمدلله رب العالمین ... قوله اعلم ان الحكمة علم الخ اعلم ان الحكمة و الكلام يبحثان عن الاحوال"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "یعنی الدليل يكون اخص من المدعى."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110475,
+   "shelfmark": "8264",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله حمد له ... اعلم ان الحكمه علم باحوال اعيان الموجودات الخارجيه على ما هى عليه فى نفس الامر بقدر الطاقه البشريه"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و اجيب بان الاكثرين لم يعدوه من الحكمه و هذا التعريف انما هو على راى الاکثرین تمت."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110680,
+   "shelfmark": "14124",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111330,
+   "shelfmark": "2954",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114766,
+   "shelfmark": "225/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 10"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 115882,
+   "shelfmark": "83/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116001,
+   "shelfmark": "9096",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "11×16سم"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، الحمدلله الذی انزل على عبده قرانا ... اما بعد فاني لما وفقني الله جل اسمه لنظم [القصيده ؟] ... بدرة البيان التمس منى بعض السادة و الاخوان ان اشرحها شرحا يكشف غوامضها"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116144,
+   "shelfmark": "39/2 - ب",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله حمدله ... اما بعد فیقول ... على بن محمد على اعلم ان الادلة عند الاصحاب اربعة"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116145,
+   "shelfmark": "7707/23",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116146,
+   "shelfmark": "5729/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله الحمد لله رب العالمين ... اما بعد فيقول الفقير الى الله الغنى على بن محمد على ان الادلة عند الاصحاب اربعة الكتاب و السنة و الاحجاع و العقل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116446,
+   "shelfmark": "5179",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "كتب بعضهم الى صديق له. للشوق اطال الله بقاء ... مختلف الاغراض والظفر عقبي الصابرين و بالله استعين"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116613,
+   "shelfmark": "203/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1240ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116842,
+   "shelfmark": "2048/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 117725,
+   "shelfmark": "1099/8",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 9"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 118109,
+   "shelfmark": "ض 11437",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و منها ملاحظة الراوى فان ابى ايوب (كذا) و ابن ابی عمیر و من ذكر قبلهما انما يروون عن ابی ریاح الجليل لاعن غيره."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119892,
+   "shelfmark": "6405/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 120261,
+   "shelfmark": "7047/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 122371,
+   "shelfmark": "300",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 122374,
+   "shelfmark": "16196/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "كما خلقهم الله اول مرة قال ابوعبدالله على السلام ... لان نياتهم في الدنيا ان لو خلدوا ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124854,
+   "shelfmark": "3328/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1081ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 126084,
+   "shelfmark": "5557-27/227",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 126086,
+   "shelfmark": "6410/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127917,
+   "shelfmark": "8254",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1216ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128397,
+   "shelfmark": "27/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه 2 جمادی الثانی 1020ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128400,
+   "shelfmark": "561/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، زرد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129237,
+   "shelfmark": "4596/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129239,
+   "shelfmark": "2160",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوایی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "و بر آل و اولاد و اصحاب او که اصول مراتب دین و جذر مربع یقین اند و سلم تسليماً كثيراً كثيراً"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129241,
+   "shelfmark": "3459/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "رویه میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129242,
+   "shelfmark": "505/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1226 ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129243,
+   "shelfmark": "296/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و افتقار كثير من العلوم اليه التحريص للمحصلين في تحصيله و كذا الكلام في قوله"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "السعر بكسر السين و الرطلان المثمن اسم مفعول من باب الافعال و المسؤول عنه الثمن و نسبة المسعر ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129399,
+   "shelfmark": "13016/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و اياك و المخالفة في عملك، يا أخي و حق لهذا الباب الأعظم، لأنه أجود و السلام، تم الجزء الثاني من كتاب سر المكنون."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 130878,
+   "shelfmark": "493/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "12×18سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131447,
+   "shelfmark": "2398/40",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "سپاهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133321,
+   "shelfmark": "11985",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133338,
+   "shelfmark": "1490",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 134919,
+   "shelfmark": "14085",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135010,
+   "shelfmark": "103",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "20×30 سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135012,
+   "shelfmark": "8910",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "ثلاث مسحات بجسم طاهر مزيل للعين لا الاثر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135014,
+   "shelfmark": "9790",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج شنبه جمادی (کذا) 975ق"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "و قتل الوزغ و يقضى غسل ليالى الافراد الثلاث"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135016,
+   "shelfmark": "2737",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "9 ذیحجه 977ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135019,
+   "shelfmark": "16052",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سرخ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135023,
+   "shelfmark": "2396",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135024,
+   "shelfmark": "23357",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، رب يسر و لا تعسر ... اما بعد فان علم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135098,
+   "shelfmark": "232 مشیر",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135905,
+   "shelfmark": "4709-ف",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "47×57"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136310,
+   "shelfmark": "14590/14",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 25 ذیقعده 723ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143624,
+   "shelfmark": "13890/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "پارچه‌ای با زمینه کرم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144883,
+   "shelfmark": "3923",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144886,
+   "shelfmark": "55/2-طباطبائی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "paper": {
+     "from": null,
+     "to": "فرنگی"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "لسوء الحظ عاشرت اناساً ×× بطريق اللؤم اهدى من نميم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 147303,
+   "shelfmark": "4029/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149102,
+   "shelfmark": "4283",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "14/5×23سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149148,
+   "shelfmark": "5242",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "آنچه نخواهی که نه رویش مکار ×× و آنچه نخواهی که بشویش مگوی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149149,
+   "shelfmark": "4776",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، عنابی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "حقیقت احوال او نسباً و حسباً بنگارش رساله یی که خود در وقایع و احوال خود نوشته اینست"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149154,
+   "shelfmark": "161- فیروز",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "آغاز مقدمه چنین گوید کمترین خلق الله ناصر خسرو بن حارث؛ انجام پایان مقدمه و گفتم از ناصر در هر چیزی حیله کردی مگر در موت و همانا آورده است ازین معنی رباعی: از قعر گل سیاه تا اوج زحل ×× کردم همه مشکلات عالم را حل / بیرون جستم ز بند هر مکر و حيل ×× هر بند گشاده شد مگر بند اجل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149828,
+   "shelfmark": "3814/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج تریاکی"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "قصه ناز تو کوتاه نمیکرد نیاز ×× داشت بر سرو بلند تو اگر دست رسی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149829,
+   "shelfmark": "16801",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1247 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149830,
+   "shelfmark": "18338/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1272 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149831,
+   "shelfmark": "4497/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "تاگرم کرد عشق تو بازار خویش را ×× آتش کشید حسن خریدار خویش را"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "بجز مدحش از هر چه اندیشه کن ×× ثنایش بگوی و دعا پیشه کن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149832,
+   "shelfmark": "142/2- فیروز",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج عنابی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "تاگرم کرد عشق بازار خویش را ×× آتش کشیده حسن خریدار خویش را / از بی قراری دل دیوانه ام مپرس ×× گردیده ای تو روی پری وار خویش را"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150098,
+   "shelfmark": "13175",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "ای ز تو چاک در زبان کلک شکر نوای را ×× مهر سکوت بر دهان نطق سخن سرای را"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "از باده دوای دل دیوانه مطلب ×× از گلشن عشرت کل پیمانه طلب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150099,
+   "shelfmark": "3973",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "من و ادای سپاس و زبان شکر گذار ×× که هجر دوست بدل شدید بدولت دیدار / هزار شکر که از دستیاری توفیق ×× رساند بخت بلندم بر آستانه یار"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "نی رحم ترا بفکر داد اندازد ×× نه درد دل هفت بیاد اندازد / جرمم نه بدستگیری دل خیزد ×× بختم نه بسروقت مراد اندازد / ... / لب بستن او باعث بی تابی من شد ×× خاموش گل پرده از مرغ چمن شد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150573,
+   "shelfmark": "11137/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و اعاد الحق بعد سقوطه فكيف و هو لم يسقط فى المفروض لفساد الحق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150574,
+   "shelfmark": "2717/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "15×20سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "مشکی تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150590,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150704,
+   "shelfmark": "4984/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج تریاکی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ حررها مصنفها معزالدين الموسوى."
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ حررها مصنفها معزالدين الموسوى."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150912,
+   "shelfmark": "209",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "بیداقل الحقير الفقير ... العبد الضعيف محمد تقى بن مهدى غفر الله در یوم چهار شنبه على الصباح سیم شهر ربیع الثانی سنه 1256"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150913,
+   "shelfmark": "18348/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "باب هفتم اندر و جزو چهارم ... و اشک سخت شور باشد و لون پلک و لون طبقه ملتحمه بسرخی گردید"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "چند بار باب غوزه تازه میکنند نافع باشد تمت تمام شد هذا الفصلين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150914,
+   "shelfmark": "4790",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "ذیحجه 1263ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150916,
+   "shelfmark": "256/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسم الله الرحمن الرحيم و ما توفيقى الا بالله کتاب پنجم از ذخیره خوارزمشاهی اندر شناختن تب و اجناس و انواع و اسباب و علامات و علاج آن"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "تمام شد کتاب ششم از ذخیره خوارزمشاهی بحمدالله و توفيقه و صلى الله على محمد و آله اجمعين الطيبين الطاهرين"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151054,
+   "shelfmark": "4197",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151196,
+   "shelfmark": "5958",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151198,
+   "shelfmark": "20239",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و اطلاق الوجوب في الرواية محمول على المبالغة فى تأكد الاستحباب اذ الظاهر انه لم يقل احد بالوجوب ... سنة ثلاث و خمسین و الف من الهجرة النبوية ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151890,
+   "shelfmark": "1057/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 12 صفر 1372ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154127,
+   "shelfmark": "2943",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154612,
+   "shelfmark": "11996",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "الحمد لله الذى اخترع و أبدئ و أنشأ و خلق فسوی و قدر و هدى و أمات و أحيا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154613,
+   "shelfmark": "16216/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج پسته ای"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله اما حدیث بساز بروشی که علمای امامیه کثرهم الله ذکر کرده اند"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و اظهار اسرار حقایق امیرالمؤمنین علی علیه السلام تأليف شيخ العارف الحافظ البرسی، تمت الرسالة سلمان فارسی."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154756,
+   "shelfmark": "3555",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "نکته می گوید غنیمت شمر جوانی پیش از پیری که وقت جوانی مشغله ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154769,
+   "shelfmark": "3691",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 23 ربیع الاول 1063ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 156382,
+   "shelfmark": "523",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 158817,
+   "shelfmark": "679عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159438,
+   "shelfmark": "176",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "يصح له تجديد العقد عليها بعد العدة وفى جوازه فيها وجه كما يجوز للزوج العقد على المعقدة"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159439,
+   "shelfmark": "2493",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16×21سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا با روکش پارچه"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "... لعدم المنافاة لان الاجارة يتعلق بالمنافع والبيع بالعين ولوتبعها المنافع"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "في احمرار الوجه بالجناية من لطمة وشبهها دينار ونصف وفي اخضراره"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159440,
+   "shelfmark": "107",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "dimensions": {
+     "from": null,
+     "to": "20×32/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161567,
+   "shelfmark": "888/7",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ الکتاب على يد مؤلفه ... محمد بن عبدالفتاح التنكابنى فى اليوم السادس و العشرين من شهر محرم الحرام من شهور السنة السادسة و المائة بعد الالف الا الكلمات المتعلقة بالرواية الاخيرة و بعض كلمات ضم عند المباحثة و هذه الزيادة كانت فى اليوم السابع من شهر رمضان المبارك من شهور السنة التاسعة و للمائة بعد الالف"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ الکتاب على يد مؤلفه ... محمد بن عبدالفتاح التنكابنى فى اليوم السادس و العشرين من شهر محرم الحرام من شهور السنة السادسة و المائة بعد الالف الا الكلمات المتعلقة بالرواية الاخيرة و بعض كلمات ضم عند المباحثة و هذه الزيادة كانت فى اليوم السابع من شهر رمضان المبارك من شهور السنة التاسعة و للمائة بعد الالف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161568,
+   "shelfmark": "6587/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161574,
+   "shelfmark": "1409/12",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج سبز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161727,
+   "shelfmark": "10009",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161874,
+   "shelfmark": "1614/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "الحمدلله الذی علم الانسان البيان فعبر عن المعاني ببديع التبيان و نظم المبانى فى سلك الفصاحة حتى طابق الحال"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 163231,
+   "shelfmark": "14080",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 163367,
+   "shelfmark": "3340",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164870,
+   "shelfmark": "2976",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1080ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164872,
+   "shelfmark": "1710",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 16 ذیحجه 1089ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164875,
+   "shelfmark": "1628/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا، رویه گالینگور زرشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164893,
+   "shelfmark": "6592/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167161,
+   "shelfmark": "950/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله و به نستعین این مسوده ایست منتخب از شرح زیج جدید گورکانی از مقاله سوم در معرفت روش ستارگان و مواضع ایشان در طول و عرض"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "بر مطالع افزوده باشیم و بیافزائیم اگر کاسته باشیم آنچه باید برآید مطلوب باشد. تمه الكتاب."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167188,
+   "shelfmark": "1157",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167191,
+   "shelfmark": "486",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167454,
+   "shelfmark": "7549-51/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "22×36سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167455,
+   "shelfmark": "4032",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "بیش از آنست که در این مختصرات گنجد اگر توفیق رفیق شود داعیه چنانست که بعضی از آن در کتابی مفرد بیان گردد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167465,
+   "shelfmark": "1809",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "روغنی زمینه مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168269,
+   "shelfmark": "2684",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "14×22/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168272,
+   "shelfmark": "2685",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "14×22سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168358,
+   "shelfmark": "973/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "مهر ناصرالدین شاه قاجار 1274"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 169149,
+   "shelfmark": "14143",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 169643,
+   "shelfmark": "2156",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "15/5×23/5سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171252,
+   "shelfmark": "2769",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "21/5×35/5سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172138,
+   "shelfmark": "8578/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمعه 29 جمادی الثانی 1256ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172393,
+   "shelfmark": "28562",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله قال الشیخ الامام العالم ... سئلت عن السماع المحدث و ما یتضمنه"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و لایستویان حتى یستوى الحق و البطلان و ما یستوى الاعمى و البصیر ... و صلى الله على سیدنا محمد و اله و صحبه و سلم اجمعین"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172594,
+   "shelfmark": "3315",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173126,
+   "shelfmark": "15543",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173127,
+   "shelfmark": "12580",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "paper": {
+     "from": null,
+     "to": "شکری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173482,
+   "shelfmark": "11839",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه شنبه 23 ربیع الاول 1272ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی، اندازه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173483,
+   "shelfmark": "1001",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی، 48"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174715,
+   "shelfmark": "6930",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1340ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 175030,
+   "shelfmark": "4848",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "محمد بن علی اصغر خراسانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 177895,
+   "shelfmark": "167",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و مزجتها بتألفات تبين اجمالها تشغيلاً لنفسی عن حال المرض و تشویقاً لبعض الاخوان حيث كان لي فرض ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178844,
+   "shelfmark": "3106/11",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178846,
+   "shelfmark": "694/7",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178847,
+   "shelfmark": "1845/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178848,
+   "shelfmark": "6349/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178849,
+   "shelfmark": "35150",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "حنایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 179519,
+   "shelfmark": "4079/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1027ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181801,
+   "shelfmark": "3140/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "17/7×23سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183534,
+   "shelfmark": "28503",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "روز دریا گذشت همچون برق گشت فرعون ناسلیان غرق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183535,
+   "shelfmark": "89/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "روایتست از عبدالفتاح رضی الله عنه که او از محبان خاندان بود و او از عبدالرحمن مکی"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "یعنی منم که موصوفم بهزار صفت از اوصاف خدای تعالی بغیر از الوهیت او و امر ... او كما قال الله سبحانه و تعالى الا له الخلق و الامر و تبارک الله."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 184506,
+   "shelfmark": "304",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا قهوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 186036,
+   "shelfmark": "38",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189152,
+   "shelfmark": "582/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فى الفعل المضارع و هو وقوعه في موقع الاسم نحو زيد يضرب و يضرب زيد كما يقول زيد ضارب تمت كتاب ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189153,
+   "shelfmark": "14528",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "نحو طويا طويان ... و لمن قال آمین"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189157,
+   "shelfmark": "9163/4-60/103",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله حمدله اما بعد فان العوامل فى النحو على ما الفه عبدالقاهر بن محمد الجرجانی سقی الله ثراه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189158,
+   "shelfmark": "14928/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "موقع المسند و الجامد فيضرب في يضرب زيد واقع."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190309,
+   "shelfmark": "5101",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 8"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190362,
+   "shelfmark": "2422",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "جمادی الاول 1238ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190467,
+   "shelfmark": "441",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 8"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190540,
+   "shelfmark": "1303",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "ذیحجه 1122ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190768,
+   "shelfmark": "1559/14-ف",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "636ق"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190769,
+   "shelfmark": "1190/21-ف",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "697ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190880,
+   "shelfmark": "3807/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190881,
+   "shelfmark": "96",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 191477,
+   "shelfmark": "ض 25946",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 191478,
+   "shelfmark": "11866",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192197,
+   "shelfmark": "422",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192198,
+   "shelfmark": "856",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "ادرکته و احاطت به فهو منزه عنه و ان السبيل الى معرفة كنه عظمته مسدود"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192199,
+   "shelfmark": "38011",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای سجافدار"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "باعتبار المغفرة و عدم القبول هذا آخر ما اردنا شرحه من كتاب الايمان و الكفر و يتلوه كتاب الدعاء ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 193040,
+   "shelfmark": "69 معزی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "من العدول فى جانب المحمول و ذلك لانك قد حققت ان مناط الحكم ذات الموضوع و وصف و وصف المحمول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 193041,
+   "shelfmark": "74/2 معزی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "فان كانا متوافقين فهو مرادف له و اللفظان مترادفان اخذ من الترادف الذي هو ركوب احد خلف آخر كان المعنى مركوب و اللفظان راكبان عليه"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "قال المقالة الثانية و اقسام الاولية الفضية في القضايا و احكامها و فيها مقدمه و ثلاثه فصول فنقول اما المقدمه ففى تعريف القضيه و اقسامها."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 194569,
+   "shelfmark": "246",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 8"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196040,
+   "shelfmark": "72 - ج",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "19×25سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196041,
+   "shelfmark": "175",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16×26سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200835,
+   "shelfmark": "2749",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن سیاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202194,
+   "shelfmark": "2100",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 10 و 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205214,
+   "shelfmark": "1858/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11 و 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206311,
+   "shelfmark": "1310",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 10"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206313,
+   "shelfmark": "6747",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206314,
+   "shelfmark": "8246/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206316,
+   "shelfmark": "6037",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 1 ذیحجه 1006ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206317,
+   "shelfmark": "3-طباطبائی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج، قرمز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206319,
+   "shelfmark": "6091",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "اصفهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206320,
+   "shelfmark": "27582",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "نخودی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، بسم الا له العادل الموحد باعث خير خلقه محمد (ص) ... في صفة النجوم و الافلاك انشاءه للملك الملاك لملك امة شاهنشاهی"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "بالحوت عند الدوم و عند من ... الى النجوم و قد ... ذكرها ... العلما الاعلام و استقتطها جملة اسقاطا و ربها ... فذكر من شيخنا من كتبه ... تمت صور الكواكب."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206321,
+   "shelfmark": "474",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11 و 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206504,
+   "shelfmark": "2627/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 12 شعبان 1320ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207385,
+   "shelfmark": "31855",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "دوشنبه 25 ربیع الثانی 1308ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208146,
+   "shelfmark": "3343-17/123",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و اکثر اجرا من كل احد لما شربت الماء فيها و ذكرت الحسين (ع) و لعنت على ظالميه و ... فی آداب الضيف و الضيافة و هي اربعة و عشرون شيئاً منها انه ص قال من الجفاء ان يدعى الرجل"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و فی الجمعة ساعة لاترد فيها الدعاء ... فان مات في يومه اوليلته مات شهيدا وبعث آمنا وما استخف احد بحرمته."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208423,
+   "shelfmark": "NULL",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "15/5×21سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208458,
+   "shelfmark": "3309-17/89",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "5 ذیحجه 1300ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208459,
+   "shelfmark": "203/1-طباطبائی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208461,
+   "shelfmark": "15813",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "از بدن شارب بطریق عرق و اینست تریاقی که حکما نام نهاده اند ایلانیوس ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208495,
+   "shelfmark": "3821/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ و الحمدلله به اتمام رسید کتاب طب الملوک"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ و الحمدلله به اتمام رسید کتاب طب الملوک"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209429,
+   "shelfmark": "7634 و 1518عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "20 شعبان 1294"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 210126,
+   "shelfmark": "2990/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بر سه قسم اند بعضی محجوبند بظلمت محض و بعضی بنور محض"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و غلیان سکر بهوش آمد از گفته خویش توبه کرد سبحانک انی تبت الیک و انا اول المومنین برحمتک یا ارحم الراحمين"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 210138,
+   "shelfmark": "355/12",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1 شوال 1020"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 210334,
+   "shelfmark": "108",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 9 ربیع الاول 1266ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211602,
+   "shelfmark": "2048",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "روغنی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 211604,
+   "shelfmark": "1705",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214753,
+   "shelfmark": "862/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "فان عثرت خلا و اطلعت زللا فاصلحه و احسن فان الله لا يضيع اجر المحسنين"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214754,
+   "shelfmark": "4064/6",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بدانکه در عقد نکاح ... باید باسلوب عربیت بخوانند"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "مگر بر مجنون و سفیهی که محتاج بنکاح باشد."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215989,
+   "shelfmark": "89",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "ستایش و سپاس مر خدای را سزاست که به واسطه ارسال رسل و انزال کتب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 218521,
+   "shelfmark": "7619- 51/79",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "که داخل چه کشت عزرائیل ×× سلام کرد رساند هم سلام رب جلیل / نمود عرض همه گفته‌های ربانی ×× چنانچه وحی به او کشته بود یزدانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 220461,
+   "shelfmark": "698",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 221703,
+   "shelfmark": "7129",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و الکلام فى اصول الفقه لما كان الكلام في فروع الفقه مبنيا على اصوله له"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و قد زالت الروية و بين اعتقاد ان نقطع على كون غيره فيها"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 221704,
+   "shelfmark": "12459/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "و الكلام فى اصول الفقه لما كان الكلام في فروع الفقه مبنياً على اصول له"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و قد زالت الرؤية و بین اعتقاد ان نقطع على كون غيره قبيحاً فيها."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222970,
+   "shelfmark": "5401/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله قال النبي (ص) انما الاعمال بالنيات ... ای عزیز بدان که طالبان تحقیق در سایه علما عمل پسندیده که رضای حق تعالی در آن نبیند بجای میآورد ... با محبت رو بیاد آور دلا ×× کاندرین بحرست سیر آشنا؛ انجام در نمی گنجد کنون حرف و کلام ×× زانکه عشق صرف آمد و السلام تم القسم ... (پاک کرده اند من بیان حقایق احوال الرسول ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223415,
+   "shelfmark": "123",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 1175ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223418,
+   "shelfmark": "5289",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1085ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225130,
+   "shelfmark": "989/2-طباطبائی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "اصفهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225131,
+   "shelfmark": "4914/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226490,
+   "shelfmark": "59/10",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226491,
+   "shelfmark": "4961/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226492,
+   "shelfmark": "1567/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226493,
+   "shelfmark": "1567/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226572,
+   "shelfmark": "15927",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "دولت الارذال آفت الرجال دولت فرومایگان آفت مردان است."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226573,
+   "shelfmark": "6412/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226575,
+   "shelfmark": "665/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "اعتصام اشتباه امتحان انتظام چنگ در زد پوشیده شدن آزمودن بهم پیوستن"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "با قاضی الحاجات يديم الله دولته يرحم الله ای برآورنده حاجتها دایم داراد خدای دولت او را رحم کناد خدای عبده یا حبیب الفقراء بر بنده خود ای دوست درویشان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228486,
+   "shelfmark": "808",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228566,
+   "shelfmark": "6370",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و الاستعداد للقاء الله تعالى تعالى عزوجل و نعم الاخرة (تمت الصلاة و السلام على سيدنا محمد و على آله و اصحابه)."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228570,
+   "shelfmark": "8919/2-59/139",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "ماقول سيدنا في وضع الانسان وجهه على الارض عند ابواب المشاهد المشرفة وبوس الارض وتمريغ خده عليها هل يكون هذا الفعل حراما ... الجواب ان قصد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228574,
+   "shelfmark": "403",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "یا ذالجلال و الاکرام و صلى الله على سيدنا محمد النبی و آله الطاهرين و سلم تسليما كثيرا برحمتك يا ارحم الراحمين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232315,
+   "shelfmark": "3555-18/75",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 18 شوال 1104ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232678,
+   "shelfmark": "1935",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "اخبرنا به احمد بن عبدون عن احمد بن زیاد بن جعفر الهمداني قال حدثنا علی بن ابراهيم"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "ابوغسان الذهلي له کتاب اخبرنا جماعة"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233533,
+   "shelfmark": "3176",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "چرمی، نرم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233767,
+   "shelfmark": "1212",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1322ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233769,
+   "shelfmark": "14636/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "حدود قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235413,
+   "shelfmark": "156",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "روغنی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235417,
+   "shelfmark": "8587",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "22×30/6سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235420,
+   "shelfmark": "34",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 7"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235421,
+   "shelfmark": "14264",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 7"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235423,
+   "shelfmark": "15324",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 7"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "یا أيها الناس أنتم الفقراء الى الله و الله هو الغنى الحميد ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235424,
+   "shelfmark": "15371",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "اوایل قرن 7"
+    },
+    "paper": {
+     "from": null,
+     "to": "شرقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235428,
+   "shelfmark": "25",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "خان بالغ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235429,
+   "shelfmark": "4393",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "16/6×21/6سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236377,
+   "shelfmark": "13910",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1235ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237423,
+   "shelfmark": "2013",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "14×22سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237730,
+   "shelfmark": "1983",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "45×32 سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239700,
+   "shelfmark": "1645-عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 24
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 240542,
+   "shelfmark": "631/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241174,
+   "shelfmark": "79/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "رجب 967ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 243171,
+   "shelfmark": "13603",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 244883,
+   "shelfmark": "1783",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "آخرا هو اكبر هما تم الكتاب العقيقه ... صلى الله عليه و آله و سلم. تم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 244884,
+   "shelfmark": "1392ط",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله الحمد لله المحمود لنعمته المعبود لقدرته المطاع في سلطانه"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "عدة من اصحابنا عن سهل بن زياد ... قال حصنوا اموالكم بالزكوة ... رب العالمين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 248000,
+   "shelfmark": "11901",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1289ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 248142,
+   "shelfmark": "15768",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 12
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 248161,
+   "shelfmark": "8118",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 249385,
+   "shelfmark": "233-2/53",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فهو واجب على كل مسلم ان ينظر كل يوم في عهده ولو خمسين آية واعلم ان درجات الجنة على عدد آيات القرآن اقرأ وارق فلا يكون في الجنة بعد النبيين والصديقين أرفع درجة منه والوصية طويلة اخذنا منها موضع الحاجة ولا حول ولا قوة الا بالله العلى العظيم."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 249735,
+   "shelfmark": "918",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 252289,
+   "shelfmark": "4271/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 252549,
+   "shelfmark": "8841",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "میشن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 253659,
+   "shelfmark": "18/1(1 تا 5)-عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "و عذاب جاویدی خبردار خواهد بود، مولانا به فریاد رساد به خیر او رود. و السلام على من اتبع الهدى."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255516,
+   "shelfmark": "397عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255517,
+   "shelfmark": "336عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255518,
+   "shelfmark": "1344/2عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255606,
+   "shelfmark": "452",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255832,
+   "shelfmark": "2348",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11 و 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 256368,
+   "shelfmark": "28008",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "20×30سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 256993,
+   "shelfmark": "665/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوایی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257079,
+   "shelfmark": "59",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1256ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257299,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 260177,
+   "shelfmark": "1731",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 263410,
+   "shelfmark": "1258",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264121,
+   "shelfmark": "746",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264122,
+   "shelfmark": "749",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267197,
+   "shelfmark": "7855-39/235",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "پس دستی که به سبب اشک چشم تعزیه داری شود و پس چشمی که در عزای آن حضرت بگرید و یاو دستی که در راه زیارت بگشاید چگونه می‌سوزد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267198,
+   "shelfmark": "7776-39/156",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله حمدله وصلى الله على سيدنا ونبينا محمد وآله كتاب الطهارة واركانه اربعة الاول فى المياه وجمعه باعتبار تعدد افراده"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "فللمفرد المذكر وذالمثناه ذان مرفوع المهل وذين منصوبة ومجرورة وان هذان لساحران"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267199,
+   "shelfmark": "3462/8",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "الله اسم علم مفرد موضوع على ذات الواجب الوجود تعالى و قال الغزالي الله اسم للموجود"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و لا يلزم ايضا عدم اولوية بعض من الابعاض للعلية و هذا مما لا مدفع له"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 269644,
+   "shelfmark": "11120",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 28 ربیع الثانی 1322ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 269645,
+   "shelfmark": "11119",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 15 ذیحجه 1330ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270289,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک شنبه 17 ذیحجه 1059ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270290,
+   "shelfmark": "430",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فی انهم لایبقی منهم عين و لا اثر. تم الجزء السادس من كتاب مجمع البيان ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270291,
+   "shelfmark": "1261",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "24/4×38/7سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 271092,
+   "shelfmark": "3397",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "چرمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273975,
+   "shelfmark": "14806/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 7 محرم 1157ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 275743,
+   "shelfmark": "136",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "12 رمضان 1025ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 276772,
+   "shelfmark": "1414",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "سورة الاعراف مکیه و هی مائتان و خمس آیات بصری و ست كوفی و مدنی بسمله المص. قال الزجاج المختار في تفسيره"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "من اراد العاجله و من اراد الآخره من عطا ربک رزقه و من يتعلق به نمد."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 276773,
+   "shelfmark": "18922",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "... حافظ الملة و الدين شيخ الاسلام و المسلمين وارث علوم الانبياء انجام و على مائدته رغيف او رغيفان فطلب المنصور زيادة لعمرو."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 276774,
+   "shelfmark": "1412",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "حمزه و على قال حی بن اخطب في."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 277447,
+   "shelfmark": "21434",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فقال النبى (ص) يا كعب حمارك خير منك قد ابى ان تركبه فلن تركبه ابدا فبعه من بعض اخواننا المؤمنين."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279454,
+   "shelfmark": "4899/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280907,
+   "shelfmark": "53/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 11 رجب 1326ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281523,
+   "shelfmark": "328",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 22
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281524,
+   "shelfmark": "231",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 22
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281851,
+   "shelfmark": "2930",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 28
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281856,
+   "shelfmark": "4335",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 31
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281857,
+   "shelfmark": "3674",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 33
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 281859,
+   "shelfmark": "3282",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 282769,
+   "shelfmark": "1781",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یکشنبه 22 شعبان 1230ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286873,
+   "shelfmark": "484",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "12/5×18"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287092,
+   "shelfmark": "524",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 29
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287093,
+   "shelfmark": "525",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 29
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287094,
+   "shelfmark": "526",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 29
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287095,
+   "shelfmark": "11731",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287595,
+   "shelfmark": "220",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 11 صفر 748ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287597,
+   "shelfmark": "222",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287598,
+   "shelfmark": "20",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "19×27سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288944,
+   "shelfmark": "13566",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290503,
+   "shelfmark": "2866",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290506,
+   "shelfmark": "13544",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290945,
+   "shelfmark": "12632/8",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بدانکه بعضی از حکما که حجر صناعت در جواهر معدنیست که الاشياء تماثل اشکالها"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292904,
+   "shelfmark": "9657",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 293037,
+   "shelfmark": "14709/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "حدود قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294792,
+   "shelfmark": "19",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "1237ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295594,
+   "shelfmark": "14427",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295985,
+   "shelfmark": "11559",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296822,
+   "shelfmark": "288 مشیر",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "21/5×31سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 297083,
+   "shelfmark": "3649",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 297084,
+   "shelfmark": "12925",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298175,
+   "shelfmark": "4901/17",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298176,
+   "shelfmark": "4901/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298177,
+   "shelfmark": "4901/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298178,
+   "shelfmark": "4901/15",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298179,
+   "shelfmark": "4901/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 300353,
+   "shelfmark": "14345/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 10"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 300354,
+   "shelfmark": "14576/13",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فانه يوجب بعدم المخصص نفسه و هو محال فهذا ما عندى فيه و الله أعلم بالصواب و اليه المرجع و المآب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 300648,
+   "shelfmark": "15914",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فيه من لئالى اسرار ربك العزيز الحميد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302876,
+   "shelfmark": "1340/5",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "paper": {
+     "from": null,
+     "to": "بخارائی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302970,
+   "shelfmark": "14590/46",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 21 شوال 722ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302971,
+   "shelfmark": "14590/52",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 20 ذیحجه 722ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303778,
+   "shelfmark": "517 و 3076-ف",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303862,
+   "shelfmark": "915",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "19×25سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304150,
+   "shelfmark": "14208",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304527,
+   "shelfmark": "326",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "فقالت هو كما قلتم الا انه رجل شحيح والعاص جواد ينفق على بناتي وابوسفيان لاينفق عليهن وكان لها بنات تمت"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304528,
+   "shelfmark": "395",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    },
+    "incipit_text": {
+     "from": null,
+     "to": "الحمدلله الذی اصطفى من الانبياء محمد ... اما بعد، فانی لما رأيت الكتاب المسمى بكتاب المنتخب في جمع المراثي و الخطب ... متن بسمله الحمد لمن جعل الدنيا جنة لاعدائه و سجناً و محنة لاولیائه"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "و انا معه ابكى لبكائه و احزن لحزنه ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304529,
+   "shelfmark": "755",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "الحمدلن جعل الدنيا جنة لاعدائه و مجنة و سجنا لاوليائه واحبائه ليبلوهم فيها بالاكتساب"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "قال والله ما رايت مثل هذا الزلزلة الايوم مات فيه ابى امير المومنین (ع)."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306138,
+   "shelfmark": "331",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "گل نوازش زیب تارک افتخار نگردانیده"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 308890,
+   "shelfmark": "1183/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309767,
+   "shelfmark": "188/7 - ج",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309768,
+   "shelfmark": "242 - ج",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309772,
+   "shelfmark": "4301",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309774,
+   "shelfmark": "4281",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309775,
+   "shelfmark": "5659",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309776,
+   "shelfmark": "5567/1",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311878,
+   "shelfmark": "529",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 9
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 312851,
+   "shelfmark": "1240/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "147"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 313483,
+   "shelfmark": "1615/9",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "واز تخم کدام شجره خبیثه بعمل آمده بودند."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 315630,
+   "shelfmark": "10138",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 315731,
+   "shelfmark": "12334",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 317926,
+   "shelfmark": "2427",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 6 جمادی الاول 1091ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319806,
+   "shelfmark": "2457/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 27
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319807,
+   "shelfmark": "2990/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 321699,
+   "shelfmark": "8079",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322875,
+   "shelfmark": "5202/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322876,
+   "shelfmark": "3576/7",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322879,
+   "shelfmark": "651/2",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "13/5×20سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322974,
+   "shelfmark": "8686",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": null,
+     "to": "بها طواف النساء و يجوز المفرده"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323544,
+   "shelfmark": "1880/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "بسمله، قال الحمد لله العليم باسرار مخلوقاته الدليل على نفسه ببراهین آثار"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323739,
+   "shelfmark": "11372",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 22
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323741,
+   "shelfmark": "3126 و 68عکسی و 69عکسی",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323743,
+   "shelfmark": "3970",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 26
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323745,
+   "shelfmark": "380",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325117,
+   "shelfmark": "13035/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "18×26سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 327418,
+   "shelfmark": "8922/13",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "lines": {
+     "from": null,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330833,
+   "shelfmark": "121",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 331758,
+   "shelfmark": "2252/4",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 17 ربیع الاول 1090ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332890,
+   "shelfmark": "2072/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "dimensions": {
+     "from": null,
+     "to": "17×21سم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334896,
+   "shelfmark": "68/3",
+   "category": "columns",
+   "v2": "filled",
+   "changes": {
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1238ق"
+    }
+   }
+  }
+ ]
+}
