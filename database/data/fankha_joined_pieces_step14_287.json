@@ -1,0 +1,5010 @@
+{
+ "source": "pieces parser v2.5.0 joins to the field they follow (before: scratch/fankha_v2_241_before), 2026-11-21; fahares step 14.287",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 10158,
+   "shelfmark": "2931/49",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1101 و",
+     "to": "1101 و، 1102"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10561,
+   "shelfmark": "12960",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1287",
+     "to": "1287، 1302"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12404,
+   "shelfmark": "27368",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "مربوط به نسخه اصلی است"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14946,
+   "shelfmark": "2842",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22745,
+   "shelfmark": "11734",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مشمعی مشکی با مقوا",
+     "to": "مشمعی مشکی با مقوا، عطف: تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23107,
+   "shelfmark": "14776",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نیمه نخست قرن 8 (جلد دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24400,
+   "shelfmark": "1132",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "متن: ترمه",
+     "to": "متن: ترمه، کاغذ حاشیه: دولت آباد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26215,
+   "shelfmark": "410",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "اواخر ذیحجه 1293 (پایان دوازده امام)",
+     "to": "اواخر ذیحجه 1293 (پایان دوازده امام)، 8 ربیع الثانی 1324 (شروع در کتابت)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26636,
+   "shelfmark": "11768",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "تیماج مشکی، مجدول، ضربی، با ترنج و سرترنج",
+     "to": "تیماج مشکی، مجدول، ضربی، با ترنج و سرترنج، عطف: تیماج لاجوردی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27436,
+   "shelfmark": "54",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "شب یک‌شنبه 15 ربیع الثانی 1302"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28035,
+   "shelfmark": "2962/4",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "سال طاعون که ممالک سبعه را فرو گرفته بود"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29253,
+   "shelfmark": "1859/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "چهارشنبه 19 شعبان 1265ق",
+     "to": "چهارشنبه 19 شعبان 1265ق، یک‌شنبه 25 جمادی الاول 1264 (بخش دوم)، 1267"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29300,
+   "shelfmark": "5734",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "10 صفر 1352ق",
+     "to": "10 صفر 1352ق، خرداد 1312ش"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29538,
+   "shelfmark": "7284/1-37/74",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "یک‌شنبه 14 جمادی الثانی 1255 (مقصد اول)",
+     "to": "یک‌شنبه 14 جمادی الثانی 1255 (مقصد اول)، پنج‌شنبه 13 شوال 1254 (آخر کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30672,
+   "shelfmark": "6749",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "بخش مشیخه در اواخر 1081"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30731,
+   "shelfmark": "3",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "11 محرم 1085ق (جلد اول)",
+     "to": "11 محرم 1085ق (جلد اول)، 13 رجب 1085ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32383,
+   "shelfmark": "951/7",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "با تاریخ‌های 838",
+     "to": "با تاریخ‌های 838، 839 و 842ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32989,
+   "shelfmark": "13298",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "-1322",
+     "to": "-1322، 1330ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34459,
+   "shelfmark": "112",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "غره ربیع الاول 1272ق (بخش اول)",
+     "to": "غره ربیع الاول 1272ق (بخش اول)، صفر 1272ق (بخش دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34946,
+   "shelfmark": "9087/22",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 1163ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38653,
+   "shelfmark": "13674",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "تیماج مشکی ضربی با ترنج و سرترنج",
+     "to": "تیماج مشکی ضربی با ترنج و سرترنج، نام محمد مهدی در دایره های اطراف ترنج حک شده است"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39203,
+   "shelfmark": "9126/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با این تاریخ‌ها: «به تاریخ 21 هر رمضان سنه 1045 در کربلای معلی نوشته شده» (2پ)، بنیاد خادم در مشهدین شریفین در 1047ق (8ر)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39231,
+   "shelfmark": "9013/17",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "مصادف با روز فرستادن عروس سرمد حسین خان بن احمد خان بیگلربیگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40059,
+   "shelfmark": "4",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "رمضان 1305ق (بخش اول)",
+     "to": "رمضان 1305ق (بخش اول)، سه‌شنبه 14 رجب 1308 ق (بخش دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 42045,
+   "shelfmark": "1723/9-عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پیش از مرگ نگارنده"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 42557,
+   "shelfmark": "8259-56/109",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "29 دیماه قدیم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 42908,
+   "shelfmark": "354-ج",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "18 فروردین 1309ق",
+     "to": "18 فروردین 1309ق، 18 فروردین 1309 (1329)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43871,
+   "shelfmark": "1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "غره محرم 1077 (پایان جزء اول)",
+     "to": "غره محرم 1077 (پایان جزء اول)، 29 محرم 1077 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 45533,
+   "shelfmark": "40/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هنگام آشوب در عراق و جنگ با دشمنان خارجی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46553,
+   "shelfmark": "104",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "محرم 984ق (بخش اول: تا اول کتاب الخراج)",
+     "to": "محرم 984ق (بخش اول: تا اول کتاب الخراج)، جمعه 8 رمضان 982ق (بخش دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46559,
+   "shelfmark": "5890",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 1052"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48693,
+   "shelfmark": "36",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روز جمعه 10 رمضان؟"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48924,
+   "shelfmark": "1263عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "دوشنبه 8 محرم 1034ق (جزء اول)",
+     "to": "دوشنبه 8 محرم 1034ق (جزء اول)، جمادی الاول 1034ق (جزء دوم)، یک‌شنبه شوال 1035ق (جزء سوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48934,
+   "shelfmark": "1372",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49123,
+   "shelfmark": "6418-32/118",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "30 شوال 1237ق (پایان صلاة)",
+     "to": "30 شوال 1237ق (پایان صلاة)، 1238ق (پایان صوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51296,
+   "shelfmark": "7249",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "چهارشنبه 4 ربیع الاول 794 (جلد اول)",
+     "to": "چهارشنبه 4 ربیع الاول 794 (جلد اول)، دوشنبه 12 رمضان 793 (جلد دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51585,
+   "shelfmark": "10205",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "گویا در حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52175,
+   "shelfmark": "202/6",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "گویا روزگار مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52424,
+   "shelfmark": "15499",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52542,
+   "shelfmark": "10487",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52623,
+   "shelfmark": "4341",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52624,
+   "shelfmark": "4342",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52625,
+   "shelfmark": "4343",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52626,
+   "shelfmark": "4344",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52661,
+   "shelfmark": "27",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52937,
+   "shelfmark": "2160",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1225 (جلد1)",
+     "to": "1225 (جلد1)، 1226ق (جلد 2)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53056,
+   "shelfmark": "91",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "شنبه 8 صفر 1251ق (جلد دوازدهم)",
+     "to": "شنبه 8 صفر 1251ق (جلد دوازدهم)، یک‌شنبه 26 ذیحجه 1250 (جلد سیزدهم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53156,
+   "shelfmark": "2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "سه‌شنبه 4 ذیقعده 1285 (پایان کتاب الطهارة)",
+     "to": "سه‌شنبه 4 ذیقعده 1285 (پایان کتاب الطهارة)، دوشنبه 3 ربیع الاول 1286ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53551,
+   "shelfmark": "36024",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پارس ئیل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54017,
+   "shelfmark": "26482",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54023,
+   "shelfmark": "4310",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "موافق عید نوروز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54066,
+   "shelfmark": "26247",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "افشان",
+     "to": "افشان، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55218,
+   "shelfmark": "1709",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "ظاهراً از همان عصر تألیف رساله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55404,
+   "shelfmark": "11423",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مشمعی قهوه‌ای",
+     "to": "مشمعی قهوه‌ای، عطف تیماج قهوه‌ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55742,
+   "shelfmark": "4257",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "11 ذیحجه 1260ق (پایان قسم اول)",
+     "to": "11 ذیحجه 1260ق (پایان قسم اول)، 24 شعبان 1271 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56024,
+   "shelfmark": "2174",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56095,
+   "shelfmark": "971",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56513,
+   "shelfmark": "1752",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1306ق",
+     "to": "1306ق، 7 رمضان 1309 (پایان جزء دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56748,
+   "shelfmark": "4360/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 58059,
+   "shelfmark": "7883-53/93",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "فی حین فوت سلطان الایران محمد شاه قاجار"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60734,
+   "shelfmark": "25563",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، مشقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60779,
+   "shelfmark": "2885/6",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "اصفهانی",
+     "to": "اصفهانی، گوناگون"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60873,
+   "shelfmark": "8299",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پنجاه و یکمین سال اورنگ زیب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61100,
+   "shelfmark": "872",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "16 شعبان 852 در نیمه 2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61487,
+   "shelfmark": "1681",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هنگامی که بندگان حضرت خلافت پناهی ابی الظفر محی الدین اورنگ زیب بهادر عالم گیر پادشاه غازی فروغ بخش اورنگ شاه جهان آباد بودند"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61916,
+   "shelfmark": "5661",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "سال تخت نشینی شاه عالم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 62363,
+   "shelfmark": "1139",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63322,
+   "shelfmark": "6157",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 1137ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63876,
+   "shelfmark": "ض11048",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "نخودی",
+     "to": "نخودی، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63915,
+   "shelfmark": "7025/2 و 2510/2-ف",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در زمان هبلرودی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64071,
+   "shelfmark": "113",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1059ق (بخش چهارم)",
+     "to": "1059ق (بخش چهارم)، ذیحجه 1068ق (بخش یکم)، صفر 1069 (بخش دوم)، 1070ق (بخش سوم و پنجم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64093,
+   "shelfmark": "3414",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "ربیع الثانی 1196 (جلد اول)",
+     "to": "ربیع الثانی 1196 (جلد اول)، 1243ق (جلد دوم)، 1262ق (پایان جلد سوم)، 1243ق (پایان چهارم)، 1196ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64192,
+   "shelfmark": "5127",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "رجب 1229 (جلد 1 و 2)",
+     "to": "رجب 1229 (جلد 1 و 2)، شعبان 1229 (جلد 2، ج 3 و 4 و 5)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65092,
+   "shelfmark": "1228 عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "ظاهراً در سال‌های 1392 و 1393 ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65119,
+   "shelfmark": "3508-18/28",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "28 صفر 845ق (بخش اول) به دستور شهاب الدین احمد بن نورالدین علی",
+     "to": "28 صفر 845ق (بخش اول) به دستور شهاب الدین احمد بن نورالدین علی، یک‌شنبه 8 ذیقعده 763ق (بخش دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65246,
+   "shelfmark": "19",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "اول رجب 1068ق (پایان قاعده اول)",
+     "to": "اول رجب 1068ق (پایان قاعده اول)، جمعه 11 رجب 1069 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65248,
+   "shelfmark": "2037",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "شوال 1079ق (پایان وصایا)",
+     "to": "شوال 1079ق (پایان وصایا)، 5 جمادی الثانی 980 ق (پایان اطعمه واشربه)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65723,
+   "shelfmark": "6663",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 66283,
+   "shelfmark": "8688",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "خمس و ستین ... (ساییده شده)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67259,
+   "shelfmark": "896",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67260,
+   "shelfmark": "3781",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67277,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67278,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68197,
+   "shelfmark": "3/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "104 (=1104)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 69066,
+   "shelfmark": "2645",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 69932,
+   "shelfmark": "881",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "شوال 1122ق",
+     "to": "شوال 1122ق، صفر 1123 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71066,
+   "shelfmark": "2219/7-عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "پیش از 1268ق",
+     "to": "پیش از 1268ق، قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71240,
+   "shelfmark": "12467/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نیمه قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72103,
+   "shelfmark": "89",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 951 و 952 و 982"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72508,
+   "shelfmark": "2666",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "جمعه 22 جمادی الثانی 1057ق در اصفهان (پایان جزء هفتم)",
+     "to": "جمعه 22 جمادی الثانی 1057ق در اصفهان (پایان جزء هفتم)، پنجشنبه 9 صفر 1058 (پایان جزء یازدهم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72510,
+   "shelfmark": "42",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "12 شوال 1060 (پایان کتاب الصلاة)",
+     "to": "12 شوال 1060 (پایان کتاب الصلاة)، 18 صفر 1060 (پایان جزء اول)، 24 جمادی الاول 1060 (پایان جزء دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72566,
+   "shelfmark": "2363",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "ربیع الثانی 1256 (پایان جزء دوازدهم)",
+     "to": "ربیع الثانی 1256 (پایان جزء دوازدهم)، شعبان 1257 (پایان جزء سیزدهم)، چهارشنبه 15 ذیقعده 1257 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72571,
+   "shelfmark": "2664",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "14 ذیحجه 1257 (پایان جزء اول)",
+     "to": "14 ذیحجه 1257 (پایان جزء اول)، 22 محرم 1258 (پایان جزء دوم)، صفر 1258 (پایان جزء سوم)، 19 جمادی الاول 1258 (پایان جزء پنجم)، جمادی الثانی 1258ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72583,
+   "shelfmark": "23",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "11 شوال 1268ق (پایان جزء هفتم)",
+     "to": "11 شوال 1268ق (پایان جزء هفتم)، چهارشنبه 16 شعبان 1267 (پایان جز هشتم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72887,
+   "shelfmark": "1622/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "محرم 879 (پایان جزء اول از کتاب اول)",
+     "to": "محرم 879 (پایان جزء اول از کتاب اول)، 22 شعبان 879 (پایان جزءبیستم از کتاب اول)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73040,
+   "shelfmark": "30",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78117,
+   "shelfmark": "5283-26/163",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80653,
+   "shelfmark": "55",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80872,
+   "shelfmark": "2356",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "جمادی الثانی 1265 (پایان کتاب) و سال 1264 (پایان كتاب الزكاه)",
+     "to": "جمادی الثانی 1265 (پایان کتاب) و سال 1264 (پایان كتاب الزكاه)، دهه اول محرم 1265 (پایان کتاب الخمس)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81001,
+   "shelfmark": "4478",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مقوایی",
+     "to": "مقوایی، عطف تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81103,
+   "shelfmark": "2231/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_place": {
+     "from": "هند",
+     "to": "هند، بلد کرهر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82446,
+   "shelfmark": "7113",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1249",
+     "to": "1249، 1250ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82555,
+   "shelfmark": "11760",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مشمعی قهوه‌ای با مقوا",
+     "to": "مشمعی قهوه‌ای با مقوا، عطف: تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84823,
+   "shelfmark": "2477",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84969,
+   "shelfmark": "11513",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "کاغذی با مقوا",
+     "to": "کاغذی با مقوا، عطف: پارچه مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 85582,
+   "shelfmark": "316/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87137,
+   "shelfmark": "6907/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87437,
+   "shelfmark": "179",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "چهارشنبه 14 محرم 1022 (پایان کتاب الطهارة)",
+     "to": "چهارشنبه 14 محرم 1022 (پایان کتاب الطهارة)، پنج‌شنبه 11 جمادی الاول 1023 (پایان جزء دوم کتاب الصلاة)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87438,
+   "shelfmark": "907",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "3 ذیحجه 1023ق (پایان کتاب مزار)",
+     "to": "3 ذیحجه 1023ق (پایان کتاب مزار)، دوشنبه 23 صفر 1024 (پایان کتاب التجارات)، سه‌شنبه 29 ربیع الاول 1024 (پایان کتاب النکاح)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87550,
+   "shelfmark": "202-2/22",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "جمعه 22 رمضان 1061",
+     "to": "جمعه 22 رمضان 1061، شنبه 7 ربیع الاول 1062"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87555,
+   "shelfmark": "575",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "دوشنبه سلخ جمادی الاول 1061ق (پایان کتاب الطلاق)",
+     "to": "دوشنبه سلخ جمادی الاول 1061ق (پایان کتاب الطلاق)، 27 جمادی الاول 1074 (پایان کتاب الديات)، 29 جمادی الاول 1075 (پایان مشیخه)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87613,
+   "shelfmark": "3547",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "اصفهانی نخودی",
+     "to": "اصفهانی نخودی، اوراق 97 تا 128 فرنگی الوان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87782,
+   "shelfmark": "30",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "17 ربیع الاول 1089 در مشهد رضوی (پایان صوم)",
+     "to": "17 ربیع الاول 1089 در مشهد رضوی (پایان صوم)، ذیقعده 1091 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87831,
+   "shelfmark": "2262",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "26 جمادی الثانی 1096 (پایان کتاب الطلاق)",
+     "to": "26 جمادی الثانی 1096 (پایان کتاب الطلاق)، 26 صفر 1098ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87901,
+   "shelfmark": "695",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "8 رمضان 1100ق (پایان کتاب الصوم)",
+     "to": "8 رمضان 1100ق (پایان کتاب الصوم)، 10 ربیع الاول 1101 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87963,
+   "shelfmark": "348",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "25 ذیقعده 1119 (پایان جزء اول)",
+     "to": "25 ذیقعده 1119 (پایان جزء اول)، جمعه 4 شعبان 1120 (پایان کتاب الصلاة)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89023,
+   "shelfmark": "1360",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در پایان تاریخ 20 شوال سال گویا 1084 (درست خوانده نمی‌شود) دارد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89378,
+   "shelfmark": "2404/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "شنبه 10 ذیحجه 1087 (پایان ثواب الاعمال)",
+     "to": "شنبه 10 ذیحجه 1087 (پایان ثواب الاعمال)، شنبه سلخ محرم 1088 (پایان عقاب الاعمال)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89683,
+   "shelfmark": "6911",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 90688,
+   "shelfmark": "4773",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "گویا از قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91158,
+   "shelfmark": "13048",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "صفر 1206 (زکات)",
+     "to": "صفر 1206 (زکات)، ربیع الاول 1207ق (صوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91381,
+   "shelfmark": "6618",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "دوشنبه سلخ ربیع الثانی 929ق",
+     "to": "دوشنبه سلخ ربیع الثانی 929ق، پنج‌شنبه 6 شوال 928ق (پایان جزء اول)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91665,
+   "shelfmark": "3538",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "شب قدر رمضان 1013 (پایان جزء اول)",
+     "to": "شب قدر رمضان 1013 (پایان جزء اول)، پنج‌شنبه 28 شوال 1013ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91954,
+   "shelfmark": "72/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92586,
+   "shelfmark": "13727",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "تاریخ میلادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93264,
+   "shelfmark": "7996 و 6222-ف",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "لوی ئیل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95078,
+   "shelfmark": "8538",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "محرم 1361ق",
+     "to": "محرم 1361ق، محرم 1363"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95690,
+   "shelfmark": "3213",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95884,
+   "shelfmark": "26561",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96555,
+   "shelfmark": "2343",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "شعبان 797 (صفحه 291)، عمر بن عبدالرحمن، سال 829 (صفحه 382)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96611,
+   "shelfmark": "17012",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1072",
+     "to": "1072، 1092"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96618,
+   "shelfmark": "14200",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "رساله 17 شمس الدین حسینی، تخمیس 25 رجب 1019، رساله 20 محمود بن قاضی مصطفی، نیمه ذیقعده 1065، رساله 30 اوایل رمضان 1048، رساله 36 سال 1050ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96736,
+   "shelfmark": "26748",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "نخودی",
+     "to": "نخودی، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96767,
+   "shelfmark": "24286",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "اسقاطی",
+     "to": "اسقاطی، برون جلد: تیماج مشکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96870,
+   "shelfmark": "937",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "رساله اول شنبه غره جمادی الثانی 1309",
+     "to": "رساله اول شنبه غره جمادی الثانی 1309، 1308، 4 شوال 1308، 19 جمادی الاول 1307"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97232,
+   "shelfmark": "5895/1-29/235",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در راه بصره در داخل کشتی و بقیه در کرمانشاهان و حله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97562,
+   "shelfmark": "466",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "27 ربیع الثانی 1273ق (برگ 144)",
+     "to": "27 ربیع الثانی 1273ق (برگ 144)، 20 ربیع الاول 1267 (برگ 3)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98052,
+   "shelfmark": "26795",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98608,
+   "shelfmark": "8767/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98935,
+   "shelfmark": "21",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "12 ربیع الاول 1091 (پایان جزء اول)",
+     "to": "12 ربیع الاول 1091 (پایان جزء اول)، یک‌شنبه 12 جمادی الثانی 1097 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99080,
+   "shelfmark": "142",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 1149 و 1184"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99335,
+   "shelfmark": "2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نوشته شده روزگار مؤلف و دعایی که در پایان آن در حق مؤلف آمده گواه این مدعا می‌باشد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99510,
+   "shelfmark": "5233",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 100415,
+   "shelfmark": "14849",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101871,
+   "shelfmark": "4892",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "سال دوم جلوس مظفرالدین شاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102201,
+   "shelfmark": "4123/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102908,
+   "shelfmark": "329",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105311,
+   "shelfmark": "1692",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105391,
+   "shelfmark": "176/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107624,
+   "shelfmark": "67",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107678,
+   "shelfmark": "727",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "رجب 1112ق (پایان کتاب الطهارة)",
+     "to": "رجب 1112ق (پایان کتاب الطهارة)، 23 ذیقعده 1153 (برگ 515)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107701,
+   "shelfmark": "59",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107717,
+   "shelfmark": "37",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نوشته زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107719,
+   "shelfmark": "4930-25/20",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 108532,
+   "shelfmark": "1763",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "گویا در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 108944,
+   "shelfmark": "25762",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "آبی",
+     "to": "آبی، فستقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 109083,
+   "shelfmark": "688",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_place": {
+     "from": "بلد",
+     "to": "بلد، کردستان مدرسه ام میرزا محمد رضائی وزیر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 109391,
+   "shelfmark": "8077",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110793,
+   "shelfmark": "268",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "20 ربیع الاول 1099ق (جلد اول)",
+     "to": "20 ربیع الاول 1099ق (جلد اول)، 8 جمادی الاول 1099ق (جلد دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110796,
+   "shelfmark": "5749-29/89",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر شارح"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110797,
+   "shelfmark": "8750/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110798,
+   "shelfmark": "6577-33/127",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "قرن 11 (عصر مؤلف)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110802,
+   "shelfmark": "3310",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110809,
+   "shelfmark": "2983",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111009,
+   "shelfmark": "4053",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111565,
+   "shelfmark": "7016/3",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روزگار خوانساری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 112151,
+   "shelfmark": "779",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هنگام کار در نزد شیخ کورانی در قسطنطنیه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 112603,
+   "shelfmark": "25522",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "نخودی",
+     "to": "نخودی، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 113106,
+   "shelfmark": "1712",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 113590,
+   "shelfmark": "7016/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روزگار خوانساری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114099,
+   "shelfmark": "26284",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114438,
+   "shelfmark": "26263",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114442,
+   "shelfmark": "695",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114493,
+   "shelfmark": "25943",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "paper": {
+     "from": "شکری",
+     "to": "شکری، فرنگی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114833,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114845,
+   "shelfmark": "1689",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نسخ از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116130,
+   "shelfmark": "174/3",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116827,
+   "shelfmark": "1182/39",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در روز جمعه 29 جمادی الاول 1072"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 122341,
+   "shelfmark": "9290/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 123007,
+   "shelfmark": "10169/3",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 123079,
+   "shelfmark": "9290/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 123978,
+   "shelfmark": "3261/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "به گواهی پسرش جلال"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124877,
+   "shelfmark": "9954",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در سال جلوس محمد شاه قاجار"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 126212,
+   "shelfmark": "13741/16",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "11 بهمن ماه الهی 996 برزجرد بن شهریار",
+     "to": "11 بهمن ماه الهی 996 برزجرد بن شهریار، 1036ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127005,
+   "shelfmark": "56",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127215,
+   "shelfmark": "11836/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128125,
+   "shelfmark": "482/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128180,
+   "shelfmark": "22",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "20 محرم 966ق (پایان قسم اول)",
+     "to": "20 محرم 966ق (پایان قسم اول)، ربیع الاول 977 (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128768,
+   "shelfmark": "1706",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 130795,
+   "shelfmark": "5149",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "احتمالا 590 (تسع یا تسعین معلوم نیست زیرا که این کلمه در صحافی بریده شده و فقط دو حرف اول آن باقیست)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132648,
+   "shelfmark": "3122",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1258",
+     "to": "1258، 1266 و 1269ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133133,
+   "shelfmark": "203",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 15 ربیع الثانی 1279 در پایان و تاریخ 1269ق در آغاز (برگ 2پ)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 134362,
+   "shelfmark": "4249",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "پنج‌شنبه 28 شوال 1293ق (پایان بحث مطلق ومقید)",
+     "to": "پنج‌شنبه 28 شوال 1293ق (پایان بحث مطلق ومقید)، دهه آخر ربیع الاول 1294 (پایان تعادل و ترجیح و قطع)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136524,
+   "shelfmark": "152 معزی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1310ش",
+     "to": "1310ش، 1349ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136616,
+   "shelfmark": "146/27 و 712/27 عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136919,
+   "shelfmark": "769",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در روزگار مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144288,
+   "shelfmark": "7883",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "سال شانزدهم جلوس محمد شاه در شهر اوچین صوبه مهاراد جا بهراج سویی جينكه صو"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144435,
+   "shelfmark": "17184",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1299",
+     "to": "1299، 1300، 1301، 1292ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 148453,
+   "shelfmark": "729",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "ده بیست روز مانده به نوروز"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150493,
+   "shelfmark": "4077/4",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150650,
+   "shelfmark": "6142",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 150798,
+   "shelfmark": "51 فرخ",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "جمعه 3 صفر 936 (کتاب اول)",
+     "to": "جمعه 3 صفر 936 (کتاب اول)، ربیع الاول 1289 (کتاب هشتم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151407,
+   "shelfmark": "8722",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151979,
+   "shelfmark": "12303/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "اوایل قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 153684,
+   "shelfmark": "146/17 و 712/17 عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نزدیک عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 153898,
+   "shelfmark": "8732",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "اندکی پس از آن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154191,
+   "shelfmark": "10315/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157569,
+   "shelfmark": "17825",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157607,
+   "shelfmark": "284",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 158925,
+   "shelfmark": "3/1-6136",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در پایان و محمد بن حسین همایون حسینی گلپایگانی در روز یک‌شنبه 15 شوال 1133 در نیمه نخستین"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159461,
+   "shelfmark": "2382",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1239 و 1247",
+     "to": "1239 و 1247، قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159462,
+   "shelfmark": "2375",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1261 و 1262",
+     "to": "1261 و 1262، قرن 13"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161001,
+   "shelfmark": "24270",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مشمع",
+     "to": "مشمع، برون مشمع لاجورد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161004,
+   "shelfmark": "25596",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مقوا",
+     "to": "مقوا، رویه مشمع دارد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161119,
+   "shelfmark": "29",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161581,
+   "shelfmark": "174/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161891,
+   "shelfmark": "3356",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 162324,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 162559,
+   "shelfmark": "177",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "سه‌شنبه 8 جمادی الثانی 1228ق و محمد باقر بن محمد علی میبدی",
+     "to": "سه‌شنبه 8 جمادی الثانی 1228ق و محمد باقر بن محمد علی میبدی، جمعه 13 ربیع الاول 1228ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164585,
+   "shelfmark": "9380",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 165503,
+   "shelfmark": "2327",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "شاید در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166182,
+   "shelfmark": "9290/12",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166752,
+   "shelfmark": "1823",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166759,
+   "shelfmark": "3021/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168418,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "شهر صیام"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 170141,
+   "shelfmark": "5501/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پنج روز پس از نگارش کتاب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171269,
+   "shelfmark": "14215",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "1154ق در سیکاکل، رساله چهل و سوم 1110ق، رساله چهل و چهارم شیخ نور محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171300,
+   "shelfmark": "8977",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "6 شوال 1097ق در سیالکوت از قصبات پنجاب (ص 80)",
+     "to": "6 شوال 1097ق در سیالکوت از قصبات پنجاب (ص 80)، 14 صفر 1086ق (ص 143)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171335,
+   "shelfmark": "12179",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171643,
+   "shelfmark": "1182",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172165,
+   "shelfmark": "8993",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "پنج‌شنبه شعبان 1184ق",
+     "to": "پنج‌شنبه شعبان 1184ق، 7 جمادی الثانی 1074ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173037,
+   "shelfmark": "10909",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173118,
+   "shelfmark": "727",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174611,
+   "shelfmark": "1891",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174844,
+   "shelfmark": "2410",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174873,
+   "shelfmark": "4244",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 175224,
+   "shelfmark": "2195",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 175241,
+   "shelfmark": "10741",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 175916,
+   "shelfmark": "7016/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روزگار خوانساری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178437,
+   "shelfmark": "10016/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178496,
+   "shelfmark": "146/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نزدیک عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178576,
+   "shelfmark": "2812-15/52",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "14 ذیحجه 1271ق",
+     "to": "14 ذیحجه 1271ق، 16 محرم 1274"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178760,
+   "shelfmark": "1009",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 179712,
+   "shelfmark": "343",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "3 جمادی الاول 923ق (دفتر اول)",
+     "to": "3 جمادی الاول 923ق (دفتر اول)، 21 شوال 967ق (دفتر دوم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 179969,
+   "shelfmark": "146/15",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نزدیک عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 182107,
+   "shelfmark": "11836/6",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 182832,
+   "shelfmark": "11836/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183335,
+   "shelfmark": "34",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نوشته شده نزدیک روزگار مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 183561,
+   "shelfmark": "44",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 186970,
+   "shelfmark": "2945",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 187730,
+   "shelfmark": "107",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "جمعه الاول 1238ق",
+     "to": "جمعه الاول 1238ق، شعبان 1275ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 188642,
+   "shelfmark": "141",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در سال نزول وبا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 190250,
+   "shelfmark": "726",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "محرم 1363ق",
+     "to": "محرم 1363ق، ذیحجه 1362"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 191560,
+   "shelfmark": "10387",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_place": {
+     "from": "مشهد",
+     "to": "مشهد، مدرسه امین پیرزاد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192159,
+   "shelfmark": "2756",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در سال زلزله [تاریخ کتابت صحیح نیست گرچه در فهرست چنین است یا این‌که شرح از مازندرانی نیست]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192429,
+   "shelfmark": "2094",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 193503,
+   "shelfmark": "146/24 و 712/24",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 193705,
+   "shelfmark": "1628",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_place": {
+     "from": "بر سه فی مدرسة السلطان",
+     "to": "بر سه فی مدرسة السلطان، فی شهر (کذا)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 197123,
+   "shelfmark": "7590",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198274,
+   "shelfmark": "4614",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "به روزگار ناصرالدین شاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 199680,
+   "shelfmark": "4166",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 199942,
+   "shelfmark": "9290/13",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200965,
+   "shelfmark": "963",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201067,
+   "shelfmark": "10654",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202400,
+   "shelfmark": "824",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "binding": {
+     "from": "مقوایی",
+     "to": "مقوایی، روغنی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202794,
+   "shelfmark": "2397",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1144ق (پایان ملحقات)",
+     "to": "1144ق (پایان ملحقات)، رجب 1129ق (پایان صحیفه)، قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203585,
+   "shelfmark": "136",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "شوال 1052ق [ممکن است تاریخ تألیف باشد]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205199,
+   "shelfmark": "10177/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "حدود قرن 11"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205335,
+   "shelfmark": "6465",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205374,
+   "shelfmark": "174/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207515,
+   "shelfmark": "1923",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209641,
+   "shelfmark": "1161",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209806,
+   "shelfmark": "4309",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214108,
+   "shelfmark": "9546",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214841,
+   "shelfmark": "146/25 و 712/25",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215224,
+   "shelfmark": "6522",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215698,
+   "shelfmark": "1713/5",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 1059ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 217318,
+   "shelfmark": "157/4 خوئی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در پایان این جزء"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 219535,
+   "shelfmark": "552عکسی و 762عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "احتمالاً در عصر مؤلف یا اندکی بعد از در گذشت وی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 219536,
+   "shelfmark": "553عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "احتمالاً در عصر مؤلف یا اندکی بعد از درگذشت وی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 220124,
+   "shelfmark": "124",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "سال تخت نشینی شاه عالم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223062,
+   "shelfmark": "494/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223774,
+   "shelfmark": "130",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223848,
+   "shelfmark": "1937",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225009,
+   "shelfmark": "11836/13",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 228402,
+   "shelfmark": "1537-9/87",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پس از بازگشت از سفر مشهد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230713,
+   "shelfmark": "6550/1-33/100",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "پنج‌شنبه 2 رجب 1231 (پایان فایده 12)",
+     "to": "پنج‌شنبه 2 رجب 1231 (پایان فایده 12)، ذیقعده 1244 (پایان فایده نوزدهم)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233501,
+   "shelfmark": "2407/2-13/87",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233904,
+   "shelfmark": "1467",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233987,
+   "shelfmark": "165",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "یک‌شنبه 13 صفر 974 (پایان جز اول حرف الطاء)",
+     "to": "یک‌شنبه 13 صفر 974 (پایان جز اول حرف الطاء)، جمعه 13 رمضان 973ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 234127,
+   "shelfmark": "618",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1145ق (پایان حرف طاء)",
+     "to": "1145ق (پایان حرف طاء)، دوشنبه 29 ذیقعده 989ق (پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 234905,
+   "shelfmark": "10399/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "گویا در حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235080,
+   "shelfmark": "3446",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239545,
+   "shelfmark": "9290/11",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 243204,
+   "shelfmark": "229",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 243247,
+   "shelfmark": "3016",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 244902,
+   "shelfmark": "130",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "ذیقعده 1039ق (پایان جزء دوم)",
+     "to": "ذیقعده 1039ق (پایان جزء دوم)، صفر 1045ق (پایان کتاب العشرة)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 245730,
+   "shelfmark": "1717",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روضه از اوایل قرن 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 249040,
+   "shelfmark": "343",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "دوشنبه 7 رمضان 1070ق (پایان جزء ثالث)",
+     "to": "دوشنبه 7 رمضان 1070ق (پایان جزء ثالث)، چهارشنبه 29 رمضان 1090ق(پایان کتاب)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 251904,
+   "shelfmark": "22449/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "که گویا 1262 باشد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 251961,
+   "shelfmark": "288",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 252826,
+   "shelfmark": "65/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 253425,
+   "shelfmark": "140",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عهد پادشاه غازی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254054,
+   "shelfmark": "29589",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1326ق",
+     "to": "1326ق، آبان 1382"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 256413,
+   "shelfmark": "537",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پس از مرگ شارح (ص ع)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257298,
+   "shelfmark": "581",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257475,
+   "shelfmark": "11836/9",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259711,
+   "shelfmark": "14081",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "سال دوم جلوس احمدشاه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 260985,
+   "shelfmark": "10916",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هنگام مصالحه دولت روسیه با قاجار"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 261552,
+   "shelfmark": "1281",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "گویا708ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264627,
+   "shelfmark": "5346/12",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "بیست و سومین سال جلوس محمد شاهی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267315,
+   "shelfmark": "71",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1255",
+     "to": "1255، 1261ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267467,
+   "shelfmark": "11961/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نیمه اول"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267721,
+   "shelfmark": "12650/3",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "اندکی پس از عصر مؤلف کتابت شده"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268037,
+   "shelfmark": "1055",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هنگام جلوس محمدشاه احتمالا از شاهان قطبیه هند"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 269634,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 270780,
+   "shelfmark": "11398",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 271825,
+   "shelfmark": "1445-عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "معرب (تسعمایه و سبعه ؟) که کهن‌تر از قرن هشتم می‌نماید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 272262,
+   "shelfmark": "310",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273382,
+   "shelfmark": "82/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "پس از مهاجرت به قم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 274892,
+   "shelfmark": "3664-18/184",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "حسب فرموده آقای هادی 1132ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 276622,
+   "shelfmark": "8172",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "جزء اول نزدیک عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 276809,
+   "shelfmark": "8539",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هنگام رسیدن موکب شاهی به افجه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 278734,
+   "shelfmark": "11733",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1335",
+     "to": "1335، 1334، 1320، 1332ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 278836,
+   "shelfmark": "1878",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279622,
+   "shelfmark": "50",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1372 و 1367 و 1294 و 1323",
+     "to": "1372 و 1367 و 1294 و 1323، 1370ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279822,
+   "shelfmark": "4635ـ ف",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "1341و1373و 1380",
+     "to": "1341و1373و 1380، 840ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280680,
+   "shelfmark": "73",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "و گویا دومی صحیح باشد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280716,
+   "shelfmark": "146/7 و 712/7 عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نزدیک عصر مولف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 282508,
+   "shelfmark": "2831",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 283508,
+   "shelfmark": "10/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روزگار مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 283659,
+   "shelfmark": "9356",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در روزگار سلطان سلیمان پسر سلیم پسر بایزید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 284241,
+   "shelfmark": "3405",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286528,
+   "shelfmark": "6211",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "اواخر 12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288566,
+   "shelfmark": "402",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290918,
+   "shelfmark": "4360/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 293079,
+   "shelfmark": "74",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294265,
+   "shelfmark": "3534",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295314,
+   "shelfmark": "121",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "درزمان حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295504,
+   "shelfmark": "3272/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295596,
+   "shelfmark": "7800",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "نزدیک عصر شارح"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 297646,
+   "shelfmark": "1389",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "و نیمه میان آن تحریر قرن 9 و 10"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 297969,
+   "shelfmark": "بدون شماره",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302589,
+   "shelfmark": "822",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302605,
+   "shelfmark": "15428",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303335,
+   "shelfmark": "13882/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "احتمالاً در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303888,
+   "shelfmark": "1978",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303976,
+   "shelfmark": "1295",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303980,
+   "shelfmark": "117",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 1283"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304004,
+   "shelfmark": "969",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304703,
+   "shelfmark": "1965",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 304965,
+   "shelfmark": "2884",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 305054,
+   "shelfmark": "9290/6",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 308142,
+   "shelfmark": "1265",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309274,
+   "shelfmark": "1018",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309665,
+   "shelfmark": "160",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309971,
+   "shelfmark": "9203",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "هزارواندی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311990,
+   "shelfmark": "57",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 312080,
+   "shelfmark": "173",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "روزگار ترجمه و شاید در کارگاه‌های ناصری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 318158,
+   "shelfmark": "3942",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "با تاریخ 876ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 318585,
+   "shelfmark": "4788/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در ابتدا و انتهای مجموعه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 321835,
+   "shelfmark": "8931/2-59/151",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "اواسط بهار1327ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325451,
+   "shelfmark": "519",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "محتملاً 1065ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325617,
+   "shelfmark": "2193",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325654,
+   "shelfmark": "8667",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325655,
+   "shelfmark": "8668",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325656,
+   "shelfmark": "8669",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325672,
+   "shelfmark": "1063",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325674,
+   "shelfmark": "607/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 327691,
+   "shelfmark": "9449",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 327692,
+   "shelfmark": "8952",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328365,
+   "shelfmark": "173/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "زمان حیات مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328558,
+   "shelfmark": "3441",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329824,
+   "shelfmark": "6907/2",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330077,
+   "shelfmark": "120/1",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_raw": {
+     "from": "ذیقعده 1306 (یا 1360)",
+     "to": "ذیقعده 1306 (یا 1360)، قرن 14"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330493,
+   "shelfmark": "7",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330494,
+   "shelfmark": "13073",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330495,
+   "shelfmark": "1142عکسی",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330497,
+   "shelfmark": "19",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "از عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 330940,
+   "shelfmark": "1201",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 331423,
+   "shelfmark": "518",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332321,
+   "shelfmark": "6862/21",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333174,
+   "shelfmark": "4021",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در عصر مؤلف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334488,
+   "shelfmark": "2971/3",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_place": {
+     "from": "هرات",
+     "to": "هرات، بقعه حسینیه مرقد شیخ عبدالله انصاری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334589,
+   "shelfmark": "6080",
+   "category": "columns",
+   "v2": "joined",
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "یا اواخر قرن 11"
+    }
+   }
+  }
+ ]
+}

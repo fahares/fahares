@@ -12805,3 +12805,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروندۀ دوم:** `database/data/fankha_label_fixes_text_step14_282.json` (۶۰۰ رکورد، تنها `raw_text`).
 - **تمرین روی `fahares_prod`:** «Rebuilding 603 copies … extents=5, lines=87, pointers_linked=8» (با سه نسخه‌ای که سپس برگردانده و از پرونده برداشته شد)، اجرای دوم «already 600». مقایسه با پروداکشن: جز ستون‌های گام نخست، `extent_raw` ۶، `range_from/to` ۳، `catalog_volume_id` و `cataloger_id` ۱۳ پر شدند. `fahares:rebuild-scripts --dry-run`: ۷ نسخه خط می‌گیرند (تحریری ۲، پهلوی ۲، سیاق، نسخ، نستعلیق).
 
+### گام ۱۴.۲۸۷: تجزیه‌گر v2.5.0 (پیوستن تکه به فیلد) و `fankha_v2_joined_pieces_export.py`
+
+- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `8aa0b49`):**
+  - `continues(ch)`: شناسۀ تکه (`sha1(text)[:12]`) را در سطرهای دارای «c» از `reconciliations/fankha_note_types.jsonl` می‌جوید و با `CONT_LAST` به مقدار `last` تجزیه‌گر برمی‌گرداند (`date`، `binding`، `paper`، `place`، `ownership`، `seal → seals`، `endowment → donor`).
+  - در `parse_physical()`، درست پیش از آن که تکۀ بی برچسب یادداشت `remark` شود: `at = last or (carry if ci == 0 else None)`؛ `carry` فیلدی است که گروه «؛» پیشین با آن پایان یافته. اگر `continues(ch) == at`، `join_field()` تکه را با «، » می‌افزاید و `last` می‌ماند.
+  - `join_field()`: تاریخ دوم (`is_date_chunk` یا `MORE_DATES`، پرانتز پایانی کنار) تنها وقتی `raw` سال سه یا چهار رقمی دارد به `copy_date.raw` می‌رود و `century` و `sort_year` دست نمی‌خورد؛ وگرنه به `copy_date.note`. تکۀ دارای «N سطر» یا «اندازه:» نمی‌پیوندد؛ برای کاغذ، واقف و محل، تکۀ دارای «جلد»، «کاغذ:»، «خط:»، شمار برگ یا «[» هم نه.
+- **سنجش با خروجی پیشین:** `copy_date` ۵۲۲، `binding` ۲۱۵، `ownership` ۱۹۳، `copy_place` ۴۸، `paper` ۳۱، `seals` ۲۷، `donor` ۱۴؛ پیامد: `commissioned_by` ۵ نسخه پر شد و `ruled` از ۷ نسخه برداشته شد («مجدول» پس از جلد، وصف جلد است). تکه‌های «ادامه» در یادداشت‌ها از ۳٬۵۴۴ به ۲٬۳۵۷ رسید.
+- **`fankha_v2_joined_pieces_export.py --before DIR --copies FILE [--step N]`:** نسخه‌هایی که `copy_date_raw`، `copy_place`، `paper` یا `binding` آن‌ها در v2 با «، …» بلندتر شده یا `copy_date.note` گرفته‌اند (۸۱۴)، با متن به نسخۀ سایت می‌رسند. ستون سایت همان دنباله را می‌گیرد اگر با مقدار پیشین v2 یکی باشد (`tight`)؛ `copy_date_note` تنها اگر تهی باشد. کنار گذاشته: «سایت از پیش دارد» (یادداشت تاریخ ۱۶۳، جلد ۲۰۴، محل ۴۰، کاغذ ۱۶، تاریخ ۴)، مقدار یا یادداشت دیگر ۸، متن غیر یکتا ۴.
+- **پرونده:** `database/data/fankha_joined_pieces_step14_287.json` (۳۸۵ رکورد).
+- **تمرین روی `fahares_prod`:** «Rebuilding 385 copies … dates=1, pointers_linked=6»، اجرای دوم «already 385». تمرین نخست نشان داد تاریخ دوم پس از «قرن N» سال مرتب‌سازی ۹ نسخه را عوض می‌کند؛ با پروندۀ وارونه برگردانده و قاعده اصلاح شد.
