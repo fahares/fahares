@@ -12942,3 +12942,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نمونه‌ها:** «- 940 ؟ ق» با ۹۴۰: متن و وفات تهی، سده ۱۰ می‌ماند. «817 - 898 قمری»: «817 - قمری». «- 1312 شمسی» با ۱۳۵۱: سال تهی، بازۀ ۱۳۵۱ تا ۱۳۵۲ از متن می‌ماند. «- 940 ؟ ق» با ۹۴۵: خطا.
 - **`people/show.blade.php`:** سطر `life_dates_raw` با `x-show="$store.suggest.on"`.
 - **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.
+
+### گام ۱۴.۲۹۴: تجزیه‌گر v2.6.0 (کاتبان بعدی) و `fahares:add-copy-scribes`
+
+- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `6fa65ec`):**
+  - `join_scribe(c, ch)` در `parse_physical()`، پس از `join_field`: وقتی `last` کاتب یا تاریخ است و مدل تکه را ادامۀ کاتب خوانده، یا وقتی نسخه فهرست کاتبان است (`scribe_list`: بیش از یک کاتب، یا «در <سال>» در نام کاتب پیشین).
+  - ترتیب تصمیم: تاریخ تنها، و تکۀ آغازشده با روز هفته، «سال N» یا «در …» → `note` کاتب پیشین؛ `SCRIBE_ABOUT` («ساکن»، «مشهور به»، «…المسکن») → `note`؛ `SCRIBE_SAME` («ابن»، «بن»، «فرزند»، «سبط») → دنبالۀ نام؛ نام تک‌واژۀ مختوم به «ی» در کاتب یگانه → نام وارونه (`نسبت، نام`)، با تردید پرانتزی در `hedge`؛ وگرنه کاتب تازه `{name, hedge, portion, note?}`.
+  - `SCRIBE_LEAD` پیشوند «و»، «بخش دوم:»، «بقیه به خط»، «به قلم نسخ» را برمی‌دارد؛ `SCRIBE_DATED` و جست‌وجوی تاریخ بی «در» تاریخ را به `note` می‌برند؛ پرانتز اگر بخش باشد (`SCRIBE_PORTION`) `portion` است، وگرنه تکه رد می‌شود. `SCRIBE_NOT` («عکس»، «قطعه»، «دستور»، «:»، «تا <تاریخ>») و فعل (جز «میر…») تکه را رد می‌کنند.
+  - قاعدۀ کهنۀ «تکۀ کوتاه پس از کاتب به نام او می‌چسبد» در فهرست کاتبان خاموش است.
+- **سنجش با خروجی ۲.۵.۰:** ۸۸ نسخه، ۱۶۷ کاتب تازه، ۱۹۵ یادداشت کمتر؛ پیامد: `binding` و `commissioned_by` هر کدام یک نسخه.
+- **`fankha_v2_copy_scribes_export.py --before DIR --out FILE`:** نسخه‌های دگرگون با متن یکتا در سایت؛ `clean_first()` بخش، «تا پایان … به قلم»، «تا: N» و تاریخ «در …» را از نام نخست به یادداشت می‌برد؛ رکوردی که نام نخستش هنوز رقم، «:» یا «ندارد» دارد کنار می‌رود (۵). خروجی: `{id, shelfmark, first: {from, to, note?}, scribes: [{name, note?}]}`.
+- **`app/Console/Commands/AddCopyScribesCommand.php`:** مقایسۀ نام با حروف و ارقام تنها (`key()`). «already» اگر `scribe_name` همان `to` باشد و ردیف‌ها همان نام‌ها؛ «several scribes» اگر بیش از یک ردیف باشد؛ «another scribe» اگر `scribe_name` نه `from` باشد و نه فهرستی که با نام نخست آغاز شود و همۀ نام‌های دیگر را در خود داشته باشد. نسخۀ بی ردیف کاتب نخست ردیف صفر می‌گیرد. شخص با `normalized_name` برابر (درست یک شخص) یا ساخت شخص تازه، تنها برای نام سه‌واژه‌ای و بیشتر. `AuditLog` با `category: scribes`، سپس `Person::recountMany` و نمایه‌سازی اشخاص و نسخه‌ها. `-v` نسخه‌های «write» را نام می‌برد.
+- **پرونده:** `database/data/copy_scribes_step14_294.json` (۸۳ رکورد، ۱۶۳ کاتب).
+- **تمرین روی `fahares_prod`:** «write 60, already 12, several 7, another 4»؛ «Added 145 scribes: 19 linked to a person, 57 to a new person, 69 as a name»؛ اجرای دوم «already 72». پیش از تمرین نهایی، ردیف‌های کاتب این نسخه‌ها از پروداکشن به رونوشت محلی برگردانده شد.
+- **آزمون:** `tests/Feature/AddCopyScribesCommandTest.php` (۲ آزمون).
+
