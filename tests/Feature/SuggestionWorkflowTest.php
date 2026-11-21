@@ -380,6 +380,32 @@ class SuggestionWorkflowTest extends TestCase
         $person->refresh();
         $this->assertSame([951, 951, 951, 10], [$person->death_year_hijri, $person->death_from, $person->death_to, $person->century_hijri]);
 
+        // The death year cleared by its own field leaves the wording too, so the model does not read it back (step 14.293)
+        $doubtful = $this->person('خوشنویس دوم');
+        $doubtful->update(['life_dates_raw' => '- 940 ؟ ق', 'death_year_hijri' => 940, 'death_year_gregorian' => 1534]);
+        $this->actingAs($this->admin)->get(route('people.show', $doubtful))->assertOk()->assertSee('data-suggest-field="life_dates_raw"', false)->assertSee('تاریخ زندگی در فهرست');
+        $this->suggest($doubtful, ['field_name' => 'death_year_hijri', 'suggested_value' => 'نامشخص', 'rationale_citation' => 'تاریخ معتبری نیست'])->assertOk();
+        $this->approve($this->pendingFor($doubtful), ['applied_value' => ''])->assertRedirect('/admin/suggestions');
+        $doubtful->refresh();
+        $this->assertSame([null, null, null, null, null, 10], [$doubtful->death_year_hijri, $doubtful->death_year_gregorian, $doubtful->life_dates_raw, $doubtful->death_from, $doubtful->death_to, $doubtful->century_hijri]);
+        // ...with a birth year the wording keeps it
+        $born = $this->person('خوشنویس سوم');
+        $born->update(['life_dates_raw' => '817 - 898 قمری', 'birth_year_hijri' => 817, 'death_year_hijri' => 898]);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $born->id, 'field_name' => 'death_year_hijri', 'suggested_value' => ''])->assertOk();
+        $born->refresh();
+        $this->assertSame([null, '817 - قمری', 817, null], [$born->death_year_hijri, $born->life_dates_raw, $born->birth_year_hijri, $born->death_from]);
+        // ...a solar year of death stays in the wording as the Hijri years it spans; only the single year goes
+        $solar = $this->person('خوشنویس چهارم');
+        $solar->update(['life_dates_raw' => '- 1312 شمسی', 'death_year_hijri' => 1351]);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $solar->id, 'field_name' => 'death_year_hijri', 'suggested_value' => ''])->assertOk();
+        $this->assertSame([null, '- 1312 شمسی', 1351, 1352], array_values($solar->fresh()->only(['death_year_hijri', 'life_dates_raw', 'death_from', 'death_to'])));
+        // ...and a wording that would still give another year stops the approval, instead of an approval that changes nothing
+        $other = $this->person('خوشنویس پنجم');
+        $other->update(['life_dates_raw' => '- 940 ؟ ق', 'death_year_hijri' => 945]);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'person', 'id' => $other->id, 'field_name' => 'death_year_hijri', 'suggested_value' => ''])
+            ->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->assertSame([945, '- 940 ؟ ق'], array_values($other->fresh()->only(['death_year_hijri', 'life_dates_raw'])));
+
         // A death year a reviewer set apart from the wording is not the wording's to take away
         $person->update(['death_year_hijri' => 955]);
         $this->suggest($person, ['field_name' => 'life_dates_raw', 'suggested_value' => 'قرن 10', 'rationale_citation' => 'تذکره'])->assertOk();

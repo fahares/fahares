@@ -90,6 +90,10 @@
             <x-ui.card :framed="true">
                 <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
                     <x-ui.meta label="سده" field="century_hijri">{{ $person->centuries_text ?? 'نامشخص' }}</x-ui.meta>
+                    {{-- The catalogue's own wording of the life, which the years are read from: shown to be corrected (step 14.293) --}}
+                    <div class="contents" x-show="$store.suggest.on" x-cloak>
+                        <x-ui.meta label="تاریخ زندگی در فهرست" field="life_dates_raw" :empty="! $person->life_dates_raw">{{ Fa::digits((string) $person->life_dates_raw) }}</x-ui.meta>
+                    </div>
                     <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق</x-ui.meta>
                     <x-date-conflict-note type="person" :id="$person->id" field="birth" />
                     {{-- With no death date, the latest year a dated work or copy shows the person alive (step 14.172) --}}
