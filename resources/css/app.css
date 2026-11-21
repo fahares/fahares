@@ -364,7 +364,7 @@ body {
     border-bottom: 1px solid var(--ink);
     font-family: var(--font-lotus);
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 .book-sheet__title {
     flex: 1;
@@ -374,7 +374,7 @@ body {
     letter-spacing: 0.01em;
 }
 .book-sheet__folio {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--ink);
     min-width: 3rem;
@@ -393,13 +393,13 @@ body {
 }
 .book-sheet__body {
     font-family: var(--font-lotus);
-    font-size: 1.0625rem;
+    font-size: 1.25rem;
     line-height: 2.15;
     text-align: justify;
     min-height: 24rem;
 }
 @media (min-width: 640px) {
-    .book-sheet__body { font-size: 1.1875rem; }
+    .book-sheet__body { font-size: 1.375rem; }
 }
 .book-sheet__entry + .book-sheet__entry { margin-top: 1.1rem; }
 .book-sheet__heading {
@@ -492,7 +492,7 @@ body {
         column-count: 2;
         column-gap: 2.5rem;
         column-rule: 1px solid var(--line);
-        font-size: 1rem;
+        font-size: 1.125rem;
         line-height: 2;
     }
 }
@@ -510,7 +510,7 @@ body {
 .book-sheet__notes {
     margin-top: 1.75rem;
     font-family: var(--font-lotus);
-    font-size: 0.9375rem;
+    font-size: 1.0625rem;
     line-height: 1.9;
     text-align: justify;
 }
@@ -526,7 +526,7 @@ body {
     margin-top: 2rem;
     text-align: center;
     font-family: var(--font-lotus);
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--muted);
 }
 .book-sheet__foot::before,
