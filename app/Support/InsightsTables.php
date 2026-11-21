@@ -101,11 +101,18 @@ class InsightsTables
 
     private function dynasties(): array
     {
-        return [self::table('نسخه‌ها در روزگار هر سلسله', 'copies-by-dynasty',
-            [['سلسله', 'text'], ['نسخه', 'num'], ['سال‌های حکومت', 'num'], ['نسخه در هر ده سال', 'dec'], ['سهم از نسخه‌های همان سال‌ها', 'pct'],
-                ['آغاز حکومت', 'year'], ['پایان حکومت', 'year'], ['سال نخستین نسخه', 'year'], ['سال واپسین نسخه', 'year'], ['شمار شهرها', 'num'], ['شهرهای پرنسخه', 'text']],
+        $dy = $this->data['dynasties'];
+        $table = fn (string $title, string $file, string $unit, string $made, array $items) => self::table($title, $file,
+            [['سلسله', 'text'], [$unit, 'num'], ['سال‌های حکومت', 'num'], ["{$unit} در هر ده سال", 'dec'], ['سهم از همان سال‌ها', 'pct'],
+                ['آغاز حکومت', 'year'], ['پایان حکومت', 'year'], ["سال نخستین {$unit}", 'year'], ["سال واپسین {$unit}", 'year'], ['شمار شهرها', 'num'], ["شهرهای پر{$made}", 'text']],
             array_map(fn ($r) => [$r['name'], $r['count'], $r['years'], $r['density'], $r['share'], $r['rule_from'], $r['rule_to'], $r['from'], $r['to'], $r['city_kinds'],
-                implode('، ', array_map(fn ($c) => $c['name'] . ' ' . $c['count'], $r['cities']))], $this->data['dynasties']['items']))];
+                implode('، ', array_map(fn ($c) => $c['name'] . ' ' . $c['count'], $r['cities']))], $items));
+
+        return [
+            $table('نسخه‌ها در روزگار هر سلسله', 'copies-by-dynasty', 'نسخه', 'نسخه', $dy['items']),
+            // The works composed under each dynasty (step 14.288)
+            $table('آثار تألیف‌شده در روزگار هر سلسله', 'works-by-dynasty', 'اثر', 'اثر', $dy['works']['items']),
+        ];
     }
 
     private static function courtTable(array $courts, string $title, string $file, string $unit): array
@@ -149,15 +156,15 @@ class InsightsTables
         usort($works, fn ($a, $b) => $b[1] <=> $a[1]);
 
         // The people of the map (backlog item 137): the scribes and the authors of each city, each once per city
-        $people = array_map(fn ($city) => [$city['name'], $city['scribes'], $city['authors'], $city['origins'], $city['births'], $city['deaths'], $city['count'], $city['works']],
-            array_filter($this->data['places']['cities'], fn ($city) => $city['scribes'] + $city['authors'] + $city['origins'] + $city['births'] + $city['deaths'] > 0));
+        $people = array_map(fn ($city) => [$city['name'], $city['scribes'], $city['authors'], $city['origins'], $city['births'], $city['deaths'], $city['residences'], $city['count'], $city['works']],
+            array_filter($this->data['places']['cities'], fn ($city) => $city['scribes'] + $city['authors'] + $city['origins'] + $city['births'] + $city['deaths'] + $city['residences'] > 0));
         usort($people, fn ($a, $b) => [$b[1], $b[2]] <=> [$a[1], $a[2]]);
 
         return [
             self::table('نسخه‌ها بر پایۀ محل کتابت', 'copy-places', $columns('همۀ نسخه‌ها'), $rows('count', 'centuries')),
             self::table('آثار بر پایۀ محل تألیف', 'composition-places', $columns('همۀ آثار'), $works),
             self::table('اشخاص هر شهر', 'people-places', [['شهر', 'text'], ['کاتب', 'num'], ['مؤلف', 'num'], ['با نسبت این شهر', 'num'], ['زادۀ این شهر', 'num'],
-                ['درگذشته در این شهر', 'num'], ['نسخه', 'num'], ['اثر', 'num']], $people),
+                ['درگذشته در این شهر', 'num'], ['ساکن این شهر', 'num'], ['نسخه', 'num'], ['اثر', 'num']], $people),
         ];
     }
 

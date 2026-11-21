@@ -98,7 +98,7 @@ class InsightsMapTest extends TestCase
         $this->assertSame(1, $places['authors_mapped']);
 
         $table = collect(InsightsTables::for(Insights::build(InsightsScope::fromArray(['library' => $this->library->id])))['places'])->firstWhere('file', 'people-places');
-        $this->assertSame([['اصفهان', 2, 0, 0, 0, 0, 4, 0], ['مشهد', 1, 1, 0, 0, 0, 1, 1]], $table['rows']);
+        $this->assertSame([['اصفهان', 2, 0, 0, 0, 0, 0, 4, 0], ['مشهد', 1, 1, 0, 0, 0, 0, 1, 1]], $table['rows']);
     }
 
     public function test_the_places_page_carries_the_map_its_data_and_the_still_map()
@@ -182,5 +182,43 @@ class InsightsMapTest extends TestCase
         $this->assertSame(1, $places['deaths_mapped']);
         $this->assertSame(1, $places['lives_read']);
         $this->assertSame(1, $places['copy_cities']);
+    }
+
+    public function test_the_reviewers_word_on_a_place_of_a_life_comes_before_the_reading_of_the_rule()
+    {
+        $person = fn (string $name) => Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'insights-map-' . uniqid(),
+            'death_year_hijri' => 1095, 'death_from' => 1095, 'death_to' => 1095]);
+        [$first, $second] = [$person('محمد بن علی اصفهانی'), $person('حسن بن علی شیرازی')];
+        foreach ([$first, $second] as $author) {
+            $this->copy($this->work(['author_id' => $author->id]));
+        }
+        $period = fn (Person $of, string $kind, string $place, string $status) => \App\Models\PersonPeriod::create(
+            ['person_id' => $of->id, 'kind' => $kind, 'place' => $place, 'status' => $status, 'origin' => 'machine']);
+        // The nisba of the first is rejected as an origin; the second has an approved birthplace, a proposed place of
+        // death and a proposed residence; a period of study is no layer of the map
+        $period($first, 'origin', 'اصفهان', \App\Models\PersonPeriod::REJECTED);
+        $period($second, 'birth', 'کاشان', \App\Models\PersonPeriod::APPROVED);
+        $period($second, 'death', 'نجف', \App\Models\PersonPeriod::PROPOSED);
+        $period($second, 'residence', 'دارالسلطنه اصفهان', \App\Models\PersonPeriod::PROPOSED);
+        $period($second, 'study', 'قم', \App\Models\PersonPeriod::APPROVED);
+
+        $places = $this->places();
+        $cities = collect($places['cities'])->keyBy('name');
+
+        $this->assertSame([0, 1, [1100 => 1]], [$cities['اصفهان']['origins'], $cities['اصفهان']['residences'], $cities['اصفهان']['residence_decades']]);
+        $this->assertSame(1, $cities['شیراز']['origins']);
+        $this->assertSame(1, $cities['کاشان']['births']);
+        $this->assertSame(1, $cities['نجف']['deaths']);
+        $this->assertArrayNotHasKey('قم', $cities);
+        $this->assertSame([1, 1, 1, 1], [$places['origins_mapped'], $places['births_mapped'], $places['deaths_mapped'], $places['residences_mapped']]);
+    }
+
+    public function test_the_person_page_names_the_city_of_a_nisba_as_a_reading_of_the_name()
+    {
+        $with = Person::create(['name' => 'محمد بن علی هروی', 'normalized_name' => 'محمد بن علی هروی', 'slug' => 'insights-map-' . uniqid()]);
+        $without = Person::create(['name' => 'محمد بن علی', 'normalized_name' => 'محمد بن علی', 'slug' => 'insights-map-' . uniqid()]);
+
+        $this->get(route('people.show', $with))->assertOk()->assertSee('data-person-nisba', false)->assertSee('نسبت نام')->assertSee('هرات');
+        $this->get(route('people.show', $without))->assertOk()->assertDontSee('data-person-nisba', false);
     }
 }

@@ -163,6 +163,10 @@ class InsightsNotes
         if ($first) {
             $examples[] = 'از همۀ نسخه‌های سال‌دار و شهردار که در سال‌های ' . $first['name'] . ' در هر جا کتابت شده‌اند، ' . self::pct($first['share']) . ' در قلمرو آن بوده است.';
         }
+        if (($composed = $dy['works']['items'][0] ?? null) && $dy['works']['ruled'] >= (int) config('insights.min_sample')) {
+            $examples[] = 'با دکمۀ «آثار (تألیف)»، همین سه سنجه برای آثاری می‌آید که در قلمرو و روزگار هر سلسله تألیف شده‌اند: بیشترینشان از روزگار ' . $composed['name']
+                . ' است، ' . self::n($composed['count']) . ' اثر از ' . self::n($dy['works']['ruled']) . ' اثری که سال و شهر تألیف دارند.';
+        }
         // A dynasty whose copies come mostly from one city
         foreach ($dy['items'] as $row) {
             if ($row['count'] >= 50 && $row['cities'][0]['count'] * 2 > $row['count'] && $row !== $first) {
