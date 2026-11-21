@@ -12766,7 +12766,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php):** بازگردانی `added_text_relation` سطر را پاک می‌کند و `removed_text_relation` آن را برمی‌گرداند. هر دو کلید و `text_relations` در `ProtectedColumns::META_KEYS`.
 - **[WorkTextRelationController](../app/Http/Controllers/Admin/WorkTextRelationController.php):** `DELETE admin/work-text-relations/{relation}` (گروه `can:structure.link`)، با `AuditLog` نوع `verify` و `old_values.removed_text_relation`.
 - **[Contributions](../app/Suggestions/Contributions.php):** خلاصۀ پیشنهاد تأییدشده: متن اثر و جملۀ نوع رابطه.
-- **[record-relations](../resources/views/components/record-relations.blade.php):** سطرهای `texts()` با `manual` پیش از سطرهای بی‌پیوند فهرست؛ دکمۀ دوم با `relation: work_relation_text`؛ «برداشتن» با `@can('structure.link')`؛ مدادهای `related_work` و `commentaries_and_glosses` در `$store.suggest.on`.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** سطرهای `texts()` با `manual` پیش از سطرهای بی‌پیوند فهرست؛ دکمۀ دوم با `relation: work_relation_text`؛ «برداشتن» با `@can('structure.link')`. مدادهای `related_work` و `commentaries_and_glosses` که در نسخۀ نخست این گام زیر بخش بود، به تصمیم کاربر برداشته شد؛ این دو فیلد در `SuggestionRegistry` مانده‌اند ولی صفحه دکمه‌ای برایشان ندارد.
 - **[suggest/desk](../resources/views/components/suggest/desk.blade.php):** برچسب ورودی متن برای `text_relation`. جاوااسکریپت تغییری نکرده است: فرم گزینه‌ها و متن را برای هر رابطۀ `options` و `needs_text` می‌فرستد.
 - **آزمون:** `SuggestionWorkflowTest::test_a_relation_with_a_work_that_has_no_record`.
 
@@ -12812,3 +12812,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`listColumn`:** سطر «عنوان | آوانگاری» آوانگاری همان عنصر را می‌نویسد.
 - **قالب‌ها و اسکریپت:** `suggest/desk.blade.php` و `resources/js/suggest-desk.js` (`pairValue`، `field.pair`، `field.adds`)، `suggest/field.blade.php` (نشان «+»)، `works/show.blade.php`، `admin/suggestions/show.blade.php` (`data-pair`) و `partials/field-approve.blade.php`.
 - **آزمون:** `SuggestionWorkflowTest::test_a_title_goes_with_its_transliteration_and_each_other_title_is_its_own_field`.
+
+### گام ۱۴.۲۸۳: `works:materialize-related` و ستون‌های تازۀ `work_text_relations`
+- **migration `2026_11_21_100001_add_catalogue_entries_to_work_text_relations`:** `text` از ۶۰۰ نویسه به `TEXT` (بلندترین متن روی رونوشت ۱٬۸۴۴ نویسه)؛ `source` (`suggestion` پیش‌فرض، `catalogue`)، `position`، `entry_key` (`WorkRelationLinker::entryKey`)، `linked_work_id` (با حذف اثر تهی می‌شود)، `link_source` (`auto`، `model`، `review`)، `link_status` (`linked`، `proposed`، `rejected`)، `differs`، `why`، `confidence`، `decided_by`، `decided_at` و `model_verdict` (`unsure`، `none`، `medium`). سطر با `type = note` یادداشت پایانی فیلد است (`position = 999`).
+- **[WorkRelationLinker::pageRows](../app/Support/WorkRelationLinker.php):** کلید تازۀ `entries`: هر مدخل دو متن با `side`، `position`، `type`، `text`، `key`، `work` و `differs`. `printed` و `unlinked` مانند پیش‌اند.
+- **[MaterializeRelatedWorksCommand](../app/Console/Commands/MaterializeRelatedWorksCommand.php):**
+  - برای هر اثری که یکی از دو فیلد را دارد، سطرهای `source = catalogue` آن پاک و از `pageRows()` دوباره نوشته می‌شود (یک تراکنش برای هر اثر). سطرهای `catalogue` آثاری که دیگر متنی ندارند در پایان پاک می‌شوند.
+  - مدخل پیوندخورده: `link_status = linked` و `link_source` از ردیف `work_entry_links` همان مدخل (اگر `linked` و به همان اثر باشد)، وگرنه `auto`.
+  - مدخل بی‌پیوند با ردیف `proposed` یا `rejected` در `work_entry_links`: اثر پیشنهادی، وضع، `why`، `confidence` و تصمیم‌گیرنده.
+  - `--decisions`: کلید «اثر > سو > کلید مدخل». متن پرونده «عنوان‌ها؛ پدیدآور (تولد-وفات)» است و کمانک تاریخ پایانی، اگر «؛» دارد، برداشته می‌شود. `match` با `high` نادیده است.
+  - پرس‌وجوی آثار در یک گروه `where` است: `lazyById` شرط `id > …` خودش را می‌افزاید و با `orWhere` بیرونی پیمایش بی‌پایان می‌شد (در تمرین نخست همین رخ داد).
+- **[RecordRelations::texts](../app/Suggestions/RecordRelations.php)** و **`WorkTextRelationController::destroy`** فقط `source = suggestion` را می‌خوانند، تا سطرهای فهرست تا انتشار دوم دوبار روی صفحه نیایند.
+- **تمرین روی `fahares_prod` (۳۰ آبان ۱۴۰۵):**
+  - «works 11209، entries 20916، linked 14209، linked, words differ 364، proposed 333، rejected 0، tied to no work 6374، with a verdict of the judging 1804، notes 2»؛ «Tied by: auto 13642, model 567»؛ «Saved: 20918 rows of the catalogue». ۱ دقیقه و ۱۸ ثانیه. اجرای دوم همان.
+  - `model_verdict`: unsure ۹۶۰، none ۵۳۰، medium ۳۱۴ سطر (مدخل تکراری در یک اثر هر دو سطرش نشان می‌گیرد).
+  - سنجش با پروندۀ تصمیم: از ۹۳۹ «نامطمئن»، ۹۱۷ سطر بی‌پیوند، ۲۱ پیوندخورده و ۱ بی سطرِ هم‌کلید. از ۷۳۵ «نیست»، ۱۹۱ بی سطرِ هم‌کلید: مدخل‌های دوم به بعدِ یک سطر «شروح و حواشی» (مانند نام تنها) که متنشان در سطر همان مدخل هست.
+  - سنجش با `work_entry_links`: از ۵۷۰ ردیف `model/linked`، ۵۶۷ همان؛ سه مدخل پیوندشان را به مدخل هم‌اثر دیگری داده‌اند (هر اثر یک مدخل). از ۳۴۵ ردیف `review/proposed`، ۳۱۷ همان، ۲۶ اکنون پیوندخورده‌اند و ۲ بی سطر.
+  - هیچ سطر `linked` بی رابطه‌ای در `work_relations` میان همان دو اثر نیست.
+- **متن مدخلِ فیلد چندمدخلی، همان‌گونه که فیلد نوشته (`WorkRelationLinker::slices`):** متن هر مدخل از عنوان نخستش تا عنوان نخست مدخل بعدی بریده می‌شود، و برای مدخل آخر تا پایان نام و کمانک تاریخ. اگر برش دوباره همان مدخل خوانده نشود، مانند پیش از اجزا بازسازی می‌شود. علت: بازسازی، تاریخی را که تجزیه‌گر سالی در آن نمی‌خواند («(سده 1م)») می‌انداخت و سطر بی آن دیگر پدیدآور را نمی‌شناخت. در تمرین انتشار دوم سه اثر (#24104، #24105، #55734) با همین سه رابطهٔ خودکارشان را از دست می‌دادند.
+- **`trim()` با نویسه‌های عربی:** `trim($text, " \t؛;،.-")` بایتی کار می‌کند و بایت نخست حرفی را که با «؛» و «،» هم‌بایت است (حروف `D8 xx`، مانند «ا» و «ب») از آغاز متن می‌برد. یادداشت پایانی فیلد و برش مدخل اکنون با `preg_replace('/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u', …)` پیراسته می‌شوند.
+- **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
+- **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
