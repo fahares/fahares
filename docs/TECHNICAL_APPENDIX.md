@@ -13085,3 +13085,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
 - **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
 
+
+### گام ۱۴.۳۰۹: فیلدهای کالبد، خط، ویژگی‌ها و یادداشت‌ها در `ManuscriptCreator`
+
+- **ستون‌های ساده:** `copy_place` (قلاب `saving` شهر و ناحیه را می‌دهد)، `commissioned_by`، `dimensions`، `paper`، `binding`، `script_style` و `lines`. `lines_raw` و `line_counts` تهی می‌مانند: این دو عبارت متن فهرست‌اند و `CopyLines::columns` برای نسخۀ بی `raw_text` همان تهی را می‌خواهد، پس `refresh-derived` چیزی را عوض نمی‌کند.
+- **`ManuscriptCreator::FLAGS`:** سیزده ستون بولی صفحۀ نسخه با همان برچسب‌ها (`is_autograph`، `has_author_marginalia`، `corrected_by_author`، `collated_with_author_copy`، `copied_from_author_copy`، `is_illuminated`، `is_illustrated`، `is_corrected`، `has_marginal_notes`، `is_ruled`، `has_catchwords`، `is_collated`، `is_facsimile`). فرم `flags[نام]` می‌فرستد؛ کلید ناشناخته نادیده گرفته می‌شود.
+- **`scripts()`:** `ScriptNameCleaner::clean(script_names)`؛ اگر خطی شناخته شد `script_names` عبارت پاک‌شده (`wording`) است و برای هر خط ردیف `manuscript_script` ساخته می‌شود (نخستین، به ترتیب `ScriptNameCleaner`، `is_primary`)، خطِ نبوده در `scripts` ساخته و `manuscripts_count` آن شمرده می‌شود. عبارتی که خطی نمی‌دهد همان متن می‌ماند. `fahares:rebuild-scripts` فقط نسخۀ دارای سطر «خط:» در `raw_text` را می‌بیند.
+- **`notes()`:** `notes[i][type]` و `notes[i][text]` → `ManuscriptNote` با `position` پیاپی و `typed_by = editor`؛ یادداشت بی متن کنار می‌رود و نوع بیرون از `ManuscriptNote::TYPES` خطای اعتبارسنجی است.
+- **لاگ ممیزی:** ستون‌های تازۀ پرشده و ویژگی‌های روشن در `new_values` سطر `create` می‌آیند (پس `ProtectedColumns` آن‌ها را هم نگه می‌دارد). `undo()` تغییری نکرد: `RecordRemover::remove` ردیف‌های `manuscript_script` را برمی‌دارد و خط‌ها را بازمی‌شمارد، و `manuscript_notes` با حذف نسخه می‌رود (`cascadeOnDelete`).
+- **فرم:** بخش‌های «۴. کتابت و کالبد نسخه» و «۵. یادداشت‌های نسخه» (ردیف‌های Alpine، با نگه‌داشتن ورودی پس از خطا)؛ «منبع اطلاع» بخش ۶ شد.
+- **آزمون:** `test_the_copys_body_scripts_features_and_notes_are_made_with_it_and_go_with_the_undo`.
+- **پیش‌نمایش:** هنگام ثبت فرم، `fahares_test` به دست اجرای آزمون نشست دیگری (شاخه‌ای بی migration گام ۱۴.۳۰۶) از نو ساخته شده بود و درج اثر با «Column 'catalog_id' cannot be null» خطا داد؛ خطا از پایگاه مشترک بود، نه از کد.
+
