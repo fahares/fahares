@@ -30,12 +30,13 @@
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
-            <p class="leading-relaxed text-ink">رابطه در صفحۀ هر دو رکورد نمایش داده می‌شود. «این» یعنی رکورد #{{ \App\Support\Fa::digits($target->id) }} و «انتخاب‌شده» یعنی #{{ \App\Support\Fa::digits($relationTarget->id) }}. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            <p class="leading-relaxed text-ink">رابطه در صفحۀ هر دو رکورد نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نوع رابطه:</span>
-                <select name="role" class="{{ $relInput }}">
+                {{-- each option names both records, so the direction reads without working out «این» and «انتخاب‌شده» (step 14.290) --}}
+                <select name="role" class="{{ $relInput }}" data-relation-options>
                     @foreach(\App\Suggestions\SuggestionRegistry::relationOptions($suggestion->suggestable_type, $relation) as $key => $label)
-                        <option value="{{ $key }}" @selected(old('role', $suggestion->payload['role'] ?? '') === $key)>{{ $label }}</option>
+                        <option value="{{ $key }}" @selected(old('role', $suggestion->payload['role'] ?? '') === $key)>{{ \App\Suggestions\RecordRelations::sentence($target, $relationTarget, $key) ?? $label }}</option>
                     @endforeach
                 </select>
             </label>

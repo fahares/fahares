@@ -12790,3 +12790,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`listColumn`:** سطر «عنوان | آوانگاری» آوانگاری همان عنصر را می‌نویسد.
 - **قالب‌ها و اسکریپت:** `suggest/desk.blade.php` و `resources/js/suggest-desk.js` (`pairValue`، `field.pair`، `field.adds`)، `suggest/field.blade.php` (نشان «+»)، `works/show.blade.php`، `admin/suggestions/show.blade.php` (`data-pair`) و `partials/field-approve.blade.php`.
 - **آزمون:** `SuggestionWorkflowTest::test_a_title_goes_with_its_transliteration_and_each_other_title_is_its_own_field`.
+
+### گام ۱۴.۲۹۰: `RecordRelations::named` و `sentence`
+- **`named($recordType, $label, $thisName, $chosenName)`:** در متن یک گزینه «این اثر» و «اثر انتخاب‌شده» (برای نسخه «این نسخه» و «نسخۀ انتخاب‌شده») را با نام درون گیومه جایگزین می‌کند؛ نام تا ۷۰ نویسه، و طرف بی‌نام همان عبارت پیشین را نگه می‌دارد.
+- **`sentence($record, $other, $option)`:** همان، با برچسب `SuggestionRegistry::describe` دو رکورد.
+- **پنل:** `show.blade.php` جملۀ `data-relation-sentence` را برای `record_relation` نشان می‌دهد؛ `partials/relation-approve.blade.php` گزینه‌های `select[data-relation-options]` را با `sentence` می‌نویسد.
+- **فرم پیشنهاد:** `config.recordLabel` و `relationLabel()` در `resources/js/suggest-desk.js`؛ تا رکورد مقصد برگزیده نشده، گزینه‌ها همان متن عمومی‌اند.
+- **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.

@@ -79,6 +79,30 @@ class RecordRelations
         return $options;
     }
 
+    /**
+     * An option's wording with the two records named (step 14.290): «این اثر تلخیص یا مختصری است از اثر انتخاب‌شده»
+     * leaves the reader to work out which is which; ««صحة الاصول» تلخیص یا مختصری است از «هدایة الابرار»» does not.
+     * A side with no name keeps its «این اثر» or «اثر انتخاب‌شده».
+     */
+    public static function named(string $recordType, string $label, ?string $thisName, ?string $chosenName): string
+    {
+        $manuscript = SuggestionRegistry::typeKey($recordType) === 'manuscript';
+        $quote = fn (?string $name) => $name === null || trim($name) === '' ? null : '«' . \Illuminate\Support\Str::limit(trim($name), 70) . '»';
+
+        return strtr($label, array_filter([
+            $manuscript ? 'نسخۀ انتخاب‌شده' : 'اثر انتخاب‌شده' => $quote($chosenName),
+            $manuscript ? 'این نسخه' : 'این اثر' => $quote($thisName),
+        ]));
+    }
+
+    /** The sentence of one option for two records, or null when the option is not one of the type's. */
+    public static function sentence(Model $record, Model $other, ?string $option): ?string
+    {
+        $label = self::options($record::class)[$option ?? ''] ?? null;
+
+        return $label === null ? null : self::named($record::class, $label, SuggestionRegistry::describe($record)['label'], SuggestionRegistry::describe($other)['label']);
+    }
+
     /** Adds "{a} is a {type} of {b}"; an option starting with "~" swaps the two. */
     public function add(Model $record, Model $other, string $option, ?string $note, ?int $suggestionId): array
     {

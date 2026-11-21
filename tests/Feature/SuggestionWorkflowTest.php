@@ -1672,7 +1672,13 @@ class SuggestionWorkflowTest extends TestCase
         $this->relate($matn, 'work_relation', $sharh, ['role' => 'nonsense'])->assertStatus(422)->assertJsonValidationErrors('role');
         $this->relate($matn, 'work_relation', $sharh, ['role' => '~gloss'])->assertOk();
         $s = $this->pendingFor($matn);
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('نوع رابطه');
+        // The panel says the relation with both works named, in the direction chosen and in the other (step 14.290)
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('نوع رابطه')
+            ->assertSeeInOrder(['data-relation-sentence', "«{$sharh->primary_title}» حاشیه‌ای است بر «{$matn->primary_title}»"], false)
+            ->assertSee("«{$matn->primary_title}» حاشیه‌ای است بر «{$sharh->primary_title}»", false);
+        $this->assertSame('«الف» تلخیص یا مختصری است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], 'الف', 'ب'));
+        $this->assertSame('«ب» تلخیص یا مختصری است از «الف»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['~abridgment'], 'الف', 'ب'));
+        $this->assertSame('این اثر تلخیص یا مختصری است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], null, 'ب'));
         $this->approve($s, ['role' => '~gloss', 'contributor_note' => 'بر بخش منطق'])->assertRedirect('/admin/suggestions');
 
         $row = DB::table('work_relations')->sole();
