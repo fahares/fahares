@@ -305,7 +305,7 @@
                                     @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px]">دستخط مؤلف</x-ui.chip>@endif
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-                                    @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_name)<span>از {{ $ms->work->author_name }} <x-ui.life :person="$ms->work->author" /></span>@endif
+                                    @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_label)<span>از {{ $ms->work->author_label }} <x-ui.life :person="$ms->work->author" /></span>@endif
                                     <span class="text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library }}@if($ms->city)، {{ $ms->city }}@endif</span>
                                     <span>شمارۀ @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else — @endif</span>
                                     @if($ms->copy_date_raw)<span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>@endif
@@ -331,7 +331,7 @@
                                     <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($row->work->manuscripts_count) }} نسخه</span>
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-                                    @if($row->work->author_name && $row->work->author_id !== $person->id)<span>از {{ $row->work->author_name }}</span>@endif
+                                    @if($row->work->author_label && $row->work->author_id !== $person->id)<span>از {{ $row->work->author_label }}</span>@endif
                                     @if($row->hedge_label)<span>{{ $row->hedge_label }}</span>@endif
                                     @if($row->note)<span>{{ $row->note }}</span>@endif
                                 </div>
