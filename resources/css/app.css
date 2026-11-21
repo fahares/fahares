@@ -27,6 +27,24 @@
     --color-brand-border: #E8DDCA;
 
     --font-naskh: 'Noto Naskh Arabic', 'Amiri', serif;
+    /* the printed text of a source, on its page sheet and in an entry's text (step 14.307) */
+    --font-lotus: 'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif;
+}
+
+/* Mtif Lotus, the type of the source texts (step 14.307), served with the build from resources/fonts */
+@font-face {
+    font-family: 'Mtif Lotus';
+    src: url('../fonts/mtif-lotus/MtifLotus-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Mtif Lotus';
+    src: url('../fonts/mtif-lotus/MtifLotus-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
 }
 
 /* Design tokens of the 1405 redesign (paper, ink, cinnabar, gold). Components use these through
@@ -330,7 +348,7 @@ body {
     padding-bottom: 0.15rem;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--ink);
-    font-family: var(--font-naskh);
+    font-family: var(--font-lotus);
     color: var(--muted);
     font-size: 0.8rem;
 }
@@ -360,7 +378,7 @@ body {
     letter-spacing: 0.04em;
 }
 .book-sheet__body {
-    font-family: var(--font-naskh);
+    font-family: var(--font-lotus);
     font-size: 1.0625rem;
     line-height: 2.15;
     text-align: justify;
@@ -477,7 +495,7 @@ body {
 /* the page's footnotes, smaller, under a short rule on the start side */
 .book-sheet__notes {
     margin-top: 1.75rem;
-    font-family: var(--font-naskh);
+    font-family: var(--font-lotus);
     font-size: 0.9375rem;
     line-height: 1.9;
     text-align: justify;
@@ -493,7 +511,7 @@ body {
 .book-sheet__foot {
     margin-top: 2rem;
     text-align: center;
-    font-family: var(--font-naskh);
+    font-family: var(--font-lotus);
     font-size: 0.9rem;
     color: var(--muted);
 }

@@ -13055,3 +13055,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 18» و سپس «already 18»؛ `tidy-copy-scribes` «removed 2 people»؛ دو `rebuild-copies` هر کدام «write 8» و سپس «already 8»؛ `rebuild-scripts --dry-run` چیزی از این نسخه‌ها نیاورد.
 - **آزمون:** `AddCopyScribesCommandTest` چهار آزمون.
 
+
+### گام ۱۴.۳۰۷: قلم Mtif Lotus برای متن منابع
+
+- **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.ttf` و `MtifLotus-Bold.ttf` (از `~/.local/share/fonts/Mtif/`)، با دو `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
+- **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
+- **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
