@@ -17,7 +17,7 @@ use Illuminate\Console\Command;
 class ProtectedColumns
 {
     /** Keys a verify log carries beside the changed columns. */
-    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role', 'removed_person_role', 'added_record_relation', 'removed_record_relations', 'added_text_relation', 'removed_text_relation', 'text_relations', 'corpus_fix', 'followed_person'];
+    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role', 'removed_person_role', 'added_record_relation', 'removed_record_relations', 'added_text_relation', 'removed_text_relation', 'text_relations', 'corpus_fix', 'followed_person', 'panel'];
 
     /**
      * Keys of a verify log that changed a record's child rows rather than a column, by the rows they protect.
@@ -43,10 +43,15 @@ class ProtectedColumns
     public static function for(string $modelClass): self
     {
         $guard = new self;
-        AuditLog::where('auditable_type', $modelClass)->where('action', 'verify')
-            ->select(['auditable_id', 'new_values'])
+        // ...and a copy made in the panel (ManuscriptCreator, backlog item 149): what its maker gave it is no
+        // catalogue's text, so its «create» entry protects the columns it lists as a correction would
+        AuditLog::where('auditable_type', $modelClass)->whereIn('action', ['verify', 'create'])
+            ->select(['auditable_id', 'action', 'new_values'])
             ->orderBy('id')
             ->each(function (AuditLog $log) use ($guard) {
+                if ($log->action === 'create' && empty($log->new_values['panel'])) {
+                    return;
+                }
                 foreach (array_keys($log->new_values ?? []) as $column) {
                     if (isset(self::ROW_KEYS[$column])) {
                         $guard->rows[$log->auditable_id][self::ROW_KEYS[$column]] = true;

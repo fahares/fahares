@@ -50,8 +50,8 @@ class ApplyCorpusStructureCommand extends Command
                 continue;
             }
             foreach ($group['copies'] as [$city, $library, $shelfmark]) {
-                $rows = Manuscript::where('work_id', $from->id)->where(compact('city', 'library', 'shelfmark'))->get();
-                $done = Manuscript::where('work_id', $to->id)->where(compact('city', 'library', 'shelfmark'))->exists();
+                $rows = Manuscript::fromFankha()->where('work_id', $from->id)->where(compact('city', 'library', 'shelfmark'))->get();
+                $done = Manuscript::fromFankha()->where('work_id', $to->id)->where(compact('city', 'library', 'shelfmark'))->exists();
                 if ($rows->count() === 1) {
                     $moves[] = [$rows->first(), $to];
                     $this->line("move #{$rows->first()->id} {$city}، {$library}، {$shelfmark}: «{$from->clean_title}» → «{$to->clean_title}»");
@@ -71,8 +71,9 @@ class ApplyCorpusStructureCommand extends Command
                 continue;
             }
             foreach ($group['copies'] as [$fromSeq, $toSeq, $shelfmark]) {
-                $rows = Manuscript::where('work_id', $from->id)->where('sequence_number', $fromSeq)->where('shelfmark', $shelfmark)->get();
-                $kept = Manuscript::where('work_id', $to->id)->where('sequence_number', $toSeq)->where('shelfmark', $shelfmark)->get();
+                // only Fankha's copies: one made in the panel (item 149) has no sequence of the catalogue
+                $rows = Manuscript::fromFankha()->where('work_id', $from->id)->where('sequence_number', $fromSeq)->where('shelfmark', $shelfmark)->get();
+                $kept = Manuscript::fromFankha()->where('work_id', $to->id)->where('sequence_number', $toSeq)->where('shelfmark', $shelfmark)->get();
                 if ($rows->count() === 1 && $kept->count() === 1) {
                     $twins[] = [$rows->first(), $kept->first()];
                     $this->line("fold #{$rows->first()->id} {$fromSeq}. {$shelfmark} «{$from->clean_title}» into its twin #{$kept->first()->id} {$toSeq}. «{$to->clean_title}»");
@@ -91,7 +92,7 @@ class ApplyCorpusStructureCommand extends Command
                 continue;
             }
             foreach ($group['copies'] as [$seq, $shelfmark]) {
-                $rows = Manuscript::where('work_id', $work->id)->where('sequence_number', $seq)->where('shelfmark', $shelfmark)->orderBy('id')->get();
+                $rows = Manuscript::fromFankha()->where('work_id', $work->id)->where('sequence_number', $seq)->where('shelfmark', $shelfmark)->orderBy('id')->get();
                 if ($rows->count() === 2) {
                     [$kept, $source] = [$rows[0], $rows[1]];
                     $merges[] = [$source, $kept];

@@ -16,7 +16,7 @@
                     این نسخه در مجموعۀ شمارۀ <span dir="ltr">{{ \App\Support\Fa::digits($number) }}</span>{{ $manuscript->rangeLabel() ? '، ' . $manuscript->rangeLabel() : '' }}، همراه با این رساله‌ها{{ $siblings->contains(fn ($m) => $m->range_from) ? ' (به ترتیب برگ)' : '' }} صحافی شده است.
                     @if(\App\Models\Manuscript::isRunKey($number))
                         کتابخانه به هر رسالۀ این مجلد شماره‌ای جداگانه داده است؛ پیوستگی برگ‌ها و اندازۀ یکسانشان نشان می‌دهد که با هم صحافی شده‌اند.
-                    @elseif(! \App\Models\Manuscript::collectionKey($manuscript->shelfmark))
+                    @elseif(! \App\Models\Manuscript::collectionKey($manuscript->shelfmark) && ! $manuscript->provenance())
                         فهرست شمارۀ بخش رساله‌ها را نیاورده است؛ پیوستگی برگ‌هایشان نشان می‌دهد که در یک مجلدند.
                     @endif
                 @endif
@@ -34,6 +34,7 @@
                         @else
                             <a href="{{ route('manuscripts.show', $m) }}" class="text-ink hover:text-cinnabar transition">{{ $m->work?->primary_title ?? 'نسخه' }}</a>
                         @endif
+                        @if($added = $m->provenance())<x-ui.chip class="!text-[10px] !py-0" title="{{ $added['label'] }}" data-added-copy>{{ $added['chip'] }}</x-ui.chip>@endif
                         @if($m->inMargin())<span class="text-[10px] text-cinnabar" title="به گفتۀ فهرست، در هامش رساله‌ای دیگر نوشته شده است">(در حاشیه)</span>@endif
                         @if($m->work?->author_label)<span class="text-[11px] text-muted"> · {{ $m->work->author_label }}</span>@endif
                     </span>
@@ -46,3 +47,10 @@
         @endif
     </x-ui.section>
 @endif
+{{-- For those who may make a copy's record (backlog item 149): another treatise of this copy's volume --}}
+@can('manuscripts.create')
+    <p class="text-xs" data-add-sibling>
+        <a href="{{ route('admin.manuscripts.create', ['from' => $manuscript->id]) }}" class="font-bold text-cinnabar hover:underline">＋ جزء دیگری از همین مجموعه</a>
+        <span class="text-muted">— ساختن رکورد رساله‌ای از این مجلد که در فهرست نیامده است</span>
+    </p>
+@endcan

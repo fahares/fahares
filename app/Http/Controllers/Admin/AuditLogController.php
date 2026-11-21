@@ -86,6 +86,8 @@ class AuditLogController extends Controller
             'split' => $this->rollbackSplit($log, $request),
             'remove' => $this->rollbackRemove($log, $request),
             'update' => $this->rollbackUpdate($log, $request),
+            // a copy made in the panel (backlog item 149): the record goes, with the work made for it
+            'create' => $this->rollbackCreate($log, $request),
             // the people of a source's volumes, set by an approved suggestion (step 14.58)
             'volume_people' => app(\App\Suggestions\VolumeCatalogers::class)->undo($log),
             default => throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد."),
@@ -639,6 +641,22 @@ class AuditLogController extends Controller
             'action' => 'rollback_remove',
             'old_values' => ['rolled_back_log_id' => $log->id],
             'new_values' => ['restored_id' => $restored->id],
+            'ip_address' => $request->ip(),
+        ]);
+    }
+
+    /** A copy made in the panel (ManuscriptCreator) is removed, with what was made for it. */
+    protected function rollbackCreate(AuditLog $log, Request $request): void
+    {
+        app(\App\Suggestions\ManuscriptCreator::class)->undo($log);
+
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'auditable_type' => $log->auditable_type,
+            'auditable_id' => $log->auditable_id,
+            'action' => 'rollback_create',
+            'old_values' => ['rolled_back_log_id' => $log->id],
+            'new_values' => ['removed' => $log->old_values['created'] ?? null],
             'ip_address' => $request->ip(),
         ]);
     }

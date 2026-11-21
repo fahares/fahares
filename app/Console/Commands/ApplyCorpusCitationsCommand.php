@@ -115,7 +115,7 @@ class ApplyCorpusCitationsCommand extends Command
     private function find(array $workIds, int $volume, int $sequence, ?string $shelfmark, string $note, string $citation, array $used): ?object
     {
         if ($workIds) {
-            $rows = DB::table('manuscripts')->whereIn('work_id', $workIds)->where('sequence_number', $sequence)
+            $rows = DB::table('manuscripts')->whereNotNull('catalog_id')->whereIn('work_id', $workIds)->where('sequence_number', $sequence)
                 ->orderBy('id')->get(['id', 'shelfmark', 'metadata'])
                 ->filter(fn ($r) => $r->shelfmark === $shelfmark && ! isset($used[$r->id]));
             if ($rows->isNotEmpty()) {
