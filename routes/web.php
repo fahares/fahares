@@ -289,6 +289,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
         Route::post('/suggestions/{suggestion}/reviewer-note', [AdminSuggestionController::class, 'saveReviewerNote'])->name('suggestions.reviewer-note');
         Route::post('/suggestions/{suggestion}/close-converted', [AdminSuggestionController::class, 'closeConverted'])->name('suggestions.close-converted');
+        Route::post('/suggestions/{suggestion}/discard-derived', [AdminSuggestionController::class, 'discardDerived'])->name('suggestions.discard-derived');
 
         // Claims of the libraries' printed catalogues against the records (backlog item 147, step 14.255)
         Route::get('/claims', [\App\Http\Controllers\Admin\ClaimController::class, 'index'])->name('claims.index');

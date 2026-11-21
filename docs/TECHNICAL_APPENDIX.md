@@ -13119,3 +13119,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod` محلی، ۳۰ آبان ۱۴۰۵):** `works:link-related --no-index`: «10827 relations: 151 to add, 4 to remove, 10676 kept»، «Left to the editors' relations: 30»، «Entries: 151 tied or untied»؛ اجرای دوم همه صفر. `works:link-decisions … --dry-run`: «613 entries: 0 to add»، «0 proposals to add». پایان: `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۲٬۱۶۵؛ رابطه‌ها auto ۱۰٬۸۲۷، model ۲۳۶؛ صفحه‌ها «بی پیوند» ۲٬۴۱۱. چهار حذف همان چهار رابطه‌ای‌اند که فقط رونوشت محلی داشت (۱۰٬۶۸۰ در برابر ۱۰٬۶۷۶ پروداکشن)، پس در پروداکشن انتظار حذف نیست.
 - **اجرا در تولید، پس از استقرار (پشتیبان `work_relations` و `work_text_relations` پیش از آن):** `works:link-related --dry-run` و سپس اجرا.
 
+### گام ۱۴.۳۱۲: مقدار کنونی در فرم تبدیل و `discardDerived`
+- **`SuggestionRegistry::fieldChoices`:** با رکورد، برای هر فیلد `current` (`currentValue`) و `pairCurrent` می‌دهد؛ `convertFields` همین را برای رکورد دیگر برمی‌گرداند.
+- **`partials/convert.blade.php`:** جعبۀ `data-current-value` زیر انتخاب فیلد (`field.current`).
+- **`Admin\SuggestionController::discardDerived`:** POST `/admin/suggestions/{suggestion}/discard-derived` (`admin.suggestions.discard-derived`). شرط‌ها: `payload.derived_from`، وضع `pending`، بدون `resolution.converted_to`، بدون پیام در گفت‌وگو. شناسه را از `resolution.converted_to` پیشنهاد اصلی برمی‌دارد؛ اگر فهرست تهی شد و اصل `converted` بود، `pending` می‌شود. `AuditLog` با `action = discard` و مقدارهای پیشنهاد حذف‌شده.
+- **`show.blade.php`:** فرم `data-discard-derived` کنار «این پیشنهاد را داور از روی … ساخته است».
+- **آزمون:** `SuggestionWorkflowTest::test_convert_shows_the_current_value_and_a_made_suggestion_is_taken_back_without_a_rejection`.
+
