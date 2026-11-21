@@ -183,4 +183,34 @@ class InsightsDynastiesTest extends TestCase
         // The chart of rows is drawn by the site's own script, without ECharts
         $this->assertStringNotContainsString('echarts', file_get_contents(resource_path('js/insights-dynasties.js')));
     }
+
+    public function test_works_are_counted_under_the_dynasty_of_their_place_and_year_of_composition()
+    {
+        $composed = function (string $place, ?string $date) {
+            $work = $this->work('اثر آزمایشی تألیف ' . uniqid());
+            $work->forceFill(array_filter(['composition_place' => $place, 'composition_date_raw' => $date]))->save();
+            $this->copy($work);
+
+            return $work;
+        };
+        $composed('اصفهان', '1040ق');
+        $composed('دارالسلطنه اصفهان', '1050ق');
+        $composed('لاهور', '1040ق');
+        // No dynasty: a century alone, no year, a place that is no city of the map
+        $composed('اصفهان', 'قرن 11');
+        $composed('اصفهان', null);
+        $composed('ایران', '1040ق');
+
+        $works = $this->figures()['dynasties']['works'];
+
+        $this->assertSame([3, 3, 2, 50.0], [$works['counted'], $works['ruled'], $works['kinds'], $works['coverage']]);
+        $this->assertSame(['صفویان' => 2, 'گورکانیان هند (تیموریان هند)' => 1], array_column($works['items'], 'count', 'name'));
+        // 2 works in the 229 years of the rule, and 2 of the 3 works composed anywhere in those years
+        $this->assertSame([0.1, 66.7, 229], [$works['items'][0]['density'], $works['items'][0]['share'], $works['items'][0]['years']]);
+        // The copies of these works have no place of copying: no dynasty has a copy
+        $this->assertSame([], $this->figures()['dynasties']['items']);
+
+        $tables = array_column(\App\Support\InsightsTables::for($this->figures())['dynasties'], null, 'file');
+        $this->assertSame('صفویان', $tables['works-by-dynasty']['rows'][0][0]);
+    }
 }

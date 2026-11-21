@@ -19,13 +19,18 @@
                 $shown = (int) config('insights.dynasties_shown');
                 // A density or a share of a handful of copies says little: those readings list the dynasties with enough
                 $floor = (int) config('insights.min_sample');
-                $firm = array_values(array_filter($dy['items'], fn ($r) => $r['count'] >= $floor));
                 $by = fn (array $rows, string $key) => collect($rows)->sortByDesc(fn ($r) => [$r[$key], $r['count']])->take($shown)->values()->all();
-                $readings = [
-                    'density' => ['نسخه در هر ده سال', $by($firm, 'density'), 'density'],
-                    'count' => ['شمار نسخه‌ها', array_slice($dy['items'], 0, $shown), 'count'],
-                    'share' => ['سهم از نسخه‌های همان سال‌ها', $by($firm, 'share'), 'share'],
-                ];
+                $readingNames = ['density' => 'در هر ده سال حکومت', 'count' => 'شمار', 'share' => 'سهم از همان سال‌ها'];
+                $readingsOf = function (array $items) use ($by, $floor, $shown) {
+                    $firm = array_values(array_filter($items, fn ($r) => $r['count'] >= $floor));
+
+                    return ['density' => $by($firm, 'density'), 'count' => array_slice($items, 0, $shown), 'share' => $by($firm, 'share')];
+                };
+                // The copies made under each dynasty, and the works composed under it (step 14.288): [name, unit, lists]
+                $kinds = ['copies' => ['نسخه‌ها (کتابت)', 'نسخه', $readingsOf($dy['items'])]];
+                if ($dy['works']['ruled'] >= max(1, $min)) {
+                    $kinds['works'] = ['آثار (تألیف)', 'اثر', $readingsOf($dy['works']['items'])];
+                }
                 $byName = array_column($dy['items'], null, 'name');
                 $rowsData = [
                     'regions' => \App\Support\Dynasties::regions(),
@@ -62,23 +67,36 @@
                 <noscript><p class="text-xs text-muted">نمودار ردیفی سلسله‌ها به JavaScript نیاز دارد؛ فهرست زیر همان ارقام را دارد.</p></noscript>
             </div>
 
-            <div x-data="{ by: 'density' }" data-insights-dynasty-list>
+            <div x-data="{ kind: 'copies', by: 'density' }" data-insights-dynasty-list>
+                @if(count($kinds) > 1)
+                    <div class="flex flex-wrap items-center gap-1.5 text-xs mb-2">
+                        <span class="text-muted me-1">شمردن:</span>
+                        @foreach($kinds as $kind => [$kindName])
+                            <button type="button" @click="kind = '{{ $kind }}'" :aria-pressed="(kind === '{{ $kind }}').toString()"
+                                    :class="kind === '{{ $kind }}' ? 'bg-ink text-paper border-ink' : 'bg-surface text-ink border-line hover:border-ink'"
+                                    class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $kindName }}</button>
+                        @endforeach
+                    </div>
+                @endif
                 <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
                     <span class="text-muted me-1">چیدن بر پایۀ:</span>
-                    @foreach($readings as $key => [$name])
+                    @foreach($readingNames as $key => $name)
                         <button type="button" @click="by = '{{ $key }}'" :aria-pressed="(by === '{{ $key }}').toString()"
                                 :class="by === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
                                 class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
                     @endforeach
                 </div>
-                @foreach($readings as $key => [$name, $rows, $measure])
-                    @php $maxMeasure = max([0.1, ...array_column($rows, $measure)]); @endphp
-                    <ul class="space-y-3 text-sm" x-show="by === '{{ $key }}'" @if($key !== 'density') x-cloak @endif data-insights-dynasties="{{ $key }}">
+                @foreach($kinds as $kind => [$kindName, $unit, $readings])
+                @foreach($readings as $key => $rows)
+                    @php $maxMeasure = max([0.1, ...array_column($rows, $key)]); @endphp
+                    <ul class="space-y-3 text-sm" x-show="kind === '{{ $kind }}' && by === '{{ $key }}'" @if($kind !== 'copies' || $key !== 'density') x-cloak @endif
+                        data-insights-dynasties="{{ $kind === 'copies' ? $key : $kind . '-' . $key }}">
                         @foreach($rows as $row)
                             @php
-                                $figures = ['density' => $dec($row['density']) . ' در هر ده سال', 'count' => Fa::num($row['count']) . ' نسخه', 'share' => $pct($row['share']) . ' نسخه‌های همان سال‌ها'];
-                                $tip = $row['name'] . ': ' . Fa::num($row['count']) . ' نسخه در ' . Fa::num($row['years']) . ' سال حکومت · ' . $dec($row['density']) . ' نسخه در هر ده سال · '
-                                    . $pct($row['share']) . ' نسخه‌های سال‌دارِ همان سال‌ها';
+                                $figures = ['density' => $dec($row['density']) . ' در هر ده سال', 'count' => Fa::num($row['count']) . ' ' . $unit,
+                                    'share' => $pct($row['share']) . ' ' . ($kind === 'copies' ? 'نسخه‌های' : 'آثار') . ' همان سال‌ها'];
+                                $tip = $row['name'] . ': ' . Fa::num($row['count']) . ' ' . $unit . ' در ' . Fa::num($row['years']) . ' سال حکومت · ' . $dec($row['density']) . ' ' . $unit . ' در هر ده سال · '
+                                    . $pct($row['share']) . ' ' . ($kind === 'copies' ? 'نسخه‌های سال‌دارِ' : 'آثار سال‌دارِ') . ' همان سال‌ها';
                             @endphp
                             <li>
                                 <span class="flex flex-wrap items-baseline gap-x-2" data-tip="{{ $tip }}">
@@ -88,11 +106,15 @@
                                     <span class="text-xs text-muted tabular-nums"><span class="text-ink">{{ $figures[$key] }}</span>@foreach(array_diff_key($figures, [$key => 1]) as $other) · {{ $other }}@endforeach</span>
                                 </span>
                                 <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
-                                    <span class="block h-full bg-cinnabar/70 rounded-full" style="width: max(2px, {{ round($row[$measure] * 100 / $maxMeasure, 2) }}%)"></span>
+                                    <span class="block h-full {{ $kind === 'copies' ? 'bg-cinnabar/70' : 'bg-gold/80' }} rounded-full" style="width: max(2px, {{ round($row[$key] * 100 / $maxMeasure, 2) }}%)"></span>
                                 </span>
                                 <span class="mt-1 block text-xs text-muted">
                                     @foreach($row['cities'] as $city)
-                                        <a href="{{ $search('manuscripts', ['copy_city' => $city['name'], 'year_from' => $row['from'], 'year_to' => $row['to']]) }}" class="hover:text-cinnabar">{{ $city['name'] }}</a>
+                                        @if($kind === 'copies')
+                                            <a href="{{ $search('manuscripts', ['copy_city' => $city['name'], 'year_from' => $row['from'], 'year_to' => $row['to']]) }}" class="hover:text-cinnabar">{{ $city['name'] }}</a>
+                                        @else
+                                            {{ $city['name'] }}
+                                        @endif
                                         <span class="tabular-nums">{{ Fa::num($city['count']) }}</span>{{ $loop->last ? '' : '،' }}
                                     @endforeach
                                     @if($row['city_kinds'] > count($row['cities'])) و {{ Fa::num($row['city_kinds'] - count($row['cities'])) }} شهر دیگر @endif
@@ -101,6 +123,13 @@
                         @endforeach
                     </ul>
                 @endforeach
+                @endforeach
+                @isset($kinds['works'])
+                    <p x-show="kind === 'works'" x-cloak class="mt-4 inline-flex items-start gap-1.5 bg-gold/15 border border-gold/40 px-2.5 py-1 text-xs text-ink leading-relaxed">
+                        <span aria-hidden="true">⚠</span>
+                        <span>نمونۀ کوچک: تنها {{ Fa::num($dy['works']['ruled']) }} اثر ({{ $pct($dy['works']['coverage']) }} آثار) هم سال تألیف معین دارند و هم شهر تألیفشان روی نقشه است. فهرست‌نگاران این دو را بیشتر برای آثار متأخر ثبت کرده‌اند، پس این چینش را با احتیاط بخوانید. نمودار ردیفی بالا تنها نسخه‌ها را نشان می‌دهد.</span>
+                    </p>
+                @endisset
             </div>
 
             <p class="mt-5 text-xs text-muted leading-relaxed">

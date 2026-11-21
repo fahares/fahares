@@ -12891,6 +12891,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_joined_pieces_export.py --before DIR --copies FILE [--step N]`:** نسخه‌هایی که `copy_date_raw`، `copy_place`، `paper` یا `binding` آن‌ها در v2 با «، …» بلندتر شده یا `copy_date.note` گرفته‌اند (۸۱۴)، با متن به نسخۀ سایت می‌رسند. ستون سایت همان دنباله را می‌گیرد اگر با مقدار پیشین v2 یکی باشد (`tight`)؛ `copy_date_note` تنها اگر تهی باشد. کنار گذاشته: «سایت از پیش دارد» (یادداشت تاریخ ۱۶۳، جلد ۲۰۴، محل ۴۰، کاغذ ۱۶، تاریخ ۴)، مقدار یا یادداشت دیگر ۸، متن غیر یکتا ۴.
 - **پرونده:** `database/data/fankha_joined_pieces_step14_287.json` (۳۸۵ رکورد).
 - **تمرین روی `fahares_prod`:** «Rebuilding 385 copies … dates=1, pointers_linked=6»، اجرای دوم «already 385». تمرین نخست نشان داد تاریخ دوم پس از «قرن N» سال مرتب‌سازی ۹ نسخه را عوض می‌کند؛ با پروندۀ وارونه برگردانده و قاعده اصلاح شد.
+
+### گام ۱۴.۲۸۸: `Insights::underDynasties` و `dynasties['works']`
+
+- **بازآرایی:** شمارش زیر سلسله‌ها از `Insights::dynasties` به `underDynasties(iterable $rows)` رفت (ردیف‌های `place`، `y`، `n` => سلسله‌ها با `count`، `from`، `to`، `cities`، `rule_from`، `rule_to`، `years`، `density`، `share`، `city_kinds`؛ شمار ردیف‌های شهردار؛ شمار زیر یک سلسله؛ و شمار هر سده به تفکیک شهر). برای نسخه‌ها و آثار یکی است.
+- **آثار:** `composition_place` و سال میانۀ `composition_date_from/to` با دامنۀ تا `exact_span` سال. خروجی در `dynasties['works']`: `items`، `kinds`، `counted`، `ruled`، `coverage` (از همۀ آثار دامنه). مخرج سهم، آثار سال‌دار و شهردار همان سال‌هاست.
+- **نما:** `<ul data-insights-dynasties="works-density|works-count|works-share">` کنار سه فهرست نسخه‌ها؛ وضعیت Alpine `{ kind, by }`. دکمۀ «شمردن» تنها وقتی می‌آید که دست‌کم یک اثر (در دامنه: `min_sample` اثر) زیر سلسله‌ای باشد. شهرهای چینش آثار پیوند ندارند (جست‌وجو فیلتر محل تألیف ندارد).
+- **جدول:** `works-by-dynasty` با همان ستون‌های `copies-by-dynasty`.
+- **احتیاط داده:** تنها ۲٫۱٪ آثار این دو آگاهی را دارند و بیشترشان متأخرند؛ شمار بالای عثمانی‌ها از آثاری است که در نجف و کربلا تألیف شده‌اند.
 - **اجرا در پروداکشن (۲۱ نوامبر ۲۰۲۶، همه با `scripts/dev/prod-run --wait jolly-tharp`):**
   - پشتیبان با `tinker` مستقیم به لپ‌تاپ (چیزی در کانتینر نوشته نشد): سطر کامل ۱٬۱۷۳ نسخه و ۱٬۱۵۸ سطر `manuscript_script`.
   - `fankha_repaired_labels_step14_282.json`: «write 586, shelfmark differs 1 (#334896)»، «dates=173, pointers_linked=13».
@@ -12906,3 +12914,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین:** `fahares:import-copy-notes --file=… --apply` → «new 360, changed 1832, same 1»؛ اجرای دوم «same 2193». `fahares:index-note-types` بی `--apply`: ۱۸۹٬۶۰۰ نسخه با یادداشت.
 - **شناسه‌های انتهای جدول:** چهار نسخۀ آخر `manuscripts` در رونوشت محلی شناسه‌ای یکی بیشتر از پروداکشن دارند (۳۳۴۸۹۵ تا ۳۳۴۸۹۸ محلی = ۳۳۴۸۹۴ تا ۳۳۴۸۹۷ پروداکشن). در گام ۱۴.۲۸۲ رکورد ۳۳۴۸۹۶ با «shelfmark differs» رد شد؛ همان دو تغییر با پروندۀ تک‌رکوردی و پشتیبان روی شناسۀ ۳۳۴۸۹۵ پروداکشن اجرا شد (۲۱ نوامبر ۲۰۲۶).
 
+### گام ۱۴.۲۹۱: `PersonPeriod::PLACE_KINDS`، پیشنهاد تولد و وفات، و نظر بازبین در `Insights::origins`
+
+- **انواع:** `birth`، `death`، `origin` در `PersonPeriod::KINDS`؛ `PLACE_KINDS` همین سه است. نام نوع‌ها با ثابت‌های `PersonOrigins::BIRTH/DEATH/ORIGIN` یکی است. migration لازم نبود (`kind` رشته است).
+- **فرمان:** در `ProposeLifePeriodsCommand`، خوانش‌های هر مدخل = `LifePeriodExtractor::extract` ∪ `PersonOrigins::fromBiography` (به شکل `kind`، `city`، `years = []`، `snippet`). قاعدۀ «یک نوع در یک شهر برای هر شخص، هر وضعیتی که دارد، دوباره پیشنهاد نمی‌شود» و `--prune` بی تغییر برای این‌ها هم کار می‌کند. سال نوشته نمی‌شود؛ بازبین هنگام تأیید می‌گذارد.
+- **`PersonOrigins::clause`:** `text` هر یافته اکنون جملۀ پیرامون آن است (تا ۱۲۰ بایت از هر سو، بریده در نشانه‌های پایان جمله)، از متن یکدست‌شده؛ پس همزه و «ة» در آن ساده شده است (فرق با یادداشت دوره‌های دیگر که از متن اصلی است).
+- **نسبت:** `PersonOrigins::fromName` در `people/show.blade.php` (`data-person-nisba`)؛ ذخیره نمی‌شود.
+- **`Insights::origins`:** پس از خوانش خودکار، ردیف‌های `person_periods` اشخاص دامنه با `kind` در `PLACE_KINDS` یا `residence` و `city` شهر نقشه: `rejected` همان (شخص، نوع، شهر) را برمی‌دارد و `approved` و `proposed` آن را می‌افزاید. کلیدهای تازه: `residences`، `residence_decades` برای هر شهر و `residences_mapped`. اقامت نیز در دهۀ وفات شخص شمرده می‌شود، نه در سال‌های دوره.
+- **نقشه:** لایۀ `residence` (`r`/`rd`) در `LAYERS`؛ جدول «اشخاص هر شهر» ستون «ساکن این شهر» گرفت.
+- **آزمون‌ها:** `PersonPeriodsTest` (آزمون قدیمی بی دو جملۀ تولد و وفات، و آزمون تازه برای پیشنهاد و تأیید آن‌ها)، `InsightsMapTest` (تقدم نظر بازبین، لایۀ اقامت، سطر نسبت).
