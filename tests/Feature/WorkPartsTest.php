@@ -55,7 +55,9 @@ class WorkPartsTest extends TestCase
             public function update($models)
             {
                 foreach ($models as $model) {
-                    $this->ids[] = $model->id;
+                    if ($model instanceof Work) {
+                        $this->ids[] = $model->id;
+                    }
                 }
             }
         };
@@ -101,6 +103,98 @@ class WorkPartsTest extends TestCase
         $this->assertNull($paper->whole());
         $this->assertFalse($paper->inherits('author'));
         $this->assertNull($paper->author_label);
+    }
+
+    /** Each trait by itself: a part may have a subject or a language of its own and still read the rest */
+    public function test_a_part_keeps_a_subject_or_a_language_of_its_own()
+    {
+        $own = Subject::create(['name' => 'شیمی', 'slug' => 'wp-' . uniqid()]);
+
+        // a language of its own: the author and the subject are read, the language is not
+        $arabic = $this->work('رسالة فی الحبر', ['language_summary' => 'عربی']);
+        $this->partOf($arabic, $this->jawhariyya);
+        $arabic = Work::find($arabic->id);
+        $this->assertSame([true, true, false], [$arabic->inherits('author'), $arabic->inherits('subject'), $arabic->inherits('language')]);
+        $doc = $arabic->toSearchableArray();
+        $this->assertSame(['عربی', 'کتاب‌آرایی', ['کتاب‌آرایی'], $this->simi->id], [$doc['language_summary'], $doc['subject_summary'], $doc['subjects'], $doc['author_id']]);
+        $this->followingRedirects()->get(route('works.show', $arabic))->assertOk()
+            ->assertSeeInOrder(['زبان', 'عربی', 'رده‌های موضوعی', 'کتاب‌آرایی', 'data-inherited'], false)
+            ->assertDontSee('فارسی');
+
+        // a language recorded only as a link counts as the part's own
+        $linked = $this->work('رسالۀ ترکی');
+        $linked->languages()->attach(\App\Models\Language::create(['name' => 'ترکی', 'slug' => 'wp-' . uniqid()])->id);
+        $this->partOf($linked, $this->jawhariyya);
+        // (the document names a work's own languages when they are loaded, as an import loads them)
+        $linked = Work::with('languages')->find($linked->id);
+        $this->assertFalse($linked->inherits('language'));
+        $this->assertSame([null, ['ترکی']], [$linked->toSearchableArray()['language_summary'], $linked->toSearchableArray()['languages']]);
+
+        // a subject of its own, as text or as a link: the subject is not read, the author and the language are
+        $bySummary = $this->work('در ساختن رنگ', ['subject_summary' => 'شیمی']);
+        $byLink = $this->work('در ساختن حل');
+        $byLink->subjects()->attach($own->id);
+        foreach ([$bySummary, $byLink] as $part) {
+            $this->partOf($part, $this->jawhariyya);
+            $part = Work::find($part->id);
+            $this->assertSame([true, false, true], [$part->inherits('author'), $part->inherits('subject'), $part->inherits('language')], $part->primary_title);
+            $doc = $part->toSearchableArray();
+            $this->assertNotContains('کتاب‌آرایی', $doc['subjects']);
+            $this->assertNotSame('کتاب‌آرایی', $doc['subject_summary']);
+            $this->assertSame('فارسی', $doc['language_summary']);
+        }
+        $this->assertSame(['شیمی'], Work::with('subjects')->find($byLink->id)->toSearchableArray()['subjects']);
+        $this->followingRedirects()->get(route('works.show', $byLink))->assertOk()
+            ->assertSeeInOrder(['رده‌های موضوعی', 'شیمی'], false)->assertDontSee('کتاب‌آرایی');
+
+        // the part's own value given later takes the place of the read one, and taken away gives it back
+        $arabic->update(['subject_summary' => 'خوشنویسی']);
+        $this->assertFalse(Work::find($arabic->id)->inherits('subject'));
+        $arabic->update(['subject_summary' => null, 'language_summary' => null]);
+        $this->assertSame([true, true], [Work::find($arabic->id)->inherits('subject'), Work::find($arabic->id)->inherits('language')]);
+    }
+
+    /** The whole is itself a part: each trait from the nearest whole above that has it, named in the mark */
+    public function test_each_trait_comes_from_the_nearest_whole_that_has_it()
+    {
+        // «جوهریه» ← a chapter with a language of its own ← a section with nothing
+        $chapter = $this->work('باب اول جوهریه', ['language_summary' => 'عربی']);
+        $section = $this->work('فصل مرکب');
+        $this->partOf($chapter, $this->jawhariyya);
+        $this->partOf($section, $chapter);
+        $section = Work::find($section->id);
+        $this->assertTrue($this->jawhariyya->is($section->traitSource('author')));
+        $this->assertTrue($this->jawhariyya->is($section->traitSource('subject')));
+        $this->assertTrue($chapter->is($section->traitSource('language')));
+
+        // the page: «بخشی از» names the whole next above only; each mark names the work the value is read from
+        $html = $this->followingRedirects()->get(route('works.show', $section))->assertOk()->getContent();
+        preg_match('/<p[^>]*data-part-of.*?<\/p>/su', $html, $partOf);
+        $this->assertStringContainsString('باب اول جوهریه', $partOf[0]);
+        $this->assertStringNotContainsString('جوهریه سیمی', $partOf[0]);
+        preg_match_all('/data-inherited>\((.*?)<\/span>/su', $html, $marks);
+        $named = array_map(fn ($m) => trim(strip_tags($m)), $marks[1]);
+        // the author, the whole's date, the language, the subject, in the order of the page
+        $this->assertSame(['از اثر اصل: جوهریه سیمی)', 'اثر اصل: جوهریه سیمی)', 'از اثر اصل: باب اول جوهریه)', 'از اثر اصل: جوهریه سیمی)'], $named);
+
+        // a change at any whole above sends every work below it to the index again
+        $index = $this->spyOnIndex();
+        $this->jawhariyya->update(['subject_summary' => 'هنرهای کتاب']);
+        $this->assertEqualsCanonicalizing([$chapter->id, $section->id], array_values(array_unique(array_diff($index->ids, [$this->jawhariyya->id]))));
+        $this->assertSame('هنرهای کتاب', Work::find($section->id)->toSearchableArray()['subject_summary']);
+        $index->ids = [];
+        $chapter->update(['language_summary' => 'عربی، فارسی']);
+        $this->assertContains($section->id, $index->ids);
+        $this->assertSame('عربی، فارسی', Work::find($section->id)->toSearchableArray()['language_summary']);
+
+        // the middle whole taken off its own whole: the section reads what is left above it
+        DB::table('work_relations')->where(['work_id' => $chapter->id, 'related_work_id' => $this->jawhariyya->id])->delete();
+        $index->ids = [];
+        RecordRelations::partsChanged([$chapter->id]);
+        $this->assertEqualsCanonicalizing([$chapter->id, $section->id], array_values(array_unique($index->ids)));
+        $section = Work::find($section->id);
+        $this->assertSame([false, true], [$section->inherits('author'), $section->inherits('language')]);
+        $this->assertNull($section->author_label);
     }
 
     public function test_the_pages_of_the_part_and_of_the_whole()
