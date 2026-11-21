@@ -12923,3 +12923,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Insights::origins`:** پس از خوانش خودکار، ردیف‌های `person_periods` اشخاص دامنه با `kind` در `PLACE_KINDS` یا `residence` و `city` شهر نقشه: `rejected` همان (شخص، نوع، شهر) را برمی‌دارد و `approved` و `proposed` آن را می‌افزاید. کلیدهای تازه: `residences`، `residence_decades` برای هر شهر و `residences_mapped`. اقامت نیز در دهۀ وفات شخص شمرده می‌شود، نه در سال‌های دوره.
 - **نقشه:** لایۀ `residence` (`r`/`rd`) در `LAYERS`؛ جدول «اشخاص هر شهر» ستون «ساکن این شهر» گرفت.
 - **آزمون‌ها:** `PersonPeriodsTest` (آزمون قدیمی بی دو جملۀ تولد و وفات، و آزمون تازه برای پیشنهاد و تأیید آن‌ها)، `InsightsMapTest` (تقدم نظر بازبین، لایۀ اقامت، سطر نسبت).
+### گام ۱۴.۲۹۰: `RecordRelations::named` و `sentence`
+- **`named($recordType, $label, $thisName, $chosenName)`:** در متن یک گزینه «این اثر» و «اثر انتخاب‌شده» (برای نسخه «این نسخه» و «نسخۀ انتخاب‌شده») را با نام درون گیومه جایگزین می‌کند؛ نام تا ۷۰ نویسه، و طرف بی‌نام همان عبارت پیشین را نگه می‌دارد.
+- **`sentence($record, $other, $option)`:** همان، با برچسب `SuggestionRegistry::describe` دو رکورد.
+- **پنل:** `show.blade.php` جملۀ `data-relation-sentence` را برای `record_relation` نشان می‌دهد؛ `partials/relation-approve.blade.php` گزینه‌های `select[data-relation-options]` را با `sentence` می‌نویسد.
+- **فرم پیشنهاد:** `config.recordLabel` و `relationLabel()` در `resources/js/suggest-desk.js`؛ تا رکورد مقصد برگزیده نشده، گزینه‌ها همان متن عمومی‌اند.
+- **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.
+
+### گام ۱۴.۲۹۲: برچسب `contributor_note` و `public_note` در `partials/relation-approve.blade.php`
+- **دو شاخۀ `record_relation` و `text_relation`:** `contributor_note` یک `textarea` برچسب‌دار با `data-relation-note` و `maxlength="500"` شد (به `work_relations.note` یا `manuscript_relations.note` می‌رود)، و `public_note` زیر آن برچسب جدا دارد.
+- **هفت فرم دیگر:** `placeholder` یادداشت عمومی «پیام به پیشنهاددهنده؛ در صفحۀ رکورد نمایش داده نمی‌شود» شد.
+- **آزمون:** `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts`.
+
+### گام ۱۴.۲۹۳: `SuggestionApplier::dropDeathFromLifeDates`
+- **کجا:** شاخۀ `integer`، برای `Person` و فیلد `death_year_hijri` وقتی مقدار تهی می‌شود و رکورد سال وفات دارد.
+- **قاعده:** اگر `Person::deathColumns(life_dates_raw, null)` همان سال را به‌صورت یک سال می‌دهد و تقویم متن قمری است (`lifeCalendar` تهی)، متن به «{سال پیش از خط تیره} - قمری» یا تهی بدل می‌شود. اگر پس از آن `deathColumns` متن هنوز یک سال بدهد، `InvalidArgumentException` با نام فیلد «تاریخ زندگی». `death_year_gregorian` تهی می‌شود.
+- **نمونه‌ها:** «- 940 ؟ ق» با ۹۴۰: متن و وفات تهی، سده ۱۰ می‌ماند. «817 - 898 قمری»: «817 - قمری». «- 1312 شمسی» با ۱۳۵۱: سال تهی، بازۀ ۱۳۵۱ تا ۱۳۵۲ از متن می‌ماند. «- 940 ؟ ق» با ۹۴۵: خطا.
+- **`people/show.blade.php`:** سطر `life_dates_raw` با `x-show="$store.suggest.on"`.
+- **آزمون:** `SuggestionWorkflowTest::test_the_life_dates_of_a_person_are_corrected_and_the_death_year_follows`.

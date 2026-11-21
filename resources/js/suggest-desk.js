@@ -323,6 +323,14 @@ export default (config) => ({
         return this.config.relations.find((r) => r.key === this.relationKey) ?? null;
     },
 
+    // A relation's option with both records named, once the other is chosen: ««الف» شرحی است بر «ب»» (step 14.290)
+    relationLabel(label) {
+        if (this.relation?.apply !== 'record_relation' || !this.target || !this.config.recordLabel) return label;
+        const short = (name) => '«' + (name.length > 60 ? name.slice(0, 59) + '…' : name) + '»';
+        const [here, chosen] = this.config.type === 'manuscript' ? ['این نسخه', 'نسخۀ انتخاب‌شده'] : ['این اثر', 'اثر انتخاب‌شده'];
+        return label.replace(chosen, short(this.target.label)).replace(here, short(this.config.recordLabel));
+    },
+
     chooseRelation() {
         // a volume's cataloger is most often the one asked about
         if (this.relation?.apply === 'volume_cataloger' && !this.roleKey) this.roleKey = 'cataloger';
