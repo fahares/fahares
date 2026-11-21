@@ -15,7 +15,7 @@ use Tests\TestCase;
  */
 class WorkCatalogueEntriesTest extends TestCase
 {
-    private function work(string $title, string $author, array $more = []): Work
+    private function work(string $title, ?string $author, array $more = []): Work
     {
         return $this->workWithTexts(['primary_title' => $title, 'clean_title' => $title, 'author_name' => $author, 'slug' => 'cat-' . uniqid(),
             'volume_number' => 1, 'page_start' => 1] + $more);
@@ -83,5 +83,28 @@ class WorkCatalogueEntriesTest extends TestCase
         DB::table('work_relations')->delete();
         $this->assertSame(1, WorkCatalogueEntries::tie($work));
         $this->assertNull(DB::table('work_text_relations')->where('work_id', $work->id)->where('position', 0)->value('link_status'));
+    }
+
+    /** Step 14.296: several related works of one title; the entry's author says which, and an entry with no author is a work with none */
+    public function test_entries_of_one_title_are_tied_by_their_author()
+    {
+        $base = $this->work('الکتاب', 'کسی، الف', ['commentaries_and_glosses' => [
+            'شرح الکتاب؛ کسی، ب (-900)', 'شرح الکتاب', 'شرح الکتاب؛ کسی، ناشناس (-950)', 'شرح الکتاب', 'شرح الکتاب', 'حاشیة الکتاب (2عنوان)',
+            'شرح الکتاب؛ کسی، ج',
+        ]]);
+        $by = $this->work('شرح الکتاب', 'کسی، ب');
+        $other = $this->work('شرح الکتاب', 'کسی، ج');
+        $anon = [$this->work('شرح الکتاب', null), $this->work('شرح الکتاب', null)];
+        $glosses = [$this->work('حاشیة الکتاب', null), $this->work('حاشیة الکتاب', null)];
+        foreach ([$by, $other, ...$anon, ...$glosses] as $w) {
+            DB::table('work_relations')->insert(['work_id' => $w->id, 'related_work_id' => $base->id, 'type' => 'commentary', 'source' => 'auto', 'created_at' => now(), 'updated_at' => now()]);
+        }
+        $this->assertSame(4, WorkCatalogueEntries::tie($base));
+        $this->assertSame(0, WorkCatalogueEntries::tie($base));
+        // the named author's; the two works with no author, in order, for the first two entries with none; the third
+        // such entry, the entry of an author no work has, and the entry that stands for two works are tied to none;
+        // the last entry's author is written with no life dates
+        $this->assertSame([$by->id, $anon[0]->id, null, $anon[1]->id, null, null, $other->id],
+            DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->pluck('linked_work_id')->all());
     }
 }
