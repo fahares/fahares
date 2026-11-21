@@ -13015,3 +13015,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **منبع:** `class="md:ms-0"`، چون عنوان از md به بالا راست‌چین است.
 - **سنجش:** مرکز بازۀ متن (`Range` تا پیش از کنترل‌ها) منهای مرکز `header` = ۰ در `/people/346`، `/works/47272` (عنوان دوسطری)، `/libraries/99` و `/sources/dharia`؛ `scrollWidth` ≤ عرض پنجره.
 
+### گام ۱۴.۳۰۱: `test-suite --tested` و `~/.fahares/tested.tsv`
+
+- **درخت کد:** `git ls-tree -r HEAD | grep -vP '\t(docs/|[^/]+\.md$)' | sha1sum`، یعنی مسیر، حالت و blob همۀ فایل‌های کامیت‌شده جز `docs/` و `*.md` ریشه. دو کامیت که تنها در مستندات فرق دارند یک درخت کد دارند.
+- **کد کامیت‌شده:** `git diff --quiet HEAD -- . ':(exclude)docs' ':(exclude,glob)*.md'`. فایل‌های دنبال‌نشده (مثل `public/build`) شمرده نمی‌شوند.
+- **ثبت:** تنها اجرای بی گزینه (نه `--filter`) با وضع خروج صفر و کد کامیت‌شده، سطری `درخت<TAB>کامیت<TAB>آغاز<TAB>checkout` به `tested.tsv` می‌افزاید.
+- **`--tested`:** اگر کد کامیت‌نشده داشته باشد ۱، اگر درخت کد در `tested.tsv` باشد ۰ (با چاپ همان سطر)، و گرنه ۱. قفل آزمون را نمی‌گیرد.
+- **زنجیرۀ انتشار** (`~/.fahares/task-mgmt/release-chain.sh`، بیرون از git): `test-suite --tested || test-suite`، سپس انتظار برای انتقال‌ها و `release-push.sh`.
+
