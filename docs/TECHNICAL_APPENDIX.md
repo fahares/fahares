@@ -12751,7 +12751,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** «0 created, 3 updated, 192 unchanged»، و اجرای دوم «0 updated, 195 unchanged».
 - **انتقال تصویرها (۲۹ آبان ۱۴۰۵، به تأیید کاربر، پیش از انتشار):** `darolhadith`، `tehran-adabiyat/v02` و `feyziye/v02` روی سرور نبودند. `C=<code>/vNN send.sh`: ۴۳۸، ۱۱۰ و ۱۲۰ پرونده، و اجرای دوم هر سه «missing 0». سپس `chown` و `chmod`. دارالحدیث ص ۷۹، ادبیات ج ۲ ص ۵۰ و فیضیه ج ۲ ص ۴۰ از fahares.net پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
 - **فیضیه ج ۳ (#۴۵۹، ۱٬۱۷۶ نسخه؛ به پرسش کاربر):** «بخش سوم (مجموعه‌ها)» همان پروندۀ خزانه‌ها 570، همان ج ۳ فهارس است: ص ۱۰۰ آن مجموعۀ ۱۵۵۴ است با رساله‌های ۳ «الاستصحاب»، ۴ «اصالة الطهارة»، ۵ و ۹ «اصالة البرائة»، همان‌ها که فنخا از ج ۳ ص ۱۰۰ می‌آورد. نگاشت `feyziye/v03.map.json` (ص ۱ تا ۲۰۸ = برگ + ۱۲۲)، پهنای ۱۱۰۰: ۲۰۸ برگه، ۱۱ مگابایت. همۀ ۱٬۱۷۶ نسخه روی برگه‌اند. سنجش کور (seed 142732، `feyziye/work/check3/`): ۲ از ۲ فریب «نیست»، ۷ از ۸ ارجاع «هست»؛ یکی (949/10، ص ۴۱) در ص ۴۱ نیست و به صفحۀ پس از آن می‌رود. تمرین: «1 updated»، سپس «0 updated, 196 unchanged». تصویرها به سرور رفتند («missing 0»؛ ص ۱۰۰ پاسخ ۲۰۰). ۸ ارجاع ج ۲ در ص ۱۲ و ۱۷۰–۱۷۱ که مجموعه‌اند، احتمالاً از آنِ ج ۳اند.
-- **پس از انتشار:** پشتیبان ردیف‌های #۵۷۶، #۴۱۰، #۵۵ و #۴۵۹، سپس `catalogs:set-facsimiles` با `prod-run`. انتظار: «0 created, 4 updated».
+- **اجرای پروداکشن (انتشار ۱۷۰، `3ecc3c65`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر):** فایل داده با کامیت گام یکی بود (md5 `3333d55d…`)، و اجرای آزمایشی «4 updated». پشتیبان چهار ردیف `catalog_volumes` و `source_volumes` (کد همه خالی) در `../fahares-sources/backups/step13/before_step14_279_set_facsimiles_20261120_2115.json`. `prod-run`: «0 created, 4 updated, 192 unchanged»؛ اجرای آزمایشی دوم «0 updated, 196 unchanged». `/manuscripts/191460` (دارالحدیث ص ۶۶)، `/manuscripts/31802` (ادبیات ج ۲ ص ۵۰)، `/manuscripts/160473` (فیضیه ج ۲ ص ۶۳) و `/manuscripts/75973` (فیضیه ج ۳ ص ۱۵۶) برگۀ درست را دارند.
 
 ### گام ۱۴.۲۸۰: `work_text_relations` و رابطۀ `work_relation_text`
 - **migration `2026_11_20_100003_create_work_text_relations_table`:** `work_id` (با حذف اثر پاک می‌شود)، `side` (`related`: این اثر {نوع}ِ اثر نام‌برده است؛ `children`: اثر نام‌برده {نوع}ِ این اثر است)، `type` (کلیدهای `RecordRelations::WORK_TYPES`)، `text` (۶۰۰)، `note`، `suggestion_id`.
@@ -12783,6 +12783,50 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجیده نشد:** لمس واقعی (کشیدن و دو انگشت) روی گوشی؛ در مرورگر با رویدادهای اشاره‌گر شبیه‌سازی‌شده و پهنای ۳۷۵ پیکسل آزموده شد.
 - **اجرای پروداکشن (انتشار ۱۷۰، `3ecc3c65`؛ ۲۹ آبان ۱۴۰۵، به تأیید کاربر):** فایل داده با کامیت گام یکی بود (md5 `3333d55d…`)، و اجرای آزمایشی «4 updated». پشتیبان چهار ردیف `catalog_volumes` و `source_volumes` (کد همه خالی) در `../fahares-sources/backups/step13/before_step14_279_set_facsimiles_20261120_2115.json`. `prod-run`: «0 created, 4 updated, 192 unchanged»؛ اجرای آزمایشی دوم «0 updated, 196 unchanged». `/manuscripts/191460` (دارالحدیث ص ۶۶)، `/manuscripts/31802` (ادبیات ج ۲ ص ۵۰)، `/manuscripts/160473` (فیضیه ج ۲ ص ۶۳) و `/manuscripts/75973` (فیضیه ج ۳ ص ۱۵۶) برگۀ درست را دارند.
 
+### گام ۱۴.۲۸۲: تجزیه‌گر v2.4.0 و `fankha_v2_repaired_labels_export.py`
+
+- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `84e304d`):**
+  - `repair_chunk()` پیش از خواندن هر تکۀ سطر فیزیکی: «بی‌کا تا …» و «بی‌کا بی‌تا» دو تکه می‌شوند؛ «تا <تاریخ>» همان «تا:» است؛ «بی‌تا: قرن 11» همان «بی‌تا (قرن 11)»؛ «اندازه/ادنازه/انداز [جلد] [:] N×N»؛ «نوع جلد:» و «: جلد …»؛ «: کاغذ …»؛ «تعداد صفحات: N…»؛ «Nسط»، «N س» و «Nسطری».
+  - برچسب تنها («کاغذ»، «جلد»، «جا») تکۀ پس از خود را مقدار می‌گیرد (`BARE_LABELS`).
+  - `LINES_QUALIFIER`: «غالباً»، «بعضاً»، «میانگین» و مانند آن پیش از شمار سطر، که به `lines_note` می‌رود. هر تکۀ کوتاه دارای «چلیپا» `lines_note` است.
+  - اندازۀ بی برچسب با «سم» در نسخۀ بی اندازه؛ تاریخ بی «تا:» (`CENTURY_CHUNK`، `DATE_CHUNK`، و سال تنها میان ۶۰۰ و ۱۴۵۰ پس از کاتب) تنها پس از کاتب، خط، «بی‌کا» یا «بی‌تا»، یا وقتی یک گروه «؛» کامل است. پس از «بی‌تا» یادداشت `date_guess` است.
+  - `PHYS_GROUP_LOOSE`: «خط تحریری، بی‌کا» و «…؛ کاتب: …، تا: …» سطر فیزیکی را باز می‌کنند (دومی نه پس از «نسخه اصل»).
+  - `ie_marked()`: «آغاز و انجام برابر»، «آغا و انجام: برابر»، و «آغاز …» یا «؛ انجام …» بی دونقطه، مگر شرح وضعیت باشد (`IE_BARE_PROSE`: «افتاده»، «ندارد»، «است»، «تا» و مانند آن).
+  - «جلد …» و «کاغذ …» دیگر به مقدار کاغذ یا جلد پیش از خود نمی‌چسبند.
+- **سنجش با خروجی پیشین (۳۲۳ هزار نسخه):** پر شدن `copy_date` ۲۷۳، `explicit` ۲۵۱، `incipit` ۱۶۴، `binding` ۱۳۷، `lines` ۱۱۲، `text_dimensions` ۱۰۶، `dimensions` ۹۵، `no_scribe` ۹۹، `scribes` ۳۴، `undated` ۲۶، `folios` ۲۰، `paper` ۱۸، `script_raw` ۱۲، `lines_note` ۶۲۲؛ `incipit` دگرگون ۱۰۵ («آغاز: برابر؛ انجام …» که انجام را در آغاز داشت)، `paper` دگرگون ۷۸. شمار یادداشت‌ها از ۱۸۵٬۴۰۰ به حدود ۱۸۴٬۴۰۰.
+- **مقایسه با سایت:** `fankha_v2_db_compare.py --out reports/fankha_v2_db_review10`.
+- **`fankha_v2_repaired_labels_export.py --before DIR --diffs … --copies FILE`:** نسخه‌هایی که فیلدهای v2 آن‌ها میان دو خروجی دگرگون شده (۸۷۶، ۸۷۴ تا با متن یکتا در سایت)، و از تفاوت‌های «filled» همان‌ها ستون‌های `copy_date_raw`، `binding`، `lines`، `dimensions`، `explicit_text`، `incipit_text`، `paper`، `folios` و `copy_place`، بی اصلاح بازبینی‌شده و دیده‌شده در `raw_text` رکورد. `is_bika` و `is_bita` روشن می‌شوند جایی که ستون همتا تهی است، و با پر شدن تاریخ یا کاتب خاموش. کاغذ و جلد پیش از «جلد …» یا شمار برگ بریده می‌شوند.
+- **پرونده:** `database/data/fankha_repaired_labels_step14_282.json` (۵۸۷ رکورد)، برای `fahares:rebuild-copies`.
+- **تمرین روی `fahares_prod`:** «write 587»، سپس «Rebuilding 587 copies … dates=174, pointers_linked=13»، و اجرای دوم «already 587».
+- **اصلاح متن (`fahares-corpus`، کامیت‌های `a8082c7` و `7cf6945`):**
+  - تجزیه‌گر هر «تعمیر» را در `FIX_LOG` می‌نویسد (`log_fix`: سطر، گونه، متن پیشین، متن تازه)؛ `FIX_NOT` شیوه‌های خود فهرست را بیرون می‌گذارد.
+  - `scripts/fankha_label_fixes.py [--apply] [VOL …]`: هر جلد را می‌خواند و هر جا را در همان سطر پروندۀ متن جایگزین می‌کند، تنها اگر متن پیشین درست یک بار در سطر باشد. اجرا: «Fixed 703 places {chunk: 368, explicit: 142, head: 169, bare: 24}; 2 not found on their line» (جلد ۸ سطر ۵۱۲۸۱ و جلد ۲۰ سطر ۲۷۸۹۹)؛ اجرای دوم «Would fix 0 places».
+  - «بی‌کا تا <غیر تاریخ>» دیگر دو تکه نمی‌شود (۱۴ نسخه `no_scribe` نمی‌گیرند و تکه یادداشت می‌ماند).
+  - `scripts/fankha_label_fixes_site_export.py --before DIR --copies FILE`: نسخۀ سایت را با متن پیشین می‌یابد، همان جایگزینی‌ها را در `raw_text` سایت (با برچسب صفحه و فاصله‌های خودش) می‌کند و تنها وقتی می‌نویسد که نتیجه با متن تازۀ v2 یکی باشد. ۶۰۴ نسخه: ۶۰۳ یافته، ۳ کنار گذاشته (خط دارند و سطر «خط:» ندارند).
+- **پروندۀ دوم:** `database/data/fankha_label_fixes_text_step14_282.json` (۶۰۰ رکورد، تنها `raw_text`).
+- **تمرین روی `fahares_prod`:** «Rebuilding 603 copies … extents=5, lines=87, pointers_linked=8» (با سه نسخه‌ای که سپس برگردانده و از پرونده برداشته شد)، اجرای دوم «already 600». مقایسه با پروداکشن: جز ستون‌های گام نخست، `extent_raw` ۶، `range_from/to` ۳، `catalog_volume_id` و `cataloger_id` ۱۳ پر شدند. `fahares:rebuild-scripts --dry-run`: ۷ نسخه خط می‌گیرند (تحریری ۲، پهلوی ۲، سیاق، نسخ، نستعلیق).
+
+### گام ۱۴.۲۸۳: `works:materialize-related` و ستون‌های تازۀ `work_text_relations`
+- **migration `2026_11_21_100001_add_catalogue_entries_to_work_text_relations`:** `text` از ۶۰۰ نویسه به `TEXT` (بلندترین متن روی رونوشت ۱٬۸۴۴ نویسه)؛ `source` (`suggestion` پیش‌فرض، `catalogue`)، `position`، `entry_key` (`WorkRelationLinker::entryKey`)، `linked_work_id` (با حذف اثر تهی می‌شود)، `link_source` (`auto`، `model`، `review`)، `link_status` (`linked`، `proposed`، `rejected`)، `differs`، `why`، `confidence`، `decided_by`، `decided_at` و `model_verdict` (`unsure`، `none`، `medium`). سطر با `type = note` یادداشت پایانی فیلد است (`position = 999`).
+- **[WorkRelationLinker::pageRows](../app/Support/WorkRelationLinker.php):** کلید تازۀ `entries`: هر مدخل دو متن با `side`، `position`، `type`، `text`، `key`، `work` و `differs`. `printed` و `unlinked` مانند پیش‌اند.
+- **[MaterializeRelatedWorksCommand](../app/Console/Commands/MaterializeRelatedWorksCommand.php):**
+  - برای هر اثری که یکی از دو فیلد را دارد، سطرهای `source = catalogue` آن پاک و از `pageRows()` دوباره نوشته می‌شود (یک تراکنش برای هر اثر). سطرهای `catalogue` آثاری که دیگر متنی ندارند در پایان پاک می‌شوند.
+  - مدخل پیوندخورده: `link_status = linked` و `link_source` از ردیف `work_entry_links` همان مدخل (اگر `linked` و به همان اثر باشد)، وگرنه `auto`.
+  - مدخل بی‌پیوند با ردیف `proposed` یا `rejected` در `work_entry_links`: اثر پیشنهادی، وضع، `why`، `confidence` و تصمیم‌گیرنده.
+  - `--decisions`: کلید «اثر > سو > کلید مدخل». متن پرونده «عنوان‌ها؛ پدیدآور (تولد-وفات)» است و کمانک تاریخ پایانی، اگر «؛» دارد، برداشته می‌شود. `match` با `high` نادیده است.
+  - پرس‌وجوی آثار در یک گروه `where` است: `lazyById` شرط `id > …` خودش را می‌افزاید و با `orWhere` بیرونی پیمایش بی‌پایان می‌شد (در تمرین نخست همین رخ داد).
+- **[RecordRelations::texts](../app/Suggestions/RecordRelations.php)** و **`WorkTextRelationController::destroy`** فقط `source = suggestion` را می‌خوانند، تا سطرهای فهرست تا انتشار دوم دوبار روی صفحه نیایند.
+- **تمرین روی `fahares_prod` (۳۰ آبان ۱۴۰۵):**
+  - «works 11209، entries 20916، linked 14209، linked, words differ 364، proposed 333، rejected 0، tied to no work 6374، with a verdict of the judging 1804، notes 2»؛ «Tied by: auto 13642, model 567»؛ «Saved: 20918 rows of the catalogue». ۱ دقیقه و ۱۸ ثانیه. اجرای دوم همان.
+  - `model_verdict`: unsure ۹۶۰، none ۵۳۰، medium ۳۱۴ سطر (مدخل تکراری در یک اثر هر دو سطرش نشان می‌گیرد).
+  - سنجش با پروندۀ تصمیم: از ۹۳۹ «نامطمئن»، ۹۱۷ سطر بی‌پیوند، ۲۱ پیوندخورده و ۱ بی سطرِ هم‌کلید. از ۷۳۵ «نیست»، ۱۹۱ بی سطرِ هم‌کلید: مدخل‌های دوم به بعدِ یک سطر «شروح و حواشی» (مانند نام تنها) که متنشان در سطر همان مدخل هست.
+  - سنجش با `work_entry_links`: از ۵۷۰ ردیف `model/linked`، ۵۶۷ همان؛ سه مدخل پیوندشان را به مدخل هم‌اثر دیگری داده‌اند (هر اثر یک مدخل). از ۳۴۵ ردیف `review/proposed`، ۳۱۷ همان، ۲۶ اکنون پیوندخورده‌اند و ۲ بی سطر.
+  - هیچ سطر `linked` بی رابطه‌ای در `work_relations` میان همان دو اثر نیست.
+- **متن مدخلِ فیلد چندمدخلی، همان‌گونه که فیلد نوشته (`WorkRelationLinker::slices`):** متن هر مدخل از عنوان نخستش تا عنوان نخست مدخل بعدی بریده می‌شود، و برای مدخل آخر تا پایان نام و کمانک تاریخ. اگر برش دوباره همان مدخل خوانده نشود، مانند پیش از اجزا بازسازی می‌شود. علت: بازسازی، تاریخی را که تجزیه‌گر سالی در آن نمی‌خواند («(سده 1م)») می‌انداخت و سطر بی آن دیگر پدیدآور را نمی‌شناخت. در تمرین انتشار دوم سه اثر (#24104، #24105، #55734) با همین سه رابطهٔ خودکارشان را از دست می‌دادند.
+- **`trim()` با نویسه‌های عربی:** `trim($text, " \t؛;،.-")` بایتی کار می‌کند و بایت نخست حرفی را که با «؛» و «،» هم‌بایت است (حروف `D8 xx`، مانند «ا» و «ب») از آغاز متن می‌برد. یادداشت پایانی فیلد و برش مدخل اکنون با `preg_replace('/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u', …)` پیراسته می‌شوند.
+- **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
+- **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
+
 ### گام ۱۴.۲۸۴: `storageQuotaExceeded` در مخزن restic، کار `prune` و `RCLONE_DRIVE_USE_TRASH`
 
 - **خطا:** `googleapi: Error 403: The user's Drive storage quota has been exceeded., storageQuotaExceeded` در `media` ‏۲۰ نوامبر ۲۰۲۶، در گام `restic-backup`؛ restic پس از آن `unable to create lock in backend` داد. `rclone about gdrive:`: ‏Total 15 GiB، ‏Used 15.086 GiB، ‏Trashed 128.5 MiB.
@@ -12812,50 +12856,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`listColumn`:** سطر «عنوان | آوانگاری» آوانگاری همان عنصر را می‌نویسد.
 - **قالب‌ها و اسکریپت:** `suggest/desk.blade.php` و `resources/js/suggest-desk.js` (`pairValue`، `field.pair`، `field.adds`)، `suggest/field.blade.php` (نشان «+»)، `works/show.blade.php`، `admin/suggestions/show.blade.php` (`data-pair`) و `partials/field-approve.blade.php`.
 - **آزمون:** `SuggestionWorkflowTest::test_a_title_goes_with_its_transliteration_and_each_other_title_is_its_own_field`.
-
-### گام ۱۴.۲۸۳: `works:materialize-related` و ستون‌های تازۀ `work_text_relations`
-- **migration `2026_11_21_100001_add_catalogue_entries_to_work_text_relations`:** `text` از ۶۰۰ نویسه به `TEXT` (بلندترین متن روی رونوشت ۱٬۸۴۴ نویسه)؛ `source` (`suggestion` پیش‌فرض، `catalogue`)، `position`، `entry_key` (`WorkRelationLinker::entryKey`)، `linked_work_id` (با حذف اثر تهی می‌شود)، `link_source` (`auto`، `model`، `review`)، `link_status` (`linked`، `proposed`، `rejected`)، `differs`، `why`، `confidence`، `decided_by`، `decided_at` و `model_verdict` (`unsure`، `none`، `medium`). سطر با `type = note` یادداشت پایانی فیلد است (`position = 999`).
-- **[WorkRelationLinker::pageRows](../app/Support/WorkRelationLinker.php):** کلید تازۀ `entries`: هر مدخل دو متن با `side`، `position`، `type`، `text`، `key`، `work` و `differs`. `printed` و `unlinked` مانند پیش‌اند.
-- **[MaterializeRelatedWorksCommand](../app/Console/Commands/MaterializeRelatedWorksCommand.php):**
-  - برای هر اثری که یکی از دو فیلد را دارد، سطرهای `source = catalogue` آن پاک و از `pageRows()` دوباره نوشته می‌شود (یک تراکنش برای هر اثر). سطرهای `catalogue` آثاری که دیگر متنی ندارند در پایان پاک می‌شوند.
-  - مدخل پیوندخورده: `link_status = linked` و `link_source` از ردیف `work_entry_links` همان مدخل (اگر `linked` و به همان اثر باشد)، وگرنه `auto`.
-  - مدخل بی‌پیوند با ردیف `proposed` یا `rejected` در `work_entry_links`: اثر پیشنهادی، وضع، `why`، `confidence` و تصمیم‌گیرنده.
-  - `--decisions`: کلید «اثر > سو > کلید مدخل». متن پرونده «عنوان‌ها؛ پدیدآور (تولد-وفات)» است و کمانک تاریخ پایانی، اگر «؛» دارد، برداشته می‌شود. `match` با `high` نادیده است.
-  - پرس‌وجوی آثار در یک گروه `where` است: `lazyById` شرط `id > …` خودش را می‌افزاید و با `orWhere` بیرونی پیمایش بی‌پایان می‌شد (در تمرین نخست همین رخ داد).
-- **[RecordRelations::texts](../app/Suggestions/RecordRelations.php)** و **`WorkTextRelationController::destroy`** فقط `source = suggestion` را می‌خوانند، تا سطرهای فهرست تا انتشار دوم دوبار روی صفحه نیایند.
-- **تمرین روی `fahares_prod` (۳۰ آبان ۱۴۰۵):**
-  - «works 11209، entries 20916، linked 14209، linked, words differ 364، proposed 333، rejected 0، tied to no work 6374، with a verdict of the judging 1804، notes 2»؛ «Tied by: auto 13642, model 567»؛ «Saved: 20918 rows of the catalogue». ۱ دقیقه و ۱۸ ثانیه. اجرای دوم همان.
-  - `model_verdict`: unsure ۹۶۰، none ۵۳۰، medium ۳۱۴ سطر (مدخل تکراری در یک اثر هر دو سطرش نشان می‌گیرد).
-  - سنجش با پروندۀ تصمیم: از ۹۳۹ «نامطمئن»، ۹۱۷ سطر بی‌پیوند، ۲۱ پیوندخورده و ۱ بی سطرِ هم‌کلید. از ۷۳۵ «نیست»، ۱۹۱ بی سطرِ هم‌کلید: مدخل‌های دوم به بعدِ یک سطر «شروح و حواشی» (مانند نام تنها) که متنشان در سطر همان مدخل هست.
-  - سنجش با `work_entry_links`: از ۵۷۰ ردیف `model/linked`، ۵۶۷ همان؛ سه مدخل پیوندشان را به مدخل هم‌اثر دیگری داده‌اند (هر اثر یک مدخل). از ۳۴۵ ردیف `review/proposed`، ۳۱۷ همان، ۲۶ اکنون پیوندخورده‌اند و ۲ بی سطر.
-  - هیچ سطر `linked` بی رابطه‌ای در `work_relations` میان همان دو اثر نیست.
-- **متن مدخلِ فیلد چندمدخلی، همان‌گونه که فیلد نوشته (`WorkRelationLinker::slices`):** متن هر مدخل از عنوان نخستش تا عنوان نخست مدخل بعدی بریده می‌شود، و برای مدخل آخر تا پایان نام و کمانک تاریخ. اگر برش دوباره همان مدخل خوانده نشود، مانند پیش از اجزا بازسازی می‌شود. علت: بازسازی، تاریخی را که تجزیه‌گر سالی در آن نمی‌خواند («(سده 1م)») می‌انداخت و سطر بی آن دیگر پدیدآور را نمی‌شناخت. در تمرین انتشار دوم سه اثر (#24104، #24105، #55734) با همین سه رابطهٔ خودکارشان را از دست می‌دادند.
-- **`trim()` با نویسه‌های عربی:** `trim($text, " \t؛;،.-")` بایتی کار می‌کند و بایت نخست حرفی را که با «؛» و «،» هم‌بایت است (حروف `D8 xx`، مانند «ا» و «ب») از آغاز متن می‌برد. یادداشت پایانی فیلد و برش مدخل اکنون با `preg_replace('/^[\s؛;،.\-]+|[\s؛;،.\-]+$/u', …)` پیراسته می‌شوند.
-- **آزمون:** [MaterializeRelatedWorksTest](../tests/Feature/MaterializeRelatedWorksTest.php).
-- **اجرا در تولید، پس از استقرار:** پروندۀ تصمیم به `/tmp`، سپس `scripts/dev/prod-run <session> -- 'php -d memory_limit=1G artisan works:materialize-related --decisions=/tmp/…json'`. فقط در `work_text_relations` می‌نویسد و صفحه‌ها تغییری نمی‌کنند.
-
-### گام ۱۴.۲۸۲: تجزیه‌گر v2.4.0 و `fankha_v2_repaired_labels_export.py`
-
-- **تجزیه‌گر (`fahares-corpus/scripts/fankha_parser_v2.py`، کامیت `84e304d`):**
-  - `repair_chunk()` پیش از خواندن هر تکۀ سطر فیزیکی: «بی‌کا تا …» و «بی‌کا بی‌تا» دو تکه می‌شوند؛ «تا <تاریخ>» همان «تا:» است؛ «بی‌تا: قرن 11» همان «بی‌تا (قرن 11)»؛ «اندازه/ادنازه/انداز [جلد] [:] N×N»؛ «نوع جلد:» و «: جلد …»؛ «: کاغذ …»؛ «تعداد صفحات: N…»؛ «Nسط»، «N س» و «Nسطری».
-  - برچسب تنها («کاغذ»، «جلد»، «جا») تکۀ پس از خود را مقدار می‌گیرد (`BARE_LABELS`).
-  - `LINES_QUALIFIER`: «غالباً»، «بعضاً»، «میانگین» و مانند آن پیش از شمار سطر، که به `lines_note` می‌رود. هر تکۀ کوتاه دارای «چلیپا» `lines_note` است.
-  - اندازۀ بی برچسب با «سم» در نسخۀ بی اندازه؛ تاریخ بی «تا:» (`CENTURY_CHUNK`، `DATE_CHUNK`، و سال تنها میان ۶۰۰ و ۱۴۵۰ پس از کاتب) تنها پس از کاتب، خط، «بی‌کا» یا «بی‌تا»، یا وقتی یک گروه «؛» کامل است. پس از «بی‌تا» یادداشت `date_guess` است.
-  - `PHYS_GROUP_LOOSE`: «خط تحریری، بی‌کا» و «…؛ کاتب: …، تا: …» سطر فیزیکی را باز می‌کنند (دومی نه پس از «نسخه اصل»).
-  - `ie_marked()`: «آغاز و انجام برابر»، «آغا و انجام: برابر»، و «آغاز …» یا «؛ انجام …» بی دونقطه، مگر شرح وضعیت باشد (`IE_BARE_PROSE`: «افتاده»، «ندارد»، «است»، «تا» و مانند آن).
-  - «جلد …» و «کاغذ …» دیگر به مقدار کاغذ یا جلد پیش از خود نمی‌چسبند.
-- **سنجش با خروجی پیشین (۳۲۳ هزار نسخه):** پر شدن `copy_date` ۲۷۳، `explicit` ۲۵۱، `incipit` ۱۶۴، `binding` ۱۳۷، `lines` ۱۱۲، `text_dimensions` ۱۰۶، `dimensions` ۹۵، `no_scribe` ۹۹، `scribes` ۳۴، `undated` ۲۶، `folios` ۲۰، `paper` ۱۸، `script_raw` ۱۲، `lines_note` ۶۲۲؛ `incipit` دگرگون ۱۰۵ («آغاز: برابر؛ انجام …» که انجام را در آغاز داشت)، `paper` دگرگون ۷۸. شمار یادداشت‌ها از ۱۸۵٬۴۰۰ به حدود ۱۸۴٬۴۰۰.
-- **مقایسه با سایت:** `fankha_v2_db_compare.py --out reports/fankha_v2_db_review10`.
-- **`fankha_v2_repaired_labels_export.py --before DIR --diffs … --copies FILE`:** نسخه‌هایی که فیلدهای v2 آن‌ها میان دو خروجی دگرگون شده (۸۷۶، ۸۷۴ تا با متن یکتا در سایت)، و از تفاوت‌های «filled» همان‌ها ستون‌های `copy_date_raw`، `binding`، `lines`، `dimensions`، `explicit_text`، `incipit_text`، `paper`، `folios` و `copy_place`، بی اصلاح بازبینی‌شده و دیده‌شده در `raw_text` رکورد. `is_bika` و `is_bita` روشن می‌شوند جایی که ستون همتا تهی است، و با پر شدن تاریخ یا کاتب خاموش. کاغذ و جلد پیش از «جلد …» یا شمار برگ بریده می‌شوند.
-- **پرونده:** `database/data/fankha_repaired_labels_step14_282.json` (۵۸۷ رکورد)، برای `fahares:rebuild-copies`.
-- **تمرین روی `fahares_prod`:** «write 587»، سپس «Rebuilding 587 copies … dates=174, pointers_linked=13»، و اجرای دوم «already 587».
-- **اصلاح متن (`fahares-corpus`، کامیت‌های `a8082c7` و `7cf6945`):**
-  - تجزیه‌گر هر «تعمیر» را در `FIX_LOG` می‌نویسد (`log_fix`: سطر، گونه، متن پیشین، متن تازه)؛ `FIX_NOT` شیوه‌های خود فهرست را بیرون می‌گذارد.
-  - `scripts/fankha_label_fixes.py [--apply] [VOL …]`: هر جلد را می‌خواند و هر جا را در همان سطر پروندۀ متن جایگزین می‌کند، تنها اگر متن پیشین درست یک بار در سطر باشد. اجرا: «Fixed 703 places {chunk: 368, explicit: 142, head: 169, bare: 24}; 2 not found on their line» (جلد ۸ سطر ۵۱۲۸۱ و جلد ۲۰ سطر ۲۷۸۹۹)؛ اجرای دوم «Would fix 0 places».
-  - «بی‌کا تا <غیر تاریخ>» دیگر دو تکه نمی‌شود (۱۴ نسخه `no_scribe` نمی‌گیرند و تکه یادداشت می‌ماند).
-  - `scripts/fankha_label_fixes_site_export.py --before DIR --copies FILE`: نسخۀ سایت را با متن پیشین می‌یابد، همان جایگزینی‌ها را در `raw_text` سایت (با برچسب صفحه و فاصله‌های خودش) می‌کند و تنها وقتی می‌نویسد که نتیجه با متن تازۀ v2 یکی باشد. ۶۰۴ نسخه: ۶۰۳ یافته، ۳ کنار گذاشته (خط دارند و سطر «خط:» ندارند).
-- **پروندۀ دوم:** `database/data/fankha_label_fixes_text_step14_282.json` (۶۰۰ رکورد، تنها `raw_text`).
-- **تمرین روی `fahares_prod`:** «Rebuilding 603 copies … extents=5, lines=87, pointers_linked=8» (با سه نسخه‌ای که سپس برگردانده و از پرونده برداشته شد)، اجرای دوم «already 600». مقایسه با پروداکشن: جز ستون‌های گام نخست، `extent_raw` ۶، `range_from/to` ۳، `catalog_volume_id` و `cataloger_id` ۱۳ پر شدند. `fahares:rebuild-scripts --dry-run`: ۷ نسخه خط می‌گیرند (تحریری ۲، پهلوی ۲، سیاق، نسخ، نستعلیق).
 
 ### گام ۱۴.۲۸۷: تجزیه‌گر v2.5.0 (پیوستن تکه به فیلد) و `fankha_v2_joined_pieces_export.py`
 
