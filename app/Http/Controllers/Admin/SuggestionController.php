@@ -232,6 +232,8 @@ class SuggestionController extends Controller
             'outcome' => ['nullable', Rule::in(array_keys(self::OUTCOMES))],
             'previous_standing' => ['nullable', Rule::in(['alternative', 'superseded'])],
             'public_note' => 'nullable|string|max:2000',
+            // the transliteration that goes with a title (step 14.286)
+            'pair_value' => 'nullable|string|max:600',
             // the entries whose printed text is taken again at the corrected place (step 13.6)
             'retext' => 'nullable|array',
             'retext.*' => 'integer',
@@ -269,6 +271,16 @@ class SuggestionController extends Controller
                 if ($field && $target && $standing !== 'alternative') {
                     $result = $applier->apply($target, $field, $validated);
                     $result['resolution']['applied'] = true;
+                    // another title keeps the suggestion under its own field, whatever it was called before (step 14.286)
+                    $renamed = $result['resolution']['field_name'] ?? null;
+                    unset($result['resolution']['field_name']);
+                    if ($renamed !== null && $renamed !== $suggestion->field_name) {
+                        $result['resolution']['field_was'] = $suggestion->field_name;
+                        $suggestion->field_name = $renamed;
+                    }
+                    if (isset($field['pair']) && array_key_exists('pair_value', $validated)) {
+                        $result['resolution']['pair'] = trim((string) $validated['pair_value']);
+                    }
                     // An emptied value clears the field; without the mark the reading would fall back to the suggested text
                     if ($appliedValue === null) {
                         $result['resolution']['cleared'] = true;
@@ -494,16 +506,17 @@ class SuggestionController extends Controller
             'field_name' => 'required|string|max:100',
             'suggested_value' => 'nullable|string|max:20000',
             'person_id' => 'nullable|integer|exists:people,id',
+            'pair_value' => 'nullable|string|max:600',
         ]);
 
         $record = SuggestionRegistry::modelClass($validated['type'])::find($validated['id']);
-        $field = SuggestionRegistry::field($validated['type'], $validated['field_name']);
+        $field = $record ? SuggestionRegistry::fieldOf($record, $validated['field_name']) : null;
         if (! $record || ! $field) {
             throw ValidationException::withMessages(['field_name' => 'رکورد یا فیلد پیدا نشد.']);
         }
 
         $value = trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['suggested_value'] ?? ''))) ?: null;
-        $input = ['applied_value' => $value];
+        $input = ['applied_value' => $value] + ($request->has('pair_value') ? ['pair_value' => $validated['pair_value'] ?? null] : []);
         if ($field['input'] === 'hijri_date') {
             $input['hijri_year'] = HijriYear::parse($value);
         }
