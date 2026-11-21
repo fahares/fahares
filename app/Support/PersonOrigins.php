@@ -26,6 +26,11 @@ final class PersonOrigins
     // pilgrimage to Mashhad or Karbala («مشهدی حسن», «کربلایی محمد»)
     private const NOT_NISBAS = ['مشهدی', 'کربلایی'];
 
+    // How far into an entry «of the people of …» is still said of its person: some 270 letters
+    private const HEAD_BYTES = 500;
+
+    private const KIN = '/(?<![\p{L}])(?:پدر|پدرش|جدش|اجدادش|ابوه|ابیه|ابی|والده|جده|اخوه)(?![\p{L}])/u';
+
     // Other names of a city that, in the text of a life, are the name of its country
     private const COUNTRIES = ['مصر', 'شام'];
 
@@ -109,24 +114,43 @@ final class PersonOrigins
             self::BIRTH => [
                 "/(?<![\p{L}])(?:ولد|مولده|ولادته|تولد){$gap}{$in}({$city}){$end}/u",
                 "/(?<![\p{L}])در\s+({$city})\s+(?:متولد|تولد|به دنیا|بدنیا|زاده|ولادت)/u",
-                "/(?<![\p{L}])(?:متولد|زاده)\s+({$city}){$end}/u",
+                // «زاده» is left out: it is mostly the end of a name («قاضی زاده همدان»)
+                "/(?<![\p{L}])متولد\s+({$city}){$end}/u",
             ],
             self::DEATH => [
-                "/(?<![\p{L}])(?:توفی|مات|وفاته|قتل|استشهد){$gap}{$in}({$city}){$end}/u",
+                "/(?<![\p{L}])(?:توفی|مات|وفاته){$gap}{$in}({$city}){$end}/u",
+                // «قتل الباب … فی تبریز» is the death of another: not when a noun with its article follows the verb
+                "/(?<![\p{L}])(?:قتل|استشهد)(?!\s+ال[\p{L}]){$gap}{$in}({$city}){$end}/u",
                 "/(?<![\p{L}])در\s+({$city})\s+(?:وفات|درگذشت|در گذشت|فوت|رحلت|شهید|کشته|مدفون)/u",
             ],
             self::ORIGIN => [
-                // «بعضی از اهالی اصفهان» and «جمع من اهل بغداد» are other people (seen in the run of step 14.291)
-                "/(?<![\p{L}])(?<!بعضی )(?<!برخی )(?<!جمعی )(?<!یکی )(?<!گروهی )(?<!بعض )(?<!جمع )(?<!جماعه )(?<!احد )(?:من اهل|من اهالی|اصله من|از مردم|از اهالی|از اهل)\s+(?:بلده\s+|مدینه\s+)?(?:ال)?({$city}){$end}/u",
+                // «his origin is from …» is said of the person wherever it stands
+                "/(?<![\p{L}])اصله من\s+(?:بلده\s+|مدینه\s+)?(?:ال)?({$city}){$end}/u",
+            ],
+            // «of the people of …» is said of the person at the head of the entry; further on it is mostly of others
+            // («رجلا من اهل الموصل», «زنی از اهل کوفه»: 17 of the 227 origins of the run of step 14.291), and «بعضی از
+            // اهالی اصفهان», «جمع من اهل بغداد» are others anywhere
+            // … unless it is said outright: «کان من اهل شوشتر», «و هو من اهل الکوفه», «اصلا از اهل قزوین بوده»
+            self::ORIGIN . '-said' => [
+                "/(?<![\p{L}])(?:کان|هو|اصلا)\s*(?:من اهل|من اهالی|از مردم|از اهالی|از اهل)\s+(?:بلده\s+|مدینه\s+)?(?:ال)?({$city}){$end}/u",
+            ],
+            self::ORIGIN . '-head' => [
+                "/(?<![\p{L}])(?<!بعضی )(?<!برخی )(?<!جمعی )(?<!یکی )(?<!گروهی )(?<!بعض )(?<!جمع )(?<!جماعه )(?<!احد )(?:من اهل|من اهالی|از مردم|از اهالی|از اهل)\s+(?:بلده\s+|مدینه\s+)?(?:ال)?({$city}){$end}/u",
             ],
         ];
         $found = [];
         foreach ($patterns as $kind => $list) {
+            [$kind, $where] = array_pad(explode('-', $kind, 2), 2, null);
             foreach ($list as $pattern) {
                 if (! preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER)) {
                     continue;
                 }
                 foreach ($matches as $match) {
+                    // Past the head of the entry, or in a clause about the father or a forebear
+                    if ($where !== null && (($where === 'head' && $match[0][1] > self::HEAD_BYTES)
+                        || preg_match(self::KIN, mb_strcut($text, max(0, $match[0][1] - 80), min(80, $match[0][1]))))) {
+                        continue;
+                    }
                     $raw = $match[1][0];
                     $name = preg_replace('/\s+/u', ' ', $raw);
                     $after = ltrim(mb_strcut($text, $match[1][1] + strlen($raw), 80));
