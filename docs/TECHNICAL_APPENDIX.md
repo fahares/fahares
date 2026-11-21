@@ -12871,6 +12871,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پایان: سطرها auto ۱۳٬۶۴۰، model ۵۷۳، proposed ۳۳۳، بی‌پیوند ۶٬۳۷۲ (با ۲ یادداشت)؛ رابطه‌ها auto ۱۰٬۶۸۰، model ۲۳۶، suggestion ۱؛ صفحه‌ها روی هم ۳۶۵ «در فهرست»، ۶٬۷۰۳ سطر بی‌پیوند و ۲ یادداشت؛ صف ۳۳۳.
   - مرورگر: #52424 (۱۹۴ سطر، ۹۰ بی‌پیوند)، #3969، #19305 و #24104 («ترجمه‌ای است از: الحشائش» و «ترجمه: مسیحی، مهران بن منصور (قرن ۶) · بی پیوند»).
 - **ترتیب انتشار:** نخست گام ۱۴.۲۸۳ منتشر و `works:materialize-related` در تولید اجرا شود (درست پیش از این انتشار، تا تصمیم‌های تازۀ صف پنل هم بیاید)؛ سپس این شاخه. دستور داده‌ای پس از استقرار ندارد.
+
 ### گام ۱۴.۲۸۶: `pair` و فیلدهای `alternative_title_*` در `SuggestionRegistry`
 - **`pair`:** گزینۀ تازۀ یک فیلد، مقداری که با مقدار خود فیلد می‌آید. `primary_title` آن را با `column` برابر `transliteration` دارد. فرم عمومی `pair_value` می‌فرستد و `SuggestionController::store` آن را در `payload.pair` و مقدار همان لحظۀ رکورد را در `payload.pair_current` نگه می‌دارد. فرمی که `pair_value` نفرستد چیزی از آوانگاری عوض نمی‌کند.
 - **تأیید:** `approve` و `directEdit` ورودی `pair_value` را به `SuggestionApplier::apply` می‌دهند؛ مقدار اعمال‌شده در `resolution.pair` می‌ماند.
