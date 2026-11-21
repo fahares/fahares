@@ -89,6 +89,16 @@
             <span x-show="kind === 'field' && otherRecord && !record" class="block text-muted">نشانی‌های رکورد در فهرست‌ها و مآخذ، پس از نوشتن پیوند یا شناسۀ رکورد مقصد در فهرست می‌آیند.</span>
         </label>
 
+        {{-- What the record holds in this field now, before a suggestion to change it is made --}}
+        <template x-if="kind === 'field' && field && field.current !== undefined">
+            <div class="px-3 py-2 bg-paper border border-line space-y-1" data-current-value>
+                <span class="block font-bold text-ink">مقدار کنونی این فیلد در رکورد:</span>
+                <p x-show="field.current !== null && field.current !== ''" class="max-h-40 overflow-y-auto whitespace-pre-line leading-7 text-ink" x-text="field.current"></p>
+                <p x-show="field.current === null || field.current === ''" class="text-muted">خالی است.</p>
+                <p x-show="field.pair && field.pairCurrent" class="text-muted"><span x-text="field.pair"></span>: <span dir="ltr" x-text="field.pairCurrent"></span></p>
+            </div>
+        </template>
+
         {{-- Relations: the option, the other record, and what some of them need besides --}}
         <template x-if="relation && relation.options">
             <label class="block space-y-1">

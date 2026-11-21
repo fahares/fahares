@@ -213,6 +213,11 @@ class SuggestionRegistry
                 'clearable' => self::clearable($def),
                 'pair' => $def['pair']['label'] ?? null,
             ];
+            // What the record holds now, so a reviewer who converts a suggestion sees what it would replace
+            if ($record) {
+                $choices[$name]['current'] = self::currentValue($record, ['name' => $name] + $def);
+                $choices[$name]['pairCurrent'] = self::pairCurrent($record, ['name' => $name] + $def);
+            }
         }
 
         return $choices;

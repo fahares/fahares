@@ -754,6 +754,50 @@ class SuggestionWorkflowTest extends TestCase
         $this->post("/admin/suggestions/{$s->id}/close-converted")->assertStatus(409);
     }
 
+    /** Step 14.312: the convert form shows what the field holds now, and a suggestion made by converting can be taken back. */
+    public function test_convert_shows_the_current_value_and_a_made_suggestion_is_taken_back_without_a_rejection()
+    {
+        $m = $this->manuscript(['copy_date_raw' => '۹۰۰ق']);
+        $this->suggest($m, ['kind' => 'general', 'suggested_value' => 'تاریخ کتابت ۸۹۷ است', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $s = $this->pendingFor($m);
+
+        // The record's own fields carry their current values into the form, and another record's come with its fields
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('data-current-value', false);
+        $fields = collect($this->getJson("/admin/suggestions/{$s->id}/convert-fields?type=manuscript&ref={$m->id}")->assertOk()->json('fields'))->keyBy('name');
+        $this->assertSame('۹۰۰ق', $fields['copy_date_raw']['current']);
+        $this->assertNull($fields['scribe_name']['current']);
+
+        // A suggestion that no reviewer made cannot be taken back
+        $this->get("/admin/suggestions/{$s->id}")->assertDontSee('data-discard-derived', false);
+        $this->post("/admin/suggestions/{$s->id}/discard-derived")->assertStatus(422);
+
+        // Two made from it, the original closed with the second: taking one back leaves the original closed
+        $convert = ['target_type' => 'manuscript', 'kind' => 'field', 'field_name' => 'copy_date_raw', 'suggested_value' => '۸۹۷'];
+        $this->post("/admin/suggestions/{$s->id}/convert", $convert)->assertRedirect();
+        $this->post("/admin/suggestions/{$s->id}/convert", ['field_name' => 'scribe_name', 'suggested_value' => 'احمد', 'close_original' => 1] + $convert)->assertRedirect();
+        [$first, $second] = $s->fresh()->resolution['converted_to'];
+        $this->assertSame('converted', $s->fresh()->status);
+        $this->get("/admin/suggestions/{$second}")->assertOk()->assertSee('data-discard-derived', false);
+
+        $this->post("/admin/suggestions/{$second}/discard-derived")->assertRedirect("/admin/suggestions/{$s->id}")->assertSessionHas('success');
+        $this->assertNull(FieldSuggestion::find($second));
+        $this->assertSame(['converted', [$first]], [$s->fresh()->status, $s->fresh()->resolution['converted_to']]);
+
+        // The last one taken back: the original waits for review again, and nothing was rejected or applied
+        $this->post("/admin/suggestions/{$first}/discard-derived")->assertRedirect("/admin/suggestions/{$s->id}");
+        $s->refresh();
+        $this->assertSame(['pending', null, null], [$s->status, $s->reviewed_by, $s->resolution]);
+        $this->assertSame(0, FieldSuggestion::where('status', 'rejected')->count());
+        $this->assertSame('۹۰۰ق', $m->fresh()->copy_date_raw);
+        $this->get("/admin/suggestions/{$s->id}")->assertOk();
+
+        // A decided one is not taken back
+        $this->post("/admin/suggestions/{$s->id}/convert", $convert)->assertRedirect();
+        $third = FieldSuggestion::find($s->fresh()->resolution['converted_to'][0]);
+        $this->approve($third)->assertRedirect('/admin/suggestions');
+        $this->post("/admin/suggestions/{$third->id}/discard-derived")->assertStatus(409);
+    }
+
     /** Step 14.244: the page count and the place in the volume are corrected like the leaf count, and a sync keeps them. */
     public function test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync()
     {
