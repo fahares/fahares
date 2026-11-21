@@ -83,7 +83,11 @@ class PersonPeriodController extends Controller
             'start' => $year, 'start_to' => $year, 'end' => $year, 'end_to' => $year,
             'certainty' => ['nullable', Rule::in(array_keys(PersonPeriod::CERTAINTIES))],
         ], [], ['place' => 'مکان', 'note' => 'توضیح', 'kind' => 'نوع دوره', 'start' => 'سال آغاز', 'end' => 'سال پایان']);
-        $date = PersonPeriod::dateColumns($data, $data['certainty'] ?? null);
+        // A birth, a death or an origin says a place; its year may not be known (step 14.298)
+        $yearless = in_array($data['kind'], PersonPeriod::PLACE_KINDS, true)
+            && ! array_filter([$data['start'] ?? null, $data['start_to'] ?? null, $data['end'] ?? null, $data['end_to'] ?? null]);
+        $date = $yearless ? array_fill_keys(array_keys((new \App\Support\DateSpan(null, null))->columns('period')), null)
+            : PersonPeriod::dateColumns($data, $data['certainty'] ?? null);
         if (isset($date['error'])) {
             throw ValidationException::withMessages(['start' => $date['error']]);
         }

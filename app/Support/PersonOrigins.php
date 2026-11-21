@@ -121,7 +121,8 @@ final class PersonOrigins
                 "/(?<![\p{L}])(?:توفی|مات|وفاته){$gap}{$in}({$city}){$end}/u",
                 // «قتل الباب … فی تبریز» is the death of another: not when a noun with its article follows the verb
                 "/(?<![\p{L}])(?:قتل|استشهد)(?!\s+ال[\p{L}]){$gap}{$in}({$city}){$end}/u",
-                "/(?<![\p{L}])در\s+({$city})\s+(?:وفات|درگذشت|در گذشت|فوت|رحلت|شهید|کشته|مدفون)/u",
+                "/(?<![\p{L}])در\s+({$city})\s+(?:وفات|درگذشت|در گذشت|فوت|رحلت|شهید|کشته)/u",
+                // «در … مدفون» is left out: a burial is not a death (three of the proposals of step 14.291)
             ],
             self::ORIGIN => [
                 // «his origin is from …» is said of the person wherever it stands
