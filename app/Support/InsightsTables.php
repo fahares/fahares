@@ -101,11 +101,18 @@ class InsightsTables
 
     private function dynasties(): array
     {
-        return [self::table('نسخه‌ها در روزگار هر سلسله', 'copies-by-dynasty',
-            [['سلسله', 'text'], ['نسخه', 'num'], ['سال‌های حکومت', 'num'], ['نسخه در هر ده سال', 'dec'], ['سهم از نسخه‌های همان سال‌ها', 'pct'],
-                ['آغاز حکومت', 'year'], ['پایان حکومت', 'year'], ['سال نخستین نسخه', 'year'], ['سال واپسین نسخه', 'year'], ['شمار شهرها', 'num'], ['شهرهای پرنسخه', 'text']],
+        $dy = $this->data['dynasties'];
+        $table = fn (string $title, string $file, string $unit, string $made, array $items) => self::table($title, $file,
+            [['سلسله', 'text'], [$unit, 'num'], ['سال‌های حکومت', 'num'], ["{$unit} در هر ده سال", 'dec'], ['سهم از همان سال‌ها', 'pct'],
+                ['آغاز حکومت', 'year'], ['پایان حکومت', 'year'], ["سال نخستین {$unit}", 'year'], ["سال واپسین {$unit}", 'year'], ['شمار شهرها', 'num'], ["شهرهای پر{$made}", 'text']],
             array_map(fn ($r) => [$r['name'], $r['count'], $r['years'], $r['density'], $r['share'], $r['rule_from'], $r['rule_to'], $r['from'], $r['to'], $r['city_kinds'],
-                implode('، ', array_map(fn ($c) => $c['name'] . ' ' . $c['count'], $r['cities']))], $this->data['dynasties']['items']))];
+                implode('، ', array_map(fn ($c) => $c['name'] . ' ' . $c['count'], $r['cities']))], $items));
+
+        return [
+            $table('نسخه‌ها در روزگار هر سلسله', 'copies-by-dynasty', 'نسخه', 'نسخه', $dy['items']),
+            // The works composed under each dynasty (step 14.288)
+            $table('آثار تألیف‌شده در روزگار هر سلسله', 'works-by-dynasty', 'اثر', 'اثر', $dy['works']['items']),
+        ];
     }
 
     private static function courtTable(array $courts, string $title, string $file, string $unit): array
