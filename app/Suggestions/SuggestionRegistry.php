@@ -211,6 +211,7 @@ class SuggestionRegistry
                 'canBeAbsent' => ! empty($def['can_be_absent']),
                 'unit' => $def['unit'] ?? 'ص',
                 'clearable' => self::clearable($def),
+                'pair' => $def['pair']['label'] ?? null,
             ];
         }
 
@@ -252,7 +253,7 @@ class SuggestionRegistry
         }
         $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
             'manuscript' => self::sourceEntryField($name) ?? self::noteField($name),
-            'work' => self::bibliographyPageField($name),
+            'work' => self::bibliographyPageField($name) ?? self::altTitleField($name),
             default => null,
         };
 
@@ -266,6 +267,12 @@ class SuggestionRegistry
     public static function fieldOf(Model $record, ?string $name): ?array
     {
         $field = self::field($record::class, $name);
+        // one of the record's other titles, or the field that adds one: the record's own, with its title in the label
+        if ($field && isset($field['alt_title'])) {
+            $own = self::recordFields($record)[$field['name']] ?? null;
+
+            return $own ? ['name' => $field['name']] + $own : null;
+        }
         if (! $field || (isset($field['entry_id']) && ! SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
             || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))
             // a note of this very copy, or a new one where the page shows the copy's typed notes
@@ -447,9 +454,70 @@ class SuggestionRegistry
                 $name = self::bibliographyPageName($vp);
                 $fields[$name] = self::bibliographyPageField($name);
             }
+            // each other title is a field of its own, and one more adds a title (step 14.286)
+            foreach ((array) $record->alternative_titles as $item) {
+                $title = is_array($item) ? trim((string) ($item['title'] ?? '')) : '';
+                if ($title !== '') {
+                    $fields[self::altTitleName($title)] = self::altTitleField(self::altTitleName($title), $title);
+                }
+            }
+            $fields[self::ALT_TITLE_NEW] = self::altTitleField(self::ALT_TITLE_NEW);
         }
 
         return $fields;
+    }
+
+    public const ALT_TITLE_PREFIX = 'alternative_title_';
+
+    /** The field that adds another title to a work. */
+    public const ALT_TITLE_NEW = 'alternative_title_new';
+
+    /** «alternative_title_3f2a9c01de»: one of a work's other titles, named by its text so that it survives a reorder. */
+    public static function altTitleName(string $title): string
+    {
+        return self::ALT_TITLE_PREFIX . substr(md5(trim($title)), 0, 10);
+    }
+
+    /**
+     * The field of one of a work's other titles (step 14.286), or of the title to add: its text with its
+     * transliteration beside it. Emptied, the title is removed. `alt_title` is the field's own name, or «new».
+     */
+    public static function altTitleField(string $name, ?string $title = null): ?array
+    {
+        $pair = ['label' => 'آوانگاری'];
+        if ($name === self::ALT_TITLE_NEW) {
+            return ['label' => 'افزودن عنوان دیگر', 'input' => 'text', 'alt_title' => 'new', 'required' => true, 'pair' => $pair];
+        }
+        if (! preg_match('/^' . self::ALT_TITLE_PREFIX . '[0-9a-f]{10}$/', $name)) {
+            return null;
+        }
+
+        return ['label' => $title !== null ? "عنوان دیگر «{$title}»" : 'عنوان دیگر', 'input' => 'text', 'alt_title' => $name, 'pair' => $pair];
+    }
+
+    /** The item of the work's other titles a field names, with its place in the list; null for the adding field. */
+    public static function altTitleItem(Model $record, array $field): ?array
+    {
+        foreach (array_values((array) ($record->alternative_titles ?? [])) as $index => $item) {
+            if (is_array($item) && isset($item['title']) && self::altTitleName((string) $item['title']) === ($field['alt_title'] ?? null)) {
+                return ['index' => $index] + $item;
+            }
+        }
+
+        return null;
+    }
+
+    /** The value that goes with the field's own (a title's transliteration) as the record has it now; null without one. */
+    public static function pairCurrent(Model $record, array $field): ?string
+    {
+        if (! isset($field['pair'])) {
+            return null;
+        }
+        if (isset($field['alt_title'])) {
+            return self::altTitleItem($record, $field)['transliteration'] ?? null;
+        }
+
+        return $record->{$field['pair']['column']};
     }
 
     /**
@@ -571,6 +639,9 @@ class SuggestionRegistry
     {
         $name = $field['name'];
 
+        if (isset($field['alt_title'])) {
+            return self::altTitleItem($record, $field)['title'] ?? null;
+        }
         if (isset($field['note_type_of'])) {
             return ManuscriptNote::TYPES[ManuscriptNote::find($field['note_type_of'])?->type] ?? null;
         }
@@ -663,7 +734,9 @@ class SuggestionRegistry
     private static function workFields(): array
     {
         return [
-            'primary_title' => ['label' => 'عنوان اثر', 'input' => 'text', 'mirror' => ['clean_title'], 'required' => true],
+            // the title is corrected with its transliteration, in one suggestion (step 14.286)
+            'primary_title' => ['label' => 'عنوان اثر', 'input' => 'text', 'mirror' => ['clean_title'], 'required' => true,
+                'pair' => ['label' => 'آوانگاری عنوان', 'column' => 'transliteration']],
             'alternative_titles' => ['label' => 'عناوین دیگر', 'input' => 'list', 'item_key' => 'title'],
             'transliteration' => ['label' => 'آوانگاری عنوان', 'input' => 'text'],
             'author_name' => ['label' => 'پدیدآور', 'input' => 'person', 'id_column' => 'author_id', 'role' => 'author'],

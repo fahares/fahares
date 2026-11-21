@@ -12,6 +12,8 @@ export default (config) => ({
     mode: 'field',
     field: BLANK_FIELD,
     value: '',
+    // The value that goes with the field's own: a title's transliteration (field.pair)
+    pairValue: '',
     rationale: '',
     // The ready-made ground of a suggestion (config.basis); `rationale` is then its optional detail
     basisKey: '',
@@ -114,7 +116,7 @@ export default (config) => ({
     saveDraft() {
         if (!this.formKey || this.formKey === 'mode') return;
         const draft = {
-            value: this.value, rationale: this.rationale, basisKey: this.basisKey, personId: this.personId, relationKey: this.relationKey,
+            value: this.value, pairValue: this.pairValue, rationale: this.rationale, basisKey: this.basisKey, personId: this.personId, relationKey: this.relationKey,
             roleKey: this.roleKey, roleName: this.roleName, newShelfmark: this.newShelfmark, volumeId: this.volumeId,
             noteType: this.noteType, note: this.note, creditOn: this.creditOn, creditName: this.creditName,
         };
@@ -172,6 +174,7 @@ export default (config) => ({
             this.mode = 'field';
             this.field = { name: detail.field, ...this.config.fields[detail.field] };
             this.value = this.field.prefill;
+            this.pairValue = this.field.pair?.current ?? '';
         }
         this.toggleCredit();
         this.restoreDraft();
@@ -312,7 +315,8 @@ export default (config) => ({
 
     get title() {
         if (this.mode === 'note') return 'افزودن یادداشت یا منبع پژوهشی';
-        return this.mode === 'general' ? 'پیشنهاد کلی دربارۀ این ' + this.config.typeLabel : 'پیشنهاد اصلاح «' + this.field.label + '»';
+        if (this.mode === 'field' && this.field.adds) return 'پیشنهاد ' + this.field.label;
+        return this.mode === 'general' ? 'پیشنهاد کلی دربارۀ این ' + this.config.typeLabel : 'پیشنهاد اصلاح ' + (this.field.label.includes('«') ? this.field.label : '«' + this.field.label + '»');
     },
 
     get relation() {
@@ -395,6 +399,7 @@ export default (config) => ({
         body.append('id', this.config.id);
         body.append('field_name', this.field.name);
         body.append('suggested_value', this.value);
+        if (this.field.pair) body.append('pair_value', this.pairValue);
         if (this.personId) body.append('person_id', this.personId);
         try {
             const res = await fetch(this.config.directUrl, {
@@ -459,6 +464,7 @@ export default (config) => ({
             if (this.relation?.apply === 'relocate') body.append('shelfmark', this.newShelfmark);
         }
         body.append('suggested_value', this.value);
+        if (this.mode === 'field' && this.field.pair) body.append('pair_value', this.pairValue);
         body.append('rationale_citation', this.fullRationale);
         if (this.personId) body.append('person_id', this.personId);
         if (this.creditOn) body.append('credit_name', this.creditName);

@@ -239,10 +239,12 @@
                             @endforeach
                         </x-ui.meta>
                     @endif
-                    <x-ui.meta label="عناوین دیگر" field="alternative_titles" :empty="! $hasAltTitles">
+                    {{-- Each other title has its own edit button; the row's own button adds a title (step 14.286) --}}
+                    <x-ui.meta label="عناوین دیگر" :field="\App\Suggestions\SuggestionRegistry::ALT_TITLE_NEW" :empty="! $hasAltTitles">
                         @foreach($work->alternative_titles ?? [] as $alt)
                             @if(is_array($alt) && ! empty($alt['title']))
-                                <span class="block">{{ $alt['title'] }}@if(! empty($alt['transliteration'])) <span class="text-xs text-muted" dir="ltr">({{ $alt['transliteration'] }})</span>@endif</span>
+                                <span class="block">{{ $alt['title'] }}@if(! empty($alt['transliteration'])) <span class="text-xs text-muted" dir="ltr">({{ $alt['transliteration'] }})</span>@endif
+                                    <x-suggest.field :name="\App\Suggestions\SuggestionRegistry::altTitleName($alt['title'])" class="ms-1" /></span>
                             @endif
                         @endforeach
                     </x-ui.meta>

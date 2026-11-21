@@ -533,6 +533,72 @@ class SuggestionWorkflowTest extends TestCase
         User::whereKey($user->id)->delete();
     }
 
+    /** Step 14.286: a title is corrected with its transliteration, and each other title is a field of its own. */
+    public function test_a_title_goes_with_its_transliteration_and_each_other_title_is_its_own_field()
+    {
+        $work = $this->work(['primary_title' => 'جوهر مسمی', 'clean_title' => 'جوهر مسمی', 'transliteration' => 'jowhar-e mosammā',
+            'alternative_titles' => [['title' => 'جوهر سیمی', 'transliteration' => 'jowhar-e sīmī']]]);
+        $old = \App\Suggestions\SuggestionRegistry::altTitleName('جوهر سیمی');
+        $this->actingAs($this->admin)->get(route('works.show', $work))->assertOk()
+            ->assertSee('data-suggest-field="' . $old . '"', false)->assertSee('data-suggest-field="alternative_title_new"', false)->assertSee('data-pair-value', false);
+
+        // The title and its transliteration in one suggestion; the reviewer may correct both
+        $this->suggest($work, ['field_name' => 'primary_title', 'suggested_value' => 'جوهریه سیمی', 'pair_value' => 'jowhariye simi', 'rationale_citation' => 'دیباچۀ اثر'])->assertOk();
+        $s = $this->pendingFor($work);
+        $this->assertSame(['pair' => 'jowhariye simi', 'pair_current' => 'jowhar-e mosammā'], $s->payload);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('data-pair', false)->assertSee('jowhariye simi')->assertSee('name="pair_value"', false);
+        $this->approve($s, ['pair_value' => 'jowharīyye-ye sīmī'])->assertRedirect('/admin/suggestions');
+        $work->refresh();
+        $this->assertSame(['جوهریه سیمی', 'جوهریه سیمی', 'jowharīyye-ye sīmī'], [$work->primary_title, $work->clean_title, $work->transliteration]);
+
+        // A form that sends no transliteration leaves it as it is
+        $this->suggest($work, ['field_name' => 'primary_title', 'suggested_value' => 'جوهریۀ سیمی', 'rationale_citation' => 'املای درست'])->assertOk();
+        $this->assertNull($this->pendingFor($work)->payload);
+        $this->pendingFor($work)->delete();
+
+        // Another title is added, with its transliteration
+        $this->suggest($work, ['field_name' => 'alternative_title_new', 'suggested_value' => 'جوهر مسمی', 'pair_value' => 'jowhar-e mosammā', 'rationale_citation' => 'عنوان فهرست'])->assertOk();
+        $add = $this->pendingFor($work);
+        $this->assertSame('افزودن عنوان دیگر', $add->field_label);
+        $this->approve($add, ['pair_value' => 'jowhar-e mosammā'])->assertRedirect('/admin/suggestions');
+        $this->assertSame([['title' => 'جوهر سیمی', 'transliteration' => 'jowhar-e sīmī'], ['title' => 'جوهر مسمی', 'transliteration' => 'jowhar-e mosammā']], $work->fresh()->alternative_titles);
+        // ...and the suggestion stays with the title it made, so the next addition is no second reading of one field
+        $this->assertSame([\App\Suggestions\SuggestionRegistry::altTitleName('جوهر مسمی'), 'alternative_title_new'], [$add->fresh()->field_name, $add->fresh()->resolution['field_was']]);
+        $this->suggest($work, ['field_name' => 'alternative_title_new', 'suggested_value' => 'جوهریه', 'pair_value' => '', 'rationale_citation' => 'نام کوتاه'])->assertOk();
+        $this->approve($this->pendingFor($work), ['pair_value' => ''])->assertRedirect('/admin/suggestions');
+        $this->assertSame(['title' => 'جوهریه'], $work->fresh()->alternative_titles[2]);
+        // A title the record already has is not added again
+        $this->suggest($work, ['field_name' => 'alternative_title_new', 'suggested_value' => 'جوهریه', 'rationale_citation' => 'نام کوتاه'])->assertOk();
+        $this->approve($this->pendingFor($work))->assertSessionHasErrors('applied_value');
+        $this->pendingFor($work)->delete();
+
+        // One title is corrected by its own field, the others untouched; emptied, it is removed
+        $this->suggest($work, ['field_name' => $old, 'suggested_value' => 'جواهر سیمی', 'pair_value' => 'javāher-e sīmī', 'rationale_citation' => 'خود نسخه'])->assertOk();
+        $edit = $this->pendingFor($work);
+        $this->assertSame(['جوهر سیمی', 'عنوان دیگر'], [$edit->current_value, $edit->field_label]);
+        $this->approve($edit, ['pair_value' => 'javāher-e sīmī'])->assertRedirect('/admin/suggestions');
+        $this->assertSame([['title' => 'جواهر سیمی', 'transliteration' => 'javāher-e sīmī'], ['title' => 'جوهر مسمی', 'transliteration' => 'jowhar-e mosammā'], ['title' => 'جوهریه']], $work->fresh()->alternative_titles);
+        // The old field is gone with the old title
+        $this->suggest($work, ['field_name' => $old, 'suggested_value' => 'x', 'rationale_citation' => 'نسخه نسخه'])->assertStatus(422)->assertJsonValidationErrors('field_name');
+
+        // The titles are one column: an earlier addition is not undone over later changes of it (as for any field)...
+        $this->actingAs($this->admin)->post('/admin/audit-logs/' . AuditLog::activeForSuggestion($add->id)->id . '/rollback')->assertSessionMissing('success');
+        $this->assertSame('approved', $add->fresh()->status);
+        // ...the latest is, and its suggestion returns to the field it was sent for
+        $this->assertSame([\App\Suggestions\SuggestionRegistry::altTitleName('جواهر سیمی'), $old], [$edit->fresh()->field_name, $edit->fresh()->resolution['field_was']]);
+        $this->actingAs($this->admin)->post('/admin/audit-logs/' . AuditLog::activeForSuggestion($edit->id)->id . '/rollback')->assertSessionHas('success');
+        $this->assertSame(['pending', $old], [$edit->fresh()->status, $edit->fresh()->field_name]);
+        $this->assertSame(['جوهر سیمی', 'جوهر مسمی', 'جوهریه'], array_column($work->fresh()->alternative_titles, 'title'));
+        $this->approve($edit->fresh(), ['pair_value' => 'javāher-e sīmī'])->assertRedirect('/admin/suggestions');
+
+        // A reviewer's direct edit removes a title by emptying its field; the list field takes «عنوان | آوانگاری»
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => \App\Suggestions\SuggestionRegistry::altTitleName('جوهریه'), 'suggested_value' => ''])->assertOk();
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => \App\Suggestions\SuggestionRegistry::altTitleName('جوهر مسمی'), 'suggested_value' => ''])->assertOk();
+        $this->assertSame(['جواهر سیمی'], array_column($work->fresh()->alternative_titles, 'title'));
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => 'alternative_titles', 'suggested_value' => "جواهر سیمی\nجوهریه | jowharīyye"])->assertOk();
+        $this->assertSame([['title' => 'جواهر سیمی', 'transliteration' => 'javāher-e sīmī'], ['title' => 'جوهریه', 'transliteration' => 'jowharīyye']], $work->fresh()->alternative_titles);
+    }
+
     /** Step 14.248: a suggestion converted with its original left open is closed as «تبدیل‌شده», not rejected. */
     public function test_a_converted_suggestion_left_open_is_closed_as_converted()
     {

@@ -64,6 +64,15 @@
             @endif
         </div>
 
+        @if(isset($field['pair']))
+            {{-- The transliteration that goes with the title, written with it (step 14.286) --}}
+            <div class="space-y-1">
+                <label for="pair_value" class="block font-bold text-ink">{{ $field['pair']['label'] }} <span class="font-normal text-muted">(همراه مقدار بالا نوشته می‌شود)</span></label>
+                <input id="pair_value" type="text" name="pair_value" dir="ltr" class="admin-field w-full text-left"
+                    value="{{ old('pair_value', $suggestion->resolution['pair'] ?? $suggestion->payload['pair'] ?? ($target ? \App\Suggestions\SuggestionRegistry::pairCurrent($target, $field) : '')) }}">
+            </div>
+        @endif
+
         @include('admin.suggestions.partials.retext')
 
         @if($field['input'] === 'hijri_date')

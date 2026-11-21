@@ -590,7 +590,9 @@ class AuditLogController extends Controller
             $suggestion?->update(['standing' => 'alternative', 'superseded_by' => null, 'resolution' => ['applied' => false]]);
             $suggestion = null;
         }
-        $suggestion?->update(['status' => 'pending', 'standing' => null, 'applied_value' => null, 'superseded_by' => null, 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+        // another title's suggestion goes back under the field it was sent for (step 14.286)
+        $suggestion?->update(['status' => 'pending', 'standing' => null, 'applied_value' => null, 'superseded_by' => null, 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]
+            + (isset($suggestion->resolution['field_was']) ? ['field_name' => $suggestion->resolution['field_was']] : []));
 
         AuditLog::create([
             'user_id' => auth()->id(),

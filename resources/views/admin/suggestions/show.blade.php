@@ -156,6 +156,12 @@
                     @endswitch
                 </p>
 
+                @if($kind === 'field' && array_key_exists('pair', (array) $payload))
+                    {{-- The transliteration sent with a title (step 14.286) --}}
+                    <p data-pair>{{ $field['pair']['label'] ?? 'آوانگاری' }} پیشنهادی: <b dir="ltr">{{ $payload['pair'] !== '' ? $payload['pair'] : '— خالی —' }}</b>
+                        <span class="text-muted">(اکنون: <span dir="ltr">{{ ($payload['pair_current'] ?? '') !== '' ? $payload['pair_current'] : '—' }}</span>)</span></p>
+                @endif
+
                 @if($diff)
                     <dl class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-2 items-baseline" data-diff-table>
                         <dt class="text-xs text-muted">مقدار کنونی</dt>
