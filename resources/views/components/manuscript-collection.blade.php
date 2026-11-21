@@ -35,7 +35,7 @@
                             <a href="{{ route('manuscripts.show', $m) }}" class="text-ink hover:text-cinnabar transition">{{ $m->work?->primary_title ?? 'نسخه' }}</a>
                         @endif
                         @if($m->inMargin())<span class="text-[10px] text-cinnabar" title="به گفتۀ فهرست، در هامش رساله‌ای دیگر نوشته شده است">(در حاشیه)</span>@endif
-                        @if($m->work?->author_name)<span class="text-[11px] text-muted"> · {{ $m->work->author_name }}</span>@endif
+                        @if($m->work?->author_label)<span class="text-[11px] text-muted"> · {{ $m->work->author_label }}</span>@endif
                     </span>
                     @if($m->extentLabel())<span class="shrink-0 text-[11px] text-muted">{{ $m->extentLabel() }}</span>@endif
                 </li>

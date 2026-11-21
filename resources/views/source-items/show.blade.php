@@ -82,7 +82,7 @@
                     <div class="flex items-start gap-1 text-sm" data-machine-item="{{ $link->reviewKey() }}" data-item-link>
                         <div class="min-w-0">
                             <a href="{{ route('works.show', $link->citable) }}" class="font-bold text-ink hover:text-cinnabar">{{ $link->citable->primary_title }}</a>
-                            @if($link->citable->author_name)<div class="text-xs text-muted">{{ $link->citable->author_name }}</div>@endif
+                            @if($link->citable->author_label)<div class="text-xs text-muted">{{ $link->citable->author_label }}</div>@endif
                             @if($link->isMention())<div class="text-[11px] text-muted">فقط در متن این مدخل یاد شده است</div>@endif
                         </div>
                         @if($link->isAwaitingReview())
