@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -197,6 +197,41 @@ class InsightsTables
     {
         return [self::table('کاتبان پرکار', 'scribes', [['کاتب', 'text'], ['نسخه', 'num'], ['نخستین سال', 'year'], ['واپسین سال', 'year'], ['شهر', 'text']],
             array_map(fn ($r) => [$r['name'], $r['count'], $r['from'], $r['to'], $r['city']], $this->data['scribes']['items']))];
+    }
+
+    private function topAuthors(): array
+    {
+        $ta = $this->data['top_authors'];
+        $columns = [['مؤلف', 'text'], ['سال درگذشت', 'year'], ['اثر', 'num'], ['نسخه', 'num']];
+        $rows = fn (array $items) => array_map(fn ($r) => [$r['name'], $r['death'], $r['works'], $r['copies']], $items);
+
+        return [
+            self::table('مؤلفان با بیشترین اثر', 'authors-by-works', $columns, $rows($ta['by_works'])),
+            self::table('مؤلفان با بیشترین نسخه', 'authors-by-copies', $columns, $rows($ta['by_copies'])),
+        ];
+    }
+
+    private function formats(): array
+    {
+        $fm = $this->data['formats'];
+        $band = fn (array $b) => match (true) {
+            $b['upto'] === null => 'بلندتر از ' . Fa::digits($b['above']),
+            $b['above'] === 0 => 'تا ' . Fa::digits($b['upto']),
+            default => 'بیش از ' . Fa::digits($b['above']) . ' تا ' . Fa::digits($b['upto']),
+        };
+
+        return [
+            self::table('نسخه‌ها بر پایۀ بلندی صفحه', 'page-heights', [['بلندی (سانتی‌متر)', 'text'], ['نسخه', 'num']],
+                array_map(fn ($b) => [$band($b), $b['count']], $fm['bands'])),
+            self::table('پرشمارترین اندازه‌های صفحه', 'page-sizes', [['پهنا (سانتی‌متر)', 'dec'], ['بلندی (سانتی‌متر)', 'dec'], ['نسخه', 'num']],
+                array_map(fn ($s) => [$s['width'], $s['height'], $s['count']], $fm['common'])),
+            self::table('میانگین اندازۀ صفحه در نسخه‌های هر سده', 'page-by-century',
+                [['سدۀ هجری', 'year'], ['میانگین بلندی', 'dec'], ['میانگین پهنا', 'dec'], ['نسخه', 'num']],
+                array_map(fn ($c) => [$c['century'], $c['height'], $c['width'], $c['count']], array_filter($fm['centuries'], fn ($c) => $c['count'] > 0))),
+            self::table('میانگین اندازۀ صفحه در نسخه‌های هر موضوع', 'page-by-subject',
+                [['موضوع', 'text'], ['میانگین بلندی', 'dec'], ['میانگین پهنا', 'dec'], ['نسخه', 'num']],
+                array_map(fn ($s) => [$s['name'], $s['height'], $s['width'], $s['count']], $fm['subjects'])),
+        ];
     }
 
     private function libraries(): array

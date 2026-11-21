@@ -154,8 +154,14 @@ class InsightsScope
     {
         $this->close();
         $features = implode(', ', config('insights.features'));
+        // The page in centimetres (step 14.314): «15×21سم», «11/5×21/5سم» with «/» for the decimal mark; the longer
+        // side is the height whichever is written first. No «?» here: the statement is run with bindings.
+        $sized = "dimensions REGEXP '^[0-9]+(/[0-9]+){0,1}×[0-9]+(/[0-9]+){0,1} {0,1}(سم){0,1}$'";
+        $one = "CAST(REPLACE(SUBSTRING_INDEX(dimensions, '×', 1), '/', '.') AS DECIMAL(6,1))";
+        $other = "CAST(REPLACE(TRIM(REPLACE(SUBSTRING_INDEX(dimensions, '×', -1), 'سم', '')), '/', '.') AS DECIMAL(6,1))";
         $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}"
+            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
+            . "CASE WHEN {$sized} THEN GREATEST({$one}, {$other}) END AS page_height, CASE WHEN {$sized} THEN LEAST({$one}, {$other}) END AS page_width"
         ));
         DB::statement('CREATE TEMPORARY TABLE ' . self::COPIES . ' (PRIMARY KEY (id), KEY (work_id)) ' . $copies->toSql(), $copies->getBindings());
 
