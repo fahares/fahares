@@ -44,7 +44,7 @@
                             <span class="flex-1 border-t border-dashed border-line"></span><a href="{{ $item->pageUrl($segment['page']) }}" class="hover:text-cinnabar" title="متن کامل صفحه">{{ Fa::digits(($item->source->unit === 'ستون' ? 'ستون ' : 'ص ') . $segment['page']) }}</a><span class="flex-1 border-t border-dashed border-line"></span>
                         </div>
                     @endif
-                    <div class="whitespace-pre-line font-lotus text-base" data-copy>{{ Fa::digits($segment['text']) }}</div>
+                    <div class="whitespace-pre-line font-lotus text-[1.15rem]" data-copy>{{ Fa::digits($segment['text']) }}</div>
                 @endforeach
                 @if($item->footnotes)
                     <div class="mt-4 pt-3 border-t border-line text-xs text-muted whitespace-pre-line" data-footnotes>{{ Fa::digits($item->footnotes) }}</div>
