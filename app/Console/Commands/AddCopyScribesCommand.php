@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
  * the site took for one name («درویش در 1182ق، محمدهاشم بن …، محمد شفیع تبریزی در 1230ق»: it begins with the first
  * scribe and holds every other), so a copy a reviewer gave scribes to is left alone. The first scribe's own name goes
  * to scribe_name and to its row, which leaves the person named by the whole list; a new scribe is a row after it.
+ * A record with an empty «from» gives a copy with no scribe its first (step 14.303).
  * A name of three words or more is linked to the one person with exactly that name, or to a new person; a shorter
  * name («عبدالمجید», «محمد هاشم») stays a name with no person, as it could be anyone of that name. The people's
  * counts and the search documents follow. Safe to run again.
@@ -77,7 +78,7 @@ class AddCopyScribesCommand extends Command
                 // a copy with a scribe's name and no row for him yet: his row comes first
                 if ($rows->isEmpty()) {
                     DB::table('manuscript_people')->insert([
-                        'manuscript_id' => $rec['id'], 'person_id' => $copy->scribe_id, 'name' => $copy->scribe_id ? null : mb_substr((string) $copy->scribe_name, 0, 600),
+                        'manuscript_id' => $rec['id'], 'person_id' => $copy->scribe_id, 'name' => $copy->scribe_id ? null : mb_substr((string) ($copy->scribe_name ?: $rec['first']['to']), 0, 600),
                         'role' => ManuscriptPerson::SCRIBE, 'position' => 0, 'created_at' => now(), 'updated_at' => now(),
                     ]);
                 }
@@ -92,11 +93,31 @@ class AddCopyScribesCommand extends Command
                     if ($renamed) {
                         // the row's person is named by the old text (a nisba alone, or the whole list): the first
                         // scribe gets the person of his own name, or stays a name
-                        [$personId] = $this->person($to, true);
+                        // a person who is this copy's scribe alone, and nothing else, takes the name read right and
+                        // keeps his record and address («محسن بن حسن،گیلانی تا: 1106ق» → «محسن بن حسن گیلانی»)
+                        $normalized = mb_substr(TextNormalizer::normalize($to), 0, 600);
+                        $own = $first->person_id && count(preg_split('/\s+/u', trim($to))) >= 3
+                            && DB::table('manuscript_people')->where('person_id', $first->person_id)->count() === 1
+                            && ! DB::table('work_people')->where('person_id', $first->person_id)->exists()
+                            && ! DB::table('works')->where('author_id', $first->person_id)->exists()
+                            && ! DB::table('manuscripts')->where('scribe_id', $first->person_id)->where('id', '!=', $rec['id'])->exists()
+                            && ! DB::table('people')->where('id', '!=', $first->person_id)->where('normalized_name', $normalized)->exists();
+                        if ($own) {
+                            $before = DB::table('people')->where('id', $first->person_id)->value('name');
+                            DB::table('people')->where('id', $first->person_id)->update(['name' => $to, 'normalized_name' => $normalized, 'updated_at' => now()]);
+                            AuditLog::create([
+                                'user_id' => null, 'auditable_type' => Person::class, 'auditable_id' => $first->person_id, 'action' => 'corpus_update',
+                                'old_values' => ['name' => $before], 'new_values' => ['name' => $to, 'corpus_fix' => $this->option('file'), 'category' => 'scribes'],
+                            ]);
+                            $personId = (int) $first->person_id;
+                        } else {
+                            [$personId] = $this->person($to, true);
+                        }
                         $people[] = $first->person_id;
                         $people[] = $personId;
                         $set += ['person_id' => $personId, 'name' => $personId ? null : mb_substr($to, 0, 600)];
-                        DB::table('manuscripts')->where('id', $rec['id'])->update(['scribe_name' => mb_substr($to, 0, 600), 'scribe_id' => $personId, 'updated_at' => now()]);
+                        // a copy that gets its first scribe is no longer «بی‌کا»
+                        DB::table('manuscripts')->where('id', $rec['id'])->update(['scribe_name' => mb_substr($to, 0, 600), 'scribe_id' => $personId, 'is_bika' => 0, 'updated_at' => now()]);
                     }
                     DB::table('manuscript_people')->where('id', $first->id)->update($set);
                 }

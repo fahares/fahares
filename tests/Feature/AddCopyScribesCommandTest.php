@@ -81,11 +81,14 @@ class AddCopyScribesCommandTest extends TestCase
         $this->assertSame([['درویش عبدالمجید طالقانی', 'در 1182ق'], ['محمدهاشم بن محمد صالح لؤلؤی اصفهانی', 'در 1187ق'], ['محمد شفیع', null]], $this->rows($id));
         $copy = DB::table('manuscripts')->where('id', $id)->first();
         $this->assertSame('درویش عبدالمجید طالقانی', $copy->scribe_name);
-        $this->assertNotSame($whole, (int) $copy->scribe_id);
-        // the known person is linked, the short name stays a name, and the list's own person loses the copy
+        // the list's own person, who has this copy alone, keeps his record under the first scribe's name
+        $this->assertSame($whole, (int) $copy->scribe_id);
+        $this->assertSame('درویش عبدالمجید طالقانی', DB::table('people')->where('id', $whole)->value('name'));
+        DB::table('audit_logs')->where('auditable_type', \App\Models\Person::class)->where('auditable_id', $whole)->delete();
+        // the known person is linked and the short name stays a name
         $this->assertSame($known, (int) DB::table('manuscript_people')->where('manuscript_id', $id)->where('position', 1)->value('person_id'));
         $this->assertNull(DB::table('manuscript_people')->where('manuscript_id', $id)->where('position', 2)->value('person_id'));
-        $this->assertSame(0, DB::table('manuscript_people')->where('person_id', $whole)->count());
+        $this->assertSame(1, DB::table('manuscript_people')->where('person_id', $whole)->count());
 
         $this->run_([$record]);
         $this->assertCount(3, $this->rows($id));
@@ -93,7 +96,7 @@ class AddCopyScribesCommandTest extends TestCase
 
     public function test_the_tidy_command_removes_the_lists_person_and_unlinks_a_name_many_share(): void
     {
-        [$id, $whole] = $this->copy('T-5', 'حسن بن علی کاشانی در 1182ق، سید محمد حسینی قمی در 1230ق');
+        [$id, $whole] = $this->copy('T-5', 'حسن کاشانی در 1182ق، سید محمد حسینی قمی در 1230ق');
         // a person of that name whose other copies span three centuries
         $shared = $this->person('سید محمد حسینی قمی');
         foreach ([[1001, 1001], [1300, 1300]] as [$from, $to]) {
@@ -101,7 +104,7 @@ class AddCopyScribesCommandTest extends TestCase
                 'shelfmark' => 'T-o' . $from, 'copy_date_from' => $from, 'copy_date_to' => $to]);
             DB::table('manuscript_people')->insert(['manuscript_id' => $other, 'person_id' => $shared, 'role' => 'scribe', 'position' => 0]);
         }
-        $record = ['id' => $id, 'shelfmark' => 'T-5', 'first' => ['from' => 'حسن بن علی کاشانی در 1182ق', 'to' => 'حسن بن علی کاشانی', 'note' => 'در 1182ق'],
+        $record = ['id' => $id, 'shelfmark' => 'T-5', 'first' => ['from' => 'حسن کاشانی در 1182ق', 'to' => 'حسن کاشانی', 'note' => 'در 1182ق'],
             'scribes' => [['name' => 'سید محمد حسینی قمی', 'note' => 'در 1230ق']]];
         $this->run_([$record]);
         $this->assertSame($shared, (int) DB::table('manuscript_people')->where('manuscript_id', $id)->where('position', 1)->value('person_id'));
@@ -115,9 +118,33 @@ class AddCopyScribesCommandTest extends TestCase
         $row = DB::table('manuscript_people')->where('manuscript_id', $id)->where('position', 1)->first();
         $this->assertNull($row->person_id);
         $this->assertSame('سید محمد حسینی قمی', $row->name);
-        // the first scribe's own new person stays
-        $this->assertNotNull(DB::table('manuscript_people')->where('manuscript_id', $id)->where('position', 0)->value('person_id'));
+        // the first scribe, a name of two words, is a name with no person
+        $this->assertSame('حسن کاشانی', DB::table('manuscript_people')->where('manuscript_id', $id)->where('position', 0)->value('name'));
         DB::table('audit_logs')->where('auditable_type', \App\Models\Person::class)->where('auditable_id', $whole)->delete();
+    }
+
+    public function test_a_scribe_of_one_copy_keeps_his_record_under_the_name_read_right_and_a_copy_with_none_gets_its_first(): void
+    {
+        [$id, $person] = $this->copy('T-6', 'محسن بن حسن،گیلانی تا: 1106ق');
+        $work = $this->works[] = DB::table('works')->insertGetId(['primary_title' => 'اثر آزمایشی بی کاتب', 'clean_title' => 'اثر آزمایشی بی کاتب',
+            'slug' => 'test-scribes-' . uniqid(), 'volume_number' => 99, 'page_start' => 1]);
+        $none = $this->manuscripts[] = DB::table('manuscripts')->insertGetId(['work_id' => $work, 'volume_number' => 99, 'page_start' => 1, 'shelfmark' => 'T-7', 'is_bika' => 1]);
+
+        $this->run_([
+            ['id' => $id, 'shelfmark' => 'T-6', 'first' => ['from' => 'محسن بن حسن', 'to' => 'محسن بن حسن گیلانی'], 'scribes' => []],
+            ['id' => $none, 'shelfmark' => 'T-7', 'first' => ['from' => '', 'to' => 'نعمت الله بن محمد محسن'], 'scribes' => []],
+        ]);
+
+        $this->assertSame('محسن بن حسن گیلانی', DB::table('people')->where('id', $person)->value('name'));
+        $this->assertSame($person, (int) DB::table('manuscripts')->where('id', $id)->value('scribe_id'));
+        $this->assertSame([['محسن بن حسن گیلانی', null]], $this->rows($id));
+        DB::table('audit_logs')->where('auditable_type', \App\Models\Person::class)->where('auditable_id', $person)->delete();
+
+        $copy = DB::table('manuscripts')->where('id', $none)->first();
+        $this->assertSame('نعمت الله بن محمد محسن', $copy->scribe_name);
+        $this->assertSame(0, (int) $copy->is_bika);
+        $this->assertSame([['نعمت الله بن محمد محسن', null]], $this->rows($none));
+        $this->assertNotNull($copy->scribe_id);
     }
 
     public function test_a_copy_with_another_scribe_or_several_is_left(): void

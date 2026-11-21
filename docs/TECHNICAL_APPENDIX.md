@@ -13041,4 +13041,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_label_fixes_site_export.py --step 14.302`:** همان اسکریپت گام ۱۴.۲۸۲ با گزینۀ `--step` برای پروندۀ ثبت.
 - **پرونده‌ها:** `database/data/fankha_changed_columns_step14_302.json` (۱۴۰ رکورد) و `fankha_label_fixes_text_step14_302.json` (۱۵۹ رکورد). شناسۀ هیچ رکوردی در بازۀ جابه‌جای انتهای جدول (۳۳۴۸۹۴ به بالا) نیست.
 - **تمرین روی `fahares_prod`:** ستون‌ها «dates=22»؛ متن «extents=6»؛ اجرای دوم هر دو «already». سنجش ستون‌های برگرفتۀ ۱۶۴ نسخه پیش و پس: بازۀ تاریخ ۲۲، `extent_raw` ۶، برگ و صفحه ۲؛ `script_names` بی تغییر.
+- **اجرا در پروداکشن (۲۱ نوامبر ۲۰۲۶):** پشتیبان ۱۶۳ نسخه؛ هر دو پرونده با `prod-run`؛ `rebuild-scripts --dry-run` صفر نسخه.
+
+### گام ۱۴.۳۰۳: کاتبان پس از اصلاح متن، و «[انجام: …»
+
+- **`fankha_v2_copy_scribes_export.py` (corpus، کامیت `24f4bd0`):** نسخه‌ای که پیش‌تر کاتب نداشت با `first.from = ""` می‌آید؛ گزینۀ `--step`. اجرا با `--before scratch/fankha_v2_260`: ۱۸ رکورد، همه با `scribes: []`.
+- **`AddCopyScribesCommand`:**
+  - نسخۀ بی ردیف کاتب و بی `scribe_name` ردیف صفر را با نام `first.to` می‌گیرد؛ هنگام تغییر نام `is_bika` صفر می‌شود.
+  - `$own`: شخص ردیف صفر اگر درست یک ردیف `manuscript_people` دارد، در `work_people`، `works.author_id` و `scribe_id` نسخۀ دیگری نیست، نام تازه سه واژه یا بیشتر است و شخص دیگری آن `normalized_name` را ندارد → `people.name` و `normalized_name` همان رکورد عوض می‌شود (سطر ممیزی `corpus_update` برای شخص)، وگرنه همان راه پیشین (`person()`).
+- **اصلاح متن:** اسکریپت یک‌باره روی `text/fankha/fankha_vol_14.txt`: سطرهای ۲۰۴۰۵، ۳۱۷۹۷، ۳۶۳۷۶، ۳۷۲۰۹، ۳۷۸۳۳، ۳۸۳۱۳، ۳۹۲۸۶ و ۴۴۹۲۳؛ دو تغییر در هر سطر («[انجام:» → «انجام:»، و «<واژه>[.| ...] خط:» → «<واژه>[.| ...]؛ خط:»)، ۱۶ سطر ثبت.
+- **`fankha_v2_changed_columns_export.py`:** `incipit_text` و `explicit_text` افزوده شد (`ie_text`). اجرا با `--before scratch/fankha_v2_270`: ۸ رکورد `explicit_text`؛ «بی‌کا» ۶ و تاریخ ۳ نسخه را سایت از پیش داشت.
+- **پرونده‌ها:** `copy_scribes_step14_303.json` (۱۸)، `fankha_changed_columns_step14_303.json` (۸)، `fankha_label_fixes_text_step14_303.json` (۸).
+- **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 18» و سپس «already 18»؛ `tidy-copy-scribes` «removed 2 people»؛ دو `rebuild-copies` هر کدام «write 8» و سپس «already 8»؛ `rebuild-scripts --dry-run` چیزی از این نسخه‌ها نیاورد.
+- **آزمون:** `AddCopyScribesCommandTest` چهار آزمون.
 
