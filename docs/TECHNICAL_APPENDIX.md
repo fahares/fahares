@@ -13126,17 +13126,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`show.blade.php`:** فرم `data-discard-derived` کنار «این پیشنهاد را داور از روی … ساخته است».
 - **آزمون:** `SuggestionWorkflowTest::test_convert_shows_the_current_value_and_a_made_suggestion_is_taken_back_without_a_rejection`.
 
-### گام ۱۴.۳۱۴: `Insights::topAuthors()` و `Insights::formats()`
-- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها دو ستون تازه دارد، `page_height` و `page_width` (`DECIMAL(6,1)`). `dimensions` تنها وقتی خوانده می‌شود که با `^[0-9]+(/[0-9]+){0,1}×[0-9]+(/[0-9]+){0,1} {0,1}(سم){0,1}$` بخواند؛ «/» ممیز است؛ `GREATEST` بلندی و `LEAST` پهناست. در الگو «?» نیامده، چون دستور ساخت جدول با binding اجرا می‌شود و «?» جای‌نگهدار شمرده می‌شد.
-- **[Insights](../app/Support/Insights.php):** کلید `insights.v17`.
-  - `top_authors`: `by_works` و `by_copies` (هر ردیف `id, key, name, death, works, copies`)، `authors`، `single`، `works`. شمارش از `work_people` با نقش `author`، پیوسته به جدول موقت آثار و نسخه‌های دامنه؛ همان تعریفی که پالایۀ «مؤلف» دامنه دارد.
-  - `formats`: `bands` (لبه‌ها از `insights.height_bands`: ۱۵، ۱۸، ۲۱، ۲۴، ۲۸، ۳۴)، `with_size`، `left_out` (بیرون از `insights.page_cm` = ۳ تا ۷۰)، `median` (با رتبه، نه با بار کردن در PHP)، `centuries` (`height, width, count`؛ تنها نسخه‌های یک‌سده‌ای)، `common` (`insights.sizes_shown` = ۸ اندازۀ دقیق)، `subjects` (موضوع اصلی با `COALESCE(parent_id, id)`، دست‌کم `min_sample` نسخه، ده موضوع پرنسخه، چیده از بلندترین).
-- **نما:** `charts/top-authors.blade.php` (در دامنۀ یک مؤلف یا یک اثر نمی‌آید) و `charts/formats.blade.php`؛ در `insights.topics` به `people` و `copies` افزوده شدند. عنوان صفحۀ اشخاص «مؤلفان، کاتبان و حامیان» شد.
-- **[InsightsNotes](../app/Support/InsightsNotes.php) و [InsightsTables](../app/Support/InsightsTables.php):** کلیدهای `topAuthors` و `formats`؛ جدول‌ها `authors-by-works`، `authors-by-copies`، `page-heights`، `page-sizes`، `page-by-century`، `page-by-subject`.
-- **آزمون:** `InsightsAuthorsFormatsTest` (سه آزمون: رتبه‌بندی مؤلفان، دسته‌بندی بلندی با ابعاد وارونه و ناخوانا و بیرون از دامنه، و رندر دو صفحه).
-- **سنجش ابعاد (رونوشت محلی):** از ۳۲۳٬۲۴۹ نسخه ۲۳۶٬۰۸۴ ابعاد دارند و ۲۳۵٬۷۷۵ با الگو می‌خوانند؛ ۲٬۲۸۹ تا ضلع بلندتر را نخست نوشته‌اند. دسته‌ها: ۱۲٬۴۱۲، ۳۶٬۷۲۲، ۷۴٬۸۶۸، ۴۹٬۲۸۱، ۲۹٬۹۴۴، ۲۶٬۵۳۹، ۵٬۷۷۷.
-
-
 ### گام ۱۴.۳۱۳: یازده جلد از هارد اکسترنال `ahamd`
 - **منبع:** هارد اکسترنال کاربر، پوشۀ `ahamd/الفهارس/فهارس المخطوطات` (۸۶ گیگابایت؛ نام پوشه‌ها با «ي/ك» عربی). سیاهه (`../fahares-sources/_bi-tasvir/ahamd-inventory.tsv`: ۸۳۰ پرونده و ۱۲۳ پوشۀ تصویر) با ۲۰۷ جلد بی‌تصویر فهارس (`fahares_prod`) سنجیده شد (زیرعامل Sonnet؛ `ahamd-matches.md`): حدود ۴۵ جلد اسکن دارند، ۲۴ تا با اطمینان بالا. چاپ‌های دیگر به مورد ۱۳۵ و فهرست کتابخانه‌هایی که در فهارس نیستند به مورد ۱۵۸ رفتند (به خواست کاربر، هیچ منبعی دور ریخته نمی‌شود).
 - **کپی:** `../fahares-sources/_ahamd/fetch.py` پرونده‌ها را کپی می‌کند و پوشه‌های تصویر را بی بازفشرده‌سازی در PDF می‌گذارد (PyMuPDF)، در `_ahamd/<vid>.pdf` با `MD5SUMS`. مسیر هر کتاب از سیاهه با یکسان‌سازی «ي/ی»، «ك/ک» و ZWNJ یافته می‌شود، و ریشۀ هارد از `/run/media/tabib/*`. هارد یک بار در میانۀ کار جدا شد و پس از وصل دوباره، کپی کامل شد (۵٫۱ گیگابایت).
@@ -13160,3 +13149,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پوشش:** ۱۴٬۷۱۳ ارجاع از ۱۴٬۷۰۱ نسخه؛ ۱۴٬۶۸۶ ارجاع و ۱۴٬۶۷۴ نسخه روی برگه. بیرون از نگاشت: صفحه‌های جاافتادۀ مجلس ۳۷ و ۳۸ و شماره‌های پرت فنخا.
 - **سنجش کور** (seed 143130؛ `_ahamd/checkA` و `checkB`؛ از هر جلد ۵ ارجاع و ۱ فریب): ۵۵ از ۵۵ ارجاع «هست» و ۱۱ از ۱۱ فریب «نیست». در چند نمونه شمارۀ مجموعه تنها در برگۀ پیش بود و بخش روی برگه.
 - **تمرین (`fahares_prod`):** «0 created, 11 updated, 196 unchanged»، و اجرای دوم «0 updated, 207 unchanged».
+
+### گام ۱۴.۳۱۴: `Insights::topAuthors()` و `Insights::formats()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها دو ستون تازه دارد، `page_height` و `page_width` (`DECIMAL(6,1)`). `dimensions` تنها وقتی خوانده می‌شود که با `^[0-9]+(/[0-9]+){0,1}×[0-9]+(/[0-9]+){0,1} {0,1}(سم){0,1}$` بخواند؛ «/» ممیز است؛ `GREATEST` بلندی و `LEAST` پهناست. در الگو «?» نیامده، چون دستور ساخت جدول با binding اجرا می‌شود و «?» جای‌نگهدار شمرده می‌شد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v17`.
+  - `top_authors`: `by_works` و `by_copies` (هر ردیف `id, key, name, death, works, copies`)، `authors`، `single`، `works`. شمارش از `work_people` با نقش `author`، پیوسته به جدول موقت آثار و نسخه‌های دامنه؛ همان تعریفی که پالایۀ «مؤلف» دامنه دارد.
+  - `formats`: `bands` (لبه‌ها از `insights.height_bands`: ۱۵، ۱۸، ۲۱، ۲۴، ۲۸، ۳۴)، `with_size`، `left_out` (بیرون از `insights.page_cm` = ۳ تا ۷۰)، `median` (با رتبه، نه با بار کردن در PHP)، `centuries` (`height, width, count`؛ تنها نسخه‌های یک‌سده‌ای)، `common` (`insights.sizes_shown` = ۸ اندازۀ دقیق)، `subjects` (موضوع اصلی با `COALESCE(parent_id, id)`، دست‌کم `min_sample` نسخه، ده موضوع پرنسخه، چیده از بلندترین).
+- **نما:** `charts/top-authors.blade.php` (در دامنۀ یک مؤلف یا یک اثر نمی‌آید) و `charts/formats.blade.php`؛ در `insights.topics` به `people` و `copies` افزوده شدند. عنوان صفحۀ اشخاص «مؤلفان، کاتبان و حامیان» شد.
+- **[InsightsNotes](../app/Support/InsightsNotes.php) و [InsightsTables](../app/Support/InsightsTables.php):** کلیدهای `topAuthors` و `formats`؛ جدول‌ها `authors-by-works`، `authors-by-copies`، `page-heights`، `page-sizes`، `page-by-century`، `page-by-subject`.
+- **آزمون:** `InsightsAuthorsFormatsTest` (سه آزمون: رتبه‌بندی مؤلفان، دسته‌بندی بلندی با ابعاد وارونه و ناخوانا و بیرون از دامنه، و رندر دو صفحه).
+- **سنجش ابعاد (رونوشت محلی):** از ۳۲۳٬۲۴۹ نسخه ۲۳۶٬۰۸۴ ابعاد دارند و ۲۳۵٬۷۷۵ با الگو می‌خوانند؛ ۲٬۲۸۹ تا ضلع بلندتر را نخست نوشته‌اند. دسته‌ها: ۱۲٬۴۱۲، ۳۶٬۷۲۲، ۷۴٬۸۶۸، ۴۹٬۲۸۱، ۲۹٬۹۴۴، ۲۶٬۵۳۹، ۵٬۷۷۷.
