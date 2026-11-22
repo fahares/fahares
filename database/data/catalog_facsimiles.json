@@ -3918,6 +3918,226 @@
      "step": "14.279"
     }
    }
+  },
+  {
+   "library_slug": "thran-dayrh-almaaarf-20",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول",
+   "facsimile_code": "dairat-akasi",
+   "page_first": 1,
+   "page_last": 766,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/519.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/519.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ ج1 Binder1.pdf (۷۹۰ برگ)؛ برگ = صفحه + ۱۸؛ پیش‌گفتار با شماره به حروف کنار ماند",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 1,
+   "title": "فهرست کتابهای خطی کتابخانه ملی ملک - جلد اول: کتابهای عربی و ترکی",
+   "facsimile_code": "malek",
+   "page_first": 1,
+   "page_last": 623,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/202.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/202.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ پوشۀ «01 - کتابهای عربی و ترکی» (۶۳۱ تصویر)؛ چاپ دوم تیر ۱۳۶۱، چاپخانۀ دانشگاه تهران؛ برگ = صفحه + ۴",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 2,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 2",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 2,
+   "page_last": 283,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/506.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/506.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ «نشریه دفتر دوم.pdf» (۲۹۳ برگ)؛ برگ = صفحه + ۵",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 38,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و هشتم",
+   "facsimile_code": "majlis",
+   "page_first": 10,
+   "page_last": 749,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/437.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/437.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ «چ 38.pdf»، دوصفحه‌ای؛ برگ ۳۱۰ تکرار برگ ۳۰۹؛ ص ۶۲۸–۶۲۹ در اسکن نیست",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 37,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و هفتم",
+   "facsimile_code": "majlis",
+   "page_first": 4,
+   "page_last": 695,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/436.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/436.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ «ج 37.pdf»، دوصفحه‌ای؛ ص ۴۰۰–۴۰۱ در اسکن نیست",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-alhyat-38",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه دانشکده الهیات مشهد - جلد دوم",
+   "facsimile_code": "mashhad-ilahiyat",
+   "page_first": 1,
+   "page_last": 720,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/331.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/331.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ پوشۀ «02» (۷۳۵ تصویر)؛ برگ = صفحه + ۱۱",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-gohrshad-25",
+   "volume_number": 4,
+   "title": "فهرست نسخه‌های خطی کتابخانه جامع گوهرشاد مشهد - جلد چهارم",
+   "facsimile_code": "goharshad",
+   "page_first": 1843,
+   "page_last": 2276,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/474.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/474.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ «ج4.pdf»؛ شماره‌گذاری پیوسته؛ برگ = صفحه − ۱۸۳۷؛ لوح‌ها (برگ ۳۰۸–۳۸۰) جای ص ۲۱۴۵–۲۲۱۷",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-gohrshad-25",
+   "volume_number": 5,
+   "title": "فهرست نسخه‌های خطی کتابخانه جامع گوهرشاد مشهد - جلد پنجم",
+   "facsimile_code": "goharshad",
+   "page_first": 8,
+   "page_last": 927,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/475.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/475.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ «ج5.pdf»؛ برگ = صفحه",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 27,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۲۷",
+   "facsimile_code": "majlis-p1",
+   "page_first": 6,
+   "page_last": 564,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/645.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/645.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ پوشۀ «27-1 - 2009» (۵۶۶ تصویر)؛ برگ = صفحه",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 45,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد چهل و پنجم",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 341,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/439.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/439.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ پوشۀ «45 - 2011 - نسخه های 16101 تا 16500» (۳۴۲ تصویر)؛ برگ = صفحه",
+     "step": "14.313"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 51,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد پنجاه و یکم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 244,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/649.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/649.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ پوشۀ «51 - 2011 - نسخه های شماره 18501 تا 18900» (۲۵۴ تصویر)؛ برگ = صفحه + ۸",
+     "step": "14.313"
+    }
+   }
   }
  ]
 }
