@@ -21,13 +21,13 @@ class RecordRelations
         'commentary' => ['شرحی است بر', 'شروح'],
         'gloss' => ['حاشیه‌ای است بر', 'حواشی'],
         'translation' => ['ترجمه‌ای است از', 'ترجمه‌ها'],
-        'abridgment' => ['تلخیص یا مختصری است از', 'تلخیص‌ها و مختصرها'],
+        'abridgment' => ['تلخیص، مختصر یا گزیده‌ای است از', 'تلخیص‌ها، مختصرها و گزیده‌ها'],
         'versification' => ['نظمی است از', 'منظومه‌ها'],
         'supplement' => ['تکمله یا ذیلی است بر', 'تکمله‌ها و ذیل‌ها'],
         'refutation' => ['ردیه یا نقدی است بر', 'ردیه‌ها و نقدها'],
         // The whole and its part: a chapter, a selection or a volume recorded as a work of its own. The part reads the
         // author, subject and language it lacks from the whole (WorkParts, step 14.308)
-        'part' => ['بخش، گزیده یا جلدی است از', 'بخش‌ها، گزیده‌ها و مجلدها'],
+        'part' => ['بخش یا جلدی است از', 'بخش‌ها و مجلدها'],
         // Fankha's «وابسته به» of a kind not told (step 14.104, backlog item 6): a commentary on a commentary of the work, or
         // a title that names no kind
         'related' => ['وابسته است به', 'آثار وابسته'],

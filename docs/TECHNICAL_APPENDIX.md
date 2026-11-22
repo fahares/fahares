@@ -13159,3 +13159,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[InsightsNotes](../app/Support/InsightsNotes.php) و [InsightsTables](../app/Support/InsightsTables.php):** کلیدهای `topAuthors` و `formats`؛ جدول‌ها `authors-by-works`، `authors-by-copies`، `page-heights`، `page-sizes`، `page-by-century`، `page-by-subject`.
 - **آزمون:** `InsightsAuthorsFormatsTest` (سه آزمون: رتبه‌بندی مؤلفان، دسته‌بندی بلندی با ابعاد وارونه و ناخوانا و بیرون از دامنه، و رندر دو صفحه).
 - **سنجش ابعاد (رونوشت محلی):** از ۳۲۳٬۲۴۹ نسخه ۲۳۶٬۰۸۴ ابعاد دارند و ۲۳۵٬۷۷۵ با الگو می‌خوانند؛ ۲٬۲۸۹ تا ضلع بلندتر را نخست نوشته‌اند. دسته‌ها: ۱۲٬۴۱۲، ۳۶٬۷۲۲، ۷۴٬۸۶۸، ۴۹٬۲۸۱، ۲۹٬۹۴۴، ۲۶٬۵۳۹، ۵٬۷۷۷.
+
+### گام ۱۴.۳۱۶: برچسب `abridgment` و `part`
+- **`RecordRelations::WORK_TYPES`:** «گزیده» از برچسب `part` به `abridgment` رفت. کلیدها و داده دست نخورد؛ ارث‌بری (`WorkParts`) همچنان فقط روی `part` است.
+- **`components/record-relations.blade.php`:** راهنمای فرم.
+- **آزمون‌ها:** متن برچسب در `WorkPartsTest`، `LinkRelatedWorksTest` و `SuggestionWorkflowTest`.
+

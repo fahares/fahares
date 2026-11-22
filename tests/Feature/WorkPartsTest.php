@@ -212,13 +212,13 @@ class WorkPartsTest extends TestCase
             ->assertSeeInOrder(['تاریخ تألیف اصل', '۸۳۷ ق'], false)
             ->assertSeeInOrder(['زبان', 'فارسی', 'data-inherited'], false)
             ->assertSeeInOrder(['رده‌های موضوعی', 'کتاب‌آرایی', 'data-inherited'], false)
-            ->assertSee('بخش، گزیده یا جلدی است از:')
+            ->assertSee('بخش یا جلدی است از:')
             ->assertDontSee('پدیدآور ناشناخته');
 
         // the whole: its parts with the count of their copies, and nothing marked as inherited
         $this->followingRedirects()->get($wholeUrl)->assertOk()
             ->assertSeeInOrder(['data-part-count', '۱ بخش جدا'], false)
-            ->assertSeeInOrder(['id="relations"', 'بخش‌ها، گزیده‌ها و مجلدها:', route('works.show', $paper), 'کاغذشناسی', '۱ نسخه'], false)
+            ->assertSeeInOrder(['id="relations"', 'بخش‌ها و مجلدها:', route('works.show', $paper), 'کاغذشناسی', '۱ نسخه'], false)
             ->assertDontSee('data-inherited', false)->assertDontSee('data-part-of', false);
 
         // a copy of the part names the whole's author
@@ -228,9 +228,9 @@ class WorkPartsTest extends TestCase
 
         // the wording of the relation, both ways, in the suggestion form
         $options = RecordRelations::options('work');
-        $this->assertSame('این اثر بخش، گزیده یا جلدی است از اثر انتخاب‌شده', $options['part']);
-        $this->assertSame('«کاغذشناسی» بخش، گزیده یا جلدی است از «جوهریه سیمی»', RecordRelations::sentence($paper, $this->jawhariyya, 'part'));
-        $this->assertSame('«جوهریه سیمی» بخش، گزیده یا جلدی است از «کاغذشناسی»', RecordRelations::sentence($paper, $this->jawhariyya, '~part'));
+        $this->assertSame('این اثر بخش یا جلدی است از اثر انتخاب‌شده', $options['part']);
+        $this->assertSame('«کاغذشناسی» بخش یا جلدی است از «جوهریه سیمی»', RecordRelations::sentence($paper, $this->jawhariyya, 'part'));
+        $this->assertSame('«جوهریه سیمی» بخش یا جلدی است از «کاغذشناسی»', RecordRelations::sentence($paper, $this->jawhariyya, '~part'));
     }
 
     public function test_a_chain_is_followed_and_a_loop_is_refused()
@@ -341,7 +341,7 @@ class WorkPartsTest extends TestCase
         $this->suggestJson(['type' => 'work', 'id' => $this->jawhariyya->id, 'kind' => 'relation', 'field_name' => 'work_relation', 'target_id' => $paper->id,
             'suggested_value' => '', 'rationale_citation' => 'باب اول', 'role' => '~part'])->assertOk();
         $s = FieldSuggestion::where('suggestable_id', $this->jawhariyya->id)->where('status', 'pending')->latest('id')->firstOrFail();
-        $this->actingAs($admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('«کاغذشناسی» بخش، گزیده یا جلدی است از «جوهریه سیمی»', false);
+        $this->actingAs($admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('«کاغذشناسی» بخش یا جلدی است از «جوهریه سیمی»', false);
         $this->actingAs($admin)->post("/admin/suggestions/{$s->id}/approve", ['applied_value' => '', 'revision_category' => 'scholarly_correction', 'role' => '~part'])
             ->assertRedirect('/admin/suggestions');
         $this->assertSame('سیمی نیشابوری', Work::find($paper->id)->author_label);
