@@ -103,7 +103,8 @@ class SubjectController extends Controller
                 $worksQuery->orderBy('primary_title');
                 break;
             case 'date':
-                $worksQuery->orderByRaw('ISNULL(composition_year_hijri) ASC, composition_year_hijri ASC');
+                $year = \App\Support\WorkParts::compositionYearSql();
+                $worksQuery->orderByRaw("ISNULL({$year}) ASC, {$year} ASC");
                 break;
             case 'copies':
             default:

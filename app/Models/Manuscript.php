@@ -186,7 +186,10 @@ class Manuscript extends Model
         }
         $life = \App\Support\DateEstimates\Loader::LIFE;
 
-        return DB::table('works')->leftJoin('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
+        // a part that reads its date from the work it is a part of: that work's composition (step 14.315)
+        $inherited = collect(\App\Support\WorkParts::inheritedCompositions())->only($ids)->map(fn (Work $whole) => (int) $whole->composition_date_from)->filter(fn (int $y) => $y > 0)->all();
+
+        return $inherited + DB::table('works')->leftJoin('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
             ->selectRaw("works.id AS id, GREATEST(COALESCE(works.composition_date_from, 0), COALESCE(people.birth_year_hijri, COALESCE(people.death_from, people.death_year_hijri, people.century_hijri * 100 - 99) - {$life}, 0)) AS year")
             ->pluck('year', 'id')->map(fn ($y) => (int) $y)->filter(fn (int $y) => $y > 0)->all();
     }

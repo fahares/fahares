@@ -280,7 +280,7 @@
                                     <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($work->manuscripts_count) }} نسخه</span>
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-                                    @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>@endif
+                                    @if($work->effective_composition_year)<span>تألیف {{ Fa::digits($work->effective_composition_year) }} ق</span>@endif
                                     @if($work->work_form)<span>{{ $work->work_form }}</span>@endif
                                     @foreach($work->subjects->take(2) as $s)<span>{{ $s->title }}</span>@endforeach
                                 </div>

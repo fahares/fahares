@@ -111,7 +111,7 @@
                             @else
                                 <span class="text-muted">پدیدآور ناشناخته</span>
                             @endif
-                            @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>@endif
+                            @if($work->effective_composition_year)<span>تألیف {{ Fa::digits($work->effective_composition_year) }} ق</span>@endif
                             @if($work->work_form)<span>{{ $work->work_form }}</span>@endif
                             @if($work->has_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
                         </div>
