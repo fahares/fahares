@@ -13172,6 +13172,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **دست‌نخورده:** `Insights` و `InsightsScope` (شمار آثار هر سده از ستون خود اثر)، `PersonPlaces`، `KnownRulers` در `RefreshDerivedCommand` و `BackfillWorkDedicationsCommand`، `FixLifeYearsCommand`، و `SuggestionRegistry::describe()`.
 - **پس از انتشار (یک بار، فقط نمایۀ جست‌وجو را می‌نویسد):** `php artisan tinker --execute='App\Models\Work::whereIn("id", DB::table("work_relations")->where("type", "part")->pluck("work_id"))->get()->searchable();' < /dev/null` با `scripts/dev/prod-run`. بی آن، سند جست‌وجوی بخش‌هایی که پیش از این گام وصل شده‌اند تا تغییر بعدی‌شان سال تألیف ندارد.
 - **آزمون:** `WorkPartsTest` سیزده آزمون؛ سه آزمون تازه: تاریخ ارثی و نبودن تخمین (صفحه، سند جست‌وجو، `estimate-dates`، `copyFloors`، مرتب‌سازی و فیلتر پایگاه، تغییر تاریخ اصل، برداشتن رابطه)، تاریخ اختصاصی بخش، و بخشِ دارای مؤلف دیگر.
+
 ### گام ۱۴.۳۱۶: برچسب `abridgment` و `part`
 - **`RecordRelations::WORK_TYPES`:** «گزیده» از برچسب `part` به `abridgment` رفت. کلیدها و داده دست نخورد؛ ارث‌بری (`WorkParts`) همچنان فقط روی `part` است.
 - **`components/record-relations.blade.php`:** راهنمای فرم.
