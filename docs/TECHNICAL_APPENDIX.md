@@ -13193,3 +13193,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`AuditLogController::rollbackVerify()`:** کلید `notes`: با `old` تهی سطر `new.notes.id` پاک می‌شود؛ با `new.notes.removed` سطر با همان `id` ساخته می‌شود (لاگ‌های پیش از این گام `position` ندارند و سطر پس از آخرین یادداشت می‌آید)؛ وگرنه ستون‌های `old` به سطر برمی‌گردد. پیش از این شاخه‌ای برای `notes` نبود و `forceFill(['notes' => …])` روی خود نسخه می‌رفت، که ستونی به این نام ندارد.
 - **آزمون:** `FirstCopyNoteTest` (پیشنهاد و پذیرش، افزودن مستقیم، نمایش، بازگردانی افزودن و برداشتن و اصلاح، نسخۀ دارای فهرست کهنه). در `ImportCopyNotesCommandTest` ادعای دکمۀ جدای `note_new_decoration` به گزینۀ فهرست نوع‌ها بدل شد.
 
+### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
+- **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
+- **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
+- **`posts/index.blade.php`:** خط `data-telegram-channel` زیر توضیح سرصفحه، با همان شرط.
+- **آزمون:** `TelegramChannelLinkTest` (پیوند در جریده و پانویس صفحۀ درباره، نبود پیوند برای تهی و شناسۀ عددی، نام بی `@`).
+

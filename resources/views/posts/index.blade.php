@@ -9,6 +9,9 @@
     <header class="text-center grid justify-items-center gap-2 pb-2">
         <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">جریده</h1>
         <p class="text-sm text-muted max-w-2xl leading-relaxed">گزارش نشست‌های علمی، معرفی نسخه‌ها و نوشته‌های دیگر.</p>
+        @if($telegramUrl = \App\Support\AnnouncementTelegram::channelUrl())
+            <p class="text-[13px] text-muted" data-telegram-channel>گزارش‌ها و اطلاعیه‌های تازه را در <a href="{{ $telegramUrl }}" target="_blank" rel="noopener" class="text-cinnabar hover:underline">کانال تلگرام فهارس</a> هم می‌فرستیم.</p>
+        @endif
     </header>
 
     <div class="jadval" aria-hidden="true"></div>
