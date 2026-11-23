@@ -67,6 +67,10 @@ class FillCollectionKeysCommand extends Command
                 });
             });
 
+        if ($apply) {
+            // the «مجموعه» records follow the keys (step 14.322)
+            $this->line('  collections: ' . http_build_query(\App\Support\Collections::sync(), '', ', '));
+        }
         $sizes = array_count_values(array_map(fn ($n) => $n >= 20 ? '20+' : ($n >= 5 ? '5-19' : (string) $n), $volumes));
         $counts['volumes'] = count($volumes);
         $counts['volumes_of_2+'] = count(array_filter($volumes, fn ($n) => $n > 1));

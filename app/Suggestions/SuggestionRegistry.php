@@ -213,6 +213,11 @@ class SuggestionRegistry
                 'clearable' => self::clearable($def),
                 'pair' => $def['pair']['label'] ?? null,
             ];
+            // What the record holds now, so a reviewer who converts a suggestion sees what it would replace
+            if ($record) {
+                $choices[$name]['current'] = self::currentValue($record, ['name' => $name] + $def);
+                $choices[$name]['pairCurrent'] = self::pairCurrent($record, ['name' => $name] + $def);
+            }
         }
 
         return $choices;
@@ -276,7 +281,7 @@ class SuggestionRegistry
         }
         if (! $field || (isset($field['entry_id']) && ! SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
             || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))
-            // a note of this very copy, or a new one where the page shows the copy's typed notes
+            // a note of this very copy, or a new one of a type the copy can take
             || ((isset($field['note_id']) || isset($field['new_note_type']) || isset($field['note_type_of'])) && ! array_key_exists($field['name'], self::recordFields($record)))) {
             return null;
         }
@@ -428,10 +433,10 @@ class SuggestionRegistry
                 }
             }
         }
-        if ($record instanceof Manuscript && $record->notes->isNotEmpty()) {
+        if ($record instanceof Manuscript) {
             // each typed note of the copy is a field of its own, and a seal, an ownership note, an endowment or an
-            // acquisition can be added (step 14.264); the list of them all is then no field, unless the page still
-            // shows it (Manuscript::keepsSealsList)
+            // acquisition can be added (step 14.264), to a copy without a note too (step 14.318); the list of them
+            // all is then no field, unless the page still shows it (Manuscript::keepsSealsList)
             foreach ($record->notes as $note) {
                 $fields[self::NOTE_PREFIX . $note->id] = self::noteField(self::NOTE_PREFIX . $note->id, $note);
                 // ...and so is its type (step 14.269)

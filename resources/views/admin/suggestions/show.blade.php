@@ -326,6 +326,15 @@
                     <x-admin.notice class="space-y-1">
                         @if($sourceId)
                             <p>این پیشنهاد را داور از روی <a href="{{ route('admin.suggestions.show', $sourceId) }}" class="font-bold text-cinnabar hover:underline">پیشنهاد #{{ $fa($sourceId) }}</a> ساخته است.</p>
+                            {{-- The reviewer's own making, taken back without a rejection --}}
+                            @if($suggestion->status === 'pending' && ! $derivedIds)
+                                <form action="{{ route('admin.suggestions.discard-derived', $suggestion) }}" method="POST" class="pt-1" data-discard-derived
+                                    onsubmit="return confirm('این پیشنهاد حذف شود؟ «رد» ثبت نمی‌شود و پیشنهاد اصلی می‌ماند.')">
+                                    @csrf
+                                    <p class="text-xs text-muted">اگر از ساختن این پیشنهاد منصرف شده‌اید، آن را پس بگیرید: حذف می‌شود، «رد» ثبت نمی‌شود و پیشنهاددهنده خبری نمی‌گیرد. اگر پیشنهاد اصلی فقط با همین یکی بسته شده بود، دوباره باز می‌شود.</p>
+                                    <x-ui.btn type="submit">پس‌گرفتن این پیشنهاد</x-ui.btn>
+                                </form>
+                            @endif
                         @endif
                         @if($derivedIds)
                             <p>پیشنهادهای ساخته‌شده از این پیشنهاد:

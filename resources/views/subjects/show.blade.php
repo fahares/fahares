@@ -104,14 +104,14 @@
                             <span class="ms-auto sm:ms-0 text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($work->manuscripts_count) }} نسخه</span>
                         </div>
                         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
-                            @if($work->author)
-                                <span>از <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-ink hover:text-cinnabar">{{ $work->author->name }}</a> <x-ui.life :person="$work->author" /></span>
-                            @elseif($work->author_name)
-                                <span>از <span class="font-semibold text-ink">{{ $work->author_name }}</span></span>
+                            @if($work->effective_author)
+                                <span>از <a href="{{ route('people.show', $work->effective_author) }}" class="font-semibold text-ink hover:text-cinnabar">{{ $work->effective_author->name }}</a> <x-ui.life :person="$work->effective_author" /></span>
+                            @elseif($work->effective_author_name)
+                                <span>از <span class="font-semibold text-ink">{{ $work->effective_author_name }}</span></span>
                             @else
                                 <span class="text-muted">پدیدآور ناشناخته</span>
                             @endif
-                            @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>@endif
+                            @if($work->effective_composition_year)<span>تألیف {{ Fa::digits($work->effective_composition_year) }} ق</span>@endif
                             @if($work->work_form)<span>{{ $work->work_form }}</span>@endif
                             @if($work->has_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
                         </div>

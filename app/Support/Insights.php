@@ -32,7 +32,7 @@ class Insights
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v16';
+    private const CACHE_KEY = 'insights.v17';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -148,6 +148,8 @@ class Insights
             'collections' => self::collections($scope, $totals['manuscripts']),
             'source_overlap' => self::sourceOverlap($scope, $totals['manuscripts']),
             'dynasties' => self::dynasties($scope, $totals['manuscripts'], $totals['works']),
+            'top_authors' => self::topAuthors($scope),
+            'formats' => self::formats($scope),
         ];
     }
 
@@ -1111,6 +1113,95 @@ class Insights
             'with_lines' => $scope->manuscripts()->where('lines', '>', 0)->count(),
             'median' => self::medianFolios($scope, (int) $counts->sum()),
             'centuries' => $centuries,
+        ];
+    }
+
+    /**
+     * The authors with the most works and with the most copies (backlog item 162, step 14.314). An author is a person
+     * tied to a work as its author (work_people), so a work of two authors counts for each, as in the scope's own
+     * filter of an author. `single` is how many authors have one work alone.
+     */
+    private static function topAuthors(InsightsScope $scope): array
+    {
+        $shown = (int) config('insights.authors_shown');
+        $tied = fn () => DB::table('work_people')->where('work_people.role', \App\Models\WorkPerson::AUTHOR);
+        $works = $tied()->join($scope->worksTable(), 'works.id', '=', 'work_people.work_id')
+            ->selectRaw('work_people.person_id, COUNT(DISTINCT work_people.work_id) AS n')->groupBy('work_people.person_id')
+            ->pluck('n', 'person_id')->map(fn ($n) => (int) $n);
+        $copies = $tied()->join($scope->manuscriptsTable(), 'manuscripts.work_id', '=', 'work_people.work_id')
+            ->selectRaw('work_people.person_id, COUNT(DISTINCT manuscripts.id) AS n')->groupBy('work_people.person_id')
+            ->pluck('n', 'person_id')->map(fn ($n) => (int) $n);
+        $byWorks = $works->sortDesc()->take($shown)->keys();
+        $byCopies = $copies->sortDesc()->take($shown)->keys();
+        $people = \App\Models\Person::whereIn('id', $byWorks->concat($byCopies)->unique())->get(['id', 'name', 'slug', 'death_year_hijri'])->keyBy('id');
+        $row = fn ($id) => isset($people[$id]) ? ['id' => (int) $id, 'key' => $people[$id]->getRouteKey(), 'name' => $people[$id]->name,
+            'death' => $people[$id]->death_year_hijri === null ? null : (int) $people[$id]->death_year_hijri,
+            'works' => $works[$id] ?? 0, 'copies' => $copies[$id] ?? 0] : null;
+
+        return [
+            'by_works' => $byWorks->map($row)->filter()->values()->all(),
+            'by_copies' => $byCopies->map($row)->filter()->values()->all(),
+            'authors' => $works->count(),
+            'single' => $works->filter(fn ($n) => $n === 1)->count(),
+            'works' => (int) $works->sum(),
+        ];
+    }
+
+    /**
+     * The page of the copies (backlog item 162, step 14.314): how many fall in each band of height, the sizes written
+     * most often, the mean height and width of the copies of each century, and of the copies of each main subject.
+     * The height is the longer side (InsightsScope::open); a size outside `page_cm` is a slip of the catalogue or of
+     * its reading and is left out.
+     */
+    private static function formats(InsightsScope $scope): array
+    {
+        [$first, $last] = config('insights.centuries');
+        [$least, $most] = config('insights.page_cm');
+        $edges = config('insights.height_bands');
+        $sized = fn ($query) => $query->where('manuscripts.page_width', '>=', $least)->where('manuscripts.page_height', '<=', $most);
+        $band = 'CASE ' . implode(' ', array_map(fn ($e, $i) => "WHEN page_height <= {$e} THEN {$i}", $edges, array_keys($edges))) . ' ELSE ' . count($edges) . ' END';
+        $counts = $sized($scope->manuscripts())->selectRaw("{$band} AS b, COUNT(*) AS n")->groupBy('b')->pluck('n', 'b');
+        $n = (int) $counts->sum();
+        $bands = [];
+        foreach (range(0, count($edges)) as $i) {
+            $bands[] = ['above' => $edges[$i - 1] ?? 0, 'upto' => $edges[$i] ?? null, 'count' => (int) ($counts[$i] ?? 0)];
+        }
+
+        $means = $sized(self::inOneCentury($scope))
+            ->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last])
+            ->selectRaw(self::CENTURY . ' AS c, AVG(page_height) AS h, AVG(page_width) AS w, COUNT(*) AS n')
+            ->groupBy('c')->get()->keyBy(fn ($r) => (int) $r->c);
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $r = $means[$c] ?? null;
+            $centuries[] = ['century' => $c, 'height' => $r ? round($r->h, 1) : null, 'width' => $r ? round($r->w, 1) : null, 'count' => (int) ($r->n ?? 0)];
+        }
+
+        $common = $sized($scope->manuscripts())->selectRaw('page_width AS w, page_height AS h, COUNT(*) AS n')
+            ->groupBy('w', 'h')->orderByDesc('n')->orderBy('h')->limit(config('insights.sizes_shown'))->get()
+            ->map(fn ($r) => ['width' => (float) $r->w, 'height' => (float) $r->h, 'count' => (int) $r->n])->all();
+
+        // The copies of each main subject; a work of two subjects counts in each, and once in one
+        $ofSubject = DB::table('subject_work')->join('subjects', 'subjects.id', '=', 'subject_work.subject_id')
+            ->distinct()->selectRaw('subject_work.work_id, COALESCE(subjects.parent_id, subjects.id) AS s');
+        $rows = $sized($scope->manuscripts())->joinSub($ofSubject, 'r', 'r.work_id', '=', 'manuscripts.work_id')
+            ->selectRaw('r.s, AVG(page_height) AS h, AVG(page_width) AS w, COUNT(*) AS n')->groupBy('r.s')
+            ->having('n', '>=', config('insights.min_sample'))->orderByDesc('n')->limit(config('insights.subjects_shown'))->get();
+        $names = \App\Models\Subject::whereIn('id', $rows->pluck('s'))->pluck('name', 'id');
+        $subjects = $rows->filter(fn ($r) => isset($names[$r->s]))
+            ->map(fn ($r) => ['id' => (int) $r->s, 'name' => $names[$r->s], 'height' => round($r->h, 1), 'width' => round($r->w, 1), 'count' => (int) $r->n])
+            ->sortByDesc('height')->values()->all();
+
+        $median = $n === 0 ? null : $sized($scope->manuscripts())->orderBy('page_height')->offset(intdiv($n - 1, 2))->limit(1)->value('page_height');
+
+        return [
+            'bands' => $bands,
+            'with_size' => $n,
+            'left_out' => $scope->manuscripts()->whereNotNull('page_height')->count() - $n,
+            'median' => $median === null ? null : (float) $median,
+            'centuries' => $centuries,
+            'common' => $common,
+            'subjects' => $subjects,
         ];
     }
 

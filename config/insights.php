@@ -117,6 +117,15 @@ return [
     // Bands of folios: a band runs from just above one edge up to the next
     'folio_bands' => [20, 50, 100, 200, 400],
 
+    // The page of the copies (step 14.314). Bands of height in centimetres: a band runs from just above one edge up
+    // to the next. A page narrower or taller than `page_cm` is a slip and is left out. The sizes listed.
+    'height_bands' => [15, 18, 21, 24, 28, 34],
+    'page_cm' => [3, 70],
+    'sizes_shown' => 8,
+
+    // The authors listed by their works and by their copies
+    'authors_shown' => 15,
+
     // Languages and scripts in the grids per century; catalogue volumes listed as sources
     'languages_grid' => 6,
     'scripts_grid' => 8,
@@ -153,14 +162,14 @@ return [
         'copies' => [
             'name' => 'نسخه‌ها',
             'title' => 'ویژگی‌های نسخه‌ها',
-            'lead' => 'آرایش و تصحیح نسخه‌ها، اندازه، زبان و خط در گذر سده‌ها، مجموعه‌ها و نسخه‌های عکسی.',
-            'charts' => ['features', 'sizes', 'language-scripts', ['scripts', 'facsimiles'], 'collections'],
+            'lead' => 'آرایش و تصحیح نسخه‌ها، شمار برگ و قطع، زبان و خط در گذر سده‌ها، مجموعه‌ها و نسخه‌های عکسی.',
+            'charts' => ['features', 'sizes', 'formats', 'language-scripts', ['scripts', 'facsimiles'], 'collections'],
         ],
         'people' => [
             'name' => 'اشخاص',
-            'title' => 'کاتبان و حامیان',
-            'lead' => 'کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
-            'charts' => [['scribes', 'patrons'], 'dedications'],
+            'title' => 'مؤلفان، کاتبان و حامیان',
+            'lead' => 'مؤلفان پرکار و پرنسخه، کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
+            'charts' => ['top-authors', ['scribes', 'patrons'], 'dedications'],
         ],
         'libraries' => [
             'name' => 'کتابخانه‌ها و فهرست‌ها',

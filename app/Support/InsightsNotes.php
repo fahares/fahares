@@ -40,6 +40,8 @@ class InsightsNotes
         'languages' => 'چرا سهم یک زبان در دو شمارش فرق دارد؟',
         'sources' => 'منبع.',
         'sourceOverlap' => 'وصف دو فهرست از یک نسخه چه سودی دارد؟',
+        'topAuthors' => 'چرا دو فهرست یکی نیستند؟',
+        'formats' => 'آیا این همان قطع‌های رقعی و وزیری و رحلی است؟',
     ];
 
     private array $data;
@@ -59,7 +61,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -402,6 +404,65 @@ class InsightsNotes
         return [[
             'جدول کاتبانی را می‌آورد که بیشترین نسخه به نامشان ثبت است. ستون «سال‌ها و شهر» بازۀ نسخه‌های سال‌دار هر کاتب و شهری را نشان می‌دهد که بیشتر در آن کتابت کرده است. روی شمار نسخه بزنید تا نسخه‌های همان کاتب را ببینید.',
             'نه همیشه. نام‌های پرتکرار مانند «محمد حسین» یا «محمد علی» میان کاتبان بسیار است، و یک ردیف شاید چند کاتب هم‌نام را در خود داشته باشد. بازۀ سال‌ها بهترین نشانه است: بازه‌ای بلندتر از شصت یا هفتاد سال به یک نفر نمی‌خورد.',
+        ], $examples];
+    }
+
+    private function topAuthors(): array
+    {
+        $ta = $this->data['top_authors'];
+        $examples = [];
+        $works = $ta['by_works'][0] ?? null;
+        $copies = $ta['by_copies'][0] ?? null;
+        if ($works) {
+            $examples[] = 'پراثرترین مؤلف ' . $works['name'] . ' است، با ' . self::n($works['works']) . ' اثر و ' . self::n($works['copies']) . ' نسخه؛ یعنی هر اثرش به‌طور میانگین '
+                . Fa::digits(str_replace('.', '٫', (string) round($works['copies'] / max(1, $works['works']), 1))) . ' نسخه دارد.';
+        }
+        if ($copies && $works && $copies['id'] !== $works['id']) {
+            $examples[] = 'پرنسخه‌ترین مؤلف ' . $copies['name'] . ' است، با ' . self::n($copies['copies']) . ' نسخه از ' . self::n($copies['works']) . ' اثر؛ یعنی هر اثرش به‌طور میانگین '
+                . Fa::digits(str_replace('.', '٫', (string) round($copies['copies'] / max(1, $copies['works']), 1))) . ' نسخه دارد.';
+        }
+        $both = count(array_intersect(array_column($ta['by_works'], 'id'), array_column($ta['by_copies'], 'id')));
+        if ($works && $copies) {
+            $examples[] = 'از ' . self::n(count($ta['by_works'])) . ' مؤلف فهرست نخست، ' . ($both > 0 ? self::n($both) . ' تن' : 'هیچ‌کدام') . ' در فهرست دوم هم هستند.';
+        }
+        if ($ta['authors'] > 0) {
+            $examples[] = 'از ' . self::n($ta['authors']) . ' مؤلف این دامنه، ' . self::n($ta['single']) . ' تن (' . self::share($ta['single'], $ta['authors']) . ') تنها یک اثر دارند.';
+        }
+
+        return [[
+            'دو فهرست کنار هم آمده است: مؤلفانی که بیشترین اثر به نامشان ثبت است، و مؤلفانی که از آثارشان بیشترین نسخه مانده است. در هر ردیف هر دو شمار آمده و شماری که فهرست بر پایۀ آن چیده شده پررنگ است. روی هر شمار بزنید تا آثار یا نسخه‌های همان مؤلف را ببینید.',
+            'چون شمار اثر از پرکاری مؤلف می‌گوید و شمار نسخه از رواج آثارش. مؤلفی که ده‌ها رسالۀ کوتاه در پاسخ پرسش‌ها نوشته، آثار بسیار دارد و از هر کدام چند نسخه؛ مؤلف یک متن درسی، با چند اثر هزاران نسخه دارد. شمار اثر به شیوۀ فهرست‌نگاری هم بسته است: رساله‌هایی که جدا فهرست شده‌اند هر کدام یک اثر شمرده می‌شوند، و اثری که به نادرست به مؤلفی نسبت داده شده نیز در شمار اوست.',
+        ], $examples];
+    }
+
+    private function formats(): array
+    {
+        $fm = $this->data['formats'];
+        $cm = fn ($v) => Fa::digits(str_replace('.', '٫', (string) $v));
+        $label = fn (array $band) => match (true) {
+            $band['upto'] === null => 'بلندتر از ' . Fa::digits($band['above']) . ' سانتی‌متر',
+            $band['above'] === 0 => 'تا ' . Fa::digits($band['upto']) . ' سانتی‌متر',
+            default => 'بیش از ' . Fa::digits($band['above']) . ' تا ' . Fa::digits($band['upto']) . ' سانتی‌متر',
+        };
+        $examples = [];
+        if ($fm['with_size'] > 0) {
+            $peak = self::top($fm['bands']);
+            $examples[] = 'پرشمارترین دسته «' . $label($peak) . '» است: ' . self::n($peak['count']) . ' نسخه، یعنی ' . self::share($peak['count'], $fm['with_size']) . ' نسخه‌هایی که ابعاد دارند.';
+            $examples[] = 'میانۀ بلندی صفحه ' . $cm($fm['median']) . ' سانتی‌متر است؛ یعنی نیمی از نسخه‌ها به همین بلندی یا کوتاه‌ترند.';
+        }
+        if ($size = $fm['common'][0] ?? null) {
+            $examples[] = 'پرشمارترین اندازه ' . $cm($size['width']) . ' در ' . $cm($size['height']) . ' سانتی‌متر است، با ' . self::n($size['count']) . ' نسخه.';
+        }
+        if (count($fm['subjects']) > 1) {
+            $high = $fm['subjects'][0];
+            $low = $fm['subjects'][count($fm['subjects']) - 1];
+            $examples[] = 'در میان موضوع‌ها، نسخه‌های «' . $high['name'] . '» بلندترین صفحه را دارند (میانگین ' . $cm($high['height']) . ' سانتی‌متر) و نسخه‌های «'
+                . $low['name'] . '» کوتاه‌ترین را (میانگین ' . $cm($low['height']) . ' سانتی‌متر).';
+        }
+
+        return [[
+            'نمودار راست نسخه‌ها را بر پایۀ بلندی صفحه دسته‌بندی می‌کند و زیر آن اندازه‌هایی را می‌آورد که بیش از همه نوشته شده‌اند. نمودار چپ میانگین بلندی صفحۀ نسخه‌های هر سده را با ستون نشان می‌دهد و عددهای زیر آن میانگین پهناست. فهرست پایین، میانگین بلندی صفحه را در نسخه‌های هر موضوع می‌آورد.',
+            'نه. فهرست‌ها ابعاد را به سانتی‌متر نوشته‌اند و این آمار همان را دسته‌بندی می‌کند؛ نام‌های قطع (بغلی، رقعی، وزیری، رحلی) در منابع یک اندازۀ یکسان ندارند و اینجا به کار نرفته‌اند. به این نکته‌ها هم توجه کنید: برخی فهرست‌ها اندازۀ جلد را نوشته‌اند و برخی اندازۀ برگ را؛ برگ‌ها در صحافی‌های پیاپی بریده و کوچک‌تر شده‌اند؛ و رساله‌های یک مجموعه همه اندازۀ همان مجلد را دارند و چند بار شمرده می‌شوند.',
         ], $examples];
     }
 

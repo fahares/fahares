@@ -186,7 +186,10 @@ class Manuscript extends Model
         }
         $life = \App\Support\DateEstimates\Loader::LIFE;
 
-        return DB::table('works')->leftJoin('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
+        // a part that reads its date from the work it is a part of: that work's composition (step 14.315)
+        $inherited = collect(\App\Support\WorkParts::inheritedCompositions())->only($ids)->map(fn (Work $whole) => (int) $whole->composition_date_from)->filter(fn (int $y) => $y > 0)->all();
+
+        return $inherited + DB::table('works')->leftJoin('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
             ->selectRaw("works.id AS id, GREATEST(COALESCE(works.composition_date_from, 0), COALESCE(people.birth_year_hijri, COALESCE(people.death_from, people.death_year_hijri, people.century_hijri * 100 - 99) - {$life}, 0)) AS year")
             ->pluck('year', 'id')->map(fn ($y) => (int) $y)->filter(fn (int $y) => $y > 0)->all();
     }
@@ -237,6 +240,23 @@ class Manuscript extends Model
         });
 
         static::deleted(fn (Manuscript $manuscript) => static::reindexWorks([$manuscript->work_id]));
+
+        // The «مجموعه» record of its volume follows its library and collection_key (backlog item 163, step 14.322)
+        static::saved(function (Manuscript $manuscript) {
+            if ($manuscript->wasRecentlyCreated || $manuscript->wasChanged(['collection_key', 'library_id', 'work_id', 'collection_pinned'])) {
+                \App\Support\Collections::sync([$manuscript->id]);
+                $manuscript->collection_id = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id');
+                $manuscript->syncOriginalAttribute('collection_id');
+            } elseif ($manuscript->wasChanged(\App\Support\CollectionValues::COPY_COLUMNS)
+                && ($collection = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id'))) {
+                // what its volume is said to be follows what its treatises say (step 14.323); the link is written
+                // beside the model, so the row is asked
+                \App\Support\Collections::derive([(int) $collection]);
+            }
+        });
+        // (the link is written beside the model, so the row is asked which collection it leaves)
+        static::deleting(fn (Manuscript $manuscript) => $manuscript->setAttribute('collection_id', DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id')));
+        static::deleted(fn (Manuscript $manuscript) => $manuscript->collection_id ? \App\Support\Collections::recount([(int) $manuscript->collection_id]) : null);
 
         // The scribes' tab of the search holds when and where each scribe copied (step 14.155)
         static::updated(function (Manuscript $manuscript) {
@@ -806,6 +826,26 @@ class Manuscript extends Model
     }
 
     /**
+     * Whether the page still shows the two old lists of the metadata, «فوائد و رسائل» and «یادداشت‌های فهرست‌نگار»:
+     * the typed notes of the import (step 14.260) never took their place. So it is for a copy without a note, and for
+     * one whose notes were all added by a reviewer (step 14.318): an editor's note that the log shows was a note of
+     * the import before, corrected or retyped, is not such a one, nor is the copy an import's note was removed from.
+     */
+    public function keepsOldNotes(): bool
+    {
+        if ($this->notes->isEmpty()) {
+            return true;
+        }
+        if ($this->notes->contains(fn (ManuscriptNote $note) => $note->typed_by !== 'editor')) {
+            return false;
+        }
+
+        return ! AuditLog::where('auditable_type', self::class)->where('auditable_id', $this->id)->where('action', 'verify')
+            ->where('old_values', 'like', '%"notes"%')->get(['old_values'])
+            ->contains(fn ($log) => ($log->old_values['notes']['typed_by'] ?? 'editor') !== 'editor');
+    }
+
+    /**
      * How many seals, ownership notes, endowments and acquisitions the copy has, for the lists of results: its typed
      * notes of provenance, or the metadata list of a copy without them. A list a reviewer corrected is not looked up
      * here (keepsSealsList costs two queries a copy).
@@ -884,13 +924,21 @@ class Manuscript extends Model
     {
         // Persian digits and the dash variants the catalog uses («111/20 – ب») read as one form
         $shelfmark = strtr(trim((string) $shelfmark), ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '–' => '-', '—' => '-', '‐' => '-', '‑' => '-']);
+        // A copy with two shelfmarks (its microfilm and its photograph, or two reels) is of the volume the first one
+        // names (step 14.322): «2297/1-ف و 2715/1-ف» of «2297-ف», «240/5 و 6927/2-عکس» of «240»; where the first
+        // names no part, «9364 و 4981/3ف», of the second's, «4981-ف»
+        if (preg_match('/^(.*?\d.*?)\s+و\s+(\d.*)$/su', $shelfmark, $two)) {
+            $shelfmark = str_contains($two[1], '/') ? trim($two[1]) : $two[2];
+        }
         // The volume number is plain: in «5679-29/19» (Golpayegani) the slash belongs to the old number, not to a part
         if (! preg_match('~^([^/-]*\d[^/-]*?)\s*/\s*([^-]*\d[^-]*?)\s*(?:-\s*(.+))?$~u', $shelfmark, $m)) {
             return null;
         }
         // «ـ ف», «: فیاض», «؛ کر»: the joiners before a mark are not part of it
         $clean = fn (string $t) => preg_replace('/^[\s_:؛ـ\x{200C}-]+|[\s_:؛ـ\x{200C}-]+$/u', '', $t);
-        $tail = $clean($m[3] ?? '');
+        // «462/2(آ)-463/2(ب)-ف»: the second reel's number is no mark; the mark is the «ف» after it (step 14.322)
+        $tail = preg_match('~^\d+\s*/.*-\s*([^\d/-]+)$~su', $m[3] ?? '', $second) ? $second[1] : ($m[3] ?? '');
+        $tail = $clean($tail);
         $collection = $tail !== '' && preg_match('/\p{L}/u', $tail) ? ($tail === 'ط' ? 'طباطبائی' : $tail) : null;
         preg_match('/^(\d+)\s*(.*)$/su', trim($m[2]), $p);
         $stuck = $clean($p[2] ?? '');
@@ -1036,22 +1084,100 @@ class Manuscript extends Model
      * place its part number gives it. Empty when the shelfmark has no part. A copy fahares:fill-collection-keys has
      * not keyed yet finds its volume by the shelfmark's number.
      */
+    public function collection(): BelongsTo
+    {
+        return $this->belongsTo(ManuscriptCollection::class, 'collection_id');
+    }
+
+    /** @var \Illuminate\Support\Collection<int, self>|null the treatises of the copy's volume, found once */
+    private ?\Illuminate\Support\Collection $siblings = null;
+
+    /** The treatises of the copy's volume, itself among them, in the order of their leaves; found once for the model. */
     public function collectionSiblings(): \Illuminate\Support\Collection
     {
+        return $this->siblings ??= $this->findCollectionSiblings();
+    }
+
+    /**
+     * The «مجموعه» the copy reads from (backlog item 163, step 14.324): treatises bound together, two of them or
+     * more. Null for a copy in no collection, alone in its volume, or one of a work's volumes under one number.
+     */
+    public function boundCollection(): ?ManuscriptCollection
+    {
+        $collection = $this->collection_id ? $this->collection : null;
+
+        return $collection && $collection->kind === ManuscriptCollection::BOUND && $collection->copies_count >= 2 ? $collection : null;
+    }
+
+    /**
+     * Whether the copy's own entry says something of a field of CollectionValues: a value, or for the scribe that
+     * the hand is the author's. «بی‌کا» is no statement: the catalogue found no scribe named in this treatise, as in
+     * nine of ten treatises that read their volume's scribe (step 14.324).
+     */
+    public function states(string $field): bool
+    {
+        return \App\Support\CollectionValues::compared($field, $this) !== null || ($field === 'scribe' && $this->is_autograph);
+    }
+
+    /**
+     * Whether the copy reads a field from its collection: its hand, lines or scribe, where its own entry is silent
+     * and its volume's treatises agree. Nothing is written in the copy's columns; the value is the collection's.
+     */
+    public function inheritsFromCollection(string $field): bool
+    {
+        return in_array($field, \App\Support\CollectionValues::INHERITED, true) && ! $this->states($field)
+            && isset(($this->boundCollection()?->basis ?? [])[$field]);
+    }
+
+    /** The other treatises of the volume that state a field (a date, a place…), in the order of their leaves. */
+    public function siblingsStating(string $field): \Illuminate\Support\Collection
+    {
+        return $this->collectionSiblings()->reject(fn (self $m) => $m->is($this))->filter(fn (self $m) => \App\Support\CollectionValues::compared($field, $m) !== null)->values();
+    }
+
+    /**
+     * The seals, ownership notes, endowments and acquisitions the entries of the volume's other treatises give and
+     * this copy's does not: they are the volume's history, whichever treatise's entry tells them. One row for a text,
+     * with the treatises whose entries have it. Read when shown; no note is moved.
+     *
+     * @return \Illuminate\Support\Collection<int, array{note: ManuscriptNote, copies: \Illuminate\Support\Collection<int, self>}>
+     */
+    public function collectionNotes(): \Illuminate\Support\Collection
+    {
+        if (! $this->boundCollection()) {
+            return collect();
+        }
+        $siblings = $this->collectionSiblings()->reject(fn (self $m) => $m->is($this))->keyBy('id');
+        $fold = fn (ManuscriptNote $note) => $note->type . '|' . \App\Support\CollectionValues::folded($note->text);
+        $own = $this->notes->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])->map($fold)->flip();
+
+        return ManuscriptNote::whereIn('manuscript_id', $siblings->keys())->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])
+            ->orderBy('manuscript_id')->orderBy('position')->get()
+            ->reject(fn (ManuscriptNote $note) => $own->has($fold($note)))
+            ->groupBy($fold)
+            ->map(fn ($notes) => ['note' => $notes->first(), 'copies' => $notes->pluck('manuscript_id')->unique()->map(fn ($id) => $siblings[$id])->values()])
+            ->values();
+    }
+
+    private function findCollectionSiblings(): \Illuminate\Support\Collection
+    {
         $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark, $this->raw_text);
-        if ($key === null) {
+        // the copies of its «مجموعه» record (step 14.322); a copy with none yet, or of no library, is found by its key
+        $linked = $this->collection_id !== null;
+        if ($key === null && ! $linked) {
             return collect();
         }
         $base = self::collectionKey($this->shelfmark)['base'] ?? null;
         $byPart = self::query()
-            ->when($this->library_id, fn ($q) => $q->where('library_id', $this->library_id), fn ($q) => $q->whereNull('library_id')->where('library', $this->library))
-            ->when($this->collection_key !== null || $base === null,
-                fn ($q) => $q->where('collection_key', $key),
-                fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%'))
+            ->when($linked, fn ($q) => $q->where('collection_id', $this->collection_id), fn ($q) => $q
+                ->when($this->library_id, fn ($q) => $q->where('library_id', $this->library_id), fn ($q) => $q->whereNull('library_id')->where('library', $this->library))
+                ->when($this->collection_key !== null || $base === null,
+                    fn ($q) => $q->where('collection_key', $key),
+                    fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%')))
             ->with(['work.author', 'scribe'])
             ->limit(400)
             ->get()
-            ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
+            ->filter(fn (self $m) => $linked || ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
             // a run of separately numbered treatises («38131–38137») is in the order of its numbers; in a volume
             // whose copies share one plain number, the copies with no range follow the ranged ones
             ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? (self::isRunKey($key) ? self::plainNumber($m->shelfmark) : 0)),

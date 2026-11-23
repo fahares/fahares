@@ -212,10 +212,12 @@ class ImportCopyNotesCommandTest extends TestCase
             $this->assertStringContainsString('نوع یادداشت', $e->getMessage());
         }
 
-        // the page: the changed note under provenance, the add buttons of each section, the type's own button
+        // the page: the changed note under provenance, the add buttons of each section it has, the type's own button;
+        // a note of a section it lacks is added from the one button whose form asks the type (step 14.318)
         $page = $this->get(route('manuscripts.show', ['id' => $copy->getRouteKey()]))->assertOk();
         $page->assertSee('data-suggest-field="note_type_' . $note->id . '"', false)->assertSee('data-suggest-field="note_new_collation"', false)
-            ->assertSee('data-suggest-field="note_new_decoration"', false)->assertSee('افزودن آرایه');
+            ->assertDontSee('data-suggest-field="note_new_decoration"', false)->assertSee('data-suggest-new-note', false)
+            ->assertSee('<option value="note_new_decoration">آرایه</option>', false);
     }
 
     public function test_the_types_of_a_copy_s_notes_are_a_filter_of_the_search()

@@ -501,12 +501,21 @@ class SourceEntry extends Model
     /** The detail of the `open-catalog-viewer` event, or null when the volume has no page images. */
     public function viewer(): ?array
     {
-        $code = $this->sourceVolume?->facsimile_code;
+        $volume = $this->sourceVolume;
+        $code = $volume?->facsimile_code;
         if (! $code || ! $this->page_start || $this->source?->hasPageImages() === false) {
             return null;
         }
+        // The images are the volume's: a page outside its scanned pages, or an entry that names another volume than
+        // the one it hangs on, has no image here (step 14.325: «rasht-hamedan/v01/p1175», «dairat/v1043»).
+        if (($volume->page_first && $this->page_start < $volume->page_first) || ($volume->page_last && $this->page_start > $volume->page_last)) {
+            return null;
+        }
+        if ($this->volume_number !== null && $volume->volume_number !== null && (int) $this->volume_number !== (int) $volume->volume_number) {
+            return null;
+        }
 
-        return ['catalog' => $code, 'catalogName' => $this->sourceName(), 'volume' => $this->volumeNumber() ?? 1, 'page' => $this->page_start];
+        return ['catalog' => $code, 'catalogName' => $this->sourceName(), 'volume' => $volume->volume_number ?? $this->volume_number ?? 1, 'page' => $this->page_start];
     }
 
     /** The text of the cited page, for a source the site has as text only (plan docs/plans/source-page-text.md). */

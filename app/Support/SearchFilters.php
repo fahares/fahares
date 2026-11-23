@@ -389,11 +389,13 @@ class SearchFilters
                 $estimates = (bool) $this->get('estimates');
                 // an author known by the century alone counts by its middle, as in the index (Person::eraYear)
                 $era = \App\Models\Person::ERA_YEAR_SQL;
-                $query->where(fn ($q) => $q->where(fn ($q) => $between($q, 'works.composition_year_hijri')->whereNotNull('works.composition_year_hijri'))
-                    ->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
+                // a part's year is the one it reads from its whole, as in the index (step 14.315)
+                $composed = DB::raw(\App\Support\WorkParts::compositionYearSql());
+                $query->where(fn ($q) => $q->where(fn ($q) => $between($q, $composed)->whereNotNull($composed))
+                    ->orWhere(fn ($q) => $q->whereNull($composed)
                         ->whereIn('works.author_id', $between(DB::table('people')->whereRaw($era . ' IS NOT NULL'), DB::raw($era))->select('id')))
                     // ...or, having no era, an estimated composition that reaches into the years (as in the index)
-                    ->when($estimates, fn ($q) => $q->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
+                    ->when($estimates, fn ($q) => $q->orWhere(fn ($q) => $q->whereNull($composed)
                         ->where(fn ($q) => $q->whereNull('works.author_id')->orWhereNotIn('works.author_id', DB::table('people')->whereRaw($era . ' IS NOT NULL')->select('id')))
                         ->whereExists(fn ($e) => \App\Support\DateEstimates\EstimateText::placedCompositions($e)->whereColumn('date_estimates.subject_id', 'works.id')
                             ->when($to !== null, fn ($e) => $e->where('date_estimates.year_from', '<=', $to))

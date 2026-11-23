@@ -123,6 +123,8 @@ class SyncFixedShelfmarksCommand extends Command
 
         // their Fankha entries and cited pages follow (step 13.4)
         SourceEntrySync::syncIds(Manuscript::class, $updatedIds);
+        // ...and the «مجموعه» records of their volumes (step 14.322)
+        \App\Support\Collections::sync($updatedIds);
         $this->info("Total manuscripts updated in MariaDB: {$totalUpdated} / " . count($updates));
         if (isset($guard)) {
             $guard->printTo($this, 'manuscript');

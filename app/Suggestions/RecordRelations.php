@@ -4,6 +4,7 @@ namespace App\Suggestions;
 
 use App\Models\Manuscript;
 use App\Models\Work;
+use App\Support\WorkParts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -20,10 +21,12 @@ class RecordRelations
         'commentary' => ['شرحی است بر', 'شروح'],
         'gloss' => ['حاشیه‌ای است بر', 'حواشی'],
         'translation' => ['ترجمه‌ای است از', 'ترجمه‌ها'],
-        'abridgment' => ['تلخیص یا مختصری است از', 'تلخیص‌ها و مختصرها'],
+        'abridgment' => ['تلخیص، مختصر یا گزیده‌ای است از', 'تلخیص‌ها، مختصرها و گزیده‌ها'],
         'versification' => ['نظمی است از', 'منظومه‌ها'],
         'supplement' => ['تکمله یا ذیلی است بر', 'تکمله‌ها و ذیل‌ها'],
         'refutation' => ['ردیه یا نقدی است بر', 'ردیه‌ها و نقدها'],
+        // The whole and its part: a chapter, a selection or a volume recorded as a work of its own. The part reads the
+        // author, subject and language it lacks from the whole (WorkParts, step 14.308)
         'part' => ['بخش یا جلدی است از', 'بخش‌ها و مجلدها'],
         // Fankha's «وابسته به» of a kind not told (step 14.104, backlog item 6): a commentary on a commentary of the work, or
         // a title that names no kind
@@ -115,6 +118,13 @@ class RecordRelations
         if ($from->is($to)) {
             throw new InvalidArgumentException('یک رکورد نمی‌تواند با خودش رابطه داشته باشد.');
         }
+        // A work is no part of itself, nor of one of its own parts (step 14.308)
+        if ($from instanceof Work && $type === WorkParts::TYPE) {
+            WorkParts::flush();
+            if (WorkParts::wouldLoop($from->id, $to->id)) {
+                throw new InvalidArgumentException('این رابطه اثر را بخشی از خودش می‌کند: «' . $to->primary_title . '» هم‌اکنون بخشی از «' . $from->primary_title . '» یا از بخش‌های آن است.');
+            }
+        }
         $exists = DB::table($table)->where('type', $type)->where(function ($q) use ($key, $relatedKey, $from, $to, $type) {
             $q->where([$key => $from->id, $relatedKey => $to->id]);
             // «same set» has no direction
@@ -144,8 +154,13 @@ class RecordRelations
             'updated_at' => now(),
         ]);
         // The work made on another one is searched by that one's titles (Work::baseTitles, backlog item 95)
+        // ...and a part by the author, subject and language of its whole, as are the parts below it (step 14.308)
         if ($from instanceof Work) {
+            WorkParts::flush();
             $from->searchable();
+            if ($type === WorkParts::TYPE) {
+                WorkParts::reindexBelow($from->id);
+            }
         }
 
         return [
@@ -261,8 +276,30 @@ class RecordRelations
                 }
             }
         }
+        if ($table === 'work_relations') {
+            self::partsChanged([$target->id]);
+        }
 
         return $log;
+    }
+
+    /**
+     * After rows of work_relations were written outside add(): a merge, its undo, a rollback or a removed record. The
+     * works named (the two ends of the rows) and the parts below them go to the search index again, since a «part»
+     * row may be among the rows (step 14.308).
+     *
+     * @param  list<int>  $workIds
+     */
+    public static function partsChanged(array $workIds): void
+    {
+        WorkParts::flush();
+        $ids = array_map('intval', $workIds);
+        foreach ($workIds as $id) {
+            array_push($ids, ...WorkParts::descendantIds((int) $id));
+        }
+        if ($ids) {
+            Work::whereIn('id', array_values(array_unique($ids)))->get()->searchable();
+        }
     }
 
     /** Points the rows moveOnMerge() changed back at the restored record and restores the rows it deleted. */
@@ -278,5 +315,9 @@ class RecordRelations
             DB::table($log['table'])->insertOrIgnore($row);
         }
         DB::table('work_text_relations')->whereIn('id', $log['texts'] ?? [])->update(['work_id' => $sourceId]);
+        if ($log['table'] === 'work_relations') {
+            $rows = DB::table('work_relations')->whereIn('id', [...array_column($log['updated'], 0), ...array_column($log['deleted'], 'id')])->get(['work_id', 'related_work_id']);
+            self::partsChanged([$sourceId, ...$rows->pluck('work_id')->all(), ...$rows->pluck('related_work_id')->all()]);
+        }
     }
 }

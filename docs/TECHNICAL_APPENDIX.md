@@ -13084,6 +13084,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`resources/fonts/mtif-lotus/`:** `MtifLotus-Regular.woff2`، `MtifLotus-Bold.woff2`، `MtifLotus-Italic.woff2` و `MtifLotus-BoldItalic.woff2` (TTFهای `~/.local/share/fonts/Mtif/` با `woff2_compress`؛ معمولی و سیاه هر کدام ~۴۰ KB به‌جای ~۹۲ KB، دو ایتالیک ~۳۳ KB)، با چهار `@font-face` در `resources/css/app.css` (`font-display: swap`)؛ Vite آن‌ها را با نام هش‌دار در `public/build/assets` می‌گذارد.
 - **`--font-lotus`** در `@theme`: `'Mtif Lotus', 'Noto Naskh Arabic', 'Amiri', serif` (ابزار `font-lotus` در Tailwind).
 - **به‌کار رفته در:** `.book-sheet__head`، `.book-sheet__body`، `.book-sheet__notes`، `.book-sheet__foot` و متن بخش‌های `source-items/show.blade.php`.
+- **اندازه (۱۵٪ بزرگ‌تر):** `.book-sheet__head` ۰٫۹rem، `__folio` ۱٫۰۵rem، `__body` ۱٫۲۵ و از sm ۱٫۳۷۵rem، دوستونی ۱٫۱۲۵rem، `__notes` ۱٫۰۶۲۵rem، `__foot` ۱rem؛ متن مدخل `text-[1.15rem]`.
+- **شعر (`source-pages/show.blade.php`):** `step()` پس از `document.fonts.ready` هم اجرا می‌شود. بیت پهن‌تر از برگه نخست `column-gap: 1.5em` و `font-size` برابر `floor(room / scrollWidth, 0.01)em` می‌گیرد اگر این نسبت ≥ ۰٫۸۵ باشد؛ اگر باز نگنجد، سبک‌های درون‌خطی برداشته و `.is-stepped` افزوده می‌شود.
+
+### گام ۱۴.۳۰۸: ارث‌بری بخش از اثر اصل (`WorkParts`)
+
+- **داده:** همان `work_relations` با `type = 'part'` (`work_id` بخش، `related_work_id` اصل)؛ ستون یا جدول تازه‌ای نیست و migration ندارد.
+- **`App\Support\WorkParts`:** نقشۀ همۀ ردیف‌های `part` (یک پرس‌وجو برای هر درخواست یا job؛ نمونۀ `scoped` در container، با `flush()` پس از هر نوشتن). `wholeId()` (فقط وقتی درست یک اصل هست)، `wholeIds()`، `chainIds()` (تا `MAX_DEPTH = 5`، بی گذر دوباره از یک اثر)، `partIds()`، `descendantIds()`، `wouldLoop()` (از هر ردیف اصلِ اصل بالا می‌رود، نه فقط زنجیرۀ تک‌اصل)، `inheritors($work, $trait)` و `reindexBelow()`. `TRAITS = ['author', 'subject', 'language']`.
+- **`Work`:** `whole()`، `wholes()`، `hasOwn($trait)` (مؤلف: `author_id` یا `author_name` ناتهی؛ موضوع: `subject_summary` یا ردیفی در `subject_work`؛ زبان: `language_summary` یا ردیفی در `language_work`)، `traitSource($trait)` (خود اثر، یا نزدیک‌ترین اصل دارای آن خصوصیت) و `inherits($trait)`. `author_label` از `traitSource('author')` خوانده می‌شود؛ `own_author_label` مقدار خود رکورد است؛ `effective_author` (شخص) و `effective_author_name` برای نماهایی که `author` و `author_name` را جدا می‌خواندند. نتیجه‌ها در `$partsMemo` همان نمونه می‌مانند.
+- **`toSearchableArray`:** `titles_names`، `author_name`، `author_aliases`، `author_id`، `author_ids`، `author_death_year` و `era_year` از منبع مؤلف؛ `subject_summary` و `subjects` از منبع موضوع؛ `language_summary` و `languages` از منبع زبان. `composition_year_hijri` از خود بخش می‌ماند.
+- **نمایه‌سازی دوباره:** `RecordRelations::add()` (بخش و بخش‌های زیر آن)، `RecordRelations::partsChanged()` که از `moveOnMerge()`، `undoMove()`، `RecordRemover::remove()` و `undo()` و بازگردانی `added_record_relation` در `AuditLogController::rollbackVerify()` صدا زده می‌شود، قلاب `saved` در `Work` (تغییر `author_id`، `author_name`، `has_other_authors`، `subject_summary` یا `language_summary`) و قلاب `updated` در `Person` (نام، نام‌های دیگر، نام‌های نادرست).
+- **رد دور:** `RecordRelations::add()` برای `part` با `wouldLoop()`؛ پیام خطا در فرم تأیید زیر `applied_value` می‌آید.
+- **نماها:** `works/show` (سطر `data-part-of`، نشان `x-work-inherited` با `data-inherited`، «تاریخ تألیف اصل»، نشان `data-part-count` با پیوند به `#relations`)، `people/show` (سطرهای `data-inherited-part` زیر اثر اصل؛ `works_count` از `work_people` می‌آید و بخش ردیفی در آن ندارد)، `manuscripts/show`، `search`، `search/direct-answer`، `subjects/show`، `libraries/show`، `sources/show`، `catalogers/show`. `manuscript-collection`، `source-pages/show` و `source-items/show` با همان `author_label` مقدار مؤثر را می‌گیرند.
+- **محدودیت‌های دانسته:** صفحۀ موضوع و شمار آثار موضوع از `subject_work` خوانده می‌شود و بخشِ بی موضوع در آن‌ها نیست، ولی جست‌وجو با فیلتر موضوع، زبان یا پدیدآور آن را می‌آورد (سند جست‌وجو). `SuggestionRegistry::describe()` و فرم‌های مدیریت مقدار خود رکورد را نشان می‌دهند. قالب، محل تألیف و اهدا ارث برده نمی‌شود.
+- **production:** ۱۰٬۹۱۴ ردیف `work_relations`، از آن‌ها یک ردیف `part` (شناسۀ ۳، `source = suggestion`). `WorkRelationLinker`، `WorkRelationParser` و `LinkDecidedWorksCommand` هرگز `part` نمی‌سازند (`MARKS` و `OPENERS` این نوع را ندارند)؛ `DateEstimates\Loader` آن را کنار می‌گذارد.
+- **آزمون:** `WorkPartsTest` ده آزمون (مقدار مؤثر و مؤلف اختصاصی، موضوع و زبان اختصاصی بخش، هر خصوصیت از نزدیک‌ترین اصل دارای آن و نمایه‌سازی همۀ بخش‌های زیر یک اصل، دو صفحه، زنجیره و رد دور، دورِ نوشته‌شده بیرون از بررسی و سقف عمق، سند جست‌وجو و نمایه‌سازی دوباره، تأیید پیشنهاد و بازگردانی، ادغام و حذف اثر اصل، صفحۀ شخص).
+
+### گام ۱۴.۳۰۹: فیلدهای کالبد، خط، ویژگی‌ها و یادداشت‌ها در `ManuscriptCreator`
+
+- **ستون‌های ساده:** `copy_place` (قلاب `saving` شهر و ناحیه را می‌دهد)، `commissioned_by`، `dimensions`، `paper`، `binding`، `script_style` و `lines`. `lines_raw` و `line_counts` تهی می‌مانند: این دو عبارت متن فهرست‌اند و `CopyLines::columns` برای نسخۀ بی `raw_text` همان تهی را می‌خواهد، پس `refresh-derived` چیزی را عوض نمی‌کند.
+- **`ManuscriptCreator::FLAGS`:** سیزده ستون بولی صفحۀ نسخه با همان برچسب‌ها (`is_autograph`، `has_author_marginalia`، `corrected_by_author`، `collated_with_author_copy`، `copied_from_author_copy`، `is_illuminated`، `is_illustrated`، `is_corrected`، `has_marginal_notes`، `is_ruled`، `has_catchwords`، `is_collated`، `is_facsimile`). فرم `flags[نام]` می‌فرستد؛ کلید ناشناخته نادیده گرفته می‌شود.
+- **`scripts()`:** `ScriptNameCleaner::clean(script_names)`؛ اگر خطی شناخته شد `script_names` عبارت پاک‌شده (`wording`) است و برای هر خط ردیف `manuscript_script` ساخته می‌شود (نخستین، به ترتیب `ScriptNameCleaner`، `is_primary`)، خطِ نبوده در `scripts` ساخته و `manuscripts_count` آن شمرده می‌شود. عبارتی که خطی نمی‌دهد همان متن می‌ماند. `fahares:rebuild-scripts` فقط نسخۀ دارای سطر «خط:» در `raw_text` را می‌بیند.
+- **`notes()`:** `notes[i][type]` و `notes[i][text]` → `ManuscriptNote` با `position` پیاپی و `typed_by = editor`؛ یادداشت بی متن کنار می‌رود و نوع بیرون از `ManuscriptNote::TYPES` خطای اعتبارسنجی است.
+- **لاگ ممیزی:** ستون‌های تازۀ پرشده و ویژگی‌های روشن در `new_values` سطر `create` می‌آیند (پس `ProtectedColumns` آن‌ها را هم نگه می‌دارد). `undo()` تغییری نکرد: `RecordRemover::remove` ردیف‌های `manuscript_script` را برمی‌دارد و خط‌ها را بازمی‌شمارد، و `manuscript_notes` با حذف نسخه می‌رود (`cascadeOnDelete`).
+- **فرم:** بخش‌های «۴. کتابت و کالبد نسخه» و «۵. یادداشت‌های نسخه» (ردیف‌های Alpine، با نگه‌داشتن ورودی پس از خطا)؛ «منبع اطلاع» بخش ۶ شد.
+- **آزمون:** `test_the_copys_body_scripts_features_and_notes_are_made_with_it_and_go_with_the_undo`.
+- **پیش‌نمایش:** هنگام ثبت فرم، `fahares_test` به دست اجرای آزمون نشست دیگری (شاخه‌ای بی migration گام ۱۴.۳۰۶) از نو ساخته شده بود و درج اثر با «Column 'catalog_id' cannot be null» خطا داد؛ خطا از پایگاه مشترک بود، نه از کد.
 
 ### گام ۱۴.۳۱۰: `WorkRelationLinker::entries()`
 - **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):** `entries($text, $side)` به‌جای `WorkRelationParser::parseEntries` در `pairs()`. در سوی `children`، اگر تجزیه دو مدخل می‌دهد، هر دو بی پدیدآور، و دومی یک عنوان دارد: نام = همان عنوان پس از برداشتن کمانکِ تاریخ‌دار (`/\s*\((?=[^()]*\d).*$/su`). اگر نام تهی نیست و `byTitle[key(نام)]` نیست، مدخل یکم پدیدآورش را می‌گیرد (یا `null` اگر «ناشناس» است) و مدخل دوم کنار می‌رود. در غیر این صورت رفتار پیشین. `named[]` دیگر نام پدیدآور را عنوان نمی‌شمارد.
@@ -13092,3 +13118,174 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش پیش از ساخت (رونوشت محلی، ۱٬۸۰۵ سطرِ بی اثر مرتبطِ هم‌عنوان، با الگوی متنی):** «وابسته به»ی فقط پدیدآور ۴۰۷؛ «وابسته به»ی بی رکورد ۷۱؛ `children` پدیدآوردارِ بی رکورد ۲۴۴ و بی پدیدآورِ بی رکورد ۱۵۴؛ «N عنوان» ۲۹۱؛ همۀ آثار هم‌عنوان بسته به مدخل دیگر ۱۰۹؛ پدیدآوردار با یک اثر هم‌عنوان و هم‌پدیدآور ۱۶۱ (۱۱۵ بی‌تاریخ، ۴۶ تاریخ‌دار) و با دو اثر ۲۷؛ پدیدآوردار بی اثری از آن پدیدآور ۱۸۴؛ بی پدیدآور با آثار هم‌عنوانِ نامرتبط ۲۱۰.
 - **تمرین (`fahares_prod` محلی، ۳۰ آبان ۱۴۰۵):** `works:link-related --no-index`: «10827 relations: 151 to add, 4 to remove, 10676 kept»، «Left to the editors' relations: 30»، «Entries: 151 tied or untied»؛ اجرای دوم همه صفر. `works:link-decisions … --dry-run`: «613 entries: 0 to add»، «0 proposals to add». پایان: `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۲٬۱۶۵؛ رابطه‌ها auto ۱۰٬۸۲۷، model ۲۳۶؛ صفحه‌ها «بی پیوند» ۲٬۴۱۱. چهار حذف همان چهار رابطه‌ای‌اند که فقط رونوشت محلی داشت (۱۰٬۶۸۰ در برابر ۱۰٬۶۷۶ پروداکشن)، پس در پروداکشن انتظار حذف نیست.
 - **اجرا در تولید، پس از استقرار (پشتیبان `work_relations` و `work_text_relations` پیش از آن):** `works:link-related --dry-run` و سپس اجرا.
+
+### گام ۱۴.۳۱۲: مقدار کنونی در فرم تبدیل و `discardDerived`
+- **`SuggestionRegistry::fieldChoices`:** با رکورد، برای هر فیلد `current` (`currentValue`) و `pairCurrent` می‌دهد؛ `convertFields` همین را برای رکورد دیگر برمی‌گرداند.
+- **`partials/convert.blade.php`:** جعبۀ `data-current-value` زیر انتخاب فیلد (`field.current`).
+- **`Admin\SuggestionController::discardDerived`:** POST `/admin/suggestions/{suggestion}/discard-derived` (`admin.suggestions.discard-derived`). شرط‌ها: `payload.derived_from`، وضع `pending`، بدون `resolution.converted_to`، بدون پیام در گفت‌وگو. شناسه را از `resolution.converted_to` پیشنهاد اصلی برمی‌دارد؛ اگر فهرست تهی شد و اصل `converted` بود، `pending` می‌شود. `AuditLog` با `action = discard` و مقدارهای پیشنهاد حذف‌شده.
+- **`show.blade.php`:** فرم `data-discard-derived` کنار «این پیشنهاد را داور از روی … ساخته است».
+- **آزمون:** `SuggestionWorkflowTest::test_convert_shows_the_current_value_and_a_made_suggestion_is_taken_back_without_a_rejection`.
+
+### گام ۱۴.۳۱۳: یازده جلد از هارد اکسترنال `ahamd`
+- **منبع:** هارد اکسترنال کاربر، پوشۀ `ahamd/الفهارس/فهارس المخطوطات` (۸۶ گیگابایت؛ نام پوشه‌ها با «ي/ك» عربی). سیاهه (`../fahares-sources/_bi-tasvir/ahamd-inventory.tsv`: ۸۳۰ پرونده و ۱۲۳ پوشۀ تصویر) با ۲۰۷ جلد بی‌تصویر فهارس (`fahares_prod`) سنجیده شد (زیرعامل Sonnet؛ `ahamd-matches.md`): حدود ۴۵ جلد اسکن دارند، ۲۴ تا با اطمینان بالا. چاپ‌های دیگر به مورد ۱۳۵ و فهرست کتابخانه‌هایی که در فهارس نیستند به مورد ۱۵۸ رفتند (به خواست کاربر، هیچ منبعی دور ریخته نمی‌شود).
+- **کپی:** `../fahares-sources/_ahamd/fetch.py` پرونده‌ها را کپی می‌کند و پوشه‌های تصویر را بی بازفشرده‌سازی در PDF می‌گذارد (PyMuPDF)، در `_ahamd/<vid>.pdf` با `MD5SUMS`. مسیر هر کتاب از سیاهه با یکسان‌سازی «ي/ی»، «ك/ک» و ZWNJ یافته می‌شود، و ریشۀ هارد از `/run/media/tabib/*`. هارد یک بار در میانۀ کار جدا شد و پس از وصل دوباره، کپی کامل شد (۵٫۱ گیگابایت).
+- **خواندن:** نوار سر و پای هر برگ با `_ahamd/strips.py` (PyMuPDF، ۲۰ برگ در هر ورقه)؛ شش زیرعامل Sonnet با `_ahamd/READ-HEADERS.md` برگ‌به‌برگ خواندند (`strips-<vid>/pages.tsv`). در چند جلد شماره زیر نوار بود و زیرعامل‌ها نوار پایین‌تری بریدند. نخستین دور شش زیرعامل با قطع اتصال (ECONNRESET) بی خروجی ماند و دوباره، سه‌تا‌سه‌تا، اجرا شد. نگاشت‌ها با `_ahamd/build_map.py` (رونوشت `tehran-univ-microfilm/work/build_map.py` با `RANGE` و `FIX` این جلدها).
+
+| جلد | شناسه | کد | پرونده | صفحه‌ها | یادداشت |
+| :--- | ---: | :--- | :--- | :--- | :--- |
+| عکسی دائرةالمعارف ۱ | ۵۱۹ | `dairat-akasi` v1 | Binder1.pdf، ۷۹۰ برگ | ۱–۷۶۶ | برگ = صفحه + ۱۸؛ پیش‌گفتار با شماره به حروف (برگ ۵–۱۸) کنار ماند |
+| ملک ۱ | ۲۰۲ | `malek` v1 | پوشۀ ۶۳۱ تصویر | ۱–۶۲۳ | چاپ دوم، تیر ۱۳۶۱، چاپخانۀ دانشگاه تهران؛ پیش‌گفتار «چاپ دیگری از جلد اول»؛ برگ = صفحه + ۴ |
+| نشریۀ دانشگاه، دفتر ۲ | ۵۰۶ | `tehran-univ-nashriyye` v2 | ۲۹۳ برگ، JBIG2 | ۲–۲۸۳ | برگ = صفحه + ۵ |
+| مجلس ۳۸ | ۴۳۷ | `majlis` v38 | «چ 38.pdf»، دوصفحه‌ای، ۳۷۹ برگ | ۱۰–۷۴۹ | راست = ۲·برگ − ۴؛ برگ ۳۱۰ تکرار ۳۰۹؛ ص ۶۲۸–۶۲۹ نیست |
+| مجلس ۳۷ | ۴۳۶ | `majlis` v37 | «ج 37.pdf»، دوصفحه‌ای، ۳۵۳ برگ | ۴–۶۹۵ | راست = ۲·برگ − ۱۲ و از برگ ۲۰۶ ۲·برگ − ۱۰؛ ص ۴۰۰–۴۰۱ نیست |
+| مجلس ۱/۲۷ | ۶۴۵ | `majlis-p1` v27 | پوشۀ ۵۶۶ تصویر | ۶–۵۶۴ | برگ = صفحه |
+| مجلس ۴۵ | ۴۳۹ | `majlis` v45 | پوشۀ ۳۴۲ تصویر | ۶–۳۴۱ | برگ = صفحه؛ نمایه و لوح‌ها با همان شماره‌گذاری |
+| مجلس ۵۱ | ۶۴۹ | `majlis` v51 | پوشۀ ۲۵۴ تصویر | ۲–۲۴۴ | برگ = صفحه + ۸ |
+| الهیات مشهد ۲ | ۳۳۱ | `mashhad-ilahiyat` v2 | پوشۀ ۷۳۵ تصویر | ۱–۷۲۰ | برگ = صفحه + ۱۱ |
+| گوهرشاد ۴ | ۴۷۴ | `goharshad` v4 | «ج4.pdf»، ۴۴۰ برگ | ۱۸۴۳–۲۲۷۶ | شماره‌گذاری پیوسته؛ برگ = صفحه − ۱۸۳۷؛ لوح‌ها (برگ ۳۰۸–۳۸۰) جای ص ۲۱۴۵–۲۲۱۷ |
+| گوهرشاد ۵ | ۴۷۵ | `goharshad` v5 | «ج5.pdf»، ۹۲۷ برگ | ۸–۹۲۷ | برگ = صفحه؛ نمایه و لوح‌ها با همان شماره‌گذاری |
+
+- **تصویرها:** `extract_edition_pages.py --map … --width 1100 --mupdf` (دوصفحه‌ای‌ها بریده در شیرازه): ۷٬۳۴۲ برگه، ۴۵۸ مگابایت.
+- **پوشش:** ۱۴٬۷۱۳ ارجاع از ۱۴٬۷۰۱ نسخه؛ ۱۴٬۶۸۶ ارجاع و ۱۴٬۶۷۴ نسخه روی برگه. بیرون از نگاشت: صفحه‌های جاافتادۀ مجلس ۳۷ و ۳۸ و شماره‌های پرت فنخا.
+- **سنجش کور** (seed 143130؛ `_ahamd/checkA` و `checkB`؛ از هر جلد ۵ ارجاع و ۱ فریب): ۵۵ از ۵۵ ارجاع «هست» و ۱۱ از ۱۱ فریب «نیست». در چند نمونه شمارۀ مجموعه تنها در برگۀ پیش بود و بخش روی برگه.
+- **تمرین (`fahares_prod`):** «0 created, 11 updated, 196 unchanged»، و اجرای دوم «0 updated, 207 unchanged».
+- **انتقال تصویرها (۱ آذر ۱۴۰۵، به تأیید کاربر، پس از انتشار ۱۹۳):** هیچ‌کدام از ۱۱ پوشه روی سرور نبود. هر پوشه جدا با `C=<code>/vNN send.sh`. ده پوشه در دور نخست کامل شدند. گوهرشاد ج ۵ با قطع اتصال نیمه‌کاره ماند (۷۵۹ از ۹۲۰)، و اجرای دوباره «missing 0» داد (`send.sh` اندازۀ هر پرونده را هم می‌سنجد). جمع ۷٬۳۴۲ پرونده؛ سپس `chown` و `chmod`.
+- **اجرای پروداکشن (انتشار ۱۹۳، `0894b626`؛ به تأیید کاربر):** فایل داده با کامیت گام یکی بود (md5 `c9748e4f…`)، و اجرای آزمایشی «11 updated». پشتیبان ۱۱ ردیف `catalog_volumes` و `source_volumes` (کد همه خالی) در `../fahares-sources/backups/step13/before_step14_313_set_facsimiles_20261122_1159.json`. `prod-run`: «0 created, 11 updated, 196 unchanged»؛ اجرای آزمایشی دوم «0 updated, 207 unchanged». صفحۀ یک نسخۀ تصادفی از هر ۱۱ جلد نشانی برگۀ درست را دارد (برای نمونه `/manuscripts/28424`، ملک ج ۱ ص ۲۶؛ `/manuscripts/52560`، گوهرشاد ج ۴ ص ۲۰۴۴؛ `/manuscripts/137555`، مجلس ج ۳۸ ص ۱۰۳)، و سه برگۀ نمونه از fahares.net پاسخ ۲۰۰ دادند، با همان اندازۀ محلی.
+
+### گام ۱۴.۳۱۴: `Insights::topAuthors()` و `Insights::formats()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها دو ستون تازه دارد، `page_height` و `page_width` (`DECIMAL(6,1)`). `dimensions` تنها وقتی خوانده می‌شود که با `^[0-9]+(/[0-9]+){0,1}×[0-9]+(/[0-9]+){0,1} {0,1}(سم){0,1}$` بخواند؛ «/» ممیز است؛ `GREATEST` بلندی و `LEAST` پهناست. در الگو «?» نیامده، چون دستور ساخت جدول با binding اجرا می‌شود و «?» جای‌نگهدار شمرده می‌شد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v17`.
+  - `top_authors`: `by_works` و `by_copies` (هر ردیف `id, key, name, death, works, copies`)، `authors`، `single`، `works`. شمارش از `work_people` با نقش `author`، پیوسته به جدول موقت آثار و نسخه‌های دامنه؛ همان تعریفی که پالایۀ «مؤلف» دامنه دارد.
+  - `formats`: `bands` (لبه‌ها از `insights.height_bands`: ۱۵، ۱۸، ۲۱، ۲۴، ۲۸، ۳۴)، `with_size`، `left_out` (بیرون از `insights.page_cm` = ۳ تا ۷۰)، `median` (با رتبه، نه با بار کردن در PHP)، `centuries` (`height, width, count`؛ تنها نسخه‌های یک‌سده‌ای)، `common` (`insights.sizes_shown` = ۸ اندازۀ دقیق)، `subjects` (موضوع اصلی با `COALESCE(parent_id, id)`، دست‌کم `min_sample` نسخه، ده موضوع پرنسخه، چیده از بلندترین).
+- **نما:** `charts/top-authors.blade.php` (در دامنۀ یک مؤلف یا یک اثر نمی‌آید) و `charts/formats.blade.php`؛ در `insights.topics` به `people` و `copies` افزوده شدند. عنوان صفحۀ اشخاص «مؤلفان، کاتبان و حامیان» شد.
+- **[InsightsNotes](../app/Support/InsightsNotes.php) و [InsightsTables](../app/Support/InsightsTables.php):** کلیدهای `topAuthors` و `formats`؛ جدول‌ها `authors-by-works`، `authors-by-copies`، `page-heights`، `page-sizes`، `page-by-century`، `page-by-subject`.
+- **آزمون:** `InsightsAuthorsFormatsTest` (سه آزمون: رتبه‌بندی مؤلفان، دسته‌بندی بلندی با ابعاد وارونه و ناخوانا و بیرون از دامنه، و رندر دو صفحه).
+- **سنجش ابعاد (رونوشت محلی):** از ۳۲۳٬۲۴۹ نسخه ۲۳۶٬۰۸۴ ابعاد دارند و ۲۳۵٬۷۷۵ با الگو می‌خوانند؛ ۲٬۲۸۹ تا ضلع بلندتر را نخست نوشته‌اند. دسته‌ها: ۱۲٬۴۱۲، ۳۶٬۷۲۲، ۷۴٬۸۶۸، ۴۹٬۲۸۱، ۲۹٬۹۴۴، ۲۶٬۵۳۹، ۵٬۷۷۷.
+
+### گام ۱۴.۳۱۵: تاریخ تألیف ارثی
+
+- **`WorkParts::TRAITS`:** `composition` افزوده شد. `Work::hasOwn('composition')`: `composition_date_raw` ناتهی، یا `composition_year_hijri`، یا `composition_date_from`/`_to`.
+- **قید مؤلف در `Work::traitSource('composition')`:** نزدیک‌ترین اصلِ تاریخ‌دار فقط وقتی منبع است که `sharesAuthorWith()` برقرار باشد: منبع مؤلفِ بخش و منبع مؤلفِ آن اصل یک اثر باشند، یا `author_id` هر دو یکی و ناتهی باشد. وگرنه منبع خود بخش است (بی تاریخ). پس زیر بخشی با مؤلف دیگر هم تاریخ پایین نمی‌آید.
+- **`effective_composition_year`:** سال منبع. به کار رفته در `toSearchableArray` (`composition_year_hijri`، `era_year`، `composition_sort_year`؛ `era_estimate_*` تهی)، `compositionEstimate()` (برای بخشِ تاریخ‌دار از اصل `null`)، `plausibleCopyYearFloor()` (با `effective_author`)، `SearchController` (کف سال نسخه‌ها)، `SearchExport` و نماهای `search`، `people/show` و `subjects/show`.
+- **مسیرهای پایگاه داده:** `WorkParts::inheritedCompositions()` (شناسۀ بخش ← اثر منبع؛ نمونۀ `scoped`، با `flushDates()` هنگام تغییر تاریخ یا مؤلف یک اثر) و `WorkParts::compositionYearSql()` که برای بخش‌های ارث‌بر `CASE works.id WHEN … THEN … ELSE works.composition_year_hijri END` می‌دهد و بی چنین بخشی خود ستون را. به کار رفته در فیلتر سال `SearchFilters::apply()`، مرتب‌سازی «کهن‌ترین/تازه‌ترین تألیف» در `SearchController` (با و بی «تخمین‌ها»)، و مرتب‌سازی تاریخ در `SubjectController`. `Manuscript::copyFloors()` برای بخش ارث‌بر `composition_date_from` اصل را می‌دهد.
+- **تخمین‌ها:** `DateEstimates\Loader::load()` متغیر تألیف بخش ارث‌بر را با بازۀ اصل seed می‌کند (`seedSpan` با ستون‌های `composition_date_*` اصل)؛ پس `fahares:estimate-dates` برای آن ردیف `date_estimates` نمی‌نویسد و ردیف پیشین را برمی‌دارد، و قیدهای نسخه‌ها و اشخاص بخش با همان تاریخ سنجیده می‌شوند (ناسازگاری‌ها هم با همان). صفحۀ اثر، حتی پیش از اجرای شبانه، برای بخش ارث‌بر تخمین نشان نمی‌دهد.
+- **نمایه‌سازی دوباره:** قلاب `saved` در `Work` اکنون با تغییر `composition_date_raw` یا `composition_year_hijri` هم بخش‌های زیر اثر را می‌فرستد.
+- **صفحۀ اثر:** `$dateFrom = traitSource('composition')` برای نشان «تألیف … ق» و سطر «تاریخ تألیف» (با `x-work-inherited` هنگام ارث)؛ `$datedWhole` (سطر «تاریخ تألیف اصل») فقط وقتی بخش تاریخ را ارث نمی‌برد و تاریخ نزدیک‌ترین اصلِ تاریخ‌دار با تاریخ خودش یکی نیست.
+- **دست‌نخورده:** `Insights` و `InsightsScope` (شمار آثار هر سده از ستون خود اثر)، `PersonPlaces`، `KnownRulers` در `RefreshDerivedCommand` و `BackfillWorkDedicationsCommand`، `FixLifeYearsCommand`، و `SuggestionRegistry::describe()`.
+- **پس از انتشار (یک بار، فقط نمایۀ جست‌وجو را می‌نویسد):** `php artisan tinker --execute='App\Models\Work::whereIn("id", DB::table("work_relations")->where("type", "part")->pluck("work_id"))->get()->searchable();' < /dev/null` با `scripts/dev/prod-run`. بی آن، سند جست‌وجوی بخش‌هایی که پیش از این گام وصل شده‌اند تا تغییر بعدی‌شان سال تألیف ندارد.
+- **آزمون:** `WorkPartsTest` سیزده آزمون؛ سه آزمون تازه: تاریخ ارثی و نبودن تخمین (صفحه، سند جست‌وجو، `estimate-dates`، `copyFloors`، مرتب‌سازی و فیلتر پایگاه، تغییر تاریخ اصل، برداشتن رابطه)، تاریخ اختصاصی بخش، و بخشِ دارای مؤلف دیگر.
+
+### گام ۱۴.۳۱۶: برچسب `abridgment` و `part`
+- **`RecordRelations::WORK_TYPES`:** «گزیده» از برچسب `part` به `abridgment` رفت. کلیدها و داده دست نخورد؛ ارث‌بری (`WorkParts`) همچنان فقط روی `part` است.
+- **`components/record-relations.blade.php`:** راهنمای فرم.
+- **آزمون‌ها:** متن برچسب در `WorkPartsTest`، `LinkRelatedWorksTest` و `SuggestionWorkflowTest`.
+
+### گام ۱۴.۳۱۷: دکمه‌های `pages` و `range_from` در صفحۀ نسخه
+- **`manuscripts/show.blade.php`:** `$pagesOnly`؛ سطر حجم با `field` برابر `pages` یا `folios`؛ بلوک `data-extent-fields` (فقط در حالت پیشنهاد) با شمار دیگر و `rangeLabel()`.
+- **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.
+
+### گام ۱۴.۳۱۸: `note_new_{type}` برای هر نسخه، `Manuscript::keepsOldNotes()` و بازگردانی یادداشت
+- **`SuggestionRegistry::recordFields()`:** شرط `notes->isNotEmpty()` برداشته شد. فیلدهای `note_new_{type}` برای هر نسخه ساخته می‌شود؛ نوع‌های پیشینه تنها وقتی `! keepsSealsList() || ! ownership_and_seals_list`. در همین حالت `ownership_and_seals` از فیلدها می‌افتد، پس نسخۀ بی‌یادداشتی که فهرست کهنه‌اش تهی است به جای آن فیلد، یادداشت پیشینه می‌گیرد. `fieldOf()` دست نخورد و همین فهرست را می‌خواند.
+- **`Manuscript::keepsOldNotes()`:** درست است اگر نسخه یادداشتی ندارد، یا همۀ یادداشت‌هایش `typed_by = editor` است و هیچ ثبت `verify` نسخه در `old_values.notes.typed_by` مقداری جز `editor` ندارد (یعنی یادداشتی از درون‌ریزی اصلاح یا برداشته نشده). پرس‌وجوی لاگ تنها برای نسخه‌ای اجرا می‌شود که فهرست کهنه دارد و همۀ یادداشت‌هایش از ویراستار است.
+- **`manuscripts/show.blade.php`:** `$oldNotes` به جای `! $noteGroups` برای دو بخش «فوائد و رسائل» و «یادداشت‌های فهرست‌نگار». `$addsNote` و دکمۀ `data-suggest-new-note` که رویداد `suggest-field` را با `{ newNote: true }` می‌فرستد. `$addable` برداشته شد (صفحه دیگر `recordFields` را دوباره نمی‌خواند).
+- **`suggest/desk.blade.php` و `suggest-desk.js`:** `config.newNotes`، وضعیت `picking` و `newNoteName`، فهرست `data-new-note-type` (گروه‌بندی با `ManuscriptNote::GROUPS`، ساخته در سرور) و `chooseNewNote()` که فیلد را `note_new_{type}` می‌کند. کلید فرم و پیش‌نویس `newnote` است. فیلد افزودن یادداشت `adds = «متن یادداشت:»` و `newNote` دارد؛ `basisOptions` برای آن گزینۀ `typo` را نمی‌آورد. `suggest/field.blade.php` برای `note_new_*` نشان بعلاوه می‌گذارد.
+- **`SuggestionApplier::applyNote()`:** `old.notes` اکنون همۀ سطر را دارد (`position`، `also`، `by_author`، `by_author_hedge`، `hedge`).
+- **`AuditLogController::rollbackVerify()`:** کلید `notes`: با `old` تهی سطر `new.notes.id` پاک می‌شود؛ با `new.notes.removed` سطر با همان `id` ساخته می‌شود (لاگ‌های پیش از این گام `position` ندارند و سطر پس از آخرین یادداشت می‌آید)؛ وگرنه ستون‌های `old` به سطر برمی‌گردد. پیش از این شاخه‌ای برای `notes` نبود و `forceFill(['notes' => …])` روی خود نسخه می‌رفت، که ستونی به این نام ندارد.
+- **آزمون:** `FirstCopyNoteTest` (پیشنهاد و پذیرش، افزودن مستقیم، نمایش، بازگردانی افزودن و برداشتن و اصلاح، نسخۀ دارای فهرست کهنه). در `ImportCopyNotesCommandTest` ادعای دکمۀ جدای `note_new_decoration` به گزینۀ فهرست نوع‌ها بدل شد.
+
+### گام ۱۴.۳۱۹: طرح مجموعه
+- **سند:** `docs/plans/collections.md` (ویرایش دوم). داده: برون‌بری ۲۰ ستون از نسخه‌های کلیددار `fahares_prod` و تحلیل با پایتون، گروه‌بندی (`library_id`، `collection_key`)؛ کاتب با `scribe_id` و اگر نبود `scribe_name`؛ یکسان‌سازی املایی پیش از مقایسه.
+- **سنجه‌ها:** وضع هر فیلد در مجلد (هیچ، همه یکسان، تنها یکی، چند یکسان، ناهمسان)؛ احتمال هم‌سخنی یک رسالۀ مقداردار با رسالۀ مقداردار دیگر همان مجلد؛ احتمال هم‌سخنی رسالۀ سوم با دو رسالۀ هم‌سخن؛ جای رساله‌ای که تنها مقداردار مجلد است.
+- **بی تغییر کد، مهاجرت یا داده.**
+
+### گام ۱۴.۳۲۰: سی‌ودو جلد دیگر از هارد اکسترنال `ahamd`
+- **کپی:** همان `_ahamd/fetch.py` (گام ۱۴.۳۱۳) با فهرست تازه، ۳۲ پرونده (حدود ۹ گیگابایت؛ الهیات ج ۳ پوشۀ تصویر).
+- **خواندن، روش تازه:** `_ahamd/READ-FAST.md`: هر زیرعامل Sonnet از هر ده برگ یکی و پانزده برگ آغاز و پایان را می‌خواند، و هر جا دو نمونه با یک فاصله نمی‌خوانند، همۀ برگ‌های میان را. سطرهای پرشده `fill` دارند. شش زیرعامل، هر کدام پنج یا شش جلد. نگاشت‌ها با `_ahamd/build_map.py`؛ بخش‌هایی که شماره‌گذاری جدا دارند (پیش‌گفتار با حروف ابجد یا جدا، نمایۀ وزیری که از ۱ آغاز می‌شود) با `RANGE` کنار ماندند.
+
+| جلد | شناسه | کد | صفحه‌ها | چاپ (از برگ عنوان) | یادداشت |
+| :--- | ---: | :--- | :--- | :--- | :--- |
+| مرعشی ۲۳ تا ۲۷ | ۳۴–۳۸ | `marashi` v23–27 | ۳–۳۲۲، ۳–۳۴۸، ۳–۲۷۴، ۳–۴۲۵، ۴–۴۲۴ | | ج ۲۵: برگ ۲۸ و ۲۹ اسکن دوبارۀ ص ۲۶ و ۲۷ |
+| وزیری ۱ تا ۵ | ۶۱–۶۵ | `vaziri` v1–5 | ۱–۴۳۶، ۴۳۷–۸۱۵، ۸۱۷–۱۱۲۲، ۱۱۲۳–۱۵۰۰، ۱۵۰۱–۲۰۱۰ | ج ۱ مهر ۱۳۵۰ (تابان، انجمن آثار ملی)؛ ج ۳ خرداد ۱۳۵۳؛ ج ۴ اردیبهشت ۲۵۳۵ (چاپ میهن)؛ ج ۵ فروردین ۱۳۵۸ | شماره‌گذاری پیوسته؛ ج ۴ در چاپ ص ۱۱۵۵–۱۱۵۸ را ندارد و ۱۱۷۱–۱۱۷۴ را دو بار دارد |
+| سپهسالار ۱ و ۲ | ۲۴۹، ۲۴۸ | `sepahsalar` v1–2 | ۱–۷۰۰، ۱–۷۹۵ | مطبعۀ مجلس ۱۳۱۳–۱۳۱۵ و ۱۳۱۶–۱۳۱۸ | ج ۱: سه جفت لوح فاصله را جابه‌جا می‌کنند |
+| دائرةالمعارف (خطی) ۱ تا ۳ | ۵۱۶–۵۱۸ | `dairat` v1–3 | ۱–۴۷۲، ۱–۵۵۲، ۱–۵۵۹ | ۱۳۷۷، ۱۳۸۴، ۱۳۹۰ | |
+| فاضل خوانساری ۱ و ۲ | ۶۶۸، ۶۶۹ | `fazel-khansari` v1–2 | ۱–۲۹۲، ۷–۳۷۳ | ۱۳۷۴ | ج ۱: مقدمۀ مؤلف با شماره‌گذاری جدا کنار ماند |
+| شاهچراغ ۱ تا ۳ | ۴۸۵–۴۸۷ | `shahcheragh` v1–3 | ۱–۳۳۷، ۲–۴۵۵، ۱–۱۶۵ | ج ۳ ۱۳۸۲ | |
+| جلیلی کرمانشاه | ۵۴۰ | `jalili` v1 | ۵–۳۹۵ | ۱۳۸۳ (آستان قدس) | |
+| هزار و پانصد نسخۀ آستان قدس | ۶۴۲ | `ostadi-1500` v1 | ۷–۴۷۲ | ۱۳۷۳ (اسماعیلیان) | |
+| الهیات مشهد ۳ | ۳۳۳ | `mashhad-ilahiyat` v3 | ۷۲۱–۱۳۵۷ | ۱۳۶۱ | شماره‌گذاری پیوسته با ج ۲؛ ۱۰۰ لوح میان متن |
+| رشت و همدان | ۵۳۲ | `rasht-hamedan` v1 | ۱۲۴۲–۱۷۹۷ | ۱۳۵۳ (ایران‌زمین) | تنها نیمۀ دوم کتاب (همدان، جواهری، همراه، خیرات‌خان)؛ بخش رشت در پرونده نیست |
+| دانشگاه اصفهان ۱ | ۶۵۱ | `isfahan-univ` v1 | ۶–۲۹۱ | ۱۳۸۵ | |
+| روضاتی | ۵۰۴ | `rowzati` v1 | ۶–۱۵۱ | ۱۳۸۵ | |
+| معمارباشی | ۶۶۱ | `memarbashi` v1 | ۶–۱۵۴ | ۱۳۸۵ | |
+| بروجردی ۱ و ۲ | ۶۷۴، ۶۷۵ | `borujerdi` v1–2 | ۸–۲۵۳، ۲۵۶–۴۶۶ | ۱۳۸۴ | ج ۱ ص ۲۵۴ ندارد |
+| گلپایگان | ۵۸۹ | `golpayegan-libs` v1 | ۹–۲۸۰ | زمستان ۱۳۸۱ | |
+| سه کتابخانۀ اصفهان ۱ | ۷۱۰ | `isfahan-three` v1 | ۶–۲۴۱ | ۱۳۸۶ | |
+| نفایس اصفهان | ۴۹۷ | `isfahan-nafais` v1 | ۳–۳۹۹ | ۱۳۴۱ | |
+
+- **تصویرها:** `extract_edition_pages.py --map … --width 1100 --mupdf`: ۱۲٬۴۷۳ برگه، ۸۴۰ مگابایت.
+- **پوشش:** ۲۰٬۳۲۶ ارجاع از ۲۰٬۲۹۸ نسخه؛ ۱۹٬۷۴۲ ارجاع و ۱۹٬۷۲۸ نسخه روی برگه. بیشتر بیرون‌مانده‌ها از رشت و همدان‌اند (۲۵۹ از ۸۱۴ روی برگه).
+- **مدرسۀ غرب همدان (#۴۹۰):** ۱٬۴۰۹ از ۱٬۹۲۲ ارجاع این جلد «رشت و همدان: ف: …» در ص ۱۲۴۲ تا ۱۷۹۷ است، یعنی همین کتاب. بردنشان به #۵۳۲ در مورد ۱۶۴ ثبت شد.
+- **سنجش کور** (seed 143200؛ `_ahamd/check2A` تا `check2D`؛ از هر جلد ۳ ارجاع و ۱ فریب): ۳۲ از ۳۲ فریب «نیست». از ۹۶ ارجاع، ۹۴ «هست» و ۲ «نامطمئن»، هر دو از وزیری، که شماره را پس از عنوان و آغاز نسخه چاپ می‌کند، پس مدخل در صفحۀ ارجاع آغاز می‌شود و شماره در صفحۀ بعد می‌آید. یک خوانش زیرعامل («۶۰۹» به‌جای «۶۵۹» در سپهسالار ج ۲) با دیدن سرصفحه رد شد.
+- **تمرین (`fahares_prod`):** «0 created, 32 updated, 207 unchanged»، و اجرای دوم «0 updated, 239 unchanged».
+- **اجرا در تولید (۲ آذر ۱۴۰۵، پس از انتشار):** ۱۲٬۴۷۳ برگه با `send.sh` به سرور رفت؛ چند جریان ssh گیر کردند و یک نگهبان (هر جریانِ بی‌حرکت پس از ۵ دقیقه کشته شود) آن‌ها را از سر گرفت. شمار برگه‌ها در سرور و این‌جا برابر است. پشتیبان پیش از اجرا: `../fahares-sources/backups/step13/before_step14_320_set_facsimiles_20261123_2316.json` (md5 `3927dbe806cd07b3bddcf9b8688a5420`). `scripts/dev/prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 32 updated, 207 unchanged»؛ اجرای خشک پس از آن «0 updated, 239 unchanged». از هر یک از ۱۸ جلد یک نسخه در fahares.net دیده شد.
+- **دو ناهنجاری پیوند (پس از اجرا):** (۱) `SourceEntry::viewer()` بازۀ `page_first`–`page_last` جلد را نمی‌سنجد، پس ارجاع بیرون از اسکن به برگۀ ناموجود می‌رود (۵۵۵ ارجاع رشت و همدان بیرون از ص ۱۲۴۲–۱۷۹۷، مثلاً نسخۀ ۲۸۹۷۰۸ → `rasht-hamedan/v01/p1175.webp`). (۲) شمارۀ جلد را از خود ارجاع (`source_entries.volume_number`) می‌گیرد، نه از جلد؛ ۱٬۲۱۵ ارجاع تصویردار شماره‌ای جز شمارۀ جلدشان دارند (مثلاً نسخۀ ۲۹۳۷۶۱ → `dairat/v1043/p0238.webp`). اصلاح منتظر تصمیم کاربر است.
+
+### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
+- **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
+- **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
+- **`posts/index.blade.php`:** خط `data-telegram-channel` زیر توضیح سرصفحه، با همان شرط.
+- **آزمون:** `TelegramChannelLinkTest` (پیوند در جریده و پانویس صفحۀ درباره، نبود پیوند برای تهی و شناسۀ عددی، نام بی `@`).
+
+### گام ۱۴.۳۲۲: جدول `collections` و `Collections::sync`
+- **مهاجرت `2026_11_23_100001_create_collections_table`:** `collections` با یکتایی (`library_id`، `key`)، `kind`، ستون‌های مقدار هم‌نام ستون‌های نسخه (`binding`، `dimensions`، `folios`، `paper`، `script_names`، `script_style`، `lines`، `lines_raw`، `scribe_id`، `scribe_name`، `copy_date_raw`، `copy_place`)، `basis`، `metadata`، `copies_count`؛ و `manuscripts.collection_id` (تهی‌پذیر، `nullOnDelete`) و `collection_pinned`. روی رونوشت پروداکشن ۴۶ ثانیه.
+- **`Manuscript::collectionKey`:** پیش از الگو، شمارۀ دوتایی در « و » بریده می‌شود: نیمۀ نخست اگر «/» دارد، وگرنه نیمۀ دوم. دنباله‌ای که خودش شماره است («463/2(ب)-ف») تنها نشانۀ پایانی‌اش را می‌دهد.
+- **`App\Support\Collections`:** `sync(?array $manuscriptIds)` با چهار دستور SQL (درج کلیدهای تازه با `insertOrIgnoreUsing`، پیوند، برداشتن پیوند نسخۀ بی‌کلید، و `recount`). تنها `collection_id` و جدول `collections` نوشته می‌شود؛ `updated_at` نسخه و نمایۀ جست‌وجو دست نمی‌خورد. `recount` شمار و نوع را می‌نویسد (دو ردیف و بیشتر که همه یک اثرند: `set`) و مجموعۀ خالی را برمی‌دارد مگر `ManuscriptCollection::hasOwnData()`.
+- **صداکنندگان:** قلاب‌های `saved` (ساخت، یا تغییر `collection_key`، `library_id`، `work_id`، `collection_pinned`) و `deleting`/`deleted` مدل `Manuscript`؛ `DerivedData::syncCopies`؛ `fill-collection-keys`، `link-plain-volumes`، `SyncFixedShelfmarksCommand`؛ `LibraryMerger` (ادغام و بازگرداندن) و `SplitSenateLibraryCommand`. نوشتنی که از این راه‌ها نگذرد با `fahares:build-collections --apply` هم‌گام می‌شود.
+- **`Manuscript::collectionSiblings`:** با `collection_id` اگر هست؛ وگرنه راه پیشین (نسخۀ بی‌کتابخانه، یا فاصلۀ میان استقرار و اجرای فرمان).
+- **یکتایی کلید:** هم‌سنجی پایگاه داده دو املای «510-کر» را یکی می‌گیرد؛ پس شمار مجموعه‌ها یکی کمتر از شمار کلیدهای جداست (۳۲٬۹۳۱ و ۳۲٬۹۳۲).
+- **آزمون:** `CollectionsTest` (چهار آزمون).
+
+### گام ۱۴.۳۲۳: `CollectionValues` و `Collections::derive`
+- **`CollectionValues::derive(iterable $copies, string $kind)`:** تابع ناب؛ برای هر فیلد، گفتۀ رساله‌ها با صورت مقایسه‌ای (`compared`، `folded`) گروه می‌شود. دسته‌ها: `OWN` (جلد، اندازه، کاغذ)، `INHERITED` (خط، سطر، کاتب)، `SHARED` (تاریخ و محل کتابت؛ فقط اگر همۀ رساله‌ها بگویند). کاتب با `scribe_id` و اگر نبود با نام مقایسه می‌شود. `script_style` فقط وقتی همۀ رساله‌های گویندۀ خط یکی بدهند.
+- **`Collections::derive(?array $collectionIds, bool $write)`:** تفاوت مقدار و `basis` هر مجموعه را با ساخته‌شده می‌یابد (`valuesChange`) و می‌نویسد. `sync` پس از `recount` آن را برای مجموعه‌های دست‌خورده صدا می‌زند؛ قلاب `saved` نسخه با تغییر هر یک از `CollectionValues::COPY_COLUMNS`.
+- **تمرین روی `fahares_prod`** (ستون آخر: رساله‌هایی که خودشان چیزی نگفته‌اند و مقدار مجموعه را می‌خوانند؛ در پرانتز نسخه‌های عکسی):
+
+| فیلد | مبنا | مجموعه | رساله‌های خواننده |
+|---|---|---|---|
+| جلد | هم‌سخنی | ۵٬۵۹۵ | ۲٬۷۷۲ (۲۸۴) |
+| جلد | کامل‌ترین | ۹٬۱۳۵ | ۷٬۴۱۲ (۴۸۶) |
+| جلد | تنها یک رساله | ۴٬۴۸۹ | ۱۲٬۷۸۸ (۱٬۸۴۵) |
+| اندازه | هم‌سخنی | ۱۸٬۲۱۷ | ۵٬۰۲۲ (۸۲۰) |
+| اندازه | تنها یک رساله | ۱٬۶۷۹ | ۵٬۹۰۳ (۱٬۹۷۰) |
+| کاغذ | هم‌سخنی | ۶٬۶۱۷ | ۱۰٬۰۲۴ (۸۳) |
+| کاغذ | کامل‌ترین | ۱٬۴۵۶ | ۳٬۶۸۴ (۱) |
+| کاغذ | تنها یک رساله | ۲٬۹۹۵ | ۶٬۶۳۷ (۳۶) |
+| خط | هم‌سخنی | ۱۹٬۳۰۹ | ۴٬۷۵۶ (۱٬۰۷۸) |
+| سطر | هم‌سخنی | ۱۲٬۱۷۴ | ۴٬۵۶۰ (۶۹۷) |
+| کاتب | هم‌سخنی | ۶٬۳۲۲ | ۴٬۳۵۰ (۵۷۹) |
+| تاریخ کتابت مشترک | هم‌سخنی همه | ۷٬۲۷۳ | — |
+| محل کتابت مشترک | هم‌سخنی همه | ۵۶۹ | — |
+
+- **زمان:** گزارش آزمایشی ۲ دقیقه و ۲۲ ثانیه، اجرا با `--summary` پنج دقیقه و ۹ ثانیه.
+- **مجموعه‌های سراسر عکسی:** ۱٬۳۴۸ مجموعۀ دو رساله و بیشتر که همۀ رساله‌هایشان `is_facsimile` اند (۷٬۶۰۱ نسخه).
+- **آزمون:** `CollectionsTest::test_a_volumes_values_are_what_its_treatises_agree_on` و `test_the_values_follow_the_treatises_and_keep_what_an_editor_gave`.
+
+### گام ۱۴.۳۲۴: نمایش مجموعه در صفحۀ رساله
+- **`Manuscript`:** `boundCollection()` (مجموعۀ `bound` با دو رساله و بیشتر)، `states($field)`، `inheritsFromCollection($field)` (فقط `CollectionValues::INHERITED`)، `siblingsStating($field)`، `collectionNotes()` (یادداشت‌های گروه `provenance` رساله‌های دیگر، گروه‌بندی با نوع و متن یکسان‌شده، بی آنچه خود رساله دارد). `collectionSiblings()` برای هر مدل یک بار خوانده می‌شود.
+- **`manuscripts/show.blade.php`:** `$volume`؛ شاخه‌های «از مجموعه» در سطرهای کاتب، خط و سطر (پس از «از نسخۀ مادر»)؛ سطرهای اندازه، کاغذ و جلد فقط وقتی `$volume` نیست؛ `x-manuscript-collection` پس از «ویژگی‌های ظاهری».
+- **کامپوننت‌ها:** `manuscript-inherited` (نشان «از مجموعه»، `data-from-collection`)، `manuscript-siblings-stating` (`data-siblings-stating`)، و در `manuscript-collection`: `data-collection-values`، `data-own-entry`، `data-collection-notes`، `data-copied`، و `id="collection"`.
+- **آزمون:** `CollectionsTest::test_the_copys_page_shows_its_collection_and_marks_what_it_reads_from_it`.
+
+### گام ۱۴.۳۲۵: `viewer()` و بازۀ جلد
+
+- **پیش از این:** `SourceEntry::viewer()` کد برگه را از جلد و شمارۀ جلد را از `volumeNumber()` ارجاع می‌گرفت (اول `source_entries.volume_number`) و صفحه را نمی‌سنجید.
+- **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
+- **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
+- **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
+
+### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
+
+- **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
+- **آزمون:** `MoveCitedPartTest::test_copies_whose_citation_names_another_book_move_to_its_volume_of_no_library`.
+- **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
+- **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.

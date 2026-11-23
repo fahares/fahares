@@ -397,6 +397,13 @@
                             </svg>
                             <span class="font-mono">info@fahares.net</span>
                         </a>
+                        @if($telegramUrl = \App\Support\AnnouncementTelegram::channelUrl())
+                            <span>•</span>
+                            <a href="{{ $telegramUrl }}" target="_blank" rel="noopener" class="hover:text-amber-300 underline flex items-center gap-1.5" data-telegram-channel>
+                                <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.94 4.3a1.2 1.2 0 0 0-1.62-1.1L2.9 10.02c-1.17.47-1.15 1.13-.2 1.42l4.47 1.4 1.72 5.35c.21.58.4.8.82.8.4 0 .58-.18.8-.4l2.15-2.08 4.47 3.3c.82.45 1.41.22 1.62-.76l2.95-13.9a1.4 1.4 0 0 0 .24-.85ZM17.6 7.36l-8.04 7.27-.31 3.35-1.6-4.98 9.4-5.93c.43-.27.83-.12.55.29Z"/></svg>
+                                <span>کانال تلگرام</span>
+                            </a>
+                        @endif
                         <span>•</span>
                         <a href="https://github.com/fahares/fahares" target="_blank" class="hover:text-amber-300 underline flex items-center gap-1">
                             <span>گیت‌هاب فهارس</span>

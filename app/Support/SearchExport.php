@@ -78,7 +78,7 @@ class SearchExport
                 'عنوان' => fn (Work $w) => $w->primary_title,
                 'پدیدآور' => fn (Work $w) => $w->author?->name ?? $w->author_name,
                 'وفات پدیدآور (ق)' => fn (Work $w) => $w->author?->death_year_hijri,
-                'تاریخ تألیف (ق)' => fn (Work $w) => $w->composition_year_hijri,
+                'تاریخ تألیف (ق)' => fn (Work $w) => $w->effective_composition_year,
                 'موضوع' => fn (Work $w) => $w->subjects->pluck('name')->implode('، '),
                 'زبان' => fn (Work $w) => $w->languages->pluck('name')->implode('، '),
                 'شمار نسخه' => fn (Work $w) => $w->manuscripts_count,

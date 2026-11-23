@@ -463,6 +463,22 @@ class AuditLogController extends Controller
                 \App\Sources\LegacyMirror::reference($restored);
             }
         }
+        // A copy's typed note is a row of its own too (steps 14.264, 14.318): an added one goes, a removed one comes
+        // back with its id, a changed one gets its text and type back
+        if (array_key_exists('notes', $old)) {
+            $before = $old['notes'];
+            $after = $log->new_values['notes'] ?? [];
+            unset($old['notes']);
+            if (! $before) {
+                \App\Models\ManuscriptNote::whereKey($after['id'] ?? 0)->where('manuscript_id', $target->id)->delete();
+            } elseif (! empty($after['removed'])) {
+                (new \App\Models\ManuscriptNote)->forceFill($before + ['manuscript_id' => $target->id,
+                    'position' => (int) \App\Models\ManuscriptNote::where('manuscript_id', $target->id)->max('position') + 1])->save();
+            } else {
+                \App\Models\ManuscriptNote::whereKey($before['id'])->where('manuscript_id', $target->id)->first()?->forceFill(array_diff_key($before, ['id' => 0]))->save();
+            }
+            $target->unsetRelation('notes');
+        }
         // ...and before step 13.3, a catalogue reference (backlog item 51): it goes back with the entry copied from it
         if ($reference = $old['catalog_reference'] ?? null) {
             unset($old['catalog_reference']);
@@ -483,7 +499,12 @@ class AuditLogController extends Controller
             DB::table('work_text_relations')->insertOrIgnore($removedText);
         }
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
+            $made = $relationRow['table'] === 'work_relations' ? DB::table('work_relations')->where('id', $relationRow['id'])->value('work_id') : null;
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
+            // a part taken off its whole is searched by its own author, subject and language again (step 14.308)
+            if ($made) {
+                \App\Suggestions\RecordRelations::partsChanged([$made]);
+            }
         }
         if ($roleId = $log->new_values['added_person_role'] ?? null) {
             ($target instanceof \App\Models\Work ? \App\Models\WorkPerson::class : \App\Models\ManuscriptPerson::class)::whereKey($roleId)->delete();

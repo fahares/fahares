@@ -1200,6 +1200,46 @@ class SuggestionController extends Controller
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "پیشنهاد #{$suggestion->id} به‌عنوان «تبدیل‌شده» بسته شد.");
     }
 
+    /**
+     * Takes back a suggestion the reviewer made by converting another and then thought better of: it is the reviewer's
+     * own making, not the submitter's, so it is removed and no rejection is recorded. The original forgets it, and if it
+     * was closed as converted with nothing else made from it, it returns to the queue.
+     */
+    public function discardDerived(Request $request, FieldSuggestion $suggestion)
+    {
+        $sourceId = $suggestion->payload['derived_from'] ?? null;
+        abort_unless($sourceId, 422, 'فقط پیشنهادی را که داور از روی پیشنهاد دیگری ساخته می‌توان پس گرفت.');
+        abort_unless($suggestion->status === 'pending', 409, 'فقط پیشنهاد در انتظار داوری را می‌توان پس گرفت.');
+        abort_if(! empty($suggestion->resolution['converted_to']), 409, 'از روی این پیشنهاد پیشنهاد دیگری ساخته شده است.');
+        abort_if((bool) $suggestion->thread?->messages()->exists(), 409, 'این پیشنهاد گفت‌وگو دارد و پس گرفته نمی‌شود.');
+
+        $reopened = false;
+        DB::transaction(function () use ($request, $suggestion, $sourceId, &$reopened) {
+            if ($source = FieldSuggestion::find($sourceId)) {
+                $resolution = $source->resolution ?? [];
+                $left = array_values(array_diff($resolution['converted_to'] ?? [], [$suggestion->id]));
+                $resolution['converted_to'] = $left;
+                $reopened = ! $left && $source->status === 'converted';
+                $source->update(['resolution' => array_filter($resolution) ?: null]
+                    + ($reopened ? ['status' => 'pending', 'reviewed_by' => null, 'reviewed_at' => null] : []));
+            }
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'auditable_type' => FieldSuggestion::class,
+                'auditable_id' => $suggestion->id,
+                'action' => 'discard',
+                'old_values' => $suggestion->only(['suggestable_type', 'suggestable_id', 'kind', 'field_name', 'suggested_value', 'rationale_citation', 'payload']),
+                'new_values' => ['derived_from' => $sourceId],
+                'ip_address' => $request->ip(),
+            ]);
+            $suggestion->thread?->delete();
+            $suggestion->delete();
+        });
+
+        return redirect()->route('admin.suggestions.show', $sourceId)
+            ->with('success', "پیشنهاد #{$suggestion->id} پس گرفته شد" . ($reopened ? ' و این پیشنهاد دوباره در انتظار داوری است.' : '.'));
+    }
+
     /** The record a conversion lands on: the suggestion's own when no other is named, else a pasted link or id. */
     private static function convertTarget(FieldSuggestion $suggestion, string $type, string $ref)
     {

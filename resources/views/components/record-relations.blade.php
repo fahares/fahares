@@ -36,9 +36,9 @@
 {{-- Empty: a row of the contribution box instead of an empty heading (step 14.132) --}}
 @if($groups->isEmpty())
     <x-suggest.contribute-item :title="$title" label="افزودن رابطه" :payload="$payload"
-        :hint="$isManuscript ? 'اگر این نسخه از روی نسخۀ دیگری استنساخ شده، با نسخه‌ای مقابله شده، مجلد دیگری از همان دوره است یا نسخۀ عکسی یا میکروفیلمی از آن هست.' : 'اگر این اثر شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله یا ردیۀ اثر دیگری است، یا اثر دیگری بر آن نوشته شده.'" />
+        :hint="$isManuscript ? 'اگر این نسخه از روی نسخۀ دیگری استنساخ شده، با نسخه‌ای مقابله شده، مجلد دیگری از همان دوره است یا نسخۀ عکسی یا میکروفیلمی از آن هست.' : 'اگر این اثر شرح، حاشیه، ترجمه، تلخیص یا گزیده، نظم، تکمله یا ردیۀ اثر دیگری است، بخشی از آن است، یا اثر دیگری بر آن نوشته شده.'" />
 @else
-<x-ui.section x-data :title="$title">
+<x-ui.section x-data :title="$title" id="relations">
     <x-slot:actions>
         <button type="button" @click="$dispatch('suggest-field', @js($payload))"
             class="font-bold text-cinnabar hover:underline cursor-pointer">+ افزودن رابطه</button>

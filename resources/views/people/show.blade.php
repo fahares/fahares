@@ -280,10 +280,20 @@
                                     <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($work->manuscripts_count) }} نسخه</span>
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-                                    @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>@endif
+                                    @if($work->effective_composition_year)<span>تألیف {{ Fa::digits($work->effective_composition_year) }} ق</span>@endif
                                     @if($work->work_form)<span>{{ $work->work_form }}</span>@endif
                                     @foreach($work->subjects->take(2) as $s)<span>{{ $s->title }}</span>@endforeach
                                 </div>
+                                {{-- The parts of the work recorded as works of their own, with no author of their own: under it, and
+                                     not among the person's works nor in their count (step 14.308) --}}
+                                @foreach(\App\Support\WorkParts::inheritors($work, 'author') as $part)
+                                    <a href="{{ route('works.show', $part) }}" class="mt-1.5 ps-4 flex items-baseline gap-2 text-sm group" data-inherited-part>
+                                        <span class="text-xs text-muted whitespace-nowrap">↲ بخشی از این اثر:</span>
+                                        <span class="font-naskh font-bold text-ink group-hover:text-cinnabar transition">{{ $part->primary_title }}</span>
+                                        <span class="leader" aria-hidden="true"></span>
+                                        <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($part->manuscripts_count) }} نسخه</span>
+                                    </a>
+                                @endforeach
                             </li>
                         @endforeach
                     </ul>
@@ -307,7 +317,7 @@
                                     @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px]">دستخط مؤلف</x-ui.chip>@endif
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-                                    @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_label)<span>از {{ $ms->work->author_label }} <x-ui.life :person="$ms->work->author" /></span>@endif
+                                    @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_label)<span>از {{ $ms->work->author_label }} <x-ui.life :person="$ms->work->effective_author" /></span>@endif
                                     <span class="text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library }}@if($ms->city)، {{ $ms->city }}@endif</span>
                                     <span>شمارۀ @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else — @endif</span>
                                     @if($ms->copy_date_raw)<span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>@endif

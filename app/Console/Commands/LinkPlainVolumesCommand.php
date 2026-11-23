@@ -175,6 +175,10 @@ class LinkPlainVolumesCommand extends Command
             }
         }
 
+        if ($this->option('apply') && $writes) {
+            // the «مجموعه» records follow the keys (step 14.322)
+            \App\Support\Collections::sync(array_keys($writes));
+        }
         $this->info($this->option('apply') ? 'Written.' : 'Dry run: nothing written.');
         ksort($this->counts);
         foreach ($this->counts as $kind => $n) {
