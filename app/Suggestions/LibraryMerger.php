@@ -56,7 +56,10 @@ class LibraryMerger
         $compared = MergeComparison::apply($source, $target, $fields);
         $target->save();
 
+        $moved = Manuscript::where('library_id', $source->id)->whereNotNull('collection_id')->pluck('id')->all();
         Manuscript::where('library_id', $source->id)->update(['library_id' => $target->id, 'library' => $target->name, 'city' => $target->city]);
+        // their «مجموعه» records are the kept library's now (step 14.322)
+        \App\Support\Collections::sync($moved);
         $source->catalogVolumes()->update(['library_id' => $target->id]);
         DB::table('catalog_volume_parts')->whereIn('id', $parts)->update(['library_id' => $target->id]);
         DB::table('sources')->whereIn('id', $sources)->update(['library_id' => $target->id]);
@@ -108,6 +111,7 @@ class LibraryMerger
                 ->update(['library_id' => $sourceId, 'library' => $name !== '' ? $name : null, 'city' => $city !== '' ? $city : null]);
             array_push($ids, ...$group);
         }
+        \App\Support\Collections::sync($ids);
         DB::table('catalog_volumes')->whereIn('id', (array) ($old['catalog_volume_ids'] ?? []))->where('library_id', $target->id)->update(['library_id' => $sourceId]);
         DB::table('catalog_volume_parts')->whereIn('id', (array) ($old['catalog_volume_part_ids'] ?? []))->where('library_id', $target->id)->update(['library_id' => $sourceId]);
         DB::table('sources')->whereIn('id', (array) ($old['source_ids'] ?? []))->where('library_id', $target->id)->update(['library_id' => $sourceId]);

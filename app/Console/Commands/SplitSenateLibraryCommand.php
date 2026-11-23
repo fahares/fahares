@@ -127,6 +127,7 @@ class SplitSenateLibraryCommand extends Command
             foreach (array_chunk(array_keys($copies), 1000) as $chunk) {
                 DB::table('manuscripts')->whereIn('id', $chunk)->update(['library_id' => $senate->id, 'library' => $senate->name, 'city' => $senate->city, 'updated_at' => now()]);
             }
+            \App\Support\Collections::sync(array_keys($copies));
             DB::table('catalog_volumes')->whereIn('id', $volumes->keys())->update(['library_id' => $senate->id, 'updated_at' => now()]);
             DB::table('sources')->whereIn('id', $sources->keys())->update(['library_id' => $senate->id, 'updated_at' => now()]);
             AuditLog::create(['user_id' => null, 'auditable_type' => Library::class, 'auditable_id' => $senate->id, 'action' => 'split',
@@ -161,6 +162,7 @@ class SplitSenateLibraryCommand extends Command
             foreach (array_chunk($moved, 1000) as $chunk) {
                 DB::table('manuscripts')->whereIn('id', $chunk)->where('library_id', $senate->id)->update(['library_id' => $majlis->id, 'library' => $majlis->name, 'city' => $majlis->city, 'updated_at' => now()]);
             }
+            \App\Support\Collections::sync($moved);
             DB::table('catalog_volumes')->whereIn('id', (array) ($log->new_values['catalog_volume_ids'] ?? []))->where('library_id', $senate->id)->update(['library_id' => $majlis->id]);
             DB::table('sources')->whereIn('id', (array) ($log->new_values['source_ids'] ?? []))->where('library_id', $senate->id)->update(['library_id' => $majlis->id]);
             AuditLog::create(['user_id' => null, 'auditable_type' => Library::class, 'auditable_id' => $senate->id, 'action' => 'split_undo',

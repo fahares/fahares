@@ -78,6 +78,14 @@ class AnnouncementTelegram
         return preg_match('/^-?\d+$/', $name) ? $name : '@' . ltrim($name, '@');
     }
 
+    /** The channel's public link (https://t.me/name), or null when it is unset or only a numeric chat id */
+    public static function channelUrl(): ?string
+    {
+        $name = ltrim(trim((string) SiteSetting::get('telegram.channel')), '@');
+
+        return preg_match('/^[A-Za-z][A-Za-z0-9_]{3,31}$/', $name) ? 'https://t.me/' . $name : null;
+    }
+
     /**
      * Brings the channel's post in line with the notice: 'sent', 'edited', 'failed' (the reason is
      * kept in telegram_error and the notice itself stays saved) or 'none' when there is nothing to do.

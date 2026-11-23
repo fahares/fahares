@@ -13193,6 +13193,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`AuditLogController::rollbackVerify()`:** کلید `notes`: با `old` تهی سطر `new.notes.id` پاک می‌شود؛ با `new.notes.removed` سطر با همان `id` ساخته می‌شود (لاگ‌های پیش از این گام `position` ندارند و سطر پس از آخرین یادداشت می‌آید)؛ وگرنه ستون‌های `old` به سطر برمی‌گردد. پیش از این شاخه‌ای برای `notes` نبود و `forceFill(['notes' => …])` روی خود نسخه می‌رفت، که ستونی به این نام ندارد.
 - **آزمون:** `FirstCopyNoteTest` (پیشنهاد و پذیرش، افزودن مستقیم، نمایش، بازگردانی افزودن و برداشتن و اصلاح، نسخۀ دارای فهرست کهنه). در `ImportCopyNotesCommandTest` ادعای دکمۀ جدای `note_new_decoration` به گزینۀ فهرست نوع‌ها بدل شد.
 
+### گام ۱۴.۳۱۹: طرح مجموعه
+- **سند:** `docs/plans/collections.md` (ویرایش دوم). داده: برون‌بری ۲۰ ستون از نسخه‌های کلیددار `fahares_prod` و تحلیل با پایتون، گروه‌بندی (`library_id`، `collection_key`)؛ کاتب با `scribe_id` و اگر نبود `scribe_name`؛ یکسان‌سازی املایی پیش از مقایسه.
+- **سنجه‌ها:** وضع هر فیلد در مجلد (هیچ، همه یکسان، تنها یکی، چند یکسان، ناهمسان)؛ احتمال هم‌سخنی یک رسالۀ مقداردار با رسالۀ مقداردار دیگر همان مجلد؛ احتمال هم‌سخنی رسالۀ سوم با دو رسالۀ هم‌سخن؛ جای رساله‌ای که تنها مقداردار مجلد است.
+- **بی تغییر کد، مهاجرت یا داده.**
 
 ### گام ۱۴.۳۲۰: سی‌ودو جلد دیگر از هارد اکسترنال `ahamd`
 - **کپی:** همان `_ahamd/fetch.py` (گام ۱۴.۳۱۳) با فهرست تازه، ۳۲ پرونده (حدود ۹ گیگابایت؛ الهیات ج ۳ پوشۀ تصویر).
@@ -13225,3 +13229,43 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** «0 created, 32 updated, 207 unchanged»، و اجرای دوم «0 updated, 239 unchanged».
 - **اجرا در تولید (۲ آذر ۱۴۰۵، پس از انتشار):** ۱۲٬۴۷۳ برگه با `send.sh` به سرور رفت؛ چند جریان ssh گیر کردند و یک نگهبان (هر جریانِ بی‌حرکت پس از ۵ دقیقه کشته شود) آن‌ها را از سر گرفت. شمار برگه‌ها در سرور و این‌جا برابر است. پشتیبان پیش از اجرا: `../fahares-sources/backups/step13/before_step14_320_set_facsimiles_20261123_2316.json` (md5 `3927dbe806cd07b3bddcf9b8688a5420`). `scripts/dev/prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 32 updated, 207 unchanged»؛ اجرای خشک پس از آن «0 updated, 239 unchanged». از هر یک از ۱۸ جلد یک نسخه در fahares.net دیده شد.
 - **دو ناهنجاری پیوند (پس از اجرا):** (۱) `SourceEntry::viewer()` بازۀ `page_first`–`page_last` جلد را نمی‌سنجد، پس ارجاع بیرون از اسکن به برگۀ ناموجود می‌رود (۵۵۵ ارجاع رشت و همدان بیرون از ص ۱۲۴۲–۱۷۹۷، مثلاً نسخۀ ۲۸۹۷۰۸ → `rasht-hamedan/v01/p1175.webp`). (۲) شمارۀ جلد را از خود ارجاع (`source_entries.volume_number`) می‌گیرد، نه از جلد؛ ۱٬۲۱۵ ارجاع تصویردار شماره‌ای جز شمارۀ جلدشان دارند (مثلاً نسخۀ ۲۹۳۷۶۱ → `dairat/v1043/p0238.webp`). اصلاح منتظر تصمیم کاربر است.
+
+### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
+- **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
+- **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
+- **`posts/index.blade.php`:** خط `data-telegram-channel` زیر توضیح سرصفحه، با همان شرط.
+- **آزمون:** `TelegramChannelLinkTest` (پیوند در جریده و پانویس صفحۀ درباره، نبود پیوند برای تهی و شناسۀ عددی، نام بی `@`).
+
+### گام ۱۴.۳۲۲: جدول `collections` و `Collections::sync`
+- **مهاجرت `2026_11_23_100001_create_collections_table`:** `collections` با یکتایی (`library_id`، `key`)، `kind`، ستون‌های مقدار هم‌نام ستون‌های نسخه (`binding`، `dimensions`، `folios`، `paper`، `script_names`، `script_style`، `lines`، `lines_raw`، `scribe_id`، `scribe_name`، `copy_date_raw`، `copy_place`)، `basis`، `metadata`، `copies_count`؛ و `manuscripts.collection_id` (تهی‌پذیر، `nullOnDelete`) و `collection_pinned`. روی رونوشت پروداکشن ۴۶ ثانیه.
+- **`Manuscript::collectionKey`:** پیش از الگو، شمارۀ دوتایی در « و » بریده می‌شود: نیمۀ نخست اگر «/» دارد، وگرنه نیمۀ دوم. دنباله‌ای که خودش شماره است («463/2(ب)-ف») تنها نشانۀ پایانی‌اش را می‌دهد.
+- **`App\Support\Collections`:** `sync(?array $manuscriptIds)` با چهار دستور SQL (درج کلیدهای تازه با `insertOrIgnoreUsing`، پیوند، برداشتن پیوند نسخۀ بی‌کلید، و `recount`). تنها `collection_id` و جدول `collections` نوشته می‌شود؛ `updated_at` نسخه و نمایۀ جست‌وجو دست نمی‌خورد. `recount` شمار و نوع را می‌نویسد (دو ردیف و بیشتر که همه یک اثرند: `set`) و مجموعۀ خالی را برمی‌دارد مگر `ManuscriptCollection::hasOwnData()`.
+- **صداکنندگان:** قلاب‌های `saved` (ساخت، یا تغییر `collection_key`، `library_id`، `work_id`، `collection_pinned`) و `deleting`/`deleted` مدل `Manuscript`؛ `DerivedData::syncCopies`؛ `fill-collection-keys`، `link-plain-volumes`، `SyncFixedShelfmarksCommand`؛ `LibraryMerger` (ادغام و بازگرداندن) و `SplitSenateLibraryCommand`. نوشتنی که از این راه‌ها نگذرد با `fahares:build-collections --apply` هم‌گام می‌شود.
+- **`Manuscript::collectionSiblings`:** با `collection_id` اگر هست؛ وگرنه راه پیشین (نسخۀ بی‌کتابخانه، یا فاصلۀ میان استقرار و اجرای فرمان).
+- **یکتایی کلید:** هم‌سنجی پایگاه داده دو املای «510-کر» را یکی می‌گیرد؛ پس شمار مجموعه‌ها یکی کمتر از شمار کلیدهای جداست (۳۲٬۹۳۱ و ۳۲٬۹۳۲).
+- **آزمون:** `CollectionsTest` (چهار آزمون).
+
+### گام ۱۴.۳۲۳: `CollectionValues` و `Collections::derive`
+- **`CollectionValues::derive(iterable $copies, string $kind)`:** تابع ناب؛ برای هر فیلد، گفتۀ رساله‌ها با صورت مقایسه‌ای (`compared`، `folded`) گروه می‌شود. دسته‌ها: `OWN` (جلد، اندازه، کاغذ)، `INHERITED` (خط، سطر، کاتب)، `SHARED` (تاریخ و محل کتابت؛ فقط اگر همۀ رساله‌ها بگویند). کاتب با `scribe_id` و اگر نبود با نام مقایسه می‌شود. `script_style` فقط وقتی همۀ رساله‌های گویندۀ خط یکی بدهند.
+- **`Collections::derive(?array $collectionIds, bool $write)`:** تفاوت مقدار و `basis` هر مجموعه را با ساخته‌شده می‌یابد (`valuesChange`) و می‌نویسد. `sync` پس از `recount` آن را برای مجموعه‌های دست‌خورده صدا می‌زند؛ قلاب `saved` نسخه با تغییر هر یک از `CollectionValues::COPY_COLUMNS`.
+- **تمرین روی `fahares_prod`** (ستون آخر: رساله‌هایی که خودشان چیزی نگفته‌اند و مقدار مجموعه را می‌خوانند؛ در پرانتز نسخه‌های عکسی):
+
+| فیلد | مبنا | مجموعه | رساله‌های خواننده |
+|---|---|---|---|
+| جلد | هم‌سخنی | ۵٬۵۹۵ | ۲٬۷۷۲ (۲۸۴) |
+| جلد | کامل‌ترین | ۹٬۱۳۵ | ۷٬۴۱۲ (۴۸۶) |
+| جلد | تنها یک رساله | ۴٬۴۸۹ | ۱۲٬۷۸۸ (۱٬۸۴۵) |
+| اندازه | هم‌سخنی | ۱۸٬۲۱۷ | ۵٬۰۲۲ (۸۲۰) |
+| اندازه | تنها یک رساله | ۱٬۶۷۹ | ۵٬۹۰۳ (۱٬۹۷۰) |
+| کاغذ | هم‌سخنی | ۶٬۶۱۷ | ۱۰٬۰۲۴ (۸۳) |
+| کاغذ | کامل‌ترین | ۱٬۴۵۶ | ۳٬۶۸۴ (۱) |
+| کاغذ | تنها یک رساله | ۲٬۹۹۵ | ۶٬۶۳۷ (۳۶) |
+| خط | هم‌سخنی | ۱۹٬۳۰۹ | ۴٬۷۵۶ (۱٬۰۷۸) |
+| سطر | هم‌سخنی | ۱۲٬۱۷۴ | ۴٬۵۶۰ (۶۹۷) |
+| کاتب | هم‌سخنی | ۶٬۳۲۲ | ۴٬۳۵۰ (۵۷۹) |
+| تاریخ کتابت مشترک | هم‌سخنی همه | ۷٬۲۷۳ | — |
+| محل کتابت مشترک | هم‌سخنی همه | ۵۶۹ | — |
+
+- **زمان:** گزارش آزمایشی ۲ دقیقه و ۲۲ ثانیه، اجرا با `--summary` پنج دقیقه و ۹ ثانیه.
+- **مجموعه‌های سراسر عکسی:** ۱٬۳۴۸ مجموعۀ دو رساله و بیشتر که همۀ رساله‌هایشان `is_facsimile` اند (۷٬۶۰۱ نسخه).
+- **آزمون:** `CollectionsTest::test_a_volumes_values_are_what_its_treatises_agree_on` و `test_the_values_follow_the_treatises_and_keep_what_an_editor_gave`.
