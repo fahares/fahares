@@ -72,6 +72,24 @@ class SetCatalogFacsimilesTest extends TestCase
         $this->assertSame(['catalog' => 'majlis-test', 'volume' => 2, 'page' => 63], array_intersect_key($entry->fresh()->viewer(), array_flip(['catalog', 'volume', 'page'])));
     }
 
+    public function test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume()
+    {
+        $this->volume2->update(['facsimile_code' => 'majlis-test', 'page_first' => 10, 'page_last' => 500]);
+        $source = SourceVolume::findOrFail($this->volume2->id);
+        $work = Work::create(['primary_title' => 'دیوان', 'clean_title' => 'دیوان', 'slug' => 'work-fx-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $entry = fn (int $page, ?int $volume = null) => SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id,
+            'source_id' => $source->source_id, 'source_volume_id' => $source->id, 'volume_number' => $volume, 'page_start' => $page,
+            'origin' => SourceEntry::ORIGIN_FANKHA_CITATION, 'text_status' => SourceEntry::TEXT_NONE])->fresh();
+
+        $this->assertSame(2, $entry(10)->viewer()['volume']);
+        $this->assertSame(500, $entry(500, 2)->viewer()['page']);
+        // step 14.325: the scan holds pp. 10–500 of volume 2, and no other
+        $this->assertNull($entry(9)->viewer());
+        $this->assertNull($entry(501)->viewer());
+        $this->assertNull($entry(100, 1043)->viewer());
+        $this->assertNull($entry(100, 1043)->thumbUrl());
+    }
+
     public function test_parts_are_told_apart_by_title_and_a_missing_part_is_created_in_the_same_source()
     {
         $path = $this->data([
