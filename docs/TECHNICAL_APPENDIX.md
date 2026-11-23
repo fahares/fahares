@@ -13292,3 +13292,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `MoveCitedPartTest::test_copies_whose_citation_names_another_book_move_to_its_volume_of_no_library`.
 - **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
 - **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
+
+### گام ۱۴.۳۲۹: `CollectionIndex` و `collection_readings`
+- **`CollectionIndex::fields(Manuscript)`:** فیلدهای `FIELDS` سند جست‌وجو؛ در پایان `toSearchableArray` روی مقدارهای خود نسخه می‌نشیند. اطلاعات هر مجموعه (رکورد، خط‌های رساله‌ای که خط را مثل مجموعه می‌گوید، نوع یادداشت‌های گروه `provenance`) یک بار در هر درخواست یا کار صف خوانده می‌شود (نمونۀ `scoped` کانتینر).
+- **مهاجرت `2026_11_24_100001_create_collection_readings_table`:** `collection_id`، `manuscript_id`، `kind` (`scribe`، `script`، `note`)، `ref`؛ نمایۀ (`kind`، `ref`، `manuscript_id`). `Collections::refreshReadings(?array)` ردیف‌های مجموعه‌ها را از `CollectionIndex::readings` دوباره می‌سازد؛ `Collections::derive` هنگام نوشتن آن را صدا می‌زند.
+- **`SearchFilters::apply`:** `scribe_id`، `script_id` و `note_types` با `CollectionIndex::with(kind, ref, own)`: یک `whereIn` روی اجتماع فهرست خود نسخه‌ها و ردیف‌های `collection_readings`.
+- **سرعت روی `fahares_prod`** (صفحۀ نخست، شمارش، با کتابخانه و مرتب‌سازی):
+
+| پالایه | پیش از این | دو فهرست با «یا» | اجتماع در یک فهرست (به‌کاررفته) |
+|---|---|---|---|
+| خط نسخ | ۲۲ / ۵۰۹ / ۳۲۲ میلی‌ثانیه | ۱۲۸ / ۳۵۱ / ۴۱۰ | ۱۱۱ / ۲۲۰ / ۳۲۴ |
+| یک کاتب | ۲۷ / ۲۳ / ۱ | ۹۶۹ / ۲۲۶ / ۲۹٬۱۷۲ | ۲ / ۱ / ۱ |
+| مهر | ۸۰۳ / ۱٬۲۵۵ / ۲٬۰۳۵ | ۶۰۲ / ۹۲۰ / ۱٬۹۲۹ | ۹۹۰ / ۷۸۷ / ۱٬۶۵۷ |
+
+  پرسیدن مستقیم از `collections` (بی جدول مشتق) شش تا هفت ثانیه بود.
+- **`Collections::reindex`:** تا ۲۵ مجموعه را درجا دوباره نمایه می‌کند؛ بیشتر از آن کار `fahares:index-collections` است، که مجموعه‌به‌مجموعه می‌رود (به ترتیب شناسۀ نسخه، تمرین از ده دقیقه گذشت؛ مجموعه‌به‌مجموعه ۲ دقیقه و ۵۷ ثانیه برای ۱۴۸٬۷۹۸ نسخه). `refreshReadings` همه: ۲۶۰ ثانیه.
+- **`ManuscriptNote`:** قلاب `saved` و `deleted` برای یادداشت‌های گروه `provenance`.
+- **آزمون:** `CollectionsTest::test_the_search_finds_a_treatise_by_what_it_reads_from_its_collection`.
+

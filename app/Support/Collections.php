@@ -78,8 +78,9 @@ class Collections
         if ($collectionIds === []) {
             return $report;
         }
+        $changed = [];
         ManuscriptCollection::query()->when($collectionIds, fn ($q) => $q->whereIn('id', $collectionIds))->orderBy('id')
-            ->chunkById(500, function ($collections) use (&$report, $write) {
+            ->chunkById(500, function ($collections) use (&$report, $write, &$changed) {
                 $copies = DB::table('manuscripts')->whereIn('collection_id', $collections->modelKeys())->orderBy('id')->get(CollectionValues::COPY_COLUMNS)->groupBy('collection_id');
                 foreach ($collections as $collection) {
                     $change = self::valuesChange($collection, $copies[$collection->id] ?? collect());
@@ -92,11 +93,76 @@ class Collections
                     }
                     if ($write) {
                         DB::table('collections')->where('id', $collection->id)->update($change['columns'] + ['updated_at' => now()]);
+                        $changed[] = $collection->id;
                     }
                 }
             });
+        if ($write) {
+            // what the treatises read of these collections, whether or not a value changed: a treatise that now
+            // names its own hand reads the volume's no more
+            self::refreshReadings($collectionIds);
+        }
+        self::reindex($changed);
 
         return $report;
+    }
+
+    /**
+     * Makes the rows of collection_readings of these collections again (of all when none is named): what each of
+     * their treatises reads from its collection, for the filters asked of the database (CollectionIndex, step 14.329).
+     *
+     * @param  list<int>|null  $collectionIds
+     */
+    public static function refreshReadings(?array $collectionIds = null): int
+    {
+        CollectionIndex::flush();
+        $rows = 0;
+        $collectionIds = $collectionIds === null ? null : array_values(array_unique(array_filter(array_map('intval', $collectionIds))));
+        $each = function (array $ids) use (&$rows) {
+            $made = [];
+            foreach (\App\Models\Manuscript::whereIn('collection_id', $ids)->with(['scripts:id,name', 'scribes:people.id', 'notes:id,manuscript_id,type,also'])->orderBy('id')->get() as $copy) {
+                foreach (CollectionIndex::readings($copy) as $reading) {
+                    $made[] = ['collection_id' => $copy->collection_id, 'manuscript_id' => $copy->id] + $reading;
+                }
+            }
+            DB::transaction(function () use ($ids, $made) {
+                DB::table('collection_readings')->whereIn('collection_id', $ids)->delete();
+                foreach (array_chunk($made, 1000) as $chunk) {
+                    DB::table('collection_readings')->insert($chunk);
+                }
+            });
+            $rows += count($made);
+            CollectionIndex::flush();
+        };
+        if ($collectionIds !== null) {
+            foreach (array_chunk($collectionIds, 200) as $ids) {
+                $each($ids);
+            }
+
+            return $rows;
+        }
+        DB::table('collections')->orderBy('id')->select('id')->chunkById(200, fn ($chunk) => $each($chunk->pluck('id')->all()));
+
+        return $rows;
+    }
+
+    /** More collections than this changed at once are a run of a command: fahares:index-collections follows it */
+    public const REINDEX_AT_ONCE = 25;
+
+    /**
+     * Sends the treatises of collections whose values changed to the search index again, since their documents hold
+     * what they read from the collection (CollectionIndex, step 14.329). A handful is sent at once; after a run that
+     * changes more, fahares:index-collections sends them all.
+     *
+     * @param  list<int>  $collectionIds
+     */
+    public static function reindex(array $collectionIds): void
+    {
+        CollectionIndex::flush();
+        if (! $collectionIds || count($collectionIds) > self::REINDEX_AT_ONCE || \Laravel\Scout\ModelObserver::syncingDisabledFor(\App\Models\Manuscript::class)) {
+            return;
+        }
+        \App\Models\Manuscript::whereIn('collection_id', $collectionIds)->get()->searchable();
     }
 
     /**
