@@ -247,6 +247,11 @@ class Manuscript extends Model
                 \App\Support\Collections::sync([$manuscript->id]);
                 $manuscript->collection_id = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id');
                 $manuscript->syncOriginalAttribute('collection_id');
+            } elseif ($manuscript->wasChanged(\App\Support\CollectionValues::COPY_COLUMNS)
+                && ($collection = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id'))) {
+                // what its volume is said to be follows what its treatises say (step 14.323); the link is written
+                // beside the model, so the row is asked
+                \App\Support\Collections::derive([(int) $collection]);
             }
         });
         // (the link is written beside the model, so the row is asked which collection it leaves)

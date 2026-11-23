@@ -21,11 +21,11 @@ class Collections
      * Brings the collections of these copies in step, or of every copy when none is named.
      *
      * @param  list<int>|null  $manuscriptIds
-     * @return array{made: int, linked: int, unlinked: int, removed: int, kept_empty: int}
+     * @return array{made: int, linked: int, unlinked: int, removed: int, kept_empty: int, values: int}
      */
     public static function sync(?array $manuscriptIds = null): array
     {
-        $counts = ['made' => 0, 'linked' => 0, 'unlinked' => 0, 'removed' => 0, 'kept_empty' => 0];
+        $counts = ['made' => 0, 'linked' => 0, 'unlinked' => 0, 'removed' => 0, 'kept_empty' => 0, 'values' => 0];
         if ($manuscriptIds !== null) {
             $manuscriptIds = array_values(array_unique(array_filter(array_map('intval', $manuscriptIds))));
             if (! $manuscriptIds) {
@@ -58,8 +58,84 @@ class Collections
         foreach (self::recount($manuscriptIds === null ? null : $touched) as $kind => $n) {
             $counts[$kind] += $n;
         }
+        // what the volumes are said to be follows what their treatises say (step 14.323)
+        $counts['values'] = self::derive($manuscriptIds === null ? null : $touched)['collections'];
 
         return $counts;
+    }
+
+    /**
+     * Works out the values of these collections from their treatises again (CollectionValues), of all when none is
+     * named, and writes what differs; with $write false it only counts.
+     *
+     * @param  list<int>|null  $collectionIds
+     * @return array{collections: int, fields: array<string, int>} the collections and, by field, the values that change
+     */
+    public static function derive(?array $collectionIds = null, bool $write = true): array
+    {
+        $report = ['collections' => 0, 'fields' => []];
+        $collectionIds = $collectionIds === null ? null : array_values(array_unique(array_filter(array_map('intval', $collectionIds))));
+        if ($collectionIds === []) {
+            return $report;
+        }
+        ManuscriptCollection::query()->when($collectionIds, fn ($q) => $q->whereIn('id', $collectionIds))->orderBy('id')
+            ->chunkById(500, function ($collections) use (&$report, $write) {
+                $copies = DB::table('manuscripts')->whereIn('collection_id', $collections->modelKeys())->orderBy('id')->get(CollectionValues::COPY_COLUMNS)->groupBy('collection_id');
+                foreach ($collections as $collection) {
+                    $change = self::valuesChange($collection, $copies[$collection->id] ?? collect());
+                    if (! $change) {
+                        continue;
+                    }
+                    $report['collections']++;
+                    foreach ($change['fields'] as $field) {
+                        $report['fields'][$field] = ($report['fields'][$field] ?? 0) + 1;
+                    }
+                    if ($write) {
+                        DB::table('collections')->where('id', $collection->id)->update($change['columns'] + ['updated_at' => now()]);
+                    }
+                }
+            });
+
+        return $report;
+    }
+
+    /**
+     * The columns of a collection that differ from what its copies give, and the fields they are of; null when none.
+     * A field an editor or a catalogue gave keeps its value and basis.
+     *
+     * @return array{columns: array<string, mixed>, fields: list<string>}|null
+     */
+    public static function valuesChange(ManuscriptCollection $collection, iterable $copies): ?array
+    {
+        $derived = CollectionValues::derive($copies, $collection->kind);
+        $basis = $collection->basis ?? [];
+        $columns = [];
+        $fields = [];
+        foreach (CollectionValues::fields() as $field) {
+            if (in_array($basis[$field] ?? null, CollectionValues::GIVEN, true)) {
+                continue;
+            }
+            $changed = ($basis[$field] ?? null) !== ($derived['basis'][$field] ?? null);
+            foreach (CollectionValues::columnsOf($field) as $column) {
+                if ((string) ($collection->getRawOriginal($column) ?? '') !== (string) ($derived['values'][$column] ?? '')) {
+                    $columns[$column] = $derived['values'][$column];
+                    $changed = true;
+                }
+            }
+            if ($changed) {
+                $fields[] = $field;
+            }
+            if (isset($derived['basis'][$field])) {
+                $basis[$field] = $derived['basis'][$field];
+            } else {
+                unset($basis[$field]);
+            }
+        }
+        if (! $fields) {
+            return null;
+        }
+
+        return ['columns' => $columns + ['basis' => $basis ? json_encode($basis, JSON_UNESCAPED_UNICODE) : null], 'fields' => $fields];
     }
 
     /**

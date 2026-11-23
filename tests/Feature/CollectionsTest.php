@@ -6,6 +6,7 @@ use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\ManuscriptCollection;
 use App\Support\Collections;
+use App\Support\CollectionValues;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -97,7 +98,7 @@ class CollectionsTest extends TestCase
 
         // again: nothing to do
         $before = ManuscriptCollection::whereIn('library_id', [$library, $other])->pluck('id')->all();
-        $this->assertSame(['made' => 0, 'linked' => 0, 'unlinked' => 0, 'removed' => 0, 'kept_empty' => 0], Collections::sync());
+        $this->assertSame(['made' => 0, 'linked' => 0, 'unlinked' => 0, 'removed' => 0, 'kept_empty' => 0, 'values' => 0], Collections::sync());
         $this->assertSame($before, ManuscriptCollection::whereIn('library_id', [$library, $other])->pluck('id')->all());
     }
 
@@ -161,4 +162,60 @@ class CollectionsTest extends TestCase
         $this->assertSame(ManuscriptCollection::SET, $this->collectionOf($a)->kind);
         $this->assertSame(ManuscriptCollection::BOUND, $volume->fresh()->kind);
     }
+
+    public function test_a_volumes_values_are_what_its_treatises_agree_on()
+    {
+        $copy = fn (array $c) => (object) ($c + array_fill_keys(CollectionValues::COPY_COLUMNS, null));
+        $derived = CollectionValues::derive([
+            $copy(['binding' => 'تیماج', 'dimensions' => '12×21سم', 'script_names' => 'نسخ', 'script_style' => 'خوش', 'lines' => 17, 'lines_raw' => '17 سطر', 'scribe_id' => 5, 'scribe_name' => 'محمد علی', 'copy_date_raw' => '1125ق', 'copy_place' => 'اصفهان']),
+            $copy(['binding' => 'تیماج مشکی لایه‌ای', 'dimensions' => '۱۲ x ۲۱', 'script_names' => 'نسخ', 'lines' => 17, 'scribe_id' => 5, 'scribe_name' => 'محمد علی رازی', 'copy_date_raw' => '1125 ق', 'paper' => 'فرنگی']),
+            $copy(['binding' => 'تیماج مشکی', 'script_names' => 'نسخ', 'script_style' => 'خوش', 'copy_date_raw' => '1250ق']),
+        ]);
+        // each binding is a piece of the fullest; the size and the hand are agreed; the paper is said once
+        $this->assertSame(['binding' => 'fullest', 'dimensions' => 'agreement', 'paper' => 'single', 'script_names' => 'agreement', 'lines' => 'agreement', 'scribe' => 'agreement'], $derived['basis']);
+        $this->assertSame(['تیماج مشکی لایه‌ای', '12×21سم', 'فرنگی', 'نسخ', 17, '17 سطر', 5], [$derived['values']['binding'], $derived['values']['dimensions'], $derived['values']['paper'],
+            $derived['values']['script_names'], $derived['values']['lines'], $derived['values']['lines_raw'], $derived['values']['scribe_id']]);
+        // the style is not every stating treatise's, the dates differ, the place is not every treatise's
+        $this->assertSame([null, null, null], [$derived['values']['script_style'], $derived['values']['copy_date_raw'], $derived['values']['copy_place']]);
+
+        // one treatise alone gives the volume's own fields, never the hand, the lines or the scribe
+        $single = CollectionValues::derive([$copy(['binding' => 'میشن', 'script_names' => 'نستعلیق', 'lines' => 15, 'scribe_name' => 'احمد']), $copy([])]);
+        $this->assertSame(['binding' => 'single'], $single['basis']);
+        // two bindings that are not one inside the other, two hands: nothing
+        $this->assertSame([], CollectionValues::derive([$copy(['binding' => 'تیماج مشکی', 'script_names' => 'نسخ']), $copy(['binding' => 'میشن عنابی', 'script_names' => 'نستعلیق'])])['basis']);
+        // a date every treatise states is the volume's shared date; the volumes of one work have nothing in common
+        $dated = [$copy(['copy_date_raw' => 'شوال 1125ق', 'binding' => 'تیماج']), $copy(['copy_date_raw' => 'شوال1125ق', 'binding' => 'تیماج'])];
+        $this->assertSame(['binding' => 'agreement', 'copy_date_raw' => 'agreement'], CollectionValues::derive($dated)['basis']);
+        $this->assertSame([], CollectionValues::derive($dated, ManuscriptCollection::SET)['basis']);
+    }
+
+    public function test_the_values_follow_the_treatises_and_keep_what_an_editor_gave()
+    {
+        $library = $this->library();
+        $one = Manuscript::find($this->copy($library, '9101/1', ['binding' => 'تیماج', 'script_names' => 'نسخ', 'lines' => 17]));
+        $two = Manuscript::find($this->copy($library, '9101/2', ['script_names' => 'نسخ', 'dimensions' => '12×21سم']));
+        $three = $this->copy($library, '9101/3');
+        $this->artisan('fahares:build-collections', ['--apply' => true, '--summary' => true])->expectsOutputToContain('read by')->assertSuccessful();
+
+        $volume = $this->collectionOf($one->id);
+        $this->assertSame(['تیماج', '12×21سم', 'نسخ', null], [$volume->binding, $volume->dimensions, $volume->script_names, $volume->lines]);
+        $this->assertSame(['binding' => 'single', 'dimensions' => 'single', 'script_names' => 'agreement'], $volume->basis);
+        // nothing of a treatise is written
+        $this->assertSame([null, null], [DB::table('manuscripts')->where('id', $three)->value('script_names'), DB::table('manuscripts')->where('id', $three)->value('binding')]);
+
+        // a treatise says otherwise: the agreement is gone; and back
+        $two->update(['script_names' => 'نستعلیق']);
+        $this->assertNull($volume->fresh()->script_names);
+        $this->assertArrayNotHasKey('script_names', $volume->fresh()->basis);
+        $two->update(['script_names' => 'نسخ']);
+        $this->assertSame('نسخ', $volume->fresh()->script_names);
+
+        // an editor's value is kept whatever the treatises say
+        $volume->fresh()->update(['binding' => 'تیماج قهوه‌ای ضربی', 'basis' => ['binding' => 'editor'] + $volume->fresh()->basis]);
+        $one->update(['binding' => 'میشن']);
+        Collections::sync([$one->id, $two->id]);
+        $this->assertSame(['تیماج قهوه‌ای ضربی', 'editor'], [$volume->fresh()->binding, $volume->fresh()->basis['binding']]);
+        $this->assertSame(0, Collections::derive([$volume->id])['collections']);
+    }
 }
+
