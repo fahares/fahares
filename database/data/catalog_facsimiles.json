@@ -4138,6 +4138,646 @@
      "step": "14.313"
     }
    }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 23,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 23",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 322,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/34.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/34.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 24,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 24",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 348,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/35.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/35.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 25,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 25",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 274,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/36.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/36.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 26,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 26",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 425,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/37.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/37.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 27,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 27",
+   "facsimile_code": "marashi",
+   "page_first": 4,
+   "page_last": 424,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/38.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/38.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "yzd-ozyry-32",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه وزیری یزد - جلد اول",
+   "facsimile_code": "vaziri",
+   "page_first": 1,
+   "page_last": 436,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/61.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/61.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "yzd-ozyry-32",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه وزیری یزد - جلد دوم",
+   "facsimile_code": "vaziri",
+   "page_first": 437,
+   "page_last": 815,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/62.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/62.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "yzd-ozyry-32",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی کتابخانه وزیری یزد - جلد سوم",
+   "facsimile_code": "vaziri",
+   "page_first": 817,
+   "page_last": 1122,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/63.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/63.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "yzd-ozyry-32",
+   "volume_number": 4,
+   "title": "فهرست نسخه‌های خطی کتابخانه وزیری یزد - جلد چهارم",
+   "facsimile_code": "vaziri",
+   "page_first": 1123,
+   "page_last": 1500,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/64.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/64.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "yzd-ozyry-32",
+   "volume_number": 5,
+   "title": "فهرست نسخه‌های خطی کتابخانه وزیری یزد - جلد پنجم",
+   "facsimile_code": "vaziri",
+   "page_first": 1501,
+   "page_last": 2010,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/65.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/65.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-sphsalar-22",
+   "volume_number": 1,
+   "title": "فهرست کتابخانه مدرسه عالی سپهسالار - جلد اول: کتب خطی عربی و فارسی",
+   "facsimile_code": "sepahsalar",
+   "page_first": 1,
+   "page_last": 700,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/249.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/249.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-sphsalar-22",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه مدرسه عالی سپهسالار - جلد دوم: کتب خطی فارسی، عربی، ترکی",
+   "facsimile_code": "sepahsalar",
+   "page_first": 1,
+   "page_last": 795,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/248.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/248.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-dayrh-almaaarf-20",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی مرکز دائرةالمعارف بزرگ اسلامی - جلد 1",
+   "facsimile_code": "dairat",
+   "page_first": 1,
+   "page_last": 472,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/516.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/516.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-dayrh-almaaarf-20",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی مرکز دائرةالمعارف بزرگ اسلامی - جلد 2",
+   "facsimile_code": "dairat",
+   "page_first": 1,
+   "page_last": 552,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/517.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/517.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-dayrh-almaaarf-20",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی مرکز دائرةالمعارف بزرگ اسلامی - جلد 3",
+   "facsimile_code": "dairat",
+   "page_first": 1,
+   "page_last": 559,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/518.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/518.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "khoansar-fadl-90",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه حضرت آیة الله فاضل خوانساری - 1",
+   "facsimile_code": "fazel-khansari",
+   "page_first": 1,
+   "page_last": 292,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/668.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/668.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "khoansar-fadl-90",
+   "volume_number": 2,
+   "title": "فهرست نسخه های خطی کتابخانه حضرت آیة الله فاضل خوانساری - 2",
+   "facsimile_code": "fazel-khansari",
+   "page_first": 7,
+   "page_last": 373,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/669.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/669.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "shyraz-shahchragh-97",
+   "volume_number": 1,
+   "title": "فهرست کتابهای خطی کتابخانه حضرت شاهچراغ - جلد اول: قرآنها و تفسیرها",
+   "facsimile_code": "shahcheragh",
+   "page_first": 1,
+   "page_last": 337,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/485.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/485.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "shyraz-shahchragh-97",
+   "volume_number": 2,
+   "title": "فهرست کتابهای خطی کتابخانه حضرت شاهچراغ - جلد دوم",
+   "facsimile_code": "shahcheragh",
+   "page_first": 2,
+   "page_last": 455,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/486.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/486.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "shyraz-shahchragh-97",
+   "volume_number": 3,
+   "title": "فهرست کتابهای خطی کتابخانه حضرت شاهچراغ - جلد سوم",
+   "facsimile_code": "shahcheragh",
+   "page_first": 1,
+   "page_last": 165,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/487.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/487.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "krmanshah-glyly-103",
+   "volume_number": 1,
+   "title": "فهرست کتب خطی کتابخانه آیت الله جلیلی (کرمانشاه)",
+   "facsimile_code": "jalili",
+   "page_first": 5,
+   "page_last": 395,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/540.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/540.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 1,
+   "title": "فهرست هزار و پانصد نسخه خطی اهدائی رهبر معظم انقلاب به کتابخانه آستان قدس رضوی",
+   "facsimile_code": "ostadi-1500",
+   "page_first": 7,
+   "page_last": 472,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/642.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/642.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-alhyat-38",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی کتابخانه دانشکده الهیات مشهد - جلد سوم",
+   "facsimile_code": "mashhad-ilahiyat",
+   "page_first": 721,
+   "page_last": 1357,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/333.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/333.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان",
+   "facsimile_code": "rasht-hamedan",
+   "page_first": 1242,
+   "page_last": 1797,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/532.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/532.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "asfhan-danshgah-30",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه مرکزی و مرکز اسناد دانشگاه اصفهان - 1",
+   "facsimile_code": "isfahan-univ",
+   "page_first": 6,
+   "page_last": 291,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/651.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/651.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "asfhan-rodaty-syd-ahmd-292",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه سید احمد روضاتی",
+   "facsimile_code": "rowzati",
+   "page_first": 6,
+   "page_last": 151,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/504.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/504.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mdrsh-maamarbashy-133",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه مدرسه معمار باشی (تهران - ایران)",
+   "facsimile_code": "memarbashi",
+   "page_first": 6,
+   "page_last": 154,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/661.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/661.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی - 1",
+   "facsimile_code": "borujerdi",
+   "page_first": 8,
+   "page_last": 253,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/674.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/674.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+   "volume_number": 2,
+   "title": "فهرست نسخه های خطی کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی - 2",
+   "facsimile_code": "borujerdi",
+   "page_first": 256,
+   "page_last": 466,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/675.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/675.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی کتابخانه های گلپایگان ( گلپایگان ـ ایران )",
+   "facsimile_code": "golpayegan-libs",
+   "page_first": 9,
+   "page_last": 280,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/589.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/589.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی سه کتابخانه اصفهان - جلد 1",
+   "facsimile_code": "isfahan-three",
+   "page_first": 6,
+   "page_last": 241,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/710.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/710.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "asfhan-ktabkhanhhay-asfhan-105",
+   "volume_number": 1,
+   "title": "فهرست کتب خطی کتابخانه‌های اصفهان (نفایس مخطوطات)",
+   "facsimile_code": "isfahan-nafais",
+   "page_first": 3,
+   "page_last": 399,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/497.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/497.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
+     "step": "14.320"
+    }
+   }
   }
  ]
 }
