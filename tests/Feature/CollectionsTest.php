@@ -227,13 +227,15 @@ class CollectionsTest extends TestCase
                 'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی مجموعه', 'copy_date_raw' => '1125ق', 'copy_place' => 'اصفهان']);
             $two = $this->copy($library, '9101/2', ['binding' => 'تیماج', 'script_names' => 'نسخ', 'lines' => 17, 'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی مجموعه', 'paper' => 'فرنگی نخودی']);
             $silent = $this->copy($library, '9101/3');
+            $dated = $this->copy($library, '9101/5', ['copy_date_raw' => '1125 ق', 'script_names' => 'نسخ']);
+            $later = $this->copy($library, '9101/6', ['copy_date_raw' => '1250ق', 'script_names' => 'نسخ']);
             $bika = $this->copy($library, '9101/4', ['is_bika' => true, 'script_names' => 'نسخ']);
             DB::table('manuscript_notes')->insert([
                 ['manuscript_id' => $one, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف‌نامۀ آزمایشی مجموعه', 'typed_by' => 'field'],
                 ['manuscript_id' => $two, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف‌نامۀ آزمایشی مجموعه', 'typed_by' => 'field'],
                 ['manuscript_id' => $two, 'position' => 2, 'type' => 'seal', 'text' => 'مهر آزمایشی رسالۀ دوم', 'typed_by' => 'field'],
             ]);
-            Collections::sync([$one, $two, $silent, $bika]);
+            Collections::sync([$one, $two, $silent, $bika, $dated, $later]);
 
             $copy = Manuscript::find($silent);
             $this->assertSame([true, true, true, false], [$copy->inheritsFromCollection('scribe'), $copy->inheritsFromCollection('script_names'), $copy->inheritsFromCollection('lines'), $copy->inheritsFromCollection('binding')]);
@@ -247,6 +249,8 @@ class CollectionsTest extends TestCase
             $this->get(route('manuscripts.show', $copy))->assertOk()
                 ->assertSee('data-from-collection="scribe"', false)->assertSee('data-from-collection="script_names"', false)->assertSee('data-from-collection="lines"', false)
                 ->assertSee('data-siblings-stating="copy_date_raw"', false)->assertSee('data-siblings-stating="copy_place"', false)
+                // treatises with one date stand under it together, another date apart
+                ->assertSeeInOrder(['data-siblings-stating="copy_date_raw"', '۱۱۲۵ق', '۹۱۰۱/۱', ' و ', '۹۱۰۱/۵', '؛', '۱۲۵۰ق', '۹۱۰۱/۶', 'data-siblings-stating="copy_place"'], false)
                 ->assertSee('مجموعۀ ۹۱۰۱')
                 // the volume's own: the fullest binding, the size and the paper one entry gives
                 ->assertSee('تیماج مشکی لایه‌ای')->assertSee('۱۲×۲۱سم')->assertSee('فرنگی نخودی')

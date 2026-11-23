@@ -13282,3 +13282,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
 - **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
 - **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
+
+### گام ۱۴.۳۲۸: `manuscript-siblings-stating` با گروه‌بندی
+- `siblingsStating($field)` با `CollectionValues::compared` گروه می‌شود؛ متن هر گروه از نخستین رساله‌اش، و نام رساله‌ها با «،» و «و» در PHP ساخته می‌شود (دو دستور Blade چسبیده به هم، مانند `@endif@endforeach`، خوانده نمی‌شود).
+
