@@ -265,7 +265,8 @@ class SuggestionApplier
         if (! $note || (int) $note->manuscript_id !== (int) $record->getKey()) {
             throw new InvalidArgumentException('این یادداشت از این نسخه نیست.');
         }
-        $old = ['id' => $note->id, 'type' => $note->type, 'text' => $note->text, 'typed_by' => $note->typed_by];
+        // the whole row, for the audit log to put back (step 14.318)
+        $old = $note->only(['id', 'position', 'type', 'text', 'also', 'by_author', 'by_author_hedge', 'hedge', 'typed_by']);
         // The note's type, by its label or its key (step 14.269); a type it had as a second one is its second no more
         if (isset($field['note_type_of'])) {
             $type = isset(ManuscriptNote::TYPES[$value]) ? $value : array_search($value, ManuscriptNote::TYPES, true);

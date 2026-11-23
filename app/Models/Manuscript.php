@@ -809,6 +809,26 @@ class Manuscript extends Model
     }
 
     /**
+     * Whether the page still shows the two old lists of the metadata, «فوائد و رسائل» and «یادداشت‌های فهرست‌نگار»:
+     * the typed notes of the import (step 14.260) never took their place. So it is for a copy without a note, and for
+     * one whose notes were all added by a reviewer (step 14.318): an editor's note that the log shows was a note of
+     * the import before, corrected or retyped, is not such a one, nor is the copy an import's note was removed from.
+     */
+    public function keepsOldNotes(): bool
+    {
+        if ($this->notes->isEmpty()) {
+            return true;
+        }
+        if ($this->notes->contains(fn (ManuscriptNote $note) => $note->typed_by !== 'editor')) {
+            return false;
+        }
+
+        return ! AuditLog::where('auditable_type', self::class)->where('auditable_id', $this->id)->where('action', 'verify')
+            ->where('old_values', 'like', '%"notes"%')->get(['old_values'])
+            ->contains(fn ($log) => ($log->old_values['notes']['typed_by'] ?? 'editor') !== 'editor');
+    }
+
+    /**
      * How many seals, ownership notes, endowments and acquisitions the copy has, for the lists of results: its typed
      * notes of provenance, or the metadata list of a copy without them. A list a reviewer corrected is not looked up
      * here (keepsSealsList costs two queries a copy).
