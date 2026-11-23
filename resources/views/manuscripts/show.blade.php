@@ -485,31 +485,39 @@
                 // whose seals list a reviewer corrected keeps that list, and so does one without a note of provenance.
                 $noteGroups = $manuscript->noteGroups();
                 $oldSeals = $manuscript->keepsSealsList();
+                // ...and the two other old lists stay while no note of the import stands in their place: a copy without
+                // a note, or with notes a reviewer added (step 14.318)
+                $oldNotes = ($manuscript->residual_notes_text || $manuscript->editorial_notes_list) && $manuscript->keepsOldNotes();
                 $emptySections = array_filter([
                     'incipit_text' => count($manuscript->incipits_list) === 0 ? 'آغاز نسخه' : null,
                     'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
-                    'ownership_and_seals' => $oldSeals && count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
                 ]);
-                // a copy with typed notes: a note can be added to a section it does not have yet (steps 14.264, 14.269)
-                $addable = $noteGroups ? array_keys(array_filter(\App\Suggestions\SuggestionRegistry::recordFields($manuscript), fn ($f) => isset($f['new_note_type']))) : [];
-                foreach ($noteGroups ? \App\Models\ManuscriptNote::GROUPS : [] as $groupKey => $group) {
-                    if (isset($noteGroups[$groupKey]) && ! ($groupKey === 'provenance' && $oldSeals)) {
-                        continue;
-                    }
-                    foreach ($group['types'] as $newType) {
-                        if (in_array('note_new_' . $newType, $addable, true)) {
-                            unset($emptySections['ownership_and_seals']);
-                            $emptySections['note_new_' . $newType] = \App\Suggestions\SuggestionRegistry::newNoteLabel($newType);
-                        }
-                    }
+                // A note can be added to a section the page does not have yet (steps 14.264, 14.269), on a copy without
+                // a note too: one button, and the form asks the note's type (step 14.318). A note of provenance is not
+                // added beside the old list of them (SuggestionRegistry::recordFields).
+                $addsProvenance = ! $oldSeals || ! $manuscript->ownership_and_seals_list;
+                $addsNote = false;
+                foreach (\App\Models\ManuscriptNote::GROUPS as $groupKey => $group) {
+                    $lacks = ! isset($noteGroups[$groupKey]) || ($groupKey === 'provenance' && $oldSeals);
+                    $addsNote = $addsNote || ($lacks && ($groupKey !== 'provenance' || $addsProvenance));
                 }
             @endphp
-            @if($emptySections)
+            @if($emptySections || $addsNote)
                 <div x-show="$store.suggest.on" x-cloak class="p-4 border border-dashed border-cinnabar/40 bg-cinnabar/5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                     <span class="text-muted font-semibold">بخش‌های خالیِ این نسخه:</span>
                     @foreach($emptySections as $name => $label)
                         <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ $label }} <x-suggest.field :name="$name" /></span>
                     @endforeach
+                    @if($addsNote)
+                        <span class="inline-flex items-center gap-1.5 font-bold text-ink">افزودن یادداشت
+                            <button type="button" data-suggest-new-note @click="$dispatch('suggest-field', { newNote: true })"
+                                title="پیشنهاد افزودن یادداشت؛ نوع آن در فرم پرسیده می‌شود" aria-label="پیشنهاد افزودن یادداشت"
+                                class="suggest-btn is-on inline-flex items-center justify-center shrink-0 w-6 h-6 rounded-lg border border-gold/50 bg-amber-50 dark:bg-amber-950/40 text-cinnabar hover:bg-cinnabar hover:text-white transition cursor-pointer align-middle">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14m-7-7h14"/></svg>
+                            </button>
+                            <span class="font-normal text-muted">({{ $addsProvenance ? 'مهر، تملک، حواشی' : 'حواشی، مقابله' }}، یادداشت فهرست‌نگار و…)</span>
+                        </span>
+                    @endif
                 </div>
             @endif
 
@@ -527,7 +535,7 @@
                     {{-- a note of the section's types the catalogue lacks (steps 14.264, 14.269) --}}
                     <div x-show="$store.suggest.on" x-cloak class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                         @foreach(\App\Models\ManuscriptNote::GROUPS[$groupKey]['types'] as $newType)
-                            @continue(! in_array('note_new_' . $newType, $addable, true))
+                            @continue(! \App\Suggestions\SuggestionRegistry::newNoteLabel($newType))
                             <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ \App\Suggestions\SuggestionRegistry::newNoteLabel($newType) }} <x-suggest.field :name="'note_new_' . $newType" /></span>
                         @endforeach
                     </div>
@@ -550,13 +558,13 @@
                 </x-ui.section>
             @endif
 
-            @if(! $noteGroups && $manuscript->residual_notes_text)
+            @if($oldNotes && $manuscript->residual_notes_text)
                 <x-ui.section title="فوائد و رسائل مندرج در نسخه">
                     <div class="text-sm text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ Fa::digits($manuscript->residual_notes_text) }}</div>
                 </x-ui.section>
             @endif
 
-            @if(! $noteGroups && count($manuscript->editorial_notes_list) > 0)
+            @if($oldNotes && count($manuscript->editorial_notes_list) > 0)
                 <x-ui.section title="یادداشت‌های فهرست‌نگار">
                     <ul class="space-y-1.5 text-sm">
                         @foreach($manuscript->editorial_notes_list as $editNote)

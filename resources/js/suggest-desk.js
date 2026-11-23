@@ -1,5 +1,6 @@
 // The suggestion modal shared by record pages. Per-field buttons dispatch
 // `suggest-field` with {field}; the general button dispatches it with {general: true} (and an optional starting {value}).
+// «افزودن یادداشت» of a copy's page dispatches it with {newNote: true}: the form then asks the note's type, which is the field.
 // Only signed-in users suggest (backlog item 76), but a guest fills the form first (step 14.156): the sign-in dialog
 // comes at «ارسال». Its short sign-up sends the waiting suggestion at once; signing in another way returns to the same
 // page with `?suggest=<key>`, which reopens the same form. What was typed is kept in sessionStorage meanwhile.
@@ -14,6 +15,9 @@ export default (config) => ({
     value: '',
     // The value that goes with the field's own: a title's transliteration (field.pair)
     pairValue: '',
+    // A note to add to a copy (step 14.318): the form asks its type, and the field is «note_new_<type>» once chosen
+    picking: false,
+    newNoteName: '',
     rationale: '',
     // The ready-made ground of a suggestion (config.basis); `rationale` is then its optional detail
     basisKey: '',
@@ -84,6 +88,7 @@ export default (config) => ({
     keyFor(detail) {
         if (detail.mode) return 'mode';
         if (detail.note) return 'note';
+        if (detail.newNote) return 'newnote';
         if (detail.general) return detail.relation ? 'general.' + detail.relation : 'general';
         return 'field.' + detail.field;
     },
@@ -93,6 +98,7 @@ export default (config) => ({
         const name = rest.join('.');
         if (kind === 'mode') return { mode: true };
         if (kind === 'note') return Object.keys(this.config.noteTypes).length ? { note: true } : null;
+        if (kind === 'newnote') return this.config.newNotes ? { newNote: true } : null;
         if (kind === 'general') return name ? { general: true, relation: name } : { general: true };
         return kind === 'field' && this.config.fields[name] ? { field: name } : null;
     },
@@ -118,7 +124,7 @@ export default (config) => ({
         const draft = {
             value: this.value, pairValue: this.pairValue, rationale: this.rationale, basisKey: this.basisKey, personId: this.personId, relationKey: this.relationKey,
             roleKey: this.roleKey, roleName: this.roleName, newShelfmark: this.newShelfmark, volumeId: this.volumeId,
-            noteType: this.noteType, note: this.note, creditOn: this.creditOn, creditName: this.creditName,
+            noteType: this.noteType, note: this.note, creditOn: this.creditOn, creditName: this.creditName, newNoteName: this.newNoteName,
         };
         try { sessionStorage.setItem(this.draftKey(), JSON.stringify(draft)); } catch (e) { /* storage blocked */ }
     },
@@ -156,7 +162,14 @@ export default (config) => ({
         this.roleRowId = null;
         this.newShelfmark = '';
         this.volumeId = '';
-        if (detail.note) {
+        this.picking = Boolean(detail.newNote);
+        this.newNoteName = '';
+        if (detail.newNote) {
+            this.mode = 'field';
+            this.field = BLANK_FIELD;
+            this.value = '';
+            this.pairValue = '';
+        } else if (detail.note) {
             this.mode = 'note';
             this.field = BLANK_FIELD;
             this.noteType = Object.keys(this.config.noteTypes)[0] ?? '';
@@ -178,6 +191,7 @@ export default (config) => ({
         }
         this.toggleCredit();
         this.restoreDraft();
+        if (this.picking) this.chooseNewNote();
         // Opened from one of the record's people rows: its role, person or name, and the row itself (over any draft)
         // Opened with the other record chosen, e.g. from «احتمالاً همان نسخه» (step 14.16)
         if (this.relationKey && detail.target && !detail.roleRowId) {
@@ -203,7 +217,8 @@ export default (config) => ({
     // The grounds offered for this form: a typo is a ground for a field's value only
     get basisOptions() {
         if (this.mode === 'note' || (this.mode === 'general' && !this.relationKey)) return [];
-        return this.config.basis.filter((b) => this.mode === 'field' || !b.fieldOnly);
+        // ...and a note to add is no typo (step 14.318)
+        return this.config.basis.filter((b) => (this.mode === 'field' && !this.picking && !this.field.newNote) || !b.fieldOnly);
     },
 
     get basis() {
@@ -284,6 +299,13 @@ export default (config) => ({
         this.gateBusy = false;
     },
 
+    // The type chosen for a note to add: its field, with what was typed so far kept
+    chooseNewNote() {
+        const def = this.config.fields[this.newNoteName];
+        this.field = def ? { name: this.newNoteName, ...def } : BLANK_FIELD;
+        delete this.errors.note_type;
+    },
+
     get noteDef() {
         return this.config.noteTypes[this.noteType] ?? { fields: [], required: [], hint: '' };
     },
@@ -315,6 +337,7 @@ export default (config) => ({
 
     get title() {
         if (this.mode === 'note') return 'افزودن یادداشت یا منبع پژوهشی';
+        if (this.picking && !this.field.name) return 'پیشنهاد افزودن یادداشت به این نسخه';
         if (this.mode === 'field' && this.field.adds) return 'پیشنهاد ' + this.field.label;
         return this.mode === 'general' ? 'پیشنهاد کلی دربارۀ این ' + this.config.typeLabel : 'پیشنهاد اصلاح ' + (this.field.label.includes('«') ? this.field.label : '«' + this.field.label + '»');
     },
@@ -400,6 +423,10 @@ export default (config) => ({
 
     // Reviewers only: applies the value at once and reloads the page to show it
     async submitDirect() {
+        if (this.picking && !this.field.name) {
+            this.errors = { note_type: 'نوع یادداشت را برگزینید.' };
+            return;
+        }
         this.submitting = true;
         this.errors = {};
         const body = new FormData();
@@ -430,6 +457,10 @@ export default (config) => ({
     },
 
     async submit() {
+        if (this.picking && !this.field.name) {
+            this.errors = { note_type: 'نوع یادداشت را برگزینید.' };
+            return;
+        }
         if (this.basisOptions.length && !this.basis) {
             this.errors = { rationale_citation: 'یکی از گزینه‌های «بر چه پایه‌ای؟» را برگزینید.' };
             return;

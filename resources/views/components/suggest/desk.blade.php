@@ -33,9 +33,12 @@
             'adds' => match (true) {
                 ($def['alt_title'] ?? null) === 'new' => 'عنوان دیگر:',
                 ($def['alias'] ?? null) === 'new' => 'نام دیگر:',
+                // ...nor has a note to add to a copy (step 14.318)
+                isset($def['new_note_type']) => 'متن یادداشت:',
                 default => false,
             },
             'options' => $def['options'] ?? [],
+            'newNote' => isset($def['new_note_type']),
         ];
     }
 
@@ -73,6 +76,16 @@
         // A source's volumes with their catalogers, for «the cataloger is someone else» (step 14.58)
         'volumes' => $type === 'source' ? \App\Suggestions\VolumeCatalogers::volumes($record) : [],
     ];
+    // The types of note a copy can take, by section of its page: «افزودن یادداشت» asks which (step 14.318)
+    $newNotes = [];
+    foreach ($type === 'manuscript' ? \App\Models\ManuscriptNote::GROUPS : [] as $group) {
+        $types = array_filter($group['types'], fn ($noteType) => isset($fields[SuggestionRegistry::NEW_NOTE_PREFIX . $noteType]));
+        if ($types) {
+            $newNotes[$group['title']] = array_combine(array_map(fn ($noteType) => SuggestionRegistry::NEW_NOTE_PREFIX . $noteType, $types),
+                array_map(fn ($noteType) => \App\Models\ManuscriptNote::TYPES[$noteType], $types));
+        }
+    }
+    $config['newNotes'] = (bool) $newNotes;
     // The grounds a suggestion may stand on, instead of a required free text (step 14.156); `detail`: the note under it
     $typeKey = SuggestionRegistry::typeKey($type) ?? $type;
     $seen = ['manuscript' => 'نسخه را خودم دیده‌ام', 'work' => 'نسخه یا چاپ اثر را خودم دیده‌ام', 'library' => 'از خود کتابخانه می‌دانم'][$typeKey] ?? null;
@@ -220,7 +233,24 @@
 
                     <template x-if="mode === 'field'">
                         <div class="space-y-3">
-                            <div class="space-y-1" x-show="!field.adds">
+                            {{-- a note to add to the copy: its type first, which is the field (step 14.318) --}}
+                            <template x-if="picking">
+                                <div class="space-y-1">
+                                    <label for="suggest-new-note-type" class="{{ $labelClass }}">نوع یادداشت:</label>
+                                    <select id="suggest-new-note-type" x-model="newNoteName" @change="chooseNewNote()" required data-new-note-type class="{{ $inputClass }} sm:w-72">
+                                        <option value="">انتخاب کنید…</option>
+                                        @foreach($newNotes as $groupTitle => $groupTypes)
+                                            <optgroup label="{{ $groupTitle }}">
+                                                @foreach($groupTypes as $fieldName => $typeLabel)
+                                                    <option value="{{ $fieldName }}">{{ $typeLabel }}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    <p x-show="errors.note_type" x-text="errors.note_type" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
+                                </div>
+                            </template>
+                            <div class="space-y-1" x-show="!field.adds && !picking">
                                 <span class="block text-xs font-bold text-muted">اکنون در فهارس:</span>
                                 <div class="px-3 py-2 border-s-2 border-line-strong text-ink/80 whitespace-pre-line max-h-32 overflow-y-auto leading-relaxed">
                                     <span x-text="field.current ?? 'ثبت نشده'"></span>
@@ -282,7 +312,7 @@
                     <template x-if="mode !== 'note'">
                         <div class="space-y-4">
                     <!-- Suggested value, by input type -->
-                    <div class="space-y-1">
+                    <div class="space-y-1" x-show="!picking || field.name">
                         <label class="block text-[13px] font-bold text-ink"
                             x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازۀ کتابخانه:' : (relation.apply === 'split' ? 'کدام نسخه‌ها یا آثار از رکورد دیگری‌اند، و آن رکورد چیست؟' : (relation.apply === 'person_period' ? 'کجا، از کی تا کی، و به استناد کدام مأخذ؟' : (relation.apply === 'text_relation' ? 'عنوان و پدیدآور آن اثر (مثلاً «شرح الکافیة؛ قمولی، احمد بن محمد»):' : 'نام دیگر:')))) : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : (field.adds ? field.adds : 'مقدار درست:')"></label>
 
@@ -438,9 +468,9 @@
                         <template x-if="config.directUrl && mode === 'field'">
                             {{-- adding a title is no typo fix: the same action under its own name (step 14.286) --}}
                             <button type="button" @click="submitDirect()" :disabled="submitting" data-direct-edit
-                                :title="field.adds ? 'بی‌درنگ افزوده می‌شود، مستند نمی‌خواهد و پیشنهاد یا قول به‌شمار نمی‌آید' : 'فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید'"
+                                :title="field.adds || picking ? 'بی‌درنگ افزوده می‌شود، مستند نمی‌خواهد و پیشنهاد یا قول به‌شمار نمی‌آید' : 'فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید'"
                                 class="px-4 py-2.5 rounded-sm border border-gold text-cinnabar hover:bg-amber-50 dark:hover:bg-amber-950/30 disabled:opacity-60 font-bold transition"
-                                x-text="field.adds ? 'افزودن مستقیم' : 'ویرایش مستقیم (غلط تایپی)'">
+                                x-text="field.adds || picking ? 'افزودن مستقیم' : 'ویرایش مستقیم (غلط تایپی)'">
                                 ویرایش مستقیم (غلط تایپی)
                             </button>
                         </template>
