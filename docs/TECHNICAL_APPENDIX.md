@@ -13184,9 +13184,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`manuscripts/show.blade.php`:** `$pagesOnly`؛ سطر حجم با `field` برابر `pages` یا `folios`؛ بلوک `data-extent-fields` (فقط در حالت پیشنهاد) با شمار دیگر و `rangeLabel()`.
 - **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.
 
-### گام ۱۴.۳۱۹: طرح مجموعه
-- **سند:** `docs/plans/collections.md`. پرس‌وجوها روی `fahares_prod`: گروه‌بندی (`library_id`، `collection_key`) با `HAVING COUNT(*) >= 2`، و برای هر فیلد `COUNT(expr)` و `COUNT(DISTINCT expr)`؛ کاتب با `COALESCE(scribe_id, scribe_name)`. یادداشت‌های `seal`، `endowment`، `ownership` با متن یکسان در دو رسالۀ یک مجلد.
-- **بی تغییر کد، مهاجرت یا داده.**
 ### گام ۱۴.۳۱۸: `note_new_{type}` برای هر نسخه، `Manuscript::keepsOldNotes()` و بازگردانی یادداشت
 - **`SuggestionRegistry::recordFields()`:** شرط `notes->isNotEmpty()` برداشته شد. فیلدهای `note_new_{type}` برای هر نسخه ساخته می‌شود؛ نوع‌های پیشینه تنها وقتی `! keepsSealsList() || ! ownership_and_seals_list`. در همین حالت `ownership_and_seals` از فیلدها می‌افتد، پس نسخۀ بی‌یادداشتی که فهرست کهنه‌اش تهی است به جای آن فیلد، یادداشت پیشینه می‌گیرد. `fieldOf()` دست نخورد و همین فهرست را می‌خواند.
 - **`Manuscript::keepsOldNotes()`:** درست است اگر نسخه یادداشتی ندارد، یا همۀ یادداشت‌هایش `typed_by = editor` است و هیچ ثبت `verify` نسخه در `old_values.notes.typed_by` مقداری جز `editor` ندارد (یعنی یادداشتی از درون‌ریزی اصلاح یا برداشته نشده). پرس‌وجوی لاگ تنها برای نسخه‌ای اجرا می‌شود که فهرست کهنه دارد و همۀ یادداشت‌هایش از ویراستار است.
@@ -13196,3 +13193,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`AuditLogController::rollbackVerify()`:** کلید `notes`: با `old` تهی سطر `new.notes.id` پاک می‌شود؛ با `new.notes.removed` سطر با همان `id` ساخته می‌شود (لاگ‌های پیش از این گام `position` ندارند و سطر پس از آخرین یادداشت می‌آید)؛ وگرنه ستون‌های `old` به سطر برمی‌گردد. پیش از این شاخه‌ای برای `notes` نبود و `forceFill(['notes' => …])` روی خود نسخه می‌رفت، که ستونی به این نام ندارد.
 - **آزمون:** `FirstCopyNoteTest` (پیشنهاد و پذیرش، افزودن مستقیم، نمایش، بازگردانی افزودن و برداشتن و اصلاح، نسخۀ دارای فهرست کهنه). در `ImportCopyNotesCommandTest` ادعای دکمۀ جدای `note_new_decoration` به گزینۀ فهرست نوع‌ها بدل شد.
 
+### گام ۱۴.۳۱۹: طرح مجموعه
+- **سند:** `docs/plans/collections.md`. پرس‌وجوها روی `fahares_prod`: گروه‌بندی (`library_id`، `collection_key`) با `HAVING COUNT(*) >= 2`، و برای هر فیلد `COUNT(expr)` و `COUNT(DISTINCT expr)`؛ کاتب با `COALESCE(scribe_id, scribe_name)`. یادداشت‌های `seal`، `endowment`، `ownership` با متن یکسان در دو رسالۀ یک مجلد.
+- **بی تغییر کد، مهاجرت یا داده.**
