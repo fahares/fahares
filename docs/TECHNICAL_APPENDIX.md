@@ -13227,3 +13227,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سند:** `docs/plans/collections.md` (ویرایش دوم). داده: برون‌بری ۲۰ ستون از نسخه‌های کلیددار `fahares_prod` و تحلیل با پایتون، گروه‌بندی (`library_id`، `collection_key`)؛ کاتب با `scribe_id` و اگر نبود `scribe_name`؛ یکسان‌سازی املایی پیش از مقایسه.
 - **سنجه‌ها:** وضع هر فیلد در مجلد (هیچ، همه یکسان، تنها یکی، چند یکسان، ناهمسان)؛ احتمال هم‌سخنی یک رسالۀ مقداردار با رسالۀ مقداردار دیگر همان مجلد؛ احتمال هم‌سخنی رسالۀ سوم با دو رسالۀ هم‌سخن؛ جای رساله‌ای که تنها مقداردار مجلد است.
 - **بی تغییر کد، مهاجرت یا داده.**
+### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
+- **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
+- **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
+- **`posts/index.blade.php`:** خط `data-telegram-channel` زیر توضیح سرصفحه، با همان شرط.
+- **آزمون:** `TelegramChannelLinkTest` (پیوند در جریده و پانویس صفحۀ درباره، نبود پیوند برای تهی و شناسۀ عددی، نام بی `@`).
+
