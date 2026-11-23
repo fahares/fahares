@@ -13237,6 +13237,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
 - **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
 
+### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
+
+- **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
+- **آزمون:** `MoveCitedPartTest::test_copies_whose_citation_names_another_book_move_to_its_volume_of_no_library`.
+- **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
+- **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
+
 ### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
 - **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
 - **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
