@@ -13194,5 +13194,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `FirstCopyNoteTest` (پیشنهاد و پذیرش، افزودن مستقیم، نمایش، بازگردانی افزودن و برداشتن و اصلاح، نسخۀ دارای فهرست کهنه). در `ImportCopyNotesCommandTest` ادعای دکمۀ جدای `note_new_decoration` به گزینۀ فهرست نوع‌ها بدل شد.
 
 ### گام ۱۴.۳۱۹: طرح مجموعه
-- **سند:** `docs/plans/collections.md`. پرس‌وجوها روی `fahares_prod`: گروه‌بندی (`library_id`، `collection_key`) با `HAVING COUNT(*) >= 2`، و برای هر فیلد `COUNT(expr)` و `COUNT(DISTINCT expr)`؛ کاتب با `COALESCE(scribe_id, scribe_name)`. یادداشت‌های `seal`، `endowment`، `ownership` با متن یکسان در دو رسالۀ یک مجلد.
+- **سند:** `docs/plans/collections.md` (ویرایش دوم). داده: برون‌بری ۲۰ ستون از نسخه‌های کلیددار `fahares_prod` و تحلیل با پایتون، گروه‌بندی (`library_id`، `collection_key`)؛ کاتب با `scribe_id` و اگر نبود `scribe_name`؛ یکسان‌سازی املایی پیش از مقایسه.
+- **سنجه‌ها:** وضع هر فیلد در مجلد (هیچ، همه یکسان، تنها یکی، چند یکسان، ناهمسان)؛ احتمال هم‌سخنی یک رسالۀ مقداردار با رسالۀ مقداردار دیگر همان مجلد؛ احتمال هم‌سخنی رسالۀ سوم با دو رسالۀ هم‌سخن؛ جای رساله‌ای که تنها مقداردار مجلد است.
 - **بی تغییر کد، مهاجرت یا داده.**
