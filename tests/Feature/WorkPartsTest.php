@@ -175,7 +175,7 @@ class WorkPartsTest extends TestCase
         preg_match_all('/data-inherited>\((.*?)<\/span>/su', $html, $marks);
         $named = array_map(fn ($m) => trim(strip_tags($m)), $marks[1]);
         // the author, the whole's date, the language, the subject, in the order of the page
-        $this->assertSame(['از اثر اصل: جوهریه سیمی)', 'اثر اصل: جوهریه سیمی)', 'از اثر اصل: باب اول جوهریه)', 'از اثر اصل: جوهریه سیمی)'], $named);
+        $this->assertSame(['از اثر اصل: جوهریه سیمی)', 'از اثر اصل: جوهریه سیمی)', 'از اثر اصل: باب اول جوهریه)', 'از اثر اصل: جوهریه سیمی)'], $named);
 
         // a change at any whole above sends every work below it to the index again
         $index = $this->spyOnIndex();
@@ -209,7 +209,7 @@ class WorkPartsTest extends TestCase
         $page->assertSeeInOrder(['data-part-of', 'بخشی از:', $wholeUrl, 'جوهریه سیمی'], false)
             // the author, marked as read from the whole
             ->assertSeeInOrder([route('people.show', $this->simi), 'سیمی نیشابوری', 'data-inherited', 'از اثر اصل', $wholeUrl, 'جوهریه سیمی'], false)
-            ->assertSeeInOrder(['تاریخ تألیف اصل', '۸۳۷ ق'], false)
+            ->assertSeeInOrder(['تاریخ تألیف', '۸۳۷ ق', 'data-inherited'], false)
             ->assertSeeInOrder(['زبان', 'فارسی', 'data-inherited'], false)
             ->assertSeeInOrder(['رده‌های موضوعی', 'کتاب‌آرایی', 'data-inherited'], false)
             ->assertSee('بخش یا جلدی است از:')
@@ -302,8 +302,8 @@ class WorkPartsTest extends TestCase
         $this->assertStringContainsString(\App\Helpers\TextNormalizer::normalize('سیمی نیشابوری'), $doc['author_name']);
         $this->assertContains(\App\Helpers\TextNormalizer::normalize('سیمی نیشابوری'), $doc['titles_names']);
         $this->assertSame(['کتاب‌آرایی', 'فارسی', ['کتاب‌آرایی']], [$doc['subject_summary'], $doc['language_summary'], $doc['subjects']]);
-        // the era is the author's; the composition stays the part's own
-        $this->assertSame([868, 868, null], [$doc['author_death_year'], $doc['era_year'], $doc['composition_year_hijri']]);
+        // the year of composition is the whole's too (step 14.315), and so the era
+        $this->assertSame([868, 837, 837], [$doc['author_death_year'], $doc['era_year'], $doc['composition_year_hijri']]);
 
         // a change of the whole's author, subject or language sends its parts again; another change does not
         $index->ids = [];
@@ -409,5 +409,136 @@ class WorkPartsTest extends TestCase
         $page = $this->followingRedirects()->get(route('people.show', $this->simi))->assertOk();
         $this->assertSame(1, substr_count($page->getContent(), 'data-inherited-part'));
         $page->assertDontSee('مرکب و کاغذ');
+    }
+
+    private function datedCopy(Work $work, int $year): Manuscript
+    {
+        $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1, 'copy_date_raw' => "{$year}ق"]);
+        DB::table('manuscripts')->where('id', $copy->id)->update(['copy_date_from' => $year, 'copy_date_to' => $year]);
+
+        return $copy;
+    }
+
+    /** Step 14.315: a part with no date of its own is dated like its whole, and gets no estimate */
+    public function test_a_part_reads_the_date_of_composition_and_shows_no_estimate()
+    {
+        $paper = $this->work('کاغذشناسی');
+        $this->datedCopy($paper, 900);
+        $this->datedCopy($paper, 950);
+
+        // alone, the work has only an estimate from its copies
+        $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
+        $this->assertSame(1, DB::table('date_estimates')->where(['subject_type' => 'work', 'subject_id' => $paper->id, 'field' => 'composition'])->count());
+        $this->followingRedirects()->get(route('works.show', $paper))->assertOk()->assertSee('تخمینی');
+
+        $this->partOf($paper, $this->jawhariyya);
+        $paper = Work::find($paper->id);
+        $this->assertTrue($paper->inherits('composition'));
+        $this->assertSame(837, $paper->effective_composition_year);
+        // nothing is written into the part
+        $this->assertSame([null, null, null], [$paper->composition_date_raw, $paper->composition_year_hijri, $paper->composition_date_from]);
+
+        // the page: the whole's date as the part's, marked; no estimate, even while the old row is in the table
+        $page = $this->followingRedirects()->get(route('works.show', $paper))->assertOk();
+        $page->assertSeeInOrder(['تألیف ۸۳۷ ق', 'تاریخ تألیف', '۸۳۷ ق', 'data-inherited', 'از اثر اصل', 'جوهریه سیمی'], false)
+            ->assertDontSee('تخمینی')->assertDontSee('تاریخ تألیف اصل');
+
+        // the search document: the year, the era and the order by it; no estimate fields
+        $doc = $paper->toSearchableArray();
+        $this->assertSame([837, 837, 837, null, null], [$doc['composition_year_hijri'], $doc['era_year'], $doc['composition_sort_year'], $doc['era_estimate_from'], $doc['era_estimate_to']]);
+        $this->assertNull($paper->compositionEstimate());
+
+        // the estimates: the part is dated like the whole, so its estimate goes and its copies are measured by 837
+        $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
+        $this->assertSame(0, DB::table('date_estimates')->where(['subject_type' => 'work', 'subject_id' => $paper->id, 'field' => 'composition'])->count());
+        $this->assertSame(837, Manuscript::copyFloors([$paper->id])[$paper->id]);
+
+        // the lists read from the database: ordered and filtered by the same year
+        $undated = $this->work('اثری بی تاریخ');
+        $late = $this->work('اثری دیرتر', ['composition_date_raw' => '905 ق']);
+        $year = WorkParts::compositionYearSql();
+        $this->assertStringContainsString("WHEN {$paper->id} THEN 837", $year);
+        $ordered = Work::whereIn('id', [$paper->id, $undated->id, $late->id, $this->jawhariyya->id])->orderByRaw("{$year} IS NULL")->orderByRaw("{$year} DESC")->orderBy('id')->pluck('id')->all();
+        $this->assertSame([$late->id, $this->jawhariyya->id, $paper->id, $undated->id], $ordered);
+        $filters = \App\Support\SearchFilters::fromRequest(new \Illuminate\Http\Request(['century' => 9]), 'works');
+        $this->assertFalse($filters->isEmpty());
+        $this->assertSame([$paper->id], $filters->apply(Work::query()->whereIn('works.id', [$paper->id, $undated->id, $late->id]))->pluck('works.id')->all());
+
+        // a new date of the whole reaches the part and its document
+        $index = $this->spyOnIndex();
+        $this->jawhariyya->update(['composition_date_raw' => '840 ق']);
+        $this->assertContains($paper->id, $index->ids);
+        $this->assertSame(840, Work::find($paper->id)->toSearchableArray()['composition_year_hijri']);
+        $this->assertStringContainsString("WHEN {$paper->id} THEN 840", WorkParts::compositionYearSql());
+
+        // the relation taken away: no date, and the estimate may come back
+        DB::table('work_relations')->where('work_id', $paper->id)->delete();
+        RecordRelations::partsChanged([$paper->id]);
+        $this->assertNull(Work::find($paper->id)->effective_composition_year);
+        $this->assertSame('works.composition_year_hijri', WorkParts::compositionYearSql());
+    }
+
+    public function test_a_part_keeps_a_date_of_its_own()
+    {
+        $early = $this->work('پیش‌نویس باب اول', ['composition_date_raw' => '830 ق']);
+        $same = $this->work('باب دوم', ['composition_date_raw' => '837 ق']);
+        foreach ([$early, $same] as $part) {
+            $this->partOf($part, $this->jawhariyya);
+        }
+        $early = Work::find($early->id);
+        $this->assertFalse($early->inherits('composition'));
+        $this->assertSame(830, $early->effective_composition_year);
+        $this->assertSame(830, $early->toSearchableArray()['composition_year_hijri']);
+        $this->assertTrue($early->inherits('author'));
+        $this->assertArrayNotHasKey($early->id, WorkParts::inheritedCompositions());
+
+        // its own date, unmarked; the whole's beside it, since they differ
+        $html = $this->followingRedirects()->get(route('works.show', $early))->assertOk()
+            ->assertSeeInOrder(['تألیف ۸۳۰ ق', 'تاریخ تألیف', '۸۳۰ ق', 'تاریخ تألیف اصل', '۸۳۷ ق', 'data-inherited'], false)->getContent();
+        $this->assertSame(1, preg_match('/تاریخ تألیف<.*?۸۳۰ ق(.*?)تاریخ تألیف اصل/su', $html, $between));
+        $this->assertStringNotContainsString('data-inherited', $between[1]);
+        // the same date as the whole's is not said twice
+        $this->followingRedirects()->get(route('works.show', $same))->assertOk()->assertSee('۸۳۷ ق')->assertDontSee('تاریخ تألیف اصل');
+    }
+
+    /** The date is the author's: a part by another author takes no date from the whole */
+    public function test_a_part_by_another_author_takes_no_date_from_the_whole()
+    {
+        $majnun = Person::create(['name' => 'مجنون رفیقی', 'normalized_name' => 'مجنون رفیقی', 'slug' => 'wp-' . uniqid(), 'death_year_hijri' => 950]);
+        $selection = $this->work('گزیدۀ جوهریه', ['author_id' => $majnun->id, 'author_name' => 'مجنون رفیقی']);
+        $byName = $this->work('منتخب جوهریه', ['author_name' => 'گزینندۀ ناشناس']);
+        $sameAuthor = $this->work('باب سوم', ['author_id' => $this->simi->id, 'author_name' => 'سیمی نیشابوری']);
+        foreach ([$selection, $byName, $sameAuthor] as $part) {
+            $this->partOf($part, $this->jawhariyya);
+        }
+        foreach ([$selection, $byName] as $part) {
+            $part = Work::find($part->id);
+            $this->assertFalse($part->inherits('composition'), $part->primary_title);
+            $this->assertNull($part->effective_composition_year);
+            // ...and still reads the subject and the language
+            $this->assertSame([true, true], [$part->inherits('subject'), $part->inherits('language')]);
+        }
+        $doc = Work::find($selection->id)->toSearchableArray();
+        $this->assertSame([null, 950], [$doc['composition_year_hijri'], $doc['era_year']]);
+        // the whole's date is shown beside, as the whole's
+        $this->followingRedirects()->get(route('works.show', $selection))->assertOk()
+            ->assertSeeInOrder(['تاریخ تألیف اصل', '۸۳۷ ق', 'data-inherited'], false)->assertDontSee('تألیف ۸۳۷ ق');
+
+        // the same linked author recorded on the part itself: the date is read
+        $this->assertSame(837, Work::find($sameAuthor->id)->effective_composition_year);
+
+        // below a part by another author, the works read that author and so no date from above it
+        $section = $this->work('فصلی از گزیده');
+        $this->partOf($section, $selection);
+        $section = Work::find($section->id);
+        $this->assertSame('مجنون رفیقی', $section->author_label);
+        $this->assertFalse($section->inherits('composition'));
+        // ...but below a part with nothing of its own, the date comes down the chain
+        $chapter = $this->work('باب اول');
+        $inner = $this->work('فصل اول');
+        $this->partOf($chapter, $this->jawhariyya);
+        $this->partOf($inner, $chapter);
+        $this->assertSame(837, Work::find($inner->id)->effective_composition_year);
+        $this->assertTrue($this->jawhariyya->is(Work::find($inner->id)->traitSource('composition')));
     }
 }

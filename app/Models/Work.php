@@ -44,7 +44,10 @@ class Work extends Model
         });
         // The parts that read their author, subject or language from this work are searched by them (step 14.308)
         static::saved(function (Work $work) {
-            if ($work->wasChanged(['author_id', 'author_name', 'has_other_authors', 'subject_summary', 'language_summary'])) {
+            if ($work->wasChanged(['author_id', 'author_name', 'composition_date_raw', 'composition_year_hijri'])) {
+                \App\Support\WorkParts::flushDates();
+            }
+            if ($work->wasChanged(['author_id', 'author_name', 'has_other_authors', 'subject_summary', 'language_summary', 'composition_date_raw', 'composition_year_hijri'])) {
                 \App\Support\WorkParts::reindexBelow($work->id);
             }
         });
@@ -141,7 +144,8 @@ class Work extends Model
      */
     public function compositionEstimate(): ?array
     {
-        if ($this->composition_year_hijri) {
+        // ...nor for a part that reads its date from the work it is a part of (step 14.315)
+        if ($this->effective_composition_year) {
             return null;
         }
         if (! array_key_exists('estimate_from', $this->attributes)) {
@@ -363,7 +367,8 @@ class Work extends Model
             'related_people' => $this->relatedPeopleNames(),
             'related_person_ids' => $this->workPeople->pluck('person_id')->filter()->map(fn ($id) => (int) $id)->unique()->values()->all(),
             'author_id' => $from->author_id ? (int) $from->author_id : null,
-            'composition_year_hijri' => $this->composition_year_hijri ? (int) $this->composition_year_hijri : null,
+            // a part's year is its own, or that of the whole it reads its date from (step 14.315)
+            'composition_year_hijri' => ($composed = $this->effective_composition_year) ? (int) $composed : null,
             'volume_number' => (int) $this->volume_number,
             'page_start' => (int) $this->page_start,
             'page_end' => $this->page_end ? (int) $this->page_end : null,
@@ -375,12 +380,12 @@ class Work extends Model
             // author's death, which only 14% of works lack against 86% without a composition year
             // an author known by the century alone counts by its middle (Person::eraYear, step 14.213)
             'author_death_year' => $author?->eraYear(),
-            'era_year' => ($era = $this->composition_year_hijri ?: $author?->eraYear()) ? (int) $era : null,
+            'era_year' => ($era = $composed ?: $author?->eraYear()) ? (int) $era : null,
             // A work with no era may be found by its estimated composition, when the reader asks for estimates
             // (step 14.197); and the order by composition may fall back on the middle of the estimate
             'era_estimate_from' => $era ? null : ($this->compositionEstimate()[0] ?? null),
             'era_estimate_to' => $era ? null : ($this->compositionEstimate()[1] ?? null),
-            'composition_sort_year' => $this->composition_year_hijri ? (int) $this->composition_year_hijri
+            'composition_sort_year' => $composed ? (int) $composed
                 : (($estimate = $this->compositionEstimate()) ? intdiv($estimate[0] + $estimate[1], 2) : null),
             'has_autograph' => $this->manuscripts->contains('is_autograph', true),
             'bibliographies' => $this->bibliographyIds(),
@@ -463,6 +468,7 @@ class Work extends Model
             'author' => (bool) $this->author_id || trim((string) $this->author_name) !== '',
             'subject' => trim((string) $this->subject_summary) !== '' || ($this->relationLoaded('subjects') ? $this->subjects->isNotEmpty() : $this->subjects()->exists()),
             'language' => trim((string) $this->language_summary) !== '' || ($this->relationLoaded('languages') ? $this->languages->isNotEmpty() : $this->languages()->exists()),
+            'composition' => trim((string) $this->composition_date_raw) !== '' || $this->composition_year_hijri || $this->composition_date_from !== null || $this->composition_date_to !== null,
             default => throw new \InvalidArgumentException("No such trait: {$trait}"),
         };
     }
@@ -478,11 +484,33 @@ class Work extends Model
             $source = $this;
             if (\App\Support\WorkParts::wholeId((int) $this->id) !== null && ! $this->hasOwn($trait)) {
                 $source = $this->wholes()->first(fn (Work $whole) => $whole->hasOwn($trait)) ?? $this;
+                // The date is the author's: a part by another author than the dated whole's (a later selection from
+                // it) does not take that whole's date (step 14.315)
+                if ($trait === 'composition' && ! $source->is($this) && ! $this->sharesAuthorWith($source)) {
+                    $source = $this;
+                }
             }
             $this->partsMemo['source'][$trait] = $source;
         }
 
         return $this->partsMemo['source'][$trait];
+    }
+
+    /** Is this work's author the other's: both read from one work, or the same linked person? */
+    private function sharesAuthorWith(Work $other): bool
+    {
+        $mine = $this->traitSource('author');
+        $theirs = $other->traitSource('author');
+
+        return $mine->is($theirs) || ($mine->author_id && (int) $mine->author_id === (int) $theirs->author_id);
+    }
+
+    /** The year of composition the work is ordered and filtered by: its own, or that of the whole its date is read from */
+    public function getEffectiveCompositionYearAttribute(): ?int
+    {
+        $year = $this->traitSource('composition')->composition_year_hijri;
+
+        return $year ? (int) $year : null;
     }
 
     /** Is the trait read from a whole? */
@@ -607,12 +635,13 @@ class Work extends Model
     private function plausibleCopyYearFloor(): int
     {
         $floor = 300;
-        if ($this->composition_year_hijri) {
-            $floor = max($floor, $this->composition_year_hijri - 40);
-        } elseif ($this->author?->death_year_hijri) {
-            $floor = max($floor, $this->author->death_year_hijri - 90);
-        } elseif ($this->author?->century_hijri) {
-            $floor = max($floor, ($this->author->century_hijri - 2) * 100);
+        $author = $this->effective_author;
+        if ($composed = $this->effective_composition_year) {
+            $floor = max($floor, $composed - 40);
+        } elseif ($author?->death_year_hijri) {
+            $floor = max($floor, $author->death_year_hijri - 90);
+        } elseif ($author?->century_hijri) {
+            $floor = max($floor, ($author->century_hijri - 2) * 100);
         }
 
         return $floor;
