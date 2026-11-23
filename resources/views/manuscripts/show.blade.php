@@ -68,6 +68,8 @@
         $motherNote = $manuscript->original_note ?? collect($photoChain)->map(fn ($p) => $p->original_note)->filter()->last();
         $possiblySame = $manuscript->possiblySame();
         $motherLabel = $mother ? trim(($mother->libraryRecord?->name ?? $mother->library ?? '') . ' ' . ($mother->shelfmark ?? '')) : null;
+        // The «مجموعه» the copy reads from: treatises bound together, two or more (backlog item 163, step 14.324)
+        $volume = $manuscript->boundCollection();
         $fromMother = fn (?string $value) => $value !== null && $value !== ''
             ? '<span class="border-b border-dotted border-line-strong">' . e(Fa::digits($value)) . '</span> <span class="text-[11px] text-muted">از نسخۀ مادر</span>'
             : null;
@@ -344,6 +346,14 @@
                             {{ $manuscript->scribe_name }}
                         @elseif($inherited = $fromMother($mother?->scribe_name))
                             {!! $inherited !!}
+                        @elseif($manuscript->inheritsFromCollection('scribe'))
+                            {{-- the scribe its volume's treatises agree on (backlog item 163, step 14.324) --}}
+                            @if($volume->scribe_id)
+                                <a href="{{ route('people.show', $volume->scribe_id) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $volume->scribe_name ?: $volume->scribe?->name }}</a>
+                            @else
+                                {{ $volume->scribe_name }}
+                            @endif
+                            <x-manuscript-inherited :manuscript="$manuscript" field="scribe" />
                         @else
                             <span class="text-muted">ثبت نشده</span>
                         @endif
@@ -362,11 +372,12 @@
                             {!! $inherited !!}
                         @else
                             <span class="text-muted">ثبت نشده</span>
+                            <x-manuscript-siblings-stating :manuscript="$manuscript" field="copy_date_raw" what="تاریخ کتابت" />
                         @endif
                     </x-ui.meta>
                     <x-date-conflict-note type="manuscript" :id="$manuscript->id" field="copy" />
                     <x-ui.meta label="محل کتابت" field="copy_place">
-                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
+                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span><x-manuscript-siblings-stating :manuscript="$manuscript" field="copy_place" what="محل کتابت" />@endif
                     </x-ui.meta>
                     {{-- A commissioner listed among the people of the copy (role patron, backlog item 96) is not repeated here --}}
                     @unless($manuscript->commissioned_by && $manuscript->otherPeople()->where('role', 'patron')->whereNull('person_id')->where('name', $manuscript->commissioned_by)->exists())
@@ -380,7 +391,7 @@
                     {{-- Two fields in one row: each pencil stands by its own value, and the one of an empty «کیفیت خط»
                          comes only in suggestion mode, with its name (a bare second pencil says nothing) --}}
                     <x-ui.meta label="خط">
-                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
+                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@elseif($manuscript->inheritsFromCollection('script_names')){{ $volume->script_names }}@if($volume->script_style) <span class="text-muted">({{ $volume->script_style }})</span>@endif <x-manuscript-inherited :manuscript="$manuscript" field="script_names" />@else<span class="text-muted">ثبت نشده</span>@endif
                         <x-suggest.field name="script_names" class="ms-1" />
                         @if($manuscript->script_style)
                             <span class="text-muted ms-1">({{ $manuscript->script_style }})</span>
@@ -416,9 +427,12 @@
                             <x-suggest.field name="range_from" class="ms-1" />
                         </dd>
                     </div>
-                    <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines">
-                        @if($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
+                    <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines && ! $manuscript->inheritsFromCollection('lines')">
+                        @if($manuscript->inheritsFromCollection('lines')){{ Fa::digits($volume->lines_raw ?: $volume->lines . ' سطر') }} <x-manuscript-inherited :manuscript="$manuscript" field="lines" />@elseif($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
+                    {{-- The size, the paper and the binding of a treatise in a «مجموعه» are the volume's: they stand in its
+                         section below (x-manuscript-collection; backlog item 163, step 14.324) --}}
+                    @unless($volume)
                     <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions" :empty="! $manuscript->dimensions">
                         @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
@@ -428,8 +442,12 @@
                     <x-ui.meta label="جلد" field="binding" :empty="! $manuscript->binding">
                         @if($manuscript->binding){{ $manuscript->binding }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
+                    @endunless
                 </x-ui.meta-list>
             </x-ui.section>
+
+            <!-- The «مجموعه» the copy is bound in: what is the volume's, and its treatises (from the shelfmark) -->
+            <x-manuscript-collection :manuscript="$manuscript" />
 
             {{-- Only the marks the record has are shown: an unset mark means the catalogue is silent, and a list of
                  them read as the copy's features. The unset ones (and the whole section, when none is set) appear in
@@ -459,9 +477,6 @@
 
             <!-- People connected with the copy other than its scribes -->
             <x-manuscript-people :manuscript="$manuscript" />
-
-            <!-- The other treatises bound in the same volume (from the shelfmark) -->
-            <x-manuscript-collection :manuscript="$manuscript" />
 
             <!-- Relations with other copies (copied from, collated with…) -->
             <x-record-relations :record="$manuscript" />

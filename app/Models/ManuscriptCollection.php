@@ -32,6 +32,11 @@ class ManuscriptCollection extends Model
         return $this->belongsTo(Library::class, 'library_id');
     }
 
+    public function scribe(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'scribe_id');
+    }
+
     public function manuscripts(): HasMany
     {
         return $this->hasMany(Manuscript::class, 'collection_id');

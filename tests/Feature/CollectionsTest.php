@@ -217,5 +217,61 @@ class CollectionsTest extends TestCase
         $this->assertSame(['تیماج قهوه‌ای ضربی', 'editor'], [$volume->fresh()->binding, $volume->fresh()->basis['binding']]);
         $this->assertSame(0, Collections::derive([$volume->id])['collections']);
     }
+
+    public function test_the_copys_page_shows_its_collection_and_marks_what_it_reads_from_it()
+    {
+        $library = $this->library();
+        $scribe = DB::table('people')->insertGetId(['name' => 'کاتب آزمایشی مجموعه', 'normalized_name' => 'کاتب ازمایشی مجموعه', 'slug' => 'test-collections-' . uniqid()]);
+        try {
+            $one = $this->copy($library, '9101/1', ['binding' => 'تیماج مشکی لایه‌ای', 'dimensions' => '12×21سم', 'script_names' => 'نسخ', 'lines' => 17, 'lines_raw' => '17 سطر',
+                'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی مجموعه', 'copy_date_raw' => '1125ق', 'copy_place' => 'اصفهان']);
+            $two = $this->copy($library, '9101/2', ['binding' => 'تیماج', 'script_names' => 'نسخ', 'lines' => 17, 'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی مجموعه', 'paper' => 'فرنگی نخودی']);
+            $silent = $this->copy($library, '9101/3');
+            $bika = $this->copy($library, '9101/4', ['is_bika' => true, 'script_names' => 'نسخ']);
+            DB::table('manuscript_notes')->insert([
+                ['manuscript_id' => $one, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف‌نامۀ آزمایشی مجموعه', 'typed_by' => 'field'],
+                ['manuscript_id' => $two, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف‌نامۀ آزمایشی مجموعه', 'typed_by' => 'field'],
+                ['manuscript_id' => $two, 'position' => 2, 'type' => 'seal', 'text' => 'مهر آزمایشی رسالۀ دوم', 'typed_by' => 'field'],
+            ]);
+            Collections::sync([$one, $two, $silent, $bika]);
+
+            $copy = Manuscript::find($silent);
+            $this->assertSame([true, true, true, false], [$copy->inheritsFromCollection('scribe'), $copy->inheritsFromCollection('script_names'), $copy->inheritsFromCollection('lines'), $copy->inheritsFromCollection('binding')]);
+            // «بی‌کا» names no scribe, so the volume's is read; its hand is its own; the author's own hand reads no scribe
+            $this->assertSame([true, false, true], [Manuscript::find($bika)->inheritsFromCollection('scribe'), Manuscript::find($bika)->inheritsFromCollection('script_names'), Manuscript::find($bika)->inheritsFromCollection('lines')]);
+            $this->assertFalse(Manuscript::find($bika)->forceFill(['is_autograph' => true])->inheritsFromCollection('scribe'));
+            // nothing is written in the copy
+            $this->assertSame([null, null, null], array_values((array) DB::table('manuscripts')->where('id', $silent)->first(['scribe_id', 'script_names', 'lines'])));
+
+            // the silent treatise: the hand, the lines and the scribe from the collection; the others' dates, shown beside
+            $this->get(route('manuscripts.show', $copy))->assertOk()
+                ->assertSee('data-from-collection="scribe"', false)->assertSee('data-from-collection="script_names"', false)->assertSee('data-from-collection="lines"', false)
+                ->assertSee('data-siblings-stating="copy_date_raw"', false)->assertSee('data-siblings-stating="copy_place"', false)
+                ->assertSee('مجموعۀ ۹۱۰۱')
+                // the volume's own: the fullest binding, the size and the paper one entry gives
+                ->assertSee('تیماج مشکی لایه‌ای')->assertSee('۱۲×۲۱سم')->assertSee('فرنگی نخودی')
+                ->assertSee('تنها در مدخل رسالۀ ۹۱۰۱/۲ آمده است.')
+                // the other treatises' endowment, once, and the seal; each treatise's scribe and date in the list
+                ->assertSee('data-collection-notes', false)->assertSee('وقف‌نامۀ آزمایشی مجموعه')->assertSee('مهر آزمایشی رسالۀ دوم')
+                ->assertSee('کاتب: کاتب آزمایشی مجموعه · ۱۱۲۵ق · اصفهان');
+            $this->assertSame(1, substr_count($this->get(route('manuscripts.show', $copy))->getContent(), 'وقف‌نامۀ آزمایشی مجموعه'));
+
+            // the first treatise states all: nothing is marked, and its own endowment is not repeated as the volume's
+            $page = $this->get(route('manuscripts.show', Manuscript::find($one)))->assertOk()->assertDontSee('data-from-collection', false)->assertDontSee('data-siblings-stating', false);
+            $volumeNotes = explode('</ul>', explode('data-collection-notes', $page->getContent(), 2)[1], 2)[0];
+            $this->assertStringContainsString('مهر آزمایشی رسالۀ دوم', $volumeNotes);
+            $this->assertStringNotContainsString('وقف‌نامۀ آزمایشی مجموعه', $volumeNotes);
+            // the second's shorter binding is the same binding said in brief: not set against the volume's
+            $this->get(route('manuscripts.show', Manuscript::find($two)))->assertOk()->assertDontSee('data-own-entry', false);
+
+            // a copy in no collection keeps its page: its binding among its own features
+            $alone = $this->copy($library, '4825', ['binding' => 'میشن عنابی تنها']);
+            $this->get(route('manuscripts.show', Manuscript::find($alone)))->assertOk()->assertSee('میشن عنابی تنها')->assertDontSee('data-collection-values', false);
+        } finally {
+            DB::table('manuscript_notes')->whereIn('manuscript_id', $this->manuscripts)->delete();
+            DB::table('manuscripts')->whereIn('id', $this->manuscripts)->delete();
+            DB::table('people')->where('id', $scribe)->delete();
+        }
+    }
 }
 

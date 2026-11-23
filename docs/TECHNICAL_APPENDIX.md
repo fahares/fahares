@@ -13276,3 +13276,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **زمان:** گزارش آزمایشی ۲ دقیقه و ۲۲ ثانیه، اجرا با `--summary` پنج دقیقه و ۹ ثانیه.
 - **مجموعه‌های سراسر عکسی:** ۱٬۳۴۸ مجموعۀ دو رساله و بیشتر که همۀ رساله‌هایشان `is_facsimile` اند (۷٬۶۰۱ نسخه).
 - **آزمون:** `CollectionsTest::test_a_volumes_values_are_what_its_treatises_agree_on` و `test_the_values_follow_the_treatises_and_keep_what_an_editor_gave`.
+
+### گام ۱۴.۳۲۴: نمایش مجموعه در صفحۀ رساله
+- **`Manuscript`:** `boundCollection()` (مجموعۀ `bound` با دو رساله و بیشتر)، `states($field)`، `inheritsFromCollection($field)` (فقط `CollectionValues::INHERITED`)، `siblingsStating($field)`، `collectionNotes()` (یادداشت‌های گروه `provenance` رساله‌های دیگر، گروه‌بندی با نوع و متن یکسان‌شده، بی آنچه خود رساله دارد). `collectionSiblings()` برای هر مدل یک بار خوانده می‌شود.
+- **`manuscripts/show.blade.php`:** `$volume`؛ شاخه‌های «از مجموعه» در سطرهای کاتب، خط و سطر (پس از «از نسخۀ مادر»)؛ سطرهای اندازه، کاغذ و جلد فقط وقتی `$volume` نیست؛ `x-manuscript-collection` پس از «ویژگی‌های ظاهری».
+- **کامپوننت‌ها:** `manuscript-inherited` (نشان «از مجموعه»، `data-from-collection`)، `manuscript-siblings-stating` (`data-siblings-stating`)، و در `manuscript-collection`: `data-collection-values`، `data-own-entry`، `data-collection-notes`، `data-copied`، و `id="collection"`.
+- **آزمون:** `CollectionsTest::test_the_copys_page_shows_its_collection_and_marks_what_it_reads_from_it`.
