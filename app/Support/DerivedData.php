@@ -131,6 +131,8 @@ class DerivedData
             array_push($workIds, ...$rows->pluck('work_id')->all());
             gc_collect_cycles();
         }
+        // The «مجموعه» records follow the bound volumes (step 14.322)
+        Collections::sync($ids);
         // The works index carries their copies' incipits and explicits (Work::manuscriptSearchTexts)
         self::reindexWorks($workIds);
         $out?->line('Derived data of copies: ' . http_build_query($counts, '', ', '));

@@ -13234,3 +13234,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`posts/index.blade.php`:** خط `data-telegram-channel` زیر توضیح سرصفحه، با همان شرط.
 - **آزمون:** `TelegramChannelLinkTest` (پیوند در جریده و پانویس صفحۀ درباره، نبود پیوند برای تهی و شناسۀ عددی، نام بی `@`).
 
+### گام ۱۴.۳۲۲: جدول `collections` و `Collections::sync`
+- **مهاجرت `2026_11_23_100001_create_collections_table`:** `collections` با یکتایی (`library_id`، `key`)، `kind`، ستون‌های مقدار هم‌نام ستون‌های نسخه (`binding`، `dimensions`، `folios`، `paper`، `script_names`، `script_style`، `lines`، `lines_raw`، `scribe_id`، `scribe_name`، `copy_date_raw`، `copy_place`)، `basis`، `metadata`، `copies_count`؛ و `manuscripts.collection_id` (تهی‌پذیر، `nullOnDelete`) و `collection_pinned`. روی رونوشت پروداکشن ۴۶ ثانیه.
+- **`Manuscript::collectionKey`:** پیش از الگو، شمارۀ دوتایی در « و » بریده می‌شود: نیمۀ نخست اگر «/» دارد، وگرنه نیمۀ دوم. دنباله‌ای که خودش شماره است («463/2(ب)-ف») تنها نشانۀ پایانی‌اش را می‌دهد.
+- **`App\Support\Collections`:** `sync(?array $manuscriptIds)` با چهار دستور SQL (درج کلیدهای تازه با `insertOrIgnoreUsing`، پیوند، برداشتن پیوند نسخۀ بی‌کلید، و `recount`). تنها `collection_id` و جدول `collections` نوشته می‌شود؛ `updated_at` نسخه و نمایۀ جست‌وجو دست نمی‌خورد. `recount` شمار و نوع را می‌نویسد (دو ردیف و بیشتر که همه یک اثرند: `set`) و مجموعۀ خالی را برمی‌دارد مگر `ManuscriptCollection::hasOwnData()`.
+- **صداکنندگان:** قلاب‌های `saved` (ساخت، یا تغییر `collection_key`، `library_id`، `work_id`، `collection_pinned`) و `deleting`/`deleted` مدل `Manuscript`؛ `DerivedData::syncCopies`؛ `fill-collection-keys`، `link-plain-volumes`، `SyncFixedShelfmarksCommand`؛ `LibraryMerger` (ادغام و بازگرداندن) و `SplitSenateLibraryCommand`. نوشتنی که از این راه‌ها نگذرد با `fahares:build-collections --apply` هم‌گام می‌شود.
+- **`Manuscript::collectionSiblings`:** با `collection_id` اگر هست؛ وگرنه راه پیشین (نسخۀ بی‌کتابخانه، یا فاصلۀ میان استقرار و اجرای فرمان).
+- **یکتایی کلید:** هم‌سنجی پایگاه داده دو املای «510-کر» را یکی می‌گیرد؛ پس شمار مجموعه‌ها یکی کمتر از شمار کلیدهای جداست (۳۲٬۹۳۱ و ۳۲٬۹۳۲).
+- **آزمون:** `CollectionsTest` (چهار آزمون).

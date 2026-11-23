@@ -241,6 +241,18 @@ class Manuscript extends Model
 
         static::deleted(fn (Manuscript $manuscript) => static::reindexWorks([$manuscript->work_id]));
 
+        // The «مجموعه» record of its volume follows its library and collection_key (backlog item 163, step 14.322)
+        static::saved(function (Manuscript $manuscript) {
+            if ($manuscript->wasRecentlyCreated || $manuscript->wasChanged(['collection_key', 'library_id', 'work_id', 'collection_pinned'])) {
+                \App\Support\Collections::sync([$manuscript->id]);
+                $manuscript->collection_id = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id');
+                $manuscript->syncOriginalAttribute('collection_id');
+            }
+        });
+        // (the link is written beside the model, so the row is asked which collection it leaves)
+        static::deleting(fn (Manuscript $manuscript) => $manuscript->setAttribute('collection_id', DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id')));
+        static::deleted(fn (Manuscript $manuscript) => $manuscript->collection_id ? \App\Support\Collections::recount([(int) $manuscript->collection_id]) : null);
+
         // The scribes' tab of the search holds when and where each scribe copied (step 14.155)
         static::updated(function (Manuscript $manuscript) {
             if ($manuscript->wasChanged(['copy_date_from', 'copy_date_to', 'copy_place'])) {
@@ -907,13 +919,21 @@ class Manuscript extends Model
     {
         // Persian digits and the dash variants the catalog uses («111/20 – ب») read as one form
         $shelfmark = strtr(trim((string) $shelfmark), ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '–' => '-', '—' => '-', '‐' => '-', '‑' => '-']);
+        // A copy with two shelfmarks (its microfilm and its photograph, or two reels) is of the volume the first one
+        // names (step 14.322): «2297/1-ف و 2715/1-ف» of «2297-ف», «240/5 و 6927/2-عکس» of «240»; where the first
+        // names no part, «9364 و 4981/3ف», of the second's, «4981-ف»
+        if (preg_match('/^(.*?\d.*?)\s+و\s+(\d.*)$/su', $shelfmark, $two)) {
+            $shelfmark = str_contains($two[1], '/') ? trim($two[1]) : $two[2];
+        }
         // The volume number is plain: in «5679-29/19» (Golpayegani) the slash belongs to the old number, not to a part
         if (! preg_match('~^([^/-]*\d[^/-]*?)\s*/\s*([^-]*\d[^-]*?)\s*(?:-\s*(.+))?$~u', $shelfmark, $m)) {
             return null;
         }
         // «ـ ف», «: فیاض», «؛ کر»: the joiners before a mark are not part of it
         $clean = fn (string $t) => preg_replace('/^[\s_:؛ـ\x{200C}-]+|[\s_:؛ـ\x{200C}-]+$/u', '', $t);
-        $tail = $clean($m[3] ?? '');
+        // «462/2(آ)-463/2(ب)-ف»: the second reel's number is no mark; the mark is the «ف» after it (step 14.322)
+        $tail = preg_match('~^\d+\s*/.*-\s*([^\d/-]+)$~su', $m[3] ?? '', $second) ? $second[1] : ($m[3] ?? '');
+        $tail = $clean($tail);
         $collection = $tail !== '' && preg_match('/\p{L}/u', $tail) ? ($tail === 'ط' ? 'طباطبائی' : $tail) : null;
         preg_match('/^(\d+)\s*(.*)$/su', trim($m[2]), $p);
         $stuck = $clean($p[2] ?? '');
@@ -1059,22 +1079,30 @@ class Manuscript extends Model
      * place its part number gives it. Empty when the shelfmark has no part. A copy fahares:fill-collection-keys has
      * not keyed yet finds its volume by the shelfmark's number.
      */
+    public function collection(): BelongsTo
+    {
+        return $this->belongsTo(ManuscriptCollection::class, 'collection_id');
+    }
+
     public function collectionSiblings(): \Illuminate\Support\Collection
     {
         $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark, $this->raw_text);
-        if ($key === null) {
+        // the copies of its «مجموعه» record (step 14.322); a copy with none yet, or of no library, is found by its key
+        $linked = $this->collection_id !== null;
+        if ($key === null && ! $linked) {
             return collect();
         }
         $base = self::collectionKey($this->shelfmark)['base'] ?? null;
         $byPart = self::query()
-            ->when($this->library_id, fn ($q) => $q->where('library_id', $this->library_id), fn ($q) => $q->whereNull('library_id')->where('library', $this->library))
-            ->when($this->collection_key !== null || $base === null,
-                fn ($q) => $q->where('collection_key', $key),
-                fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%'))
+            ->when($linked, fn ($q) => $q->where('collection_id', $this->collection_id), fn ($q) => $q
+                ->when($this->library_id, fn ($q) => $q->where('library_id', $this->library_id), fn ($q) => $q->whereNull('library_id')->where('library', $this->library))
+                ->when($this->collection_key !== null || $base === null,
+                    fn ($q) => $q->where('collection_key', $key),
+                    fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%')))
             ->with(['work.author', 'scribe'])
             ->limit(400)
             ->get()
-            ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
+            ->filter(fn (self $m) => $linked || ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
             // a run of separately numbered treatises («38131–38137») is in the order of its numbers; in a volume
             // whose copies share one plain number, the copies with no range follow the ranged ones
             ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? (self::isRunKey($key) ? self::plainNumber($m->shelfmark) : 0)),
