@@ -13286,3 +13286,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۳۲۸: `manuscript-siblings-stating` با گروه‌بندی
 - `siblingsStating($field)` با `CollectionValues::compared` گروه می‌شود؛ متن هر گروه از نخستین رساله‌اش، و نام رساله‌ها با «،» و «و» در PHP ساخته می‌شود (دو دستور Blade چسبیده به هم، مانند `@endif@endforeach`، خوانده نمی‌شود).
 
+### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
+
+- **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
+- **آزمون:** `MoveCitedPartTest::test_copies_whose_citation_names_another_book_move_to_its_volume_of_no_library`.
+- **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
+- **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
