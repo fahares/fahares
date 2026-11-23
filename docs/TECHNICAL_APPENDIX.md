@@ -13230,13 +13230,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید (۲ آذر ۱۴۰۵، پس از انتشار):** ۱۲٬۴۷۳ برگه با `send.sh` به سرور رفت؛ چند جریان ssh گیر کردند و یک نگهبان (هر جریانِ بی‌حرکت پس از ۵ دقیقه کشته شود) آن‌ها را از سر گرفت. شمار برگه‌ها در سرور و این‌جا برابر است. پشتیبان پیش از اجرا: `../fahares-sources/backups/step13/before_step14_320_set_facsimiles_20261123_2316.json` (md5 `3927dbe806cd07b3bddcf9b8688a5420`). `scripts/dev/prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 32 updated, 207 unchanged»؛ اجرای خشک پس از آن «0 updated, 239 unchanged». از هر یک از ۱۸ جلد یک نسخه در fahares.net دیده شد.
 - **دو ناهنجاری پیوند (پس از اجرا):** (۱) `SourceEntry::viewer()` بازۀ `page_first`–`page_last` جلد را نمی‌سنجد، پس ارجاع بیرون از اسکن به برگۀ ناموجود می‌رود (۵۵۵ ارجاع رشت و همدان بیرون از ص ۱۲۴۲–۱۷۹۷، مثلاً نسخۀ ۲۸۹۷۰۸ → `rasht-hamedan/v01/p1175.webp`). (۲) شمارۀ جلد را از خود ارجاع (`source_entries.volume_number`) می‌گیرد، نه از جلد؛ ۱٬۲۱۵ ارجاع تصویردار شماره‌ای جز شمارۀ جلدشان دارند (مثلاً نسخۀ ۲۹۳۷۶۱ → `dairat/v1043/p0238.webp`). اصلاح منتظر تصمیم کاربر است.
 
-### گام ۱۴.۳۲۵: `viewer()` و بازۀ جلد
-
-- **پیش از این:** `SourceEntry::viewer()` کد برگه را از جلد و شمارۀ جلد را از `volumeNumber()` ارجاع می‌گرفت (اول `source_entries.volume_number`) و صفحه را نمی‌سنجید.
-- **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
-- **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
-- **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
-
 ### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
 - **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
 - **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
@@ -13282,3 +13275,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`manuscripts/show.blade.php`:** `$volume`؛ شاخه‌های «از مجموعه» در سطرهای کاتب، خط و سطر (پس از «از نسخۀ مادر»)؛ سطرهای اندازه، کاغذ و جلد فقط وقتی `$volume` نیست؛ `x-manuscript-collection` پس از «ویژگی‌های ظاهری».
 - **کامپوننت‌ها:** `manuscript-inherited` (نشان «از مجموعه»، `data-from-collection`)، `manuscript-siblings-stating` (`data-siblings-stating`)، و در `manuscript-collection`: `data-collection-values`، `data-own-entry`، `data-collection-notes`، `data-copied`، و `id="collection"`.
 - **آزمون:** `CollectionsTest::test_the_copys_page_shows_its_collection_and_marks_what_it_reads_from_it`.
+
+### گام ۱۴.۳۲۵: `viewer()` و بازۀ جلد
+
+- **پیش از این:** `SourceEntry::viewer()` کد برگه را از جلد و شمارۀ جلد را از `volumeNumber()` ارجاع می‌گرفت (اول `source_entries.volume_number`) و صفحه را نمی‌سنجید.
+- **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
+- **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
+- **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
