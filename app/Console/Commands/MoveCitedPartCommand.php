@@ -21,6 +21,11 @@ use Illuminate\Support\Facades\DB;
  * manuscripts.catalog_volume_id and the copy's manuscript_catalog_references row on the old volume, logs each copy in
  * audit_logs, and writes the cited page again (SourceEntrySync::syncCited) for the copies of both volumes. Without
  * --apply nothing is written. Safe to run again: a copy already moved is no longer on the old volume.
+ *
+ * With --names instead of --volume and --part (step 14.326, backlog item 164), a copy moves when its citation names
+ * that book: Fankha cites «رشت و همدان: ف: - 1338» for copies of the Akhund school of Hamadan, which went to that
+ * library's own catalogue, while the page is in «فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان». The --to volume may
+ * then be one of no library, found by its exact title among those.
  */
 class MoveCitedPartCommand extends Command
 {
@@ -28,6 +33,7 @@ class MoveCitedPartCommand extends Command
         {--library= : Slug of the library}
         {--volume= : Volume number the citations give (33)}
         {--part= : Part whose copies move (1)}
+        {--names= : Instead of --volume and --part: text the citation names («رشت و همدان»)}
         {--from= : Exact title of the volume the copies are on}
         {--to= : Exact title of the part\'s volume}
         {--apply : Write; without it the command only reports}';
@@ -36,7 +42,8 @@ class MoveCitedPartCommand extends Command
 
     public function handle(): int
     {
-        foreach (['library', 'volume', 'part', 'from', 'to'] as $option) {
+        $names = $this->option('names');
+        foreach (filled($names) ? ['library', 'from', 'to'] : ['library', 'volume', 'part', 'from', 'to'] as $option) {
             if (blank($this->option($option))) {
                 $this->error("--{$option} is required");
 
@@ -46,6 +53,9 @@ class MoveCitedPartCommand extends Command
         $libraryId = DB::table('libraries')->where('slug', $this->option('library'))->value('id');
         $find = fn (string $title) => DB::table('catalog_volumes')->where('library_id', $libraryId)->where('title', $title)->get();
         [$from, $to] = [$find($this->option('from')), $find($this->option('to'))];
+        if (filled($names) && $to->isEmpty()) {
+            $to = DB::table('catalog_volumes')->whereNull('library_id')->where('title', $this->option('to'))->get();
+        }
         if (! $libraryId || $from->count() !== 1 || $to->count() !== 1) {
             $this->error(sprintf('expected one library and one volume each: library %s, from %d, to %d',
                 $libraryId ?: 'none', $from->count(), $to->count()));
@@ -61,9 +71,13 @@ class MoveCitedPartCommand extends Command
         $parts = [];
         foreach ($copies as $m) {
             $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->metadata, $m->raw_text);
-            $cited = $raw === null ? null : self::partOf($raw, $volume);
+            if (filled($names)) {
+                $cited = $raw !== null && str_contains(LinkCatalogVolumesCommand::normalize($raw), LinkCatalogVolumesCommand::normalize($names)) ? 'named' : null;
+            } else {
+                $cited = $raw === null ? null : self::partOf($raw, $volume);
+            }
             $parts[$cited ?? 'none'] = ($parts[$cited ?? 'none'] ?? 0) + 1;
-            if ($cited === $part) {
+            if ($cited === (filled($names) ? 'named' : $part)) {
                 $moves[] = $m->id;
             }
         }
@@ -78,7 +92,7 @@ class MoveCitedPartCommand extends Command
             return self::SUCCESS;
         }
 
-        DB::transaction(function () use ($moves, $from, $to) {
+        DB::transaction(function () use ($moves, $from, $to, $names) {
             foreach (array_chunk($moves, 500) as $ids) {
                 DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $to->id]);
                 DB::table('manuscript_catalog_references')->whereIn('manuscript_id', $ids)->where('catalog_volume_id', $from->id)
@@ -87,7 +101,7 @@ class MoveCitedPartCommand extends Command
             foreach ($moves as $id) {
                 AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $id, 'action' => 'corpus_update',
                     'old_values' => ['catalog_volume_id' => $from->id],
-                    'new_values' => ['catalog_volume_id' => $to->id, 'corpus_fix' => 'move-cited-part (step 14.152)']]);
+                    'new_values' => ['catalog_volume_id' => $to->id, 'corpus_fix' => filled($names) ? 'move-cited-part --names (step 14.326)' : 'move-cited-part (step 14.152)']]);
             }
             DB::table('manuscripts')->whereIn('catalog_volume_id', [$from->id, $to->id])->select(['id', 'metadata', 'raw_text', 'catalog_volume_id'])
                 ->orderBy('id')->chunkById(1000, fn ($rows) => SourceEntrySync::syncCited($rows));
