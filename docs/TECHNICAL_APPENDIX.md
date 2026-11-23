@@ -13184,3 +13184,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`manuscripts/show.blade.php`:** `$pagesOnly`؛ سطر حجم با `field` برابر `pages` یا `folios`؛ بلوک `data-extent-fields` (فقط در حالت پیشنهاد) با شمار دیگر و `rangeLabel()`.
 - **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.
 
+### گام ۱۴.۳۱۹: طرح مجموعه
+- **سند:** `docs/plans/collections.md`. پرس‌وجوها روی `fahares_prod`: گروه‌بندی (`library_id`، `collection_key`) با `HAVING COUNT(*) >= 2`، و برای هر فیلد `COUNT(expr)` و `COUNT(DISTINCT expr)`؛ کاتب با `COALESCE(scribe_id, scribe_name)`. یادداشت‌های `seal`، `endowment`، `ownership` با متن یکسان در دو رسالۀ یک مجلد.
+- **بی تغییر کد، مهاجرت یا داده.**
