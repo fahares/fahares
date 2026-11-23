@@ -13230,20 +13230,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید (۲ آذر ۱۴۰۵، پس از انتشار):** ۱۲٬۴۷۳ برگه با `send.sh` به سرور رفت؛ چند جریان ssh گیر کردند و یک نگهبان (هر جریانِ بی‌حرکت پس از ۵ دقیقه کشته شود) آن‌ها را از سر گرفت. شمار برگه‌ها در سرور و این‌جا برابر است. پشتیبان پیش از اجرا: `../fahares-sources/backups/step13/before_step14_320_set_facsimiles_20261123_2316.json` (md5 `3927dbe806cd07b3bddcf9b8688a5420`). `scripts/dev/prod-run fankha-phase-3-scans -- 'php artisan catalogs:set-facsimiles'`: «0 created, 32 updated, 207 unchanged»؛ اجرای خشک پس از آن «0 updated, 239 unchanged». از هر یک از ۱۸ جلد یک نسخه در fahares.net دیده شد.
 - **دو ناهنجاری پیوند (پس از اجرا):** (۱) `SourceEntry::viewer()` بازۀ `page_first`–`page_last` جلد را نمی‌سنجد، پس ارجاع بیرون از اسکن به برگۀ ناموجود می‌رود (۵۵۵ ارجاع رشت و همدان بیرون از ص ۱۲۴۲–۱۷۹۷، مثلاً نسخۀ ۲۸۹۷۰۸ → `rasht-hamedan/v01/p1175.webp`). (۲) شمارۀ جلد را از خود ارجاع (`source_entries.volume_number`) می‌گیرد، نه از جلد؛ ۱٬۲۱۵ ارجاع تصویردار شماره‌ای جز شمارۀ جلدشان دارند (مثلاً نسخۀ ۲۹۳۷۶۱ → `dairat/v1043/p0238.webp`). اصلاح منتظر تصمیم کاربر است.
 
-### گام ۱۴.۳۲۵: `viewer()` و بازۀ جلد
-
-- **پیش از این:** `SourceEntry::viewer()` کد برگه را از جلد و شمارۀ جلد را از `volumeNumber()` ارجاع می‌گرفت (اول `source_entries.volume_number`) و صفحه را نمی‌سنجید.
-- **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
-- **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
-- **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
-
-### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
-
-- **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
-- **آزمون:** `MoveCitedPartTest::test_copies_whose_citation_names_another_book_move_to_its_volume_of_no_library`.
-- **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
-- **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
-
 ### گام ۱۴.۳۲۱: `AnnouncementTelegram::channelUrl()` و پیوند کانال در پانویس و جریده
 - **`AnnouncementTelegram::channelUrl()`:** تنظیم `telegram.channel` را بی `@` می‌خواند و اگر نام کاربری معتبر تلگرام باشد (`^[A-Za-z][A-Za-z0-9_]{3,31}$`) `https://t.me/{name}` برمی‌گرداند؛ برای تهی یا شناسۀ عددی کانال `null`.
 - **`layouts/app.blade.php`:** در ردیف تماس ستون نخست پانویس، پس از ایمیل، پیوند `data-telegram-channel` با SVG تلگرام، تنها وقتی `channelUrl()` تهی نیست.
@@ -13296,3 +13282,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
 - **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
 - **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
+
+### گام ۱۴.۳۲۵: `viewer()` و بازۀ جلد
+
+- **پیش از این:** `SourceEntry::viewer()` کد برگه را از جلد و شمارۀ جلد را از `volumeNumber()` ارجاع می‌گرفت (اول `source_entries.volume_number`) و صفحه را نمی‌سنجید.
+- **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
+- **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
+- **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
+
+### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
+
+- **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
+- **آزمون:** `MoveCitedPartTest::test_copies_whose_citation_names_another_book_move_to_its_volume_of_no_library`.
+- **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
+- **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
