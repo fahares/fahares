@@ -397,9 +397,25 @@
                         @endif
                     </x-ui.meta>
                     {{-- Leaves or pages, and the leaves the copy takes in its volume (backlog item 97) --}}
-                    <x-ui.meta :label="$manuscript->pages && ! $manuscript->folios ? 'شمار صفحه' : 'شمار برگ'" field="folios">
+                    @php $pagesOnly = $manuscript->pages && ! $manuscript->folios; @endphp
+                    <x-ui.meta :label="$pagesOnly ? 'شمار صفحه' : 'شمار برگ'" :field="$pagesOnly ? 'pages' : 'folios'">
                         @if($manuscript->extentLabel()){{ $manuscript->extentLabel() }}@else<span class="text-muted">ثبت نشده</span>@endif
                     </x-ui.meta>
+                    {{-- The other count and the place in the volume are fields of their own (step 14.244), reached in
+                         suggestion mode: a catalogue's «12ص» that counts leaves is emptied here (step 14.317) --}}
+                    <div class="contents suggest-row" x-show="$store.suggest.on" x-cloak data-extent-fields>
+                        <dt class="text-muted text-[13px] sm:pt-px">{{ $pagesOnly ? 'شمار برگ' : 'شمار صفحه' }}</dt>
+                        <dd class="m-0 mb-2 sm:mb-0 text-ink min-w-0 leading-relaxed">
+                            @php $otherCount = $pagesOnly ? $manuscript->folios : $manuscript->pages; @endphp
+                            @if($otherCount){{ Fa::digits($otherCount) }}@else<span class="text-muted">ثبت نشده</span>@endif
+                            <x-suggest.field :name="$pagesOnly ? 'folios' : 'pages'" class="ms-1" />
+                        </dd>
+                        <dt class="text-muted text-[13px] sm:pt-px">جای نسخه در مجموعه</dt>
+                        <dd class="m-0 mb-2 sm:mb-0 text-ink min-w-0 leading-relaxed">
+                            @if($manuscript->rangeLabel()){{ $manuscript->rangeLabel() }}@else<span class="text-muted">ثبت نشده</span>@endif
+                            <x-suggest.field name="range_from" class="ms-1" />
+                        </dd>
+                    </div>
                     <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines">
                         @if($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>

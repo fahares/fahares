@@ -13165,3 +13165,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`components/record-relations.blade.php`:** راهنمای فرم.
 - **آزمون‌ها:** متن برچسب در `WorkPartsTest`، `LinkRelatedWorksTest` و `SuggestionWorkflowTest`.
 
+### گام ۱۴.۳۱۷: دکمه‌های `pages` و `range_from` در صفحۀ نسخه
+- **`manuscripts/show.blade.php`:** `$pagesOnly`؛ سطر حجم با `field` برابر `pages` یا `folios`؛ بلوک `data-extent-fields` (فقط در حالت پیشنهاد) با شمار دیگر و `rangeLabel()`.
+- **آزمون:** `SuggestionWorkflowTest::test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync`.
+
