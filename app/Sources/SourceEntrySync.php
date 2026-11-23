@@ -160,6 +160,9 @@ class SourceEntrySync
         }
         $parsed = $raw === null ? ['volume' => null, 'page' => null] : \App\Console\Commands\ImportFankhaCatalogReferencesCommand::parse($raw);
         $volume = $m->catalog_volume_id && isset($volumeSources[$m->catalog_volume_id]) ? (int) $m->catalog_volume_id : null;
+        if ($raw !== null && $volume) {
+            $parsed = self::fitToVolume($raw, $parsed, $volume, (int) $volumeSources[$volume]);
+        }
 
         return [
             'citable_type' => Manuscript::class,
@@ -179,6 +182,80 @@ class SourceEntrySync
      * Writes the cited page of each manuscript (rows with id, metadata, raw_text, catalog_volume_id) and removes
      * it from a copy that no longer has one. Returns [written, removed].
      */
+    /** @var array<int, array<int, object>> source id => its volumes (number, first and last page) by volume id */
+    private static array $volumeNumbers = [];
+
+    /**
+     * The volume and page of a citation, read with the catalogue volume the copy is tied to in mind (step 14.327).
+     * The citation alone is read part by part and number by number; the tied volume settles what that leaves open:
+     *  - «[رشت و همدان - ف: 1421]», «[ف: 109]»: a lone number is the page where the catalogue has one volume (and,
+     *    where that volume's pages are known, the number is one of them);
+     *  - «[ف: 356-]»: a number before a dash, read as a volume, is the page there too;
+     *  - «[اهدائی رهبر: 3-528 و ف: 21-1059]»: of several citations the one that names the tied volume is read, where
+     *    the first names another;
+     *  - «[نشریه: 512-7]»: volume and page written the other way round, where the page is the tied volume's number
+     *    and the catalogue has no volume of the other number.
+     * A citation that names another volume than the tied one in any other way is left as the print has it.
+     *
+     * @param  array{volume: int|null, page: int|null}  $parsed
+     * @return array{volume: int|null, page: int|null}
+     */
+    public static function fitToVolume(string $raw, array $parsed, int $volumeId, int $sourceId): array
+    {
+        self::$volumeNumbers[$sourceId] ??= DB::table('source_volumes')->where('source_id', $sourceId)->get(['id', 'volume_number', 'page_first', 'page_last'])->keyBy('id')->all();
+        $volumes = self::$volumeNumbers[$sourceId];
+        $numbers = array_map(fn ($v) => $v->volume_number, $volumes);
+        $number = $numbers[$volumeId] ?? null;
+        // the citation's own text: what stands after the last «[» (a citation kept with the end of the line before it)
+        $text = trim(mb_substr($raw, (int) mb_strrpos($raw, '[')), "[] \t\n");
+        // «… 3-528 و ف: 21-1059» is two citations; the «و» of a name («رشت و همدان») or of two pages («88 و 89») is not
+        $parts = preg_split('/(?<=\d)\s+و\s+(?=\D)|؛/u', $text);
+        // «[(4پ-23پ)، 16 سطر …، اندازه: 10×17سم [ف: 8-536]»: the citation is what the last bracket holds
+        // …where the whole gave nothing, or what the last bracket holds names the tied volume; «[ف: 1-413 و [عکسی ف:
+        // 6-361]» on volume 1 keeps its first citation
+        if (mb_substr_count($raw, '[') > 1) {
+            $tail = \App\Console\Commands\ImportFankhaCatalogReferencesCommand::parse($text);
+            if (($parsed['volume'] === null && $parsed['page'] === null) || ($number !== null && $tail['volume'] === (int) $number && $parsed['volume'] !== (int) $number)) {
+                $parsed = $tail + $parsed;
+            }
+        }
+
+        if ($parsed['volume'] === null && $parsed['page'] === null) {
+            if (count($numbers) === 1 && preg_match('/^[^\d]*?(?:ف\s*:?|[:\-])\s*(\d{1,5})\s*(?:\([^()]*\))?\s*$/u', trim($parts[0]), $m)) {
+                // where the volume's pages are known the number must be one of them
+                $v = $volumes[$volumeId] ?? null;
+                if (! $v || $v->page_first === null || $v->page_last === null || ((int) $m[1] >= $v->page_first && (int) $m[1] <= $v->page_last)) {
+                    return ['volume' => null, 'page' => (int) $m[1]] + $parsed;
+                }
+            }
+
+            return $parsed;
+        }
+        // «[ف: 356-]», «[رشت و همدان: ف: 1141 -]»: a number before a dash reads as a volume; a catalogue of one volume
+        // has no volume 356, so it is the page
+        if ($parsed['volume'] !== null && $parsed['page'] === null && count($numbers) === 1 && $parsed['volume'] !== (int) $number) {
+            $v = $volumes[$volumeId] ?? null;
+            if (! $v || $v->page_first === null || $v->page_last === null || ($parsed['volume'] >= $v->page_first && $parsed['volume'] <= $v->page_last)) {
+                return ['volume' => null, 'page' => $parsed['volume']] + $parsed;
+            }
+        }
+        if ($number === null || $parsed['volume'] === null || $parsed['volume'] === (int) $number) {
+            return $parsed;
+        }
+        foreach (array_slice($parts, 1) as $part) {
+            $other = \App\Console\Commands\ImportFankhaCatalogReferencesCommand::parse(trim($part));
+            if ($other['volume'] === (int) $number && $other['page'] !== null) {
+                return ['volume' => $other['volume'], 'page' => $other['page']] + $parsed;
+            }
+        }
+        // a volume number no catalogue reaches («512»); «[عکسی - ف: 2-1]» on volume 1 is volume 2, which the site lacks
+        if ($parsed['page'] === (int) $number && $parsed['volume'] > 100 && ! in_array($parsed['volume'], array_map('intval', array_filter($numbers)), true)) {
+            return ['volume' => $parsed['page'], 'page' => $parsed['volume']] + $parsed;
+        }
+
+        return $parsed;
+    }
+
     public static function syncCited(iterable $manuscripts): array
     {
         $manuscripts = collect($manuscripts);
