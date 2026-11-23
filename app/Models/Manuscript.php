@@ -1089,7 +1089,77 @@ class Manuscript extends Model
         return $this->belongsTo(ManuscriptCollection::class, 'collection_id');
     }
 
+    /** @var \Illuminate\Support\Collection<int, self>|null the treatises of the copy's volume, found once */
+    private ?\Illuminate\Support\Collection $siblings = null;
+
+    /** The treatises of the copy's volume, itself among them, in the order of their leaves; found once for the model. */
     public function collectionSiblings(): \Illuminate\Support\Collection
+    {
+        return $this->siblings ??= $this->findCollectionSiblings();
+    }
+
+    /**
+     * The «مجموعه» the copy reads from (backlog item 163, step 14.324): treatises bound together, two of them or
+     * more. Null for a copy in no collection, alone in its volume, or one of a work's volumes under one number.
+     */
+    public function boundCollection(): ?ManuscriptCollection
+    {
+        $collection = $this->collection_id ? $this->collection : null;
+
+        return $collection && $collection->kind === ManuscriptCollection::BOUND && $collection->copies_count >= 2 ? $collection : null;
+    }
+
+    /**
+     * Whether the copy's own entry says something of a field of CollectionValues: a value, or for the scribe that
+     * the hand is the author's. «بی‌کا» is no statement: the catalogue found no scribe named in this treatise, as in
+     * nine of ten treatises that read their volume's scribe (step 14.324).
+     */
+    public function states(string $field): bool
+    {
+        return \App\Support\CollectionValues::compared($field, $this) !== null || ($field === 'scribe' && $this->is_autograph);
+    }
+
+    /**
+     * Whether the copy reads a field from its collection: its hand, lines or scribe, where its own entry is silent
+     * and its volume's treatises agree. Nothing is written in the copy's columns; the value is the collection's.
+     */
+    public function inheritsFromCollection(string $field): bool
+    {
+        return in_array($field, \App\Support\CollectionValues::INHERITED, true) && ! $this->states($field)
+            && isset(($this->boundCollection()?->basis ?? [])[$field]);
+    }
+
+    /** The other treatises of the volume that state a field (a date, a place…), in the order of their leaves. */
+    public function siblingsStating(string $field): \Illuminate\Support\Collection
+    {
+        return $this->collectionSiblings()->reject(fn (self $m) => $m->is($this))->filter(fn (self $m) => \App\Support\CollectionValues::compared($field, $m) !== null)->values();
+    }
+
+    /**
+     * The seals, ownership notes, endowments and acquisitions the entries of the volume's other treatises give and
+     * this copy's does not: they are the volume's history, whichever treatise's entry tells them. One row for a text,
+     * with the treatises whose entries have it. Read when shown; no note is moved.
+     *
+     * @return \Illuminate\Support\Collection<int, array{note: ManuscriptNote, copies: \Illuminate\Support\Collection<int, self>}>
+     */
+    public function collectionNotes(): \Illuminate\Support\Collection
+    {
+        if (! $this->boundCollection()) {
+            return collect();
+        }
+        $siblings = $this->collectionSiblings()->reject(fn (self $m) => $m->is($this))->keyBy('id');
+        $fold = fn (ManuscriptNote $note) => $note->type . '|' . \App\Support\CollectionValues::folded($note->text);
+        $own = $this->notes->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])->map($fold)->flip();
+
+        return ManuscriptNote::whereIn('manuscript_id', $siblings->keys())->whereIn('type', ManuscriptNote::GROUPS['provenance']['types'])
+            ->orderBy('manuscript_id')->orderBy('position')->get()
+            ->reject(fn (ManuscriptNote $note) => $own->has($fold($note)))
+            ->groupBy($fold)
+            ->map(fn ($notes) => ['note' => $notes->first(), 'copies' => $notes->pluck('manuscript_id')->unique()->map(fn ($id) => $siblings[$id])->values()])
+            ->values();
+    }
+
+    private function findCollectionSiblings(): \Illuminate\Support\Collection
     {
         $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark, $this->raw_text);
         // the copies of its «مجموعه» record (step 14.322); a copy with none yet, or of no library, is found by its key
