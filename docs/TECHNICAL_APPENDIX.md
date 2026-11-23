@@ -13283,13 +13283,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
 - **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
 
-### گام ۱۴.۳۲۵: `viewer()` و بازۀ جلد
-
-- **پیش از این:** `SourceEntry::viewer()` کد برگه را از جلد و شمارۀ جلد را از `volumeNumber()` ارجاع می‌گرفت (اول `source_entries.volume_number`) و صفحه را نمی‌سنجید.
-- **اکنون:** اگر `page_start` بیرون از `page_first`–`page_last` جلد باشد (هر کدام که پر است)، یا `volume_number` ارجاع پر باشد و با `volume_number` جلد نخواند، `null` می‌دهد؛ وگرنه `volume` شمارۀ جلد است. `thumbUrl()` از همین پیروی می‌کند. شکاف‌های میان بازه (صفحۀ نیفتاده در اسکن) هنوز سنجیده نمی‌شوند.
-- **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
-- **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
-
 ### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
 
 - **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
