@@ -13735,6 +13735,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py zirikli 14.364 <file>`:** `person_twice 15`، `dropped_second_entry 15`؛ ۹۸۷ پیوند: ۸۴۲ با ۹۰ به بالا، ۱۱۶ بین ۸۰ و ۸۹، ۲۹ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 982`، `exists 5`؛ اجرای دوم `exists 987`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_364_zirikli.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_364_person_lives_before.jsonl.gz` (۱٬۰۶۷ سطر، md5 `f3e44792…`). اجرای آزمایشی و `--apply` هر دو `created 890`، `exists 6`، `has_life 91`؛ اجرای دوم `created 0`، `exists 896`. سطرهای اشخاص در این منبع: ۱٬۹۵۷ (۸۹۰ با `name_llm`، ۷۵۱ با ۹۰ به بالا). پدیدآورندگانِ پیونددار: ۴٬۵۳۸ از ۱۵٬۱۹۹؛ نشان‌داده: ۴٬۰۱۸؛ همۀ اشخاص: ۴٬۵۴۲ از ۶۶٬۳۰۲. سطرها به روش: `name_llm` ۶٬۵۵۳، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحۀ `/p/8738` در سایت دیده شد.
 
 ### گام ۱۴.۳۶۷: ریلیز v2.9.0 پیکره
 - **ساخت:** `python3 scripts/fankha_parser_v2.py` روی کامیت `5e44eda`؛ هر ۳۴ فایل `parser_version` 2.9.0 و `text_commit` `a38c820` (آخرین کامیت `text/fankha`) دارند. آرشیو: `tar -czf fankha_json_v2.9.0.tar.gz -C json fankha_v2`، ۹۹٬۷۸۹٬۰۰۷ بایت، sha256 `29411d18…a124e4`.
