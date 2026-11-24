@@ -44,6 +44,7 @@ class InsightsNotes
         'formats' => 'آیا این همان قطع‌های رقعی و وزیری و رحلی است؟',
         'autographs' => 'آیا هر نسخۀ این شمار به‌راستی خط مؤلف است؟',
         'anonymous' => 'آیا اثر بی مؤلف یعنی مؤلفش ناشناخته است؟',
+        'librarySubjects' => 'آیا موضوع پررنگ، بیشترین نسخه‌های کتابخانه را دارد؟',
     ];
 
     private array $data;
@@ -63,7 +64,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -489,6 +490,29 @@ class InsightsNotes
         return [[
             'فهرست راست سهم آثار بی مؤلف را در آثار هر موضوع نشان می‌دهد، از بیشترین. نمودار چپ همین سهم را در آثاری نشان می‌دهد که کهن‌ترین نسخۀ تاریخ‌دارشان از هر سده است. اثر بی مؤلف اثری است که فهرست برایش نام مؤلفی نیاورده است؛ اثری که نام مؤلف دارد ولی آن نام به رکورد شخصی پیوند نخورده، مؤلف‌دار شمرده شده است.',
             'نه همیشه. گاه مؤلف به‌راستی ناشناخته است، گاه نسخه آغاز و انجام ندارد و فهرست‌نگار نتوانسته اثر را بشناسد، و گاه نوشته از آغاز مؤلفی به معنای معمول نداشته است، مانند سند، دعا، جُنگ و بیاض. پس سهم بالا در یک موضوع بیشتر از سرشت نوشته‌های آن موضوع می‌گوید تا از کم‌کاری فهرست. سدۀ هر اثر هم سدۀ کهن‌ترین نسخۀ آن است، نه سدۀ تألیف.',
+        ], $examples];
+    }
+
+    private function librarySubjects(): array
+    {
+        $ls = $this->data['library_subjects'];
+        $ratio = fn ($v) => Fa::digits(str_replace('.', '٫', (string) $v));
+        $examples = [];
+        if (($first = $ls['items'][0] ?? null) && ($subject = $first['subjects'][0] ?? null)) {
+            $examples[] = 'در ' . $first['name'] . '، ' . self::pct($subject['share']) . ' نسخه‌ها از «' . $subject['name'] . '» است (' . self::n($subject['count']) . ' نسخه)، در حالی که سهم این موضوع در همۀ کتابخانه‌ها '
+                . self::pct($subject['overall']) . ' است؛ یعنی ' . $ratio($subject['ratio']) . ' برابر.';
+        }
+        $rows = array_merge(...array_map(fn ($l) => array_map(fn ($s) => $s + ['library' => $l['name']], $l['subjects']), $ls['items']) ?: [[]]);
+        if ($peak = self::top($rows, 'ratio')) {
+            $examples[] = 'بزرگ‌ترین نسبت این جدول از ' . $peak['library'] . ' است: «' . $peak['name'] . '» با ' . self::pct($peak['share']) . ' نسخه‌هایش، ' . $ratio($peak['ratio']) . ' برابر سهم همین موضوع در کل.';
+        }
+        if ($row = $ls['subjects'][0] ?? null) {
+            $examples[] = 'در فهرست دوم، «' . $row['name'] . '» بیشترین سهم را در ' . $row['library']['name'] . ' دارد: ' . self::pct($row['share']) . '، در برابر ' . self::pct($row['overall']) . ' در کل.';
+        }
+
+        return [[
+            'جدول نخست برای هر کتابخانه موضوع‌هایی را می‌آورد که سهمشان در نسخه‌های آن کتابخانه بیش از سهمشان در همۀ کتابخانه‌هاست، با همان نسبت. فهرست دوم از سوی دیگر می‌خواند: برای هر موضوع، کتابخانه‌ای که آن موضوع بیشترین سهم را در نسخه‌هایش دارد. روی نام موضوع بزنید تا آمار همان موضوع در همان کتابخانه را ببینید.',
+            'نه. موضوع پررنگ موضوعی است که کتابخانه بیش از دیگران از آن دارد، نه موضوعی که بیشترین نسخه‌اش را می‌سازد؛ ادبیات و فقه در بیشتر کتابخانه‌ها پرشمارترین‌اند و برای همین کمتر پررنگ می‌شوند. نسبت در کتابخانۀ کوچک با چند نسخه جابه‌جا می‌شود، پس شمار نسخه را هم ببینید. موضوع هر نسخه موضوع اثر آن است، و نسخه‌ای که اثرش موضوع ندارد در این شمارش نیست.',
         ], $examples];
     }
 
