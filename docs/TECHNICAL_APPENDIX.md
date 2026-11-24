@@ -13640,33 +13640,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پس از اجرا: جلد #۶۷۴ ۵۶۳ نسخه و ۵۶۳ مدخل دارد (۵۶۰ روی برگه)، و جلد #۶۷۵ ۳۱۸ نسخه و ۳۱۸ مدخل (۳۱۶ روی برگه).
   - در fahares.net نسخه‌های `/manuscripts/248990` (ج ۱ ص ۱۰۴)، `134703` (ص ۲۱۹)، `284863` (ص ۷۹) و `229276` (ج ۲ ص ۳۸۸) نشانی برگۀ `borujerdi` را دارند. در `/tmp` کانتینر پرونده‌ای نماند.
 
-### گام ۱۴.۳۶۵: کاشان، مدرسۀ سلطانی (یادبود ۱۳۵۰)
-
-- **منبع:**
-  - `../fahares-sources/kashan-soltani/soltani-1350.pdf` (پیوند سخت به داکی‌باکس 1276469؛ ۵۹ برگ، ماسک JBIG2 با ۳۰۰ dpi روی لایۀ رنگی ۱۰۰ dpi؛ MD5 در `MD5SUMS`).
-  - برگ ۱ تا ۸ جلد، تصویر و پیش‌گفتار بی‌شماره است. برگ ۹ تا ۵۰ فهرست است و برگ ۵۱ به بعد مهر و لوحه‌های تصویر.
-- **نگاشت (`kashan-soltani.map.json`):**
-  - شمارۀ چاپی هر برگ از رونوشت گرفته شد: ص ۶ تا ۸ برگ ۹ تا ۱۱؛ ص ۱۱ تا ۱۴ برگ ۱۴ تا ۱۷؛ ص ۱۷ و ۱۸ برگ ۱۲ و ۱۳؛ ص ۱۹ تا ۴۷ برگ ۲۲ تا ۵۰.
-  - برگ ۱۸ تا ۲۱ تکرار ص ۲۳، ۲۴، ۱۷ و ۱۸ است. ص ۹، ۱۰، ۱۵ و ۱۶ نیست.
-  - تصویرها با `extract_edition_pages.py --code kashan-soltani --volume 1 --map … --width 1100 --mupdf` ساخته شدند (۳۸ برگه).
-- **رونویسی:**
-  - `TRANSCRIBE.md` و سه زیرعامل Sonnet؛ خروجی در `tsv/part{1,2,3}.tsv` با یازده ستون: برگ، صفحه، شماره، عنوان، مؤلف، زبان، خط، تاریخ، سال، شمارۀ کتاب، متن.
-  - ۳۹۰ سطر، ۳۵۳ مدخل یکتا. ۳۷ مدخلِ دوباره‌خوانده در عنوان، سال و شماره یکی بودند، جز فاصله‌گذاری.
-- **جفت کردن:**
-  - `candidates.json`: برای هر مدخل تا شش نسخۀ فنخا از ۴۷۳ نسخۀ «مدرسه سلطانی» جلد #۶۱۷ (`fankha-soltani.tsv`). امتیاز: سال برابر ۳، سال با فاصلۀ ۲ ۱؛ جاکارد واژه‌های عنوان ×۳، یا ۱٫۵ برای عنوانی که درون دیگری است؛ واژه‌های مؤلف و کاتب تا ۱٫۵.
-  - `MATCH.md` و چهار زیرعامل Sonnet (`match/m{1..4}.tsv`): ۱۰۳ مطمئن، ۳۵ محتمل، ۲۱۵ هیچ.
-  - مطمئن یعنی اثر یکی و سال یا کاتب هم‌خوان، یا تنها نسخۀ اثر بی‌تناقض. دو مطمئن به یک نسخه (۱۱۴ و ۲۴۶ به توضیح التذکره ۱۰۱۲) کنار رفتند.
-  - خروجی: `matched-high.tsv`، و `database/data/kashan_soltani_matches_step14_365.jsonl` با ۱۰۱ سطر `{manuscript_id, shelfmark, page, entry_number, heading, text, confidence: 80, note}`.
-- **کد:**
-  - `MatchCatalogEditionCommand`: `{pages?}` و `--matches=`؛ `importMatches()` نسخه را در کتابخانۀ منبع جلد و با همان `shelfmark` می‌خواهد، تا شناسۀ پایگاهی دیگر نسخۀ دیگری را نگیرد، و از همان `write()` می‌گذرد.
-  - `METHOD_MODEL = 'llm_copy'`.
-  - `SourceEntry::machineNote()` برای `llm_copy` توضیح خودش را دارد، و برچسب روش در `CatalogReferenceController::METHODS` است.
-  - آزمون: `test_matches_made_by_a_model_are_read_from_a_file_and_checked_against_the_library`.
-- **`catalog_facsimiles.json`:** ردیف `create` برای `kashan-mdrsh-sltany-67`، جلد ۱، «یادبود: فهرست کتب خطی کتابخانه مدرسه سلطانی کاشان»، چاپ ۱۳۵۰، ص ۶ تا ۴۷.
-- **تمرین روی `fahares_prod`:**
-  - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
-  - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
-  - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
 ### گام ۱۴.۳۵۸: `Loader::periods` بی `PLACE_KINDS`، و سنجش قاعدۀ `period` روی پروداکشن
 
 - **داده (۳ آذر ۱۴۰۵، پرس‌وجوهای سبک روی پروداکشن):** `person_periods`: ۲٬۱۶۹ تأییدشده، ۲۴۰ ردشده، ۱۵۸ منتظر. تأییدشده‌های سال‌دار به تفکیک نوع: وفات ۵۶۳، تولد ۳۲۷، اقامت ۳۷، سفر ۲۰، تحصیل ۶، منصب ۱، تدریس ۱.
@@ -13753,3 +13726,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** جدول `person_periods` رونوشت محلی با ۴٬۸۱۰ ردیف امروزِ پروداکشن جایگزین شد. اجرای آزمایشی و `--apply`: «birth years carried 139, death years carried 38»؛ اجرای دوم صفر. نمونه: #۱۳۲۹۸ («ق۱۳ قمری») تولد ۱۲۳۶، وفات ۱۳۰۴، سده ۱۳ تا ۱۴؛ #۲۶۲۱ (بی‌تاریخ) ۱۲۳۹ تا ۱۳۱۶.
 - **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
 
+### گام ۱۴.۳۶۵: کاشان، مدرسۀ سلطانی (یادبود ۱۳۵۰)
+
+- **منبع:**
+  - `../fahares-sources/kashan-soltani/soltani-1350.pdf` (پیوند سخت به داکی‌باکس 1276469؛ ۵۹ برگ، ماسک JBIG2 با ۳۰۰ dpi روی لایۀ رنگی ۱۰۰ dpi؛ MD5 در `MD5SUMS`).
+  - برگ ۱ تا ۸ جلد، تصویر و پیش‌گفتار بی‌شماره است. برگ ۹ تا ۵۰ فهرست است و برگ ۵۱ به بعد مهر و لوحه‌های تصویر.
+- **نگاشت (`kashan-soltani.map.json`):**
+  - شمارۀ چاپی هر برگ از رونوشت گرفته شد: ص ۶ تا ۸ برگ ۹ تا ۱۱؛ ص ۱۱ تا ۱۴ برگ ۱۴ تا ۱۷؛ ص ۱۷ و ۱۸ برگ ۱۲ و ۱۳؛ ص ۱۹ تا ۴۷ برگ ۲۲ تا ۵۰.
+  - برگ ۱۸ تا ۲۱ تکرار ص ۲۳، ۲۴، ۱۷ و ۱۸ است. ص ۹، ۱۰، ۱۵ و ۱۶ نیست.
+  - تصویرها با `extract_edition_pages.py --code kashan-soltani --volume 1 --map … --width 1100 --mupdf` ساخته شدند (۳۸ برگه).
+- **رونویسی:**
+  - `TRANSCRIBE.md` و سه زیرعامل Sonnet؛ خروجی در `tsv/part{1,2,3}.tsv` با یازده ستون: برگ، صفحه، شماره، عنوان، مؤلف، زبان، خط، تاریخ، سال، شمارۀ کتاب، متن.
+  - ۳۹۰ سطر، ۳۵۳ مدخل یکتا. ۳۷ مدخلِ دوباره‌خوانده در عنوان، سال و شماره یکی بودند، جز فاصله‌گذاری.
+- **جفت کردن:**
+  - `candidates.json`: برای هر مدخل تا شش نسخۀ فنخا از ۴۷۳ نسخۀ «مدرسه سلطانی» جلد #۶۱۷ (`fankha-soltani.tsv`). امتیاز: سال برابر ۳، سال با فاصلۀ ۲ ۱؛ جاکارد واژه‌های عنوان ×۳، یا ۱٫۵ برای عنوانی که درون دیگری است؛ واژه‌های مؤلف و کاتب تا ۱٫۵.
+  - `MATCH.md` و چهار زیرعامل Sonnet (`match/m{1..4}.tsv`): ۱۰۳ مطمئن، ۳۵ محتمل، ۲۱۵ هیچ.
+  - مطمئن یعنی اثر یکی و سال یا کاتب هم‌خوان، یا تنها نسخۀ اثر بی‌تناقض. دو مطمئن به یک نسخه (۱۱۴ و ۲۴۶ به توضیح التذکره ۱۰۱۲) کنار رفتند.
+  - خروجی: `matched-high.tsv`، و `database/data/kashan_soltani_matches_step14_365.jsonl` با ۱۰۱ سطر `{manuscript_id, shelfmark, page, entry_number, heading, text, confidence: 80, note}`.
+- **کد:**
+  - `MatchCatalogEditionCommand`: `{pages?}` و `--matches=`؛ `importMatches()` نسخه را در کتابخانۀ منبع جلد و با همان `shelfmark` می‌خواهد، تا شناسۀ پایگاهی دیگر نسخۀ دیگری را نگیرد، و از همان `write()` می‌گذرد.
+  - `METHOD_MODEL = 'llm_copy'`.
+  - `SourceEntry::machineNote()` برای `llm_copy` توضیح خودش را دارد، و برچسب روش در `CatalogReferenceController::METHODS` است.
+  - آزمون: `test_matches_made_by_a_model_are_read_from_a_file_and_checked_against_the_library`.
+- **`catalog_facsimiles.json`:** ردیف `create` برای `kashan-mdrsh-sltany-67`، جلد ۱، «یادبود: فهرست کتب خطی کتابخانه مدرسه سلطانی کاشان»، چاپ ۱۳۵۰، ص ۶ تا ۴۷.
+- **تمرین روی `fahares_prod`:**
+  - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
+  - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
+  - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
