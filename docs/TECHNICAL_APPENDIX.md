@@ -13468,13 +13468,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - «شرح الصلوات»: تاریخ تألیف ۱۳۲۲ برابر سال وفات مؤلف، و اهدا به ناصرالدین شاه.
   - «ارمغان ندیم»: تألیف ۱۳۳۸ و اهدا به ناصرالدین شاه.
 
-### گام ۱۴.۳۴۳: `Insights::librarySubjects()`
-- **[Insights](../app/Support/Insights.php):** کلید `insights.v20`. `library_subjects`: `items` (کتابخانه با `id, key, name, city, copies` و تا سه `subjects`: `id, name, count, share, overall, ratio`)، `subjects` (همان ردیف با `library`)، `copies`، `libraries`.
-  - `share` = نسخه‌های موضوع در کتابخانه بر نسخه‌های موضوع‌دار کتابخانه؛ `overall` = همین در همۀ کتابخانه‌های دامنه (کتابخانه‌های کوچک هم در مخرج هستند)؛ `ratio` = نسبت این دو. نسخۀ اثری با دو موضوع اصلی در هر دو شمرده می‌شود و در اندازۀ کتابخانه یک بار.
-  - آستانه‌ها: `specialty_min_copies` = ۳۰۰، `specialty_min_cell` = ۳۰، `specialty_libraries_shown` = ۲۰، `specialty_skip_subjects` = متفرقه و گوناگون.
-- **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
-- **جدول‌ها:** `library-subjects` و `subject-libraries`.
-- **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
 ### گام ۱۴.۳۴۲: `person_lives_step14_342_fuqaha.json`
 
 - **صافی (`blocker.py . fuqaha`):** ۶٬۲۹۵ مدخل بی‌پیوند؛ ۲٬۳۸۴ با نامزد (با ۲۱۴ مدخلِ پیونددار) و پس از کنار رفتن ارجاع‌ها و پیونددارها ۲٬۱۸۵ مدخل در ۴۴ دسته. سرعنوان‌های این منبع بیشتر شهرت‌اند («الزَّنجاني»، «العلقمي») و نام کامل پس از سال‌ها در آغاز متن می‌آید؛ زنجیرۀ دوم نام در `blocker.py` همین را می‌خواند.
@@ -13482,3 +13475,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py fuqaha 14.342 <file>`:** `person_twice 6`، `dropped_second_entry 6`؛ ۱٬۱۳۰ پیوند. یک پیوند نادرستِ نمونۀ دستی (`heravi-mohammad-ebn-e-yusof-12331`، مدخل `284#1` جلد ۱۰) دستی برداشته شد: ۱٬۱۲۹ پیوند، ۹۴۶ با ۹۰ به بالا.
 - **تمرین (`fahares_prod`):** `created 1126`، `exists 4`؛ اجرای دوم `exists 1130`؛ سپس سطر همان پیوند نادرست از کپی محلی پاک شد (۱٬۱۲۵ سطر `name_llm`: ۹۴۴ با ۹۰ به بالا و ۱۸۱ زیر آن).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_342_fuqaha.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+
+### گام ۱۴.۳۴۳: `Insights::librarySubjects()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v20`. `library_subjects`: `items` (کتابخانه با `id, key, name, city, copies` و تا سه `subjects`: `id, name, count, share, overall, ratio`)، `subjects` (همان ردیف با `library`)، `copies`، `libraries`.
+  - `share` = نسخه‌های موضوع در کتابخانه بر نسخه‌های موضوع‌دار کتابخانه؛ `overall` = همین در همۀ کتابخانه‌های دامنه (کتابخانه‌های کوچک هم در مخرج هستند)؛ `ratio` = نسبت این دو. نسخۀ اثری با دو موضوع اصلی در هر دو شمرده می‌شود و در اندازۀ کتابخانه یک بار.
+  - آستانه‌ها: `specialty_min_copies` = ۳۰۰، `specialty_min_cell` = ۳۰، `specialty_libraries_shown` = ۲۰، `specialty_skip_subjects` = متفرقه و گوناگون.
+- **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
+- **جدول‌ها:** `library-subjects` و `subject-libraries`.
+- **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
