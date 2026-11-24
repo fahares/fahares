@@ -13506,3 +13506,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پرونده‌ها:** `fankha_changed_columns_step14_346.json` (۱۸ رکورد: ۶ «انجام» پرشده از `fankha_v2_changed_columns_export.py`، و ۱۲ برش آغاز یا انجام با همان روش گام ۱۴.۳۳۸)؛ `copy_notes_step14_346.jsonl.gz` (۳۷ سطر).
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 18» و سپس «already 18»؛ `import-copy-notes` «changed 36, same 1» و سپس «same 37».
 
+### گام ۱۴.۳۴۷: `fankha_v2_description_dates_export.py`
+
+- **`fahares-corpus/scripts/fankha_v2_description_dates_export.py --out FILE --step N`:** آثار فنخای سایت که در شرحشان «تألیف»، «تاریخ ترجمه»، «به امر»، «اهدا» و مانند آن هست (۸٬۳۳۸). جفت‌کردن: پسوند `-v{جلد}-{شماره}` نشانی اگر `letters()` عنوان‌ها یکی باشد (۵٬۴۸۹)، وگرنه تنها اثر v2 با همان `(جلد، page_start، عنوان)` (۲٬۳۹۸)؛ ۴۵۱ اثر جفت نشدند.
+- **سطرها:** `DATE` (`(تاریخ|سال|زمان) تألیف` یا `تاریخ ترجمه`، با یا بی «:»، و «؛ محل تألیف: …» اختیاری) وقتی `composition_date_raw` سایت تهی و `tight(مقدار) == tight(v2.composition.date)`؛ محل تنها اگر `composition_place` سایت تهی و برابر v2 باشد، وگرنه کل سطر می‌ماند. `DEDICATION` («به امر»، «به دستور»، «به نام»، «به درخواست»، «اهداء [به]»، «تقدیم به») وقتی `dedication` سایت تهی و حروف مقدار در `v2.dedication` باشد. شرط پایانی: `letters(باقی شرح) == letters(v2.description)`.
+- **خروجی:** `work_updates` برای `fahares:add-corpus-works` (`{work_slug, v2, id, changes: {description, composition_date_raw, composition_place?, dedication?}}`). `database/data/fankha_description_dates_step14_347.json`: ۱۹۸ رکورد.
+- **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
+- **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
+
