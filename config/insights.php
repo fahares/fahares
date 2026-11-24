@@ -143,6 +143,11 @@ return [
     // The cataloguers listed (step 14.344)
     'catalogers_shown' => 15,
 
+    // The texts other works are made on (step 14.350): the texts of the table, and the types with a list of their own
+    'derived_shown' => 15,
+    'derived_lists' => ['commentary', 'gloss', 'translation'],
+    'derived_list_shown' => 8,
+
     // What the catalogues wrote of each copy (step 14.348): a library, a cataloguer or a volume with this many
     // copies, and the libraries listed
     'completeness_min_copies' => 300,
@@ -178,8 +183,8 @@ return [
         'works' => [
             'name' => 'آثار',
             'title' => 'آثار و نسخه‌هایشان',
-            'lead' => 'آثار پرنسخه، شمار نسخۀ هر اثر، متن‌های رایج هر سده، آثار پرنسخۀ بی نشانی چاپ، آثار بی مؤلف، موضوع‌ها و زبان‌ها.',
-            'charts' => ['top-works', 'copies-per-work', 'century-works', 'unprinted', 'anonymous', 'subjects', 'languages'],
+            'lead' => 'آثار پرنسخه، شمار نسخۀ هر اثر، متن‌های رایج هر سده، متن‌های پرشرح و پرحاشیه و پرترجمه، آثار پرنسخۀ بی نشانی چاپ، آثار بی مؤلف، موضوع‌ها و زبان‌ها.',
+            'charts' => ['top-works', 'copies-per-work', 'century-works', 'derived', 'unprinted', 'anonymous', 'subjects', 'languages'],
         ],
         'copies' => [
             'name' => 'نسخه‌ها',

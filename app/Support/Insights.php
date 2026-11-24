@@ -31,9 +31,10 @@ class Insights
     // v13: every dynasty's count, for the chart of rows (step 14.278)
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
+    // v23: the texts other works are made on (backlog item 162, step 14.350)
     // v22: what the catalogues wrote of each copy (backlog item 162, step 14.348)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v22';
+    private const CACHE_KEY = 'insights.v23';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -156,6 +157,7 @@ class Insights
             'library_subjects' => self::librarySubjects($scope),
             'catalogers' => self::catalogers($scope, $totals['manuscripts']),
             'completeness' => self::completeness($scope),
+            'derived' => self::derived($scope),
         ];
     }
 
@@ -1413,6 +1415,56 @@ class Insights
     }
 
     /**
+     * The texts other works are made on (backlog item 162, step 14.350): the commentaries, glosses, translations and
+     * the like that work_relations links to their base text. A text counts when it is in the scope, with every work
+     * made on it. The links are those the catalogue's entries gave, so a count is the least there is: a commentary
+     * the catalogue did not tie to its text is not here (`titled`: the works whose title opens with «شرح», and how
+     * many of them have the link; only for the whole data).
+     */
+    private static function derived(InsightsScope $scope): array
+    {
+        $types = array_keys(self::DERIVED);
+        $pairs = fn () => $scope->whereWork(DB::table('work_relations')->whereIn('work_relations.type', $types), 'work_relations.related_work_id');
+        $cells = $pairs()->selectRaw('work_relations.related_work_id AS text, work_relations.type, COUNT(DISTINCT work_relations.work_id) AS n')
+            ->groupBy('work_relations.related_work_id', 'work_relations.type')->get();
+        $byText = $cells->groupBy('text')->map(fn ($rows, $id) => ['id' => (int) $id, 'count' => (int) $rows->sum('n'), 'types' => $rows->pluck('n', 'type')->map(fn ($n) => (int) $n)->all()]);
+        $rank = fn ($rows) => $rows->sortBy([['count', 'desc'], ['id', 'asc']])->values();
+        $top = $rank($byText)->take(config('insights.derived_shown'));
+        $lists = [];
+        foreach (config('insights.derived_lists') as $type) {
+            $lists[$type] = $rank($cells->where('type', $type)->map(fn ($r) => ['id' => (int) $r->text, 'count' => (int) $r->n]))->take(config('insights.derived_list_shown'));
+        }
+        $works = self::worksById($top->pluck('id')->concat(collect($lists)->flatMap(fn ($l) => $l->pluck('id'))));
+        $row = fn (array $r) => isset($works[$r['id']]) ? self::workRow($works[$r['id']], $r['count']) + ['types' => $r['types'] ?? []] : null;
+
+        $totals = $pairs()->selectRaw('work_relations.type, COUNT(DISTINCT work_relations.work_id) AS made, COUNT(DISTINCT work_relations.related_work_id) AS texts')
+            ->groupBy('work_relations.type')->get()->keyBy('type');
+        $made = (int) $pairs()->distinct()->count('work_relations.work_id');
+
+        $languages = $pairs()->where('work_relations.type', 'translation')->join('language_work', 'language_work.work_id', '=', 'work_relations.work_id')
+            ->selectRaw('language_work.language_id, COUNT(DISTINCT work_relations.work_id) AS n')->groupBy('language_work.language_id')->orderByDesc('n')->orderBy('language_work.language_id')->get();
+        $names = \App\Models\Language::whereIn('id', $languages->pluck('language_id'))->pluck('name', 'id');
+
+        $titled = null;
+        if ($scope->isEmpty()) {
+            $t = DB::table('works')->whereRaw("clean_title REGEXP '^شرح'")
+                ->selectRaw("COUNT(*) AS n, SUM(EXISTS (SELECT 1 FROM work_relations WHERE work_relations.work_id = works.id AND work_relations.type = 'commentary')) AS linked")->first();
+            $titled = ['works' => (int) $t->n, 'linked' => (int) $t->linked, 'share' => self::share((int) $t->linked, (int) $t->n)];
+        }
+
+        return [
+            'types' => collect(self::DERIVED)->map(fn ($name, $type) => ['key' => $type, 'name' => $name, 'made' => (int) ($totals[$type]->made ?? 0), 'texts' => (int) ($totals[$type]->texts ?? 0)])
+                ->filter(fn ($t) => $t['made'] > 0)->values()->all(),
+            'items' => $top->map($row)->filter()->values()->all(),
+            'lists' => array_map(fn ($l) => $l->map($row)->filter()->values()->all(), $lists),
+            'texts' => $byText->count(),
+            'made' => $made,
+            'languages' => $languages->filter(fn ($r) => isset($names[$r->language_id]))->map(fn ($r) => ['id' => (int) $r->language_id, 'name' => $names[$r->language_id], 'count' => (int) $r->n])->values()->all(),
+            'titled' => $titled,
+        ];
+    }
+
+    /**
      * The page of the copies (backlog item 162, step 14.314): how many fall in each band of height, the sizes written
      * most often, the mean height and width of the copies of each century, and of the copies of each main subject.
      * The height is the longer side (InsightsScope::open); a size outside `page_cm` is a slip of the catalogue or of
@@ -1988,6 +2040,10 @@ class Insights
             round(($m['lat1'] - $lat) * $k, 1),
         ];
     }
+
+    /** The works made on another text that are counted (step 14.350): the type in work_relations, and its name */
+    public const DERIVED = ['commentary' => 'شرح', 'gloss' => 'حاشیه', 'translation' => 'ترجمه', 'abridgment' => 'تلخیص', 'supplement' => 'تکمله',
+        'versification' => 'نظم', 'refutation' => 'ردیه'];
 
     /**
      * The data of a copy whose presence is counted (step 14.348): the name, and the condition on the scope's copies
