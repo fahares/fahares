@@ -13459,3 +13459,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - «الارث» هادی تهرانی: «تاریخ تألیف ۱۴ ربیع الاول ۱۳۳۴ق»، وفات ۱۳۲۱.
   - «شرح الصلوات»: تاریخ تألیف ۱۳۲۲ برابر سال وفات مؤلف، و اهدا به ناصرالدین شاه.
   - «ارمغان ندیم»: تألیف ۱۳۳۸ و اهدا به ناصرالدین شاه.
+
+### گام ۱۴.۳۴۳: `Insights::librarySubjects()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v20`. `library_subjects`: `items` (کتابخانه با `id, key, name, city, copies` و تا سه `subjects`: `id, name, count, share, overall, ratio`)، `subjects` (همان ردیف با `library`)، `copies`، `libraries`.
+  - `share` = نسخه‌های موضوع در کتابخانه بر نسخه‌های موضوع‌دار کتابخانه؛ `overall` = همین در همۀ کتابخانه‌های دامنه (کتابخانه‌های کوچک هم در مخرج هستند)؛ `ratio` = نسبت این دو. نسخۀ اثری با دو موضوع اصلی در هر دو شمرده می‌شود و در اندازۀ کتابخانه یک بار.
+  - آستانه‌ها: `specialty_min_copies` = ۳۰۰، `specialty_min_cell` = ۳۰، `specialty_libraries_shown` = ۲۰، `specialty_skip_subjects` = متفرقه و گوناگون.
+- **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
+- **جدول‌ها:** `library-subjects` و `subject-libraries`.
+- **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
