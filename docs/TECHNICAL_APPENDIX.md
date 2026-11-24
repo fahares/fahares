@@ -13536,3 +13536,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
 - **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
 
+### گام ۱۴.۳۵۰: `Insights::derived()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v23`. ثابت `DERIVED`: نوع‌های `work_relations` که شمرده می‌شوند با نامشان (`related` و `part` نه). `derived`: `types` (`key, name, made, texts`)، `items` (ردیف اثر با `count` و `types`؛ `insights.derived_shown` = ۱۵)، `lists` (برای هر نوعِ `insights.derived_lists`، `insights.derived_list_shown` = ۸ متن)، `texts`، `made`، `languages` (زبان آثار ترجمه)، `titled` (`works, linked, share`؛ تنها برای کل داده).
+- **دامنه:** `whereWork` روی `work_relations.related_work_id` (متن پایه). شمارش‌ها `COUNT(DISTINCT work_id)` است.
+- **نما:** `charts/derived.blade.php`، در `insights.topics.works` پس از `century-works`؛ در دامنۀ یک اثر پنهان. جدول‌های داده: `derived-types`، `derived-texts`، `derived-commentary`، `derived-gloss`، `derived-translation`، `translation-languages`.
+- **آزمون:** `InsightsDerivedWorksTest`.
+
