@@ -37,7 +37,7 @@ class SearchFilters
         // «estimates» on the authors' tab: the century also takes those of no known century last seen alive in it (step 14.198)
         // «death_century» is no field of the form: the century of the death alone (century_hijri), which the chart
         // of authors by death links to (step 14.271); «century» is any century of the life
-        // «life_city» and «life_kind» (step 14.365): an approved period of the life in that city, of that kind, or
+        // «life_city» and «life_kind» (step 14.369): an approved period of the life in that city, of that kind, or
         // (both chosen) of that kind in that city
         'authors' => ['role', 'century', 'death_century', 'estimates', 'life_city', 'life_kind'],
         'scribes' => ['role', 'century', 'copy_city', 'life_city', 'life_kind'],

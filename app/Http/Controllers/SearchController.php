@@ -324,7 +324,7 @@ class SearchController extends Controller
                 $cities = $counted ? collect($facets['copy_cities'] ?? [])->sortDesc()->all() : array_fill_keys(array_keys(CopyPlaces::cities()), null);
                 $options['copyCities'] = $cities + ($filters->get('copy_city') ? [$filters->get('copy_city') => $cities[$filters->get('copy_city')] ?? 0] : []);
             }
-            // The cities and kinds of the approved periods of a life (step 14.365); uncounted, those that have a period at all
+            // The cities and kinds of the approved periods of a life (step 14.369); uncounted, those that have a period at all
             $options['lifeCities'] = $counted ? collect($facets['life_cities'] ?? [])->sortDesc()->all()
                 : array_fill_keys(\App\Models\PersonPeriod::where('status', \App\Models\PersonPeriod::APPROVED)->whereNotNull('city')
                     ->selectRaw('city, COUNT(DISTINCT person_id) AS n')->groupBy('city')->orderByDesc('n')->pluck('city')->all(), null);

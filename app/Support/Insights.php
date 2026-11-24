@@ -34,7 +34,7 @@ class Insights
     // v23: the texts other works are made on (backlog item 162, step 14.350)
     // v22: what the catalogues wrote of each copy (backlog item 162, step 14.348)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    // v24: the cities of the periods of people's lives (backlog item 139, step 14.365)
+    // v24: the cities of the periods of people's lives (backlog item 139, step 14.369)
     private const CACHE_KEY = 'insights.v24';
 
     // The copies of one century per work and century (build)
@@ -1158,7 +1158,7 @@ class Insights
     }
 
     /**
-     * The cities of the approved periods of people's lives, by the kind of the period (backlog item 139, step 14.365):
+     * The cities of the approved periods of people's lives, by the kind of the period (backlog item 139, step 14.369):
      * how many people lived, studied, taught, held an office, travelled, were born or died in each city, or were from
      * it. A person counts once for a city and a kind, however many periods say it. With no scope every person with a
      * period is counted; in a scope, its authors and scribes.

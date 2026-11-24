@@ -52,7 +52,7 @@ class PersonPeriod extends Model
                 $period->region = CopyPlaces::regionOf($period->place);
             }
         });
-        // The person's search document holds the cities and kinds of the approved periods (step 14.365)
+        // The person's search document holds the cities and kinds of the approved periods (step 14.369)
         static::saved(function (PersonPeriod $period) {
             if ($period->wasRecentlyCreated ? $period->status === self::APPROVED : $period->wasChanged(['status', 'city', 'kind', 'person_id'])) {
                 Person::find($period->person_id)?->searchable();

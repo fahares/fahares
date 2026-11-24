@@ -13728,21 +13728,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
 - **اجرا (۳ آذر ۱۴۰۵):** پشتیبان `step14_363_people_dates_before.jsonl.gz` (۱٬۰۶۷ ردیف، md5 `6b38697edbaf3674f460a778772069ca`). خروجی: «birth years carried 139, death years carried 38»؛ ۱۶۶ سطر ممیزی با `by = fahares:carry-life-years`. نمونه: #۷۷۸۶ وفات ۱۳۰۷، سده ۱۳ تا ۱۴.
 
-### گام ۱۴.۳۶۹: `life_city`، `life_kind` و `Insights::lifeCities`
-
-- **سند جست‌وجوی شخص (`Person::toSearchableArray`):** `life_cities` (شهرهای دوره‌های تأییدشده)، `life_kinds` و `life_places` («study:نجف»). `Person::lifePlaces(ids)` برای یک دسته یک پرس‌وجو می‌زند و `makeSearchableUsing` آن را روی هر مدل می‌گذارد، مثل `scribeFacts`. هر سه در `filterableAttributes` نمایۀ اشخاص (`config/scout.php`).
-- **`PersonPeriod::booted`:** `saved` (ردیف تازۀ تأییدشده، یا تغییر `status`، `city`، `kind`، `person_id`) و `deleted` شخص را دوباره نمایه می‌کنند.
-- **`SearchFilters`:** `life_city` و `life_kind` در `PARAMS` هر دو زبانۀ اشخاص. `clean`: شهر باید `CopyPlaces::isCity` باشد و نوع کلیدی از `PersonPeriod::KINDS`.
-  - موتور: شهر تنها `life_cities = "…"`، نوع تنها `life_kinds = "…"`، هر دو `life_places = "kind:city"`.
-  - پایگاه داده: `people.id IN (SELECT person_id FROM person_periods WHERE status = approved AND city = ? [AND kind = ?])`.
-  - برچسب‌ها: «شهر زندگی: …» و «نوع دوره: …».
-- **`SearchController`:** `life_cities` و `life_kinds` به facetهای دو زبانه افزوده شد. `lifeCities` به ترتیب شمار می‌آید؛ بی شمارش، شهرهایی که دورۀ تأییدشده دارند. شمار کنار نوع‌ها وقتی شهری انتخاب شده نمایش داده نمی‌شود، چون facet نوع را در هر شهری می‌شمارد.
-- **`Insights::lifeCities($scope)`:** از `person_periods` تأییدشده، `COUNT(DISTINCT person_id)` بر شهر و نوع، بر شهر، و بر نوع. در دامنه با `joinSub` به مؤلفان آثار و کاتبان نسخه‌های دامنه محدود می‌شود (همان الگوی `origins`). خروجی: `cities` (تا `insights.life_cities_shown` = ۲۰)، `kinds`، `people`، `periods`، `all_cities`. کلید کش `insights.v24`.
-- **نما:** `resources/views/insights/charts/life-cities.blade.php` در موضوع `people` پس از `top-authors`. در دامنه شمارها پیوند ندارند، چون جست‌وجو آن دامنه را نمی‌شناسد. پیوندها به زبانۀ `authors` می‌روند؛ کاتبِ تنها که دوره دارد در جدول شمرده می‌شود ولی در آن زبانه نیست.
-- **`InsightsNotes::lifeCities` و `InsightsTables::lifeCities`:** نمونه‌ها از خود داده (پرشمارترین شهر و نوع غالبش، دو شهر نخست تحصیل و تدریس) و جدول `life-cities` با ستون هر نوع.
-- **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
-- **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.
-
 ### گام ۱۴.۳۶۴: `person_lives_step14_364_zirikli.json`
 
 - **صافی (`blocker.py . zirikli`):** ۱۱٬۵۳۹ مدخل بی‌پیوند؛ `n0 9268`؛ ۳٬۲۲۱ با نامزد (با مدخل‌های پیونددار) و ۲٬۳۳۹ مدخل در ۴۷ دسته.
@@ -13813,3 +13798,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `work_slug` `shrh-frayd-alsgaondy-v20-366`؛ `changes` برای `author_name`، `alternative_titles` (آوانگاری عنوان دوم)، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text`؛ `author` با `century: 10`، `subjects` «فقه»، `languages` «عربی».
 - **تمرین محلی (`fahares_prod`):** «update 1»، «Derived data of works: works=1»، بار دوم «update 0»؛ `author_id` ۲۶۴، یک ردیف `subject_work` و یک ردیف `language_work`.
 - **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
+
+### گام ۱۴.۳۶۹: `life_city`، `life_kind` و `Insights::lifeCities`
+
+- **سند جست‌وجوی شخص (`Person::toSearchableArray`):** `life_cities` (شهرهای دوره‌های تأییدشده)، `life_kinds` و `life_places` («study:نجف»). `Person::lifePlaces(ids)` برای یک دسته یک پرس‌وجو می‌زند و `makeSearchableUsing` آن را روی هر مدل می‌گذارد، مثل `scribeFacts`. هر سه در `filterableAttributes` نمایۀ اشخاص (`config/scout.php`).
+- **`PersonPeriod::booted`:** `saved` (ردیف تازۀ تأییدشده، یا تغییر `status`، `city`، `kind`، `person_id`) و `deleted` شخص را دوباره نمایه می‌کنند.
+- **`SearchFilters`:** `life_city` و `life_kind` در `PARAMS` هر دو زبانۀ اشخاص. `clean`: شهر باید `CopyPlaces::isCity` باشد و نوع کلیدی از `PersonPeriod::KINDS`.
+  - موتور: شهر تنها `life_cities = "…"`، نوع تنها `life_kinds = "…"`، هر دو `life_places = "kind:city"`.
+  - پایگاه داده: `people.id IN (SELECT person_id FROM person_periods WHERE status = approved AND city = ? [AND kind = ?])`.
+  - برچسب‌ها: «شهر زندگی: …» و «نوع دوره: …».
+- **`SearchController`:** `life_cities` و `life_kinds` به facetهای دو زبانه افزوده شد. `lifeCities` به ترتیب شمار می‌آید؛ بی شمارش، شهرهایی که دورۀ تأییدشده دارند. شمار کنار نوع‌ها وقتی شهری انتخاب شده نمایش داده نمی‌شود، چون facet نوع را در هر شهری می‌شمارد.
+- **`Insights::lifeCities($scope)`:** از `person_periods` تأییدشده، `COUNT(DISTINCT person_id)` بر شهر و نوع، بر شهر، و بر نوع. در دامنه با `joinSub` به مؤلفان آثار و کاتبان نسخه‌های دامنه محدود می‌شود (همان الگوی `origins`). خروجی: `cities` (تا `insights.life_cities_shown` = ۲۰)، `kinds`، `people`، `periods`، `all_cities`. کلید کش `insights.v24`.
+- **نما:** `resources/views/insights/charts/life-cities.blade.php` در موضوع `people` پس از `top-authors`. در دامنه شمارها پیوند ندارند، چون جست‌وجو آن دامنه را نمی‌شناسد. پیوندها به زبانۀ `authors` می‌روند؛ کاتبِ تنها که دوره دارد در جدول شمرده می‌شود ولی در آن زبانه نیست.
+- **`InsightsNotes::lifeCities` و `InsightsTables::lifeCities`:** نمونه‌ها از خود داده (پرشمارترین شهر و نوع غالبش، دو شهر نخست تحصیل و تدریس) و جدول `life-cities` با ستون هر نوع.
+- **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
+- **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.

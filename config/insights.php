@@ -125,7 +125,7 @@ return [
 
     // The authors listed by their works and by their copies
     'authors_shown' => 15,
-    // The cities of the table of the periods of people's lives (step 14.365)
+    // The cities of the table of the periods of people's lives (step 14.369)
     'life_cities_shown' => 20,
 
     // An author who copied the works of others is listed with this many works of his own (step 14.336)

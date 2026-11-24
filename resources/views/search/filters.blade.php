@@ -92,7 +92,7 @@
         @endif
     @endif
 
-    {{-- Where the person lived, studied, taught, was born or died: the approved periods of the life (backlog item 139, step 14.365) --}}
+    {{-- Where the person lived, studied, taught, was born or died: the approved periods of the life (backlog item 139, step 14.369) --}}
     @if(in_array($type, ['authors', 'scribes'], true))
         <div class="space-y-2 {{ $hide('lifeCities') }}">
             <label for="f-life-city" class="{{ $label }}">شهر زندگی <span class="font-normal text-muted">(دوره‌های زندگی)</span></label>

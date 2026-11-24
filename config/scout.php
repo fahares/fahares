@@ -373,7 +373,7 @@ return [
                     // The scribes' tab (step 14.155)
                     'copy_centuries',
                     'copy_cities',
-                    // The approved periods of the life (step 14.365)
+                    // The approved periods of the life (step 14.369)
                     'life_cities',
                     'life_kinds',
                     'life_places',

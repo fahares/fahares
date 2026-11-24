@@ -502,7 +502,7 @@ class Person extends Model
     private const NO_LIFE_PLACES = ['cities' => [], 'kinds' => [], 'places' => []];
 
     /**
-     * Where each of the people lived, by person id (backlog item 139, step 14.365): the cities of the approved periods
+     * Where each of the people lived, by person id (backlog item 139, step 14.369): the cities of the approved periods
      * of the life, their kinds, and each kind with its city («study:نجف»), which the people's filters «شهر زندگی» and
      * «نوع دوره» match. A person without an approved period is not in the result.
      *
@@ -646,7 +646,7 @@ class Person extends Model
             'scribed_to' => $copies['to'],
             'copy_centuries' => $copies['centuries'],
             'copy_cities' => $copies['cities'],
-            // The approved periods of the life (step 14.365): where, of what kind, and the two together
+            // The approved periods of the life (step 14.369): where, of what kind, and the two together
             'life_cities' => $lives['cities'],
             'life_kinds' => $lives['kinds'],
             'life_places' => $lives['places'],

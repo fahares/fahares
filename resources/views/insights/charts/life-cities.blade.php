@@ -2,7 +2,7 @@
     use App\Support\Fa;
     use App\Models\PersonPeriod;
 @endphp
-{{-- The cities of the approved periods of people's lives, by the kind of the period (backlog item 139, step 14.365) --}}
+{{-- The cities of the approved periods of people's lives, by the kind of the period (backlog item 139, step 14.369) --}}
 @php
     $lc = $data['life_cities'];
     // the order a life is told in
