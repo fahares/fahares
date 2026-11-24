@@ -13891,3 +13891,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پرونده‌های داوری:** دستور، دسته‌ها و پاسخ خام زیرعامل‌ها بیرون از مخزن در پوشۀ یادداشت نشست (`life-periods-374`) مانده است.
 - **اجرا (۳ آذر ۱۴۰۵، زیر `prod-run`):** پیش از هر چیز اجرای آزمایشیِ `propose-life-periods` در پروداکشن همان `new 1361` را داد و md5 پروندۀ تصمیم‌ها در دو سو یکی بود. پشتیبان‌ها: `step14_374_person_periods_before.jsonl.gz` (۴٬۸۱۰ ردیف، md5 `fa89e683b906a39c50f6c73557f7eaa0`)، `step14_374_person_periods_before_review.jsonl.gz` (۶٬۱۷۱ ردیف، md5 `d804c6b10a0e08730ac16673796738ba`)، `step14_374_people_dates_before.jsonl.gz` (۱٬۱۰۰ شخص با ردیف تولد یا وفات تأییدشدۀ سال‌دار، md5 `63e1f8288ce4adccbf11243d53f6c2d4`). اثر انگشت پیشنهادها `7d1f5c0f…` بود. خروجی‌ها: «approve 986, reject 105, skipped 0, mismatch 0, with_year 71, bad 0»؛ «birth years carried 4, death years carried 5»؛ `build-insights` در ۴۳٫۰ ثانیه. پس از اجرا: ۴٬۹۰۴ تأییدشده، ۷۵۰ منتظر، ۵۱۷ ردشده؛ ۲٬۲۳۴ شخص با دورۀ تأییدشده. در `/tmp` کانتینر پرونده‌ای نماند.
 - **اگر شناسه‌ها در پروداکشن جور دیگری شد:** `mismatch` در اجرای آزمایشی ناصفر می‌شود؛ آن‌گاه شناسه‌های پرونده با کلید (شخص، نوع پیشنهادشده، `city`) از نو نگاشته می‌شود و پرونده از ورودی استاندارد به کانتینر می‌رود.
+
+### گام ۱۴.۳۷۵: تراثنا (`turathuna`)
+
+- **منبع تصویر:** قائمیه، «مجلّة تراثنا» (show-book/505242، ۱۳۸ جلد). پیوند پی‌دی‌اف اسکن هر جلد `library/download/<id>` است و فایل از `file-access/<id>` می‌آید. شناسه‌ها و یادداشت‌ها در ردیف‌های `catalog_facsimiles.json` آمده است. فایل‌ها در `../fahares-sources/turathuna/turathona-NN.pdf` (پیوند سخت به `dl/gh-vNN.pdf`) هستند.
+  - شمار برگ‌ها سه بیش از صفحه‌هاست: برگ ۱ جلد است، برگ ۲ شناسنامه، و یک برگ پایانی.
+  - `--offset 2` در هر ۱۱ شماره. سرصفحۀ برگ ۱۰۲ در همه «۱۰۰» است و از شمارۀ ۴۹ به بعد شمارۀ نشریه را هم دارد.
+  - دانلود قائمیه ادامه نمی‌پذیرد، پس دانلود نیمه‌کاره باید از نو شود (جلد ۲۳).
+  - جلدهای ۵۱، ۶۸، ۷۰ و ۷۱ هم دانلود شد ولی لازم نیست. ۵۱ همان ۵۰–۵۱ است و ۷۰ همان ۶۹–۷۰.
+- **منبع متن:** `https://torathona.net/book/<id>/1` کل شماره را در یک HTML می‌دهد. هر صفحه در `<div class="page pageN">` است و `<div class="pgnum">` شمارۀ چاپی را دارد. شناسه‌های torathona: ۷ (۷–۸)، ۸ (۹)، ۲۰، ۲۲ تا ۲۵، ۴۰ (۴۹)، ۴۱ (۵۰–۵۱)، ۴۲ (۵۲)، ۵۴ (۶۹–۷۰).
+  - HTMLها در `../fahares-sources/turathuna/text/` هستند. تبدیل به `{page, text}` در `turathona-NN.jsonl` است: هر `<p>` یک سطر، فاصله‌ها فشرده.
+  - در هر ۱۱ شماره، شمارۀ `pageN` با `pgnum` برابر است.
+  - `download_file?file_name=book/turathona-NN/turathona-NN.pdf` برای شماره‌های پیش از حدود ۱۴۰ خطای ۵۰۰ می‌دهد.
+- **ساخت تصویر:** `extract_edition_pages.py turathona-NN.pdf --code turathuna --volume V --offset 2 --first 1 --last L --width 900 --mupdf`، با لاگ در `turathuna/work/extract_NN.log`.
+- **ردیف‌ها:** `library_slug` تهی، با عنوان دقیق جلدهای #۷۱۸ تا #۷۲۸ (منبع #۱۰۰۲۰۳). ص ۱ تا ۴۰۰، ۲۳۹، ۲۳۸، ۲۳۰، ۲۳۸، ۲۵۴، ۲۵۴، ۲۴۶، ۴۷۸، ۲۶۲ و ۴۲۲.
+- **متن صفحه:** `database/data/turathuna_pages_step14_375/turathona-NN.jsonl.gz`، روی هم ۱٫۶ مگابایت.
+- **تمرین روی `fahares_prod`:**
+  - `set-facsimiles`: «0 created, 11 updated».
+  - `sources:import-pages turathuna …/turathona-NN.jsonl.gz --volume=V` برای هر جلد: ۴۰۰، ۲۳۹، ۲۳۸، ۲۳۰، ۲۳۸، ۲۵۴، ۲۵۴، ۲۴۶، ۴۷۸، ۲۶۲ و ۴۲۲ صفحه. اجرای دوم همان شمار را داد و ردیف تکراری نساخت.
+  - ۱٬۲۴۳ مدخل در بازه است. نمونۀ #۴۰۳۴۶۱ (ج ۲۲ ص ۱۲۰): `viewer` و `pageTextUrl` هر دو پر است.
+  - پوشش (`cov.php`): ۲۳۴٬۱۸۴ نسخه (۷۲٫۴۵٪) برگه دارند و ۳۸٬۹۷۶ متن.
+- **پس از انتشار، به ترتیب:**
+  1. فرستادن `turathuna` با `C=turathuna N=4 send.sh`.
+  2. پشتیبان ۱۱ ردیف `catalog_volumes` و `source_volumes` (جلدها هنوز `source_pages` ندارند).
+  3. `catalogs:set-facsimiles`.
+  4. یازده بار `sources:import-pages`.

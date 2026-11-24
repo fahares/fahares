@@ -5011,6 +5011,204 @@
      "step": "14.365"
     }
    }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 7,
+   "title": "تراثنا - السنة 2، العدد 2 و 3 (7 و 8)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 400,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-07-08.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 7 (show-book/505625)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 9,
+   "title": "تراثنا - السنة 2، العدد 4 (9)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 239,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-09.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 9 (show-book/505638)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 20,
+   "title": "تراثنا - السنة 5، العدد 3 (20)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 238,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-20.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 20 (show-book/505712)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 22,
+   "title": "تراثنا - السنة 6، العدد 1 (22)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 230,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-22.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 22 (show-book/505725)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 23,
+   "title": "تراثنا - السنة 6، العدد 2 (23)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 238,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-23.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 23 (show-book/505733)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 24,
+   "title": "تراثنا - السنة 6، العدد 3 (24)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 254,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-24.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 24 (show-book/505739)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 25,
+   "title": "تراثنا - السنة 6، العدد 4 (25)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 254,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-25.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 25 (show-book/505745)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 49,
+   "title": "تراثنا - السنة 13، العدد 1 (49)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 246,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-49.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 49 (show-book/505915)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 50,
+   "title": "تراثنا - السنة 13، العدد 2 و 3 (50 و 51)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 478,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-50-51.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 50 (show-book/505916)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 52,
+   "title": "تراثنا - السنة 13، العدد 4 (52)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 262,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-52.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 52 (show-book/505918)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 69,
+   "title": "تراثنا - السنة 18، العدد 1 و 2 (69 و 70)",
+   "facsimile_code": "turathuna",
+   "page_first": 1,
+   "page_last": 422,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "turathuna/turathona-69-70.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "قائمیه، مجلّة تراثنا جلد 69 (show-book/505389)؛ برگ = صفحه + 2؛ متن صفحه‌ها از torathona.net",
+     "step": "14.375"
+    }
+   }
   }
  ]
 }
