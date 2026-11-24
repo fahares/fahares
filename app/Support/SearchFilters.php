@@ -37,8 +37,10 @@ class SearchFilters
         // «estimates» on the authors' tab: the century also takes those of no known century last seen alive in it (step 14.198)
         // «death_century» is no field of the form: the century of the death alone (century_hijri), which the chart
         // of authors by death links to (step 14.271); «century» is any century of the life
-        'authors' => ['role', 'century', 'death_century', 'estimates'],
-        'scribes' => ['role', 'century', 'copy_city'],
+        // «life_city» and «life_kind» (step 14.365): an approved period of the life in that city, of that kind, or
+        // (both chosen) of that kind in that city
+        'authors' => ['role', 'century', 'death_century', 'estimates', 'life_city', 'life_kind'],
+        'scribes' => ['role', 'century', 'copy_city', 'life_city', 'life_kind'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
     ];
@@ -194,7 +196,8 @@ class SearchFilters
             'volume' => ctype_digit(TextNormalizer::normalize((string) $value)) && (int) TextNormalizer::normalize((string) $value) > 0 ? (int) TextNormalizer::normalize((string) $value) : null,
             'year_from', 'year_to', 'folios_from', 'folios_to' => ctype_digit(TextNormalizer::normalize((string) $value)) ? (int) TextNormalizer::normalize((string) $value) : null,
             'city' => is_string($value) && trim($value) !== '' ? mb_substr(trim($value), 0, 60) : null,
-            'copy_city' => CopyPlaces::isCity($value) ? $value : null,
+            'copy_city', 'life_city' => CopyPlaces::isCity($value) ? $value : null,
+            'life_kind' => is_string($value) && isset(\App\Models\PersonPeriod::KINDS[$value]) ? $value : null,
             'work_form' => isset(self::WORK_FORMS[$value]) ? $value : null,
             'facsimile' => in_array($value, ['0', '1'], true) ? $value : null,
             'has_autograph', 'estimates' => $value === '1' ? '1' : null,
@@ -295,6 +298,8 @@ class SearchFilters
                     default => null,
                 },
                 'death_century' => "century_hijri = {$value}",
+                'life_city' => $this->get('life_kind') ? 'life_places = ' . $quote($this->get('life_kind') . ':' . $value) : 'life_cities = ' . $quote($value),
+                'life_kind' => $this->get('life_city') ? null : 'life_kinds = ' . $quote($value),
                 'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
@@ -378,6 +383,11 @@ class SearchFilters
                     default => null,
                 },
                 'death_century' => $query->where('people.century_hijri', $value),
+                // one approved period that is both, when both are chosen
+                'life_city' => $query->whereIn('people.id', DB::table('person_periods')->where('status', \App\Models\PersonPeriod::APPROVED)->where('city', $value)
+                    ->when($this->get('life_kind'), fn ($q, $kind) => $q->where('kind', $kind))->select('person_id')),
+                'life_kind' => $this->get('life_city') ? null
+                    : $query->whereIn('people.id', DB::table('person_periods')->where('status', \App\Models\PersonPeriod::APPROVED)->where('kind', $value)->select('person_id')),
                 'fields' => $query->whereIn($this->idKey(), $this->fieldMatches()['ids']),
                 default => null,
             };
@@ -442,6 +452,8 @@ class SearchFilters
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
                 'role' => ($this->type === 'scribes' || $value === 'scribe' ? 'همچنین ' : 'نقش: ') . self::ROLES[$value],
                 'death_century' => 'سدۀ ' . $fa($value) . ' (وفات)',
+                'life_city' => 'شهر زندگی: ' . $value,
+                'life_kind' => 'نوع دوره: ' . \App\Models\PersonPeriod::KINDS[$value],
                 'century' => 'سدۀ ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (زندگی)', default => ' (کتابت)' },
                 default => null,
             };

@@ -125,6 +125,8 @@ return [
 
     // The authors listed by their works and by their copies
     'authors_shown' => 15,
+    // The cities of the table of the periods of people's lives (step 14.365)
+    'life_cities_shown' => 20,
 
     // An author who copied the works of others is listed with this many works of his own (step 14.336)
     'author_scribe_min_works' => 5,
@@ -195,8 +197,8 @@ return [
         'people' => [
             'name' => 'اشخاص',
             'title' => 'مؤلفان، کاتبان و حامیان',
-            'lead' => 'مؤلفان پرکار و پرنسخه، نسخه‌های خط مؤلف، کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
-            'charts' => ['top-authors', 'autographs', ['scribes', 'patrons'], 'dedications'],
+            'lead' => 'مؤلفان پرکار و پرنسخه، شهرهای زندگی دانشوران، نسخه‌های خط مؤلف، کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
+            'charts' => ['top-authors', 'life-cities', 'autographs', ['scribes', 'patrons'], 'dedications'],
         ],
         'libraries' => [
             'name' => 'کتابخانه‌ها و فهرست‌ها',

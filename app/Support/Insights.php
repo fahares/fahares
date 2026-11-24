@@ -34,7 +34,8 @@ class Insights
     // v23: the texts other works are made on (backlog item 162, step 14.350)
     // v22: what the catalogues wrote of each copy (backlog item 162, step 14.348)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v23';
+    // v24: the cities of the periods of people's lives (backlog item 139, step 14.365)
+    private const CACHE_KEY = 'insights.v24';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -151,6 +152,7 @@ class Insights
             'source_overlap' => self::sourceOverlap($scope, $totals['manuscripts']),
             'dynasties' => self::dynasties($scope, $totals['manuscripts'], $totals['works']),
             'top_authors' => self::topAuthors($scope),
+            'life_cities' => self::lifeCities($scope),
             'formats' => self::formats($scope),
             'autographs' => self::autographs($scope),
             'anonymous' => self::anonymous($scope),
@@ -1152,6 +1154,41 @@ class Insights
             'authors' => $works->count(),
             'single' => $works->filter(fn ($n) => $n === 1)->count(),
             'works' => (int) $works->sum(),
+        ];
+    }
+
+    /**
+     * The cities of the approved periods of people's lives, by the kind of the period (backlog item 139, step 14.365):
+     * how many people lived, studied, taught, held an office, travelled, were born or died in each city, or were from
+     * it. A person counts once for a city and a kind, however many periods say it. With no scope every person with a
+     * period is counted; in a scope, its authors and scribes.
+     *
+     * @return array{cities: array<int, array{name: string, people: int, kinds: array<string, int>}>, kinds: array<string, int>, people: int, periods: int, all_cities: int}
+     */
+    private static function lifeCities(InsightsScope $scope): array
+    {
+        $periods = fn () => DB::table('person_periods')->where('person_periods.status', PersonPeriod::APPROVED)
+            ->when(! $scope->isEmpty(), fn ($q) => $q->joinSub($scope->works()->whereNotNull('author_id')->select('author_id AS id')
+                ->union($scope->manuscripts()->whereNotNull('scribe_id')->select('scribe_id AS id')), 'scope_people', 'scope_people.id', '=', 'person_periods.person_id'));
+        $cities = [];
+        foreach ($periods()->whereNotNull('person_periods.city')->selectRaw('person_periods.city, person_periods.kind, COUNT(DISTINCT person_periods.person_id) AS n')
+            ->groupBy('person_periods.city', 'person_periods.kind')->get() as $row) {
+            $cities[$row->city]['kinds'][$row->kind] = (int) $row->n;
+        }
+        foreach ($periods()->whereNotNull('person_periods.city')->selectRaw('person_periods.city, COUNT(DISTINCT person_periods.person_id) AS n')
+            ->groupBy('person_periods.city')->pluck('n', 'city') as $city => $n) {
+            $cities[$city] += ['name' => $city, 'people' => (int) $n];
+        }
+        uasort($cities, fn ($a, $b) => [$b['people'], $a['name']] <=> [$a['people'], $b['name']]);
+        $kinds = $periods()->selectRaw('person_periods.kind, COUNT(DISTINCT person_periods.person_id) AS n')->groupBy('person_periods.kind')
+            ->pluck('n', 'kind')->map(fn ($n) => (int) $n)->all();
+
+        return [
+            'cities' => array_map(fn ($c) => ['name' => $c['name'], 'people' => $c['people'], 'kinds' => $c['kinds']], array_slice(array_values($cities), 0, (int) config('insights.life_cities_shown'))),
+            'kinds' => array_intersect_key($kinds + array_fill_keys(array_keys(PersonPeriod::KINDS), 0), PersonPeriod::KINDS),
+            'people' => (int) $periods()->distinct()->count('person_periods.person_id'),
+            'periods' => (int) $periods()->count(),
+            'all_cities' => count($cities),
         ];
     }
 

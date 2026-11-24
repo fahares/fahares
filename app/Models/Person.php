@@ -485,14 +485,46 @@ class Person extends Model
     public function makeSearchableUsing(\Illuminate\Support\Collection $models): \Illuminate\Support\Collection
     {
         $facts = self::scribeFacts($models->where('is_scribe', true)->map->getKey()->all());
+        $lives = self::lifePlaces($models->map->getKey()->all());
         foreach ($models as $person) {
             $person->scribeFacts = $facts[$person->id] ?? self::NO_COPIES;
+            $person->lifePlaces = $lives[$person->id] ?? self::NO_LIFE_PLACES;
         }
 
         return $models;
     }
 
     private const NO_COPIES = ['from' => null, 'to' => null, 'centuries' => [], 'cities' => []];
+
+    /** What lifePlaces gives for this person, set for a whole batch by makeSearchableUsing */
+    public ?array $lifePlaces = null;
+
+    private const NO_LIFE_PLACES = ['cities' => [], 'kinds' => [], 'places' => []];
+
+    /**
+     * Where each of the people lived, by person id (backlog item 139, step 14.365): the cities of the approved periods
+     * of the life, their kinds, and each kind with its city («study:نجف»), which the people's filters «شهر زندگی» and
+     * «نوع دوره» match. A person without an approved period is not in the result.
+     *
+     * @return array<int, array{cities: string[], kinds: string[], places: string[]}>
+     */
+    public static function lifePlaces(array $ids): array
+    {
+        $found = [];
+        foreach (array_chunk($ids, 1000) as $chunk) {
+            foreach (\Illuminate\Support\Facades\DB::table('person_periods')->whereIn('person_id', $chunk)->where('status', PersonPeriod::APPROVED)
+                ->select('person_id', 'kind', 'city')->distinct()->get() as $row) {
+                $found[$row->person_id] ??= self::NO_LIFE_PLACES;
+                $found[$row->person_id]['kinds'][$row->kind] = $row->kind;
+                if ($row->city !== null) {
+                    $found[$row->person_id]['cities'][$row->city] = $row->city;
+                    $found[$row->person_id]['places'][] = "{$row->kind}:{$row->city}";
+                }
+            }
+        }
+
+        return array_map(fn ($f) => ['cities' => array_values($f['cities']), 'kinds' => array_values($f['kinds']), 'places' => $f['places']], $found);
+    }
 
     /**
      * When and where each of the people copied (step 14.155), by person id: the first and last year of their dated
@@ -581,6 +613,7 @@ class Person extends Model
     {
         $aliases = $this->searchAliases();
         $copies = $this->scribeFacts ?? ($this->is_scribe ? self::scribeFacts([$this->id])[$this->id] ?? self::NO_COPIES : self::NO_COPIES);
+        $lives = $this->lifePlaces ?? self::lifePlaces([$this->id])[$this->id] ?? self::NO_LIFE_PLACES;
         $normalizedWithAliases = trim($this->normalized_name . ' ' . implode(' ', $aliases));
 
         return [
@@ -613,6 +646,10 @@ class Person extends Model
             'scribed_to' => $copies['to'],
             'copy_centuries' => $copies['centuries'],
             'copy_cities' => $copies['cities'],
+            // The approved periods of the life (step 14.365): where, of what kind, and the two together
+            'life_cities' => $lives['cities'],
+            'life_kinds' => $lives['kinds'],
+            'life_places' => $lives['places'],
         ];
     }
 

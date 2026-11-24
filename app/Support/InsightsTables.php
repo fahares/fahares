@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'lifeCities', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -209,6 +209,15 @@ class InsightsTables
             self::table('مؤلفان با بیشترین اثر', 'authors-by-works', $columns, $rows($ta['by_works'])),
             self::table('مؤلفان با بیشترین نسخه', 'authors-by-copies', $columns, $rows($ta['by_copies'])),
         ];
+    }
+
+    private function lifeCities(): array
+    {
+        $kinds = \App\Models\PersonPeriod::KINDS;
+
+        return [self::table('شمار اشخاص در هر شهر به تفکیک نوع دورۀ زندگی', 'life-cities',
+            [['شهر', 'text'], ['اشخاص', 'num'], ...array_map(fn ($label) => [$label, 'num'], array_values($kinds))],
+            array_map(fn ($c) => [$c['name'], $c['people'], ...array_map(fn ($kind) => $c['kinds'][$kind] ?? 0, array_keys($kinds))], $this->data['life_cities']['cities']))];
     }
 
     private function autographs(): array

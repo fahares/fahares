@@ -120,6 +120,39 @@ class SearchFiltersTest extends TestCase
         $this->get($url(['manuscripts_range' => 'single']))->assertOk()->assertDontSee('فراوانی نسخ');
     }
 
+    public function test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life(): void
+    {
+        $person = fn (string $name) => Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'f-life-' . uniqid()]);
+        $period = fn (Person $of, string $kind, string $place, string $status = \App\Models\PersonPeriod::APPROVED) => \App\Models\PersonPeriod::create(
+            ['person_id' => $of->id, 'kind' => $kind, 'place' => $place, 'status' => $status]);
+        [$student, $resident, $waiting] = [$person('شاگرد نجف'), $person('ساکن نجف'), $person('پیشنهاد منتظر')];
+        $period($student, 'study', 'نجف اشرف');
+        $period($student, 'residence', 'اصفهان');
+        $period($resident, 'residence', 'نجف');
+        $period($waiting, 'study', 'نجف', \App\Models\PersonPeriod::PROPOSED);
+        $see = fn (array $params, array $yes, array $no) => tap($this->get(route('search', ['type' => 'authors'] + $params))->assertOk(),
+            fn ($r) => [array_map(fn ($s) => $r->assertSee($s), $yes), array_map(fn ($s) => $r->assertDontSee($s), $no)]);
+
+        $see(['life_city' => 'نجف'], ['شاگرد نجف', 'ساکن نجف', 'شهر زندگی: نجف'], ['پیشنهاد منتظر']);
+        $see(['life_kind' => 'study'], ['شاگرد نجف', 'نوع دوره: تحصیل'], ['ساکن نجف', 'پیشنهاد منتظر']);
+        // both: one period that is of that kind in that city, not a study anywhere and a stay in the city
+        $see(['life_city' => 'نجف', 'life_kind' => 'study'], ['شاگرد نجف'], ['ساکن نجف']);
+        $see(['life_city' => 'اصفهان', 'life_kind' => 'study'], [], ['شاگرد نجف', 'ساکن نجف']);
+        // an unknown city or kind is no filter
+        $see(['life_city' => 'ناکجا', 'life_kind' => 'x'], ['شاگرد نجف', 'ساکن نجف', 'پیشنهاد منتظر'], ['شهر زندگی:']);
+
+        // The index holds the same, and the engine's filter asks for the pair
+        $document = $student->fresh()->toSearchableArray();
+        $this->assertEqualsCanonicalizing(['نجف', 'اصفهان'], $document['life_cities']);
+        $this->assertEqualsCanonicalizing(['study', 'residence'], $document['life_kinds']);
+        $this->assertEqualsCanonicalizing(['study:نجف', 'residence:اصفهان'], $document['life_places']);
+        $this->assertSame([], $waiting->fresh()->toSearchableArray()['life_cities']);
+        $filters = new \App\Support\SearchFilters('authors', ['life_city' => 'نجف', 'life_kind' => 'study']);
+        $this->assertStringContainsString('life_places = "study:نجف"', $filters->engine());
+        $this->assertStringNotContainsString('life_kinds', $filters->engine());
+        $this->assertStringContainsString('life_cities = "نجف"', (new \App\Support\SearchFilters('scribes', ['life_city' => 'نجف']))->engine());
+    }
+
     public function test_authors_and_scribes_are_two_tabs_and_someone_who_is_both_is_in_both(): void
     {
         $person = fn (string $name, array $attrs = []) => Person::create($attrs + ['name' => $name, 'normalized_name' => $name, 'slug' => 'f-tab-' . uniqid()]);

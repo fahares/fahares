@@ -83,6 +83,39 @@ class InsightsAuthorsFormatsTest extends TestCase
         $this->assertSame(['authors-by-works', 'authors-by-copies'], array_column(InsightsTables::for($figures)['topAuthors'], 'file'));
     }
 
+    public function test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links()
+    {
+        $period = fn (Person $of, string $kind, string $place, string $status = \App\Models\PersonPeriod::APPROVED) => \App\Models\PersonPeriod::create(
+            ['person_id' => $of->id, 'kind' => $kind, 'place' => $place, 'status' => $status]);
+        [$one, $two, $outside] = [$this->author('دانشور یکم'), $this->author('دانشور دوم'), $this->author('دانشور بیرون دامنه')];
+        $this->copy($this->work('اثر دانشور یکم', $one));
+        $this->copy($this->work('اثر دانشور دوم', $two));
+        $period($one, 'study', 'نجف');
+        $period($one, 'study', 'نجف اشرف');
+        $period($one, 'residence', 'اصفهان');
+        $period($two, 'study', 'نجف');
+        $period($two, 'teaching', 'نجف');
+        $period($two, 'death', 'نجف', \App\Models\PersonPeriod::PROPOSED);
+        $period($outside, 'study', 'نجف');
+
+        // In a scope: its authors and scribes, each once for a city and a kind, and only what is approved
+        $cities = $this->figures()['life_cities'];
+        $this->assertSame([['نجف', 2, ['study' => 2, 'teaching' => 1]], ['اصفهان', 1, ['residence' => 1]]],
+            array_map(fn ($c) => [$c['name'], $c['people'], $c['kinds']], $cities['cities']));
+        $this->assertSame([2, 5, 2, 0], [$cities['people'], $cities['periods'], $cities['all_cities'], $cities['kinds']['death']]);
+        // With no scope everyone with a period counts
+        $all = collect(Insights::build()['life_cities']['cities'])->firstWhere('name', 'نجف');
+        $this->assertGreaterThanOrEqual(3, $all['kinds']['study']);
+
+        $figures = $this->figures();
+        $this->assertStringContainsString('پرشمارترین شهر نجف است: دورۀ زندگی ۲ تن', InsightsNotes::for($figures)['lifeCities']['examples'][0]);
+        $this->assertSame(['life-cities'], array_column(InsightsTables::for($figures)['lifeCities'], 'file'));
+
+        $this->get(route('insights.topic', ['topic' => 'people', 'library' => $this->library->id]))->assertOk()
+            ->assertSee('id="life-cities"', false)->assertSee('شهرهای زندگی دانشوران')->assertSee('data-life-city="نجف"', false)
+            ->assertSee('data-insights-table="life-cities"', false);
+    }
+
     public function test_copies_are_banded_by_the_height_of_their_page()
     {
         $law = Subject::create(['name' => 'فقه آزمایشی قطع', 'slug' => 'insights-formats-' . uniqid()]);
