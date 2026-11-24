@@ -11977,6 +11977,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 1490`، `exists 23`؛ اجرای دوم `exists 1513`؛ `--undo` بی `--apply`: `removed 1490`. در پایگاه: `name_llm` ۱٬۰۵۳ سطر با اطمینان ۹۰ به بالا و ۴۳۷ سطر زیر آن، همه با یادداشت شاهد. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php` (دو آزمون تازه).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای `source_entries` با `citable_type = Person` و `source_id` طبقات، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_232_tabaqat.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان ۸۶۰ سطر `source_entries` اشخاص در طبقات و أعیان: `../fahares-sources/backups/step13/step14_232_237_person_lives_before.jsonl.gz` (md5 `9613c159…`)، مستقیم از خروجی tinker به این ماشین، بی فایلی در کانتینر. زیر `prod-run`: `created 1427`، `exists 22`، `has_life 64`. اجرای دوم بی `--apply`: `created 0`، `exists 1449`. در پایگاه ۱٬۴۲۷ سطر `name_llm`، ۱٬۰۰۰ با اطمینان ۹۰ به بالا، همه با یادداشت شاهد.
 
 ### گام ۱۴.۲۳۳: `FixLifeYearsCommand::SOLAR` از منابع تراجمی سایت
 
@@ -12089,6 +12090,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** همان پشتیبان گام ۱۴.۲۳۲. زیر `prod-run`: `created 792`، `exists 36`، `has_life 81`. اجرای دوم بی `--apply`: `created 0`، `exists 828`. در پایگاه ۷۹۲ سطر `name_llm`، ۵۲۰ با اطمینان ۹۰ به بالا. پدیدآورانِ دارای زندگی‌نامه (شخص با `works_count > 0` و سطر ردنشدۀ منبع `biographical`): ۳٬۶۱۸ از ۱۵٬۱۹۹؛ پیش از دو اجرا ۲٬۳۸۵.
 
 ### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
 - **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
@@ -13362,6 +13364,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `catalogs:set-facsimiles`: «1 created, 1 updated, 239 unchanged»، سپس «0 updated». جلد تازه #۷۴۳. `move-cited-part`: «2727 copies on #519; 1: 1624, 2: 1100, 5: 2, none: 1»، «Moved 1100 copies.»؛ هر ۱٬۱۰۰ ارجاع روی #۷۴۳ در ص ۱–۳۵۰‌اند.
 - **وارسی:** ج ۲ عکسی ص ۷۲ (۲۳۱/۳)، ۱۹۵ (۲۱۰/۷) و ۱۱۵ (۳۴/۱۹) نسخه را دارند؛ ص ۲۴۳ برای ۱۵۰ «لطائف العرفان» نادرست است (صفحه زیر «مج» است؛ خطای فنخا).
 - **پس از انتشار، به ترتیب:** فرستادن `dairat-akasi/v02` و `majlis/v36` با `send.sh`؛ پشتیبان؛ `catalogs:set-facsimiles`؛ پشتیبان جای نسخه‌های #۵۱۹؛ `catalogs:move-cited-part --library=thran-dayrh-almaaarf-20 --cited-volume=2 --from="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول" --to="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم"`، نخست بی `--apply`. شناسۀ جلد تازه در تولید جز ۷۴۳ خواهد بود.
+- **اجرا در تولید (۳ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
 
 ### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
 - **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
@@ -13376,7 +13379,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برون‌بری‌ها:** `fankha_v2_changed_columns_export.py --before scratch/fankha_v2_271 --step 14.335` → ۴۶ رکورد (`incipit_text` ۴۶، `explicit_text` ۱)؛ کنار گذاشته: «سایت از پیش دارد» (تاریخ ۳۶، انجام ۱۷، آغاز ۱۴)، «مقدار دیگر» (انجام ۴۲). `fankha_v2_copy_scribes_export.py` → ۳۵ رکورد؛ رکورد «= مؤلف» کنار رفت.
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 7, already 28» و سپس «already 35»؛ `rebuild-copies` «write 46» و سپس «already 46».
 
-- **اجرا در تولید (۴ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
+### گام ۱۴.۳۳۶: `Insights::autographs()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v18`. `autographs`: `flagged` (`is_autograph` در دامنه)، `copies`، `works`، `authors`، `items` (`id, key, name, death, copies, works, of_works`)، `author_scribes`، `other_scribes`، `other_copies`، `others` (`id, key, name, death, others, own`).
+  - جفت (نسخه، مؤلف) از `work_people` با نقش `author`، پیوسته به جدول موقت نسخه‌ها، با شرط `scribe_id = person_id OR (is_autograph = 1 AND scribe_id IS NULL)`.
+  - نسخۀ «خط مؤلف» که کاتبش از مؤلفان اثر نیست (۳۴ نسخه در رونوشت محلی) تنها در `flagged` است.
+  - `others`: کاتبانی که در `work_people` مؤلف‌اند، با `others = n - own` و دست‌کم `insights.author_scribe_min_works` (= ۵) اثر در کل داده. سه شمار کل این آستانه را ندارند.
+- **نما:** `charts/autographs.blade.php`، در `insights.topics.people` پس از `top-authors`؛ در دامنۀ یک مؤلف، اثر یا کاتب نمی‌آید. پیوند شمار نسخه به جستجوی نسخه‌ها با `author_id` و `scribe_id` همان شخص.
+- **جدول‌ها:** `autographs` و `author-scribes`.
+- **آزمون:** `InsightsAuthorsFormatsTest::test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted`.
+- **فهرست دوم پیش از آستانه (رونوشت محلی):** صحبت‌الله خان ۲۶۳ + ۱، حکیم هندی ۱۳۰ + ۱، مراغی ۱۰۰ + ۲، «علی بن محمد» ۶۱ + ۱. **پس از آن:** گلپایگانی (زین‌العابدین) ۶۷ + ۳، عبرت نائینی ۲۹ + ۷، زنوزی ۲۰ + ۳، حر عاملی ۱۵ + ۳۶، مجلسی ۱۳ + ۱۰۰.
+
+### گام ۱۴.۳۳۸: بریدن «انجام» و یادداشت‌های v2.8.0
+
+- **سنجش:** نسخه‌هایی که `explicit` آن‌ها میان `scratch/fankha_v2_271` و خروجی کنونی دگرگون شده و `explicit_text` سایت نه مقدار پیشین v2 است و نه تازه: ۴۲. با `letters()`: «سایت در پایان بیشتر دارد» ۴۰، «v2 درون متن سایت» ۱، «دیگر» ۱.
+- **پروندۀ بریدن (اسکریپت یک‌باره):** جای برش آن جاست که حروف متن سایت به شمار حروف `explicit` تازه برسد، با نشانۀ پایانی («.»، «»»، «)») پس از آن. هر تکۀ دنباله (جدا با «؛» و سطر) باید با حروفش در یادداشت‌های تازۀ همان نسخه باشد، مگر گروه «کاتب/خط/تا». `database/data/fankha_explicit_cuts_step14_338.json`: ۳۰ رکورد `{explicit_text: {from, to}}` (۹ رکورد بی دنباله برداشته شد).
+- **`ImportCopyNotesCommand`:** سطر باید `id` و آرایۀ `notes` داشته باشد؛ آرایۀ تهی «changed» شمرده می‌شود و ردیف‌ها برداشته می‌شوند. نگهبان «ویراستار یادداشتی را دست زده» همان است.
+- **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
+- **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
+- **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
 
 ### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
 

@@ -258,4 +258,21 @@ class ImportCopyNotesCommandTest extends TestCase
         $this->run_()->assertExitCode(1);
         $this->assertSame(0, DB::table('manuscript_notes')->where('manuscript_id', $id)->count());
     }
+
+    public function test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one(): void
+    {
+        $gone = $this->copy('E-1');
+        $kept = $this->copy('E-2');
+        DB::table('manuscript_notes')->insert([
+            ['manuscript_id' => $gone, 'position' => 1, 'type' => 'codicology', 'text' => 'فرنگی', 'typed_by' => 'sonnet'],
+            ['manuscript_id' => $kept, 'position' => 1, 'type' => 'codicology', 'text' => 'فرنگی', 'typed_by' => 'editor'],
+        ]);
+        $this->file([['id' => $gone, 'shelfmark' => 'E-1', 'notes' => []], ['id' => $kept, 'shelfmark' => 'E-2', 'notes' => []]]);
+
+        $this->artisan('fahares:import-copy-notes', ['--file' => $this->file, '--apply' => true])->assertExitCode(0);
+
+        $this->assertSame(0, DB::table('manuscript_notes')->where('manuscript_id', $gone)->count());
+        $this->assertSame(1, DB::table('manuscript_notes')->where('manuscript_id', $kept)->count());
+        DB::table('manuscript_notes')->where('manuscript_id', $kept)->delete();
+    }
 }

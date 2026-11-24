@@ -32,7 +32,7 @@ class Insights
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v17';
+    private const CACHE_KEY = 'insights.v18';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -150,6 +150,7 @@ class Insights
             'dynasties' => self::dynasties($scope, $totals['manuscripts'], $totals['works']),
             'top_authors' => self::topAuthors($scope),
             'formats' => self::formats($scope),
+            'autographs' => self::autographs($scope),
         ];
     }
 
@@ -1144,6 +1145,56 @@ class Insights
             'authors' => $works->count(),
             'single' => $works->filter(fn ($n) => $n === 1)->count(),
             'works' => (int) $works->sum(),
+        ];
+    }
+
+    /**
+     * The copies in their author's own hand, and the authors who copied the works of others (backlog item 162, step
+     * 14.336). A copy is its author's when its scribe is an author of its work, or when the catalogue calls it an
+     * autograph and names no scribe; the few the catalogue calls so under a scribe who is not the author are in
+     * `flagged` alone. `others` are the people with works of their own who copied works that are not theirs.
+     */
+    private static function autographs(InsightsScope $scope): array
+    {
+        $shown = (int) config('insights.authors_shown');
+        $author = \App\Models\WorkPerson::AUTHOR;
+        $own = fn () => DB::table('work_people')->where('work_people.role', $author)
+            ->join($scope->manuscriptsTable(), 'manuscripts.work_id', '=', 'work_people.work_id')
+            ->whereRaw('(manuscripts.scribe_id = work_people.person_id OR (manuscripts.is_autograph = 1 AND manuscripts.scribe_id IS NULL))');
+        $totals = $own()->selectRaw('COUNT(DISTINCT manuscripts.id) AS copies, COUNT(DISTINCT manuscripts.work_id) AS works, COUNT(DISTINCT work_people.person_id) AS authors')->first();
+        $top = $own()->selectRaw('work_people.person_id, COUNT(DISTINCT manuscripts.id) AS copies, COUNT(DISTINCT manuscripts.work_id) AS works')
+            ->groupBy('work_people.person_id')->orderByDesc('copies')->orderBy('work_people.person_id')->limit($shown)->get();
+        $ofWorks = DB::table('work_people')->where('work_people.role', $author)->whereIn('work_people.person_id', $top->pluck('person_id'))
+            ->join($scope->worksTable(), 'works.id', '=', 'work_people.work_id')
+            ->selectRaw('work_people.person_id, COUNT(DISTINCT work_people.work_id) AS n')->groupBy('work_people.person_id')->pluck('n', 'person_id');
+
+        // The scribes who are authors too, with the copies of their own works among those they wrote
+        $isOwn = "EXISTS (SELECT 1 FROM work_people WHERE work_people.work_id = manuscripts.work_id AND work_people.person_id = manuscripts.scribe_id AND work_people.role = '{$author}')";
+        $scribes = $scope->manuscripts()->whereNotNull('scribe_id')
+            ->whereExists(fn ($q) => $q->from('work_people')->whereColumn('work_people.person_id', 'manuscripts.scribe_id')->where('work_people.role', $author))
+            ->selectRaw("scribe_id, COUNT(*) AS n, SUM({$isOwn}) AS own")->groupBy('scribe_id')->get();
+        // The list names those with several works of their own: a scribe with one work, or a record of a common name
+        // («علی بن محمد») that gathers namesakes, is no scholar copying for himself
+        $several = DB::table('work_people')->where('role', $author)->whereIn('person_id', $scribes->pluck('scribe_id'))
+            ->groupBy('person_id')->havingRaw('COUNT(DISTINCT work_id) >= ?', [(int) config('insights.author_scribe_min_works')])->pluck('person_id')->flip();
+        $others = $scribes->map(fn ($r) => ['id' => (int) $r->scribe_id, 'others' => (int) $r->n - (int) $r->own, 'own' => (int) $r->own])
+            ->filter(fn ($r) => $r['others'] > 0 && isset($several[$r['id']]))->sortBy([['others', 'desc'], ['id', 'asc']])->take($shown)->values();
+
+        $people = \App\Models\Person::whereIn('id', $top->pluck('person_id')->concat($others->pluck('id')))->get(['id', 'name', 'slug', 'death_year_hijri'])->keyBy('id');
+        $person = fn ($id) => ['id' => (int) $id, 'key' => $people[$id]->getRouteKey(), 'name' => $people[$id]->name,
+            'death' => $people[$id]->death_year_hijri === null ? null : (int) $people[$id]->death_year_hijri];
+
+        return [
+            'flagged' => $scope->manuscripts()->where('is_autograph', 1)->count(),
+            'copies' => (int) $totals->copies,
+            'works' => (int) $totals->works,
+            'authors' => (int) $totals->authors,
+            'items' => $top->filter(fn ($r) => isset($people[$r->person_id]))
+                ->map(fn ($r) => $person($r->person_id) + ['copies' => (int) $r->copies, 'works' => (int) $r->works, 'of_works' => (int) ($ofWorks[$r->person_id] ?? $r->works)])->values()->all(),
+            'author_scribes' => $scribes->count(),
+            'other_scribes' => $scribes->filter(fn ($r) => $r->n > $r->own)->count(),
+            'other_copies' => (int) $scribes->sum(fn ($r) => $r->n - $r->own),
+            'others' => $others->filter(fn ($r) => isset($people[$r['id']]))->map(fn ($r) => $person($r['id']) + ['others' => $r['others'], 'own' => $r['own']])->values()->all(),
         ];
     }
 
