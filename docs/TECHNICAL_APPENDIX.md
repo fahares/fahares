@@ -13764,6 +13764,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
   - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
   - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵):**
+  - پشتیبان: `backups/step13/before_step14_365_kashan_soltani_20261124_1949.json` (md5 `c967f727…`). کتابخانۀ ۶۷ هیچ منبعی نداشت. بیشینۀ شناسۀ `source_entries` ۱۳۶۹۹۱۸ بود.
+  - `catalogs:set-facsimiles`: «1 created, 0 updated, 246 unchanged». جلد #۷۴۴ ساخته شد. اجرای خشک بعدی «0 created, 247 unchanged» داد.
+  - `catalogs:match-edition kashan-soltani --matches=…`: ۱۰۰ مدخل `llm_copy` روی جلد ۷۴۴ نوشته شد، برای ۱۰۰ نسخۀ جدا، ص ۷ تا ۴۶. هیچ‌کدام `verified` نیست. اجرای بعدی خشک بود.
+  - سنجش: صفحۀ نسخۀ ۱۹۳۷۷۱ ارجاع «سلطانی، چاپ ۱۳۵۰» و `kashan-soltani/v01/p0007.webp` را نشان داد (HTTP 200). در `/tmp` کانتینر چیزی نماند.
 
 ### گام ۱۴.۳۶۶: دو نوع تازۀ `fahares:fix-wrong-links` و `wrong_links_step14_366.json`
 
