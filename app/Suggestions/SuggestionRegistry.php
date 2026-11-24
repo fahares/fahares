@@ -257,7 +257,7 @@ class SuggestionRegistry
             return null;
         }
         $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
-            'manuscript' => self::sourceEntryField($name) ?? self::noteField($name),
+            'manuscript' => self::sourceEntryField($name) ?? self::noteField($name) ?? self::collectionField($name),
             'work' => self::bibliographyPageField($name) ?? self::altTitleField($name),
             'person' => self::aliasField($name),
             default => null,
@@ -282,7 +282,9 @@ class SuggestionRegistry
         if (! $field || (isset($field['entry_id']) && ! SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
             || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))
             // a note of this very copy, or a new one of a type the copy can take
-            || ((isset($field['note_id']) || isset($field['new_note_type']) || isset($field['note_type_of'])) && ! array_key_exists($field['name'], self::recordFields($record)))) {
+            || ((isset($field['note_id']) || isset($field['new_note_type']) || isset($field['note_type_of'])) && ! array_key_exists($field['name'], self::recordFields($record)))
+            // a field of the copy's «مجموعه»: the copy is a treatise of one
+            || (isset($field['collection']) && ! ($record instanceof Manuscript && $record->boundCollection()))) {
             return null;
         }
 
@@ -453,6 +455,12 @@ class SuggestionRegistry
                         $fields[self::NEW_NOTE_PREFIX . $type] = $field;
                     }
                 }
+            }
+        }
+        if ($record instanceof Manuscript && $record->boundCollection()) {
+            // what is its «مجموعه»'s: corrected for the whole volume from any of its treatises' pages (step 14.330)
+            foreach (array_keys(self::COLLECTION_FIELDS) as $column) {
+                $fields[self::COLLECTION_PREFIX . $column] = self::collectionField(self::COLLECTION_PREFIX . $column);
             }
         }
         if ($record instanceof Person) {
@@ -646,6 +654,29 @@ class SuggestionRegistry
         return $note ? ['label' => 'یادداشت ' . (ManuscriptNote::TYPES[$note->type] ?? $note->type), 'input' => 'textarea', 'note_id' => $note->id] : null;
     }
 
+    public const COLLECTION_PREFIX = 'collection_';
+
+    /**
+     * The fields of a copy's «مجموعه» (backlog item 163, step 14.330), named collection_{column} on the copy: the
+     * suggestion is made on a treatise's page and the approved value is written to the collection's record as an
+     * editor's (SuggestionApplier::applyCollection), which the derivation from the treatises then leaves alone.
+     */
+    public const COLLECTION_FIELDS = [
+        'binding' => ['label' => 'جلد مجموعه', 'input' => 'textarea'],
+        'dimensions' => ['label' => 'اندازۀ مجموعه', 'input' => 'text'],
+        'paper' => ['label' => 'کاغذ مجموعه', 'input' => 'textarea'],
+        'script_names' => ['label' => 'نوع خط مجموعه (خط همۀ رساله‌هایی که خودشان خطی ندارند)', 'input' => 'text'],
+        'lines' => ['label' => 'تعداد سطر مجموعه (سطر همۀ رساله‌هایی که خودشان شماری ندارند)', 'input' => 'integer'],
+    ];
+
+    /** «collection_binding»: a field of the collection the copy is a treatise of. */
+    public static function collectionField(string $name): ?array
+    {
+        $column = str_starts_with($name, self::COLLECTION_PREFIX) ? substr($name, strlen(self::COLLECTION_PREFIX)) : null;
+
+        return isset(self::COLLECTION_FIELDS[$column]) ? self::COLLECTION_FIELDS[$column] + ['collection' => $column] : null;
+    }
+
     public const BIBLIOGRAPHY_PAGE_PREFIX = 'bibliography_page_';
 
     /** The address field of one page a work's bibliography cites, by the viewer detail of that page. */
@@ -708,6 +739,11 @@ class SuggestionRegistry
         }
         if (isset($field['note_id']) || isset($field['new_note_type'])) {
             return isset($field['note_id']) ? ManuscriptNote::find($field['note_id'])?->text : null;
+        }
+        if (isset($field['collection'])) {
+            $value = $record instanceof Manuscript ? $record->boundCollection()?->{$field['collection']} : null;
+
+            return $value === null || $value === '' ? null : (string) $value;
         }
 
         // «2–7», «34پ–43ر»: both ends of the copy's place in its volume are one field

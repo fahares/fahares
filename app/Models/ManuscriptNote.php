@@ -44,6 +44,22 @@ class ManuscriptNote extends Model
         return ['also' => 'array', 'by_author' => 'boolean'];
     }
 
+    protected static function booted(): void
+    {
+        // A seal, an ownership note or an endowment is its volume's: the search documents of the other treatises of
+        // the copy's «مجموعه» hold its type too (CollectionIndex, step 14.329)
+        $volume = function (ManuscriptNote $note) {
+            $types = array_filter([$note->type, $note->getOriginal('type'), ...(array) $note->also]);
+            if (array_intersect($types, self::GROUPS['provenance']['types'])
+                && ($collection = \Illuminate\Support\Facades\DB::table('manuscripts')->where('id', $note->manuscript_id)->value('collection_id'))) {
+                \App\Support\Collections::refreshReadings([(int) $collection]);
+                \App\Support\Collections::reindex([(int) $collection]);
+            }
+        };
+        static::saved($volume);
+        static::deleted($volume);
+    }
+
     public function manuscript(): BelongsTo
     {
         return $this->belongsTo(Manuscript::class);

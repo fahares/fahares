@@ -21,6 +21,7 @@ class ImportFankhaCatalogReferencesCommand extends Command
 {
     protected $signature = 'catalogs:import-fankha-references
         {--dry-run : Report the counts without saving anything}
+        {--changed : Only the volume and page of the entries that the reading with the tied volume in mind gives otherwise}
         {--chunk=2000 : Manuscripts read per batch}';
 
     protected $description = 'Write the Fankha catalogue citation of every manuscript as its source entry';
@@ -31,6 +32,10 @@ class ImportFankhaCatalogReferencesCommand extends Command
         $dry = (bool) $this->option('dry-run');
         if ($dry) {
             $this->warn('Dry run: nothing is saved.');
+        }
+
+        if ($this->option('changed')) {
+            return $this->changed($dry);
         }
 
         $stats = array_fill_keys(['manuscripts', 'no citation or volume', 'volume and page', 'page only', 'volume only', 'not parsed', 'written', 'removed'], 0);
@@ -68,6 +73,56 @@ class ImportFankhaCatalogReferencesCommand extends Command
         arsort($series);
         $this->line('Most cited series:');
         $this->table(['series', 'count'], collect(array_slice($series, 0, 15, true))->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * The entries the reading with the tied volume in mind (SourceEntrySync::fitToVolume) reads otherwise than the
+     * citation alone, where the entry still holds what the citation alone gave (step 14.327). Only their volume and
+     * page are written: syncCited writes the whole row, and so would clear the entry's matched text, and it reads
+     * every copy's other citations too, which takes hours over all copies. An entry whose page a match corrected
+     * («[ف: 5-197]» found on page 196) holds another page than the citation and is left.
+     */
+    private function changed(bool $dry): int
+    {
+        $updates = [];
+        $kinds = ['a lone number is the page' => 0, 'another citation is the tied volume\'s' => 0, 'volume and page swapped' => 0];
+        DB::table('manuscripts')->whereNotNull('catalog_volume_id')->select('id', 'catalog_volume_id', 'metadata', 'raw_text')
+            ->orderBy('id')->chunkById(5000, function ($rows) use (&$updates, &$kinds) {
+                $sources = DB::table('source_volumes')->whereIn('id', $rows->pluck('catalog_volume_id')->unique())->pluck('source_id', 'id')->all();
+                $entries = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $rows->pluck('id'))
+                    ->get(['id', 'legacy_id', 'volume_number', 'page_start'])->keyBy('legacy_id');
+                foreach ($rows as $row) {
+                    $entry = $entries[$row->id] ?? null;
+                    $raw = self::rawCitation($row->metadata, $row->raw_text);
+                    if (! $entry || $raw === null || ! isset($sources[$row->catalog_volume_id])) {
+                        continue;
+                    }
+                    $plain = self::parse($raw);
+                    $fitted = SourceEntrySync::fitToVolume($raw, $plain, (int) $row->catalog_volume_id, (int) $sources[$row->catalog_volume_id]);
+                    $held = [$entry->volume_number === null ? null : (int) $entry->volume_number, $entry->page_start === null ? null : (int) $entry->page_start];
+                    if ([$fitted['volume'], $fitted['page']] === [$plain['volume'], $plain['page']] || $held !== [$plain['volume'], $plain['page']]) {
+                        continue;
+                    }
+                    $updates[$entry->id] = ['volume_number' => $fitted['volume'], 'page_start' => $fitted['page']];
+                    $kinds[match (true) {
+                        $fitted['volume'] === null => 'a lone number is the page',
+                        $fitted['volume'] === $plain['page'] && $fitted['page'] === $plain['volume'] => 'volume and page swapped',
+                        default => 'another citation is the tied volume\'s',
+                    }]++;
+                }
+            });
+        $this->table(['', 'entries'], collect($kinds)->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
+        if ($dry) {
+            $this->info('Would write the volume and page of ' . count($updates) . ' entries.');
+
+            return self::SUCCESS;
+        }
+        foreach ($updates as $id => $values) {
+            DB::table('source_entries')->where('id', $id)->update($values + ['updated_at' => now()]);
+        }
+        $this->info('Wrote the volume and page of ' . count($updates) . ' entries.');
 
         return self::SUCCESS;
     }

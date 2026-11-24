@@ -13118,6 +13118,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش پیش از ساخت (رونوشت محلی، ۱٬۸۰۵ سطرِ بی اثر مرتبطِ هم‌عنوان، با الگوی متنی):** «وابسته به»ی فقط پدیدآور ۴۰۷؛ «وابسته به»ی بی رکورد ۷۱؛ `children` پدیدآوردارِ بی رکورد ۲۴۴ و بی پدیدآورِ بی رکورد ۱۵۴؛ «N عنوان» ۲۹۱؛ همۀ آثار هم‌عنوان بسته به مدخل دیگر ۱۰۹؛ پدیدآوردار با یک اثر هم‌عنوان و هم‌پدیدآور ۱۶۱ (۱۱۵ بی‌تاریخ، ۴۶ تاریخ‌دار) و با دو اثر ۲۷؛ پدیدآوردار بی اثری از آن پدیدآور ۱۸۴؛ بی پدیدآور با آثار هم‌عنوانِ نامرتبط ۲۱۰.
 - **تمرین (`fahares_prod` محلی، ۳۰ آبان ۱۴۰۵):** `works:link-related --no-index`: «10827 relations: 151 to add, 4 to remove, 10676 kept»، «Left to the editors' relations: 30»، «Entries: 151 tied or untied»؛ اجرای دوم همه صفر. `works:link-decisions … --dry-run`: «613 entries: 0 to add»، «0 proposals to add». پایان: `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۲٬۱۶۵؛ رابطه‌ها auto ۱۰٬۸۲۷، model ۲۳۶؛ صفحه‌ها «بی پیوند» ۲٬۴۱۱. چهار حذف همان چهار رابطه‌ای‌اند که فقط رونوشت محلی داشت (۱۰٬۶۸۰ در برابر ۱۰٬۶۷۶ پروداکشن)، پس در پروداکشن انتظار حذف نیست.
 - **اجرا در تولید، پس از استقرار (پشتیبان `work_relations` و `work_text_relations` پیش از آن):** `works:link-related --dry-run` و سپس اجرا.
+- **اصلاح (۳ آذر ۱۴۰۵):** `entries()` برای مدخلِ پدیدآورِ بی‌تاریخ کلید `plain` را هم می‌دهد (همان مدخل بی پدیدآور). در `pairs()`، `$match` نخست با پدیدآور می‌سنجد و اگر جفتی نبود با `plain`، در هر دو دور (بی `$taken` و با آن). پروداکشن پیش از اصلاح، فقط‌خواندنی (`tinker` با پرونده‌ای در `/tmp` که پاک شد، زیر `prod-run`): «new pairs: 147»؛ `TYPE related -> abridgment` برای #4504 ← #4501 و #61992 ← #61989 (مدخل «(منتخب)» و «(مختصر)» که اکنون `named back` می‌شوند، چون نام پدیدآورِ سطر دیگر دیگر عنوان شمرده نمی‌شود)؛ `TYPE abridgment -> related` برای #13537 ← #13536 و `TYPE gloss -> related` برای #67051 ← #63912. پس از اصلاح، در رونوشت محلی دو مورد آخر به نوع پیشین برگشتند («2 to add, 2 to remove» روی وضعی که قاعدۀ پیشین نوشته بود) و شمار رابطه‌ها ۱۰٬۸۲۷ ماند. پشتیبان پیش از اجرا: `../fahares-sources/backups/step13/step14_310_relations_backup.json` (۱۰٬۹۱۷ و ۲۰٬۹۱۸ ردیف، md5 `f63f581d…`)؛ پیش از اجرای واقعی باید تازه شود.
 
 ### گام ۱۴.۳۱۲: مقدار کنونی در فرم تبدیل و `discardDerived`
 - **`SuggestionRegistry::fieldChoices`:** با رکورد، برای هر فیلد `current` (`currentValue`) و `pairCurrent` می‌دهد؛ `convertFields` همین را برای رکورد دیگر برمی‌گرداند.
@@ -13174,6 +13175,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **دست‌نخورده:** `Insights` و `InsightsScope` (شمار آثار هر سده از ستون خود اثر)، `PersonPlaces`، `KnownRulers` در `RefreshDerivedCommand` و `BackfillWorkDedicationsCommand`، `FixLifeYearsCommand`، و `SuggestionRegistry::describe()`.
 - **پس از انتشار (یک بار، فقط نمایۀ جست‌وجو را می‌نویسد):** `php artisan tinker --execute='App\Models\Work::whereIn("id", DB::table("work_relations")->where("type", "part")->pluck("work_id"))->get()->searchable();' < /dev/null` با `scripts/dev/prod-run`. بی آن، سند جست‌وجوی بخش‌هایی که پیش از این گام وصل شده‌اند تا تغییر بعدی‌شان سال تألیف ندارد.
 - **آزمون:** `WorkPartsTest` سیزده آزمون؛ سه آزمون تازه: تاریخ ارثی و نبودن تخمین (صفحه، سند جست‌وجو، `estimate-dates`، `copyFloors`، مرتب‌سازی و فیلتر پایگاه، تغییر تاریخ اصل، برداشتن رابطه)، تاریخ اختصاصی بخش، و بخشِ دارای مؤلف دیگر.
+- **اجرا در production (۳ آذر ۱۴۰۵، `prod-run work-part-inherit`، پس از استقرار batch206):** همان دستور نمایه‌سازی؛ خروجی «reindexed [18714,58980]». سند ۵۸۹۸۰: `composition_year_hijri` و `era_year` ۸۳۷، `era_estimate_from` تهی؛ سند ۱۸۷۱۴: ۱۲۳۵ (بی تغییر). فقط نمایۀ Meilisearch نوشته شد، نه پایگاه داده؛ پس پشتیبان نگرفتیم. فایلی در `/tmp` کانتینر نماند.
 
 ### گام ۱۴.۳۱۶: برچسب `abridgment` و `part`
 - **`RecordRelations::WORK_TYPES`:** «گزیده» از برچسب `part` به `abridgment` رفت. کلیدها و داده دست نخورد؛ ارث‌بری (`WorkParts`) همچنان فقط روی `part` است.
@@ -13300,3 +13302,43 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی:** ص ۹۴۶ (۴۱۳/۱)، ۹۵۳ (۱۱/۲ و ۱۲/۳) و ۹۰۷ (۴۶۱) نسخۀ ارجاع را دارند.
 - **تمرین (`fahares_prod`):** «0 created, 2 updated, 237 unchanged»، سپس «0 updated». ۲۶۹ نسخه در دفتر ۶ و ۱٬۰۸۰ نسخه در دفتر ۱۱ در بازۀ تازه‌اند.
 - **پس از انتشار:** فرستادن `tehran-univ-nashriyye/v06` و `v11` با `send.sh` (C=tehran-univ-nashriyye) و `catalogs:set-facsimiles` با `prod-run`.
+### گام ۱۴.۳۲۷: `SourceEntrySync::fitToVolume()` و `catalogs:import-fankha-references --changed`
+
+- **`fitToVolume(string $raw, array $parsed, int $volumeId, int $sourceId)`** (در `citedValues()` پس از `parse()`، وقتی نسخه جلد دارد): شماره و بازۀ صفحۀ جلدهای منبع یک بار خوانده و نگه داشته می‌شود (`$volumeNumbers`). متن ارجاع آن چیزی است که پس از آخرین «[» آمده؛ بخش‌ها با «؛» و با «و» پس از رقم جدا می‌شوند (نه «و» نام «رشت و همدان» و نه «88 و 89»).
+  - ارجاع با بیش از یک «[»: خواندن ته آن جای خواندن کل را می‌گیرد اگر کل چیزی نداده، یا ته جلد وصل‌شده را نام ببرد و کل نه.
+  - جلد و صفحه هر دو تهی، منبع تک‌جلدی، و `(ف:|:|-) N [(…)]` در پایان بخش نخست → صفحه N، اگر `page_first`/`page_last` جلد دانسته نباشد یا N در آن باشد.
+  - جلد خوانده و صفحه تهی، منبع تک‌جلدی و جلد جز شمارۀ جلد وصل‌شده → همان عدد صفحه است (با همان شرط بازه).
+  - جلد خوانده جز جلد وصل‌شده: بخش‌های بعدی با `parse()` خوانده می‌شوند و نخستینی که جلدش همان است گرفته می‌شود؛ وگرنه اگر صفحه همان شمارۀ جلد است، جلد خوانده بیش از ۱۰۰ است و منبع چنین جلدی ندارد، جابه‌جا می‌شوند.
+- **`--changed`:** نسخه‌ها با کلید اصلی دسته‌دسته (۵٬۰۰۰) خوانده می‌شوند و مدخل `fankha_citation` هر دسته با `whereIn`؛ تنها جایی که `fitToVolume` جز `parse` می‌دهد و مدخل همان `parse` را دارد، `volume_number` و `page_start` با `update` نوشته می‌شود. اجرای آزمایشی ۱۷ ثانیه.
+- **چرا نه `syncCited`:** `upsert()` همۀ ستون‌ها را می‌نویسد (`entry_text`، `copy_text`، `text_page`، `match_method`، `status`) و `syncOtherCited` برای هر دسته پرس‌وجوی سنگین دارد (اجرای کامل پس از ۳۴ دقیقه به نسخۀ ۷۲ هزارم رسیده بود). بازگرداندن محلی: ۷۰٬۲۱۰ سطر `fankha_citation` و `fankha_citation_more` با `legacy_id ≤ 80000` از پروداکشن خوانده و با کلید `(legacy_type, legacy_id, legacy_index)` به‌روز شد.
+- **تمرین روی `fahares_prod`:** «a lone number is the page 8,607»، سپس پس از اصلاح شرط کروشه «25»؛ اجرای دوم صفر.
+- **آزمون:** `tests/Feature/CitationFitToVolumeTest.php` (۴ آزمون)؛ `CatalogReferencesTest` و `FixReversedCitationsTest` سبز.
+
+### گام ۱۴.۳۲۸: `manuscript-siblings-stating` با گروه‌بندی
+- `siblingsStating($field)` با `CollectionValues::compared` گروه می‌شود؛ متن هر گروه از نخستین رساله‌اش، و نام رساله‌ها با «،» و «و» در PHP ساخته می‌شود (دو دستور Blade چسبیده به هم، مانند `@endif@endforeach`، خوانده نمی‌شود).
+
+### گام ۱۴.۳۲۹: `CollectionIndex` و `collection_readings`
+- **`CollectionIndex::fields(Manuscript)`:** فیلدهای `FIELDS` سند جست‌وجو؛ در پایان `toSearchableArray` روی مقدارهای خود نسخه می‌نشیند. اطلاعات هر مجموعه (رکورد، خط‌های رساله‌ای که خط را مثل مجموعه می‌گوید، نوع یادداشت‌های گروه `provenance`) یک بار در هر درخواست یا کار صف خوانده می‌شود (نمونۀ `scoped` کانتینر).
+- **مهاجرت `2026_11_24_100001_create_collection_readings_table`:** `collection_id`، `manuscript_id`، `kind` (`scribe`، `script`، `note`)، `ref`؛ نمایۀ (`kind`، `ref`، `manuscript_id`). `Collections::refreshReadings(?array)` ردیف‌های مجموعه‌ها را از `CollectionIndex::readings` دوباره می‌سازد؛ `Collections::derive` هنگام نوشتن آن را صدا می‌زند.
+- **`SearchFilters::apply`:** `scribe_id`، `script_id` و `note_types` با `CollectionIndex::with(kind, ref, own)`: یک `whereIn` روی اجتماع فهرست خود نسخه‌ها و ردیف‌های `collection_readings`.
+- **سرعت روی `fahares_prod`** (صفحۀ نخست، شمارش، با کتابخانه و مرتب‌سازی):
+
+| پالایه | پیش از این | دو فهرست با «یا» | اجتماع در یک فهرست (به‌کاررفته) |
+|---|---|---|---|
+| خط نسخ | ۲۲ / ۵۰۹ / ۳۲۲ میلی‌ثانیه | ۱۲۸ / ۳۵۱ / ۴۱۰ | ۱۱۱ / ۲۲۰ / ۳۲۴ |
+| یک کاتب | ۲۷ / ۲۳ / ۱ | ۹۶۹ / ۲۲۶ / ۲۹٬۱۷۲ | ۲ / ۱ / ۱ |
+| مهر | ۸۰۳ / ۱٬۲۵۵ / ۲٬۰۳۵ | ۶۰۲ / ۹۲۰ / ۱٬۹۲۹ | ۹۹۰ / ۷۸۷ / ۱٬۶۵۷ |
+
+  پرسیدن مستقیم از `collections` (بی جدول مشتق) شش تا هفت ثانیه بود.
+- **`Collections::reindex`:** تا ۲۵ مجموعه را درجا دوباره نمایه می‌کند؛ بیشتر از آن کار `fahares:index-collections` است، که مجموعه‌به‌مجموعه می‌رود (به ترتیب شناسۀ نسخه، تمرین از ده دقیقه گذشت؛ مجموعه‌به‌مجموعه ۲ دقیقه و ۵۷ ثانیه برای ۱۴۸٬۷۹۸ نسخه). `refreshReadings` همه: ۲۶۰ ثانیه.
+- **`ManuscriptNote`:** قلاب `saved` و `deleted` برای یادداشت‌های گروه `provenance`.
+- **آزمون:** `CollectionsTest::test_the_search_finds_a_treatise_by_what_it_reads_from_its_collection`.
+
+### گام ۱۴.۳۳۰: فیلدهای مجموعه در سامانۀ پیشنهاد
+- **`SuggestionRegistry`:** `COLLECTION_PREFIX`، `COLLECTION_FIELDS`، `collectionField($name)` (کلید `collection` در تعریف فیلد)؛ در `recordFields` برای نسخه‌ای که `boundCollection()` دارد؛ `fieldOf` برای نسخۀ بیرون از مجموعه تهی می‌دهد؛ `currentValue` مقدار رکورد مجموعه را.
+- **`SuggestionApplier::applyCollection`:** ستون‌های فیلد (`CollectionValues::columnsOf`) خالی و ستون اصلی نوشته می‌شود، `basis[field] = editor` (یا برداشته با مقدار خالی)، سپس `Collections::derive` و `reindex`. خروجی `old.collection` و `new.collection` با `id`، `field`، `basis` و ستون‌ها. `ProtectedColumns::META_KEYS` کلید `collection` را ستون نسخه نمی‌شمارد.
+- **`AuditLogController` (بازگرداندن):** کلید `collection`: ستون‌ها و مبنای پیشین به رکورد مجموعه برمی‌گردد و `derive` دوباره اجرا می‌شود.
+- **`Admin\ManuscriptController::moveCollection`** (`POST /admin/manuscripts/{id}/collection`، `can:suggestions.direct_edit`): `firstOrCreate` مجموعه با (`library_id`، `key`)، `collection_id` و `collection_pinned` نسخه، و لاگ `verify` با ستون‌های پیشین. قلاب `saved` نسخه با تغییر `collection_id` مجموعۀ ترک‌شده را هم می‌شمارد و می‌سازد.
+- **نما:** `manuscript-collection` (مداد `collection_{field}`، `data-collection-basis`، فرم `data-move-collection` در حالت پیشنهاد)، `show.blade.php` (مداد `collection_script_names` و `collection_lines` کنار «از مجموعه»)، `admin/manuscripts/create` (`data-collection-read`).
+- **آزمون:** `CollectionsTest::test_a_collections_value_is_corrected_from_a_treatises_page_and_a_treatise_is_moved_by_hand`.
+

@@ -243,8 +243,15 @@ class Manuscript extends Model
 
         // The «مجموعه» record of its volume follows its library and collection_key (backlog item 163, step 14.322)
         static::saved(function (Manuscript $manuscript) {
-            if ($manuscript->wasRecentlyCreated || $manuscript->wasChanged(['collection_key', 'library_id', 'work_id', 'collection_pinned'])) {
+            if ($manuscript->wasRecentlyCreated || $manuscript->wasChanged(['collection_key', 'library_id', 'work_id', 'collection_pinned', 'collection_id'])) {
+                // an editor moved it (collection_pinned, step 14.330): the collection it left is counted and derived again too
+                $left = $manuscript->wasChanged('collection_id') ? (int) $manuscript->getOriginal('collection_id') : 0;
                 \App\Support\Collections::sync([$manuscript->id]);
+                if ($left) {
+                    \App\Support\Collections::recount([$left]);
+                    \App\Support\Collections::derive([$left]);
+                    \App\Support\Collections::reindex([$left]);
+                }
                 $manuscript->collection_id = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id');
                 $manuscript->syncOriginalAttribute('collection_id');
             } elseif ($manuscript->wasChanged(\App\Support\CollectionValues::COPY_COLUMNS)
@@ -686,6 +693,9 @@ class Manuscript extends Model
             // The printed catalogue volumes that describe the copy, so a source page's count of a volume's copies
             // links to them (step 13.116)
             'source_volume_ids' => $this->catalogueEntries->pluck('source_volume_id')->map(fn ($id) => (int) $id)->unique()->values()->all(),
+            // What the copy reads from its «مجموعه», over its own hand, lines, scribe, size, paper, binding and note
+            // types above (backlog item 163, step 14.329)
+            ...\App\Support\CollectionIndex::fields($this),
         ];
     }
 
