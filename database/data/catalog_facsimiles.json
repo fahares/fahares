@@ -2381,6 +2381,25 @@
   },
   {
    "library_slug": "km-mraashy-2",
+   "volume_number": 34,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و چهارم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 1040,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v34-a.pdf",
+      "marashi/v34-b-pp502-1040.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)، در دو پرونده؛ ص ۱ تا ۵۰۱: برگ = صفحه + ۲؛ ص ۵۰۲ تا ۱۰۴۰: برگ = صفحه − ۴۹۹",
+     "step": "14.354"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
    "volume_number": 35,
    "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و پنجم",
    "facsimile_code": "marashi",
@@ -3847,6 +3866,24 @@
   },
   {
    "library_slug": "km-mraashy-2",
+   "volume_number": 32,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و دوم",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 149,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v32-pp1-149.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)؛ نسخۀ نور تنها ۱۴۹ برگ است؛ برگ = صفحه",
+     "step": "14.354"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
    "volume_number": 1,
    "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 1",
    "facsimile_code": "marashi-akasi",
@@ -4859,6 +4896,24 @@
      ],
      "note": "هارد اکسترنال ahamd (Binder2.pdf، ۵۰۹ برگ)؛ احمد منزوی، تهران ۱۳۸۸، از شمارۀ ۱ تا ۵۰۰؛ برگ = صفحه + ۱۷؛ نمایه از ص ۳۵۳ کنار ماند",
      "step": "14.333"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "دلیل المخطوطات - جلد 1",
+   "facsimile_code": "dalil-makhtutat",
+   "page_first": 1,
+   "page_last": 339,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/دليل المخطوطات - الاول - 1397 [1111774].pdf"
+     ],
+     "leaf_maps": [],
+     "note": "docibox 1111774؛ احمد حسینی، دلیل المخطوطات ج ۱، ۱۳۹۷ق؛ برگ = صفحه + ۴؛ فنخا گاه «دلیل المخطوطات کاشف الغطاء» می‌نویسد",
+     "step": "14.354"
     }
    }
   }
