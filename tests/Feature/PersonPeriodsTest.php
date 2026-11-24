@@ -249,4 +249,66 @@ class PersonPeriodsTest extends TestCase
         $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'origin', 'place' => 'کاشان', 'mode' => 'point'])->assertRedirect()->assertSessionHasNoErrors();
         $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'residence', 'place' => 'کاشان', 'mode' => 'point'])->assertRedirect()->assertSessionHasNoErrors();
     }
+
+    public function test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none()
+    {
+        $row = fn (Person $person, string $kind, int $year, string $status = PersonPeriod::APPROVED) => PersonPeriod::create(
+            ['person_id' => $person->id, 'kind' => $kind, 'place' => 'نجف', 'status' => $status, 'origin' => 'machine']
+            + PersonPeriod::dateColumns(['mode' => 'point', 'start' => $year]));
+        // a record of a century only: both years are carried, and the centuries follow
+        $bare = $this->person('شخص بی سال');
+        $bare->update(['life_dates_raw' => 'ق13 قمری']);
+        $row($bare, 'birth', 1236);
+        $row($bare, 'death', 1307);
+        // a death alone moves the century on, and the century the record named stays the first of the life
+        $turn = $this->person('وفات در آغاز سدۀ بعد');
+        $turn->update(['life_dates_raw' => 'ق13 قمری']);
+        $row($turn, 'death', 1307);
+        // a record with a death: the birth that fits is carried, the death stays
+        $dated = $this->person('شخص با وفات');
+        $dated->update(['life_dates_raw' => '- 1272 قمری', 'death_year_hijri' => 1272]);
+        $row($dated, 'birth', 1206);
+        $row($dated, 'death', 1270);
+        // not carried: a birth after the death, another birth in the life dates, rows that differ, a waiting proposal,
+        // a death of another century, a residence
+        $late = $this->person('تولد پس از وفات');
+        $late->update(['death_year_hijri' => 1100]);
+        $row($late, 'birth', 1150);
+        $hedged = $this->person('تولد دیگر در متن');
+        $hedged->update(['life_dates_raw' => '131؟ - 235 قمری', 'death_year_hijri' => 235]);
+        $row($hedged, 'birth', 135);
+        $two = $this->person('دو سال');
+        $row($two, 'death', 1300);
+        $row($two, 'death', 1305);
+        $waiting = $this->person('پیشنهاد منتظر');
+        $row($waiting, 'death', 1300, PersonPeriod::PROPOSED);
+        $far = $this->person('سدۀ دیگر');
+        $far->update(['life_dates_raw' => 'ق 10 قمری']);
+        $row($far, 'death', 1300);
+        $stay = $this->person('اقامت');
+        $row($stay, 'residence', 1200);
+
+        $this->artisan('fahares:carry-life-years')->assertSuccessful();
+        $this->assertNull($bare->fresh()->death_year_hijri);
+        $this->artisan('fahares:carry-life-years', ['--apply' => true])->assertSuccessful();
+
+        $bare->refresh();
+        $this->assertSame([1236, 1307, 14, 13], [$bare->birth_year_hijri, $bare->death_year_hijri, $bare->century_hijri, $bare->century_from]);
+        $turn->refresh();
+        $this->assertSame([null, 1307, 14, 13], [$turn->birth_year_hijri, $turn->death_year_hijri, $turn->century_hijri, $turn->century_from]);
+        $this->assertSame([1206, 1272], [$dated->fresh()->birth_year_hijri, $dated->fresh()->death_year_hijri]);
+        foreach ([$late, $hedged, $waiting, $stay] as $person) {
+            $this->assertNull($person->fresh()->birth_year_hijri, $person->name);
+        }
+        foreach ([$two, $waiting, $far, $stay] as $person) {
+            $this->assertNull($person->fresh()->death_year_hijri, $person->name);
+        }
+        $log = \App\Models\AuditLog::where('auditable_type', Person::class)->where('auditable_id', $bare->id)->latest('id')->first();
+        $this->assertSame('fahares:carry-life-years', $log->new_values['by']);
+        $this->assertNull($log->old_values['death_year_hijri']);
+        // a second run finds nothing
+        $logs = \App\Models\AuditLog::count();
+        $this->artisan('fahares:carry-life-years', ['--apply' => true])->assertSuccessful();
+        $this->assertSame($logs, \App\Models\AuditLog::count());
+    }
 }

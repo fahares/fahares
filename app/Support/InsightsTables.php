@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -270,6 +270,25 @@ class InsightsTables
             $grid('سهم هر داده در هر جلد فهرست', 'completeness-volumes', [['جلد فهرست', 'text']],
                 array_map(fn ($r) => [$r['title'], $r['count'], ...$cells($r)], $cp['volumes'])),
         ];
+    }
+
+    private function derived(): array
+    {
+        $dv = $this->data['derived'];
+        $names = \App\Support\Insights::DERIVED;
+        $tables = [
+            self::table('آثاری که بر پایۀ متنی دیگر نوشته شده‌اند', 'derived-types', [['گونه', 'text'], ['اثر', 'num'], ['متن پایه', 'num']],
+                array_map(fn ($t) => [$t['name'], $t['made'], $t['texts']], $dv['types'])),
+            self::table('متن‌هایی که بیشترین اثر بر پایه‌شان نوشته شده', 'derived-texts', [['متن', 'text'], ['مؤلف', 'text'], ['اثر', 'num'], ...array_map(fn ($n) => [$n, 'num'], array_values($names))],
+                array_map(fn ($r) => [$r['title'], $r['author'], $r['count'], ...array_map(fn ($type) => $r['types'][$type] ?? 0, array_keys($names))], $dv['items'])),
+        ];
+        foreach ($dv['lists'] as $type => $rows) {
+            $tables[] = self::table('متن‌هایی با بیشترین ' . $names[$type], 'derived-' . $type, [['متن', 'text'], ['مؤلف', 'text'], [$names[$type], 'num']],
+                array_map(fn ($r) => [$r['title'], $r['author'], $r['count']], $rows));
+        }
+        $tables[] = self::table('زبان ترجمه‌ها', 'translation-languages', [['زبان', 'text'], ['اثر', 'num']], array_map(fn ($l) => [$l['name'], $l['count']], $dv['languages']));
+
+        return $tables;
     }
 
     private function catalogers(): array

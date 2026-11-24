@@ -210,7 +210,11 @@ final class Loader
     private static function periods(Engine $engine): void
     {
         $bounds = [];
+        // a row of the kinds «birth», «death» and «origin» (step 14.291) is no stretch of the life: it is what a biography
+        // says of the very date the person's record holds, and a year or two apart from it made a conflict that kept the
+        // record's own date from bounding anything (step 14.358)
         $rows = DB::table('person_periods')->where('status', \App\Models\PersonPeriod::APPROVED)->whereNull('period_certainty')
+            ->whereNotIn('kind', \App\Models\PersonPeriod::PLACE_KINDS)
             ->orderBy('id')->get(['person_id', 'period_from', 'period_to', 'period_kind', 'period_start_to', 'period_end_from']);
         foreach ($rows as $row) {
             $date = DateSpan::fromColumns($row, 'period');
