@@ -128,4 +128,58 @@ class FixWrongLinksCommandTest extends TestCase
             ->expectsOutputToContain('Written: 0 changed, 5 already right, 1 not as the file says')->assertSuccessful();
         $this->assertSame(1, AuditLog::where(['auditable_type' => Work::class, 'auditable_id' => $sama->id, 'action' => 'verify'])->count());
     }
+
+    /** Step 14.366: the library's own catalogue names another scribe, and a date of composition that is a copy's date */
+    public function test_another_scribe_replaces_the_author_and_a_false_date_of_composition_goes()
+    {
+        $poet = $this->person('مشتری آزمایشی');
+        $divan = $this->work('دیوان مشتری آزمایشی', $poet);
+        $late = $this->copy($divan, 'م-1', $poet, true);
+        $own = $this->copy($divan, 'م-2', $poet, true);
+        $notAutograph = $this->copy($divan, 'م-3', null, false);
+
+        $jurist = $this->person('تهرانی آزمایشی، هادی');
+        $irth = $this->work('الارث آزمایشی', $jurist);
+        $irth->update(['composition_date_raw' => '14 ربیع الاول 1334ق']);
+        $this->assertSame([1334, 1334], [$irth->fresh()->composition_year_hijri, $irth->fresh()->composition_date_from]);
+        $other = $this->work('الوصیة آزمایشی', $jurist);
+        $other->update(['composition_date_raw' => '1310ق']);
+
+        $file = tempnam(sys_get_temp_dir(), 'links');
+        file_put_contents($file, json_encode([
+            'step' => '14.366',
+            'other_scribe' => [
+                ['title' => $divan->primary_title, 'library' => $this->library->name, 'shelfmark' => 'م-1', 'scribe_name' => 'رضاخان آزمایشی', 'why' => 'فهرست ملک'],
+                ['title' => $divan->primary_title, 'library' => $this->library->name, 'shelfmark' => 'م-3', 'scribe_name' => 'رضاخان آزمایشی', 'why' => '-'],
+            ],
+            'composition' => [
+                ['title' => $irth->primary_title, 'author' => $jurist->name, 'date' => '14 ربیع الاول 1334ق', 'why' => 'تاریخ کتابت'],
+                ['title' => $other->primary_title, 'author' => $jurist->name, 'date' => '1334ق', 'why' => '-'],
+            ],
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:fix-wrong-links', ['--file' => $file])
+            ->expectsOutputToContain('Dry run, nothing written: 2 changed, 0 already right, 2 not as the file says')->assertSuccessful();
+        $this->assertTrue($late->fresh()->is_autograph);
+
+        $this->artisan('fahares:fix-wrong-links', ['--file' => $file, '--apply' => true])->assertSuccessful();
+
+        $scribe = Person::where('name', 'رضاخان آزمایشی')->sole();
+        $this->assertSame([$scribe->id, 'رضاخان آزمایشی', false, [$scribe->id]],
+            [$late->fresh()->scribe_id, $late->fresh()->scribe_name, $late->fresh()->is_autograph, $this->scribes($late)]);
+        $this->assertSame([$poet->id, true], [$own->fresh()->scribe_id, $own->fresh()->is_autograph]);
+        $this->assertNull($notAutograph->fresh()->scribe_id);
+        $this->assertSame([null, null, null, null], [$irth->fresh()->composition_date_raw, $irth->fresh()->composition_year_hijri,
+            $irth->fresh()->composition_date_from, $irth->fresh()->composition_date_to]);
+        $this->assertSame('1310ق', $other->fresh()->composition_date_raw);
+
+        $log = AuditLog::where(['auditable_type' => Manuscript::class, 'auditable_id' => $late->id, 'action' => 'verify'])->sole();
+        $this->assertSame(['14.366', false, $scribe->id], [$log->new_values['step'], $log->new_values['is_autograph'], $log->new_values['scribe_id']]);
+        $this->assertSame([], ProtectedColumns::for(Manuscript::class)->strip($late->id, ['is_autograph' => true, 'scribe_id' => $poet->id]));
+        $this->assertSame([], ProtectedColumns::for(Work::class)->strip($irth->id, ['composition_date_raw' => '14 ربیع الاول 1334ق', 'composition_year_hijri' => 1334]));
+
+        $this->artisan('fahares:fix-wrong-links', ['--file' => $file, '--apply' => true])
+            ->expectsOutputToContain('Written: 0 changed, 2 already right, 2 not as the file says')->assertSuccessful();
+        $this->assertSame(1, AuditLog::where(['auditable_type' => Work::class, 'auditable_id' => $irth->id, 'action' => 'verify'])->count());
+    }
 }

@@ -1,0 +1,21 @@
+{
+    "step": "14.366",
+    "source": "Two of the eight records step 14.341 left undecided, settled against the page images of the libraries' own catalogues (backlog item 126, step 14.366). Each entry mends what the catalogue (Fankha) itself says; the catalogue's text stays in raw_text.",
+    "other_scribe": [
+        {
+            "title": "دیوان مشتری مشهدی",
+            "library": "ملک",
+            "shelfmark": "6054",
+            "scribe_name": "رضاخان سیاوشی",
+            "why": "فهرست کتابخانۀ ملک (۲/۳۵۱): «نستعلیق رضاخان سیاوشی معلم مدرسۀ دولتی در ۱۹ آذرماه ۲۸ ج۲ ۱۳۴۷». کاتب سراینده نیست؛ مشتری در ۱۳۰۵ درگذشته است و فنخا نسخه را «کاتب = مؤلف» خوانده است."
+        }
+    ],
+    "composition": [
+        {
+            "title": "الارث",
+            "author": "تهرانی نجفی، هادی بن محمد امین",
+            "date": "14 ربیع الاول 1334ق",
+            "why": "این تاریخ، تاریخ کتابت نسخۀ حجت کوهکمری 48/1 است («تا: 14 ربیع الاول 1334ق؛ از روی خط مولف»)، نه تاریخ تألیف. مؤلف در ۱۳۲۱ درگذشته و دو نسخۀ دیگر اثر پیش از آن نوشته شده‌اند (مرعشی 13774/1، حدود ۱۳۱۸؛ مرعشی 10383/4، ۲۴ صفر ۱۳۳۳)."
+        }
+    ]
+}

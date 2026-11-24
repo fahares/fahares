@@ -22,7 +22,11 @@ use Illuminate\Support\Facades\File;
  *   - not_autograph: a copy the catalogue calls «کاتب = مؤلف» that was written after the author's death. The scribe
  *     link and the autograph mark go;
  *   - scribes: a scribe who is a namesake of the linked person. The copies that name the scribe move to a new
- *     person (RecordSplitter); the person's own autographs stay.
+ *     person (RecordSplitter); the person's own autographs stay;
+ *   - other_scribe (step 14.366): a copy the catalogue calls «کاتب = مؤلف» whose own library catalogue names another
+ *     scribe. The scribe becomes that person (of the site by that name, or a new one) and the autograph mark goes;
+ *   - composition (step 14.366): a work whose «تاریخ تألیف» is in truth the date of one of its copies. The date goes.
+ * The file's «step» is written in each log entry and tells a repeated run what it has already done.
  * Every change goes through the site's own correction code (SuggestionApplier) and is logged as a «verify» entry, so
  * that a later sync from the corpus leaves the corrected columns alone (ProtectedColumns). A run only writes what
  * differs and can be repeated; a record that is no longer as the file describes it is reported and left alone.
@@ -35,7 +39,7 @@ class FixWrongLinksCommand extends Command
 
     protected $description = 'Mend the author and scribe links that the catalogue has wrong, by a decision file';
 
-    private const STEP = '14.341';
+    private string $step = '14.341';
 
     private array $counts = ['changed' => 0, 'unchanged' => 0, 'differs' => 0];
 
@@ -50,6 +54,7 @@ class FixWrongLinksCommand extends Command
         }
         $apply = (bool) $this->option('apply');
         $this->counts = ['changed' => 0, 'unchanged' => 0, 'differs' => 0];
+        $this->step = (string) ($plan['step'] ?? '14.341');
         foreach ($plan['works'] ?? [] as $entry) {
             $this->work($entry, $apply, $applier);
         }
@@ -58,6 +63,12 @@ class FixWrongLinksCommand extends Command
         }
         foreach ($plan['scribes'] ?? [] as $entry) {
             $this->scribe($entry, $apply, $splitter);
+        }
+        foreach ($plan['other_scribe'] ?? [] as $entry) {
+            $this->otherScribe($entry, $apply, $applier);
+        }
+        foreach ($plan['composition'] ?? [] as $entry) {
+            $this->composition($entry, $apply, $applier);
         }
         $this->info(($apply ? 'Written' : 'Dry run, nothing written') . ": {$this->counts['changed']} changed, {$this->counts['unchanged']} already right, {$this->counts['differs']} not as the file says.");
 
@@ -162,7 +173,71 @@ class FixWrongLinksCommand extends Command
         DB::transaction(function () use ($person, $entry, $copies, $splitter) {
             $result = $splitter->splitPerson($person, ['name' => $entry['new_name']], ['manuscripts' => $copies]);
             AuditLog::create(['user_id' => null, 'auditable_type' => Person::class, 'auditable_id' => $person->id, 'action' => 'split',
-                'old_values' => $result, 'new_values' => ['created_id' => $result['created_id'], 'step' => self::STEP, 'why' => $entry['why']]]);
+                'old_values' => $result, 'new_values' => ['created_id' => $result['created_id'], 'step' => $this->step, 'why' => $entry['why']]]);
+        });
+    }
+
+    private function otherScribe(array $entry, bool $apply, SuggestionApplier $applier): void
+    {
+        $label = "copy «{$entry['title']}» {$entry['library']} {$entry['shelfmark']}";
+        $copy = Manuscript::where('library', $entry['library'])->where('shelfmark', $entry['shelfmark'])
+            ->whereHas('work', fn ($q) => $q->where('primary_title', $entry['title']))->first();
+        if (! $copy) {
+            $this->note('differs', "{$label}: not found");
+
+            return;
+        }
+        if (! $copy->is_autograph && $copy->scribe_name === $entry['scribe_name'] && $copy->scribe?->name === $entry['scribe_name']) {
+            $this->note('unchanged', "{$label}: scribe «{$entry['scribe_name']}»");
+
+            return;
+        }
+        if (! $copy->is_autograph || $copy->scribe_id !== $copy->work->author_id) {
+            $this->note('differs', "{$label}: not an autograph of the work's author");
+
+            return;
+        }
+        $person = Person::where('name', $entry['scribe_name'])->first();
+        $this->note('changed', "{$label}: scribe «" . ($copy->scribe?->name ?? '') . "» → «{$entry['scribe_name']}»" . ($person ? '' : ' (new person)') . ', no autograph');
+        if (! $apply) {
+            return;
+        }
+        DB::transaction(function () use ($copy, $entry, $person, $applier) {
+            $input = $person ? ['person_action' => 'link', 'person_id' => $person->id] : ['person_action' => 'create'];
+            $result = $applier->apply($copy, SuggestionRegistry::fieldOf($copy, 'scribe_name'), ['applied_value' => $entry['scribe_name']] + $input);
+            $copy->update(['is_autograph' => false]);
+            $result['old']['is_autograph'] = true;
+            $result['new']['is_autograph'] = false;
+            $this->log($copy, $result, $entry['why']);
+        });
+    }
+
+    private function composition(array $entry, bool $apply, SuggestionApplier $applier): void
+    {
+        $label = "work «{$entry['title']}»";
+        $work = Work::where('primary_title', $entry['title'])->whereHas('author', fn ($q) => $q->where('name', $entry['author']))->first();
+        if (! $work) {
+            $this->note('differs', "{$label}: no work of «{$entry['author']}» with this title");
+
+            return;
+        }
+        if ($work->composition_date_raw === null && $this->logged($work)) {
+            $this->note('unchanged', "{$label}: no date of composition");
+
+            return;
+        }
+        if ($work->composition_date_raw !== $entry['date']) {
+            $this->note('differs', "{$label}: date of composition is «{$work->composition_date_raw}», not «{$entry['date']}»");
+
+            return;
+        }
+        $this->note('changed', "{$label}: date of composition «{$entry['date']}» removed");
+        if (! $apply) {
+            return;
+        }
+        DB::transaction(function () use ($work, $entry, $applier) {
+            $result = $applier->apply($work, SuggestionRegistry::fieldOf($work, 'composition_date_raw'), ['applied_value' => null, 'hijri_year' => null]);
+            $this->log($work, $result, $entry['why']);
         });
     }
 
@@ -170,13 +245,13 @@ class FixWrongLinksCommand extends Command
     private function log(Work|Manuscript $record, array $result, string $why): void
     {
         AuditLog::create(['user_id' => null, 'auditable_type' => $record::class, 'auditable_id' => $record->id, 'action' => 'verify',
-            'old_values' => $result['old'] ?: null, 'new_values' => ($result['new'] ?: []) + ['direct_edit' => true, 'step' => self::STEP, 'why' => $why]]);
+            'old_values' => $result['old'] ?: null, 'new_values' => ($result['new'] ?: []) + ['direct_edit' => true, 'step' => $this->step, 'why' => $why]]);
     }
 
     private function logged(Work $work): bool
     {
         return AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->where('action', 'verify')->get(['new_values'])
-            ->contains(fn (AuditLog $log) => ($log->new_values['step'] ?? null) === self::STEP);
+            ->contains(fn (AuditLog $log) => ($log->new_values['step'] ?? null) === $this->step);
     }
 
     private function note(string $kind, string $line): void
