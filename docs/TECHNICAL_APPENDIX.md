@@ -13726,6 +13726,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ممیزی:** `old_values` و `new_values` شش ستون تاریخ را دارند، با `by = fahares:carry-life-years` و شناسۀ ردیف‌های دوره در `person_periods`.
 - **تمرین روی `fahares_prod`:** جدول `person_periods` رونوشت محلی با ۴٬۸۱۰ ردیف امروزِ پروداکشن جایگزین شد. اجرای آزمایشی و `--apply`: «birth years carried 139, death years carried 38»؛ اجرای دوم صفر. نمونه: #۱۳۲۹۸ («ق۱۳ قمری») تولد ۱۲۳۶، وفات ۱۳۰۴، سده ۱۳ تا ۱۴؛ #۲۶۲۱ (بی‌تاریخ) ۱۲۳۹ تا ۱۳۱۶.
 - **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
+- **اجرا (۳ آذر ۱۴۰۵):** پشتیبان `step14_363_people_dates_before.jsonl.gz` (۱٬۰۶۷ ردیف، md5 `6b38697edbaf3674f460a778772069ca`). خروجی: «birth years carried 139, death years carried 38»؛ ۱۶۶ سطر ممیزی با `by = fahares:carry-life-years`. نمونه: #۷۷۸۶ وفات ۱۳۰۷، سده ۱۳ تا ۱۴.
 
 ### گام ۱۴.۳۶۴: `person_lives_step14_364_zirikli.json`
 
