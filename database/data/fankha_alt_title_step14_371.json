@@ -1,0 +1,29 @@
+{
+    "source": "work #40507 (fankha vol 20 p. 221): the other title is printed «شرح الفزائض السراجية», a misprint of «شرح الفرائض السراجية» (seen on the page image; the description itself names «الفرائض السراجیه»); the record's other title is corrected, the corpus text, raw_text and the page text keep the spelling of the print; fahares step 14.371, backlog item 168",
+    "category": "editorial_correction",
+    "works": [],
+    "fills": [],
+    "work_updates": [
+        {
+            "work_slug": "shrh-frayd-alsgaondy-v20-366",
+            "v2": "v20-366",
+            "id": 40507,
+            "changes": {
+                "alternative_titles": {
+                    "from": [
+                        {
+                            "title": "شرح الفزائض السراجية",
+                            "transliteration": "š.-ul-farā’ḍ-is sirājīyya"
+                        }
+                    ],
+                    "to": [
+                        {
+                            "title": "شرح الفرائض السراجية",
+                            "transliteration": "š.-ul-farā’ḍ-is sirājīyya"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
