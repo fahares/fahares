@@ -98,6 +98,13 @@ class ReadCopyLinesCommand extends Command
                     $entry->forceFill(['confirmed_fields' => $result['confirmed'] ?: null, 'fields_read_at' => now()])->saveQuietly();
                     Claim::where('source_entry_id', $entry->id)->where('method', Claim::METHOD_RULE)->candidate()->delete();
                     foreach ($result['claims'] as $c) {
+                        // the volume's line stands under each of its treatises' entries: one claim for the collection
+                        // is enough, whichever treatise's entry brought it and whatever became of it (step 14.331)
+                        if (str_starts_with($c['field'], \App\Suggestions\SuggestionRegistry::COLLECTION_PREFIX) && $ms->collection_id
+                            && Claim::where('subject_type', Manuscript::class)->where('field', $c['field'])->where('value_text', $c['value'])
+                                ->whereIn('subject_id', DB::table('manuscripts')->where('collection_id', $ms->collection_id)->select('id'))->exists()) {
+                            continue;
+                        }
                         Claim::create([
                             'subject_type' => Manuscript::class, 'subject_id' => $ms->id, 'field' => $c['field'],
                             'value_text' => $c['value'], 'current_text' => $c['current'], 'raw_text' => $c['raw'],

@@ -13333,3 +13333,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `manuscript-collection` (مداد `collection_{field}`، `data-collection-basis`، فرم `data-move-collection` در حالت پیشنهاد)، `show.blade.php` (مداد `collection_script_names` و `collection_lines` کنار «از مجموعه»)، `admin/manuscripts/create` (`data-collection-read`).
 - **آزمون:** `CollectionsTest::test_a_collections_value_is_corrected_from_a_treatises_page_and_a_treatise_is_moved_by_hand`.
 
+### گام ۱۴.۳۳۱: `CopyLineComparer` و مجموعه
+- **`CopyLineComparer::compare`:** `$volume = $line->wholeVolume ? $ms->boundCollection() : null`؛ با `$volume`، `folios` و `dimensions` سطر با ستون‌های مجموعه سنجیده می‌شود (اندازه با همان رواداری نیم سانتی‌متر) و سنجش اندازه با خود رساله کنار می‌رود. `FIELDS` دو فیلد `collection_folios` و `collection_dimensions` را هم دارد.
+- **`SuggestionRegistry::COLLECTION_FIELDS['folios']`** و وارسی عدد در `SuggestionApplier::applyCollection`. `CollectionValues::fields()` برگ را ندارد، پس `Collections::derive` به آن دست نمی‌زند.
+- **`ReadCopyLinesCommand`:** ادعای فیلدهای `collection_` اگر برای رساله‌ای از همان مجموعه با همان فیلد و مقدار ادعایی (در هر وضعی) باشد، دوباره ساخته نمی‌شود.
+- **`ClaimController::FIELD_LABELS`** و سطر «شمار برگ کل» در `manuscript-collection`.
+- **آزمون:** `CollectionsTest::test_a_catalogues_line_for_the_whole_volume_is_read_against_the_collection`.
+

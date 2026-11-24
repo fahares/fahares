@@ -350,7 +350,7 @@ class CollectionsTest extends TestCase
         try {
             // the collection's fields are fields of each of its treatises, and of no copy outside a collection
             $fields = \App\Suggestions\SuggestionRegistry::recordFields(Manuscript::find($silent));
-            $this->assertSame(['collection_binding', 'collection_dimensions', 'collection_paper', 'collection_script_names', 'collection_lines'], array_values(array_filter(array_keys($fields), fn ($f) => str_starts_with($f, 'collection_'))));
+            $this->assertSame(['collection_binding', 'collection_dimensions', 'collection_folios', 'collection_paper', 'collection_script_names', 'collection_lines'], array_values(array_filter(array_keys($fields), fn ($f) => str_starts_with($f, 'collection_'))));
             $alone = $this->copy($library, '4825');
             $this->assertNull(\App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($alone), 'collection_binding'));
             $direct($alone, 'collection_binding', 'میشن')->assertStatus(422);
@@ -394,6 +394,42 @@ class CollectionsTest extends TestCase
         } finally {
             \App\Models\AuditLog::where('auditable_type', Manuscript::class)->whereIn('auditable_id', $this->manuscripts)->delete();
         }
+    }
+
+    public function test_a_catalogues_line_for_the_whole_volume_is_read_against_the_collection()
+    {
+        $library = $this->library();
+        $one = $this->copy($library, '649/1', ['dimensions' => '11×18سم', 'folios' => 30]);
+        $two = $this->copy($library, '649/2', ['dimensions' => '11×18سم', 'folios' => 12]);
+        Collections::sync([$one, $two]);
+        $volume = $this->collectionOf($one);
+        $line = fn () => (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 649 )\nرساله اول تا هفتم تاریخ کتابت ندارد.\n212 برگ، 11 × 18");
+        $comparer = new \App\Sources\FirstHand\CopyLineComparer();
+
+        // the size is the collection's and agrees; the 212 leaves are the volume's, never the treatise's 30
+        $result = $comparer->compare($line(), Manuscript::find($one));
+        $this->assertEqualsCanonicalizing(['shelfmark', 'collection_dimensions'], $result['confirmed']);
+        $this->assertSame([['collection_folios', '212', null]], array_map(fn ($c) => [$c['field'], $c['value'], $c['current']], $result['claims']));
+
+        // accepted as the collection's leaves (the claim's suggestion writes the collection's record): confirmed from then on
+        $field = \App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($one), 'collection_folios');
+        (new \App\Suggestions\SuggestionApplier())->apply(Manuscript::find($one), $field, ['applied_value' => '۲۱۲']);
+        $this->assertSame([212, 'editor', 30], [$volume->fresh()->folios, $volume->fresh()->basis['folios'], (int) DB::table('manuscripts')->where('id', $one)->value('folios')]);
+        $this->assertEqualsCanonicalizing(['shelfmark', 'collection_dimensions', 'collection_folios'], $comparer->compare($line(), Manuscript::find($two))['confirmed']);
+        // the derivation from the treatises leaves the leaves alone
+        Collections::sync([$one, $two]);
+        $this->assertSame(212, $volume->fresh()->folios);
+        $this->get(route('manuscripts.show', Manuscript::find($two)))->assertOk()->assertSee('شمار برگ کل')->assertSee('۲۱۲ برگ');
+
+        // a size that differs is a claim on the collection, not on the treatise
+        $other = (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 649 )\n212 برگ، 14 × 20");
+        $this->assertSame([['collection_dimensions', '11×18سم']], array_map(fn ($c) => [$c['field'], $c['current']], $comparer->compare($other, Manuscript::find($one))['claims']));
+
+        // a treatise alone in its volume: the line's size is still read against the treatise, as before
+        $alone = $this->copy($library, '650/1', ['dimensions' => '11×18سم']);
+        Collections::sync([$alone]);
+        $single = (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 650 )\n40 برگ، 11 × 18");
+        $this->assertEqualsCanonicalizing(['shelfmark', 'dimensions'], $comparer->compare($single, Manuscript::find($alone))['confirmed']);
     }
 }
 
