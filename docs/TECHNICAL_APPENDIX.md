@@ -13855,4 +13855,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` جلدهای #۹۳، #۹۴، #۹۷ و #۳۸۹ را «update» نشان داد.
 - **ارجاع‌ها در بازه:** ۷۴۵ از ۷۴۵، ۷۸۰ از ۷۸۰، ۷۶۱ از ۷۶۲ و ۷۹۲ از ۷۹۲.
 - **پس از انتشار، به ترتیب:** فرستادن با `C=marashi N=4 send.sh`، پشتیبان چهار ردیف `catalog_volumes` و `source_volumes`، سپس `catalogs:set-facsimiles`.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵):**
+  - `C=marashi N=4 send.sh`: دور دوم «missing 0 of 19408» داد. مالک پوشه‌های v29، v30، v33 و v38 `ubuntu:ubuntu` و سطح دسترسی ۷۷۵ شد. شمار برگه‌ها ۷۸۳، ۹۱۰، ۹۵۸ و ۸۵۳ است.
+  - پشتیبان چهار ردیف (همه با `facsimile_code` تهی): `../fahares-sources/backups/step13/before_step14_373_set_facsimiles_20261124_2056.json` (md5 `71dec028…`).
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: «4 updated». اجرای خشک بعدی «0 created, 0 updated, 251 unchanged» داد.
+  - سنجش: نسخه‌های ۱۷۷۹۱۲ (ج ۲۹ ص ۴۰۰)، ۱۸۳۹۹۳ (ج ۳۰)، ۲۵۱۵۰۵ (ج ۳۳)، ۶۴۸۷۹ (ج ۳۸) و ۱۱۳۹۷۵ (ج ۲۹ ص ۱۰۱) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
+  - پوشش روی `fahares_prod`، پس از همگام کردن همین دو گام: ۲۳۲٬۹۴۱ از ۳۲۳٬۲۴۹ نسخه (۷۲٫۱٪) ارجاعی با برگۀ دیدنی در بازۀ جلد، بیرون از فنخا، دارند. پیش از این دو گام ۲۲۹٬۷۶۷ (۷۱٫۱٪) بود.
 - **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_370_person_lives_before.jsonl.gz` (۹۱۱ سطر، md5 `f71955ba…`). اجرای آزمایشی و `--apply`: `rawdat` `created 150`، `has_life 13`؛ `mosaffa` `created 200`، `exists 1`، `has_life 17`؛ `mushar_authors` `created 601`، `exists 3`، `has_life 7`؛ اجرای دوم هر سه `created 0`. سطرهای اشخاص: `rawdat` ۱۹۴ (۱۵۰ با `name_llm`، ۱۳۱ با ۹۰ به بالا)، `mosaffa` ۲۹۸ (۲۰۰، ۱۷۷)، `mushar-authors` ۱٬۳۷۰ (۶۰۱، ۴۴۴). پدیدآورندگانِ پیونددار: ۴٬۷۳۳ از ۱۵٬۱۹۹؛ همۀ اشخاص: ۴٬۷۳۷ از ۶۶٬۳۰۳، نشان‌داده ۴٬۱۶۲. سطرها به روش: `name_llm` ۷٬۵۰۴، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحه‌های `/p/67241`، `/p/423` و `/p/147` با کد ۲۰۰ و نام منبع دیده شد.
