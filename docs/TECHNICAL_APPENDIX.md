@@ -13663,3 +13663,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   نوعِ ۱۶۸ تأییدشده را داور اصلاح کرده بود، پس سهمِ «نوع و شهر هر دو درست» از این کمتر است.
 - **کارِ نکرده:** `fahares:propose-life-periods` (اجرای خشک روی پروداکشن): ۸٬۵۹۶ مدخل، ۲٬۲۴۳ پیشنهاد تازه برای ۱٬۱۸۲ نفر (اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱). ثبت و داوری‌شان همان روند گام ۱۴.۳۱۱ را می‌خواهد.
 - **تست:** حالت‌های تازه در `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، `mark-hedged-authors --apply`، `clean-scribe-names --apply`، `link-autograph-scribes --sync-search`.
+
+### گام ۱۴.۳۶۲: مقایسۀ سراسری و آزمون‌های بازگشتی
+
+- **`fankha_v2_db_compare.py` (corpus، کامیت `5e44eda`):** `related_work` و `commentaries_and_glosses` از `WORK_FIELDS` و `V1_WORK` برداشته شد (اکنون سطرهای `work_text_relations` هستند و مقایسه نمی‌شوند). هم‌ترازی آثار v2 با شماره‌های v1 (`align()`) دست نخورد؛ اسکریپت گام ۱۴.۳۴۷ که خودش با پسوند نشانی جفت می‌کرد جداست.
+- **اجرا:** `--out reports/fankha_v2_db_review11` (پوشۀ `reports` در git نیست): `diffs.jsonl` ۷۷٬۴۷۶ سطر، `report.md` و `report.json`.
+- **`tests/test_fankha_v2_cases.py`:** `physical()` یک سطر فیزیکی را با `parse_physical` می‌خواند و `copy()` یک نسخۀ کامل را با `parse_copy`. پنج کلاس: برچسب بی نشانه (۲.۴.۰)، تکۀ ادامۀ فیلد (۲.۵.۰)، کاتبان بعدی (۲.۶.۰)، ویرگول جابه‌جا (۲.۷.۰)، و سطر خود نسخه (۲.۸.۰ و ۲.۹.۰). موردهای وابسته به تصمیم مدل از متن واقعی فنخا گرفته شده‌اند.
+- **`continues()`:** پروندۀ تصمیم‌ها با `with` باز می‌شود (هشدار `ResourceWarning` در آزمون‌ها).
+
