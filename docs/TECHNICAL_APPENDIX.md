@@ -13475,3 +13475,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
 - **جدول‌ها:** `library-subjects` و `subject-libraries`.
 - **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، سپس `rebuild-copies` (۳۰)، `import-copy-notes` (۴۳۶ نسخه، ۵۱۴ یادداشت) و `index-note-types --apply`.
+
+### گام ۱۴.۳۴۶: تجزیه‌گر v2.9.0
+
+- **`fahares-corpus/scripts/fankha_parser_v2.py` (کامیت `8790e72`):** در `parse_copy()`، هنگام مرور یادداشت‌های `remark`: `IE_IN_BODY` (`^(آغاز|انجام|پایان|آخر)( نسخه|موجود|کتاب|متن)?: متن`). مقدار اگر با ««» آغاز شود باید با «»» پایان یابد و درست یک جفت گیومه داشته باشد؛ بی گیومه نباید ««»، «»»، برچسب «آغاز/انجام/پایان [N]:» یا آغاز «برابر» داشته باشد. اگر `c[side]` تهی است، مقدار دست‌کم هشت نویسه است و `IE_BARE_PROSE` در آغازش نیست، `{text, same_as_work: false}` می‌شود و یادداشت برداشته می‌شود.
+- **سنجش با ۲.۸.۰ (`scratch/fankha_v2_280`):** ۳۶ نسخه؛ `explicit` ۳۲، `incipit` ۶؛ هیچ فیلد دیگری.
+- **پرونده‌ها:** `fankha_changed_columns_step14_346.json` (۱۸ رکورد: ۶ «انجام» پرشده از `fankha_v2_changed_columns_export.py`، و ۱۲ برش آغاز یا انجام با همان روش گام ۱۴.۳۳۸)؛ `copy_notes_step14_346.jsonl.gz` (۳۷ سطر).
+- **تمرین روی `fahares_prod`:** `rebuild-copies` «write 18» و سپس «already 18»؛ `import-copy-notes` «changed 36, same 1» و سپس «same 37».
+
