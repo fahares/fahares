@@ -39,6 +39,40 @@ class ManuscriptController extends Controller
         ]);
     }
 
+    /**
+     * Places a treatise in another «مجموعه» of its library by hand, or gives it back to the collection its shelfmark
+     * names (backlog item 163, step 14.330): for the volumes two of which stand under one number, and the treatise
+     * whose shelfmark was misread. The collection is found by its number or made; the copy is pinned to it, so the
+     * rule of the shelfmark leaves it there. Undone from the audit log.
+     */
+    public function moveCollection(Request $request, Manuscript $manuscript)
+    {
+        $data = $request->validate(['collection_key' => 'nullable|string|max:100']);
+        $key = trim(strtr((string) ($data['collection_key'] ?? ''), ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']));
+        if (! $manuscript->library_id) {
+            return back()->with('error', 'این نسخه کتابخانۀ شناخته‌ای ندارد.');
+        }
+        $old = $manuscript->only(['collection_id', 'collection_pinned']);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($manuscript, $key, $old, $request) {
+            if ($key === '') {
+                // back to the rule: the hook links it to the collection of its shelfmark, or to none
+                $manuscript->forceFill(['collection_pinned' => false])->save();
+            } else {
+                $collection = \App\Models\ManuscriptCollection::firstOrCreate(['library_id' => $manuscript->library_id, 'key' => $key]);
+                $manuscript->forceFill(['collection_id' => $collection->id, 'collection_pinned' => true])->save();
+            }
+            $new = \Illuminate\Support\Facades\DB::table('manuscripts')->where('id', $manuscript->id)->first(['collection_id', 'collection_pinned']);
+            $new = ['collection_id' => $new->collection_id, 'collection_pinned' => (bool) $new->collection_pinned];
+            if ($new != $old) {
+                \App\Models\AuditLog::create(['user_id' => $request->user()->id, 'auditable_type' => Manuscript::class, 'auditable_id' => $manuscript->id, 'action' => 'verify',
+                    'old_values' => $old, 'new_values' => $new + ['direct_edit' => true], 'ip_address' => $request->ip()]);
+            }
+        });
+        $manuscript->refresh()->searchable();
+
+        return redirect()->route('manuscripts.show', $manuscript)->with('success', $key === '' ? 'نسخه به مجموعۀ شمارۀ خودش بازگشت.' : 'نسخه در مجموعۀ ' . \App\Support\Fa::digits($key) . ' جای گرفت. از لاگ ممیزی بازگرداندنی است.');
+    }
+
     public function store(Request $request, ManuscriptCreator $creator)
     {
         $data = $request->validate($this->rules());

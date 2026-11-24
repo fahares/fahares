@@ -13326,3 +13326,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`ManuscriptNote`:** قلاب `saved` و `deleted` برای یادداشت‌های گروه `provenance`.
 - **آزمون:** `CollectionsTest::test_the_search_finds_a_treatise_by_what_it_reads_from_its_collection`.
 
+### گام ۱۴.۳۳۰: فیلدهای مجموعه در سامانۀ پیشنهاد
+- **`SuggestionRegistry`:** `COLLECTION_PREFIX`، `COLLECTION_FIELDS`، `collectionField($name)` (کلید `collection` در تعریف فیلد)؛ در `recordFields` برای نسخه‌ای که `boundCollection()` دارد؛ `fieldOf` برای نسخۀ بیرون از مجموعه تهی می‌دهد؛ `currentValue` مقدار رکورد مجموعه را.
+- **`SuggestionApplier::applyCollection`:** ستون‌های فیلد (`CollectionValues::columnsOf`) خالی و ستون اصلی نوشته می‌شود، `basis[field] = editor` (یا برداشته با مقدار خالی)، سپس `Collections::derive` و `reindex`. خروجی `old.collection` و `new.collection` با `id`، `field`، `basis` و ستون‌ها. `ProtectedColumns::META_KEYS` کلید `collection` را ستون نسخه نمی‌شمارد.
+- **`AuditLogController` (بازگرداندن):** کلید `collection`: ستون‌ها و مبنای پیشین به رکورد مجموعه برمی‌گردد و `derive` دوباره اجرا می‌شود.
+- **`Admin\ManuscriptController::moveCollection`** (`POST /admin/manuscripts/{id}/collection`، `can:suggestions.direct_edit`): `firstOrCreate` مجموعه با (`library_id`، `key`)، `collection_id` و `collection_pinned` نسخه، و لاگ `verify` با ستون‌های پیشین. قلاب `saved` نسخه با تغییر `collection_id` مجموعۀ ترک‌شده را هم می‌شمارد و می‌سازد.
+- **نما:** `manuscript-collection` (مداد `collection_{field}`، `data-collection-basis`، فرم `data-move-collection` در حالت پیشنهاد)، `show.blade.php` (مداد `collection_script_names` و `collection_lines` کنار «از مجموعه»)، `admin/manuscripts/create` (`data-collection-read`).
+- **آزمون:** `CollectionsTest::test_a_collections_value_is_corrected_from_a_treatises_page_and_a_treatise_is_moved_by_hand`.
+
