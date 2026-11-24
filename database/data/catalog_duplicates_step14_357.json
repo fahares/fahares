@@ -1,0 +1,17 @@
+{
+ "_comment": "Step 14.357 (approved by the user, 3 Azar 1405): the Ayatollah Borujerdi Institute (Qom) held as two libraries. Its catalogue's page images (step 14.320) hang on the second record, and Fankha's 795 copies on the first. Run: php artisan catalogs:merge-duplicates --data=database/data/catalog_duplicates_step14_357.json, then sources:merge-split --group=catalogue-fc87bea439f2,catalogue-60c781631af7 --only.",
+ "libraries": [
+  {
+   "target": "km-mossh-ayh-allh-brogrdy-37",
+   "target_name": "مؤسسه آیة الله بروجردی (قم)",
+   "sources": [
+    {
+     "slug": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+     "name": "مؤسسه حضرت آیة الله العظمی بروجردی (قم)"
+    }
+   ]
+  }
+ ],
+ "volume_fixes": [],
+ "volume_merges": []
+}
