@@ -28,6 +28,16 @@
             جزء دیگری از مجموعۀ
             <a href="{{ route('manuscripts.show', $from) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $fa(trim(($from->libraryRecord?->name ?? $from->library) . ' ' . $from->shelfmark)) }}</a>:
             کتابخانه و شمارۀ مجموعه از همان نسخه آمده است.
+            {{-- what the new treatise will read from the collection if its own fields are left empty (step 14.330) --}}
+            @php
+                $volume = $from->boundCollection();
+                $read = $volume ? array_filter(['خط' => $volume->script_names, 'شمار سطر' => $volume->lines ? $volume->lines . ' سطر' : null,
+                    'کاتب' => $volume->scribe_name ?: $volume->scribe?->name, 'اندازه' => $volume->dimensions, 'کاغذ' => $volume->paper, 'جلد' => $volume->binding]) : [];
+            @endphp
+            @if($read)
+                <span class="block mt-1" data-collection-read>اگر خط، سطر و کاتب را خالی بگذارید، رساله آن‌ها را از مجموعه می‌خواند؛ اندازه، کاغذ و جلد از آنِ مجموعه است و نوشتنش لازم نیست:
+                    {{ $fa(collect($read)->map(fn ($v, $k) => "{$k}: {$v}")->implode(' · ')) }}</span>
+            @endif
         </x-admin.notice>
     @endif
 

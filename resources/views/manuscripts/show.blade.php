@@ -391,7 +391,7 @@
                     {{-- Two fields in one row: each pencil stands by its own value, and the one of an empty «کیفیت خط»
                          comes only in suggestion mode, with its name (a bare second pencil says nothing) --}}
                     <x-ui.meta label="خط">
-                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@elseif($manuscript->inheritsFromCollection('script_names')){{ $volume->script_names }}@if($volume->script_style) <span class="text-muted">({{ $volume->script_style }})</span>@endif <x-manuscript-inherited :manuscript="$manuscript" field="script_names" />@else<span class="text-muted">ثبت نشده</span>@endif
+                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@elseif($manuscript->inheritsFromCollection('script_names')){{ $volume->script_names }}@if($volume->script_style) <span class="text-muted">({{ $volume->script_style }})</span>@endif <x-manuscript-inherited :manuscript="$manuscript" field="script_names" /><x-suggest.field name="collection_script_names" title="پیشنهاد اصلاح خط همۀ مجموعه" aria-label="پیشنهاد اصلاح خط همۀ مجموعه" />@else<span class="text-muted">ثبت نشده</span>@endif
                         <x-suggest.field name="script_names" class="ms-1" />
                         @if($manuscript->script_style)
                             <span class="text-muted ms-1">({{ $manuscript->script_style }})</span>
@@ -428,7 +428,7 @@
                         </dd>
                     </div>
                     <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines && ! $manuscript->inheritsFromCollection('lines')">
-                        @if($manuscript->inheritsFromCollection('lines')){{ Fa::digits($volume->lines_raw ?: $volume->lines . ' سطر') }} <x-manuscript-inherited :manuscript="$manuscript" field="lines" />@elseif($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
+                        @if($manuscript->inheritsFromCollection('lines')){{ Fa::digits($volume->lines_raw ?: $volume->lines . ' سطر') }} <x-manuscript-inherited :manuscript="$manuscript" field="lines" /><x-suggest.field name="collection_lines" title="پیشنهاد اصلاح شمار سطر همۀ مجموعه" aria-label="پیشنهاد اصلاح شمار سطر همۀ مجموعه" />@elseif($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                     {{-- The size, the paper and the binding of a treatise in a «مجموعه» are the volume's: they stand in its
                          section below (x-manuscript-collection; backlog item 163, step 14.324) --}}

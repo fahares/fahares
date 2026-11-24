@@ -46,9 +46,11 @@
                         $only = ($basis[$field] ?? null) === \App\Support\CollectionValues::SINGLE ? $siblings->first(fn ($m) => filled($m->{$field})) : null;
                         $differs = filled($value) && filled($mine) && ! str_contains((string) $folded($value), (string) $folded($mine));
                     @endphp
-                    <x-ui.meta :label="$label" :field="$field" :empty="blank($value) && blank($mine)">
+                    {{-- the pencil corrects the collection's value, for all its treatises (step 14.330) --}}
+                    <x-ui.meta :label="$label" :field="\App\Suggestions\SuggestionRegistry::COLLECTION_PREFIX . $field" :empty="blank($value) && blank($mine)">
                         @if(filled($value))
                             {{ $show($value) }}
+                            @if(($basis[$field] ?? null) === 'editor')<span class="block text-[12px] text-muted" data-collection-basis="editor">به تصحیح ویراستار، برای همۀ مجموعه.</span>@endif
                             @if($only)<span class="block text-[12px] text-muted">تنها در مدخل {{ $only->is($manuscript) ? 'همین رساله' : 'رسالۀ ' . \App\Support\Fa::digits($only->shelfmark) }} آمده است.</span>@endif
                             @if($differs)<span class="block text-[12px] text-muted" data-own-entry="{{ $field }}">در مدخل این رساله: {{ $show($mine) }}</span>@endif
                         @else
@@ -109,6 +111,19 @@
         @endif
     </x-ui.section>
 @endif
+{{-- For the reviewers: the treatise placed in another collection of its library by hand, or given back to the
+     collection its shelfmark names (backlog item 163, step 14.330) --}}
+@can('suggestions.direct_edit')
+    @if($manuscript->library_id)
+        <form method="POST" action="{{ route('admin.manuscripts.collection', $manuscript->id) }}" class="text-xs flex flex-wrap items-center gap-2" x-show="$store.suggest.on" x-cloak data-move-collection>
+            @csrf
+            <label for="move-collection-key" class="font-bold text-ink">{{ $manuscript->collection_pinned ? 'این رساله دستی در این مجموعه گذاشته شده است. مجموعۀ دیگر:' : 'انتقال این رساله به مجموعۀ دیگر همین کتابخانه:' }}</label>
+            <input type="text" name="collection_key" id="move-collection-key" dir="ltr" maxlength="100" placeholder="شمارۀ مجموعه" class="w-32 border border-line bg-surface px-2 py-1">
+            <button type="submit" class="font-bold text-cinnabar hover:underline cursor-pointer">انتقال</button>
+            @if($manuscript->collection_pinned)<button type="submit" name="collection_key" value="" class="text-muted hover:text-cinnabar hover:underline cursor-pointer">بازگشت به مجموعۀ شمارۀ نسخه</button>@endif
+        </form>
+    @endif
+@endcan
 {{-- For those who may make a copy's record (backlog item 149): another treatise of this copy's volume --}}
 @can('manuscripts.create')
     <p class="text-xs" data-add-sibling>

@@ -305,6 +305,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit');
 
     // A copy's record made from the panel: a treatise the catalogues do not list (backlog item 149)
+    // A treatise placed in another «مجموعه» by hand (backlog item 163, step 14.330)
+    Route::post('/manuscripts/{manuscript}/collection', [\App\Http\Controllers\Admin\ManuscriptController::class, 'moveCollection'])
+        ->whereNumber('manuscript')->middleware('can:suggestions.direct_edit')->name('manuscripts.collection');
     Route::middleware('can:manuscripts.create')->controller(\App\Http\Controllers\Admin\ManuscriptController::class)->group(function () {
         Route::get('/manuscripts/create', 'create')->name('manuscripts.create');
         Route::post('/manuscripts', 'store')->name('manuscripts.store');

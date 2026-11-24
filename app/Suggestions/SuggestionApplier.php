@@ -3,6 +3,7 @@
 namespace App\Suggestions;
 
 use App\Helpers\TextNormalizer;
+use App\Models\Manuscript;
 use App\Models\ManuscriptNote;
 use App\Models\SourceEntry;
 use App\Models\Person;
@@ -48,6 +49,11 @@ class SuggestionApplier
             $record->load('notes')->searchable();
 
             return $result;
+        }
+
+        // A field of the copy's «مجموعه» lives in the collection's record (step 14.330)
+        if (isset($field['collection'])) {
+            return $this->applyCollection($record, $field, $value);
         }
 
         switch ($field['input']) {
@@ -285,6 +291,41 @@ class SuggestionApplier
         $note->update(['text' => $value, 'typed_by' => 'editor']);
 
         return ['old' => ['notes' => $old], 'new' => ['notes' => ['id' => $note->id, 'text' => $value]], 'resolution' => ['note_id' => $note->id]];
+    }
+
+    /**
+     * A value of the copy's «مجموعه» (backlog item 163, step 14.330): written to the collection's record with the
+     * basis «editor», so the derivation from the treatises leaves it alone; an emptied value gives the field back to
+     * the derivation. The treatises that read the collection are found again and sent to the search index.
+     */
+    private function applyCollection(Model $record, array $field, ?string $value): array
+    {
+        $collection = $record instanceof Manuscript ? $record->boundCollection() : null;
+        if (! $collection) {
+            throw new InvalidArgumentException('این نسخه در مجموعه‌ای نیست.');
+        }
+        $column = $field['collection'];
+        if ($column === 'lines' && $value !== null && (! ctype_digit($value = $this->latinDigits($value)) || (int) $value < 1 || (int) $value > 200)) {
+            throw new InvalidArgumentException('شمار سطر باید عددی میان ۱ و ۲۰۰ باشد.');
+        }
+        $columns = \App\Support\CollectionValues::columnsOf($column);
+        $old = ['id' => $collection->id, 'field' => $column, 'basis' => $collection->basis[$column] ?? null] + $collection->only($columns);
+        $basis = $collection->basis ?? [];
+        if ($value === null) {
+            unset($basis[$column]);
+        } else {
+            $basis[$column] = 'editor';
+        }
+        // the hand's style and the lines' wording are the treatises': an editor's value stands alone
+        $collection->forceFill(array_fill_keys($columns, null) + ['basis' => $basis ?: null])->forceFill([$column => $column === 'lines' && $value !== null ? (int) $value : $value])->save();
+        \App\Support\Collections::derive([$collection->id]);
+        \App\Support\Collections::reindex([$collection->id]);
+        $collection->refresh();
+        $record->setRelation('collection', $collection);
+
+        return ['old' => ['collection' => $old],
+            'new' => ['collection' => ['id' => $collection->id, 'field' => $column, 'basis' => $collection->basis[$column] ?? null] + $collection->only($columns)],
+            'resolution' => ['collection_id' => $collection->id]];
     }
 
     private function resolvePerson(Model $record, array $field, ?string $name, array $input): array
