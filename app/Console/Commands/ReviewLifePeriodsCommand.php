@@ -22,11 +22,15 @@ use Illuminate\Console\Command;
  * rejected, so that it is not proposed again. A decision on a row that is no longer a waiting proposal is skipped: a
  * reviewer's word is never overwritten. Every change is
  * written to the audit log under the person, like a reviewer's own. Without --apply the command only counts.
+ *
+ * A decision may name the row it was made for, «person_id» and «city» (step 14.374): the proposals of that step were
+ * judged on a copy before they were filed on production, so their ids were foreseen, not read. A decision whose person
+ * or city is not the row's is counted as «mismatch» and left alone.
  */
 class ReviewLifePeriodsCommand extends Command
 {
     protected $signature = 'fahares:review-life-periods
-        {file : JSON array of decisions: id, verdict (approve|reject), place, kind, year, year_is (in|from), reason}
+        {file : JSON array of decisions: id, verdict (approve|reject), place, kind, year, year_is (in|from), reason, and person_id and city to check the row by}
         {--apply : Write the decisions; without it the command only counts}';
 
     protected $description = 'Apply reviewed decisions on the proposed periods of people\'s lives';
@@ -40,7 +44,7 @@ class ReviewLifePeriodsCommand extends Command
             return self::FAILURE;
         }
         $apply = (bool) $this->option('apply');
-        $counts = ['approve' => 0, 'reject' => 0, 'skipped' => 0, 'with_year' => 0, 'bad' => 0];
+        $counts = ['approve' => 0, 'reject' => 0, 'skipped' => 0, 'mismatch' => 0, 'with_year' => 0, 'bad' => 0];
         $kinds = [];
         $noDate = array_fill_keys(array_keys((new DateSpan(null, null))->columns('period')), null);
         foreach ($decisions as $decision) {
@@ -52,6 +56,12 @@ class ReviewLifePeriodsCommand extends Command
             $period = PersonPeriod::find((int) $decision['id']);
             if ($period === null || $period->status !== PersonPeriod::PROPOSED) {
                 $counts['skipped']++;
+                continue;
+            }
+            // the row the decision was made for: an id foreseen on a copy may be another row here
+            if ((isset($decision['person_id']) && (int) $decision['person_id'] !== (int) $period->person_id)
+                || (isset($decision['city']) && (string) $decision['city'] !== (string) $period->city)) {
+                $counts['mismatch']++;
                 continue;
             }
             $old = $period->toArray();

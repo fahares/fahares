@@ -250,6 +250,27 @@ class PersonPeriodsTest extends TestCase
         $this->actingAs($this->admin)->post(route('admin.people.periods.store', $person->id), ['kind' => 'residence', 'place' => 'کاشان', 'mode' => 'point'])->assertRedirect()->assertSessionHasNoErrors();
     }
 
+    public function test_a_decision_made_for_another_person_or_city_is_left_alone()
+    {
+        $person = $this->person('شخص آزمایشی تطبیق تصمیم');
+        $proposal = fn (string $kind, string $place) => PersonPeriod::create(
+            ['person_id' => $person->id, 'kind' => $kind, 'place' => $place, 'status' => PersonPeriod::PROPOSED, 'origin' => 'machine']);
+        [$right, $otherPerson, $otherCity] = [$proposal('residence', 'نجف'), $proposal('study', 'قم'), $proposal('death', 'تهران')];
+        $file = storage_path('framework/testing-period-decisions-match.json');
+        file_put_contents($file, json_encode([
+            ['id' => $right->id, 'person_id' => $person->id, 'city' => 'نجف', 'verdict' => 'approve', 'place' => 'النجف'],
+            ['id' => $otherPerson->id, 'person_id' => $person->id + 1, 'city' => 'قم', 'verdict' => 'approve', 'place' => 'قم'],
+            ['id' => $otherCity->id, 'person_id' => $person->id, 'city' => 'اصفهان', 'verdict' => 'reject'],
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:review-life-periods', ['file' => $file, '--apply' => true])->expectsOutputToContain('mismatch')->assertSuccessful();
+        unlink($file);
+
+        $this->assertSame(['approved', 'النجف'], array_values($right->fresh()->only(['status', 'place'])));
+        $this->assertSame(PersonPeriod::PROPOSED, $otherPerson->fresh()->status);
+        $this->assertSame(PersonPeriod::PROPOSED, $otherCity->fresh()->status);
+    }
+
     public function test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none()
     {
         $row = fn (Person $person, string $kind, int $year, string $status = PersonPeriod::APPROVED) => PersonPeriod::create(
