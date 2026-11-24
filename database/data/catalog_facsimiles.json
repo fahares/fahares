@@ -4916,6 +4916,29 @@
      "step": "14.354"
     }
    }
+  },
+  {
+   "library_slug": "kashan-mdrsh-sltany-67",
+   "volume_number": 1,
+   "create": {
+    "title": "یادبود: فهرست کتب خطی کتابخانه مدرسه سلطانی کاشان",
+    "edition_label": "۱۳۵۰"
+   },
+   "facsimile_code": "kashan-soltani",
+   "page_first": 6,
+   "page_last": 47,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "kashan-soltani/soltani-1350.pdf"
+     ],
+     "leaf_maps": [
+      "kashan-soltani/kashan-soltani.map.json"
+     ],
+     "note": "داکی‌باکس 1276469؛ اداره فرهنگ و هنر کاشان، انجمن کتابخانه‌های عمومی، ۱۳۵۰؛ ص ۹، ۱۰، ۱۵ و ۱۶ (مدخل‌های ۳۳ تا ۵۴ و ۹۳ تا ۱۱۱) در اسکن نیست؛ برگ‌های ۱۸ تا ۲۱ تکرار ص ۲۳، ۲۴، ۱۷ و ۱۸ است",
+     "step": "14.365"
+    }
+   }
   }
  ]
 }

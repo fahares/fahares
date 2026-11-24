@@ -35,6 +35,7 @@ class CatalogReferenceController extends Controller
         'shelfmark_single_page' => 'شماره، عنوان نزدیک',
         'shelfmark_only' => 'فقط شماره',
         'ambiguous' => 'مبهم',
+        'llm_copy' => 'مدل زبانی: اثر و تاریخ',
     ];
 
     public function index(Request $request)

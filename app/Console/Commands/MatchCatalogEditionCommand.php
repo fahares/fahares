@@ -9,6 +9,7 @@ use App\Sources\Extractors\Extractors;
 use App\Sources\Extractors\NumberedCatalogueExtractor;
 use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -42,12 +43,20 @@ use Illuminate\Support\Facades\DB;
  * Each match also keeps the printed text (backlog item 60, texts()): entry_text, the entry or treatise, and copy_text,
  * the copy's own line or the composite volume's closing notes. --texts fills them for every reference of the edition,
  * reviewed ones too, at the address it has, and changes nothing else.
+ *
+ * --matches reads the matches from a JSON Lines file instead of finding them in page texts (step 14.365): a printing
+ * whose shelf numbers are not the copies' («شماره کتاب ۲/۱۵۱» of the 1350 Soltani list of Kashan), matched by a
+ * language model on work, author and copying date. Each line is {manuscript_id, shelfmark, page, entry_number,
+ * heading, text, confidence, note}; a line whose copy is not of the edition's library, or whose shelfmark is not the
+ * copy's (ids differ between copies of the database), is skipped. The rows are written as any match (method llm_copy),
+ * so reviewed ones stay.
  */
 class MatchCatalogEditionCommand extends Command
 {
     protected $signature = 'catalogs:match-edition
         {edition : facsimile_code of the edition (catalog_volumes row)}
-        {pages : Directory of page JSON files, or a .jsonl / .jsonl.gz file, with "page" and "text"}
+        {pages? : Directory of page JSON files, or a .jsonl / .jsonl.gz file, with "page" and "text"}
+        {--matches= : JSON Lines file of matches made elsewhere (a language model), in place of pages}
         {--volume= : Volume number of the edition, when the code has several}
         {--texts : Only fill entry_text and copy_text of every reference of the edition, at the address it has}
         {--dry-run : Report the counts without saving anything}
@@ -65,6 +74,9 @@ class MatchCatalogEditionCommand extends Command
     public const METHOD_SHELFMARK_ONLY = 'shelfmark_only';
 
     public const METHOD_AMBIGUOUS = 'ambiguous';
+
+    /** A match a language model made on work, author and date (--matches) */
+    public const METHOD_MODEL = 'llm_copy';
 
     /** A match confirmed by its title: shelfmark_title, or shelfmark_single_page from a similarity of 0.5 up. */
     public static function confirmed(string $method, int $confidence): bool
@@ -92,7 +104,10 @@ class MatchCatalogEditionCommand extends Command
             return self::FAILURE;
         }
         $edition = $editions[0];
-        $pages = self::readPages($this->argument('pages'));
+        if ($this->option('matches')) {
+            return $this->importMatches($edition, $this->option('matches'));
+        }
+        $pages = self::readPages((string) $this->argument('pages'));
         if (! $pages) {
             $this->error('No page texts found in ' . $this->argument('pages'));
 
@@ -506,6 +521,53 @@ class MatchCatalogEditionCommand extends Command
         usort($places, fn ($a, $b) => [($a['part'] ?? $part) !== $part, $a['page'] !== $ref->shelfmark_page] <=> [($b['part'] ?? $part) !== $part, $b['page'] !== $ref->shelfmark_page]);
 
         return $places[0] ?? null;
+    }
+
+    /** --matches: the matches of a file, checked against the copies of the edition's library, written as any match. */
+    private function importMatches(SourceVolume $edition, string $path): int
+    {
+        if (! is_file($path)) {
+            $this->error("No such file: {$path}");
+
+            return self::FAILURE;
+        }
+        $rows = array_values(array_filter(array_map(fn ($l) => json_decode($l, true), file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES))));
+        $copies = DB::table('manuscripts')->where('library_id', $edition->source?->library_id)
+            ->whereIn('id', array_column($rows, 'manuscript_id'))->pluck('shelfmark', 'id');
+        $stats = ['lines' => count($rows), 'not of the library' => 0, 'shelfmark differs' => 0, self::METHOD_MODEL => 0];
+        $matches = [];
+        foreach ($rows as $row) {
+            $shelfmark = $copies[$row['manuscript_id']] ?? null;
+            if ($shelfmark === null) {
+                $stats['not of the library']++;
+
+                continue;
+            }
+            if ((string) $shelfmark !== (string) $row['shelfmark']) {
+                $stats['shelfmark differs']++;
+
+                continue;
+            }
+            $stats[self::METHOD_MODEL]++;
+            $matches[] = [
+                'manuscript_id' => (int) $row['manuscript_id'],
+                'page_start' => (int) $row['page'], 'page_end' => (int) $row['page'], 'shelfmark_page' => (int) $row['page'],
+                'entry_number' => isset($row['entry_number']) ? (int) $row['entry_number'] : null,
+                'raw_text' => mb_substr(trim(($row['heading'] ?? '') . "\n" . ($row['text'] ?? '')), 0, 1000),
+                'entry_text' => trim(($row['heading'] ?? '') . "\n" . ($row['text'] ?? '')) ?: null,
+                'copy_text' => null,
+                'match_method' => self::METHOD_MODEL,
+                'confidence' => min(100, (int) ($row['confidence'] ?? 80)),
+                'notes' => $row['note'] ?? null,
+            ];
+        }
+        $dry = (bool) $this->option('dry-run');
+        $write = $matches ? $this->write($edition, $matches, $dry) : [];
+        $this->table(['', 'count'], collect($stats + $write)->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
+        $dry && $this->warn('Dry run: nothing is saved.');
+        $dry || Cache::forget('sources:shelf');
+
+        return self::SUCCESS;
     }
 
     private function write(SourceVolume $edition, array $matches, bool $dry): array
