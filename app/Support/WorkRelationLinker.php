@@ -266,7 +266,7 @@ class WorkRelationLinker
         $count = [];
         // The catalogue's entries, which since step 14.285 are rows of work_text_relations (WorkCatalogueEntries) and
         // no longer two fields of the work: a row of «وابسته به» is one entry, a line of «شروح و حواشی» may hold several.
-        $texts = DB::table('work_text_relations')->where('source', WorkCatalogueEntries::SOURCE)->where('type', '<>', WorkCatalogueEntries::NOTE)
+        $texts = DB::table('work_text_relations')->where('source', WorkCatalogueEntries::SOURCE)->whereNotIn('type', WorkCatalogueEntries::NOT_ENTRIES)
             ->select('id', 'work_id', 'side', 'position', 'text')->orderBy('work_id')->orderBy('side', 'desc')->orderBy('position')->orderBy('id');
         $rows = [];
         foreach ($texts->get() as $w) {

@@ -218,7 +218,7 @@ class Work extends Model
         }
         // what the catalogue says the work is made on: its rows of «وابسته به» (WorkCatalogueEntries, step 14.285)
         $related = \Illuminate\Support\Facades\DB::table('work_text_relations')->where('work_id', $this->id)->where('source', \App\Support\WorkCatalogueEntries::SOURCE)
-            ->where('side', 'related')->where('type', '<>', \App\Support\WorkCatalogueEntries::NOTE)->orderBy('position')->orderBy('id')->pluck('text');
+            ->where('side', 'related')->whereNotIn('type', \App\Support\WorkCatalogueEntries::NOT_ENTRIES)->orderBy('position')->orderBy('id')->pluck('text');
         foreach ($related as $text) {
             foreach (\App\Support\WorkRelationParser::parseEntries($text) as $entry) {
                 array_push($titles, ...$entry['titles']);
