@@ -13578,3 +13578,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ردیف آن `library_slug` تهی دارد و به #۷۰۹ «دلیل المخطوطات - جلد 1» می‌خورد.
 - **کنار رفته‌ها:** خزانه‌ها 2118 (رضوی ج ۲) PDF متنی بازتایپ است. خزانه‌ها 2108 (دلیل المخطوطات) هم بازتایپ است. داکی‌باکس 1276469 (کاشان) را فنخا تنها «ف مخ» ارجاع می‌دهد.
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` سه ردیف تازه را «update» نشان داد.
+
+### گام ۱۴.۳۵۶: `fahares:clean-scribe-names`
+
+- **دسته‌بندی (اسکریپت یک‌باره، روی ۱٬۰۶۳ نامزد گام ۱۴.۳۵۱):** به ترتیب: برچسب «کاتب:»/«کا:» (با دونقطه؛ «کاتب دیوان تفرشی» لقب است)؛ خط مؤلف (`(= )?(به خط|بخط|خط)? (خود )?(مؤلف|مصنف|ناظم|شارح|مترجم|جامع|گردآورنده|شاعر|محشی)`)؛ تردیدِ آغاز نام؛ کمانک پایانی پس از بخشی که نام‌مانند است (`namelike`: بی فعل، رقم و نشانه، ۱ تا ۱۴ واژه، نه با آغاز جمله‌وار)؛ تاریخ چسبیده («…، تا: 1152ق»، «…، 1235ق»)؛ توضیح بی کمانک پس از تردید؛ و «متن» تنها با نشانه‌های بی‌ابهام («به خط»، «نونویس»، «نسخه»، «نوشته»، «چند»، «مختلف»، «عصر مؤلف»، «برای»، «شاگرد» و مانند آن). خط مؤلفِ همراه تردید «متن» می‌ماند، چون نسخه برای تردید ستونی ندارد.
+- **پروندۀ تصمیم:** `database/data/scribe_names_step14_356.json`، `{items: [{name, action: rename|text|autograph, kind, new_name?, note?}]}`، ۸۱۷ قلم.
+- **`app/Console/Commands/CleanScribeNamesCommand.php`:** `Person::where('name', …)`؛ کنار می‌رود اگر ردیف `manuscript_people` با نقشی جز کاتب، `work_people`، `works.author_id` یا `catalogers` داشته باشد.
+  - `rename()`: یادداشت به `note` ردیف‌های کاتب او افزوده می‌شود (اگر از پیش در آن نیست)؛ `scribe_name` نسخه‌هایی که همان نام کهنه را دارند؛ `people.name` و `normalized_name`؛ سطر ممیزی شخص. سپس `sameScribe()` و در صورت یافتن، `PersonMerger::merge(…, keepPrintedNames: true)`.
+  - `text()`: ردیف‌ها `person_id` تهی و `name` همان متن؛ `scribe_id` تهی؛ `RecordRemover::remove()` با `redirect_work_id` اثرِ نخستین نسخه.
+  - `autograph()`: ردیف‌ها حذف، `is_autograph = 1`، `scribe_id` تهی، `is_bika = 0`، `scribe_name` تهی اگر همان متن بود؛ سطر ممیزی نسخه؛ حذف شخص.
+  - پایان: `Person::recountMany` و نمایه‌سازی اشخاص و نسخه‌ها.
+- **تمرین روی `fahares_prod`:** «rename 670, text 139, autograph 7, copies 1053, merged 30»؛ ۱۴۶ سطر `remove` و ۳۰ سطر `merge` در ممیزی؛ اجرای دوم «no such person 816».
+- **آزمون:** `tests/Feature/CleanScribeNamesCommandTest.php` (۲ آزمون).
+
