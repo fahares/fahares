@@ -13515,3 +13515,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
 - **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
 
+### گام ۱۴.۳۴۸: `Insights::completeness()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v22`. ثابت `COMPLETENESS`: کلید هر داده با نام و شرط آن. `completeness`: `copies`، `fields` (`key, name, count, share`)، `absent` (`date` و `scribe`: `stated`, `silent`)، `libraries` (`id, key, name, city, count, shares, mean`؛ `insights.completeness_libraries_shown` = ۲۰)، `library_count`، `fullest`، `barest`، `catalogers` (`insights.catalogers_shown`)، `volumes` (`id, title, count, shares, mean`؛ همۀ جلدها)، `min_copies` (`insights.completeness_min_copies` = ۳۰۰).
+- **نما:** `charts/completeness.blade.php`، آخرین نمودار `insights.topics.libraries`. جدول‌های داده: `completeness`، `completeness-libraries`، `completeness-catalogers`، `completeness-volumes`.
+- **آزمون:** `InsightsCompletenessTest`.
+
