@@ -13507,3 +13507,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پرونده‌ها:** `fankha_changed_columns_step14_346.json` (۱۸ رکورد: ۶ «انجام» پرشده از `fankha_v2_changed_columns_export.py`، و ۱۲ برش آغاز یا انجام با همان روش گام ۱۴.۳۳۸)؛ `copy_notes_step14_346.jsonl.gz` (۳۷ سطر).
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 18» و سپس «already 18»؛ `import-copy-notes` «changed 36, same 1» و سپس «same 37».
 
+### گام ۱۴.۳۵۲: `person_lives_step14_352_rayhana.json`
+
+- **صافی (`blocker.py . rayhana`):** ۸٬۱۹۷ مدخل بی‌پیوند؛ `n0 5585`، `skipped 1986`، ۲٬۶۵۵ با نامزد؛ بازیابی روی پیوندهای موجود همان ۸۶٫۴٪ (ریحانه ۳۵ از ۴۳).
+- **`batches.py` و `build.py`:** `POINTER` با «خواهد آمد»، «رجوع شود»، «رجوع نمایند»، «مذکور شد»، «نگارش یافت»؛ ۱٬۹۵۱ مدخل در ۴۰ دسته.
+- **داوری:** ۴۰ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سال‌های به‌حروف و سرعنوان‌های لقبی. ۱٬۲۰۳ پیوند، ۷۴۸ «هیچ‌کدام»؛ ۱٬۲۰۲ شاهد عیناً در متن.
+- **`build.py rayhana 14.352 <file>`:** `person_twice 70`، `dropped_second_entry 73`؛ ۱٬۱۳۰ پیوند: ۹۶۹ با ۹۰ به بالا، ۱۴۶ بین ۸۰ و ۸۹، ۱۵ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 1127`، `exists 3`؛ اجرای دوم `exists 1130`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_352_rayhana.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+
