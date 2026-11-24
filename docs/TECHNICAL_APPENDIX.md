@@ -13366,3 +13366,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
 - **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
 - **آزمون:** `FirstHandReadingTest::test_the_leaves_of_a_whole_volume_are_accepted_by_themselves_where_the_collection_has_none`.
+### گام ۱۴.۳۳۵: تجزیه‌گر v2.8.0
+
+- **`fahares-corpus/scripts/fankha_parser_v2.py` (کامیت `6ca5069`):**
+  - `parse_line_body()`: `PHYS_GROUP_LOOSE` دیگر تنها وقتی `PHYS_GROUP_START` چیزی نیافته آزموده نمی‌شود؛ اگر پیش از آن بنشیند (و پیش از آن «نسخه اصل» نیامده باشد) آغاز سطر فیزیکی است. الگوی «کا = …، (تا:|بی‌تا)» به `PHYS_GROUP_LOOSE` افزوده شد و تکۀ «کا = …» در `parse_physical()` مثل «کاتب = …» خوانده می‌شود.
+  - `parse_copy()`، هنگام پیوستن سطرها: اگر سطر پیشین `IE_BROKEN_HEAD` است («آغاز…: <متن>»، نه «برابر») و در آن `IE_SPLIT` و `BARE_EXPLICIT` نیست، و سطر کنونی `IE_BROKEN_TAIL` دارد («؛ انجام[ نسخه|کتاب|متن][:] <متن>»)، خودش `IE_START` نیست و با برچسب فیزیکی آغاز نمی‌شود، دو سطر یکی می‌شوند.
+- **سنجش با خروجی ۲.۷.۰ (`scratch/fankha_v2_271`):** ۱۰۸ نسخه؛ `explicit` ۶۴، `incipit` ۶۳، `copy_date` ۳۸، `scribes` ۳۶، `copy_description` ۱۱ و `contents_scope` ۵ (که پیش‌تر سطر دوم آغاز را گرفته بودند)، `is_autograph` ۶.
+- **برون‌بری‌ها:** `fankha_v2_changed_columns_export.py --before scratch/fankha_v2_271 --step 14.335` → ۴۶ رکورد (`incipit_text` ۴۶، `explicit_text` ۱)؛ کنار گذاشته: «سایت از پیش دارد» (تاریخ ۳۶، انجام ۱۷، آغاز ۱۴)، «مقدار دیگر» (انجام ۴۲). `fankha_v2_copy_scribes_export.py` → ۳۵ رکورد؛ رکورد «= مؤلف» کنار رفت.
+- **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 7, already 28» و سپس «already 35»؛ `rebuild-copies` «write 46» و سپس «already 46».
+
