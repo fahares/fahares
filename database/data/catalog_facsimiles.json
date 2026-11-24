@@ -1721,17 +1721,19 @@
    "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 6",
    "facsimile_code": "tehran-univ-nashriyye",
    "page_first": 2,
-   "page_last": 650,
+   "page_last": 698,
    "metadata": {
     "facsimile": {
      "files": [
-      "tehran-univ/nashriyye/n06.pdf"
+      "tehran-univ/nashriyye/n06.pdf",
+      "tehran-univ/nashriyye-kh/n06k.pdf"
      ],
      "leaf_maps": [
-      "tehran-univ/n06.map.json"
+      "tehran-univ/n06.map.json",
+      "tehran-univ/n06k.map.json"
      ],
-     "note": "docibox 1292171؛ اسکن تا ص ۶۵۰ است؛ ص ۶۵۱–۶۹۸ (مینوی، ناصری) نیست",
-     "step": "14.178"
+     "note": "docibox 1292171 تا ص ۶۵۰؛ ص ۶۵۱–۶۹۸ از خزانه‌ها 2182 (همان چاپ، اسکن دوصفحه‌ای)",
+     "step": "14.178، 14.332"
     }
    }
   },
@@ -1741,17 +1743,19 @@
    "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 11",
    "facsimile_code": "tehran-univ-nashriyye",
    "page_first": 1,
-   "page_last": 786,
+   "page_last": 1034,
    "metadata": {
     "facsimile": {
      "files": [
-      "tehran-univ/nashriyye/n11.pdf"
+      "tehran-univ/nashriyye/n11.pdf",
+      "tehran-univ/nashriyye-kh/n11k.pdf"
      ],
      "leaf_maps": [
-      "tehran-univ/n11.map.json"
+      "tehran-univ/n11.map.json",
+      "tehran-univ/n11k.map.json"
      ],
-     "note": "docibox 1075508؛ دفتر ۱۱ و آغاز دفتر ۱۲ تا ص ۷۸۶؛ بیشتر ارجاع‌های فنخا (ص ۷۸۷–۱۰۲۶) در اسکن نیست",
-     "step": "14.178"
+     "note": "docibox 1075508 تا ص ۷۸۶؛ ص ۷۸۷–۱۰۳۴ از خزانه‌ها 2187 (همان چاپ، اسکن دوصفحه‌ای)",
+     "step": "14.178، 14.332"
     }
    }
   },
@@ -4776,6 +4780,49 @@
      ],
      "note": "هارد اکسترنال ahamd؛ نگاشت از نمونه‌خوانی هر ده برگ و همۀ برگ‌های مرز",
      "step": "14.320"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 36,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و ششم",
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 456,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/435.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/435.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd (BO29747@36.pdf، سیاه‌وسفید ۳۰۰ dpi، ۵۲۸ برگ)؛ برگ = صفحه؛ نسخه‌های ۱۲۵۰۱ تا ۱۳۵۰۰",
+     "step": "14.333"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-dayrh-almaaarf-20",
+   "volume_number": 2,
+   "create": {
+    "title": "فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم",
+    "edition_label": "۱۳۸۸"
+   },
+   "facsimile_code": "dairat-akasi",
+   "page_first": 1,
+   "page_last": 350,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/519-v2.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/519-v2.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd (Binder2.pdf، ۵۰۹ برگ)؛ احمد منزوی، تهران ۱۳۸۸، از شمارۀ ۱ تا ۵۰۰؛ برگ = صفحه + ۱۷؛ نمایه از ص ۳۵۳ کنار ماند",
+     "step": "14.333"
     }
    }
   }

@@ -99,6 +99,35 @@ class MoveCitedPartTest extends TestCase
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 0 copies.')->assertSuccessful();
     }
 
+    public function test_copies_whose_citation_gives_another_volume_move_to_it()
+    {
+        $library = Library::create(['name' => 'دائرةالمعارف', 'city' => 'تهران', 'slug' => 'dia-mcp-' . uniqid()]);
+        $fankha = Catalog::firstOrCreate(['code' => 'fankha'], ['name' => 'فهرستگان نسخه‌های خطی ایران', 'short_name' => 'فنخا']);
+        $volume = fn (int $n, string $title) => CatalogVolume::create(['title' => "فهرست عکسی آزمایشی - {$title}", 'volume_number' => $n,
+            'library_id' => $library->id, 'catalog_id' => $fankha->id]);
+        $one = $volume(1, 'جلد اول');
+        $two = $volume(2, 'جلد دوم');
+        $work = Work::create(['primary_title' => 'رساله', 'clean_title' => 'رساله', 'slug' => 'work-mcp-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $copy = function (string $shelf, string $citation) use ($library, $work, $one) {
+            $m = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelf, 'catalog_volume_id' => $one->id,
+                'volume_number' => 1, 'page_start' => 1, 'sequence_number' => 1, 'metadata' => ['catalog_citation' => $citation]]);
+            DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $m->id, 'catalog_volume_id' => $one->id, 'raw_text' => $citation,
+                'source' => 'fankha', 'created_at' => now(), 'updated_at' => now()]);
+
+            return $m;
+        };
+        $second = $copy('20', '[عکسی ف: 2 - 57]');
+        $first = $copy('21', '[عکسی ف: 1-358]');
+        SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', [$second->id, $first->id])->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+        $args = ['--library' => $library->slug, '--cited-volume' => 2, '--from' => $one->title, '--to' => $two->title, '--apply' => true];
+
+        $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 1 copies.')->assertSuccessful();
+        $this->assertSame([$two->id, $one->id], [$second->fresh()->catalog_volume_id, $first->fresh()->catalog_volume_id]);
+        $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $second->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->sole();
+        $this->assertSame([$two->id, 57], [$entry->source_volume_id, $entry->page_start]);
+        $this->assertTrue(AuditLog::where('auditable_id', $second->id)->where('new_values->corpus_fix', 'move-cited-part --cited-volume (step 14.333)')->exists());
+    }
+
     public function test_it_stops_when_a_volume_is_not_found()
     {
         $this->artisan('catalogs:move-cited-part', ['--library' => 'nowhere-' . uniqid(), '--volume' => 33, '--part' => 1, '--from' => 'a', '--to' => 'b'])

@@ -421,6 +421,12 @@ class CollectionsTest extends TestCase
         $this->assertSame(212, $volume->fresh()->folios);
         $this->get(route('manuscripts.show', Manuscript::find($two)))->assertOk()->assertSee('شمار برگ کل')->assertSee('۲۱۲ برگ');
 
+        // (a value a catalogue gave with no reviewer has the basis «catalogue»)
+        $field = \App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($one), 'collection_folios');
+        (new \App\Suggestions\SuggestionApplier())->apply(Manuscript::find($one), $field, ['applied_value' => '212', 'collection_basis' => 'catalogue']);
+        $this->assertSame('catalogue', $volume->fresh()->basis['folios']);
+        $this->assertTrue($volume->fresh()->hasOwnData());
+
         // a size that differs is a claim on the collection, not on the treatise
         $other = (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 649 )\n212 برگ، 14 × 20");
         $this->assertSame([['collection_dimensions', '11×18سم']], array_map(fn ($c) => [$c['field'], $c['current']], $comparer->compare($other, Manuscript::find($one))['claims']));

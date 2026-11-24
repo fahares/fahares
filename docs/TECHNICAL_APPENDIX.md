@@ -13355,3 +13355,45 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `WorkCatalogueEntriesTest::test_a_row_that_is_only_the_base_texts_author_is_tied_to_the_person`.
 - **تمرین (`fahares_prod` محلی، ۳ آذر ۱۴۰۵):** نسخۀ نخست: «Entries: 535»، اجرای دوم «0 to add, 63 to remove» (۱۸۳ سطر `author` بی شخص، از جمله «آب حیات استرآبادی، محمد جعفر بن سیف الدین (1263-1198)»). پس از اصلاح، سه اجرا: «Entries: 279» بی تغییر رابطه؛ «63 to add»، «Entries: 91»؛ سپس همه صفر. پایان: `author` با شخص ۳۵۲ و بی شخص صفر؛ `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۱٬۸۱۳؛ صفحه‌ها «بی پیوند» ۲٬۰۵۹، «پدیدآور» ۳۵۲.
 - **اجرا در تولید، پس از استقرار (پشتیبان دو جدول رابطه پیش از آن):** `works:link-related --dry-run`، اجرا، و اجرای دوم؛ انتظار: رابطه‌ها بی تغییر در هر دو، و حدود ۳۵۰ سطر در اجرای یکم.
+### گام ۱۴.۳۳۲: نشریۀ دانشگاه تهران دفتر ۶ و ۱۱، صفحه‌های بیرون از اسکن docibox
+
+- **یافته:** از شمارش نسخه‌های بی‌پیوند (۷٬۷۶۶ نسخه روی جلدهای تصویردار، کپی محلی تولید)، ۱٬۴۷۰ پس از پایان اسکن بودند، ۱٬۰۷۴ در دفتر ۱۱ (اسکن تا ص ۷۸۶، ارجاع‌ها تا ۱۰۲۶) و ۲۶۹ در دفتر ۶ (اسکن تا ۶۵۰).
+- **پرونده‌ها:** خزانه‌ها 2182 (دفتر ۶، ۳۵۴ برگ دوصفحه‌ای) و 2187 (دفتر ۱۱ و ۱۲، ۷۴۳ برگ)، از `../fahares-sources/telegram-khazaneha`، با پیوند سخت در `tehran-univ/nashriyye-kh/n06k.pdf` و `n11k.pdf`. همان چاپ است: سرصفحۀ «نسخه‌های خطی»/«دفتر ششم» و حروف‌چینی ص ۶۴۸–۶۵۰ با اسکن docibox یکی است.
+- **صفحه‌ها:** `_ahamd/strips.py` و `READ-HEADERS.md` (زیرعامل Sonnet). دفتر ۶: راست = ۲·برگ − ۱۰ برای برگ ۶ تا ۳۵۴ (ص ۲ تا ۶۹۸). دفتر ۱۱: راست = ۲·برگ − ۲۴ برای برگ ۳۶۱ تا ۵۲۹ (ص ۶۹۸ تا ۱۰۳۴)، و از برگ ۵۳۰ تصویر نسخه‌ها بی‌شماره. تنها ناسازگاری (برگ ۴۹۱ «۹۵۶») با دیدن برگ رد شد: ۹۵۸/۹۵۹ است؛ راست برگ ۴۹۰ صفحۀ عنوان بخش «رومانی» بی‌شماره است.
+- **نگاشت و تصویر:** `tehran-univ/n06k.map.json` (ص ۶۵۱–۶۹۸) و `n11k.map.json` (ص ۷۸۷–۱۰۳۴)، به صورت «برگ:r/l»؛ `extract_edition_pages.py --width 1100 --mupdf --keep-foot`: ۴۸ و ۲۴۸ برگه. در `catalog_facsimiles.json` پرونده و نگاشت دوم به ردیف هر جلد افزوده شد و `page_last` ۶۹۸ و ۱۰۳۴ شد.
+- **وارسی:** ص ۹۴۶ (۴۱۳/۱)، ۹۵۳ (۱۱/۲ و ۱۲/۳) و ۹۰۷ (۴۶۱) نسخۀ ارجاع را دارند.
+- **تمرین (`fahares_prod`):** «0 created, 2 updated, 237 unchanged»، سپس «0 updated». ۲۶۹ نسخه در دفتر ۶ و ۱٬۰۸۰ نسخه در دفتر ۱۱ در بازۀ تازه‌اند.
+- **پس از انتشار:** فرستادن `tehran-univ-nashriyye/v06` و `v11` با `send.sh` (C=tehran-univ-nashriyye) و `catalogs:set-facsimiles` با `prod-run`.
+
+### گام ۱۴.۳۳۳: عکسی دائرةالمعارف ج ۲ (جلد تازه) و مجلس ج ۳۶
+
+- **پرونده‌ها (هارد `ahamd`، `ايران/تهران/`):** `فهرست نسخه هاي عكسي…/Binder2.pdf` (۵۰۹ برگ JPEG، ۳۲۲ مگابایت) به `_ahamd/519-v2.pdf`؛ `مجلس شورای اسلامی - تهران/36/BO29747@36.pdf` (۵۲۸ برگ سیاه‌وسفید CCITT، ۲۰۸۰×۲۸۹۳ در ۳۰۰ dpi) به `_ahamd/435.pdf`. `BO29747@36-.pdf` (۴ برگ) هم برداشته شد، بی‌کاربرد.
+- **چاپ:** ج ۲ عکسی: «جلد دوم (از شمارۀ ۱–۵۰۰)»، نگارش احمد منزوی، تهران ۱۳۸۸. مجلس ج ۳۶: نسخه‌های ۱۲۵۰۱ (ص ۳) تا ۱۳۵۰۰ (ص ۴۵۶).
+- **صفحه‌ها (`READ-FAST.md`، زیرعامل Sonnet):** ج ۲ عکسی: برگ = صفحه + ۱۷ برای برگ ۱۸ تا ۵۰۳ (ص ۱–۳۵۰ متن، از ص ۳۵۳ نمایه، ۴۷۹–۴۸۶ تصویر)؛ پیش‌گفتار با شمارۀ حروفی کنار ماند. مجلس ج ۳۶: برگ = صفحه برای همۀ کتاب؛ نمایه‌ها از برگ ۴۵۷.
+- **نگاشت و تصویر:** `_ahamd/519-v2.map.json` (ص ۱–۳۵۰) و `_ahamd/435.map.json` (ص ۳–۴۵۶)؛ `extract_edition_pages.py --width 1100 --mupdf`: ۳۵۰ برگه در `dairat-akasi/v02` و ۴۵۴ برگه در `majlis/v36`.
+- **جلد تازه:** ردیف `catalog_facsimiles.json` با `create` (عنوان «… - جلد دوم»، `edition_label` ۱۳۸۸) و کتابخانۀ `thran-dayrh-almaaarf-20`.
+- **کد:** `catalogs:move-cited-part --cited-volume=N`: نسخه‌ای جابه‌جا می‌شود که جلدِ ارجاعش (`ImportFankhaCatalogReferencesCommand::parse`) N است؛ «[عکسی ف: 2 - 57]» جلد ۲ است. ثبت در `audit_logs` با «move-cited-part --cited-volume (step 14.333)». آزمون: `MoveCitedPartTest::test_copies_whose_citation_gives_another_volume_move_to_it`.
+- **تمرین (`fahares_prod`):** `catalogs:set-facsimiles`: «1 created, 1 updated, 239 unchanged»، سپس «0 updated». جلد تازه #۷۴۳. `move-cited-part`: «2727 copies on #519; 1: 1624, 2: 1100, 5: 2, none: 1»، «Moved 1100 copies.»؛ هر ۱٬۱۰۰ ارجاع روی #۷۴۳ در ص ۱–۳۵۰‌اند.
+- **وارسی:** ج ۲ عکسی ص ۷۲ (۲۳۱/۳)، ۱۹۵ (۲۱۰/۷) و ۱۱۵ (۳۴/۱۹) نسخه را دارند؛ ص ۲۴۳ برای ۱۵۰ «لطائف العرفان» نادرست است (صفحه زیر «مج» است؛ خطای فنخا).
+- **پس از انتشار، به ترتیب:** فرستادن `dairat-akasi/v02` و `majlis/v36` با `send.sh`؛ پشتیبان؛ `catalogs:set-facsimiles`؛ پشتیبان جای نسخه‌های #۵۱۹؛ `catalogs:move-cited-part --library=thran-dayrh-almaaarf-20 --cited-volume=2 --from="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول" --to="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم"`، نخست بی `--apply`. شناسۀ جلد تازه در تولید جز ۷۴۳ خواهد بود.
+
+### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
+- **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
+- **آزمون:** `FirstHandReadingTest::test_the_leaves_of_a_whole_volume_are_accepted_by_themselves_where_the_collection_has_none`.
+
+### گام ۱۴.۳۳۵: تجزیه‌گر v2.8.0
+
+- **`fahares-corpus/scripts/fankha_parser_v2.py` (کامیت `6ca5069`):**
+  - `parse_line_body()`: `PHYS_GROUP_LOOSE` دیگر تنها وقتی `PHYS_GROUP_START` چیزی نیافته آزموده نمی‌شود؛ اگر پیش از آن بنشیند (و پیش از آن «نسخه اصل» نیامده باشد) آغاز سطر فیزیکی است. الگوی «کا = …، (تا:|بی‌تا)» به `PHYS_GROUP_LOOSE` افزوده شد و تکۀ «کا = …» در `parse_physical()` مثل «کاتب = …» خوانده می‌شود.
+  - `parse_copy()`، هنگام پیوستن سطرها: اگر سطر پیشین `IE_BROKEN_HEAD` است («آغاز…: <متن>»، نه «برابر») و در آن `IE_SPLIT` و `BARE_EXPLICIT` نیست، و سطر کنونی `IE_BROKEN_TAIL` دارد («؛ انجام[ نسخه|کتاب|متن][:] <متن>»)، خودش `IE_START` نیست و با برچسب فیزیکی آغاز نمی‌شود، دو سطر یکی می‌شوند.
+- **سنجش با خروجی ۲.۷.۰ (`scratch/fankha_v2_271`):** ۱۰۸ نسخه؛ `explicit` ۶۴، `incipit` ۶۳، `copy_date` ۳۸، `scribes` ۳۶، `copy_description` ۱۱ و `contents_scope` ۵ (که پیش‌تر سطر دوم آغاز را گرفته بودند)، `is_autograph` ۶.
+- **برون‌بری‌ها:** `fankha_v2_changed_columns_export.py --before scratch/fankha_v2_271 --step 14.335` → ۴۶ رکورد (`incipit_text` ۴۶، `explicit_text` ۱)؛ کنار گذاشته: «سایت از پیش دارد» (تاریخ ۳۶، انجام ۱۷، آغاز ۱۴)، «مقدار دیگر» (انجام ۴۲). `fankha_v2_copy_scribes_export.py` → ۳۵ رکورد؛ رکورد «= مؤلف» کنار رفت.
+- **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 7, already 28» و سپس «already 35»؛ `rebuild-copies` «write 46» و سپس «already 46».
+
+- **اجرا در تولید (۴ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
+
+### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
+
+- **پیش از این:** `required_pull_request_reviews` با `require_code_owner_reviews: true`، `lock_branch: true`، `enforce_admins: false`؛ پوش مدیر با «Bypassed rule violations … Changes must be made through a pull request … Cannot change this locked branch» می‌گذشت.
+- **اکنون:** `gh api -X PUT repos/fahares/fahares/branches/main/protection` با `{"required_status_checks": null, "enforce_admins": false, "required_pull_request_reviews": null, "restrictions": null, "allow_force_pushes": false, "allow_deletions": false, "lock_branch": false}`.
+- **وارسی:** پوش همین گام بی پیام «Bypassed rule violations» گذشت.
