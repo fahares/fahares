@@ -43,6 +43,7 @@ class InsightsNotes
         'topAuthors' => 'چرا دو فهرست یکی نیستند؟',
         'formats' => 'آیا این همان قطع‌های رقعی و وزیری و رحلی است؟',
         'autographs' => 'آیا هر نسخۀ این شمار به‌راستی خط مؤلف است؟',
+        'anonymous' => 'آیا اثر بی مؤلف یعنی مؤلفش ناشناخته است؟',
     ];
 
     private array $data;
@@ -62,7 +63,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -459,6 +460,35 @@ class InsightsNotes
         return [[
             'فهرست راست مؤلفانی را می‌آورد که بیشترین نسخه به خط خودشان مانده است، با شمار آثاری که نسخۀ خط مؤلف دارند. فهرست چپ کسانی را می‌آورد که خود چند اثر دارند و آثار دیگران را هم کتابت کرده‌اند. نسخه وقتی «به خط مؤلف» شمرده می‌شود که کاتبش یکی از مؤلفان همان اثر باشد، یا فهرست آن را خط مؤلف خوانده و کاتبی جز او ننوشته باشد.',
             'نه همیشه. «خط مؤلف» داوری فهرست‌نگار است و گاه با «گویا» و «ظاهراً» آمده است؛ این شمار چنین تردیدی را جدا نمی‌کند. پیش‌نویس، پاک‌نویس و نسخه‌ای که مؤلف تنها بخشی از آن را نوشته نیز یکسان شمرده شده‌اند. در فهرست دوم، هم‌نامی هم هست: کاتبی که با مؤلفی هم‌نام است شاید به رکورد او پیوند خورده باشد. برای کم کردن این خطا، آن فهرست تنها کسانی را می‌آورد که چند اثر از خود دارند؛ کاتب پرکاری که تنها یک رساله نوشته در آن نیست، هرچند در شمار کل هست.',
+        ], $examples];
+    }
+
+    private function anonymous(): array
+    {
+        $an = $this->data['anonymous'];
+        $examples = [];
+        if ($an['works'] > 0) {
+            $examples[] = 'از ' . self::n($an['works']) . ' اثر این دامنه، ' . self::n($an['nameless']['works']) . ' اثر (' . self::share($an['nameless']['works'], $an['works']) . ') مؤلفی ندارند'
+                . ($an['unlinked'] > 0 ? '؛ ' . self::n($an['unlinked']) . ' اثر دیگر نام مؤلف دارند ولی آن نام رکورد شخص ندارد.' : '.');
+        }
+        $copies = $an['nameless']['copies'] + $an['authored']['copies'];
+        if ($an['nameless']['copies'] > 0 && $copies > 0) {
+            $examples[] = 'آثار بی مؤلف ' . self::n($an['nameless']['copies']) . ' نسخه دارند، یعنی ' . self::share($an['nameless']['copies'], $copies) . ' نسخه‌هایی که اثرشان معلوم است.';
+        }
+        if ($an['nameless']['copied'] > 0 && $an['authored']['copied'] > 0) {
+            $examples[] = self::share($an['nameless']['single'], $an['nameless']['copied']) . ' آثار بی مؤلف تنها یک نسخه دارند، در برابر '
+                . self::share($an['authored']['single'], $an['authored']['copied']) . ' آثار مؤلف‌دار.';
+        }
+        if (count($an['subjects']) > 1) {
+            $high = $an['subjects'][0];
+            $low = $an['subjects'][count($an['subjects']) - 1];
+            $examples[] = 'در میان موضوع‌ها، «' . $high['name'] . '» بیشترین سهم اثر بی مؤلف را دارد (' . self::pct($high['share']) . ' از ' . self::n($high['works']) . ' اثر) و «'
+                . $low['name'] . '» کمترین را (' . self::pct($low['share']) . ').';
+        }
+
+        return [[
+            'فهرست راست سهم آثار بی مؤلف را در آثار هر موضوع نشان می‌دهد، از بیشترین. نمودار چپ همین سهم را در آثاری نشان می‌دهد که کهن‌ترین نسخۀ تاریخ‌دارشان از هر سده است. اثر بی مؤلف اثری است که فهرست برایش نام مؤلفی نیاورده است؛ اثری که نام مؤلف دارد ولی آن نام به رکورد شخصی پیوند نخورده، مؤلف‌دار شمرده شده است.',
+            'نه همیشه. گاه مؤلف به‌راستی ناشناخته است، گاه نسخه آغاز و انجام ندارد و فهرست‌نگار نتوانسته اثر را بشناسد، و گاه نوشته از آغاز مؤلفی به معنای معمول نداشته است، مانند سند، دعا، جُنگ و بیاض. پس سهم بالا در یک موضوع بیشتر از سرشت نوشته‌های آن موضوع می‌گوید تا از کم‌کاری فهرست. سدۀ هر اثر هم سدۀ کهن‌ترین نسخۀ آن است، نه سدۀ تألیف.',
         ], $examples];
     }
 

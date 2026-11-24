@@ -13398,6 +13398,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
 - **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
 
+### گام ۱۴.۳۳۹: `Insights::anonymous()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت آثار ستون `author_named` دارد (`author_name` ناتهی).
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v19`. بی مؤلف = `author_id IS NULL AND author_named = 0`.
+  - `anonymous`: `works`، `nameless` و `authored` (هر کدام `works, copies, single, copied`)، `unlinked`، `subjects` (`id, name, works, anonymous, share`؛ موضوع اصلی، دست‌کم `insights.anonymous_min_works` = ۳۰ اثر، `insights.anonymous_subjects_shown` = ۱۶ موضوع پراثر، چیده از بیشترین سهم)، `centuries` (`century, works, anonymous, share`).
+  - سدۀ اثر، `MIN(c)` از جدول موقت `insights_work_centuries` است: کهن‌ترین نسخه‌ای که تاریخش در یک سده می‌گنجد. اثر بی مؤلف وفات مؤلفی ندارد که با آن تاریخ‌گذاری شود.
+- **نما:** `charts/anonymous.blade.php`، در `insights.topics.works` پس از `unprinted`؛ در دامنۀ یک مؤلف یا یک اثر نمی‌آید.
+- **جدول‌ها:** `anonymous-by-subject` و `anonymous-by-century`.
+- **آزمون:** `InsightsAuthorsFormatsTest::test_works_with_no_author_are_counted_by_subject_and_by_the_century_of_their_oldest_copy`.
+- **سده‌ها (رونوشت محلی، سهم از شمار اثر):** ۴: ۱۲٫۹٪ از ۳۱؛ ۵: ۱۲٫۵٪ از ۸۸؛ ۶: ۱۴٪ از ۵۵۹؛ ۷: ۱۵٫۷٪ از ۱٬۲۸۹؛ ۸: ۲۷٫۱٪ از ۲٬۰۴۱؛ ۹: ۳۰٫۳٪ از ۲٬۹۸۶؛ ۱۰: ۲۸٪ از ۳٬۹۱۶؛ ۱۱: ۳۳٫۳٪ از ۱۰٬۲۲۳؛ ۱۲: ۳۲٪ از ۶٬۶۲۲؛ ۱۳: ۳۲٪ از ۱۸٬۹۳۵؛ ۱۴: ۲۶٫۴٪ از ۸٬۰۶۹.
+
 ### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
 
 - **پیش از این:** `required_pull_request_reviews` با `require_code_owner_reviews: true`، `lock_branch: true`، `enforce_admins: false`؛ پوش مدیر با «Bypassed rule violations … Changes must be made through a pull request … Cannot change this locked branch» می‌گذشت.

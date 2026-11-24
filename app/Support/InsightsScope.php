@@ -169,7 +169,9 @@ class InsightsScope
             ? DB::table('works')->whereIn('id', DB::table(self::COPIES)->whereNotNull('work_id')->distinct()->select('work_id'))
             : $this->conditions(DB::table('works'));
         $works->select(['id', 'author_id', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_place', 'composition_year_hijri'])
-            ->selectRaw("print_info IS NOT NULL AND print_info != '' AS printed");
+            ->selectRaw("print_info IS NOT NULL AND print_info != '' AS printed")
+            // An author the catalogue names, with no record of a person (step 14.339)
+            ->selectRaw("author_name IS NOT NULL AND author_name != '' AS author_named");
         DB::statement('CREATE TEMPORARY TABLE ' . self::WORKS . ' (PRIMARY KEY (id), KEY (author_id)) ' . $works->toSql(), $works->getBindings());
         $this->open = true;
     }

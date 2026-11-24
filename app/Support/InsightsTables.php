@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -220,6 +220,18 @@ class InsightsTables
                 array_map(fn ($r) => [$r['name'], $r['death'], $r['copies'], $r['works'], $r['of_works']], $ag['items'])),
             self::table('مؤلفانی که آثار دیگران را کتابت کرده‌اند', 'author-scribes', [['شخص', 'text'], ['سال درگذشت', 'year'], ['نسخه از آثار دیگران', 'num'], ['نسخه از آثار خود', 'num']],
                 array_map(fn ($r) => [$r['name'], $r['death'], $r['others'], $r['own']], $ag['others'])),
+        ];
+    }
+
+    private function anonymous(): array
+    {
+        $an = $this->data['anonymous'];
+
+        return [
+            self::table('آثار بی مؤلف در هر موضوع', 'anonymous-by-subject', [['موضوع', 'text'], ['اثر', 'num'], ['اثر بی مؤلف', 'num'], ['سهم', 'pct']],
+                array_map(fn ($s) => [$s['name'], $s['works'], $s['anonymous'], $s['share']], $an['subjects'])),
+            self::table('آثار بی مؤلف بر پایۀ سدۀ کهن‌ترین نسخه', 'anonymous-by-century', [['سدۀ هجری', 'year'], ['اثر', 'num'], ['اثر بی مؤلف', 'num'], ['سهم', 'pct']],
+                array_map(fn ($c) => [$c['century'], $c['works'], $c['anonymous'], $c['share']], array_filter($an['centuries'], fn ($c) => $c['works'] > 0))),
         ];
     }
 
