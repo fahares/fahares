@@ -160,7 +160,7 @@ class InsightsScope
         $one = "CAST(REPLACE(SUBSTRING_INDEX(dimensions, '×', 1), '/', '.') AS DECIMAL(6,1))";
         $other = "CAST(REPLACE(TRIM(REPLACE(SUBSTRING_INDEX(dimensions, '×', -1), 'سم', '')), '/', '.') AS DECIMAL(6,1))";
         $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
+            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, cataloger_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
             . "CASE WHEN {$sized} THEN GREATEST({$one}, {$other}) END AS page_height, CASE WHEN {$sized} THEN LEAST({$one}, {$other}) END AS page_width"
         ));
         DB::statement('CREATE TEMPORARY TABLE ' . self::COPIES . ' (PRIMARY KEY (id), KEY (work_id)) ' . $copies->toSql(), $copies->getBindings());

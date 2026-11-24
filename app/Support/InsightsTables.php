@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -251,6 +251,12 @@ class InsightsTables
             self::table('کتابخانه‌ای که هر موضوع در آن بیشترین سهم را دارد', 'subject-libraries', $columns,
                 array_map(fn ($s) => [$s['library']['name'], $s['library']['city'], $s['name'], $s['count'], $s['share'], $s['overall'], $s['ratio']], $ls['subjects'])),
         ];
+    }
+
+    private function catalogers(): array
+    {
+        return [self::table('فهرست‌نگاران پرکار', 'catalogers', [['فهرست‌نگار', 'text'], ['نسخه', 'num'], ['سهم', 'pct'], ['کتابخانه', 'num'], ['جلد فهرست', 'num']],
+            array_map(fn ($r) => [$r['name'], $r['count'], $r['share'], $r['libraries'], $r['volumes']], $this->data['catalogers']['items']))];
     }
 
     private function formats(): array

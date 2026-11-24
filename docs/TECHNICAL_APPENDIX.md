@@ -13483,3 +13483,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
 - **جدول‌ها:** `library-subjects` و `subject-libraries`.
 - **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
+
+### گام ۱۴.۳۴۴: `Insights::catalogers()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون `cataloger_id` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v21`. `catalogers`: `items` (`id, key, name, death, count, share, libraries, volumes`؛ `insights.catalogers_shown` = ۱۵)، `catalogers`، `counted`، `unknown`، `coverage`، `top_five`.
+- **نما:** `charts/catalogers.blade.php`، در `insights.topics.libraries` پس از `sources`. جدول داده: `catalogers`.
+- **آزمون:** `InsightsLibrarySubjectsTest::test_cataloguers_are_ranked_by_the_copies_they_described`.
+- **زمان هر رقم (رونوشت محلی، بار دستگاه ۶ تا ۷):** `open` ۱۳٫۹ ثانیه (ساخت جدول موقت نسخه‌ها بی ستون‌های ابعاد ۸٫۹ تا ۹٫۴ ثانیه و با آن‌ها ۱۳ ثانیه)، `topAuthors` ۱٫۱، `formats` ۴٫۴، `autographs` ۳٫۲، `librarySubjects` ۳٫۵، `catalogers` ۰٫۵؛ برای سنجش: `scribes` ۱٫۳، `sizes` ۱٫۴، `libraries` ۰٫۷.

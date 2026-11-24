@@ -45,6 +45,7 @@ class InsightsNotes
         'autographs' => 'آیا هر نسخۀ این شمار به‌راستی خط مؤلف است؟',
         'anonymous' => 'آیا اثر بی مؤلف یعنی مؤلفش ناشناخته است؟',
         'librarySubjects' => 'آیا موضوع پررنگ، بیشترین نسخه‌های کتابخانه را دارد؟',
+        'catalogers' => 'چرا این آمار به کار خوانندۀ ارقام دیگر می‌آید؟',
     ];
 
     private array $data;
@@ -64,7 +65,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -513,6 +514,28 @@ class InsightsNotes
         return [[
             'جدول نخست برای هر کتابخانه موضوع‌هایی را می‌آورد که سهمشان در نسخه‌های آن کتابخانه بیش از سهمشان در همۀ کتابخانه‌هاست، با همان نسبت. فهرست دوم از سوی دیگر می‌خواند: برای هر موضوع، کتابخانه‌ای که آن موضوع بیشترین سهم را در نسخه‌هایش دارد. روی نام موضوع بزنید تا آمار همان موضوع در همان کتابخانه را ببینید.',
             'نه. موضوع پررنگ موضوعی است که کتابخانه بیش از دیگران از آن دارد، نه موضوعی که بیشترین نسخه‌اش را می‌سازد؛ ادبیات و فقه در بیشتر کتابخانه‌ها پرشمارترین‌اند و برای همین کمتر پررنگ می‌شوند. نسبت در کتابخانۀ کوچک با چند نسخه جابه‌جا می‌شود، پس شمار نسخه را هم ببینید. موضوع هر نسخه موضوع اثر آن است، و نسخه‌ای که اثرش موضوع ندارد در این شمارش نیست.',
+        ], $examples];
+    }
+
+    private function catalogers(): array
+    {
+        $cg = $this->data['catalogers'];
+        $examples = [];
+        if ($first = $cg['items'][0] ?? null) {
+            $examples[] = 'نخستین ردیف ' . $first['name'] . ' است: ' . self::n($first['count']) . ' نسخه (' . self::pct($first['share']) . ' نسخه‌هایی که فهرست‌نگارشان معلوم است)، در '
+                . self::n($first['volumes']) . ' جلد فهرست از ' . self::n($first['libraries']) . ' کتابخانه.';
+        }
+        if ($cg['catalogers'] > 5) {
+            $examples[] = 'پنج فهرست‌نگار نخست روی هم ' . self::pct($cg['top_five']) . ' نسخه‌ها را وصف کرده‌اند، از ' . self::n($cg['catalogers']) . ' فهرست‌نگار این دامنه.';
+        }
+        if ($cg['counted'] > 0) {
+            $examples[] = 'فهرست‌نگار ' . self::n($cg['counted']) . ' نسخه (' . self::pct($cg['coverage']) . ') معلوم است'
+                . ($cg['unknown'] > 0 ? '؛ ' . self::n($cg['unknown']) . ' نسخه فهرست‌نگار ثبت‌شده ندارند.' : '.');
+        }
+
+        return [[
+            'جدول فهرست‌نگارانی را می‌آورد که بیشترین نسخه را وصف کرده‌اند، با شمار کتابخانه‌ها و جلدهای فهرستی که آن نسخه‌ها در آن‌ها آمده‌اند. روی نام بزنید تا صفحۀ فهرست‌نگار را ببینید.',
+            'چون بیشتر ارقام این صفحه از وصف همین کسان برآمده است. وقتی چند فهرست‌نگار بخش بزرگی از نسخه‌ها را وصف کرده‌اند، شیوۀ هر کدام (این که خط، حاشیه یا ابعاد را همیشه می‌نویسد یا نه) بر آمار ویژگی‌ها و خط‌ها اثر می‌گذارد. هر نسخه به نام یک فهرست‌نگار شمرده شده است: فهرست‌نگار همان بخش از جلد، و در جلدی که چند تن با هم نوشته‌اند، نخستین ایشان.',
         ], $examples];
     }
 
