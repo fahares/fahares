@@ -329,6 +329,38 @@ class CatalogReferencesTest extends TestCase
         unlink($pages);
     }
 
+    public function test_matches_made_by_a_model_are_read_from_a_file_and_checked_against_the_library()
+    {
+        $ms = $this->manuscript(['shelfmark' => '364']);
+        $other = Library::create(['name' => 'جعفری', 'city' => 'کاشان', 'slug' => 'jafari-' . uniqid()]);
+        $foreign = $this->manuscript(['shelfmark' => '55', 'library_id' => $other->id]);
+        $moved = $this->manuscript(['shelfmark' => '12']);
+        $path = tempnam(sys_get_temp_dir(), 'matches') . '.jsonl';
+        file_put_contents($path, implode("\n", array_map(fn ($r) => json_encode($r, JSON_UNESCAPED_UNICODE), [
+            ['manuscript_id' => $ms->id, 'shelfmark' => '364', 'page' => 27, 'entry_number' => 210, 'heading' => '۲۱۰- شرح الاجرومیه',
+                'text' => 'تألیف خالد بن عبدالله عربی بخط نسخ تاریخ تحریر ۱۱۴۰ ه.ق. شماره کتاب ۲/۱۲۱', 'confidence' => 80, 'note' => 'same work, year 1140'],
+            ['manuscript_id' => $foreign->id, 'shelfmark' => '55', 'page' => 7, 'entry_number' => 18, 'heading' => '۱۸- اصول', 'text' => '…'],
+            // an id of another copy of the database: its shelfmark is not the one the match was made for
+            ['manuscript_id' => $moved->id, 'shelfmark' => '13', 'page' => 8, 'entry_number' => 26, 'heading' => '۲۶- آیات الاحکام', 'text' => '…'],
+        ])));
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', '--matches' => $path, '--dry-run' => true])->assertSuccessful();
+        $this->assertSame(0, $this->matched()->count());
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', '--matches' => $path])->assertSuccessful();
+
+        $ref = $this->matched()->sole();
+        $this->assertSame([$ms->id, SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED, Matcher::METHOD_MODEL, 80, 27, 210, $this->edition->id],
+            [$ref->citable_id, $ref->origin, $ref->status, $ref->match_method, $ref->confidence, $ref->page_start, $ref->entry_number, $ref->source_volume_id]);
+        $this->assertStringContainsString('شرح الاجرومیه', $ref->entry_text);
+        $this->assertStringContainsString('مدل زبانی', $ref->machineNote());
+
+        // a reviewed match stays as it is, and a second run adds nothing
+        $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', '--matches' => $path])->assertSuccessful();
+        $this->assertSame([1, SourceEntry::STATUS_VERIFIED], [$this->matched()->count(), $ref->fresh()->status]);
+        unlink($path);
+    }
+
     private function writePages(array $pages): string
     {
         $path = tempnam(sys_get_temp_dir(), 'pages') . '.jsonl';
