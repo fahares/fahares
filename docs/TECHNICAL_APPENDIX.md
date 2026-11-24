@@ -13607,3 +13607,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پایان: `Person::recountMany` و نمایه‌سازی اشخاص و نسخه‌ها.
 - **تمرین روی `fahares_prod`:** «rename 670, text 139, autograph 7, copies 1053, merged 30»؛ ۱۴۶ سطر `remove` و ۳۰ سطر `merge` در ممیزی؛ اجرای دوم «no such person 816».
 - **آزمون:** `tests/Feature/CleanScribeNamesCommandTest.php` (۲ آزمون).
+### گام ۱۴.۳۵۷: ادغام بروجردی
+
+- **پیش از ادغام:**
+  - کتابخانۀ #۳۷ `km-mossh-ayh-allh-brogrdy-37` (۷۹۵ نسخه): منبع #۱۰۰۰۹۷ `catalogue-60c781631af7` با جلدهای #۵۳۰ و #۵۳۱، بی‌تصویر.
+  - کتابخانۀ #۳۳۷ `km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337` (۸۷ نسخه): منبع #۱۰۰۱۷۸ `catalogue-fc87bea439f2` با جلدهای #۶۷۴ و #۶۷۵، با کد `borujerdi` و MTIF 23991 و 23992 (گام ۱۴.۳۲۰).
+  - پروندۀ کارت حافظه `8428 - فهرست نسخه های خطی کتابخانه مؤسسه آیة الله بروجردی.pdf` (۲۱۷ برگ، دفتر دوم، برگ = صفحه − ۲۵۰) همان چاپ است و به کار نرفت.
+- **`database/data/catalog_duplicates_step14_357.json`:** فقط همین یک گروه کتابخانه است، تا `volume_fixes` پروندۀ اصلی دوباره اجرا نشود. `LibraryMerger` نسخه‌ها و جلدهای #۳۳۷ را به #۳۷ می‌برد و ادغام را در `audit_logs` ثبت می‌کند.
+- **`sources:merge-split --group=catalogue-fc87bea439f2,catalogue-60c781631af7 --only`:**
+  - کد نخست می‌ماند.
+  - جلد ۱ و ۲ منبع کنارگذاشته (#۵۳۰ و #۵۳۱) هم‌شمارۀ #۶۷۴ و #۶۷۵ هستند. ۴۹۲ و ۳۰۳ مدخل آن‌ها، همراه نسخه‌ها، صفحه‌ها و فهرست‌نگاران، به جلد ماندگار رفتند و جلد کنارگذاشته پاک شد.
+  - کد منبع کنارگذاشته در `metadata.merged_codes` می‌ماند و نشانی‌اش هدایت می‌شود.
+- **`catalog_facsimiles.json`:** `library_slug` دو ردیف `borujerdi` از `…-337` به `km-mossh-ayh-allh-brogrdy-37` تغییر کرد. پس از ادغام، `set-facsimiles` آن‌ها را «unchanged» می‌یابد.
+- **تمرین روی `fahares_prod`:**
+  - `merge-duplicates`: «369 → 368 libraries».
+  - `merge-split`: هر دو جلد ادغام شدند.
+  - پس از آن جلد #۶۷۴ ۵۶۳ نسخه دارد، و همین شمار مدخل و همین شمار `manuscript_catalog_references` (۵۶۰ مدخل در ص ۸ تا ۲۵۳). جلد #۶۷۵ ۳۱۸ نسخه دارد (۳۱۶ در ص ۲۵۶ تا ۴۶۶). هیچ مدخلی روی #۵۳۰ و #۵۳۱ نماند.
+
