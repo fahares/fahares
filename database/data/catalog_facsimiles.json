@@ -2400,6 +2400,42 @@
    }
   },
   {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 36,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و ششم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 847,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v36.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)؛ برگ = صفحه + 1",
+     "step": "14.349"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 37,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و هفتم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 934,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v37.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)؛ برگ = صفحه + 2",
+     "step": "14.349"
+    }
+   }
+  },
+  {
    "library_slug": "thran-sphsalar-22",
    "volume_number": 3,
    "title": "فهرست کتابخانه مدرسه عالی سپهسالار - جلد سوم: کتب خطی آ - ث",

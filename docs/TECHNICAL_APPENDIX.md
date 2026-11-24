@@ -13515,3 +13515,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
 - **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
 
+### گام ۱۴.۳۴۹: مرعشی ج ۳۶ و ۳۷ (نور)
+
+- **منبع:**
+  - `../fahares-sources/marashi/v36.pdf`: ۸۴۸ برگ JPEG، ۶۹۹×۱۰۲۴؛ برگ ۱ برگۀ اطلاعات نور است.
+  - `v37.pdf`: ۹۳۶ برگ، ۷۲۳×۱۰۲۴.
+  - MD5 هر دو در `MD5SUMS` ثبت است.
+  - بقیۀ دانلودها: `v32-pp1-149.pdf`، و در `beyond-fankha/`: `v39-pp1-157.pdf`، `v40`، `v41`، `v42`، `v43-a` و `v43-b-pp502-1040`، `v44-a` و `v44-b-pp504-1034`. فهرست این پوشه در `CONTENTS.txt` است.
+- **نگاشت برگ به صفحه:**
+  - فاصله‌ها ثابت‌اند: ج ۳۶ `--offset 1` و ج ۳۷ `--offset 2`.
+  - سرصفحۀ برگ‌های ۲۰، ۱۲۰، ۴۲۴، ۵۶۰، ۷۹۰ و ۸۴۸ از ج ۳۶ خوانده شد، و برگ‌های ۱۲، ۱۲۰، ۲۲۰، ۳۳۰، ۴۶۸، ۷۰۰، ۷۹۰ و ۹۳۵ از ج ۳۷.
+- **ساخت تصویر:** `extract_edition_pages.py v{36,37}.pdf --code marashi --volume N --offset K --first 1 --last {847,934} --width 723 --mupdf`، با لاگ در `marashi/work/extract_v3{6,7}.log`.
+- **ردیف‌ها:** `km-mraashy-2` با شمارۀ جلد ۳۶ (ص ۱ تا ۸۴۷) و ۳۷ (ص ۱ تا ۹۳۴). `leaf_maps` تهی است.
+- **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
+- **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
+
