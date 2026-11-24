@@ -342,13 +342,16 @@ class SearchFilters
                 // Subqueries on the link tables, not whereHas: the database runs them as one semi-join instead of
                 // a lookup per manuscript (10 s for a subject over 324 000 manuscripts)
                 'work_id' => $query->where('manuscripts.work_id', $value),
-                'scribe_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $value)->select('manuscript_id')),
+                // ...and the treatises that read the scribe, the hand or a provenance note from their «مجموعه», as their
+                // search documents do (CollectionIndex, step 14.329)
+                'scribe_id' => $query->whereIn('manuscripts.id', \App\Support\CollectionIndex::with('scribe', $value,
+                    DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $value)->select('manuscript_id'))),
                 'author_id' => $query->whereIn($this->workKey(), DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $value)->select('work_id')),
                 'subject_id' => $query->whereIn($this->workKey(), DB::table('subject_work')->whereIn('subject_id', $this->subjectFamily()->pluck('id'))->select('work_id')),
                 'language_id' => $query->whereIn($this->workKey(), DB::table('language_work')->where('language_id', $value)->select('work_id')),
                 'library_id' => $query->whereIn('manuscripts.library_id', $value),
                 'city' => $query->where('city', $value),
-                'script_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id')),
+                'script_id' => $query->whereIn('manuscripts.id', \App\Support\CollectionIndex::with('script', $value, DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id'))),
                 'copy_city' => $this->type === 'scribes'
                     ? $scribesOf(fn ($copies) => $copies->whereIn('manuscripts.copy_place', CopyPlaces::variants($value)))
                     : $query->whereIn('copy_place', CopyPlaces::variants($value)),
@@ -356,7 +359,7 @@ class SearchFilters
                 'folios_from' => $query->where('folios', '>=', $value),
                 'folios_to' => $query->where('folios', '<=', $value),
                 'flags' => array_map(fn ($f) => $query->where($f, true), $value),
-                'note_types' => array_map(fn ($t) => $query->whereIn('manuscripts.id', ManuscriptNote::copiesWith($t)), $value),
+                'note_types' => array_map(fn ($t) => $query->whereIn('manuscripts.id', \App\Support\CollectionIndex::with('note', $t, ManuscriptNote::copiesWith($t))), $value),
                 'work_form' => $query->where('work_form', $value),
                 'volume' => $query->where('source_items.volume_number', $value),
                 'source_id' => $this->type === 'sources' ? $query->where('source_items.source_id', $value) : $query->whereExists(fn ($q) => $q->from('source_entries')->whereColumn('source_entries.citable_id', 'works.id')

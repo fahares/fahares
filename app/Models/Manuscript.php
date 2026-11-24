@@ -686,6 +686,9 @@ class Manuscript extends Model
             // The printed catalogue volumes that describe the copy, so a source page's count of a volume's copies
             // links to them (step 13.116)
             'source_volume_ids' => $this->catalogueEntries->pluck('source_volume_id')->map(fn ($id) => (int) $id)->unique()->values()->all(),
+            // What the copy reads from its «مجموعه», over its own hand, lines, scribe, size, paper, binding and note
+            // types above (backlog item 163, step 14.329)
+            ...\App\Support\CollectionIndex::fields($this),
         ];
     }
 
