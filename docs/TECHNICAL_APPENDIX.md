@@ -13341,20 +13341,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`ClaimController::FIELD_LABELS`** و سطر «شمار برگ کل» در `manuscript-collection`.
 - **آزمون:** `CollectionsTest::test_a_catalogues_line_for_the_whole_volume_is_read_against_the_collection`.
 
-### گام ۱۴.۳۳۷: `WorkCatalogueEntries::AUTHOR`، `authorOnly()` و `linked_person_id`
-- **migration `2026_11_24_100001_add_linked_person_to_work_text_relations`:** `linked_person_id` (تهی‌پذیر، کلید خارجی به `people`، `nullOnDelete`) پس از `linked_work_id`.
-- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):**
-  - `AUTHOR = 'author'` و `NOT_ENTRIES = [NOTE, AUTHOR]`.
-  - `authorOnly($text)`: متنِ دارای «؛»، «=» یا گیومه نه. «منسوب به» از آغاز و کمانکِ تاریخ‌دار از پایان برداشته می‌شود (سال وفات: عدد پس از «-»). نام باید «،» یا « بن » یا «(ع)» داشته باشد و کلیدش (`authorKey`) در `people()` باشد. چند شخص: آن که `death_year_hijri`ش سال متن است؛ اگر باز چندتاست، `person = null`. نامِ بی‌تاریخ: فقط با یک شخص و وقتی `works.clean_title` برابر آن نیست.
-  - `people()`: کلید هر نام و نام دیگرِ هر شخص ← `[id => سال وفات]`، نگه‌داشته در `static` و با تغییر `COUNT`، `MAX(id)` یا `MAX(updated_at)` جدول از نو خوانده می‌شود. فقط وقتی سطری از صافی متنی می‌گذرد ساخته می‌شود.
-  - `tie()`: برای هر سطر `related` که پیوندِ تصمیم یا داور ندارد: اگر `authorOnly`، `type = author`، `linked_person_id` و پاک‌شدن پیوند اثر؛ اگر `type = author` بود و دیگر نیست، `type = related` و `linked_person_id = null`. سپس سطرهای `author` از ادامۀ `tie` کنار می‌روند. شمار این تغییرها به خروجی افزوده می‌شود.
-  - `page()`: کلید `authors` (`text`، `person`)؛ این سطرها در `unlinked` نیستند.
-- **[WorkRelationLinker::pairs](../app/Support/WorkRelationLinker.php)** و **[Work::baseTitles](../app/Models/Work.php):** `whereNotIn('type', NOT_ENTRIES)`. صف پنل (`madeOn`) سطر پدیدآور را همچنان در «وابسته به»ی نامزد نشان می‌دهد.
-- **[record-relations](../resources/views/components/record-relations.blade.php):** گروه «پدیدآور متن اصلی» (ترتیب `-1`)؛ مورد با کلید `person`: پیوند `people.show` با متن فهرست، یا متن ساده.
-- **ترتیب در فرمان:** `works:link-related` نخست جفت‌ها را می‌سازد و سپس `tie` سطرها را نشان می‌کند، پس اثر تغییر نوع سطر بر رابطه‌ها در اجرای بعدی دیده می‌شود. با قاعدۀ کنونی هیچ سطرِ `author`ی رابطه نمی‌دهد (رونوشت محلی: ۱۰٬۸۲۷ پیش و پس)، ولی اجرای دوم در پروداکشن برای اطمینان لازم است.
-- **آزمون:** `WorkCatalogueEntriesTest::test_a_row_that_is_only_the_base_texts_author_is_tied_to_the_person`.
-- **تمرین (`fahares_prod` محلی، ۳ آذر ۱۴۰۵):** نسخۀ نخست: «Entries: 535»، اجرای دوم «0 to add, 63 to remove» (۱۸۳ سطر `author` بی شخص، از جمله «آب حیات استرآبادی، محمد جعفر بن سیف الدین (1263-1198)»). پس از اصلاح، سه اجرا: «Entries: 279» بی تغییر رابطه؛ «63 to add»، «Entries: 91»؛ سپس همه صفر. پایان: `author` با شخص ۳۵۲ و بی شخص صفر؛ `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۱٬۸۱۳؛ صفحه‌ها «بی پیوند» ۲٬۰۵۹، «پدیدآور» ۳۵۲.
-- **اجرا در تولید، پس از استقرار (پشتیبان دو جدول رابطه پیش از آن):** `works:link-related --dry-run`، اجرا، و اجرای دوم؛ انتظار: رابطه‌ها بی تغییر در هر دو، و حدود ۳۵۰ سطر در اجرای یکم.
 ### گام ۱۴.۳۳۲: نشریۀ دانشگاه تهران دفتر ۶ و ۱۱، صفحه‌های بیرون از اسکن docibox
 
 - **یافته:** از شمارش نسخه‌های بی‌پیوند (۷٬۷۶۶ نسخه روی جلدهای تصویردار، کپی محلی تولید)، ۱٬۴۷۰ پس از پایان اسکن بودند، ۱٬۰۷۴ در دفتر ۱۱ (اسکن تا ص ۷۸۶، ارجاع‌ها تا ۱۰۲۶) و ۲۶۹ در دفتر ۶ (اسکن تا ۶۵۰).
@@ -13391,6 +13377,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 7, already 28» و سپس «already 35»؛ `rebuild-copies` «write 46» و سپس «already 46».
 
 - **اجرا در تولید (۴ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
+
+### گام ۱۴.۳۳۷: `WorkCatalogueEntries::AUTHOR`، `authorOnly()` و `linked_person_id`
+- **migration `2026_11_24_100001_add_linked_person_to_work_text_relations`:** `linked_person_id` (تهی‌پذیر، کلید خارجی به `people`، `nullOnDelete`) پس از `linked_work_id`.
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):**
+  - `AUTHOR = 'author'` و `NOT_ENTRIES = [NOTE, AUTHOR]`.
+  - `authorOnly($text)`: متنِ دارای «؛»، «=» یا گیومه نه. «منسوب به» از آغاز و کمانکِ تاریخ‌دار از پایان برداشته می‌شود (سال وفات: عدد پس از «-»). نام باید «،» یا « بن » یا «(ع)» داشته باشد و کلیدش (`authorKey`) در `people()` باشد. چند شخص: آن که `death_year_hijri`ش سال متن است؛ اگر باز چندتاست، `person = null`. نامِ بی‌تاریخ: فقط با یک شخص و وقتی `works.clean_title` برابر آن نیست.
+  - `people()`: کلید هر نام و نام دیگرِ هر شخص ← `[id => سال وفات]`، نگه‌داشته در `static` و با تغییر `COUNT`، `MAX(id)` یا `MAX(updated_at)` جدول از نو خوانده می‌شود. فقط وقتی سطری از صافی متنی می‌گذرد ساخته می‌شود.
+  - `tie()`: برای هر سطر `related` که پیوندِ تصمیم یا داور ندارد: اگر `authorOnly`، `type = author`، `linked_person_id` و پاک‌شدن پیوند اثر؛ اگر `type = author` بود و دیگر نیست، `type = related` و `linked_person_id = null`. سپس سطرهای `author` از ادامۀ `tie` کنار می‌روند. شمار این تغییرها به خروجی افزوده می‌شود.
+  - `page()`: کلید `authors` (`text`، `person`)؛ این سطرها در `unlinked` نیستند.
+- **[WorkRelationLinker::pairs](../app/Support/WorkRelationLinker.php)** و **[Work::baseTitles](../app/Models/Work.php):** `whereNotIn('type', NOT_ENTRIES)`. صف پنل (`madeOn`) سطر پدیدآور را همچنان در «وابسته به»ی نامزد نشان می‌دهد.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** گروه «پدیدآور متن اصلی» (ترتیب `-1`)؛ مورد با کلید `person`: پیوند `people.show` با متن فهرست، یا متن ساده.
+- **ترتیب در فرمان:** `works:link-related` نخست جفت‌ها را می‌سازد و سپس `tie` سطرها را نشان می‌کند، پس اثر تغییر نوع سطر بر رابطه‌ها در اجرای بعدی دیده می‌شود. با قاعدۀ کنونی هیچ سطرِ `author`ی رابطه نمی‌دهد (رونوشت محلی: ۱۰٬۸۲۷ پیش و پس)، ولی اجرای دوم در پروداکشن برای اطمینان لازم است.
+- **آزمون:** `WorkCatalogueEntriesTest::test_a_row_that_is_only_the_base_texts_author_is_tied_to_the_person`.
+- **تمرین (`fahares_prod` محلی، ۳ آذر ۱۴۰۵):** نسخۀ نخست: «Entries: 535»، اجرای دوم «0 to add, 63 to remove» (۱۸۳ سطر `author` بی شخص، از جمله «آب حیات استرآبادی، محمد جعفر بن سیف الدین (1263-1198)»). پس از اصلاح، سه اجرا: «Entries: 279» بی تغییر رابطه؛ «63 to add»، «Entries: 91»؛ سپس همه صفر. پایان: `author` با شخص ۳۵۲ و بی شخص صفر؛ `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۱٬۸۱۳؛ صفحه‌ها «بی پیوند» ۲٬۰۵۹، «پدیدآور» ۳۵۲.
+- **اجرا در تولید، پس از استقرار (پشتیبان دو جدول رابطه پیش از آن):** `works:link-related --dry-run`، اجرا، و اجرای دوم؛ انتظار: رابطه‌ها بی تغییر در هر دو، و حدود ۳۵۰ سطر در اجرای یکم.
 
 ### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
 
