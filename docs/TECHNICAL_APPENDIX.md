@@ -13694,6 +13694,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سال:** از ۶۱۴ سالِ تأییدها، رقمِ ۳۴۹ تا در متن بود و ۲۶۵ تا به حروف نوشته شده بود («سنة إحدى و سبعين و ستمائة»)؛ نمونۀ این دسته با متن خوانده شد.
 - **پروندۀ تصمیم‌ها:** ۱٬۹۲۱ ردیف (۱٬۷۴۹ تأیید، ۱۷۲ رد؛ ۵۹۶ سال‌دار). نوعِ تأییدها: اقامت ۵۳۰، وفات ۳۵۷، تولد ۲۳۸، تحصیل ۲۲۸، سفر ۲۲۷، تدریس ۸۵، منصب ۶۶، خاستگاه ۱۸. تکراری‌ها با کلید (شخص، نوعِ پس از اصلاح، `city`) در برابر ردیف‌های تأییدشدۀ پروداکشن و ردیف‌های پیشینِ همین پرونده کنار رفتند. `person_periods` قید یکتایی ندارد و پیش از این گام ۳۰ گروه تکراری تأییدشده داشت.
 - **فرمان:** `ReviewLifePeriodsCommand` تغییری نکرد؛ `reason` هر تصمیم در `audit_logs` می‌نشیند.
+- **اجرا (۳ آذر ۱۴۰۵):** پشتیبان `step14_359_person_periods_before_review.jsonl.gz` (۴٬۸۱۰ ردیف، md5 `451ea37554b6bae6b601225fde8e45ba`؛ پیش از اجرا ۲٬۴۰۱ منتظر، ۲٬۱۶۹ تأییدشده، ۲۴۰ ردشده). پروندۀ تصمیم‌ها با md5 `e8eddf079d77c1490f916550e250c42c` در دو سو یکی بود. خروجی: «approve 1749, reject 172, skipped 0, with_year 596, bad 0». `build-insights` در ۳۶٫۸ ثانیه.
 
 ### گام ۱۴.۳۶۰: `person_lives_step14_360_kahhala.json`
 
@@ -13714,4 +13715,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا:** `--out reports/fankha_v2_db_review11` (پوشۀ `reports` در git نیست): `diffs.jsonl` ۷۷٬۴۷۶ سطر، `report.md` و `report.json`.
 - **`tests/test_fankha_v2_cases.py`:** `physical()` یک سطر فیزیکی را با `parse_physical` می‌خواند و `copy()` یک نسخۀ کامل را با `parse_copy`. پنج کلاس: برچسب بی نشانه (۲.۴.۰)، تکۀ ادامۀ فیلد (۲.۵.۰)، کاتبان بعدی (۲.۶.۰)، ویرگول جابه‌جا (۲.۷.۰)، و سطر خود نسخه (۲.۸.۰ و ۲.۹.۰). موردهای وابسته به تصمیم مدل از متن واقعی فنخا گرفته شده‌اند.
 - **`continues()`:** پروندۀ تصمیم‌ها با `with` باز می‌شود (هشدار `ResourceWarning` در آزمون‌ها).
+
+### گام ۱۴.۳۶۳: `fahares:carry-life-years`
+
+- **`app/Console/Commands/CarryLifeYearsCommand.php`:** ردیف‌های `person_periods` با `status = approved`، `kind` تولد یا وفات و `period_from` پر، گروه‌شده بر شخص. برای هر شخص نخست وفات و سپس تولد سنجیده می‌شود، تا تولد با وفاتِ همان اجرا هم بخواند.
+- **`unfit()` (دلیل کنار ماندن):** «the rows differ»، «not one year»، «the life dates rule the year out» (`Person::isNoDeathYear`)، «the record has a death range» (`death_from` پر)، «does not fit the birth/death» (فاصلۀ کمتر از ۱۰ یا بیش از ۱۲۰ سال)، «the life dates give another birth» (عدد پیش از خط تیره در `life_dates_raw` قمری، حتی با «؟»)، «another century».
+- **ذخیره:** با `Person::save()`، پس قلاب `saving` ستون‌های `death_from`، `death_to`، `death_kind`، `century_hijri` و `century_from` را می‌سازد و نمایۀ جست‌وجو تازه می‌شود. `century_from` فقط وقتی دستی پر می‌شود که وفات سده را جلو ببرد و تولدی نباشد.
+- **ممیزی:** `old_values` و `new_values` شش ستون تاریخ را دارند، با `by = fahares:carry-life-years` و شناسۀ ردیف‌های دوره در `person_periods`.
+- **تمرین روی `fahares_prod`:** جدول `person_periods` رونوشت محلی با ۴٬۸۱۰ ردیف امروزِ پروداکشن جایگزین شد. اجرای آزمایشی و `--apply`: «birth years carried 139, death years carried 38»؛ اجرای دوم صفر. نمونه: #۱۳۲۹۸ («ق۱۳ قمری») تولد ۱۲۳۶، وفات ۱۳۰۴، سده ۱۳ تا ۱۴؛ #۲۶۲۱ (بی‌تاریخ) ۱۲۳۹ تا ۱۳۱۶.
+- **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
 
