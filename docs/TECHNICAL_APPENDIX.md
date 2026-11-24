@@ -13413,6 +13413,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
 - **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، سپس `rebuild-copies` (۳۰)، `import-copy-notes` (۴۳۶ نسخه، ۵۱۴ یادداشت) و `index-note-types --apply`.
 
 ### گام ۱۴.۳۳۹: `Insights::anonymous()`
 - **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت آثار ستون `author_named` دارد (`author_name` ناتهی).
@@ -13490,13 +13491,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/catalogers.blade.php`، در `insights.topics.libraries` پس از `sources`. جدول داده: `catalogers`.
 - **آزمون:** `InsightsLibrarySubjectsTest::test_cataloguers_are_ranked_by_the_copies_they_described`.
 - **زمان هر رقم (رونوشت محلی، بار دستگاه ۶ تا ۷):** `open` ۱۳٫۹ ثانیه (ساخت جدول موقت نسخه‌ها بی ستون‌های ابعاد ۸٫۹ تا ۹٫۴ ثانیه و با آن‌ها ۱۳ ثانیه)، `topAuthors` ۱٫۱، `formats` ۴٫۴، `autographs` ۳٫۲، `librarySubjects` ۳٫۵، `catalogers` ۰٫۵؛ برای سنجش: `scribes` ۱٫۳، `sizes` ۱٫۴، `libraries` ۰٫۷.
+
 ### گام ۱۴.۳۴۵: `WorkCatalogueEntries::several()`، `searchTitle()` و پیوند جستجو
 - **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):** `several($text)`: کمانکی با «عنوان»، «ناشناس» یا «همراه» (`tie` همین را برای `many` می‌خواند). `searchTitle($text)`: بخش پیش از نخستین «؛» یا «=»، و برداشتن کمانک‌های پایانی تا جایی که هست («آداب المریدین (ترجمه) (سه ترجمه ناشناس)» ← «آداب المریدین»). `page()`: سطر `unlinked` که `several` است کلید `search` دارد.
 - **[record-relations](../resources/views/components/record-relations.blade.php):** مورد با `search`: متن فهرست و پیوند `route('search', ['type' => 'works', 'scope' => 'titles', 'q' => …])` با عنوان «جستجوی این عنوان»؛ برچسب «بی پیوند به رکورد اثر» ندارد.
 - سطرِ «چند اثر» که دور یکم `tie` به تنها اثرِ مرتبطِ هم‌عنوان بسته، پیونددار می‌ماند و این نمایش را ندارد.
 - **آزمون:** در `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
 - **سنجش (رونوشت محلی، ۳ آذر ۱۴۰۵):** `page()` روی همۀ آثار: `search` ۵۴۸، بی آن ۱٬۵۱۱، `authors` ۳۵۲. جستجوها در `https://fahares.net/search?type=works&scope=titles&q=…` دیده شدند؛ `/api/search` فقط پیشنهاد می‌دهد و برای شمارش به کار نیامد.
-- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، سپس `rebuild-copies` (۳۰)، `import-copy-notes` (۴۳۶ نسخه، ۵۱۴ یادداشت) و `index-note-types --apply`.
 
 ### گام ۱۴.۳۴۶: تجزیه‌گر v2.9.0
 
