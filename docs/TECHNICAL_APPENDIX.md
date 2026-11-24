@@ -13916,3 +13916,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. پشتیبان ۱۱ ردیف `catalog_volumes` و `source_volumes` (جلدها هنوز `source_pages` ندارند).
   3. `catalogs:set-facsimiles`.
   4. یازده بار `sources:import-pages`.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵):**
+  - `C=turathuna N=4 send.sh` پیش از انتشار اجرا شد: «missing 0 of 3261». مالک `turathuna` `ubuntu:ubuntu` و سطح دسترسی پوشه‌ها ۷۷۵ شد.
+  - پشتیبان: `../fahares-sources/backups/step13/before_step14_375_turathuna_20261124_2238.json` (md5 `189a411a…`). ۱۱ جلد، همه با `facsimile_code` تهی و بی `source_pages`. بیشینۀ شناسۀ `source_pages` ۲۹۵۷۵۴ بود.
+  - `prod-run … catalogs:set-facsimiles`: «0 created, 11 updated, 251 unchanged». اجرای خشک بعدی «262 unchanged» داد.
+  - `prod-run … sources:import-pages` برای هر ۱۱ جلد، با همان شمار صفحه‌های تمرین. روی هم ۳٬۲۶۱ ردیف `source_pages` برای جلدهای ۷۱۸ تا ۷۲۸.
+  - سنجش: نسخه‌های ۱۱۲۲۲ (ش ۵۰–۵۱ ص ۳۲۹)، ۱۸۱۳۶ (ش ۲۲ ص ۱۲۰) و ۲۷۳۲۳ (ش ۷–۸ ص ۱۵۰) برگه و نشانی متن صفحه را دارند و هر دو ۲۰۰ برمی‌گردانند. متن ص ۱۵۰ «مكتبة العلامة الطباطبائي» را دارد. در `/tmp` کانتینر پرونده‌ای نماند.
