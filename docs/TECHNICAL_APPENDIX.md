@@ -13703,6 +13703,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py kahhala 14.360 <file>`:** `person_twice 113`، `dropped_second_entry 119`؛ ۱٬۷۲۰ پیوند: ۱٬۴۰۵ با ۹۰ به بالا، ۲۶۴ بین ۸۰ و ۸۹، ۵۱ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 1691`، `exists 29`؛ اجرای دوم `exists 1720`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_360_kahhala.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_360_person_lives_before.jsonl.gz` (۹۴۹ سطر، md5 `59ed5a8d…`). اجرای آزمایشی و `--apply` هر دو `created 1414`، `exists 26`، `has_life 280`؛ اجرای دوم `created 0`، `exists 1440`. سطرهای اشخاص در این منبع: ۲٬۳۶۳ (۱٬۴۱۴ با `name_llm`، ۱٬۱۳۴ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۴٬۴۲۶ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۹۰۶. صفحۀ `/p/12946` در سایت دیده شد.
 
 ### گام ۱۴.۳۶۱: `fankha_split_head_step14_361.json`
 - **پیکره:** `text/fankha/fankha_vol_13.txt` سطر ۱۸۴۱۳: «… = نامه اول به دوانی در موضوع جذر⏎⏎ <!-- page: 333 --> اصم / منطق، فلسفه / عربی» ← یک سطر با همان نشان. `scripts/fankha_parser_v2.py 13`: ۲٬۲۲۹ اثر و ۱۰٬۳۰۲ نسخه مثل پیش؛ اثر `v13-864`: `author`، `alt_titles[2]`، `subjects`، `languages`، `transliteration` و `description` (بی دو سطر پدیدآور) عوض شد؛ آثار پس از آن فقط `provenance.line_*`. JSON نسخۀ ۱ (`json/fankha`) از پیش با متن یکی نیست و ساخته نشد.
@@ -13725,4 +13726,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ممیزی:** `old_values` و `new_values` شش ستون تاریخ را دارند، با `by = fahares:carry-life-years` و شناسۀ ردیف‌های دوره در `person_periods`.
 - **تمرین روی `fahares_prod`:** جدول `person_periods` رونوشت محلی با ۴٬۸۱۰ ردیف امروزِ پروداکشن جایگزین شد. اجرای آزمایشی و `--apply`: «birth years carried 139, death years carried 38»؛ اجرای دوم صفر. نمونه: #۱۳۲۹۸ («ق۱۳ قمری») تولد ۱۲۳۶، وفات ۱۳۰۴، سده ۱۳ تا ۱۴؛ #۲۶۲۱ (بی‌تاریخ) ۱۲۳۹ تا ۱۳۱۶.
 - **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
+### گام ۱۴.۳۶۴: `person_lives_step14_364_zirikli.json`
+
+- **صافی (`blocker.py . zirikli`):** ۱۱٬۵۳۹ مدخل بی‌پیوند؛ `n0 9268`؛ ۳٬۲۲۱ با نامزد (با مدخل‌های پیونددار) و ۲٬۳۳۹ مدخل در ۴۷ دسته.
+- **داوری:** ۴۷ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سطر تاریخ‌ها و «له»/«من كتبه». ۱٬۰۰۲ پیوند، ۱٬۳۳۷ «هیچ‌کدام»؛ ۹۷۶ شاهد عیناً در متن (متن این منبع حرکت‌گذاری دارد و شاهدِ بی‌حرکت سقف ۸۵ می‌گیرد).
+- **`build.py zirikli 14.364 <file>`:** `person_twice 15`، `dropped_second_entry 15`؛ ۹۸۷ پیوند: ۸۴۲ با ۹۰ به بالا، ۱۱۶ بین ۸۰ و ۸۹، ۲۹ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 982`، `exists 5`؛ اجرای دوم `exists 987`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_364_zirikli.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
 
