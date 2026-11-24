@@ -13813,3 +13813,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`InsightsNotes::lifeCities` و `InsightsTables::lifeCities`:** نمونه‌ها از خود داده (پرشمارترین شهر و نوع غالبش، دو شهر نخست تحصیل و تدریس) و جدول `life-cities` با ستون هر نوع.
 - **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
 - **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.
+### گام ۱۴.۳۷۰: `person_lives_step14_370_{rawdat,mosaffa,mushar_authors}.json`
+
+- **صافی (`blocker.py . <code>`):** `rawdat` ۷۸۵ مدخل بی‌پیوند، `n0 540`، ۲۴۵ مدخل در ۵ دسته؛ `mosaffa` ۶۰۰ بی‌پیوند، `n0 299`، ۳۰۸ مدخل در ۷ دسته؛ `mushar-authors` ۳٬۳۰۷ بی‌پیوند، `n0 2340`، ۱٬۰۷۵ مدخل در ۲۲ دسته.
+- **داوری:** ۳۴ زیرعامل Sonnet در یک گردش کار، `brief.txt` با نام منبع و یک بند ویژۀ هر کتاب (روضات: سال‌ها به حروف و نقل از کتاب‌های دیگر؛ مؤلفین: تاریخ‌های درون پرانتز، «ش» و «زنده در سال»؛ مصفّی: سال‌های چهاررقمی در پرانتز و مدخل‌های کوتاه).
+- **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
+- **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.
