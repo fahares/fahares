@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\DB;
  * hedge (PersonNameMatcher::HEDGES) gets that certainty on its work_people row, which the work page shows as «(؟)»; a
  * row a reviewer made or already gave a certainty is left. With --file, works with no author get the hedged name from
  * the decision file as a name-only author row with its certainty, and a description that v1 filled with that author line
- * loses it. Every write is logged as corpus_update.
+ * loses it. A doubt written after the name in brackets («سید احمد (؟)») goes to the author row the same way, and leaves
+ * the name. Every write is logged as corpus_update.
  */
 class MarkHedgedAuthorsCommand extends Command
 {
@@ -29,7 +30,7 @@ class MarkHedgedAuthorsCommand extends Command
     public function handle(): int
     {
         $apply = (bool) $this->option('apply');
-        $counts = ['marked' => 0, 'left_reviewed' => 0, 'added' => 0, 'add_skipped' => 0];
+        $counts = ['marked' => 0, 'left_reviewed' => 0, 'added' => 0, 'add_skipped' => 0, 'trailing' => 0];
         $examples = [];
 
         DB::table('works as w')->join('work_people as p', fn ($j) => $j->on('p.work_id', '=', 'w.id')->on('p.person_id', '=', 'w.author_id'))
@@ -55,6 +56,29 @@ class MarkHedgedAuthorsCommand extends Command
                     }
                 }
             });
+
+        // «سید احمد (؟)», «محمد علی (شاید)», «میرزا صادق (به احتمال)»: the doubt written after the name, which v1 kept in
+        // the name itself (step 14.351). It goes to the author row; the name loses it, on the work and on a person who is
+        // this work's author and nothing else.
+        foreach (DB::table('work_people as p')->join('people', 'people.id', '=', 'p.person_id')->join('works as w', 'w.id', '=', 'p.work_id')
+            ->where('p.role', WorkPerson::AUTHOR)->whereNull('p.certainty')
+            ->whereRaw("people.name regexp '\\\\([^()]{1,20}\\\\)[[:space:]]*$'")
+            ->orderBy('w.id')->get(['w.id', 'w.author_name', 'p.id as row_id', 'p.suggestion_id', 'people.id as person_id', 'people.name']) as $r) {
+            if (! preg_match(self::TRAILING, $r->name, $m)) {
+                continue;
+            }
+            if ($r->suggestion_id) {
+                $counts['left_reviewed']++;
+                continue;
+            }
+            $counts['trailing']++;
+            if (count($examples) < (int) $this->option('show')) {
+                $examples[] = "#{$r->id} {$r->name} → {$m['name']} ({$m['hedge']})";
+            }
+            if ($apply) {
+                $this->writeTrailing($r, trim($m['name']), $m['hedge']);
+            }
+        }
 
         if ($path = $this->option('file')) {
             foreach (json_decode((string) file_get_contents($path), true)['items'] ?? [] as $c) {
@@ -105,6 +129,36 @@ class MarkHedgedAuthorsCommand extends Command
         }
 
         return null;
+    }
+
+    /** A name that ends with the cataloguer's doubt in brackets */
+    private const TRAILING = '/^(?<name>.+?)\s*\((?<hedge>؟|شاید|به احتمال|احتمالاً|احتمالا|محتملاً|محتملا|ظاهراً|ظاهرا|گویا)\)\s*$/u';
+
+    private function writeTrailing(object $r, string $name, string $hedge): void
+    {
+        DB::transaction(function () use ($r, $name, $hedge) {
+            $certainty = PersonNameMatcher::certainty($hedge);
+            DB::table('work_people')->where('id', $r->row_id)->update(['certainty' => $certainty, 'hedge_raw' => $hedge, 'updated_at' => now()]);
+            $old = ['author_certainty' => null];
+            $new = ['author_certainty' => $certainty, 'hedge_raw' => $hedge, 'corpus_fix' => 'mark-hedged-authors: a hedge after the name'];
+            if ($r->author_name === $r->name) {
+                DB::table('works')->where('id', $r->id)->update(['author_name' => $name, 'updated_at' => now()]);
+                $old['author_name'] = $r->name;
+                $new['author_name'] = $name;
+            }
+            AuditLog::create(['user_id' => null, 'auditable_type' => Work::class, 'auditable_id' => $r->id, 'action' => 'corpus_update', 'old_values' => $old, 'new_values' => $new]);
+            // the person is renamed where he is this work's author and nothing else
+            $alone = DB::table('work_people')->where('person_id', $r->person_id)->count() === 1
+                && ! DB::table('manuscript_people')->where('person_id', $r->person_id)->exists()
+                && ! DB::table('manuscripts')->where('scribe_id', $r->person_id)->exists();
+            if ($alone) {
+                DB::table('people')->where('id', $r->person_id)->update(['name' => $name, 'normalized_name' => mb_substr(\App\Helpers\TextNormalizer::normalize($name), 0, 600), 'updated_at' => now()]);
+                AuditLog::create(['user_id' => null, 'auditable_type' => \App\Models\Person::class, 'auditable_id' => $r->person_id, 'action' => 'corpus_update',
+                    'old_values' => ['name' => $r->name], 'new_values' => ['name' => $name, 'corpus_fix' => 'mark-hedged-authors: a hedge after the name']]);
+            }
+        });
+        Work::find($r->id)?->searchable();
+        \App\Models\Person::find($r->person_id)?->searchable();
     }
 
     private function write(int $workId, int $rowId, string $hedge): void

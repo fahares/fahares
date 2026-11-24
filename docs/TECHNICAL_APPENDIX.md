@@ -13535,4 +13535,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ردیف‌ها:** `km-mraashy-2` با شمارۀ جلد ۳۶ (ص ۱ تا ۸۴۷) و ۳۷ (ص ۱ تا ۹۳۴). `leaf_maps` تهی است.
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
 - **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان ۱۹۸ اثر؛ `add-corpus-works` «update 198» و سپس «update 0».
+
+### گام ۱۴.۳۵۱: `MarkHedgedAuthorsCommand`، تردید پس از نام
+
+- **گذر تازه:** ردیف‌های `work_people` با نقش پدیدآور، `certainty` تهی و شخصی که نامش به کمانک پایان می‌یابد؛ `TRAILING` (`^نام\s*\((؟|شاید|به احتمال|احتمالاً|محتملاً|ظاهراً|گویا)\)$`). ردیف پیشنهاددار («left_reviewed») دست نمی‌خورد.
+- **`writeTrailing()`:** `certainty` با `PersonNameMatcher::certainty()` («به احتمال» → `probable`) و `hedge_raw`؛ `works.author_name` اگر همان نام شخص است؛ `people.name` و `normalized_name` تنها اگر شخص درست یک ردیف `work_people` دارد و در `manuscript_people` و `manuscripts.scribe_id` نیست. دو سطر ممیزی `corpus_update` (اثر و شخص)، و نمایه‌سازی هر دو.
+- **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
+- **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
 
