@@ -13786,6 +13786,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `composition` (عنوان، مؤلف، `date`): تنها اگر `composition_date_raw` همان `date` باشد. `SuggestionApplier::apply` روی `composition_date_raw` با مقدار تهی؛ قلاب مدل `composition_year_hijri` و ستون‌های بازه را هم خالی می‌کند.
 - **تمرین روی `fahares_prod`:** «2 changed»، اجرای دوم «2 already right»؛ فایل گام ۱۴.۳۴۱ همچنان «6 already right». شخص تازه «رضاخان سیاوشی». پس از `estimate-dates --apply` هر پنج ناسازگاری مستقیم این دو رکورد رفت (دو تا از نسخۀ ملک، سه تا از «الارث»).
 - **آزمون:** `FixWrongLinksCommandTest` (۲).
+- **پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان `../fahares-sources/backups/step13/step14_366_before.json` (نسخه، اثر، `manuscript_people`، بیشینۀ شناسه‌ها). با `scripts/dev/prod-run`: آزمایشی «2 changed»، `--apply` «2 changed»، اجرای دوم «2 already right». شخص تازه #74825؛ دو ثبت `verify` با `step` برابر 14.366. `estimate-dates` اجرا نشد و به اجرای شبانه ماند.
 
 ### گام ۱۴.۳۶۷: ریلیز v2.9.0 پیکره
 - **ساخت:** `python3 scripts/fankha_parser_v2.py` روی کامیت `5e44eda`؛ هر ۳۴ فایل `parser_version` 2.9.0 و `text_commit` `a38c820` (آخرین کامیت `text/fankha`) دارند. آرشیو: `tar -czf fankha_json_v2.9.0.tar.gz -C json fankha_v2`، ۹۹٬۷۸۹٬۰۰۷ بایت، sha256 `29411d18…a124e4`.
