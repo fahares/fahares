@@ -13791,3 +13791,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
   - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
   - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
+
+### گام ۱۴.۳۶۸: `fankha_split_head_step14_368.json`
+- **پیکره:** `text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹: «● شرح فرائض السجاوندی = شرح الفزائض السراجية⏎/ فقه / عربی ⏎» ← یک سطر. `scripts/fankha_parser_v2.py 20`: ۱٬۸۷۵ اثر و ۹٬۵۳۹ نسخه مثل پیش؛ جز شمارۀ سطرها فقط `v20-366` عوض شد: `author`، `subjects`، `languages`، `transliteration`، `alt_transliterations` و `description`.
+- **فایل تصمیم:** `work_slug` `shrh-frayd-alsgaondy-v20-366`؛ `changes` برای `author_name`، `alternative_titles` (آوانگاری عنوان دوم)، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text`؛ `author` با `century: 10`، `subjects` «فقه»، `languages` «عربی».
+- **تمرین محلی (`fahares_prod`):** «update 1»، «Derived data of works: works=1»، بار دوم «update 0»؛ `author_id` ۲۶۴، یک ردیف `subject_work` و یک ردیف `language_work`.
+- **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
