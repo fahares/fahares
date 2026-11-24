@@ -13366,6 +13366,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
 - **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
 - **آزمون:** `FirstHandReadingTest::test_the_leaves_of_a_whole_volume_are_accepted_by_themselves_where_the_collection_has_none`.
+
 ### گام ۱۴.۳۳۵: تجزیه‌گر v2.8.0
 
 - **`fahares-corpus/scripts/fankha_parser_v2.py` (کامیت `6ca5069`):**
