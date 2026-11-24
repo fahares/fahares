@@ -13388,6 +13388,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **اجرا در تولید (۴ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
 
+### گام ۱۴.۳۳۹: `Insights::anonymous()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت آثار ستون `author_named` دارد (`author_name` ناتهی).
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v19`. بی مؤلف = `author_id IS NULL AND author_named = 0`.
+  - `anonymous`: `works`، `nameless` و `authored` (هر کدام `works, copies, single, copied`)، `unlinked`، `subjects` (`id, name, works, anonymous, share`؛ موضوع اصلی، دست‌کم `insights.anonymous_min_works` = ۳۰ اثر، `insights.anonymous_subjects_shown` = ۱۶ موضوع پراثر، چیده از بیشترین سهم)، `centuries` (`century, works, anonymous, share`).
+  - سدۀ اثر، `MIN(c)` از جدول موقت `insights_work_centuries` است: کهن‌ترین نسخه‌ای که تاریخش در یک سده می‌گنجد. اثر بی مؤلف وفات مؤلفی ندارد که با آن تاریخ‌گذاری شود.
+- **نما:** `charts/anonymous.blade.php`، در `insights.topics.works` پس از `unprinted`؛ در دامنۀ یک مؤلف یا یک اثر نمی‌آید.
+- **جدول‌ها:** `anonymous-by-subject` و `anonymous-by-century`.
+- **آزمون:** `InsightsAuthorsFormatsTest::test_works_with_no_author_are_counted_by_subject_and_by_the_century_of_their_oldest_copy`.
+- **سده‌ها (رونوشت محلی، سهم از شمار اثر):** ۴: ۱۲٫۹٪ از ۳۱؛ ۵: ۱۲٫۵٪ از ۸۸؛ ۶: ۱۴٪ از ۵۵۹؛ ۷: ۱۵٫۷٪ از ۱٬۲۸۹؛ ۸: ۲۷٫۱٪ از ۲٬۰۴۱؛ ۹: ۳۰٫۳٪ از ۲٬۹۸۶؛ ۱۰: ۲۸٪ از ۳٬۹۱۶؛ ۱۱: ۳۳٫۳٪ از ۱۰٬۲۲۳؛ ۱۲: ۳۲٪ از ۶٬۶۲۲؛ ۱۳: ۳۲٪ از ۱۸٬۹۳۵؛ ۱۴: ۲۶٫۴٪ از ۸٬۰۶۹.
+
 ### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
 
 - **پیش از این:** `required_pull_request_reviews` با `require_code_owner_reviews: true`، `lock_branch: true`، `enforce_admins: false`؛ پوش مدیر با «Bypassed rule violations … Changes must be made through a pull request … Cannot change this locked branch» می‌گذشت.
