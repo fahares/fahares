@@ -13364,6 +13364,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `catalogs:set-facsimiles`: «1 created, 1 updated, 239 unchanged»، سپس «0 updated». جلد تازه #۷۴۳. `move-cited-part`: «2727 copies on #519; 1: 1624, 2: 1100, 5: 2, none: 1»، «Moved 1100 copies.»؛ هر ۱٬۱۰۰ ارجاع روی #۷۴۳ در ص ۱–۳۵۰‌اند.
 - **وارسی:** ج ۲ عکسی ص ۷۲ (۲۳۱/۳)، ۱۹۵ (۲۱۰/۷) و ۱۱۵ (۳۴/۱۹) نسخه را دارند؛ ص ۲۴۳ برای ۱۵۰ «لطائف العرفان» نادرست است (صفحه زیر «مج» است؛ خطای فنخا).
 - **پس از انتشار، به ترتیب:** فرستادن `dairat-akasi/v02` و `majlis/v36` با `send.sh`؛ پشتیبان؛ `catalogs:set-facsimiles`؛ پشتیبان جای نسخه‌های #۵۱۹؛ `catalogs:move-cited-part --library=thran-dayrh-almaaarf-20 --cited-volume=2 --from="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول" --to="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم"`، نخست بی `--apply`. شناسۀ جلد تازه در تولید جز ۷۴۳ خواهد بود.
+- **اجرا در تولید (۳ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
 
 ### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
 - **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
@@ -13378,13 +13379,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برون‌بری‌ها:** `fankha_v2_changed_columns_export.py --before scratch/fankha_v2_271 --step 14.335` → ۴۶ رکورد (`incipit_text` ۴۶، `explicit_text` ۱)؛ کنار گذاشته: «سایت از پیش دارد» (تاریخ ۳۶، انجام ۱۷، آغاز ۱۴)، «مقدار دیگر» (انجام ۴۲). `fankha_v2_copy_scribes_export.py` → ۳۵ رکورد؛ رکورد «= مؤلف» کنار رفت.
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 7, already 28» و سپس «already 35»؛ `rebuild-copies` «write 46» و سپس «already 46».
 
-- **اجرا در تولید (۴ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
-
-### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
-
-- **پیش از این:** `required_pull_request_reviews` با `require_code_owner_reviews: true`، `lock_branch: true`، `enforce_admins: false`؛ پوش مدیر با «Bypassed rule violations … Changes must be made through a pull request … Cannot change this locked branch» می‌گذشت.
-- **اکنون:** `gh api -X PUT repos/fahares/fahares/branches/main/protection` با `{"required_status_checks": null, "enforce_admins": false, "required_pull_request_reviews": null, "restrictions": null, "allow_force_pushes": false, "allow_deletions": false, "lock_branch": false}`.
-- **وارسی:** پوش همین گام بی پیام «Bypassed rule violations» گذشت.
 ### گام ۱۴.۳۳۶: `Insights::autographs()`
 - **[Insights](../app/Support/Insights.php):** کلید `insights.v18`. `autographs`: `flagged` (`is_autograph` در دامنه)، `copies`، `works`، `authors`، `items` (`id, key, name, death, copies, works, of_works`)، `author_scribes`، `other_scribes`، `other_copies`، `others` (`id, key, name, death, others, own`).
   - جفت (نسخه، مؤلف) از `work_people` با نقش `author`، پیوسته به جدول موقت نسخه‌ها، با شرط `scribe_id = person_id OR (is_autograph = 1 AND scribe_id IS NULL)`.
@@ -13394,6 +13388,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جدول‌ها:** `autographs` و `author-scribes`.
 - **آزمون:** `InsightsAuthorsFormatsTest::test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted`.
 - **فهرست دوم پیش از آستانه (رونوشت محلی):** صحبت‌الله خان ۲۶۳ + ۱، حکیم هندی ۱۳۰ + ۱، مراغی ۱۰۰ + ۲، «علی بن محمد» ۶۱ + ۱. **پس از آن:** گلپایگانی (زین‌العابدین) ۶۷ + ۳، عبرت نائینی ۲۹ + ۷، زنوزی ۲۰ + ۳، حر عاملی ۱۵ + ۳۶، مجلسی ۱۳ + ۱۰۰.
+
 ### گام ۱۴.۳۳۸: بریدن «انجام» و یادداشت‌های v2.8.0
 
 - **سنجش:** نسخه‌هایی که `explicit` آن‌ها میان `scratch/fankha_v2_271` و خروجی کنونی دگرگون شده و `explicit_text` سایت نه مقدار پیشین v2 است و نه تازه: ۴۲. با `letters()`: «سایت در پایان بیشتر دارد» ۴۰، «v2 درون متن سایت» ۱، «دیگر» ۱.
@@ -13402,4 +13397,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
 - **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
+
+### گام ۱۴.۳۴۰: `branches/main/protection` کمینه
+
+- **پیش از این:** `required_pull_request_reviews` با `require_code_owner_reviews: true`، `lock_branch: true`، `enforce_admins: false`؛ پوش مدیر با «Bypassed rule violations … Changes must be made through a pull request … Cannot change this locked branch» می‌گذشت.
+- **اکنون:** `gh api -X PUT repos/fahares/fahares/branches/main/protection` با `{"required_status_checks": null, "enforce_admins": false, "required_pull_request_reviews": null, "restrictions": null, "allow_force_pushes": false, "allow_deletions": false, "lock_branch": false}`.
+- **وارسی:** پوش همین گام بی پیام «Bypassed rule violations» گذشت.
 
