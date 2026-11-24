@@ -42,6 +42,7 @@ class InsightsNotes
         'sourceOverlap' => 'وصف دو فهرست از یک نسخه چه سودی دارد؟',
         'topAuthors' => 'چرا دو فهرست یکی نیستند؟',
         'formats' => 'آیا این همان قطع‌های رقعی و وزیری و رحلی است؟',
+        'autographs' => 'آیا هر نسخۀ این شمار به‌راستی خط مؤلف است؟',
     ];
 
     private array $data;
@@ -61,7 +62,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -432,6 +433,32 @@ class InsightsNotes
         return [[
             'دو فهرست کنار هم آمده است: مؤلفانی که بیشترین اثر به نامشان ثبت است، و مؤلفانی که از آثارشان بیشترین نسخه مانده است. در هر ردیف هر دو شمار آمده و شماری که فهرست بر پایۀ آن چیده شده پررنگ است. روی هر شمار بزنید تا آثار یا نسخه‌های همان مؤلف را ببینید.',
             'چون شمار اثر از پرکاری مؤلف می‌گوید و شمار نسخه از رواج آثارش. مؤلفی که ده‌ها رسالۀ کوتاه در پاسخ پرسش‌ها نوشته، آثار بسیار دارد و از هر کدام چند نسخه؛ مؤلف یک متن درسی، با چند اثر هزاران نسخه دارد. شمار اثر به شیوۀ فهرست‌نگاری هم بسته است: رساله‌هایی که جدا فهرست شده‌اند هر کدام یک اثر شمرده می‌شوند، و اثری که به نادرست به مؤلفی نسبت داده شده نیز در شمار اوست.',
+        ], $examples];
+    }
+
+    private function autographs(): array
+    {
+        $ag = $this->data['autographs'];
+        $examples = [];
+        if ($ag['copies'] > 0) {
+            $examples[] = self::n($ag['copies']) . ' نسخه به خط مؤلف خود است، از ' . self::n($ag['works']) . ' اثر و ' . self::n($ag['authors']) . ' مؤلف؛ یعنی '
+                . self::share($ag['copies'], $this->data['totals']['manuscripts']) . ' نسخه‌های این دامنه.';
+        }
+        if ($first = $ag['items'][0] ?? null) {
+            $examples[] = 'نخستین ردیف ' . $first['name'] . ' است: ' . self::n($first['copies']) . ' نسخه به خط خودش، از ' . self::n($first['works']) . ' اثر'
+                . ($first['of_works'] > $first['works'] ? '، در حالی که ' . self::n($first['of_works']) . ' اثر به نامش ثبت است.' : '.');
+        }
+        if ($other = $ag['others'][0] ?? null) {
+            $examples[] = 'در فهرست دوم، ' . $other['name'] . ' ' . self::n($other['others']) . ' نسخه از آثار دیگران کتابت کرده است'
+                . ($other['own'] > 0 ? ' و ' . self::n($other['own']) . ' نسخه از آثار خودش.' : '.');
+        }
+        if ($ag['author_scribes'] > 0) {
+            $examples[] = 'روی هم ' . self::n($ag['author_scribes']) . ' تن هم مؤلف‌اند و هم کاتب؛ ' . self::n($ag['other_scribes']) . ' تن از ایشان ' . self::n($ag['other_copies']) . ' نسخه از آثار دیگران نوشته‌اند.';
+        }
+
+        return [[
+            'فهرست راست مؤلفانی را می‌آورد که بیشترین نسخه به خط خودشان مانده است، با شمار آثاری که نسخۀ خط مؤلف دارند. فهرست چپ کسانی را می‌آورد که خود چند اثر دارند و آثار دیگران را هم کتابت کرده‌اند. نسخه وقتی «به خط مؤلف» شمرده می‌شود که کاتبش یکی از مؤلفان همان اثر باشد، یا فهرست آن را خط مؤلف خوانده و کاتبی جز او ننوشته باشد.',
+            'نه همیشه. «خط مؤلف» داوری فهرست‌نگار است و گاه با «گویا» و «ظاهراً» آمده است؛ این شمار چنین تردیدی را جدا نمی‌کند. پیش‌نویس، پاک‌نویس و نسخه‌ای که مؤلف تنها بخشی از آن را نوشته نیز یکسان شمرده شده‌اند. در فهرست دوم، هم‌نامی هم هست: کاتبی که با مؤلفی هم‌نام است شاید به رکورد او پیوند خورده باشد. برای کم کردن این خطا، آن فهرست تنها کسانی را می‌آورد که چند اثر از خود دارند؛ کاتب پرکاری که تنها یک رساله نوشته در آن نیست، هرچند در شمار کل هست.',
         ], $examples];
     }
 
