@@ -140,6 +140,9 @@ return [
     'specialty_libraries_shown' => 20,
     'specialty_skip_subjects' => ['متفرقه', 'گوناگون'],
 
+    // The cataloguers listed (step 14.344)
+    'catalogers_shown' => 15,
+
     // Languages and scripts in the grids per century; catalogue volumes listed as sources
     'languages_grid' => 6,
     'scripts_grid' => 8,
@@ -188,8 +191,8 @@ return [
         'libraries' => [
             'name' => 'کتابخانه‌ها و فهرست‌ها',
             'title' => 'کتابخانه‌ها و فهرست‌هایشان',
-            'lead' => 'بزرگ‌ترین و کهن‌ترین گنجینه‌ها، موضوع‌های پررنگ هر کتابخانه، فهرست‌هایی که این آمار بر آن‌ها بنا شده، و نسخه‌هایی که چند فهرست وصفشان کرده‌اند.',
-            'charts' => ['libraries', 'library-subjects', 'sources', 'firsthand', 'source-overlap'],
+            'lead' => 'بزرگ‌ترین و کهن‌ترین گنجینه‌ها، موضوع‌های پررنگ هر کتابخانه، فهرست‌هایی که این آمار بر آن‌ها بنا شده، فهرست‌نگاران پرکار، و نسخه‌هایی که چند فهرست وصفشان کرده‌اند.',
+            'charts' => ['libraries', 'library-subjects', 'sources', 'catalogers', 'firsthand', 'source-overlap'],
         ],
     ],
 

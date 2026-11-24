@@ -32,7 +32,7 @@ class Insights
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v20';
+    private const CACHE_KEY = 'insights.v21';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -153,6 +153,7 @@ class Insights
             'autographs' => self::autographs($scope),
             'anonymous' => self::anonymous($scope),
             'library_subjects' => self::librarySubjects($scope),
+            'catalogers' => self::catalogers($scope, $totals['manuscripts']),
         ];
     }
 
@@ -1316,6 +1317,36 @@ class Insights
             'subjects' => $subjects,
             'copies' => $all,
             'libraries' => $sizes->filter(fn ($n) => $n >= $minCopies)->count(),
+        ];
+    }
+
+    /**
+     * The cataloguers who described the most copies (backlog item 162, step 14.344): each with the copies, the
+     * libraries and the volumes of catalogues those copies are in. A copy has the cataloguer of the part of the
+     * volume it is described in (CatalogVolumePart), one person, so a volume of several hands counts for its first.
+     */
+    private static function catalogers(InsightsScope $scope, int $total): array
+    {
+        $rows = $scope->manuscripts()->whereNotNull('cataloger_id')
+            ->selectRaw('cataloger_id, COUNT(*) AS n, COUNT(DISTINCT library_id) AS libraries, COUNT(DISTINCT catalog_volume_id) AS volumes')
+            ->groupBy('cataloger_id')->orderByDesc('n')->orderBy('cataloger_id')->get();
+        $shown = $rows->take(config('insights.catalogers_shown'));
+        $people = \App\Models\Cataloger::whereIn('id', $shown->pluck('cataloger_id'))->get(['id', 'name', 'slug', 'death_year_solar'])->keyBy('id');
+        $counted = (int) $rows->sum('n');
+        $items = $shown->filter(fn ($r) => isset($people[$r->cataloger_id]))->map(fn ($r) => [
+            'id' => (int) $r->cataloger_id, 'key' => $people[$r->cataloger_id]->getRouteKey(), 'name' => $people[$r->cataloger_id]->name,
+            'death' => $people[$r->cataloger_id]->death_year_solar, 'count' => (int) $r->n, 'share' => self::share((int) $r->n, $counted),
+            'libraries' => (int) $r->libraries, 'volumes' => (int) $r->volumes,
+        ])->values()->all();
+
+        return [
+            'items' => $items,
+            'catalogers' => $rows->count(),
+            'counted' => $counted,
+            'unknown' => $total - $counted,
+            'coverage' => self::share($counted, $total),
+            // How much of the copies the first five described
+            'top_five' => self::share((int) $rows->take(5)->sum('n'), $counted),
         ];
     }
 

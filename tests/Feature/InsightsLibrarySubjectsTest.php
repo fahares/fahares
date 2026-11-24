@@ -19,6 +19,41 @@ class InsightsLibrarySubjectsTest extends TestCase
 {
     use DatabaseTransactions;
 
+    public function test_cataloguers_are_ranked_by_the_copies_they_described()
+    {
+        $library = Library::create(['name' => 'کتابخانۀ آزمایشی فهرست‌نگاران', 'city' => 'قم', 'slug' => 'insights-ls-' . uniqid()]);
+        $other = Library::create(['name' => 'کتابخانۀ دوم فهرست‌نگاران', 'city' => 'یزد', 'slug' => 'insights-ls-' . uniqid()]);
+        $author = Person::create(['name' => 'مؤلف آزمایشی فهرست‌نگاران', 'normalized_name' => 'مؤلف آزمایشی فهرست‌نگاران', 'slug' => 'insights-ls-' . uniqid(), 'is_author' => true]);
+        $work = Work::create(['primary_title' => 'اثر فهرست‌شده', 'clean_title' => 'اثر فهرست‌شده', 'slug' => 'insights-ls-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $work->forceFill(['author_id' => $author->id])->save();
+        $cataloger = fn (string $name) => \App\Models\Cataloger::create(['name' => $name, 'slug' => 'insights-ls-' . uniqid()]);
+        [$much, $little] = [$cataloger('فهرست‌نگار پرکار آزمایشی'), $cataloger('فهرست‌نگار کم‌کار آزمایشی')];
+        $copy = function (?int $catalogerId, Library $in) use ($work) {
+            $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
+            $copy->forceFill(['library_id' => $in->id, 'cataloger_id' => $catalogerId])->save();
+        };
+        foreach (range(1, 4) as $i) {
+            $copy($much->id, $i < 4 ? $library : $other);
+        }
+        $copy($little->id, $library);
+        $copy(null, $library);
+
+        $figures = Insights::build(InsightsScope::fromArray(['author' => $author->id]));
+        $cg = $figures['catalogers'];
+
+        $this->assertSame([2, 5, 1, 83.3, 100.0], [$cg['catalogers'], $cg['counted'], $cg['unknown'], $cg['coverage'], $cg['top_five']]);
+        $this->assertSame([['فهرست‌نگار پرکار آزمایشی', 4, 80.0, 2], ['فهرست‌نگار کم‌کار آزمایشی', 1, 20.0, 1]],
+            array_map(fn ($r) => [$r['name'], $r['count'], $r['share'], $r['libraries']], $cg['items']));
+        $this->assertStringContainsString('نخستین ردیف فهرست‌نگار پرکار آزمایشی است: ۴ نسخه (۸۰٪', InsightsNotes::for($figures)['catalogers']['examples'][0]);
+        $this->assertSame(['catalogers'], array_column(InsightsTables::for($figures)['catalogers'], 'file'));
+
+        $this->get(route('insights.topic', ['topic' => 'libraries', 'author' => $author->id]))->assertOk()
+            ->assertSee('id="catalogers"', false)
+            ->assertSee('فهرست‌نگاران پرکار')
+            ->assertSee(e(route('catalogers.show', $much->getRouteKey())), false)
+            ->assertSee('data-insights-table="catalogers"', false);
+    }
+
     public function test_a_library_is_strong_in_the_subject_it_holds_more_of_than_the_others()
     {
         config(['insights.specialty_min_copies' => 4, 'insights.specialty_min_cell' => 2, 'insights.min_sample' => 3]);
