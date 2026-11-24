@@ -11977,6 +11977,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 1490`، `exists 23`؛ اجرای دوم `exists 1513`؛ `--undo` بی `--apply`: `removed 1490`. در پایگاه: `name_llm` ۱٬۰۵۳ سطر با اطمینان ۹۰ به بالا و ۴۳۷ سطر زیر آن، همه با یادداشت شاهد. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php` (دو آزمون تازه).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای `source_entries` با `citable_type = Person` و `source_id` طبقات، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_232_tabaqat.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان ۸۶۰ سطر `source_entries` اشخاص در طبقات و أعیان: `../fahares-sources/backups/step13/step14_232_237_person_lives_before.jsonl.gz` (md5 `9613c159…`)، مستقیم از خروجی tinker به این ماشین، بی فایلی در کانتینر. زیر `prod-run`: `created 1427`، `exists 22`، `has_life 64`. اجرای دوم بی `--apply`: `created 0`، `exists 1449`. در پایگاه ۱٬۴۲۷ سطر `name_llm`، ۱٬۰۰۰ با اطمینان ۹۰ به بالا، همه با یادداشت شاهد.
 
 ### گام ۱۴.۲۳۳: `FixLifeYearsCommand::SOLAR` از منابع تراجمی سایت
 
@@ -12089,6 +12090,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** همان پشتیبان گام ۱۴.۲۳۲. زیر `prod-run`: `created 792`، `exists 36`، `has_life 81`. اجرای دوم بی `--apply`: `created 0`، `exists 828`. در پایگاه ۷۹۲ سطر `name_llm`، ۵۲۰ با اطمینان ۹۰ به بالا. پدیدآورانِ دارای زندگی‌نامه (شخص با `works_count > 0` و سطر ردنشدۀ منبع `biographical`): ۳٬۶۱۸ از ۱۵٬۱۹۹؛ پیش از دو اجرا ۲٬۳۸۵.
 
 ### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
 - **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
