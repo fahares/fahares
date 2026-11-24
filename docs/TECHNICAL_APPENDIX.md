@@ -13798,3 +13798,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `work_slug` `shrh-frayd-alsgaondy-v20-366`؛ `changes` برای `author_name`، `alternative_titles` (آوانگاری عنوان دوم)، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text`؛ `author` با `century: 10`، `subjects` «فقه»، `languages` «عربی».
 - **تمرین محلی (`fahares_prod`):** «update 1»، «Derived data of works: works=1»، بار دوم «update 0»؛ `author_id` ۲۶۴، یک ردیف `subject_work` و یک ردیف `language_work`.
 - **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
+
+### گام ۱۴.۳۷۰: `person_lives_step14_370_{rawdat,mosaffa,mushar_authors}.json`
+
+- **صافی (`blocker.py . <code>`):** `rawdat` ۷۸۵ مدخل بی‌پیوند، `n0 540`، ۲۴۵ مدخل در ۵ دسته؛ `mosaffa` ۶۰۰ بی‌پیوند، `n0 299`، ۳۰۸ مدخل در ۷ دسته؛ `mushar-authors` ۳٬۳۰۷ بی‌پیوند، `n0 2340`، ۱٬۰۷۵ مدخل در ۲۲ دسته.
+- **داوری:** ۳۴ زیرعامل Sonnet در یک گردش کار، `brief.txt` با نام منبع و یک بند ویژۀ هر کتاب (روضات: سال‌ها به حروف و نقل از کتاب‌های دیگر؛ مؤلفین: تاریخ‌های درون پرانتز، «ش» و «زنده در سال»؛ مصفّی: سال‌های چهاررقمی در پرانتز و مدخل‌های کوتاه).
+- **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
+- **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.
