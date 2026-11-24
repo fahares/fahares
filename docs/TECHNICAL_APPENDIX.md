@@ -13663,3 +13663,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   نوعِ ۱۶۸ تأییدشده را داور اصلاح کرده بود، پس سهمِ «نوع و شهر هر دو درست» از این کمتر است.
 - **کارِ نکرده:** `fahares:propose-life-periods` (اجرای خشک روی پروداکشن): ۸٬۵۹۶ مدخل، ۲٬۲۴۳ پیشنهاد تازه برای ۱٬۱۸۲ نفر (اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱). ثبت و داوری‌شان همان روند گام ۱۴.۳۱۱ را می‌خواهد.
 - **تست:** حالت‌های تازه در `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
+
+### گام ۱۴.۳۶۱: `fankha_split_head_step14_361.json`
+- **پیکره:** `text/fankha/fankha_vol_13.txt` سطر ۱۸۴۱۳: «… = نامه اول به دوانی در موضوع جذر⏎⏎ <!-- page: 333 --> اصم / منطق، فلسفه / عربی» ← یک سطر با همان نشان. `scripts/fankha_parser_v2.py 13`: ۲٬۲۲۹ اثر و ۱۰٬۳۰۲ نسخه مثل پیش؛ اثر `v13-864`: `author`، `alt_titles[2]`، `subjects`، `languages`، `transliteration` و `description` (بی دو سطر پدیدآور) عوض شد؛ آثار پس از آن فقط `provenance.line_*`. JSON نسخۀ ۱ (`json/fankha`) از پیش با متن یکی نیست و ساخته نشد.
+- **فایل تصمیم:** `category` «leading_author»؛ `work_updates[0]`: `work_slug` `hl-shbh-gthr-alasm-v13-862`، `changes` برای `author_name`، `alternative_titles`، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text` (همان یکی‌شدن سطر)، `author` با `century: 10`، `subjects` و `languages`. مقدارهای `from` از رونوشت پروداکشن خوانده شد؛ فرمان اگر سایت مقدار دیگری داشته باشد آن ستون را نمی‌نویسد.
+- **تمرین محلی (`fahares_prod`):** بی `--apply` «Would add 0 works, fill 0 works and update 1»؛ با آن «Derived data of works: works=1»؛ بار دوم «update 0». `author_id` ۱۵۴۰، `subject_work` دو ردیف (۲۱ و ۳۷)، `language_work` یک ردیف.
