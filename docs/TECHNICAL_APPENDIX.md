@@ -13535,4 +13535,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ردیف‌ها:** `km-mraashy-2` با شمارۀ جلد ۳۶ (ص ۱ تا ۸۴۷) و ۳۷ (ص ۱ تا ۹۳۴). `leaf_maps` تهی است.
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
 - **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
-
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار `86eb0e8e`. فایل داده در کانتینر با شاخه یکی بود (md5 `711eb6ce…`).
+  - تصویرها با `C=marashi N=4 send.sh` فرستاده شد. ۱٬۷۸۱ برگ رفت و دور دوم برگ جامانده‌ای نیافت. مالک پوشه‌های v36 و v37 `ubuntu:ubuntu` و سطح دسترسی ۷۷۵ شد.
+  - پشتیبان دو ردیف `catalog_volumes` و `source_volumes` (#۳۵۵ و #۳۵۷، `facsimile_code` تهی) در `../fahares-sources/backups/step13/before_step14_349_set_facsimiles_20261124_1617.json` است (md5 `cd247d2a…`).
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: اجرای آزمایشی پیش از آن «0 created, 2 updated, 241 unchanged» داد، خود اجرا هم همین را داد، و اجرای آزمایشی پس از آن «0 updated, 243 unchanged».
+  - در fahares.net نسخه‌های `/manuscripts/208969` (ج ۳۷ ص ۱۱۶)، `250197` (ج ۳۶ ص ۵۰۱)، `332391` (ص ۴۸۳) و `80964` (ص ۱۱) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
