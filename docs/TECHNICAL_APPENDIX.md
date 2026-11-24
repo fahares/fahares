@@ -13376,3 +13376,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برون‌بری‌ها:** `fankha_v2_changed_columns_export.py --before scratch/fankha_v2_271 --step 14.335` → ۴۶ رکورد (`incipit_text` ۴۶، `explicit_text` ۱)؛ کنار گذاشته: «سایت از پیش دارد» (تاریخ ۳۶، انجام ۱۷، آغاز ۱۴)، «مقدار دیگر» (انجام ۴۲). `fankha_v2_copy_scribes_export.py` → ۳۵ رکورد؛ رکورد «= مؤلف» کنار رفت.
 - **تمرین روی `fahares_prod`:** `add-copy-scribes` «write 7, already 28» و سپس «already 35»؛ `rebuild-copies` «write 46» و سپس «already 46».
 
+### گام ۱۴.۳۳۶: `Insights::autographs()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v18`. `autographs`: `flagged` (`is_autograph` در دامنه)، `copies`، `works`، `authors`، `items` (`id, key, name, death, copies, works, of_works`)، `author_scribes`، `other_scribes`، `other_copies`، `others` (`id, key, name, death, others, own`).
+  - جفت (نسخه، مؤلف) از `work_people` با نقش `author`، پیوسته به جدول موقت نسخه‌ها، با شرط `scribe_id = person_id OR (is_autograph = 1 AND scribe_id IS NULL)`.
+  - نسخۀ «خط مؤلف» که کاتبش از مؤلفان اثر نیست (۳۴ نسخه در رونوشت محلی) تنها در `flagged` است.
+  - `others`: کاتبانی که در `work_people` مؤلف‌اند، با `others = n - own` و دست‌کم `insights.author_scribe_min_works` (= ۵) اثر در کل داده. سه شمار کل این آستانه را ندارند.
+- **نما:** `charts/autographs.blade.php`، در `insights.topics.people` پس از `top-authors`؛ در دامنۀ یک مؤلف، اثر یا کاتب نمی‌آید. پیوند شمار نسخه به جستجوی نسخه‌ها با `author_id` و `scribe_id` همان شخص.
+- **جدول‌ها:** `autographs` و `author-scribes`.
+- **آزمون:** `InsightsAuthorsFormatsTest::test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted`.
+- **فهرست دوم پیش از آستانه (رونوشت محلی):** صحبت‌الله خان ۲۶۳ + ۱، حکیم هندی ۱۳۰ + ۱، مراغی ۱۰۰ + ۲، «علی بن محمد» ۶۱ + ۱. **پس از آن:** گلپایگانی (زین‌العابدین) ۶۷ + ۳، عبرت نائینی ۲۹ + ۷، زنوزی ۲۰ + ۳، حر عاملی ۱۵ + ۳۶، مجلسی ۱۳ + ۱۰۰.
+
