@@ -13835,3 +13835,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آنچه دست نخورد:** `fahares-corpus/text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹، `works.raw_text` و `source_pages` #۴۶۹۰۱ (ج ۲۰ ص ۲۲۱)، که املای چاپ را دارند (`/storage/catalogs/fankha/v20/p0221.webp`). پس تجزیه‌گر نسخۀ ۲ برای `v20-366` همچنان «الفزائض» می‌خواند؛ هم‌سنجی بعدی پیکره با سایت نباید این ستون را برگرداند.
 - **تمرین محلی (`fahares_prod`):** «update 1»، بار دوم «update 0».
 - **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، `prod-run --wait`):** پشتیبان ردیف اثر در `../fahares-sources/backups/step13/step14_371_work40507_backup.json` (md5 `654ec079…`). بی `--apply` «update 1»؛ با آن «Derived data of works: works=1»؛ بار سوم «update 0». وارسی: `alternative_titles` با «شرح الفرائض السراجية»، و «الفزائض» یک بار در `raw_text`.
+
+### گام ۱۴.۳۷۲: `fankha_raw_text_step14_372.json` و `fankha_v20_p221_step14_372.jsonl`
+- **پیکره:** `text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹: «شرح الفزائض السراجية» ← «شرح الفرائض السراجية». پس تجزیه‌گر نسخۀ ۲ برای `v20-366` عنوان دیگر را همان می‌خواند که گام ۱۴.۳۷۱ در سایت نوشت (یادداشت آن گام دربارۀ هم‌سنجی دیگر لازم نیست).
+- **متن خام:** `category` «editorial_correction»؛ یک `work_updates` با تنها ستون `raw_text`.
+- **متن صفحه:** یک سطر JSON با `page` ۲۲۱ و متن `source_pages` #۴۶۹۰۱ با همان یک جایگزینی. `sources:import-pages` با `upsert` بر (`source_volume_id`، `page`) فقط همان صفحه را می‌نویسد؛ ۹۸۱ صفحۀ جلد سر جایشان ماندند. جایگزینی یک نویسه به یک نویسه است، پس جای نویسه‌ها در صفحه عوض نمی‌شود.
+- **تمرین محلی (`fahares_prod`):** «update 1» / «update 0»؛ «1 pages saved»؛ شمار «الفزائض»: آثار ۰، صفحه‌ها ۰، نسخه‌ها ۰ (پیش از آن ۱، ۱، ۰).
