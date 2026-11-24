@@ -13475,3 +13475,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
 - **جدول‌ها:** `library-subjects` و `subject-libraries`.
 - **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
+### گام ۱۴.۳۴۲: `person_lives_step14_342_fuqaha.json`
+
+- **صافی (`blocker.py . fuqaha`):** ۶٬۲۹۵ مدخل بی‌پیوند؛ ۲٬۳۸۴ با نامزد (با ۲۱۴ مدخلِ پیونددار) و پس از کنار رفتن ارجاع‌ها و پیونددارها ۲٬۱۸۵ مدخل در ۴۴ دسته. سرعنوان‌های این منبع بیشتر شهرت‌اند («الزَّنجاني»، «العلقمي») و نام کامل پس از سال‌ها در آغاز متن می‌آید؛ زنجیرۀ دوم نام در `blocker.py` همین را می‌خواند.
+- **داوری:** ۴۴ زیرعامل Sonnet، `brief.txt` با نام منبع. ۱٬۱۳۶ پیوند (۵۲٪ مدخل‌ها)، ۱٬۰۴۹ «هیچ‌کدام»؛ ۱٬۱۲۷ شاهد عیناً در متن.
+- **`build.py fuqaha 14.342 <file>`:** `person_twice 6`، `dropped_second_entry 6`؛ ۱٬۱۳۰ پیوند. یک پیوند نادرستِ نمونۀ دستی (`heravi-mohammad-ebn-e-yusof-12331`، مدخل `284#1` جلد ۱۰) دستی برداشته شد: ۱٬۱۲۹ پیوند، ۹۴۶ با ۹۰ به بالا.
+- **تمرین (`fahares_prod`):** `created 1126`، `exists 4`؛ اجرای دوم `exists 1130`؛ سپس سطر همان پیوند نادرست از کپی محلی پاک شد (۱٬۱۲۵ سطر `name_llm`: ۹۴۴ با ۹۰ به بالا و ۱۸۱ زیر آن).
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_342_fuqaha.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
