@@ -13515,6 +13515,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
 - **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
 
+### گام ۱۴.۳۴۸: `Insights::completeness()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v22`. ثابت `COMPLETENESS`: کلید هر داده با نام و شرط آن. `completeness`: `copies`، `fields` (`key, name, count, share`)، `absent` (`date` و `scribe`: `stated`, `silent`)، `libraries` (`id, key, name, city, count, shares, mean`؛ `insights.completeness_libraries_shown` = ۲۰)، `library_count`، `fullest`، `barest`، `catalogers` (`insights.catalogers_shown`)، `volumes` (`id, title, count, shares, mean`؛ همۀ جلدها)، `min_copies` (`insights.completeness_min_copies` = ۳۰۰).
+- **نما:** `charts/completeness.blade.php`، آخرین نمودار `insights.topics.libraries`. جدول‌های داده: `completeness`، `completeness-libraries`، `completeness-catalogers`، `completeness-volumes`.
+- **آزمون:** `InsightsCompletenessTest`.
+
 ### گام ۱۴.۳۴۹: مرعشی ج ۳۶ و ۳۷ (نور)
 
 - **منبع:**
@@ -13529,9 +13535,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ردیف‌ها:** `km-mraashy-2` با شمارۀ جلد ۳۶ (ص ۱ تا ۸۴۷) و ۳۷ (ص ۱ تا ۹۳۴). `leaf_maps` تهی است.
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
 - **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
-### گام ۱۴.۳۴۸: `Insights::completeness()`
-- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
-- **[Insights](../app/Support/Insights.php):** کلید `insights.v22`. ثابت `COMPLETENESS`: کلید هر داده با نام و شرط آن. `completeness`: `copies`، `fields` (`key, name, count, share`)، `absent` (`date` و `scribe`: `stated`, `silent`)، `libraries` (`id, key, name, city, count, shares, mean`؛ `insights.completeness_libraries_shown` = ۲۰)، `library_count`، `fullest`، `barest`، `catalogers` (`insights.catalogers_shown`)، `volumes` (`id, title, count, shares, mean`؛ همۀ جلدها)، `min_copies` (`insights.completeness_min_copies` = ۳۰۰).
-- **نما:** `charts/completeness.blade.php`، آخرین نمودار `insights.topics.libraries`. جدول‌های داده: `completeness`، `completeness-libraries`، `completeness-catalogers`، `completeness-volumes`.
-- **آزمون:** `InsightsCompletenessTest`.
 
