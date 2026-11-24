@@ -13550,3 +13550,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
 - **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
 
+### گام ۱۴.۳۵۰: `Insights::derived()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v23`. ثابت `DERIVED`: نوع‌های `work_relations` که شمرده می‌شوند با نامشان (`related` و `part` نه). `derived`: `types` (`key, name, made, texts`)، `items` (ردیف اثر با `count` و `types`؛ `insights.derived_shown` = ۱۵)، `lists` (برای هر نوعِ `insights.derived_lists`، `insights.derived_list_shown` = ۸ متن)، `texts`، `made`، `languages` (زبان آثار ترجمه)، `titled` (`works, linked, share`؛ تنها برای کل داده).
+- **دامنه:** `whereWork` روی `work_relations.related_work_id` (متن پایه). شمارش‌ها `COUNT(DISTINCT work_id)` است.
+- **نما:** `charts/derived.blade.php`، در `insights.topics.works` پس از `century-works`؛ در دامنۀ یک اثر پنهان. جدول‌های داده: `derived-types`، `derived-texts`، `derived-commentary`، `derived-gloss`، `derived-translation`، `translation-languages`.
+- **آزمون:** `InsightsDerivedWorksTest`.
+

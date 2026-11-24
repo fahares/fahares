@@ -47,6 +47,7 @@ class InsightsNotes
         'librarySubjects' => 'آیا موضوع پررنگ، بیشترین نسخه‌های کتابخانه را دارد؟',
         'catalogers' => 'چرا این آمار به کار خوانندۀ ارقام دیگر می‌آید؟',
         'completeness' => 'آیا سهم پایین یعنی فهرست کم‌کاری کرده است؟',
+        'derived' => 'احتیاط.',
     ];
 
     private array $data;
@@ -66,7 +67,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -537,6 +538,35 @@ class InsightsNotes
         return [[
             'میله‌ها می‌گویند فهرست‌ها برای چه سهمی از نسخه‌ها هر یک از هشت داده را نوشته‌اند. دو جدول همین سهم‌ها را برای بزرگ‌ترین کتابخانه‌ها و پرکارترین فهرست‌نگاران می‌آورند؛ هر خانه درصد نسخه‌هایی است که آن داده را دارند، و خانۀ پررنگ‌تر سهم بیشتر است. ستون «میانگین» میانگین سادۀ هشت سهم است.',
             'نه. بسیاری از نسخه‌ها به‌راستی تاریخ یا نام کاتب ندارند، چون کاتب آن را ننوشته یا برگ پایانی افتاده است؛ فهرست این را با «بی‌تا» و «بی‌کا» می‌گوید. جای کتابت را هم کمتر کاتبی نوشته است. ولی شمار برگ، شمار سطر، ابعاد و خط را فهرست‌نگار خود می‌تواند ببیند و بنویسد، پس سهم پایین این چهار داده بیشتر از شیوۀ فهرست می‌گوید: فهرست مختصر، فهرست میکروفیلم و فهرست‌های کهن کمتر به آن‌ها پرداخته‌اند. آمار برگ، سطر، ابعاد و خط این صفحه را با همین سهم‌ها بخوانید.',
+        ], $examples];
+    }
+
+    private function derived(): array
+    {
+        $dv = $this->data['derived'];
+        $names = \App\Support\Insights::DERIVED;
+        $examples = [];
+        if ($first = $dv['items'][0] ?? null) {
+            $parts = [];
+            foreach ($first['types'] as $type => $n) {
+                $parts[] = self::n($n) . ' ' . $names[$type];
+            }
+            $examples[] = 'نخستین ردیف «' . $first['title'] . '»' . ($first['author'] ? ' از ' . $first['author'] : '') . ' است: ' . self::n($first['count']) . ' اثر بر پایۀ آن نوشته شده است (' . implode('، ', $parts) . ').';
+        }
+        if ($dv['made'] > 0) {
+            $examples[] = 'در این دامنه ' . self::n($dv['made']) . ' اثر بر پایۀ ' . self::n($dv['texts']) . ' متن نوشته شده است'
+                . (($type = $dv['types'][0] ?? null) ? '؛ ' . self::n($type['made']) . ' اثر ' . $type['name'] . ' است، بر ' . self::n($type['texts']) . ' متن.' : '.');
+        }
+        if ($language = $dv['languages'][0] ?? null) {
+            $examples[] = 'از ترجمه‌ها، ' . self::n($language['count']) . ' اثر به زبان ' . $language['name'] . ' است.';
+        }
+        if ($dv['titled']) {
+            $examples[] = 'از ' . self::n($dv['titled']['works']) . ' اثری که عنوانشان با «شرح» آغاز می‌شود، ' . self::n($dv['titled']['linked']) . ' اثر (' . self::pct($dv['titled']['share']) . ') به متن خود پیوند دارد.';
+        }
+
+        return [[
+            'جدول متن‌هایی را می‌آورد که بیشترین اثر بر پایه‌شان نوشته شده است: شرح، حاشیه، ترجمه، تلخیص، تکمله، نظم و ردیه. سه فهرست زیر آن، پرشرح‌ترین، پرحاشیه‌ترین و پرترجمه‌ترین متن‌ها را جدا می‌آورند. روی عنوان بزنید تا صفحۀ متن و آثار وابسته‌اش را ببینید.',
+            'این ارقام کف شمارند، نه همۀ آنچه هست. پیوند شرح به متن از مدخل‌های فهرست برآمده است، و شرحی که فهرست آن را زیر متن خود نیاورده یا متنش در این داده رکوردی ندارد شمرده نشده است. شمار، شمار آثار است نه نسخه‌ها: شرحی با صد نسخه و شرحی با یک نسخه هر دو یک اثرند. حاشیه بر شرحِ یک متن هم به نام همان شرح شمرده شده است، نه به نام متن نخست.',
         ], $examples];
     }
 
