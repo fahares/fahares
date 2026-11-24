@@ -109,4 +109,39 @@ class WorkCatalogueEntriesTest extends TestCase
         $this->assertSame([$by->id, $anon[0]->id, null, $anon[1]->id, null, null, $other->id, $glosses[0]->id, $glued->id, null],
             DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->pluck('linked_work_id')->all());
     }
+
+    /** Step 14.337: a row of «وابسته به» that is only a name is the base text's author, tied to the person, and no work */
+    public function test_a_row_that_is_only_the_base_texts_author_is_tied_to_the_person()
+    {
+        $person = fn (string $name, array $more = []) => \App\Models\Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'cat-p-' . uniqid(), 'is_author' => true] + $more);
+        $imam = $person('علی بن حسین (ع)، امام چهارم', ['death_year_hijri' => 94]);
+        $kashi = $person('کشی، ابراهیم');
+        $person('نامی، دوگانه', ['death_year_hijri' => 500]);
+        $late = $person('نامی، دوگانه', ['death_year_hijri' => 700]);
+        $row = fn (Work $w) => (array) DB::table('work_text_relations')->where('work_id', $w->id)->first(['type', 'linked_person_id', 'text']);
+
+        // a name with its life dates, of one person; with no dates, of one person; of two people, told by the year
+        $sharh = $this->work('شرح صحیفه', 'کسی، الف', ['related_work' => 'علی بن حسین (ع)، امام چهارم (38-94ق)']);
+        $this->assertSame(['type' => 'author', 'linked_person_id' => $imam->id, 'text' => 'علی بن حسین (ع)، امام چهارم (38-94ق)'], $row($sharh));
+        $this->assertSame($kashi->id, $row($this->work('شرح وسائل', 'کسی، ب', ['related_work' => 'کشی، ابراهیم']))['linked_person_id']);
+        $this->assertSame($late->id, $row($this->work('شرح دیگر', 'کسی، ج', ['related_work' => 'منسوب به نامی، دوگانه (-700)']))['linked_person_id']);
+        // two people of the name and no year to tell them: the author still, tied to none
+        $this->assertSame(['author', null], array_slice(array_values($row($this->work('شرح سوم', 'کسی، د', ['related_work' => 'نامی، دوگانه (-600)']))), 0, 2));
+        // a name no person has is an entry as before: it may be a title with its author written after it
+        $this->assertSame('related', $row($this->work('شرح چهارم', 'کسی، ه', ['related_work' => 'آب حیات ناشناخته، فلان بن بهمان (-300)']))['type']);
+        $this->assertSame('related', $row($this->work('شرح ششم', 'کسی، ز', ['related_work' => 'ناشناخته، فلان']))['type']);
+        // a title and its author are an entry as before
+        $this->assertSame('related', $row($this->work('شرح پنجم', 'کسی، و', ['related_work' => 'الصحیفة؛ علی بن حسین (ع)، امام چهارم (38-94ق)']))['type']);
+
+        // the page: the author under his own label and linked, and no «unlinked» work; the search reads no title from it
+        $page = WorkCatalogueEntries::page($sharh);
+        $this->assertSame([[], [['text' => 'علی بن حسین (ع)، امام چهارم (38-94ق)', 'person' => $imam->id]]], [$page['unlinked'], $page['authors']]);
+        $this->assertNotContains('علی بن حسین (ع)، امام چهارم', $sharh->baseTitles());
+        $this->followingRedirects()->get(route('works.show', $sharh))->assertOk()->assertSee('پدیدآور متن اصلی')
+            ->assertSee('<a href="' . route('people.show', $imam) . '"', false)->assertDontSee('بی پیوند به رکورد اثر');
+        // the person gone, no person has the name: the row is an entry again
+        $imam->delete();
+        $this->assertSame(1, WorkCatalogueEntries::tie($sharh));
+        $this->assertSame(['related', null], array_slice(array_values($row($sharh)), 0, 2));
+    }
 }

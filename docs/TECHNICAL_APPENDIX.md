@@ -11977,6 +11977,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 1490`، `exists 23`؛ اجرای دوم `exists 1513`؛ `--undo` بی `--apply`: `removed 1490`. در پایگاه: `name_llm` ۱٬۰۵۳ سطر با اطمینان ۹۰ به بالا و ۴۳۷ سطر زیر آن، همه با یادداشت شاهد. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php` (دو آزمون تازه).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای `source_entries` با `citable_type = Person` و `source_id` طبقات، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_232_tabaqat.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان ۸۶۰ سطر `source_entries` اشخاص در طبقات و أعیان: `../fahares-sources/backups/step13/step14_232_237_person_lives_before.jsonl.gz` (md5 `9613c159…`)، مستقیم از خروجی tinker به این ماشین، بی فایلی در کانتینر. زیر `prod-run`: `created 1427`، `exists 22`، `has_life 64`. اجرای دوم بی `--apply`: `created 0`، `exists 1449`. در پایگاه ۱٬۴۲۷ سطر `name_llm`، ۱٬۰۰۰ با اطمینان ۹۰ به بالا، همه با یادداشت شاهد.
 
 ### گام ۱۴.۲۳۳: `FixLifeYearsCommand::SOLAR` از منابع تراجمی سایت
 
@@ -12089,6 +12090,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** همان پشتیبان گام ۱۴.۲۳۲. زیر `prod-run`: `created 792`، `exists 36`، `has_life 81`. اجرای دوم بی `--apply`: `created 0`، `exists 828`. در پایگاه ۷۹۲ سطر `name_llm`، ۵۲۰ با اطمینان ۹۰ به بالا. پدیدآورانِ دارای زندگی‌نامه (شخص با `works_count > 0` و سطر ردنشدۀ منبع `biographical`): ۳٬۶۱۸ از ۱۵٬۱۹۹؛ پیش از دو اجرا ۲٬۳۸۵.
 
 ### گام ۱۴.۲۳۸: نام صفحۀ مقصد روی پاسخ‌های `x-date-conflict-note`
 - **`DateConflictNote::PAGE_OF`:** «صفحۀ شخص»، «صفحۀ اثر»، «صفحۀ نسخه». `choice()` کلید `page` را برمی‌گرداند: برای پاسخی که `url` دارد نام صفحۀ رکورد دیگر، وگرنه `null`.
@@ -13362,6 +13364,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `catalogs:set-facsimiles`: «1 created, 1 updated, 239 unchanged»، سپس «0 updated». جلد تازه #۷۴۳. `move-cited-part`: «2727 copies on #519; 1: 1624, 2: 1100, 5: 2, none: 1»، «Moved 1100 copies.»؛ هر ۱٬۱۰۰ ارجاع روی #۷۴۳ در ص ۱–۳۵۰‌اند.
 - **وارسی:** ج ۲ عکسی ص ۷۲ (۲۳۱/۳)، ۱۹۵ (۲۱۰/۷) و ۱۱۵ (۳۴/۱۹) نسخه را دارند؛ ص ۲۴۳ برای ۱۵۰ «لطائف العرفان» نادرست است (صفحه زیر «مج» است؛ خطای فنخا).
 - **پس از انتشار، به ترتیب:** فرستادن `dairat-akasi/v02` و `majlis/v36` با `send.sh`؛ پشتیبان؛ `catalogs:set-facsimiles`؛ پشتیبان جای نسخه‌های #۵۱۹؛ `catalogs:move-cited-part --library=thran-dayrh-almaaarf-20 --cited-volume=2 --from="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول" --to="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم"`، نخست بی `--apply`. شناسۀ جلد تازه در تولید جز ۷۴۳ خواهد بود.
+- **اجرا در تولید (۳ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
 
 ### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
 - **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
@@ -13386,7 +13389,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `InsightsAuthorsFormatsTest::test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted`.
 - **فهرست دوم پیش از آستانه (رونوشت محلی):** صحبت‌الله خان ۲۶۳ + ۱، حکیم هندی ۱۳۰ + ۱، مراغی ۱۰۰ + ۲، «علی بن محمد» ۶۱ + ۱. **پس از آن:** گلپایگانی (زین‌العابدین) ۶۷ + ۳، عبرت نائینی ۲۹ + ۷، زنوزی ۲۰ + ۳، حر عاملی ۱۵ + ۳۶، مجلسی ۱۳ + ۱۰۰.
 
-- **اجرا در تولید (۴ آذر ۱۴۰۵، پس از انتشار ۲۱۰؛ گام‌های ۱۴.۳۳۲ و ۱۴.۳۳۳ با هم):** ۱٬۱۰۰ برگه با `send.sh` (C=tehran-univ-nashriyye، dairat-akasi، majlis) فرستاده شد؛ شمار هر چهار پوشه در سرور و لپ‌تاپ برابر است (۶۹۷، ۱٬۰۳۴، ۳۵۰، ۴۵۴)، و مالک پوشه‌های تازه مانند بقیه شد. پشتیبان `../fahares-sources/backups/step13/before_step14_333_set_facsimiles_move_20261124_1100.json` (md5 `e7de07ac45ea4f46beb5bbc88e7f33c5`؛ ۴ جلد و ۲٬۷۲۷ نسخۀ #۵۱۹ با ارجاع‌هایشان). با `prod-run`: `catalogs:set-facsimiles` «1 created, 3 updated, 237 unchanged» و اجرای خشک پس از آن «0 updated, 241 unchanged»؛ جلد تازه در تولید هم #۷۴۳ است. `move-cited-part --cited-volume=2`: اجرای خشک «1: 1624, 2: 1100, 5: 2, none: 1»، سپس «Moved 1100 copies.» و اجرای خشک دوم «0 copies to move». روی سایت: ۱٬۱۰۰ ارجاع روی #۷۴۳، ۹۵۱ روی مجلس ج ۳۶، ۲۶۹ در دفتر ۶ (ص ۶۵۱–۶۹۸) و ۱٬۰۷۹ در دفتر ۱۱ (ص ۷۸۷–۱۰۳۴). از هر جلد دو نسخۀ تصادفی در fahares.net به برگۀ صفحۀ خود می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
+### گام ۱۴.۳۳۷: `WorkCatalogueEntries::AUTHOR`، `authorOnly()` و `linked_person_id`
+- **migration `2026_11_24_100001_add_linked_person_to_work_text_relations`:** `linked_person_id` (تهی‌پذیر، کلید خارجی به `people`، `nullOnDelete`) پس از `linked_work_id`.
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):**
+  - `AUTHOR = 'author'` و `NOT_ENTRIES = [NOTE, AUTHOR]`.
+  - `authorOnly($text)`: متنِ دارای «؛»، «=» یا گیومه نه. «منسوب به» از آغاز و کمانکِ تاریخ‌دار از پایان برداشته می‌شود (سال وفات: عدد پس از «-»). نام باید «،» یا « بن » یا «(ع)» داشته باشد و کلیدش (`authorKey`) در `people()` باشد. چند شخص: آن که `death_year_hijri`ش سال متن است؛ اگر باز چندتاست، `person = null`. نامِ بی‌تاریخ: فقط با یک شخص و وقتی `works.clean_title` برابر آن نیست.
+  - `people()`: کلید هر نام و نام دیگرِ هر شخص ← `[id => سال وفات]`، نگه‌داشته در `static` و با تغییر `COUNT`، `MAX(id)` یا `MAX(updated_at)` جدول از نو خوانده می‌شود. فقط وقتی سطری از صافی متنی می‌گذرد ساخته می‌شود.
+  - `tie()`: برای هر سطر `related` که پیوندِ تصمیم یا داور ندارد: اگر `authorOnly`، `type = author`، `linked_person_id` و پاک‌شدن پیوند اثر؛ اگر `type = author` بود و دیگر نیست، `type = related` و `linked_person_id = null`. سپس سطرهای `author` از ادامۀ `tie` کنار می‌روند. شمار این تغییرها به خروجی افزوده می‌شود.
+  - `page()`: کلید `authors` (`text`، `person`)؛ این سطرها در `unlinked` نیستند.
+- **[WorkRelationLinker::pairs](../app/Support/WorkRelationLinker.php)** و **[Work::baseTitles](../app/Models/Work.php):** `whereNotIn('type', NOT_ENTRIES)`. صف پنل (`madeOn`) سطر پدیدآور را همچنان در «وابسته به»ی نامزد نشان می‌دهد.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** گروه «پدیدآور متن اصلی» (ترتیب `-1`)؛ مورد با کلید `person`: پیوند `people.show` با متن فهرست، یا متن ساده.
+- **ترتیب در فرمان:** `works:link-related` نخست جفت‌ها را می‌سازد و سپس `tie` سطرها را نشان می‌کند، پس اثر تغییر نوع سطر بر رابطه‌ها در اجرای بعدی دیده می‌شود. با قاعدۀ کنونی هیچ سطرِ `author`ی رابطه نمی‌دهد (رونوشت محلی: ۱۰٬۸۲۷ پیش و پس)، ولی اجرای دوم در پروداکشن برای اطمینان لازم است.
+- **آزمون:** `WorkCatalogueEntriesTest::test_a_row_that_is_only_the_base_texts_author_is_tied_to_the_person`.
+- **تمرین (`fahares_prod` محلی، ۳ آذر ۱۴۰۵):** نسخۀ نخست: «Entries: 535»، اجرای دوم «0 to add, 63 to remove» (۱۸۳ سطر `author` بی شخص، از جمله «آب حیات استرآبادی، محمد جعفر بن سیف الدین (1263-1198)»). پس از اصلاح، سه اجرا: «Entries: 279» بی تغییر رابطه؛ «63 to add»، «Entries: 91»؛ سپس همه صفر. پایان: `author` با شخص ۳۵۲ و بی شخص صفر؛ `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۱٬۸۱۳؛ صفحه‌ها «بی پیوند» ۲٬۰۵۹، «پدیدآور» ۳۵۲.
+- **اجرا در تولید، پس از استقرار (پشتیبان دو جدول رابطه پیش از آن):** `works:link-related --dry-run`، اجرا، و اجرای دوم؛ انتظار: رابطه‌ها بی تغییر در هر دو، و حدود ۳۵۰ سطر در اجرای یکم.
+
+### گام ۱۴.۳۳۸: بریدن «انجام» و یادداشت‌های v2.8.0
+
+- **سنجش:** نسخه‌هایی که `explicit` آن‌ها میان `scratch/fankha_v2_271` و خروجی کنونی دگرگون شده و `explicit_text` سایت نه مقدار پیشین v2 است و نه تازه: ۴۲. با `letters()`: «سایت در پایان بیشتر دارد» ۴۰، «v2 درون متن سایت» ۱، «دیگر» ۱.
+- **پروندۀ بریدن (اسکریپت یک‌باره):** جای برش آن جاست که حروف متن سایت به شمار حروف `explicit` تازه برسد، با نشانۀ پایانی («.»، «»»، «)») پس از آن. هر تکۀ دنباله (جدا با «؛» و سطر) باید با حروفش در یادداشت‌های تازۀ همان نسخه باشد، مگر گروه «کاتب/خط/تا». `database/data/fankha_explicit_cuts_step14_338.json`: ۳۰ رکورد `{explicit_text: {from, to}}` (۹ رکورد بی دنباله برداشته شد).
+- **`ImportCopyNotesCommand`:** سطر باید `id` و آرایۀ `notes` داشته باشد؛ آرایۀ تهی «changed» شمرده می‌شود و ردیف‌ها برداشته می‌شوند. نگهبان «ویراستار یادداشتی را دست زده» همان است.
+- **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
+- **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
+- **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
 
 ### گام ۱۴.۳۳۹: `Insights::anonymous()`
 - **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت آثار ستون `author_named` دارد (`author_name` ناتهی).
@@ -13403,3 +13428,34 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پیش از این:** `required_pull_request_reviews` با `require_code_owner_reviews: true`، `lock_branch: true`، `enforce_admins: false`؛ پوش مدیر با «Bypassed rule violations … Changes must be made through a pull request … Cannot change this locked branch» می‌گذشت.
 - **اکنون:** `gh api -X PUT repos/fahares/fahares/branches/main/protection` با `{"required_status_checks": null, "enforce_admins": false, "required_pull_request_reviews": null, "restrictions": null, "allow_force_pushes": false, "allow_deletions": false, "lock_branch": false}`.
 - **وارسی:** پوش همین گام بی پیام «Bypassed rule violations» گذشت.
+
+### گام ۱۴.۳۴۱: `fahares:fix-wrong-links` و `wrong_links_step14_341.json`
+
+- **گروه:** ۱۲ شخص گام ۱۴.۲۳۳ که زندگی‌نامۀ پیوندخورده سال وفات قمری‌شان را تأیید می‌کند. ناسازگاری مستقیم‌شان در `fahares_prod` (اجرای ۲۵ آبان): ۱۵ «کاتب»، ۷ «خط مؤلف»، ۵ «مهدی‌الیه»، ۲ «مؤلف»؛ روی هم ۱۷ رکورد.
+- **شش اصلاح (فایل تصمیم، هر مورد با `why`):**
+
+  | نوع | رکورد | متن فنخا | شاهد | تغییر |
+  | --- | --- | --- | --- | --- |
+  | `works` | «سماء المقال في تحقيق علم الرجال» | مؤلف: ابوالمعالی کلباسی (د. ۱۳۱۵) | الذریعة ۱۲/۲۲۹ و پنج منبع دیگر: از ابوالهدی کلباسی (د. ۱۳۵۶) | مؤلف ← «کلباسی، ابوالهدی»؛ کاتب نسخۀ خط مؤلف (مرکز احیاء ۱۳۸۵، ۱۳۴۰ق) هم |
+  | `works` | «خوشنویسی» | مؤلف: کلهر (د. ۱۳۱۰) | شرح فنخا: اسناد عصر مشروطیت، خاندان غفاری؛ نسخه ۱۳۲۹ق | مؤلف خالی؛ نسخه «خط مؤلف» می‌ماند، بی پیوند کاتب |
+  | `works` | «غزلیات عاشق» | مؤلف: تاجر همدانی (د. ۱۳۴۰) | ترقیمه: «محمدتقی عاشق همدانی … ۱۳۶۴» | شخص تازه «عاشق همدانی، محمد تقی» |
+  | `not_autograph` | «نزهة الالباب» گوهرشاد 1690/1 | «کاتب = مؤلف، ۱۴ ربیع الثانی ۱۳۳۰ق» | وفات مؤلف ۱۳۰۰ (پنج منبع) | پیوند کاتب و نشان خط مؤلف برداشته شد |
+  | `not_autograph` | «هدية النملة» شیخ علی حیدر 486/6 | «کاتب = مؤلف، جمادی الثانی ۱۳۳۰ق» | وفات مؤلف ۱۴ ربیع الاول ۱۳۱۸ (دو منبع) | همان |
+  | `scribes` | کاتب «احمد بن محمد رضا خوانساری» | ۷ نسخه، شش تا تاریخ‌دار از ۱۳۲۵ تا ۱۳۵۶ | میرزا منظور حدود ۱۳۲۳ در اصفهان درگذشته | شخص تازه «خوانساری، احمد بن محمد رضا (کاتب)»؛ نسخۀ خط مؤلف میرزا منظور نزد او می‌ماند |
+
+- **فرمان `fahares:fix-wrong-links [--file=] [--apply]`:**
+  - رکوردها با متن پیدا می‌شوند (عنوان و نام مؤلف؛ کتابخانه و شمارۀ نسخه؛ نام شخص و نام کاتب)، نه شناسه.
+  - `works`: `SuggestionApplier::apply` روی فیلد `author_name` با `person_action` برابر `link`، `create` یا `clear`. نسخه‌های `is_autograph` که کاتبشان مؤلف پیشین است، با فیلد `scribe_name` به مؤلف تازه بسته می‌شوند؛ اگر مؤلفی نماند، پیوند کاتب می‌رود و `is_autograph` می‌ماند.
+  - `not_autograph`: `scribe_name` با `clear`، که `is_autograph` را هم برمی‌دارد.
+  - `scribes`: `RecordSplitter::splitPerson` برای نسخه‌هایی که `scribe_name` همان نام را دارد و خط مؤلف نیستند؛ ثبت با کنش `split`.
+  - ثبت: `AuditLog` با کنش `verify`، `direct_edit`، `step` و `why`. `ProtectedColumns` این ستون‌ها را از درون‌ریزی پیکره نگه می‌دارد.
+  - اجرای دوباره: رکوردی که همان است «already right» شمرده می‌شود؛ رکوردی که دیگر مطابق فایل نیست «not as the file says» و دست‌نخورده می‌ماند.
+- **تمرین روی `fahares_prod`:** «6 changed»، اجرای دوم «6 already right». پس از `estimate-dates --apply`: ۲٬۶۴۶ ناسازگاری مستقیم (پیش از آن ۲٬۶۶۰) و ۹٬۷۸۴ غیرمستقیم. «تاجر همدانی» پس از اصلاح اثر و نسخه‌ای ندارد و ردیفش می‌ماند.
+- **آزمون:** `FixWrongLinksCommandTest` (۱).
+- **ناسازگاری‌های موجه (داده عوض نمی‌شود؛ در صفحۀ بازبینی با یادداشت رد شوند):** «اشارات حسینیه» (در زمان ناصرالدین شاه آغاز و در ۱۳۱۴ تمام شده)، «حقوق بین الملل» (به دستور او، پایان ترجمه ۱۳۱۷)، و به احتمال «مقدمه ژائولوژی» (۱۳۱۴).
+- **بی‌تصمیم (تصویر برگۀ فهرست یا خود نسخه می‌خواهد):**
+  - تاریخ کتابت پس از وفات کاتب، به احتمال بدخوانی سال: اجازۀ محمدهاشم خوانساری (مرعشی 13170/1، «شب غدیر 1320ق» با مُهر مؤلف؛ وفات ۱۳۱۸)، دیوان مشتری (ملک 6054، «1347ق»؛ همان مدخل «1392» را به‌جای ۱۲۹۲ دارد)، ژیل بلاس به خط میرزا آقاخان کرمانی (دانشگاه 3601-ف، «1316ق»؛ وفات ۱۳۱۴).
+  - «نقل مجلس» میبدی: تألیف و کتابت ۱۳۱۷، وفات مؤلف ۱۳۱۳ (اثر و نسخه‌اش).
+  - «الارث» هادی تهرانی: «تاریخ تألیف ۱۴ ربیع الاول ۱۳۳۴ق»، وفات ۱۳۲۱.
+  - «شرح الصلوات»: تاریخ تألیف ۱۳۲۲ برابر سال وفات مؤلف، و اهدا به ناصرالدین شاه.
+  - «ارمغان ندیم»: تألیف ۱۳۳۸ و اهدا به ناصرالدین شاه.

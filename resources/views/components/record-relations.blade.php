@@ -17,6 +17,11 @@
         foreach (\App\Suggestions\RecordRelations::texts($record) as $label => $items) {
             $groups->put($label, ($groups->get($label) ?? collect())->concat($items->map(fn ($item) => $item + ['manual' => true])));
         }
+        // a row of «وابسته به» that is only the name of the base text's author (step 14.337): tied to the person, no work
+        if ($rows['authors']) {
+            $people = \App\Models\Person::whereIn('id', array_filter(array_column($rows['authors'], 'person')))->get()->keyBy('id');
+            $groups->put('پدیدآور متن اصلی', collect($rows['authors'])->map(fn ($row) => ['text' => $row['text'], 'person' => $people[$row['person']] ?? null]));
+        }
         foreach ($rows['unlinked'] as $row) {
             $label = \App\Suggestions\RecordRelations::WORK_TYPES[$row['type']][$row['side'] === 'related' ? 0 : 1] ?? null;
             if ($label) {
@@ -25,7 +30,7 @@
         }
         // the kinds in their own order, «وابسته» (the kind not told) last
         $order = collect(\App\Suggestions\RecordRelations::WORK_TYPES)->flatMap(fn ($labels) => $labels)->values()->flip();
-        $groups = $groups->sortBy(fn ($items, $label) => $order[$label] ?? 99);
+        $groups = $groups->sortBy(fn ($items, $label) => $label === 'پدیدآور متن اصلی' ? -1 : ($order[$label] ?? 99));
     }
 @endphp
 @php
@@ -63,6 +68,12 @@
                                     @if($item['note'])<span class="text-[11px] text-muted"> ({{ $item['note'] }})</span>@endif
                                     @if($words = $printed[$item['record']->id] ?? null)<span class="block text-[11px] text-muted">در فهرست: {{ Fa::digits($words) }}</span>@endif
                                     @if($item['credit'] ?? null)<span class="block text-[10px] text-muted">به پیشنهاد {{ $item['credit'] }}</span>@endif
+                                @elseif(array_key_exists('person', $item))
+                                    @if($item['person'])
+                                        <a href="{{ route('people.show', $item['person']) }}" class="font-semibold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ Fa::digits($item['text']) }}</a>
+                                    @else
+                                        <span class="text-ink">{{ Fa::digits($item['text']) }}</span>
+                                    @endif
                                 @else
                                     {{-- a work with no record on the site: an entry of the catalogue tied to no work, or a relation added by hand --}}
                                     <span class="text-ink">{{ Fa::digits($item['text']) }}</span>

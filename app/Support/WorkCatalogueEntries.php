@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Helpers\TextNormalizer;
 use App\Models\Work;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,15 @@ class WorkCatalogueEntries
 
     /** The type of a row that is what a field says after its entries, not an entry */
     public const NOTE = 'note';
+
+    /** The type of a row of «وابسته به» that is only the name of the author of the text the work is made on (step 14.337) */
+    public const AUTHOR = 'author';
+
+    /** The types of the rows that are no entry of a work */
+    public const NOT_ENTRIES = [self::NOTE, self::AUTHOR];
+
+    /** @var array{0: string, 1: array<string, array<int, ?int>>}|null the people by the key of each of their names, and what they were read from */
+    private static ?array $people = null;
 
     /**
      * The rows the two texts give, in their place: every entry, a field the parser reads no entry in as one row as
@@ -129,6 +139,22 @@ class WorkCatalogueEntries
         if ($rows->isEmpty()) {
             return 0;
         }
+        // the rows that are only the name of the base text's author: no entry of a work, tied to the person
+        $authors = 0;
+        foreach ($rows as $row) {
+            $author = $row->side === 'related' && ! ($row->link_status === 'linked' && $row->link_source !== 'auto') ? self::authorOnly($row->text) : null;
+            if ($author) {
+                if ($row->type !== self::AUTHOR || (int) $row->linked_person_id !== (int) $author['person'] || $row->link_status !== null) {
+                    $authors += DB::table('work_text_relations')->where('id', $row->id)->update(['type' => self::AUTHOR, 'linked_person_id' => $author['person'],
+                        'linked_work_id' => null, 'link_status' => null, 'link_source' => null, 'differs' => false]);
+                }
+                $row->type = self::AUTHOR;
+            } elseif ($row->type === self::AUTHOR) {
+                $authors += DB::table('work_text_relations')->where('id', $row->id)->update(['type' => 'related', 'linked_person_id' => null]);
+                $row->type = 'related';
+            }
+        }
+        $rows = $rows->where('type', '<>', self::AUTHOR)->values();
         $relations = DB::table('work_relations')->where('work_id', $work->id)->orWhere('related_work_id', $work->id)->get(['work_id', 'related_work_id']);
         $others = Work::whereIn('id', $relations->flatMap(fn ($r) => [$r->work_id, $r->related_work_id])->reject(fn ($id) => $id == $work->id)->unique())
             ->get(['id', 'clean_title', 'primary_title', 'alternative_titles', 'author_name'])->keyBy('id');
@@ -263,23 +289,81 @@ class WorkCatalogueEntries
             }
         }
 
-        return $changed;
+        return $changed + $authors;
+    }
+
+    /**
+     * Whether a row of «وابسته به» is only a name, the author of the text the work is made on, with no title: «علی بن
+     * حسین (ع)، امام چهارم (38-94)», «منسوب به علی بن ابی طالب (ع)، امام اول (-40ق)», «کشی، ابراهیم». It is one only when
+     * the whole of it is the name of a person: «آب حیات استرآبادی، محمد جعفر (1198-1263)» is a title with its author
+     * after it and an entry. A name with no life dates must also be one person's, and no work's title.
+     *
+     * @return array{name: string, person: ?int}|null the name, and the one person of that name (none when several have it)
+     */
+    public static function authorOnly(string $text): ?array
+    {
+        if (preg_match('/[؛;=«»]/u', $text)) {
+            return null;
+        }
+        $name = trim(preg_replace('/^\s*منسوب به\s+/u', '', $text));
+        $died = null;
+        if ($dated = (bool) preg_match('/^(.*?)\s*\(([^()]*\d[^()]*)\)\s*$/su', $name, $m)) {
+            $name = trim($m[1]);
+            $died = preg_match('/-\s*(\d+)/u', TextNormalizer::normalize($m[2]), $d) ? (int) $d[1] : null;
+        }
+        // a name: «family, given», «given son of», an imam's «(ع)»
+        if ($name === '' || mb_strlen($name) > 80 || ! preg_match('/،|\sبن\s|\(ع\)/u', $name)) {
+            return null;
+        }
+        if (! ($ids = self::people()[WorkRelationLinker::authorKey($name)] ?? [])) {
+            return null;
+        }
+        $ofYear = $died ? array_filter($ids, fn ($year) => $year === $died) : [];
+        $ids = count($ids) > 1 && $ofYear ? $ofYear : $ids;
+        $person = count($ids) === 1 ? array_key_first($ids) : null;
+        if (! $dated && (! $person || DB::table('works')->where('clean_title', $name)->exists())) {
+            return null;
+        }
+
+        return ['name' => $name, 'person' => $person];
+    }
+
+    /** The people by the key of each of their names => [id => year of death]; read again when the table has changed */
+    private static function people(): array
+    {
+        $now = implode('|', (array) DB::table('people')->selectRaw('COUNT(*) n, MAX(id) i, MAX(updated_at) u')->first());
+        if ((self::$people[0] ?? null) !== $now) {
+            $map = [];
+            foreach (DB::table('people')->select('id', 'name', 'aliases', 'death_year_hijri')->lazyById(5000) as $p) {
+                foreach ([$p->name, ...array_filter(json_decode($p->aliases ?? '[]', true) ?: [], 'is_string')] as $name) {
+                    if (($key = WorkRelationLinker::authorKey($name)) !== '') {
+                        $map[$key][$p->id] = $p->death_year_hijri ? (int) $p->death_year_hijri : null;
+                    }
+                }
+            }
+            self::$people = [$now, $map];
+        }
+
+        return self::$people[1];
     }
 
     /**
      * For the relations section of the work's page: the catalogue's words for a tied work where they differ from its
-     * record («printed», by the work's id), the rows tied to no work («unlinked»), and the notes.
+     * record («printed», by the work's id), the rows tied to no work («unlinked»), the notes, and the rows that are
+     * only the base text's author («authors»: the catalogue's words and the person's id).
      *
-     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>, notes: list<string>}
+     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>, notes: list<string>, authors: list<array{text: string, person: ?int}>}
      */
     public static function page(Work $work): array
     {
-        $out = ['printed' => [], 'unlinked' => [], 'notes' => []];
+        $out = ['printed' => [], 'unlinked' => [], 'notes' => [], 'authors' => []];
         $rows = DB::table('work_text_relations')->where('work_id', $work->id)->where('source', self::SOURCE)
-            ->orderBy('side', 'desc')->orderBy('position')->orderBy('id')->get(['side', 'type', 'text', 'linked_work_id', 'link_status', 'differs']);
+            ->orderBy('side', 'desc')->orderBy('position')->orderBy('id')->get(['side', 'type', 'text', 'linked_work_id', 'linked_person_id', 'link_status', 'differs']);
         foreach ($rows as $row) {
             if ($row->type === self::NOTE) {
                 $out['notes'][] = $row->text;
+            } elseif ($row->type === self::AUTHOR) {
+                $out['authors'][] = ['text' => $row->text, 'person' => $row->linked_person_id];
             } elseif ($row->link_status !== 'linked') {
                 $out['unlinked'][] = ['side' => $row->side, 'type' => $row->type, 'text' => $row->text];
             } elseif ($row->differs) {
