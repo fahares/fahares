@@ -13829,7 +13829,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
 - **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.
-- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_370_person_lives_before.jsonl.gz` (۹۱۱ سطر، md5 `f71955ba…`). اجرای آزمایشی و `--apply`: `rawdat` `created 150`، `has_life 13`؛ `mosaffa` `created 200`، `exists 1`، `has_life 17`؛ `mushar_authors` `created 601`، `exists 3`، `has_life 7`؛ اجرای دوم هر سه `created 0`. سطرهای اشخاص: `rawdat` ۱۹۴ (۱۵۰ با `name_llm`، ۱۳۱ با ۹۰ به بالا)، `mosaffa` ۲۹۸ (۲۰۰، ۱۷۷)، `mushar-authors` ۱٬۳۷۰ (۶۰۱، ۴۴۴). پدیدآورندگانِ پیونددار: ۴٬۷۳۳ از ۱۵٬۱۹۹؛ همۀ اشخاص: ۴٬۷۳۷ از ۶۶٬۳۰۳، نشان‌داده ۴٬۱۶۲. سطرها به روش: `name_llm` ۷٬۵۰۴، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحه‌های `/p/67241`، `/p/423` و `/p/147` با کد ۲۰۰ و نام منبع دیده شد.
 
 ### گام ۱۴.۳۷۱: `fankha_alt_title_step14_371.json`
 - **فایل تصمیم:** `category` «editorial_correction»؛ یک `work_updates` برای `shrh-frayd-alsgaondy-v20-366` با تنها یک ستون: `alternative_titles`، از «شرح الفزائض السراجية» به «شرح الفرائض السراجية» (آوانگاری همان).
@@ -13843,3 +13842,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **متن صفحه:** یک سطر JSON با `page` ۲۲۱ و متن `source_pages` #۴۶۹۰۱ با همان یک جایگزینی. `sources:import-pages` با `upsert` بر (`source_volume_id`، `page`) فقط همان صفحه را می‌نویسد؛ ۹۸۱ صفحۀ جلد سر جایشان ماندند. جایگزینی یک نویسه به یک نویسه است، پس جای نویسه‌ها در صفحه عوض نمی‌شود.
 - **تمرین محلی (`fahares_prod`):** «update 1» / «update 0»؛ «1 pages saved»؛ شمار «الفزائض»: آثار ۰، صفحه‌ها ۰، نسخه‌ها ۰ (پیش از آن ۱، ۱، ۰).
 - **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، دو `prod-run --wait` پیاپی):** پشتیبان ردیف اثر و ردیف `source_pages` #۴۶۹۰۱ در `../fahares-sources/backups/step13/step14_372_work40507_page221_backup.json` (md5 `7c4eb771…`). `add-corpus-works`: «update 1»، «works=1»، بار سوم «update 0». `sources:import-pages`: «1 pages saved». وارسی: «الفزائض» در آثار ۰ و صفحه‌ها ۰؛ صفحۀ ۲۲۱ همان ۳٬۳۷۶ نویسه؛ جلد ۲۰ همان ۹۸۱ صفحه.
+
+### گام ۱۴.۳۷۳: مرعشی ج ۲۹، ۳۰، ۳۳ و ۳۸ (نور)
+
+- **منبع:** `../fahares-sources/marashi/v{29,30,33,38}.pdf`، پیوند سخت به دانلودهای کاربر. شمار برگ‌ها: ۷۸۵، ۹۱۲، ۹۶۰ و ۸۵۵، همه ۷۲۳×۱۰۲۴. MD5 هر چهار در `MD5SUMS` ثبت است. لایۀ متن ندارند.
+- **نگاشت برگ به صفحه:**
+  - برگ ۱ جلد و برگ ۲ برگۀ اطلاعات نور است.
+  - ج ۲۹ `--offset 1` (سرصفحۀ برگ‌های ۱۲، ۱۰۲، ۳۰۰، ۵۰۰، ۶۱۸ و ۷۸۴ خوانده شد). ج ۳۰ `--offset 0` (برگ‌های ۲۰، ۳۰۰، ۵۰۰ و ۹۱۱). ج ۳۳ `--offset 0` (۳۰۰، ۵۰۰ و ۹۵۹). ج ۳۸ `--offset -1` (۱۵، ۳۰۰، ۵۰۰ و ۸۵۴).
+  - سنجش محتوا: ج ۲۹ ص ۱۰۱ (11475، 11476/1)، ج ۳۰ ص ۴۰۰ (12037/3)، ج ۳۳ ص ۴۰۰ (13214)، ج ۳۸ ص ۴۰۰ (15133).
+- **ساخت تصویر:** `extract_edition_pages.py vN.pdf --code marashi --volume N --offset K --first A --last B --width 723 --mupdf`، با لاگ در `marashi/work/extract_vN.log`. pymupdf در site-packages کاربر است، پس اسکریپت بی `-I` اجرا شد.
+- **ردیف‌ها:** `km-mraashy-2`: ج ۲۹ ص ۲ تا ۷۸۴، ج ۳۰ ص ۳ تا ۹۱۲، ج ۳۳ ص ۳ تا ۹۶۰، ج ۳۸ ص ۴ تا ۸۵۶. `leaf_maps` تهی است.
+- **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` جلدهای #۹۳، #۹۴، #۹۷ و #۳۸۹ را «update» نشان داد.
+- **ارجاع‌ها در بازه:** ۷۴۵ از ۷۴۵، ۷۸۰ از ۷۸۰، ۷۶۱ از ۷۶۲ و ۷۹۲ از ۷۹۲.
+- **پس از انتشار، به ترتیب:** فرستادن با `C=marashi N=4 send.sh`، پشتیبان چهار ردیف `catalog_volumes` و `source_volumes`، سپس `catalogs:set-facsimiles`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_370_person_lives_before.jsonl.gz` (۹۱۱ سطر، md5 `f71955ba…`). اجرای آزمایشی و `--apply`: `rawdat` `created 150`، `has_life 13`؛ `mosaffa` `created 200`، `exists 1`، `has_life 17`؛ `mushar_authors` `created 601`، `exists 3`، `has_life 7`؛ اجرای دوم هر سه `created 0`. سطرهای اشخاص: `rawdat` ۱۹۴ (۱۵۰ با `name_llm`، ۱۳۱ با ۹۰ به بالا)، `mosaffa` ۲۹۸ (۲۰۰، ۱۷۷)، `mushar-authors` ۱٬۳۷۰ (۶۰۱، ۴۴۴). پدیدآورندگانِ پیونددار: ۴٬۷۳۳ از ۱۵٬۱۹۹؛ همۀ اشخاص: ۴٬۷۳۷ از ۶۶٬۳۰۳، نشان‌داده ۴٬۱۶۲. سطرها به روش: `name_llm` ۷٬۵۰۴، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحه‌های `/p/67241`، `/p/423` و `/p/147` با کد ۲۰۰ و نام منبع دیده شد.
