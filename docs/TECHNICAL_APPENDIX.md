@@ -13284,9 +13284,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اندازه (کپی تولید، `fahares_prod`):** از ۶۷۳٬۸۲۱ ارجاع صفحه‌دار روی جلد تصویردار، ۲٬۹۵۶ بیرون از بازه (۲٬۹۰۴ از فهرست کتابخانه‌ها؛ مثلاً ۵۵۵ رشت و همدان) و ۱٬۲۱۵ با شمارۀ جلد دیگر (۱٬۱۱۳ عکسی دائرةالمعارف با «ج ۲» روی جلد ۱، که برگۀ `v02` ندارد؛ ۳۱ رضوی؛ ۱۸ مجلس مختصر). جای درست این ارجاع‌ها داده است، نه کد، و بعدتر رسیدگی می‌شود.
 - **آزمون:** `SetCatalogFacsimilesTest::test_no_image_for_a_page_outside_the_scan_or_an_entry_that_names_another_volume`.
 
-### گام ۱۴.۳۲۸: `manuscript-siblings-stating` با گروه‌بندی
-- `siblingsStating($field)` با `CollectionValues::compared` گروه می‌شود؛ متن هر گروه از نخستین رساله‌اش، و نام رساله‌ها با «،» و «و» در PHP ساخته می‌شود (دو دستور Blade چسبیده به هم، مانند `@endif@endforeach`، خوانده نمی‌شود).
-
 ### گام ۱۴.۳۲۶: `catalogs:move-cited-part --names` (مورد ۱۶۴)
 
 - **کد:** با `--names` به‌جای `--volume` و `--part`، نسخه‌ای جابه‌جا می‌شود که ارجاع خامش (`rawCitation`، پس از `LinkCatalogVolumesCommand::normalize`) آن متن را دارد. جلد مقصد اگر در کتابخانۀ `--library` نباشد، میان جلدهای بی‌کتابخانه با عنوان دقیق جسته می‌شود. بقیه مانند گام ۱۴.۱۵۲: `manuscripts.catalog_volume_id`، ردیف `manuscript_catalog_references`، `audit_logs` با `corpus_fix` «move-cited-part --names (step 14.326)»، و `SourceEntrySync::syncCited` برای نسخه‌های هر دو جلد. کتابخانۀ نسخه تغییر نمی‌کند.
@@ -13294,6 +13291,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** «1921 copies on #490 …; named: 1883, none: 38»، «Moved 1883 copies.» (۶ ثانیه). پس از آن جلد #۵۳۲ ۲٬۹۶۲ ارجاع فنخا دارد که ۱٬۶۶۳ تا در بازۀ اسکن (ص ۱۲۴۲–۱۷۹۷) هستند. ۳۸ نسخۀ ماندۀ #۴۹۰ فقط «ف: …» دارند. ۴۷۵ ارجاع جابه‌جاشده صورت «رشت و همدان: ف: 1421» (یک عدد بی‌خط تیره) دارند که پارسر صفحه‌اش را نمی‌خواند؛ این به جلسۀ پارسر (مورد ۸۷) گزارش شد.
 - **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
 - **اجرا در تولید (۳ آذر ۱۴۰۵، پس از انتشار ۲۰۵):** پشتیبان `../fahares-sources/backups/step13/before_step14_326_move_cited_part_20261123_2356.json` (md5 `c1c228eb10f680e962097a13dc69dd98`؛ ۱٬۹۲۱ نسخه، ۱٬۹۲۱ ردیف `manuscript_catalog_references`، ۱٬۹۲۱ ارجاع). با `prod-run`: اجرای خشک «named: 1883, none: 38»، سپس «Moved 1883 copies.»، و اجرای خشک دوم «0 copies to move». جلد #۵۳۲ اکنون ۱٬۶۶۳ ارجاع در بازۀ اسکن دارد. چهار نسخۀ تصادفی (۸۹۳۵۴، ۲۱۶۲۰۹، ۱۰۴۹۰۸، ۳۲۱۴۰) در fahares.net به برگۀ صفحۀ خود در `rasht-hamedan/v01` می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
+
+### گام ۱۴.۳۲۷: `SourceEntrySync::fitToVolume()` و `catalogs:import-fankha-references --changed`
+
+- **`fitToVolume(string $raw, array $parsed, int $volumeId, int $sourceId)`** (در `citedValues()` پس از `parse()`، وقتی نسخه جلد دارد): شماره و بازۀ صفحۀ جلدهای منبع یک بار خوانده و نگه داشته می‌شود (`$volumeNumbers`). متن ارجاع آن چیزی است که پس از آخرین «[» آمده؛ بخش‌ها با «؛» و با «و» پس از رقم جدا می‌شوند (نه «و» نام «رشت و همدان» و نه «88 و 89»).
+  - ارجاع با بیش از یک «[»: خواندن ته آن جای خواندن کل را می‌گیرد اگر کل چیزی نداده، یا ته جلد وصل‌شده را نام ببرد و کل نه.
+  - جلد و صفحه هر دو تهی، منبع تک‌جلدی، و `(ف:|:|-) N [(…)]` در پایان بخش نخست → صفحه N، اگر `page_first`/`page_last` جلد دانسته نباشد یا N در آن باشد.
+  - جلد خوانده و صفحه تهی، منبع تک‌جلدی و جلد جز شمارۀ جلد وصل‌شده → همان عدد صفحه است (با همان شرط بازه).
+  - جلد خوانده جز جلد وصل‌شده: بخش‌های بعدی با `parse()` خوانده می‌شوند و نخستینی که جلدش همان است گرفته می‌شود؛ وگرنه اگر صفحه همان شمارۀ جلد است، جلد خوانده بیش از ۱۰۰ است و منبع چنین جلدی ندارد، جابه‌جا می‌شوند.
+- **`--changed`:** نسخه‌ها با کلید اصلی دسته‌دسته (۵٬۰۰۰) خوانده می‌شوند و مدخل `fankha_citation` هر دسته با `whereIn`؛ تنها جایی که `fitToVolume` جز `parse` می‌دهد و مدخل همان `parse` را دارد، `volume_number` و `page_start` با `update` نوشته می‌شود. اجرای آزمایشی ۱۷ ثانیه.
+- **چرا نه `syncCited`:** `upsert()` همۀ ستون‌ها را می‌نویسد (`entry_text`، `copy_text`، `text_page`، `match_method`، `status`) و `syncOtherCited` برای هر دسته پرس‌وجوی سنگین دارد (اجرای کامل پس از ۳۴ دقیقه به نسخۀ ۷۲ هزارم رسیده بود). بازگرداندن محلی: ۷۰٬۲۱۰ سطر `fankha_citation` و `fankha_citation_more` با `legacy_id ≤ 80000` از پروداکشن خوانده و با کلید `(legacy_type, legacy_id, legacy_index)` به‌روز شد.
+- **تمرین روی `fahares_prod`:** «a lone number is the page 8,607»، سپس پس از اصلاح شرط کروشه «25»؛ اجرای دوم صفر.
+- **آزمون:** `tests/Feature/CitationFitToVolumeTest.php` (۴ آزمون)؛ `CatalogReferencesTest` و `FixReversedCitationsTest` سبز.
+
+### گام ۱۴.۳۲۸: `manuscript-siblings-stating` با گروه‌بندی
+- `siblingsStating($field)` با `CollectionValues::compared` گروه می‌شود؛ متن هر گروه از نخستین رساله‌اش، و نام رساله‌ها با «،» و «و» در PHP ساخته می‌شود (دو دستور Blade چسبیده به هم، مانند `@endif@endforeach`، خوانده نمی‌شود).
 
 ### گام ۱۴.۳۲۹: `CollectionIndex` و `collection_readings`
 - **`CollectionIndex::fields(Manuscript)`:** فیلدهای `FIELDS` سند جست‌وجو؛ در پایان `toSearchableArray` روی مقدارهای خود نسخه می‌نشیند. اطلاعات هر مجموعه (رکورد، خط‌های رساله‌ای که خط را مثل مجموعه می‌گوید، نوع یادداشت‌های گروه `provenance`) یک بار در هر درخواست یا کار صف خوانده می‌شود (نمونۀ `scoped` کانتینر).
@@ -13311,16 +13323,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Collections::reindex`:** تا ۲۵ مجموعه را درجا دوباره نمایه می‌کند؛ بیشتر از آن کار `fahares:index-collections` است، که مجموعه‌به‌مجموعه می‌رود (به ترتیب شناسۀ نسخه، تمرین از ده دقیقه گذشت؛ مجموعه‌به‌مجموعه ۲ دقیقه و ۵۷ ثانیه برای ۱۴۸٬۷۹۸ نسخه). `refreshReadings` همه: ۲۶۰ ثانیه.
 - **`ManuscriptNote`:** قلاب `saved` و `deleted` برای یادداشت‌های گروه `provenance`.
 - **آزمون:** `CollectionsTest::test_the_search_finds_a_treatise_by_what_it_reads_from_its_collection`.
-
-### گام ۱۴.۳۲۷: `SourceEntrySync::fitToVolume()` و `catalogs:import-fankha-references --changed`
-
-- **`fitToVolume(string $raw, array $parsed, int $volumeId, int $sourceId)`** (در `citedValues()` پس از `parse()`، وقتی نسخه جلد دارد): شماره و بازۀ صفحۀ جلدهای منبع یک بار خوانده و نگه داشته می‌شود (`$volumeNumbers`). متن ارجاع آن چیزی است که پس از آخرین «[» آمده؛ بخش‌ها با «؛» و با «و» پس از رقم جدا می‌شوند (نه «و» نام «رشت و همدان» و نه «88 و 89»).
-  - ارجاع با بیش از یک «[»: خواندن ته آن جای خواندن کل را می‌گیرد اگر کل چیزی نداده، یا ته جلد وصل‌شده را نام ببرد و کل نه.
-  - جلد و صفحه هر دو تهی، منبع تک‌جلدی، و `(ف:|:|-) N [(…)]` در پایان بخش نخست → صفحه N، اگر `page_first`/`page_last` جلد دانسته نباشد یا N در آن باشد.
-  - جلد خوانده و صفحه تهی، منبع تک‌جلدی و جلد جز شمارۀ جلد وصل‌شده → همان عدد صفحه است (با همان شرط بازه).
-  - جلد خوانده جز جلد وصل‌شده: بخش‌های بعدی با `parse()` خوانده می‌شوند و نخستینی که جلدش همان است گرفته می‌شود؛ وگرنه اگر صفحه همان شمارۀ جلد است، جلد خوانده بیش از ۱۰۰ است و منبع چنین جلدی ندارد، جابه‌جا می‌شوند.
-- **`--changed`:** نسخه‌ها با کلید اصلی دسته‌دسته (۵٬۰۰۰) خوانده می‌شوند و مدخل `fankha_citation` هر دسته با `whereIn`؛ تنها جایی که `fitToVolume` جز `parse` می‌دهد و مدخل همان `parse` را دارد، `volume_number` و `page_start` با `update` نوشته می‌شود. اجرای آزمایشی ۱۷ ثانیه.
-- **چرا نه `syncCited`:** `upsert()` همۀ ستون‌ها را می‌نویسد (`entry_text`، `copy_text`، `text_page`، `match_method`، `status`) و `syncOtherCited` برای هر دسته پرس‌وجوی سنگین دارد (اجرای کامل پس از ۳۴ دقیقه به نسخۀ ۷۲ هزارم رسیده بود). بازگرداندن محلی: ۷۰٬۲۱۰ سطر `fankha_citation` و `fankha_citation_more` با `legacy_id ≤ 80000` از پروداکشن خوانده و با کلید `(legacy_type, legacy_id, legacy_index)` به‌روز شد.
-- **تمرین روی `fahares_prod`:** «a lone number is the page 8,607»، سپس پس از اصلاح شرط کروشه «25»؛ اجرای دوم صفر.
-- **آزمون:** `tests/Feature/CitationFitToVolumeTest.php` (۴ آزمون)؛ `CatalogReferencesTest` و `FixReversedCitationsTest` سبز.
 
