@@ -13801,11 +13801,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
 - **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، `prod-run --wait`):** پشتیبان ردیف اثر، `subject_work`، `language_work` و ردیف شخص #۲۶۴ در `../fahares-sources/backups/step13/step14_368_work40507_backup.json` (md5 `b915528d…`). بی `--apply` «update 1»؛ با آن «Derived data of works: works=1»؛ بار سوم «update 0». وارسی: `author_id` ۲۶۴، `subject_summary` «فقه»، `language_summary` «عربی»، یک ردیف `subject_work` و یک ردیف `language_work`.
 
-### گام ۱۴.۳۷۱: `fankha_alt_title_step14_371.json`
-- **فایل تصمیم:** `category` «editorial_correction»؛ یک `work_updates` برای `shrh-frayd-alsgaondy-v20-366` با تنها یک ستون: `alternative_titles`، از «شرح الفزائض السراجية» به «شرح الفرائض السراجية» (آوانگاری همان).
-- **آنچه دست نخورد:** `fahares-corpus/text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹، `works.raw_text` و `source_pages` #۴۶۹۰۱ (ج ۲۰ ص ۲۲۱)، که املای چاپ را دارند (`/storage/catalogs/fankha/v20/p0221.webp`). پس تجزیه‌گر نسخۀ ۲ برای `v20-366` همچنان «الفزائض» می‌خواند؛ هم‌سنجی بعدی پیکره با سایت نباید این ستون را برگرداند.
-- **تمرین محلی (`fahares_prod`):** «update 1»، بار دوم «update 0».
-
 ### گام ۱۴.۳۶۹: `life_city`، `life_kind` و `Insights::lifeCities`
 
 - **سند جست‌وجوی شخص (`Person::toSearchableArray`):** `life_cities` (شهرهای دوره‌های تأییدشده)، `life_kinds` و `life_places` («study:نجف»). `Person::lifePlaces(ids)` برای یک دسته یک پرس‌وجو می‌زند و `makeSearchableUsing` آن را روی هر مدل می‌گذارد، مثل `scribeFacts`. هر سه در `filterableAttributes` نمایۀ اشخاص (`config/scout.php`).
@@ -13828,3 +13823,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
 - **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.
+
+### گام ۱۴.۳۷۱: `fankha_alt_title_step14_371.json`
+- **فایل تصمیم:** `category` «editorial_correction»؛ یک `work_updates` برای `shrh-frayd-alsgaondy-v20-366` با تنها یک ستون: `alternative_titles`، از «شرح الفزائض السراجية» به «شرح الفرائض السراجية» (آوانگاری همان).
+- **آنچه دست نخورد:** `fahares-corpus/text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹، `works.raw_text` و `source_pages` #۴۶۹۰۱ (ج ۲۰ ص ۲۲۱)، که املای چاپ را دارند (`/storage/catalogs/fankha/v20/p0221.webp`). پس تجزیه‌گر نسخۀ ۲ برای `v20-366` همچنان «الفزائض» می‌خواند؛ هم‌سنجی بعدی پیکره با سایت نباید این ستون را برگرداند.
+- **تمرین محلی (`fahares_prod`):** «update 1»، بار دوم «update 0».
