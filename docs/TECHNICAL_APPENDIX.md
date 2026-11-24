@@ -13736,11 +13736,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 982`، `exists 5`؛ اجرای دوم `exists 987`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_364_zirikli.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
 
-### گام ۱۴.۳۶۷: ریلیز v2.9.0 پیکره
-- **ساخت:** `python3 scripts/fankha_parser_v2.py` روی کامیت `5e44eda`؛ هر ۳۴ فایل `parser_version` 2.9.0 و `text_commit` `a38c820` (آخرین کامیت `text/fankha`) دارند. آرشیو: `tar -czf fankha_json_v2.9.0.tar.gz -C json fankha_v2`، ۹۹٬۷۸۹٬۰۰۷ بایت، sha256 `29411d18…a124e4`.
-- **انتشار:** کامیت `0c4d13d` (README، CHANGELOG، `download_json.sh`) به `origin/main` پیکره، سپس `gh release create v2.9.0 … --target main`.
-- **وارسی:** دریافت با `curl` از نشانی ریلیز، ۳۴ فایل، و `cmp` جلد ۱۸ با فایل محلی برابر؛ digest گیت‌هاب همان sha256 است. ۳۵ آزمون corpus سبز.
-- **پوشش فیلدها در نسخه‌ها:** ارجاع فهرست ۳۲۱٬۹۷۸ (۱۰۰٫۰٪)، کاتب یا «بی‌کا» یا خط مؤلف ۳۱۵٬۳۷۸ (۹۷٫۹٪)، تاریخ یا «بی‌تا» ۳۱۵٬۳۳۹ (۹۷٫۹٪)، خط ۲۷۵٬۱۰۳ (۸۵٫۴٪)، برگ ۲۴۶٬۸۳۳ (۷۶٫۶٪)، اندازه ۲۳۶٬۱۷۱ (۷۳٫۳٪)، سطر ۱۹۹٬۸۹۱ (۶۲٫۱٪)، آغاز ۱۹۷٬۵۹۵ (۶۱٫۳٪)، جلد ۱۹۱٬۲۸۴ (۵۹٫۴٪)، انجام ۱۷۵٬۰۶۸ (۵۴٫۴٪)، تملک و مهر و وقف و ورود ۶۲٬۵۰۱ (۱۹٫۴٪)؛ ۷۱ نسخه بیش از یک کاتب دارند.
 ### گام ۱۴.۳۶۶: دو نوع تازۀ `fahares:fix-wrong-links` و `wrong_links_step14_366.json`
 
 - **تصویرها:** `storage/app/public/catalogs/<facsimile_code>/vNN/pNNNN.webp`؛ در جلدهای دیده‌شده شمارۀ فایل همان صفحۀ چاپی است.
@@ -13762,3 +13757,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `composition` (عنوان، مؤلف، `date`): تنها اگر `composition_date_raw` همان `date` باشد. `SuggestionApplier::apply` روی `composition_date_raw` با مقدار تهی؛ قلاب مدل `composition_year_hijri` و ستون‌های بازه را هم خالی می‌کند.
 - **تمرین روی `fahares_prod`:** «2 changed»، اجرای دوم «2 already right»؛ فایل گام ۱۴.۳۴۱ همچنان «6 already right». شخص تازه «رضاخان سیاوشی». پس از `estimate-dates --apply` هر پنج ناسازگاری مستقیم این دو رکورد رفت (دو تا از نسخۀ ملک، سه تا از «الارث»).
 - **آزمون:** `FixWrongLinksCommandTest` (۲).
+
+### گام ۱۴.۳۶۷: ریلیز v2.9.0 پیکره
+- **ساخت:** `python3 scripts/fankha_parser_v2.py` روی کامیت `5e44eda`؛ هر ۳۴ فایل `parser_version` 2.9.0 و `text_commit` `a38c820` (آخرین کامیت `text/fankha`) دارند. آرشیو: `tar -czf fankha_json_v2.9.0.tar.gz -C json fankha_v2`، ۹۹٬۷۸۹٬۰۰۷ بایت، sha256 `29411d18…a124e4`.
+- **انتشار:** کامیت `0c4d13d` (README، CHANGELOG، `download_json.sh`) به `origin/main` پیکره، سپس `gh release create v2.9.0 … --target main`.
+- **وارسی:** دریافت با `curl` از نشانی ریلیز، ۳۴ فایل، و `cmp` جلد ۱۸ با فایل محلی برابر؛ digest گیت‌هاب همان sha256 است. ۳۵ آزمون corpus سبز.
+- **پوشش فیلدها در نسخه‌ها:** ارجاع فهرست ۳۲۱٬۹۷۸ (۱۰۰٫۰٪)، کاتب یا «بی‌کا» یا خط مؤلف ۳۱۵٬۳۷۸ (۹۷٫۹٪)، تاریخ یا «بی‌تا» ۳۱۵٬۳۳۹ (۹۷٫۹٪)، خط ۲۷۵٬۱۰۳ (۸۵٫۴٪)، برگ ۲۴۶٬۸۳۳ (۷۶٫۶٪)، اندازه ۲۳۶٬۱۷۱ (۷۳٫۳٪)، سطر ۱۹۹٬۸۹۱ (۶۲٫۱٪)، آغاز ۱۹۷٬۵۹۵ (۶۱٫۳٪)، جلد ۱۹۱٬۲۸۴ (۵۹٫۴٪)، انجام ۱۷۵٬۰۶۸ (۵۴٫۴٪)، تملک و مهر و وقف و ورود ۶۲٬۵۰۱ (۱۹٫۴٪)؛ ۷۱ نسخه بیش از یک کاتب دارند.
