@@ -13614,6 +13614,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پایان: `Person::recountMany` و نمایه‌سازی اشخاص و نسخه‌ها.
 - **تمرین روی `fahares_prod`:** «rename 670, text 139, autograph 7, copies 1053, merged 30»؛ ۱۴۶ سطر `remove` و ۳۰ سطر `merge` در ممیزی؛ اجرای دوم «no such person 816».
 - **آزمون:** `tests/Feature/CleanScribeNamesCommandTest.php` (۲ آزمون).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، `mark-hedged-authors --apply`، `clean-scribe-names --apply`، `link-autograph-scribes --sync-search`.
 
 ### گام ۱۴.۳۵۷: ادغام بروجردی
 
@@ -13671,10 +13672,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **کارِ نکرده:** `fahares:propose-life-periods` (اجرای خشک روی پروداکشن): ۸٬۵۹۶ مدخل، ۲٬۲۴۳ پیشنهاد تازه برای ۱٬۱۸۲ نفر (اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱). ثبت و داوری‌شان همان روند گام ۱۴.۳۱۱ را می‌خواهد.
 - **تست:** حالت‌های تازه در `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
 
-### گام ۱۴.۳۶۱: `fankha_split_head_step14_361.json`
-- **پیکره:** `text/fankha/fankha_vol_13.txt` سطر ۱۸۴۱۳: «… = نامه اول به دوانی در موضوع جذر⏎⏎ <!-- page: 333 --> اصم / منطق، فلسفه / عربی» ← یک سطر با همان نشان. `scripts/fankha_parser_v2.py 13`: ۲٬۲۲۹ اثر و ۱۰٬۳۰۲ نسخه مثل پیش؛ اثر `v13-864`: `author`، `alt_titles[2]`، `subjects`، `languages`، `transliteration` و `description` (بی دو سطر پدیدآور) عوض شد؛ آثار پس از آن فقط `provenance.line_*`. JSON نسخۀ ۱ (`json/fankha`) از پیش با متن یکی نیست و ساخته نشد.
-- **فایل تصمیم:** `category` «leading_author»؛ `work_updates[0]`: `work_slug` `hl-shbh-gthr-alasm-v13-862`، `changes` برای `author_name`، `alternative_titles`، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text` (همان یکی‌شدن سطر)، `author` با `century: 10`، `subjects` و `languages`. مقدارهای `from` از رونوشت پروداکشن خوانده شد؛ فرمان اگر سایت مقدار دیگری داشته باشد آن ستون را نمی‌نویسد.
-- **تمرین محلی (`fahares_prod`):** بی `--apply` «Would add 0 works, fill 0 works and update 1»؛ با آن «Derived data of works: works=1»؛ بار دوم «update 0». `author_id` ۱۵۴۰، `subject_work` دو ردیف (۲۱ و ۳۷)، `language_work` یک ردیف.
 ### گام ۱۴.۳۵۹: داوری پیشنهادهای تازۀ `fahares:propose-life-periods`
 
 - **ثبت (۳ آذر ۱۴۰۵، پروداکشن، زیر `prod-run`):** پشتیبان `step14_359_person_periods_before.jsonl.gz` (۲٬۵۶۷ ردیف، بیشترین شناسه ۳۰۰۷، md5 `c0fce011ec0404766b2a7808c09a647f`). `propose-life-periods --apply`: اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱.
@@ -13697,6 +13694,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سال:** از ۶۱۴ سالِ تأییدها، رقمِ ۳۴۹ تا در متن بود و ۲۶۵ تا به حروف نوشته شده بود («سنة إحدى و سبعين و ستمائة»)؛ نمونۀ این دسته با متن خوانده شد.
 - **پروندۀ تصمیم‌ها:** ۱٬۹۲۱ ردیف (۱٬۷۴۹ تأیید، ۱۷۲ رد؛ ۵۹۶ سال‌دار). نوعِ تأییدها: اقامت ۵۳۰، وفات ۳۵۷، تولد ۲۳۸، تحصیل ۲۲۸، سفر ۲۲۷، تدریس ۸۵، منصب ۶۶، خاستگاه ۱۸. تکراری‌ها با کلید (شخص، نوعِ پس از اصلاح، `city`) در برابر ردیف‌های تأییدشدۀ پروداکشن و ردیف‌های پیشینِ همین پرونده کنار رفتند. `person_periods` قید یکتایی ندارد و پیش از این گام ۳۰ گروه تکراری تأییدشده داشت.
 - **فرمان:** `ReviewLifePeriodsCommand` تغییری نکرد؛ `reason` هر تصمیم در `audit_logs` می‌نشیند.
+
 ### گام ۱۴.۳۶۰: `person_lives_step14_360_kahhala.json`
 
 - **صافی (`blocker.py . kahhala`):** ۱۵٬۱۴۰ مدخل بی‌پیوند؛ `n0 11510`؛ ۴٬۲۰۹ با نامزد (با مدخل‌های پیونددار) و ۳٬۷۲۸ مدخل در ۷۵ دسته.
@@ -13704,7 +13702,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py kahhala 14.360 <file>`:** `person_twice 113`، `dropped_second_entry 119`؛ ۱٬۷۲۰ پیوند: ۱٬۴۰۵ با ۹۰ به بالا، ۲۶۴ بین ۸۰ و ۸۹، ۵۱ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 1691`، `exists 29`؛ اجرای دوم `exists 1720`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_360_kahhala.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
-- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، `mark-hedged-authors --apply`، `clean-scribe-names --apply`، `link-autograph-scribes --sync-search`.
+
+### گام ۱۴.۳۶۱: `fankha_split_head_step14_361.json`
+- **پیکره:** `text/fankha/fankha_vol_13.txt` سطر ۱۸۴۱۳: «… = نامه اول به دوانی در موضوع جذر⏎⏎ <!-- page: 333 --> اصم / منطق، فلسفه / عربی» ← یک سطر با همان نشان. `scripts/fankha_parser_v2.py 13`: ۲٬۲۲۹ اثر و ۱۰٬۳۰۲ نسخه مثل پیش؛ اثر `v13-864`: `author`، `alt_titles[2]`، `subjects`، `languages`، `transliteration` و `description` (بی دو سطر پدیدآور) عوض شد؛ آثار پس از آن فقط `provenance.line_*`. JSON نسخۀ ۱ (`json/fankha`) از پیش با متن یکی نیست و ساخته نشد.
+- **فایل تصمیم:** `category` «leading_author»؛ `work_updates[0]`: `work_slug` `hl-shbh-gthr-alasm-v13-862`، `changes` برای `author_name`، `alternative_titles`، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text` (همان یکی‌شدن سطر)، `author` با `century: 10`، `subjects` و `languages`. مقدارهای `from` از رونوشت پروداکشن خوانده شد؛ فرمان اگر سایت مقدار دیگری داشته باشد آن ستون را نمی‌نویسد.
+- **تمرین محلی (`fahares_prod`):** بی `--apply` «Would add 0 works, fill 0 works and update 1»؛ با آن «Derived data of works: works=1»؛ بار دوم «update 0». `author_id` ۱۵۴۰، `subject_work` دو ردیف (۲۱ و ۳۷)، `language_work` یک ردیف.
 
 ### گام ۱۴.۳۶۲: مقایسۀ سراسری و آزمون‌های بازگشتی
 
