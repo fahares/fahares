@@ -1427,7 +1427,20 @@ class Insights
         $pairs = fn () => $scope->whereWork(DB::table('work_relations')->whereIn('work_relations.type', $types), 'work_relations.related_work_id');
         $cells = $pairs()->selectRaw('work_relations.related_work_id AS text, work_relations.type, COUNT(DISTINCT work_relations.work_id) AS n')
             ->groupBy('work_relations.related_work_id', 'work_relations.type')->get();
-        $byText = $cells->groupBy('text')->map(fn ($rows, $id) => ['id' => (int) $id, 'count' => (int) $rows->sum('n'), 'types' => $rows->pluck('n', 'type')->map(fn ($n) => (int) $n)->all()]);
+        // The types of a text, the largest first; equal ones in the order of DERIVED
+        $kinds = function ($rows) use ($types) {
+            $found = $rows->pluck('n', 'type');
+            $kinds = [];
+            foreach ($types as $type) {
+                if (isset($found[$type])) {
+                    $kinds[$type] = (int) $found[$type];
+                }
+            }
+            arsort($kinds);
+
+            return $kinds;
+        };
+        $byText = $cells->groupBy('text')->map(fn ($rows, $id) => ['id' => (int) $id, 'count' => (int) $rows->sum('n'), 'types' => $kinds($rows)]);
         $rank = fn ($rows) => $rows->sortBy([['count', 'desc'], ['id', 'asc']])->values();
         $top = $rank($byText)->take(config('insights.derived_shown'));
         $lists = [];
