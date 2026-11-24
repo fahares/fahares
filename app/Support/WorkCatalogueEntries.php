@@ -232,7 +232,7 @@ class WorkCatalogueEntries
                 return null;
             }
             // «(4عنوان)», «ناشناس (6 عنوان مختلف)», «(همراه با 12 ترجمه ناشناس دیگر)»: the entry stands for several works
-            $entry['many'] = (bool) preg_match('/\([^()]*(?:عنوان|ناشناس|همراه)[^()]*\)/u', $row->text);
+            $entry['many'] = self::several($row->text);
             $entry['unread'] = false;
             // a row waiting for a reviewer is given a work with no author only when it is the one proposed
             $entry['only'] = $row->link_status === 'proposed' ? (int) $row->linked_work_id : null;
@@ -293,6 +293,26 @@ class WorkCatalogueEntries
     }
 
     /**
+     * Whether an entry stands for several works and is no one of them: «حاشیة شرح الاشارات؛ ناشناس (17 عنوان مختلف)»,
+     * «شرح الکافیة (4عنوان)», «آداب المریدین (ترجمه) (سه ترجمه ناشناس)», «… (به همراه 5 حاشیه ناشناس دیگر رک: دنا 5/4)».
+     */
+    public static function several(string $text): bool
+    {
+        return (bool) preg_match('/\([^()]*(?:عنوان|ناشناس|همراه)[^()]*\)/u', $text);
+    }
+
+    /** The title to search the works for, of an entry that stands for several: its first title, with no mark after it */
+    public static function searchTitle(string $text): string
+    {
+        $title = trim(preg_split('/[؛;=]/u', $text)[0]);
+        do {
+            $title = trim(preg_replace('/\s*\([^()]*\)\s*$/u', '', $before = $title));
+        } while ($title !== $before);
+
+        return $title;
+    }
+
+    /**
      * Whether a row of «وابسته به» is only a name, the author of the text the work is made on, with no title: «علی بن
      * حسین (ع)، امام چهارم (38-94)», «منسوب به علی بن ابی طالب (ع)، امام اول (-40ق)», «کشی، ابراهیم». It is one only when
      * the whole of it is the name of a person: «آب حیات استرآبادی، محمد جعفر (1198-1263)» is a title with its author
@@ -349,10 +369,11 @@ class WorkCatalogueEntries
 
     /**
      * For the relations section of the work's page: the catalogue's words for a tied work where they differ from its
-     * record («printed», by the work's id), the rows tied to no work («unlinked»), the notes, and the rows that are
-     * only the base text's author («authors»: the catalogue's words and the person's id).
+     * record («printed», by the work's id), the rows tied to no work («unlinked»; one that stands for several works
+     * has «search», the title to search the works for, step 14.345), the notes, and the rows that are only the base
+     * text's author («authors»: the catalogue's words and the person's id).
      *
-     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string}>, notes: list<string>, authors: list<array{text: string, person: ?int}>}
+     * @return array{printed: array<int, string>, unlinked: list<array{side: string, type: string, text: string, search?: string}>, notes: list<string>, authors: list<array{text: string, person: ?int}>}
      */
     public static function page(Work $work): array
     {
@@ -365,7 +386,8 @@ class WorkCatalogueEntries
             } elseif ($row->type === self::AUTHOR) {
                 $out['authors'][] = ['text' => $row->text, 'person' => $row->linked_person_id];
             } elseif ($row->link_status !== 'linked') {
-                $out['unlinked'][] = ['side' => $row->side, 'type' => $row->type, 'text' => $row->text];
+                $out['unlinked'][] = ['side' => $row->side, 'type' => $row->type, 'text' => $row->text]
+                    + (self::several($row->text) && ($title = self::searchTitle($row->text)) !== '' ? ['search' => $title] : []);
             } elseif ($row->differs) {
                 $out['printed'][$row->linked_work_id] = $row->text;
             }

@@ -13490,3 +13490,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/catalogers.blade.php`، در `insights.topics.libraries` پس از `sources`. جدول داده: `catalogers`.
 - **آزمون:** `InsightsLibrarySubjectsTest::test_cataloguers_are_ranked_by_the_copies_they_described`.
 - **زمان هر رقم (رونوشت محلی، بار دستگاه ۶ تا ۷):** `open` ۱۳٫۹ ثانیه (ساخت جدول موقت نسخه‌ها بی ستون‌های ابعاد ۸٫۹ تا ۹٫۴ ثانیه و با آن‌ها ۱۳ ثانیه)، `topAuthors` ۱٫۱، `formats` ۴٫۴، `autographs` ۳٫۲، `librarySubjects` ۳٫۵، `catalogers` ۰٫۵؛ برای سنجش: `scribes` ۱٫۳، `sizes` ۱٫۴، `libraries` ۰٫۷.
+### گام ۱۴.۳۴۵: `WorkCatalogueEntries::several()`، `searchTitle()` و پیوند جستجو
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):** `several($text)`: کمانکی با «عنوان»، «ناشناس» یا «همراه» (`tie` همین را برای `many` می‌خواند). `searchTitle($text)`: بخش پیش از نخستین «؛» یا «=»، و برداشتن کمانک‌های پایانی تا جایی که هست («آداب المریدین (ترجمه) (سه ترجمه ناشناس)» ← «آداب المریدین»). `page()`: سطر `unlinked` که `several` است کلید `search` دارد.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** مورد با `search`: متن فهرست و پیوند `route('search', ['type' => 'works', 'scope' => 'titles', 'q' => …])` با عنوان «جستجوی این عنوان»؛ برچسب «بی پیوند به رکورد اثر» ندارد.
+- سطرِ «چند اثر» که دور یکم `tie` به تنها اثرِ مرتبطِ هم‌عنوان بسته، پیونددار می‌ماند و این نمایش را ندارد.
+- **آزمون:** در `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
+- **سنجش (رونوشت محلی، ۳ آذر ۱۴۰۵):** `page()` روی همۀ آثار: `search` ۵۴۸، بی آن ۱٬۵۱۱، `authors` ۳۵۲. جستجوها در `https://fahares.net/search?type=works&scope=titles&q=…` دیده شدند؛ `/api/search` فقط پیشنهاد می‌دهد و برای شمارش به کار نیامد.
+
