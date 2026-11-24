@@ -13820,6 +13820,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`InsightsNotes::lifeCities` و `InsightsTables::lifeCities`:** نمونه‌ها از خود داده (پرشمارترین شهر و نوع غالبش، دو شهر نخست تحصیل و تدریس) و جدول `life-cities` با ستون هر نوع.
 - **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
 - **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.
+- **اجرا در پروداکشن (۳ آذر ۱۴۰۵):** با `scripts/dev/prod-run`: `scout:sync-index-settings` (هر چهار نمایه)، سپس `Person::whereIn('id', person_periods تأییدشده)->searchable()` با tinker (۱٬۸۴۸ تن، صف Scout خاموش است پس هم‌زمان نمایه شد)، سپس `fahares:build-insights` (۴۲٫۷ ثانیه و ۹ دامنۀ آماده در ۱۵٫۷ ثانیه). وارسی در Meilisearch: `life_cities = "نجف"` ۳۴۳، `life_places = "teaching:نجف"` ۱۵، `life_kinds = "study"` ۳۶۵. پشتیبان لازم نبود: فقط نمایه و کش نوشته شد.
 
 ### گام ۱۴.۳۷۰: `person_lives_step14_370_{rawdat,mosaffa,mushar_authors}.json`
 
