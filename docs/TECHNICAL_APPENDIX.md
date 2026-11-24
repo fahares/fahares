@@ -13413,6 +13413,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
 - **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، سپس `rebuild-copies` (۳۰)، `import-copy-notes` (۴۳۶ نسخه، ۵۱۴ یادداشت) و `index-note-types --apply`.
 
 ### گام ۱۴.۳۳۹: `Insights::anonymous()`
 - **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت آثار ستون `author_named` دارد (`author_name` ناتهی).
@@ -13468,6 +13469,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - «شرح الصلوات»: تاریخ تألیف ۱۳۲۲ برابر سال وفات مؤلف، و اهدا به ناصرالدین شاه.
   - «ارمغان ندیم»: تألیف ۱۳۳۸ و اهدا به ناصرالدین شاه.
 
+### گام ۱۴.۳۴۲: `person_lives_step14_342_fuqaha.json`
+
+- **صافی (`blocker.py . fuqaha`):** ۶٬۲۹۵ مدخل بی‌پیوند؛ ۲٬۳۸۴ با نامزد (با ۲۱۴ مدخلِ پیونددار) و پس از کنار رفتن ارجاع‌ها و پیونددارها ۲٬۱۸۵ مدخل در ۴۴ دسته. سرعنوان‌های این منبع بیشتر شهرت‌اند («الزَّنجاني»، «العلقمي») و نام کامل پس از سال‌ها در آغاز متن می‌آید؛ زنجیرۀ دوم نام در `blocker.py` همین را می‌خواند.
+- **داوری:** ۴۴ زیرعامل Sonnet، `brief.txt` با نام منبع. ۱٬۱۳۶ پیوند (۵۲٪ مدخل‌ها)، ۱٬۰۴۹ «هیچ‌کدام»؛ ۱٬۱۲۷ شاهد عیناً در متن.
+- **`build.py fuqaha 14.342 <file>`:** `person_twice 6`، `dropped_second_entry 6`؛ ۱٬۱۳۰ پیوند. یک پیوند نادرستِ نمونۀ دستی (`heravi-mohammad-ebn-e-yusof-12331`، مدخل `284#1` جلد ۱۰) دستی برداشته شد: ۱٬۱۲۹ پیوند، ۹۴۶ با ۹۰ به بالا.
+- **تمرین (`fahares_prod`):** `created 1126`، `exists 4`؛ اجرای دوم `exists 1130`؛ سپس سطر همان پیوند نادرست از کپی محلی پاک شد (۱٬۱۲۵ سطر `name_llm`: ۹۴۴ با ۹۰ به بالا و ۱۸۱ زیر آن).
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_342_fuqaha.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_342_person_lives_before.jsonl.gz` (۲۱۹ سطر، md5 `0f870725…`). اجرای آزمایشی و `--apply` هر دو `created 1123`، `exists 4`، `has_life 2`؛ اجرای دوم `created 0`، `exists 1127`. سطرهای اشخاص در این منبع: ۱٬۳۴۲ (۱٬۱۲۳ با `name_llm`، ۹۴۳ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۳٬۸۵۷ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۴۳۵. صفحۀ `/p/19106` در سایت دیده شد (۲۰۰، با نام منبع).
+
 ### گام ۱۴.۳۴۳: `Insights::librarySubjects()`
 - **[Insights](../app/Support/Insights.php):** کلید `insights.v20`. `library_subjects`: `items` (کتابخانه با `id, key, name, city, copies` و تا سه `subjects`: `id, name, count, share, overall, ratio`)، `subjects` (همان ردیف با `library`)، `copies`، `libraries`.
   - `share` = نسخه‌های موضوع در کتابخانه بر نسخه‌های موضوع‌دار کتابخانه؛ `overall` = همین در همۀ کتابخانه‌های دامنه (کتابخانه‌های کوچک هم در مخرج هستند)؛ `ratio` = نسبت این دو. نسخۀ اثری با دو موضوع اصلی در هر دو شمرده می‌شود و در اندازۀ کتابخانه یک بار.
@@ -13482,3 +13492,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/catalogers.blade.php`، در `insights.topics.libraries` پس از `sources`. جدول داده: `catalogers`.
 - **آزمون:** `InsightsLibrarySubjectsTest::test_cataloguers_are_ranked_by_the_copies_they_described`.
 - **زمان هر رقم (رونوشت محلی، بار دستگاه ۶ تا ۷):** `open` ۱۳٫۹ ثانیه (ساخت جدول موقت نسخه‌ها بی ستون‌های ابعاد ۸٫۹ تا ۹٫۴ ثانیه و با آن‌ها ۱۳ ثانیه)، `topAuthors` ۱٫۱، `formats` ۴٫۴، `autographs` ۳٫۲، `librarySubjects` ۳٫۵، `catalogers` ۰٫۵؛ برای سنجش: `scribes` ۱٫۳، `sizes` ۱٫۴، `libraries` ۰٫۷.
+
+### گام ۱۴.۳۴۵: `WorkCatalogueEntries::several()`، `searchTitle()` و پیوند جستجو
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):** `several($text)`: کمانکی با «عنوان»، «ناشناس» یا «همراه» (`tie` همین را برای `many` می‌خواند). `searchTitle($text)`: بخش پیش از نخستین «؛» یا «=»، و برداشتن کمانک‌های پایانی تا جایی که هست («آداب المریدین (ترجمه) (سه ترجمه ناشناس)» ← «آداب المریدین»). `page()`: سطر `unlinked` که `several` است کلید `search` دارد.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** مورد با `search`: متن فهرست و پیوند `route('search', ['type' => 'works', 'scope' => 'titles', 'q' => …])` با عنوان «جستجوی این عنوان»؛ برچسب «بی پیوند به رکورد اثر» ندارد.
+- سطرِ «چند اثر» که دور یکم `tie` به تنها اثرِ مرتبطِ هم‌عنوان بسته، پیونددار می‌ماند و این نمایش را ندارد.
+- **آزمون:** در `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
+- **سنجش (رونوشت محلی، ۳ آذر ۱۴۰۵):** `page()` روی همۀ آثار: `search` ۵۴۸، بی آن ۱٬۵۱۱، `authors` ۳۵۲. جستجوها در `https://fahares.net/search?type=works&scope=titles&q=…` دیده شدند؛ `/api/search` فقط پیشنهاد می‌دهد و برای شمارش به کار نیامد.
+
+### گام ۱۴.۳۴۶: تجزیه‌گر v2.9.0
+
+- **`fahares-corpus/scripts/fankha_parser_v2.py` (کامیت `8790e72`):** در `parse_copy()`، هنگام مرور یادداشت‌های `remark`: `IE_IN_BODY` (`^(آغاز|انجام|پایان|آخر)( نسخه|موجود|کتاب|متن)?: متن`). مقدار اگر با ««» آغاز شود باید با «»» پایان یابد و درست یک جفت گیومه داشته باشد؛ بی گیومه نباید ««»، «»»، برچسب «آغاز/انجام/پایان [N]:» یا آغاز «برابر» داشته باشد. اگر `c[side]` تهی است، مقدار دست‌کم هشت نویسه است و `IE_BARE_PROSE` در آغازش نیست، `{text, same_as_work: false}` می‌شود و یادداشت برداشته می‌شود.
+- **سنجش با ۲.۸.۰ (`scratch/fankha_v2_280`):** ۳۶ نسخه؛ `explicit` ۳۲، `incipit` ۶؛ هیچ فیلد دیگری.
+- **پرونده‌ها:** `fankha_changed_columns_step14_346.json` (۱۸ رکورد: ۶ «انجام» پرشده از `fankha_v2_changed_columns_export.py`، و ۱۲ برش آغاز یا انجام با همان روش گام ۱۴.۳۳۸)؛ `copy_notes_step14_346.jsonl.gz` (۳۷ سطر).
+- **تمرین روی `fahares_prod`:** `rebuild-copies` «write 18» و سپس «already 18»؛ `import-copy-notes` «changed 36, same 1» و سپس «same 37».
+
+### گام ۱۴.۳۴۷: `fankha_v2_description_dates_export.py`
+
+- **`fahares-corpus/scripts/fankha_v2_description_dates_export.py --out FILE --step N`:** آثار فنخای سایت که در شرحشان «تألیف»، «تاریخ ترجمه»، «به امر»، «اهدا» و مانند آن هست (۸٬۳۳۸). جفت‌کردن: پسوند `-v{جلد}-{شماره}` نشانی اگر `letters()` عنوان‌ها یکی باشد (۵٬۴۸۹)، وگرنه تنها اثر v2 با همان `(جلد، page_start، عنوان)` (۲٬۳۹۸)؛ ۴۵۱ اثر جفت نشدند.
+- **سطرها:** `DATE` (`(تاریخ|سال|زمان) تألیف` یا `تاریخ ترجمه`، با یا بی «:»، و «؛ محل تألیف: …» اختیاری) وقتی `composition_date_raw` سایت تهی و `tight(مقدار) == tight(v2.composition.date)`؛ محل تنها اگر `composition_place` سایت تهی و برابر v2 باشد، وگرنه کل سطر می‌ماند. `DEDICATION` («به امر»، «به دستور»، «به نام»، «به درخواست»، «اهداء [به]»، «تقدیم به») وقتی `dedication` سایت تهی و حروف مقدار در `v2.dedication` باشد. شرط پایانی: `letters(باقی شرح) == letters(v2.description)`.
+- **خروجی:** `work_updates` برای `fahares:add-corpus-works` (`{work_slug, v2, id, changes: {description, composition_date_raw, composition_place?, dedication?}}`). `database/data/fankha_description_dates_step14_347.json`: ۱۹۸ رکورد.
+- **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
+- **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
+
