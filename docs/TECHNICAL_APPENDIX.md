@@ -13588,6 +13588,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ردیف آن `library_slug` تهی دارد و به #۷۰۹ «دلیل المخطوطات - جلد 1» می‌خورد.
 - **کنار رفته‌ها:** خزانه‌ها 2118 (رضوی ج ۲) PDF متنی بازتایپ است. خزانه‌ها 2108 (دلیل المخطوطات) هم بازتایپ است. داکی‌باکس 1276469 (کاشان) را فنخا تنها «ف مخ» ارجاع می‌دهد.
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` سه ردیف تازه را «update» نشان داد.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار `fb13fecf`.
+  - تصویرها پیش از انتشار با `send.sh` فرستاده شد: `marashi` ۱٬۱۸۷ برگ و `dalil-makhtutat` ۳۳۹ برگ. دور دوم برگ جامانده‌ای نیافت. مالک پوشه‌ها `ubuntu:ubuntu` و سطح دسترسی ۷۷۵ شد.
+  - پشتیبان سه ردیف `catalog_volumes` و `source_volumes` (#۹۶، #۲۷۶، #۷۰۹) در `../fahares-sources/backups/step13/before_step14_354_set_facsimiles_20261124_1656.json` است (md5 `e19f81b3…`).
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: «0 created, 3 updated, 243 unchanged»، و اجرای آزمایشی پس از آن «0 updated, 246 unchanged».
+  - در fahares.net نسخه‌های `/manuscripts/169111` (ج ۳۴ ص ۶۴۶)، `315376` (ص ۲۹۵)، `239944` (ج ۳۲ ص ۴۸)، `330353` (ص ۱۶)، `114125` (دلیل ص ۱۰۴) و `58660` (ص ۹۶) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
 
 ### گام ۱۴.۳۵۵: دور سوم تصمیم‌های `related_works_model_decisions_20261121.json`
 - **یافتن:** برای هر سطر بی‌پیوند (نه «چند اثر»، نه پدیدآور و یادداشت) آثارِ همۀ پایگاه با کلید یکی از عنوان‌های مدخل و همان `authorKey`، نه فقط آثار مرتبط. روی رونوشت محلی: با پدیدآور ۵۶۳ بی نامزد، ۷۳ تک‌نامزد، ۲۰ دونامزد، ۱۶ با سه یا بیشتر؛ بی پدیدآور ۳۰۰ بی نامزد، ۱۲۸ تک‌نامزد، ۵۳ دونامزد، ۸۷ با سه یا بیشتر؛ ۵۴۱ «چند اثر»، ۳۰ ناخوانا.
@@ -13595,6 +13601,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جهت رابطه:** برای #۴۷۷۶ ← #۲۳۲۷ از سمت «وابسته به»ی #۴۷۷۶ تصمیمی نوشته نشد تا دو اثر دو رابطۀ وارونه نگیرند؛ آن سطر را قاعده‌ها بستند.
 - **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، `prod-run --wait`):** پشتیبان `work_relations` (۱۱٬۰۶۴) و `work_text_relations` (۲۰٬۹۱۸) در `../fahares-sources/backups/step13/step14_355_relations_backup.json` (md5 `449f8e84…`). اجرای یکم: `--dry-run` «656 entries: 43 to add», «261 relations: 25 to add», «3 proposals to add»؛ اجرا «Saved: 43 entries and 25 relations added», «Indexed 23 works again»؛ `works:link-related` «0 to add, 0 to remove», «Entries: 7 tied or untied» و بار دوم صفر. اجرای دوم (دو تصمیم #۲۴۹۰۱): «658 entries: 2 to add», سپس `works:link-related` صفر. وارسی پس از اجرای یکم: بی `link_status` ۲٬۱۳۴، `linked/auto` ۱۷٬۸۷۸، `linked/model` ۶۵۶، `proposed/review` ۲۵۰؛ `work_relations` auto ۱۰٬۸۲۳، model ۲۶۱، suggestion ۵.
 - **پیکره:** commitهای `3290e77` و پس از آن در `fahares-corpus` (push نشده).
+- **دور چهارم (`round: 4`، ۳۹ ردیف، `kind` «one work of the title and author»):** تصمیم دور یکمِ #۵۵۹۱۳ «شرح اللمع فی الحساب» ← #۴۱۲۸۱ به `unsure` برگشت (کلید آن مدخل، بی نام پدیدآورِ بی‌تاریخ، به سطرِ «دری» می‌خورد). اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر): پشتیبان `step14_355_relations_backup_round4.json` (۱۱٬۰۸۹ و ۲۰٬۹۱۸ ردیف، md5 `e2164f91…`)؛ `--dry-run` «696 entries: 39 to add, 1 to remove», «293 relations: 32 to add»؛ اجرا «Saved: 39 entries and 32 relations added, 1 and 0 removed», «Indexed 32 works again»؛ `works:link-related` «0 to add, 0 to remove», «Entries: 12 tied or untied» و بار دوم صفر. وارسی: بی `link_status` ۲٬۰۸۵، `linked/auto` ۱۷٬۸۸۷، `linked/model` ۶۹۶، `proposed/review` ۲۵۰؛ `work_relations` auto ۱۰٬۸۲۳، model ۲۹۳، suggestion ۵. پیکره: commit `a5df188`.
 
 ### گام ۱۴.۳۵۶: `fahares:clean-scribe-names`
 
