@@ -664,6 +664,8 @@ class SuggestionRegistry
     public const COLLECTION_FIELDS = [
         'binding' => ['label' => 'جلد مجموعه', 'input' => 'textarea'],
         'dimensions' => ['label' => 'اندازۀ مجموعه', 'input' => 'text'],
+        // the leaves of the whole volume, which no treatise's entry gives: a library's catalogue or an editor does (step 14.331)
+        'folios' => ['label' => 'شمار برگ کل مجموعه', 'input' => 'integer'],
         'paper' => ['label' => 'کاغذ مجموعه', 'input' => 'textarea'],
         'script_names' => ['label' => 'نوع خط مجموعه (خط همۀ رساله‌هایی که خودشان خطی ندارند)', 'input' => 'text'],
         'lines' => ['label' => 'تعداد سطر مجموعه (سطر همۀ رساله‌هایی که خودشان شماری ندارند)', 'input' => 'integer'],

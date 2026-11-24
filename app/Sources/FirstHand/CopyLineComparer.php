@@ -11,10 +11,14 @@ use App\Support\CopyDateRange;
  * become claims for review; the record itself is never changed here.
  *
  * Fields, named as the claims name them: shelfmark, folios, lines, dimensions, copy_date, scribe_name, script_names.
+ *
+ * A line that counts a whole volume («212 برگ، 11 × 18» for seven treatises) is read against the «مجموعه» the treatise
+ * is in, not against the treatise (backlog item 163, step 14.331): its leaves and its size are the collection's, as
+ * the fields collection_folios and collection_dimensions of the copy (SuggestionRegistry::COLLECTION_FIELDS).
  */
 class CopyLineComparer
 {
-    public const FIELDS = ['shelfmark', 'folios', 'lines', 'dimensions', 'copy_date', 'scribe_name', 'script_names'];
+    public const FIELDS = ['shelfmark', 'folios', 'lines', 'dimensions', 'copy_date', 'scribe_name', 'script_names', 'collection_folios', 'collection_dimensions'];
 
     /**
      * @return array{confirmed: list<string>, claims: list<array{field: string, value: string, current: ?string, raw: string, fills: bool}>}
@@ -37,6 +41,20 @@ class CopyLineComparer
             ($theirs === $ours || $treatise) ? $confirmed[] = 'shelfmark' : $claim('shelfmark', $line->values['shelfmark'], $ms->shelfmark, $line->raw['shelfmark']);
         }
 
+        // the volume's own line, where the treatise is in a collection of two or more: its counts are the collection's
+        $volume = $line->wholeVolume ? $ms->boundCollection() : null;
+        if ($volume && $line->has('folios')) {
+            $value = $line->values['folios'];
+            (int) $volume->folios === $value ? $confirmed[] = 'collection_folios'
+                : $claim('collection_folios', (string) $value, $volume->folios === null ? null : (string) $volume->folios, $line->raw['folios']);
+        }
+        if ($volume && $line->has('dimensions')) {
+            $theirs = $line->values['dimensions'];
+            $ours = self::size((string) $volume->dimensions);
+            ($ours && abs($ours[0] - $theirs[0]) <= 0.5 && abs($ours[1] - $theirs[1]) <= 0.5) ? $confirmed[] = 'collection_dimensions'
+                : $claim('collection_dimensions', self::sizeText($theirs), $volume->dimensions, $line->raw['dimensions']);
+        }
+
         if ($line->has('folios') && ! $line->wholeVolume) {
             $value = $line->values['folios'];
             (int) $ms->folios === $value ? $confirmed[] = 'folios' : $claim('folios', (string) $value, $ms->folios === null ? null : (string) $ms->folios, $line->raw['folios']);
@@ -49,7 +67,7 @@ class CopyLineComparer
                 : $claim('lines', (string) $value, $ms->lines === null ? null : (string) $ms->lines, $line->raw['lines']);
         }
 
-        if ($line->has('dimensions')) {
+        if ($line->has('dimensions') && ! $volume) {
             $theirs = $line->values['dimensions'];
             $ours = self::size((string) $ms->dimensions);
             // half a centimetre either way is the same size: one catalogue rounds «16/5×20/5» to «16×20»

@@ -59,6 +59,10 @@
                         @endif
                     </x-ui.meta>
                 @endforeach
+                {{-- the leaves of the whole volume: no treatise's entry gives them, a library's catalogue or an editor does (step 14.331) --}}
+                <x-ui.meta label="شمار برگ کل" :field="\App\Suggestions\SuggestionRegistry::COLLECTION_PREFIX . 'folios'" :empty="! $volume->folios">
+                    {{ \App\Support\Fa::num((int) $volume->folios) }} برگ
+                </x-ui.meta>
                 @if($volume->copy_date_raw)
                     <x-ui.meta label="تاریخ کتابت مشترک">{{ \App\Support\Fa::digits($volume->copy_date_raw) }} <span class="text-[12px] text-muted">(در مدخل همۀ رساله‌ها)</span></x-ui.meta>
                 @endif
