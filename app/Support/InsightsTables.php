@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -250,6 +250,25 @@ class InsightsTables
             self::table('موضوع‌های پررنگ هر کتابخانه', 'library-subjects', $columns, $strong),
             self::table('کتابخانه‌ای که هر موضوع در آن بیشترین سهم را دارد', 'subject-libraries', $columns,
                 array_map(fn ($s) => [$s['library']['name'], $s['library']['city'], $s['name'], $s['count'], $s['share'], $s['overall'], $s['ratio']], $ls['subjects'])),
+        ];
+    }
+
+    private function completeness(): array
+    {
+        $cp = $this->data['completeness'];
+        $names = array_map(fn ($f) => [$f['name'], 'pct'], $cp['fields']);
+        $cells = fn (array $r) => [...array_values($r['shares']), $r['mean']];
+        $grid = fn (string $title, string $file, array $lead, array $rows) => self::table($title, $file, [...$lead, ['نسخه', 'num'], ...$names, ['میانگین', 'pct']], $rows);
+
+        return [
+            self::table('داده‌ای که فهرست‌ها از هر نسخه نوشته‌اند', 'completeness', [['داده', 'text'], ['نسخه', 'num'], ['سهم', 'pct']],
+                array_map(fn ($f) => [$f['name'], $f['count'], $f['share']], $cp['fields'])),
+            $grid('سهم هر داده در بزرگ‌ترین کتابخانه‌ها', 'completeness-libraries', [['کتابخانه', 'text'], ['شهر', 'text']],
+                array_map(fn ($r) => [$r['name'], $r['city'], $r['count'], ...$cells($r)], $cp['libraries'])),
+            $grid('سهم هر داده در کار فهرست‌نگاران پرکار', 'completeness-catalogers', [['فهرست‌نگار', 'text']],
+                array_map(fn ($r) => [$r['name'], $r['count'], ...$cells($r)], $cp['catalogers'])),
+            $grid('سهم هر داده در هر جلد فهرست', 'completeness-volumes', [['جلد فهرست', 'text']],
+                array_map(fn ($r) => [$r['title'], $r['count'], ...$cells($r)], $cp['volumes'])),
         ];
     }
 

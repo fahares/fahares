@@ -13515,4 +13515,46 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py rayhana 14.352 <file>`:** `person_twice 70`، `dropped_second_entry 73`؛ ۱٬۱۳۰ پیوند: ۹۶۹ با ۹۰ به بالا، ۱۴۶ بین ۸۰ و ۸۹، ۱۵ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 1127`، `exists 3`؛ اجرای دوم `exists 1130`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_352_rayhana.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+### گام ۱۴.۳۴۷: `fankha_v2_description_dates_export.py`
+
+- **`fahares-corpus/scripts/fankha_v2_description_dates_export.py --out FILE --step N`:** آثار فنخای سایت که در شرحشان «تألیف»، «تاریخ ترجمه»، «به امر»، «اهدا» و مانند آن هست (۸٬۳۳۸). جفت‌کردن: پسوند `-v{جلد}-{شماره}` نشانی اگر `letters()` عنوان‌ها یکی باشد (۵٬۴۸۹)، وگرنه تنها اثر v2 با همان `(جلد، page_start، عنوان)` (۲٬۳۹۸)؛ ۴۵۱ اثر جفت نشدند.
+- **سطرها:** `DATE` (`(تاریخ|سال|زمان) تألیف` یا `تاریخ ترجمه`، با یا بی «:»، و «؛ محل تألیف: …» اختیاری) وقتی `composition_date_raw` سایت تهی و `tight(مقدار) == tight(v2.composition.date)`؛ محل تنها اگر `composition_place` سایت تهی و برابر v2 باشد، وگرنه کل سطر می‌ماند. `DEDICATION` («به امر»، «به دستور»، «به نام»، «به درخواست»، «اهداء [به]»، «تقدیم به») وقتی `dedication` سایت تهی و حروف مقدار در `v2.dedication` باشد. شرط پایانی: `letters(باقی شرح) == letters(v2.description)`.
+- **خروجی:** `work_updates` برای `fahares:add-corpus-works` (`{work_slug, v2, id, changes: {description, composition_date_raw, composition_place?, dedication?}}`). `database/data/fankha_description_dates_step14_347.json`: ۱۹۸ رکورد.
+- **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
+- **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان ۱۹۸ اثر؛ `add-corpus-works` «update 198» و سپس «update 0».
+
+### گام ۱۴.۳۴۸: `Insights::completeness()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v22`. ثابت `COMPLETENESS`: کلید هر داده با نام و شرط آن. `completeness`: `copies`، `fields` (`key, name, count, share`)، `absent` (`date` و `scribe`: `stated`, `silent`)، `libraries` (`id, key, name, city, count, shares, mean`؛ `insights.completeness_libraries_shown` = ۲۰)، `library_count`، `fullest`، `barest`، `catalogers` (`insights.catalogers_shown`)، `volumes` (`id, title, count, shares, mean`؛ همۀ جلدها)، `min_copies` (`insights.completeness_min_copies` = ۳۰۰).
+- **نما:** `charts/completeness.blade.php`، آخرین نمودار `insights.topics.libraries`. جدول‌های داده: `completeness`، `completeness-libraries`، `completeness-catalogers`، `completeness-volumes`.
+- **آزمون:** `InsightsCompletenessTest`.
+
+### گام ۱۴.۳۴۹: مرعشی ج ۳۶ و ۳۷ (نور)
+
+- **منبع:**
+  - `../fahares-sources/marashi/v36.pdf`: ۸۴۸ برگ JPEG، ۶۹۹×۱۰۲۴؛ برگ ۱ برگۀ اطلاعات نور است.
+  - `v37.pdf`: ۹۳۶ برگ، ۷۲۳×۱۰۲۴.
+  - MD5 هر دو در `MD5SUMS` ثبت است.
+  - بقیۀ دانلودها: `v32-pp1-149.pdf`، و در `beyond-fankha/`: `v39-pp1-157.pdf`، `v40`، `v41`، `v42`، `v43-a` و `v43-b-pp502-1040`، `v44-a` و `v44-b-pp504-1034`. فهرست این پوشه در `CONTENTS.txt` است.
+- **نگاشت برگ به صفحه:**
+  - فاصله‌ها ثابت‌اند: ج ۳۶ `--offset 1` و ج ۳۷ `--offset 2`.
+  - سرصفحۀ برگ‌های ۲۰، ۱۲۰، ۴۲۴، ۵۶۰، ۷۹۰ و ۸۴۸ از ج ۳۶ خوانده شد، و برگ‌های ۱۲، ۱۲۰، ۲۲۰، ۳۳۰، ۴۶۸، ۷۰۰، ۷۹۰ و ۹۳۵ از ج ۳۷.
+- **ساخت تصویر:** `extract_edition_pages.py v{36,37}.pdf --code marashi --volume N --offset K --first 1 --last {847,934} --width 723 --mupdf`، با لاگ در `marashi/work/extract_v3{6,7}.log`.
+- **ردیف‌ها:** `km-mraashy-2` با شمارۀ جلد ۳۶ (ص ۱ تا ۸۴۷) و ۳۷ (ص ۱ تا ۹۳۴). `leaf_maps` تهی است.
+- **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
+- **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار `86eb0e8e`. فایل داده در کانتینر با شاخه یکی بود (md5 `711eb6ce…`).
+  - تصویرها با `C=marashi N=4 send.sh` فرستاده شد. ۱٬۷۸۱ برگ رفت و دور دوم برگ جامانده‌ای نیافت. مالک پوشه‌های v36 و v37 `ubuntu:ubuntu` و سطح دسترسی ۷۷۵ شد.
+  - پشتیبان دو ردیف `catalog_volumes` و `source_volumes` (#۳۵۵ و #۳۵۷، `facsimile_code` تهی) در `../fahares-sources/backups/step13/before_step14_349_set_facsimiles_20261124_1617.json` است (md5 `cd247d2a…`).
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: اجرای آزمایشی پیش از آن «0 created, 2 updated, 241 unchanged» داد، خود اجرا هم همین را داد، و اجرای آزمایشی پس از آن «0 updated, 243 unchanged».
+  - در fahares.net نسخه‌های `/manuscripts/208969` (ج ۳۷ ص ۱۱۶)، `250197` (ج ۳۶ ص ۵۰۱)، `332391` (ص ۴۸۳) و `80964` (ص ۱۱) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
+
+### گام ۱۴.۳۵۱: `MarkHedgedAuthorsCommand`، تردید پس از نام
+
+- **گذر تازه:** ردیف‌های `work_people` با نقش پدیدآور، `certainty` تهی و شخصی که نامش به کمانک پایان می‌یابد؛ `TRAILING` (`^نام\s*\((؟|شاید|به احتمال|احتمالاً|محتملاً|ظاهراً|گویا)\)$`). ردیف پیشنهاددار («left_reviewed») دست نمی‌خورد.
+- **`writeTrailing()`:** `certainty` با `PersonNameMatcher::certainty()` («به احتمال» → `probable`) و `hedge_raw`؛ `works.author_name` اگر همان نام شخص است؛ `people.name` و `normalized_name` تنها اگر شخص درست یک ردیف `work_people` دارد و در `manuscript_people` و `manuscripts.scribe_id` نیست. دو سطر ممیزی `corpus_update` (اثر و شخص)، و نمایه‌سازی هر دو.
+- **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
+- **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
 
