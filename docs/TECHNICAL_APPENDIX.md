@@ -13607,6 +13607,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پایان: `Person::recountMany` و نمایه‌سازی اشخاص و نسخه‌ها.
 - **تمرین روی `fahares_prod`:** «rename 670, text 139, autograph 7, copies 1053, merged 30»؛ ۱۴۶ سطر `remove` و ۳۰ سطر `merge` در ممیزی؛ اجرای دوم «no such person 816».
 - **آزمون:** `tests/Feature/CleanScribeNamesCommandTest.php` (۲ آزمون).
+
 ### گام ۱۴.۳۵۷: ادغام بروجردی
 
 - **پیش از ادغام:**
