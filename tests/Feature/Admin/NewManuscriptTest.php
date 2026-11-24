@@ -162,8 +162,8 @@ class NewManuscriptTest extends TestCase
         $this->assertSame('12422', $existing->fresh()->collection_key);
         $this->assertEqualsCanonicalizing([$existing->id, $copy->id], $copy->collectionSiblings()->pluck('id')->all());
 
-        // a shelfmark of another volume is refused
-        $this->store(['shelfmark' => '500/2', 'collection_key' => '12422'])->assertRedirect()->assertSessionHas('error');
+        // a shelfmark of another volume, with a number that is no collection of the library, is refused
+        $this->store(['shelfmark' => '500/2', 'collection_key' => '31313'])->assertRedirect()->assertSessionHas('error');
 
         // the undo takes the key back from the copy it was given to
         $log = AuditLog::where('auditable_id', $copy->id)->where('action', 'create')->firstOrFail();

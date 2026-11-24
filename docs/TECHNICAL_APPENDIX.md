@@ -13556,3 +13556,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
 - **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
 
+
+### گام ۱۴.۳۵۳: `ManuscriptCreator` و رکورد `collections`
+
+- **آنچه بی تغییر درست بود:** قلاب `saved` نسخه (`Collections::sync`) نسخۀ تازه را با `library_id` و `collection_key` به مجموعه پیوند می‌دهد، مجموعه را می‌سازد، می‌شمارد و مقدارها را برمی‌گیرد؛ `keySiblings()` با `update(['collection_key' => …])` همان قلاب را برای نسخۀ همراه اجرا می‌کند؛ یادداشت‌ها قلاب `ManuscriptNote` را دارند. `inheritsFromCollection('script_names' | 'lines')` برای نسخۀ پنلِ بی خط و سطر درست است.
+- **`Manuscript` قلاب `deleted`:** پس از `Collections::recount`، `Collections::derive` و `Collections::reindex` برای همان مجموعه. پیش‌تر مجموعه‌ای که با رسالۀ سوم «خط» مشترکش را از دست داده بود پس از حذف آن رساله بی مقدار می‌ماند، تا اجرای بعدی `fahares:build-collections`. برای مجموعه‌ای که بازشماری حذفش کرده `derive` کاری نمی‌کند.
+- **`ManuscriptCreator::collectionKey(Library, shelfmark, given)`** اکنون `[key, ?ManuscriptCollection]` می‌دهد: اگر `resolvedCollectionKey` با شمارۀ داده‌شده نخواند و `collections` ردیفی با آن `library_id` و `key` داشته باشد، نسخه با `collection_id` همان ردیف و `collection_pinned = true` ساخته می‌شود (همان کار `Admin\ManuscriptController::moveCollection`) و `collection_key` آن همان می‌ماند که شماره‌اش می‌گوید. بی چنین ردیفی، خطای پیشین. دو ستون در `new_values` سطر `create` می‌آیند.
+- **`Admin\ManuscriptController::create`:** کلید پیش‌فرض `$from->collection?->key` است و سپس زنجیرۀ پیشین؛ برای نسخۀ `collection_pinned` شمارۀ نسخه از پیش پر نمی‌شود. پیام موفقیت برای نسخۀ جای‌داده‌شده شمارۀ مجموعه را می‌گوید. راهنمای فیلد «شمارۀ مجموعه» همین را می‌گوید.
+- **آزمون:** `tests/Feature/Admin/NewManuscriptCollectionTest.php`، ۳ آزمون (پیوستن، خواندن از مجموعه و بازگشت مقدارها پس از بازگرداندن؛ مجلد تک‌شماره؛ فرم از نسخۀ جای‌داده‌شده). در `NewManuscriptTest` شمارۀ ردشونده «31313» شد، چون «12422» اکنون مجموعۀ موجود است.
+

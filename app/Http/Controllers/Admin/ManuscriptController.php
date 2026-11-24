@@ -25,10 +25,13 @@ class ManuscriptController extends Controller
         $from = $request->filled('from') ? Manuscript::with('libraryRecord')->find((int) $request->query('from')) : null;
         $defaults = [];
         if ($from) {
-            $key = $from->collection_key ?? Manuscript::collectionKeyOf($from->shelfmark, $from->raw_text) ?? Manuscript::plainVolumeKeyOf($from->shelfmark, $from->raw_text);
+            // the «مجموعه» record it is of comes first (backlog item 163): an editor may have placed it in a collection its
+            // shelfmark does not name (collection_pinned, step 14.330)
+            $key = $from->collection?->key ?? $from->collection_key ?? Manuscript::collectionKeyOf($from->shelfmark, $from->raw_text) ?? Manuscript::plainVolumeKeyOf($from->shelfmark, $from->raw_text);
             $defaults = ['from_id' => $from->id, 'library_id' => $from->library_id, 'collection_key' => $key,
-                // the volume's plain number is a shelfmark of its own; a numbered part is the reviewer's to write
-                'shelfmark' => $key !== null && Manuscript::plainVolumeKeyOf($key) === $key ? $key : null];
+                // the volume's plain number is a shelfmark of its own; a numbered part is the reviewer's to write, and
+                // so is the number of a treatise placed by hand
+                'shelfmark' => $key !== null && ! $from->collection_pinned && Manuscript::plainVolumeKeyOf($key) === $key ? $key : null];
         }
 
         return view('admin.manuscripts.create', [
@@ -90,7 +93,10 @@ class ManuscriptController extends Controller
         }
 
         return redirect()->route('manuscripts.show', $manuscript)
-            ->with('success', 'رکورد نسخه ساخته شد. از لاگ ممیزی بازگرداندنی است.');
+            ->with('success', 'رکورد نسخه ساخته شد.'
+                // its shelfmark names another volume or none: say where it went (step 14.353)
+                . ($manuscript->collection_pinned ? ' شمارۀ نسخه این مجموعه را نشان نمی‌دهد؛ نسخه دستی در مجموعۀ ' . \App\Support\Fa::digits((string) $manuscript->collection?->key) . ' جای گرفت.' : '')
+                . ' از لاگ ممیزی بازگرداندنی است.');
     }
 
     private function rules(): array
