@@ -71,7 +71,7 @@ class LinkRelatedWorksTest extends TestCase
         $this->followingRedirects()->get(route('works.show', $nahj))->assertOk()->assertDontSee('<span>شروح، حواشی و منظومه‌ها</span>', false);
         $page = $this->followingRedirects()->get(route('works.show', $nahj))->assertOk();
         $page->assertSee('<a href="' . route('works.show', $sharh) . '"', false)->assertSee('<a href="' . route('works.show', $tarjama) . '"', false)->assertSee('ترجمه‌ها');
-        $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها، گزیده‌ها و مجلدها');
+        $this->followingRedirects()->get(route('works.show', $lumʿa))->assertOk()->assertSee('بخش‌ها و مجلدها');
 
         // the base titles feed the search: the relation's and the text's
         $this->assertSame(['نهج البلاغة', 'خطب علی'], $sharh->fresh()->baseTitles());
@@ -225,6 +225,15 @@ class LinkRelatedWorksTest extends TestCase
         $this->work('کتابی دیگر', 'کسی');
         $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful()->expectsOutputToContain('1 relations: 1 to add');
         $this->assertSame([[$gloss->id, $base->id, 'related', 'auto', 70]], $this->relations());
+
+        // the name written another way than the work's: no work has the title and this author, and the entry is
+        // matched as before, by the one work of its title that names this work back
+        $other = $this->work('متن دیگر', 'کسی، الف', ['commentaries_and_glosses' => ['گزیدۀ متن دیگر؛ فاوجی، محمود']]);
+        $selection = $this->work('گزیدۀ متن دیگر', 'فاوچی، محمود', ['related_work' => 'متن دیگر؛ کسی، الف (-700)']);
+        $this->work('گزیدۀ متن دیگر', 'کسی، ب');
+        $this->artisan('works:link-related', ['--no-index' => true])->assertSuccessful();
+        $this->assertSame(1, DB::table('work_relations')->where('work_id', $selection->id)->where('related_work_id', $other->id)->count());
+        $this->assertSame($selection->id, DB::table('work_text_relations')->where('work_id', $other->id)->where('side', 'children')->value('linked_work_id'));
         $this->assertSame([$gloss->id, null, null, null],
             DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->pluck('linked_work_id')->all());
     }

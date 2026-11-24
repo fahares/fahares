@@ -252,7 +252,7 @@
                                     @else
                                         <span class="text-muted">پدیدآور ناشناخته</span>
                                     @endif
-                                    @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>
+                                    @if($work->effective_composition_year)<span>تألیف {{ Fa::digits($work->effective_composition_year) }} ق</span>
                                     @elseif($filters->get('estimates') && ($estimate = \App\Support\DateEstimates\EstimateText::for('work', $work->id, 'composition')))<span class="text-muted">تألیف {{ Fa::digits($estimate['text']) }} (تخمینی)</span>@endif
                                     @if($work->work_form)<span>{{ $validWorkForms[$work->work_form] ?? $work->work_form }}</span>@endif
                                     @if($work->composition_place)<span>{{ $work->composition_place }}</span>@endif

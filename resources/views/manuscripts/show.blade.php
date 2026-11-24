@@ -68,6 +68,8 @@
         $motherNote = $manuscript->original_note ?? collect($photoChain)->map(fn ($p) => $p->original_note)->filter()->last();
         $possiblySame = $manuscript->possiblySame();
         $motherLabel = $mother ? trim(($mother->libraryRecord?->name ?? $mother->library ?? '') . ' ' . ($mother->shelfmark ?? '')) : null;
+        // The «مجموعه» the copy reads from: treatises bound together, two or more (backlog item 163, step 14.324)
+        $volume = $manuscript->boundCollection();
         $fromMother = fn (?string $value) => $value !== null && $value !== ''
             ? '<span class="border-b border-dotted border-line-strong">' . e(Fa::digits($value)) . '</span> <span class="text-[11px] text-muted">از نسخۀ مادر</span>'
             : null;
@@ -344,6 +346,14 @@
                             {{ $manuscript->scribe_name }}
                         @elseif($inherited = $fromMother($mother?->scribe_name))
                             {!! $inherited !!}
+                        @elseif($manuscript->inheritsFromCollection('scribe'))
+                            {{-- the scribe its volume's treatises agree on (backlog item 163, step 14.324) --}}
+                            @if($volume->scribe_id)
+                                <a href="{{ route('people.show', $volume->scribe_id) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $volume->scribe_name ?: $volume->scribe?->name }}</a>
+                            @else
+                                {{ $volume->scribe_name }}
+                            @endif
+                            <x-manuscript-inherited :manuscript="$manuscript" field="scribe" />
                         @else
                             <span class="text-muted">ثبت نشده</span>
                         @endif
@@ -362,11 +372,12 @@
                             {!! $inherited !!}
                         @else
                             <span class="text-muted">ثبت نشده</span>
+                            <x-manuscript-siblings-stating :manuscript="$manuscript" field="copy_date_raw" what="تاریخ کتابت" />
                         @endif
                     </x-ui.meta>
                     <x-date-conflict-note type="manuscript" :id="$manuscript->id" field="copy" />
                     <x-ui.meta label="محل کتابت" field="copy_place">
-                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
+                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span><x-manuscript-siblings-stating :manuscript="$manuscript" field="copy_place" what="محل کتابت" />@endif
                     </x-ui.meta>
                     {{-- A commissioner listed among the people of the copy (role patron, backlog item 96) is not repeated here --}}
                     @unless($manuscript->commissioned_by && $manuscript->otherPeople()->where('role', 'patron')->whereNull('person_id')->where('name', $manuscript->commissioned_by)->exists())
@@ -380,7 +391,7 @@
                     {{-- Two fields in one row: each pencil stands by its own value, and the one of an empty «کیفیت خط»
                          comes only in suggestion mode, with its name (a bare second pencil says nothing) --}}
                     <x-ui.meta label="خط">
-                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
+                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@elseif($manuscript->inheritsFromCollection('script_names')){{ $volume->script_names }}@if($volume->script_style) <span class="text-muted">({{ $volume->script_style }})</span>@endif <x-manuscript-inherited :manuscript="$manuscript" field="script_names" /><x-suggest.field name="collection_script_names" title="پیشنهاد اصلاح خط همۀ مجموعه" aria-label="پیشنهاد اصلاح خط همۀ مجموعه" />@else<span class="text-muted">ثبت نشده</span>@endif
                         <x-suggest.field name="script_names" class="ms-1" />
                         @if($manuscript->script_style)
                             <span class="text-muted ms-1">({{ $manuscript->script_style }})</span>
@@ -397,12 +408,31 @@
                         @endif
                     </x-ui.meta>
                     {{-- Leaves or pages, and the leaves the copy takes in its volume (backlog item 97) --}}
-                    <x-ui.meta :label="$manuscript->pages && ! $manuscript->folios ? 'شمار صفحه' : 'شمار برگ'" field="folios">
+                    @php $pagesOnly = $manuscript->pages && ! $manuscript->folios; @endphp
+                    <x-ui.meta :label="$pagesOnly ? 'شمار صفحه' : 'شمار برگ'" :field="$pagesOnly ? 'pages' : 'folios'">
                         @if($manuscript->extentLabel()){{ $manuscript->extentLabel() }}@else<span class="text-muted">ثبت نشده</span>@endif
                     </x-ui.meta>
-                    <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines">
-                        @if($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
+                    {{-- The other count and the place in the volume are fields of their own (step 14.244), reached in
+                         suggestion mode: a catalogue's «12ص» that counts leaves is emptied here (step 14.317) --}}
+                    <div class="contents suggest-row" x-show="$store.suggest.on" x-cloak data-extent-fields>
+                        <dt class="text-muted text-[13px] sm:pt-px">{{ $pagesOnly ? 'شمار برگ' : 'شمار صفحه' }}</dt>
+                        <dd class="m-0 mb-2 sm:mb-0 text-ink min-w-0 leading-relaxed">
+                            @php $otherCount = $pagesOnly ? $manuscript->folios : $manuscript->pages; @endphp
+                            @if($otherCount){{ Fa::digits($otherCount) }}@else<span class="text-muted">ثبت نشده</span>@endif
+                            <x-suggest.field :name="$pagesOnly ? 'folios' : 'pages'" class="ms-1" />
+                        </dd>
+                        <dt class="text-muted text-[13px] sm:pt-px">جای نسخه در مجموعه</dt>
+                        <dd class="m-0 mb-2 sm:mb-0 text-ink min-w-0 leading-relaxed">
+                            @if($manuscript->rangeLabel()){{ $manuscript->rangeLabel() }}@else<span class="text-muted">ثبت نشده</span>@endif
+                            <x-suggest.field name="range_from" class="ms-1" />
+                        </dd>
+                    </div>
+                    <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines && ! $manuscript->inheritsFromCollection('lines')">
+                        @if($manuscript->inheritsFromCollection('lines')){{ Fa::digits($volume->lines_raw ?: $volume->lines . ' سطر') }} <x-manuscript-inherited :manuscript="$manuscript" field="lines" /><x-suggest.field name="collection_lines" title="پیشنهاد اصلاح شمار سطر همۀ مجموعه" aria-label="پیشنهاد اصلاح شمار سطر همۀ مجموعه" />@elseif($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
+                    {{-- The size, the paper and the binding of a treatise in a «مجموعه» are the volume's: they stand in its
+                         section below (x-manuscript-collection; backlog item 163, step 14.324) --}}
+                    @unless($volume)
                     <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions" :empty="! $manuscript->dimensions">
                         @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
@@ -412,8 +442,12 @@
                     <x-ui.meta label="جلد" field="binding" :empty="! $manuscript->binding">
                         @if($manuscript->binding){{ $manuscript->binding }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
+                    @endunless
                 </x-ui.meta-list>
             </x-ui.section>
+
+            <!-- The «مجموعه» the copy is bound in: what is the volume's, and its treatises (from the shelfmark) -->
+            <x-manuscript-collection :manuscript="$manuscript" />
 
             {{-- Only the marks the record has are shown: an unset mark means the catalogue is silent, and a list of
                  them read as the copy's features. The unset ones (and the whole section, when none is set) appear in
@@ -443,9 +477,6 @@
 
             <!-- People connected with the copy other than its scribes -->
             <x-manuscript-people :manuscript="$manuscript" />
-
-            <!-- The other treatises bound in the same volume (from the shelfmark) -->
-            <x-manuscript-collection :manuscript="$manuscript" />
 
             <!-- Relations with other copies (copied from, collated with…) -->
             <x-record-relations :record="$manuscript" />
@@ -485,31 +516,39 @@
                 // whose seals list a reviewer corrected keeps that list, and so does one without a note of provenance.
                 $noteGroups = $manuscript->noteGroups();
                 $oldSeals = $manuscript->keepsSealsList();
+                // ...and the two other old lists stay while no note of the import stands in their place: a copy without
+                // a note, or with notes a reviewer added (step 14.318)
+                $oldNotes = ($manuscript->residual_notes_text || $manuscript->editorial_notes_list) && $manuscript->keepsOldNotes();
                 $emptySections = array_filter([
                     'incipit_text' => count($manuscript->incipits_list) === 0 ? 'آغاز نسخه' : null,
                     'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
-                    'ownership_and_seals' => $oldSeals && count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
                 ]);
-                // a copy with typed notes: a note can be added to a section it does not have yet (steps 14.264, 14.269)
-                $addable = $noteGroups ? array_keys(array_filter(\App\Suggestions\SuggestionRegistry::recordFields($manuscript), fn ($f) => isset($f['new_note_type']))) : [];
-                foreach ($noteGroups ? \App\Models\ManuscriptNote::GROUPS : [] as $groupKey => $group) {
-                    if (isset($noteGroups[$groupKey]) && ! ($groupKey === 'provenance' && $oldSeals)) {
-                        continue;
-                    }
-                    foreach ($group['types'] as $newType) {
-                        if (in_array('note_new_' . $newType, $addable, true)) {
-                            unset($emptySections['ownership_and_seals']);
-                            $emptySections['note_new_' . $newType] = \App\Suggestions\SuggestionRegistry::newNoteLabel($newType);
-                        }
-                    }
+                // A note can be added to a section the page does not have yet (steps 14.264, 14.269), on a copy without
+                // a note too: one button, and the form asks the note's type (step 14.318). A note of provenance is not
+                // added beside the old list of them (SuggestionRegistry::recordFields).
+                $addsProvenance = ! $oldSeals || ! $manuscript->ownership_and_seals_list;
+                $addsNote = false;
+                foreach (\App\Models\ManuscriptNote::GROUPS as $groupKey => $group) {
+                    $lacks = ! isset($noteGroups[$groupKey]) || ($groupKey === 'provenance' && $oldSeals);
+                    $addsNote = $addsNote || ($lacks && ($groupKey !== 'provenance' || $addsProvenance));
                 }
             @endphp
-            @if($emptySections)
+            @if($emptySections || $addsNote)
                 <div x-show="$store.suggest.on" x-cloak class="p-4 border border-dashed border-cinnabar/40 bg-cinnabar/5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                     <span class="text-muted font-semibold">بخش‌های خالیِ این نسخه:</span>
                     @foreach($emptySections as $name => $label)
                         <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ $label }} <x-suggest.field :name="$name" /></span>
                     @endforeach
+                    @if($addsNote)
+                        <span class="inline-flex items-center gap-1.5 font-bold text-ink">افزودن یادداشت
+                            <button type="button" data-suggest-new-note @click="$dispatch('suggest-field', { newNote: true })"
+                                title="پیشنهاد افزودن یادداشت؛ نوع آن در فرم پرسیده می‌شود" aria-label="پیشنهاد افزودن یادداشت"
+                                class="suggest-btn is-on inline-flex items-center justify-center shrink-0 w-6 h-6 rounded-lg border border-gold/50 bg-amber-50 dark:bg-amber-950/40 text-cinnabar hover:bg-cinnabar hover:text-white transition cursor-pointer align-middle">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14m-7-7h14"/></svg>
+                            </button>
+                            <span class="font-normal text-muted">({{ $addsProvenance ? 'مهر، تملک، حواشی' : 'حواشی، مقابله' }}، یادداشت فهرست‌نگار و…)</span>
+                        </span>
+                    @endif
                 </div>
             @endif
 
@@ -527,7 +566,7 @@
                     {{-- a note of the section's types the catalogue lacks (steps 14.264, 14.269) --}}
                     <div x-show="$store.suggest.on" x-cloak class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                         @foreach(\App\Models\ManuscriptNote::GROUPS[$groupKey]['types'] as $newType)
-                            @continue(! in_array('note_new_' . $newType, $addable, true))
+                            @continue(! \App\Suggestions\SuggestionRegistry::newNoteLabel($newType))
                             <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ \App\Suggestions\SuggestionRegistry::newNoteLabel($newType) }} <x-suggest.field :name="'note_new_' . $newType" /></span>
                         @endforeach
                     </div>
@@ -550,13 +589,13 @@
                 </x-ui.section>
             @endif
 
-            @if(! $noteGroups && $manuscript->residual_notes_text)
+            @if($oldNotes && $manuscript->residual_notes_text)
                 <x-ui.section title="فوائد و رسائل مندرج در نسخه">
                     <div class="text-sm text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ Fa::digits($manuscript->residual_notes_text) }}</div>
                 </x-ui.section>
             @endif
 
-            @if(! $noteGroups && count($manuscript->editorial_notes_list) > 0)
+            @if($oldNotes && count($manuscript->editorial_notes_list) > 0)
                 <x-ui.section title="یادداشت‌های فهرست‌نگار">
                     <ul class="space-y-1.5 text-sm">
                         @foreach($manuscript->editorial_notes_list as $editNote)

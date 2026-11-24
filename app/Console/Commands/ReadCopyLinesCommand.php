@@ -69,9 +69,10 @@ class ReadCopyLinesCommand extends Command
             fputcsv($report, ['manuscript_id', 'entry_id', 'field', 'kind', 'catalogue', 'record', 'words']);
         }
 
-        $query->chunkById(500, function ($chunk) use ($reader, $comparer, $apply, &$stats, &$entries, &$unread, $report) {
+        $accepted = 0;
+        $query->chunkById(500, function ($chunk) use ($reader, $comparer, $apply, &$stats, &$entries, &$unread, &$accepted, $report) {
             $copies = Manuscript::whereIn('id', $chunk->pluck('citable_id'))->get()->keyBy('id');
-            DB::transaction(function () use ($chunk, $copies, $reader, $comparer, $apply, &$stats, &$entries, &$unread, $report) {
+            DB::transaction(function () use ($chunk, $copies, $reader, $comparer, $apply, &$stats, &$entries, &$unread, &$accepted, $report) {
                 foreach ($chunk as $entry) {
                     $ms = $copies->get($entry->citable_id);
                     if (! $ms) {
@@ -98,11 +99,22 @@ class ReadCopyLinesCommand extends Command
                     $entry->forceFill(['confirmed_fields' => $result['confirmed'] ?: null, 'fields_read_at' => now()])->saveQuietly();
                     Claim::where('source_entry_id', $entry->id)->where('method', Claim::METHOD_RULE)->candidate()->delete();
                     foreach ($result['claims'] as $c) {
-                        Claim::create([
+                        // the volume's line stands under each of its treatises' entries: one claim for the collection
+                        // is enough, whichever treatise's entry brought it and whatever became of it (step 14.331)
+                        if (str_starts_with($c['field'], \App\Suggestions\SuggestionRegistry::COLLECTION_PREFIX) && $ms->collection_id
+                            && Claim::where('subject_type', Manuscript::class)->where('field', $c['field'])->where('value_text', $c['value'])
+                                ->whereIn('subject_id', DB::table('manuscripts')->where('collection_id', $ms->collection_id)->select('id'))->exists()) {
+                            continue;
+                        }
+                        $made = Claim::create([
                             'subject_type' => Manuscript::class, 'subject_id' => $ms->id, 'field' => $c['field'],
                             'value_text' => $c['value'], 'current_text' => $c['current'], 'raw_text' => $c['raw'],
                             'source_entry_id' => $entry->id, 'method' => Claim::METHOD_RULE,
                         ]);
+                        if ($this->acceptsVolumeLeaves($c, $ms)) {
+                            $this->acceptVolumeLeaves($made, $ms);
+                            $accepted++;
+                        }
                     }
                 }
             });
@@ -112,8 +124,37 @@ class ReadCopyLinesCommand extends Command
         }
 
         $this->info(($apply ? 'Read' : 'Would read') . " {$entries} copy lines of {$source->code} ({$unread} gave no field)");
+        if ($accepted) {
+            $this->line("Accepted by themselves: the leaves of {$accepted} whole volumes (collection_folios, where the collection had none)");
+        }
         $this->table(['field', 'confirmed', 'fills', 'differs'], collect($stats)->map(fn ($s, $f) => [$f, $s['confirmed'], $s['fills'], $s['differs']])->values());
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Whether a claim is accepted with no reviewer (the user's decision, step 14.334): the leaves of a whole volume
+     * («212 برگ» of the volume's own line) where the collection has none, so nothing is set aside; and not fewer than
+     * the last leaf any of its treatises is said to reach, which a misread number would be.
+     */
+    private function acceptsVolumeLeaves(array $claim, Manuscript $ms): bool
+    {
+        if ($claim['field'] !== 'collection_folios' || ! $claim['fills'] || ! ctype_digit((string) $claim['value']) || ! ($volume = $ms->boundCollection())) {
+            return false;
+        }
+        $leaves = (int) $claim['value'];
+
+        return $leaves >= 2 && $leaves <= 5000
+            && $leaves >= (int) DB::table('manuscripts')->where('collection_id', $volume->id)->max('range_to_number');
+    }
+
+    /** Writes the leaves to the collection as the catalogue's («catalogue»), with an audit entry that undoes it, and settles the claim. */
+    private function acceptVolumeLeaves(Claim $claim, Manuscript $ms): void
+    {
+        $field = \App\Suggestions\SuggestionRegistry::fieldOf($ms, $claim->field);
+        $result = app(\App\Suggestions\SuggestionApplier::class)->apply($ms, $field, ['applied_value' => $claim->value_text, 'collection_basis' => 'catalogue']);
+        \App\Models\AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $ms->id, 'action' => 'verify',
+            'old_values' => $result['old'], 'new_values' => $result['new'] + ['first_hand' => ['claim_id' => $claim->id, 'source_entry_id' => $claim->source_entry_id]]]);
+        $claim->update(['status' => Claim::STATUS_ACCEPTED, 'reviewed_at' => now()]);
     }
 }

@@ -120,6 +120,14 @@ final class Loader
                 $workEnds[$w->id] = DateVar::end($var);
             }
         }
+        // A part that reads its date from the work it is a part of is dated like it, so it gets no estimate of its
+        // own and its copies are measured against that date (step 14.315)
+        foreach (\App\Support\WorkParts::inheritedCompositions() as $partId => $whole) {
+            $var = DateVar::of(DateVar::COMPOSITION, $partId);
+            if (self::seedSpan($engine, $var, DateSpan::fromColumns((object) $whole->only(['composition_date_from', 'composition_date_to', 'composition_date_kind', 'composition_date_start_to', 'composition_date_end_from']), 'composition_date'))) {
+                $workEnds[$partId] = DateVar::end($var);
+            }
+        }
         $workEnd = fn (int $workId) => $workEnds[$workId] ?? DateVar::of(DateVar::COMPOSITION, $workId);
 
         $ties = DB::table('work_people')->whereNotNull('person_id')->whereNull('certainty')

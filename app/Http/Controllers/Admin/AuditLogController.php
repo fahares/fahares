@@ -463,6 +463,38 @@ class AuditLogController extends Controller
                 \App\Sources\LegacyMirror::reference($restored);
             }
         }
+        // A copy's typed note is a row of its own too (steps 14.264, 14.318): an added one goes, a removed one comes
+        // back with its id, a changed one gets its text and type back
+        if (array_key_exists('notes', $old)) {
+            $before = $old['notes'];
+            $after = $log->new_values['notes'] ?? [];
+            unset($old['notes']);
+            if (! $before) {
+                \App\Models\ManuscriptNote::whereKey($after['id'] ?? 0)->where('manuscript_id', $target->id)->delete();
+            } elseif (! empty($after['removed'])) {
+                (new \App\Models\ManuscriptNote)->forceFill($before + ['manuscript_id' => $target->id,
+                    'position' => (int) \App\Models\ManuscriptNote::where('manuscript_id', $target->id)->max('position') + 1])->save();
+            } else {
+                \App\Models\ManuscriptNote::whereKey($before['id'])->where('manuscript_id', $target->id)->first()?->forceFill(array_diff_key($before, ['id' => 0]))->save();
+            }
+            $target->unsetRelation('notes');
+        }
+        // A value of the copy's «مجموعه» (step 14.330) is in the collection's record: its earlier value and basis go
+        // back there, and a field that was derived from the treatises is derived again
+        if ($collection = $old['collection'] ?? null) {
+            unset($old['collection']);
+            if ($restored = \App\Models\ManuscriptCollection::find($collection['id'])) {
+                $basis = $restored->basis ?? [];
+                if ($collection['basis'] ?? null) {
+                    $basis[$collection['field']] = $collection['basis'];
+                } else {
+                    unset($basis[$collection['field']]);
+                }
+                $restored->forceFill(array_diff_key($collection, ['id' => 0, 'field' => 0, 'basis' => 0]) + ['basis' => $basis ?: null])->save();
+                \App\Support\Collections::derive([$restored->id]);
+                \App\Support\Collections::reindex([$restored->id]);
+            }
+        }
         // ...and before step 13.3, a catalogue reference (backlog item 51): it goes back with the entry copied from it
         if ($reference = $old['catalog_reference'] ?? null) {
             unset($old['catalog_reference']);

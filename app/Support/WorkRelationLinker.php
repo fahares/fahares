@@ -231,7 +231,8 @@ class WorkRelationLinker
     /**
      * The entries of a row of the catalogue. In «شروح و حواشی» a row is one work, so in «حاشية شرح هداية الحكمة؛ خلیل بن
      * فاضل بن اسحاق» the second part is its author, written with no life dates (step 14.310), unless it is itself the
-     * title of a work; «ناشناس» there is the catalogue's word for no author.
+     * title of a work; «ناشناس» there is the catalogue's word for no author. A name written another way than the
+     * work's finds no work, and the entry is then matched as before, by its title alone («named back»).
      *
      * @return list<array{titles: list<string>, author: ?string, born: ?int, died: ?int, type: ?string, base: ?string}>
      */
@@ -245,9 +246,12 @@ class WorkRelationLinker
         if ($name === '' || isset($this->byTitle[self::key($name)])) {
             return $entries;
         }
-        $entries[0]['author'] = self::authorKey($name) === self::authorKey('ناشناس') ? null : $name;
+        if (self::authorKey($name) === self::authorKey('ناشناس')) {
+            return [$entries[0]];
+        }
 
-        return [$entries[0]];
+        // «plain»: the entry as it was read before, with no author, for when no work has the title and this author
+        return [['author' => $name, 'plain' => $entries[0]] + $entries[0]];
     }
 
     /**
@@ -280,7 +284,12 @@ class WorkRelationLinker
         foreach ($rows as $id => $sides) {
             foreach ($sides as $side => $entries) {
                 // the entries one work has the title and author of first: a work they take is no other entry's
-                $found = array_map(fn ($entry) => $this->match($id, $side, $entry), $entries);
+                $match = function (array $entry, ?array $taken = null) use ($id, $side) {
+                    $found = $this->match($id, $side, $entry, $taken);
+
+                    return ! $found[1] && isset($entry['plain']) ? $this->match($id, $side, $entry['plain'], $taken) : $found;
+                };
+                $found = array_map(fn ($entry) => $match($entry), $entries);
                 $taken = [];
                 foreach ($found as [, $pair]) {
                     if ($pair) {
@@ -288,7 +297,7 @@ class WorkRelationLinker
                     }
                 }
                 foreach ($entries as $n => $entry) {
-                    [$how, $pair] = $found[$n][1] ? $found[$n] : $this->match($id, $side, $entry, $taken);
+                    [$how, $pair] = $found[$n][1] ? $found[$n] : $match($entry, $taken);
                     $count["{$side}: {$how}"] = ($count["{$side}: {$how}"] ?? 0) + 1;
                     if ($each) {
                         $each($id, $side, $how, $entry, $pair);

@@ -3,8 +3,11 @@
     // Shared by the record page (see AppServiceProvider); empty on pages without readings
     $badge = \App\Suggestions\SuggestionReadings::badge($suggestionReadings ?? collect(), $name);
     // the field that adds another title: a plus, not a pencil (step 14.286)
-    $adds = in_array($name, [\App\Suggestions\SuggestionRegistry::ALT_TITLE_NEW, \App\Suggestions\SuggestionRegistry::ALIAS_NEW], true);
+    $newNote = str_starts_with($name, \App\Suggestions\SuggestionRegistry::NEW_NOTE_PREFIX);
+    $adds = $newNote || in_array($name, [\App\Suggestions\SuggestionRegistry::ALT_TITLE_NEW, \App\Suggestions\SuggestionRegistry::ALIAS_NEW], true);
     $hint = match (true) {
+        // a note to add to a copy (step 14.318)
+        $newNote => 'پیشنهاد افزودن این یادداشت',
         $name === \App\Suggestions\SuggestionRegistry::ALIAS_NEW => 'پیشنهاد افزودن نام دیگر',
         $adds => 'پیشنهاد افزودن عنوان دیگر',
         default => 'پیشنهاد اصلاح این فیلد',

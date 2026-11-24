@@ -69,8 +69,12 @@
         $subjectFrom = $work->traitSource('subject');
         $languageFrom = $work->traitSource('language');
         $partCount = count(\App\Support\WorkParts::partIds($work->id));
-        // the whole's date of composition is shown beside the part's own, never in its place
-        $datedWhole = $work->wholes()->first(fn ($w) => $w->composition_date_raw || $w->composition_year_hijri);
+        // The date of composition too (step 14.315); a part with a date of its own that differs from its whole's
+        // shows the whole's beside it
+        $dateFrom = $work->traitSource('composition');
+        $datedWhole = $work->inherits('composition') ? null : $work->wholes()->first(fn ($w) => $w->hasOwn('composition'));
+        $datedWhole = $datedWhole && $work->hasOwn('composition')
+            && ($datedWhole->composition_date_raw ?: $datedWhole->composition_year_hijri) == ($work->composition_date_raw ?: $work->composition_year_hijri) ? null : $datedWhole;
     @endphp
 
     <!-- Breadcrumb -->
@@ -122,8 +126,8 @@
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">
             @if($languageFrom->language_summary)<x-ui.chip>{{ $languageFrom->language_summary }}</x-ui.chip>@endif
             @if($work->work_form)<x-ui.chip>{{ $work->work_form }}</x-ui.chip>@endif
-            @if($work->composition_year_hijri)
-                <x-ui.chip>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</x-ui.chip>
+            @if($dateFrom->composition_year_hijri)
+                <x-ui.chip>تألیف {{ Fa::digits($dateFrom->composition_year_hijri) }} ق</x-ui.chip>
             @endif
             @foreach($subjectFrom->subjects ?? [] as $subj)
                 <x-ui.chip :href="route('subjects.show', $subj)">{{ $subj->title }}</x-ui.chip>
@@ -232,12 +236,13 @@
                 <x-ui.meta-list>
                     {{-- A work with no date shows its estimate, where there is one (step 14.170) --}}
                     @php
-                        $composed = $work->composition_year_hijri || $work->composition_date_raw;
+                        $composed = $dateFrom->composition_year_hijri || $dateFrom->composition_date_raw;
                         $compositionEstimate = $composed ? null : \App\Support\DateEstimates\EstimateText::for('work', $work->id, 'composition');
                     @endphp
                     <x-ui.meta label="تاریخ تألیف" field="composition_date_raw" :empty="! $composed && ! $compositionEstimate">
                         @if($composed)
-                            {{ Fa::digits($work->composition_date_raw ?: $work->composition_year_hijri . ' ق') }}
+                            {{ Fa::digits($dateFrom->composition_date_raw ?: $dateFrom->composition_year_hijri . ' ق') }}
+                            @if($work->inherits('composition'))<x-work-inherited :from="$dateFrom" />@endif
                         @elseif($compositionEstimate)
                             <x-date-estimate :estimate="$compositionEstimate" name="composition" />
                         @endif

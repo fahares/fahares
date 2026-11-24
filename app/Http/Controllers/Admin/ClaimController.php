@@ -20,6 +20,8 @@ class ClaimController extends Controller
     public const FIELD_LABELS = [
         'shelfmark' => 'شمارۀ نسخه', 'folios' => 'شمار برگ', 'lines' => 'شمار سطر', 'dimensions' => 'اندازه',
         'copy_date' => 'تاریخ کتابت', 'scribe_name' => 'کاتب', 'script_names' => 'خط',
+        // the volume's own line, read against the copy's «مجموعه» (step 14.331)
+        'collection_folios' => 'شمار برگ کل مجموعه', 'collection_dimensions' => 'اندازۀ مجموعه',
     ];
 
     public function index(Request $request)

@@ -803,7 +803,14 @@ class SuggestionWorkflowTest extends TestCase
     {
         $m = $this->manuscript(['pages' => 12, 'extent_raw' => '12ص (1-12)', 'range_from' => '1', 'range_to' => '12', 'range_from_number' => 1, 'range_to_number' => 12,
             'raw_text' => "1. تهران؛ ملی؛ شماره نسخه: 1/1\nخط: نستعلیق، بی‌کا؛ کاغذ: دولت آبادی، 12ص (1-12)، 15 سطر [ف: 6-601]"]);
-        $this->actingAs($this->admin)->get(route('manuscripts.show', $m))->assertOk()->assertSee('تعداد صفحه')->assertSee('جای نسخه در مجموعه');
+        $this->actingAs($this->admin)->get(route('manuscripts.show', $m))->assertOk()->assertSee('تعداد صفحه')->assertSee('جای نسخه در مجموعه')
+            // step 14.317: a copy counted in pages alone has its count on the main row, and buttons for the other two
+            ->assertSee('data-suggest-field="pages"', false)->assertSee('data-suggest-field="folios"', false)->assertSee('data-suggest-field="range_from"', false);
+        // ...and a reviewer empties a count that the catalogue got wrong, at once
+        $counted = $this->manuscript(['pages' => 12, 'folios' => 6]);
+        $this->get(route('manuscripts.show', $counted))->assertOk()->assertSee('data-suggest-field="pages"', false)->assertSee('data-suggest-field="range_from"', false);
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'manuscript', 'id' => $counted->id, 'field_name' => 'pages', 'suggested_value' => ''])->assertOk();
+        $this->assertSame([6, null], [$counted->fresh()->folios, $counted->fresh()->pages]);
 
         $this->suggest($m, ['field_name' => 'range_from', 'suggested_value' => 'برگ ۲ تا ۷', 'rationale_citation' => 'خود نسخه'])->assertOk();
         $s = $this->pendingFor($m);
@@ -1843,9 +1850,9 @@ class SuggestionWorkflowTest extends TestCase
             // the relation's own note is told apart from the word to the submitter (step 14.292)
             ->assertSeeInOrder(['data-relation-note', 'در صفحۀ هر دو رکورد، زیر همین رابطه نمایش داده می‌شود', 'name="contributor_note"', 'در صفحۀ رکورد نمایش داده نمی‌شود', 'name="public_note"'], false)
             ->assertSee("«{$matn->primary_title}» حاشیه‌ای است بر «{$sharh->primary_title}»", false);
-        $this->assertSame('«الف» تلخیص یا مختصری است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], 'الف', 'ب'));
-        $this->assertSame('«ب» تلخیص یا مختصری است از «الف»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['~abridgment'], 'الف', 'ب'));
-        $this->assertSame('این اثر تلخیص یا مختصری است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], null, 'ب'));
+        $this->assertSame('«الف» تلخیص، مختصر یا گزیده‌ای است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], 'الف', 'ب'));
+        $this->assertSame('«ب» تلخیص، مختصر یا گزیده‌ای است از «الف»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['~abridgment'], 'الف', 'ب'));
+        $this->assertSame('این اثر تلخیص، مختصر یا گزیده‌ای است از «ب»', \App\Suggestions\RecordRelations::named('work', \App\Suggestions\RecordRelations::options('work')['abridgment'], null, 'ب'));
         $this->approve($s, ['role' => '~gloss', 'contributor_note' => 'بر بخش منطق'])->assertRedirect('/admin/suggestions');
 
         $row = DB::table('work_relations')->sole();

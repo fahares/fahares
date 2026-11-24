@@ -1,0 +1,441 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Library;
+use App\Models\Manuscript;
+use App\Models\ManuscriptCollection;
+use App\Support\Collections;
+use App\Support\CollectionValues;
+use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
+
+/** The «مجموعه» record of a bound volume follows its treatises' library and collection_key (item 163, step 14.322). */
+class CollectionsTest extends TestCase
+{
+    private array $works = [];
+
+    private array $manuscripts = [];
+
+    private array $libraries = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['scout.driver' => 'collection']);
+    }
+
+    protected function tearDown(): void
+    {
+        DB::table('manuscripts')->whereIn('id', $this->manuscripts)->orWhereIn('work_id', $this->works)->delete();
+        DB::table('works')->whereIn('id', $this->works)->delete();
+        // the collections go with their library
+        DB::table('libraries')->whereIn('id', $this->libraries)->delete();
+        parent::tearDown();
+    }
+
+    private function library(): int
+    {
+        return $this->libraries[] = DB::table('libraries')->insertGetId(['city' => 'تهران', 'name' => 'کتابخانۀ آزمایشی مجموعه ' . uniqid(), 'slug' => 'test-collections-' . uniqid()]);
+    }
+
+    private function work(): int
+    {
+        return $this->works[] = DB::table('works')->insertGetId(['primary_title' => 'رسالۀ آزمایشی مجموعه', 'clean_title' => 'رسالۀ آزمایشی مجموعه',
+            'slug' => 'test-collections-' . uniqid(), 'volume_number' => 99, 'page_start' => 1]);
+    }
+
+    private function copy(int $library, string $shelfmark, array $columns = []): int
+    {
+        return $this->manuscripts[] = DB::table('manuscripts')->insertGetId($columns + [
+            'work_id' => $this->work(), 'sequence_number' => 1, 'volume_number' => 99, 'page_start' => 1, 'page_end' => 1, 'city' => 'تهران',
+            'library' => 'کتابخانۀ آزمایشی', 'library_id' => $library, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark,
+            'collection_key' => Manuscript::collectionKeyOf($shelfmark), 'raw_text' => 'تهران؛ کتابخانۀ آزمایشی',
+        ]);
+    }
+
+    private function collectionOf(int $copy): ?ManuscriptCollection
+    {
+        return ManuscriptCollection::find(DB::table('manuscripts')->where('id', $copy)->value('collection_id'));
+    }
+
+    public function test_a_copy_with_two_shelfmarks_is_of_the_volume_the_first_one_names()
+    {
+        $this->assertSame(['2297-ف', '240', '1376-عکسی', '3430', '1440'], array_map(fn ($s) => Manuscript::collectionKeyOf($s),
+            ['2297/1-ف و 2715/1-ف', '240/5 و 6927/2-عکس', '1376/2عکسی و 1578/2عکسی', '3430/1 و 6898-عکس', '1440/1 و 1440/2']));
+        // the first names no part: the second's volume
+        $this->assertSame('4981-ف', Manuscript::collectionKeyOf('9364 و 4981/3ف'));
+        // two reels joined by a dash: the mark is the last piece, and the part the first reel's
+        $this->assertSame('462-ف', Manuscript::collectionKeyOf('462/24(2آ)-463/24(ب)-ف'));
+        $this->assertSame('24', Manuscript::collectionKey('462/24(2آ)-463/24(ب)-ف')['part']);
+        // an old number after the dash is no second shelfmark's mark
+        $this->assertSame(['8740', '4/120'], [Manuscript::collectionKeyOf('8740/7-58/190'), Manuscript::collectionKeyOf('4/120/1-5957')]);
+        $this->assertNull(Manuscript::collectionKeyOf('39و40د'));
+    }
+
+    public function test_the_command_makes_a_record_for_each_volume_and_links_its_treatises()
+    {
+        $library = $this->library();
+        $other = $this->library();
+        $one = $this->copy($library, '9101/1');
+        $two = $this->copy($library, '9101/2');
+        $marked = $this->copy($library, '9101/3-طباطبائی');
+        $elsewhere = $this->copy($other, '9101/1');
+        $plain = $this->copy($library, '4825');
+
+        $this->artisan('fahares:build-collections')->expectsOutputToContain('Dry run: nothing written.')->assertSuccessful();
+        $this->assertNull($this->collectionOf($one));
+        $this->artisan('fahares:build-collections', ['--apply' => true])->assertSuccessful();
+
+        $volume = $this->collectionOf($one);
+        $this->assertSame([$library, '9101', 2, ManuscriptCollection::BOUND], [$volume->library_id, $volume->key, $volume->copies_count, $volume->kind]);
+        $this->assertSame($volume->id, $this->collectionOf($two)->id);
+        $this->assertSame('9101-طباطبائی', $this->collectionOf($marked)->key);
+        $this->assertNotSame($volume->id, $this->collectionOf($elsewhere)->id);
+        $this->assertNull($this->collectionOf($plain));
+        // no other column of a copy is written
+        $this->assertNull(DB::table('manuscripts')->where('id', $one)->value('updated_at'));
+
+        // again: nothing to do
+        $before = ManuscriptCollection::whereIn('library_id', [$library, $other])->pluck('id')->all();
+        $this->assertSame(['made' => 0, 'linked' => 0, 'unlinked' => 0, 'removed' => 0, 'kept_empty' => 0, 'values' => 0], Collections::sync());
+        $this->assertSame($before, ManuscriptCollection::whereIn('library_id', [$library, $other])->pluck('id')->all());
+    }
+
+    public function test_a_copy_moves_with_its_shelfmark_and_an_emptied_collection_is_removed_unless_it_holds_something()
+    {
+        $library = $this->library();
+        $one = Manuscript::find($this->copy($library, '9101/1'));
+        $two = Manuscript::find($this->copy($library, '9101/2'));
+        Collections::sync([$one->id, $two->id]);
+        $first = $this->collectionOf($one->id);
+        $this->assertSame(2, $first->copies_count);
+
+        // saved as a model: the hook moves it and counts both volumes
+        $two->update(['shelfmark' => '9102/2']);
+        $this->assertSame('9102', $two->collection_key);
+        $second = $this->collectionOf($two->id);
+        $this->assertSame(['9102', 1], [$second->key, $second->copies_count]);
+        $this->assertSame($second->id, $two->collection_id);
+        $this->assertSame(1, $first->fresh()->copies_count);
+
+        // the last copy leaves: the record made by the rule goes, one with an editor's value stays
+        $second->update(['binding' => 'تیماج مشکی', 'basis' => ['binding' => 'editor']]);
+        $two->update(['shelfmark' => '9101/2']);
+        $this->assertSame(0, $second->fresh()->copies_count);
+        $one->update(['shelfmark' => '4825']);
+        $two->update(['shelfmark' => '4826']);
+        $this->assertNull($first->fresh());
+        $this->assertNull($this->collectionOf($one->id));
+
+        // a deleted copy is counted out
+        $three = Manuscript::find($this->copy($library, '9102/3'));
+        Collections::sync([$three->id]);
+        $this->assertSame(1, $second->fresh()->copies_count);
+        $three->delete();
+        $this->assertSame(0, $second->fresh()->copies_count);
+    }
+
+    public function test_a_pinned_copy_stays_and_the_volumes_of_one_work_are_a_set()
+    {
+        $library = $this->library();
+        $one = $this->copy($library, '9101/1');
+        $two = $this->copy($library, '9101/2');
+        $pinned = $this->copy($library, '9105/1');
+        Collections::sync([$one, $two, $pinned]);
+        $volume = $this->collectionOf($one);
+        $own = $this->collectionOf($pinned)->id;
+
+        // an editor placed it in volume 9101: the rule leaves it there, and its treatises list it
+        DB::table('manuscripts')->where('id', $pinned)->update(['collection_id' => $volume->id, 'collection_pinned' => true]);
+        Collections::sync();
+        $this->assertSame($volume->id, $this->collectionOf($pinned)->id);
+        $this->assertSame(3, $volume->fresh()->copies_count);
+        $this->assertNull(ManuscriptCollection::find($own));
+        $this->assertEqualsCanonicalizing([$one, $two, $pinned], Manuscript::find($one)->collectionSiblings()->pluck('id')->all());
+        $this->assertEqualsCanonicalizing([$one, $two, $pinned], Manuscript::find($pinned)->collectionSiblings()->pluck('id')->all());
+
+        // «13/1» and «13/2» of one work are its volumes, not treatises bound together
+        $a = $this->copy($library, '13/1');
+        $b = $this->copy($library, '13/2', ['work_id' => DB::table('manuscripts')->where('id', $a)->value('work_id')]);
+        Collections::sync([$a, $b]);
+        $this->assertSame(ManuscriptCollection::SET, $this->collectionOf($a)->kind);
+        $this->assertSame(ManuscriptCollection::BOUND, $volume->fresh()->kind);
+    }
+
+    public function test_a_volumes_values_are_what_its_treatises_agree_on()
+    {
+        $copy = fn (array $c) => (object) ($c + array_fill_keys(CollectionValues::COPY_COLUMNS, null));
+        $derived = CollectionValues::derive([
+            $copy(['binding' => 'تیماج', 'dimensions' => '12×21سم', 'script_names' => 'نسخ', 'script_style' => 'خوش', 'lines' => 17, 'lines_raw' => '17 سطر', 'scribe_id' => 5, 'scribe_name' => 'محمد علی', 'copy_date_raw' => '1125ق', 'copy_place' => 'اصفهان']),
+            $copy(['binding' => 'تیماج مشکی لایه‌ای', 'dimensions' => '۱۲ x ۲۱', 'script_names' => 'نسخ', 'lines' => 17, 'scribe_id' => 5, 'scribe_name' => 'محمد علی رازی', 'copy_date_raw' => '1125 ق', 'paper' => 'فرنگی']),
+            $copy(['binding' => 'تیماج مشکی', 'script_names' => 'نسخ', 'script_style' => 'خوش', 'copy_date_raw' => '1250ق']),
+        ]);
+        // each binding is a piece of the fullest; the size and the hand are agreed; the paper is said once
+        $this->assertSame(['binding' => 'fullest', 'dimensions' => 'agreement', 'paper' => 'single', 'script_names' => 'agreement', 'lines' => 'agreement', 'scribe' => 'agreement'], $derived['basis']);
+        $this->assertSame(['تیماج مشکی لایه‌ای', '12×21سم', 'فرنگی', 'نسخ', 17, '17 سطر', 5], [$derived['values']['binding'], $derived['values']['dimensions'], $derived['values']['paper'],
+            $derived['values']['script_names'], $derived['values']['lines'], $derived['values']['lines_raw'], $derived['values']['scribe_id']]);
+        // the style is not every stating treatise's, the dates differ, the place is not every treatise's
+        $this->assertSame([null, null, null], [$derived['values']['script_style'], $derived['values']['copy_date_raw'], $derived['values']['copy_place']]);
+
+        // one treatise alone gives the volume's own fields, never the hand, the lines or the scribe
+        $single = CollectionValues::derive([$copy(['binding' => 'میشن', 'script_names' => 'نستعلیق', 'lines' => 15, 'scribe_name' => 'احمد']), $copy([])]);
+        $this->assertSame(['binding' => 'single'], $single['basis']);
+        // two bindings that are not one inside the other, two hands: nothing
+        $this->assertSame([], CollectionValues::derive([$copy(['binding' => 'تیماج مشکی', 'script_names' => 'نسخ']), $copy(['binding' => 'میشن عنابی', 'script_names' => 'نستعلیق'])])['basis']);
+        // a date every treatise states is the volume's shared date; the volumes of one work have nothing in common
+        $dated = [$copy(['copy_date_raw' => 'شوال 1125ق', 'binding' => 'تیماج']), $copy(['copy_date_raw' => 'شوال1125ق', 'binding' => 'تیماج'])];
+        $this->assertSame(['binding' => 'agreement', 'copy_date_raw' => 'agreement'], CollectionValues::derive($dated)['basis']);
+        $this->assertSame([], CollectionValues::derive($dated, ManuscriptCollection::SET)['basis']);
+    }
+
+    public function test_the_values_follow_the_treatises_and_keep_what_an_editor_gave()
+    {
+        $library = $this->library();
+        $one = Manuscript::find($this->copy($library, '9101/1', ['binding' => 'تیماج', 'script_names' => 'نسخ', 'lines' => 17]));
+        $two = Manuscript::find($this->copy($library, '9101/2', ['script_names' => 'نسخ', 'dimensions' => '12×21سم']));
+        $three = $this->copy($library, '9101/3');
+        $this->artisan('fahares:build-collections', ['--apply' => true, '--summary' => true])->expectsOutputToContain('read by')->assertSuccessful();
+
+        $volume = $this->collectionOf($one->id);
+        $this->assertSame(['تیماج', '12×21سم', 'نسخ', null], [$volume->binding, $volume->dimensions, $volume->script_names, $volume->lines]);
+        $this->assertSame(['binding' => 'single', 'dimensions' => 'single', 'script_names' => 'agreement'], $volume->basis);
+        // nothing of a treatise is written
+        $this->assertSame([null, null], [DB::table('manuscripts')->where('id', $three)->value('script_names'), DB::table('manuscripts')->where('id', $three)->value('binding')]);
+
+        // a treatise says otherwise: the agreement is gone; and back
+        $two->update(['script_names' => 'نستعلیق']);
+        $this->assertNull($volume->fresh()->script_names);
+        $this->assertArrayNotHasKey('script_names', $volume->fresh()->basis);
+        $two->update(['script_names' => 'نسخ']);
+        $this->assertSame('نسخ', $volume->fresh()->script_names);
+
+        // an editor's value is kept whatever the treatises say
+        $volume->fresh()->update(['binding' => 'تیماج قهوه‌ای ضربی', 'basis' => ['binding' => 'editor'] + $volume->fresh()->basis]);
+        $one->update(['binding' => 'میشن']);
+        Collections::sync([$one->id, $two->id]);
+        $this->assertSame(['تیماج قهوه‌ای ضربی', 'editor'], [$volume->fresh()->binding, $volume->fresh()->basis['binding']]);
+        $this->assertSame(0, Collections::derive([$volume->id])['collections']);
+    }
+
+    public function test_the_copys_page_shows_its_collection_and_marks_what_it_reads_from_it()
+    {
+        $library = $this->library();
+        $scribe = DB::table('people')->insertGetId(['name' => 'کاتب آزمایشی مجموعه', 'normalized_name' => 'کاتب ازمایشی مجموعه', 'slug' => 'test-collections-' . uniqid()]);
+        try {
+            $one = $this->copy($library, '9101/1', ['binding' => 'تیماج مشکی لایه‌ای', 'dimensions' => '12×21سم', 'script_names' => 'نسخ', 'lines' => 17, 'lines_raw' => '17 سطر',
+                'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی مجموعه', 'copy_date_raw' => '1125ق', 'copy_place' => 'اصفهان']);
+            $two = $this->copy($library, '9101/2', ['binding' => 'تیماج', 'script_names' => 'نسخ', 'lines' => 17, 'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی مجموعه', 'paper' => 'فرنگی نخودی']);
+            $silent = $this->copy($library, '9101/3');
+            $dated = $this->copy($library, '9101/5', ['copy_date_raw' => '1125 ق', 'script_names' => 'نسخ']);
+            $later = $this->copy($library, '9101/6', ['copy_date_raw' => '1250ق', 'script_names' => 'نسخ']);
+            $bika = $this->copy($library, '9101/4', ['is_bika' => true, 'script_names' => 'نسخ']);
+            DB::table('manuscript_notes')->insert([
+                ['manuscript_id' => $one, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف‌نامۀ آزمایشی مجموعه', 'typed_by' => 'field'],
+                ['manuscript_id' => $two, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف‌نامۀ آزمایشی مجموعه', 'typed_by' => 'field'],
+                ['manuscript_id' => $two, 'position' => 2, 'type' => 'seal', 'text' => 'مهر آزمایشی رسالۀ دوم', 'typed_by' => 'field'],
+            ]);
+            Collections::sync([$one, $two, $silent, $bika, $dated, $later]);
+
+            $copy = Manuscript::find($silent);
+            $this->assertSame([true, true, true, false], [$copy->inheritsFromCollection('scribe'), $copy->inheritsFromCollection('script_names'), $copy->inheritsFromCollection('lines'), $copy->inheritsFromCollection('binding')]);
+            // «بی‌کا» names no scribe, so the volume's is read; its hand is its own; the author's own hand reads no scribe
+            $this->assertSame([true, false, true], [Manuscript::find($bika)->inheritsFromCollection('scribe'), Manuscript::find($bika)->inheritsFromCollection('script_names'), Manuscript::find($bika)->inheritsFromCollection('lines')]);
+            $this->assertFalse(Manuscript::find($bika)->forceFill(['is_autograph' => true])->inheritsFromCollection('scribe'));
+            // nothing is written in the copy
+            $this->assertSame([null, null, null], array_values((array) DB::table('manuscripts')->where('id', $silent)->first(['scribe_id', 'script_names', 'lines'])));
+
+            // the silent treatise: the hand, the lines and the scribe from the collection; the others' dates, shown beside
+            $this->get(route('manuscripts.show', $copy))->assertOk()
+                ->assertSee('data-from-collection="scribe"', false)->assertSee('data-from-collection="script_names"', false)->assertSee('data-from-collection="lines"', false)
+                ->assertSee('data-siblings-stating="copy_date_raw"', false)->assertSee('data-siblings-stating="copy_place"', false)
+                // treatises with one date stand under it together, another date apart
+                ->assertSeeInOrder(['data-siblings-stating="copy_date_raw"', '۱۱۲۵ق', '۹۱۰۱/۱', ' و ', '۹۱۰۱/۵', '؛', '۱۲۵۰ق', '۹۱۰۱/۶', 'data-siblings-stating="copy_place"'], false)
+                ->assertSee('مجموعۀ ۹۱۰۱')
+                // the volume's own: the fullest binding, the size and the paper one entry gives
+                ->assertSee('تیماج مشکی لایه‌ای')->assertSee('۱۲×۲۱سم')->assertSee('فرنگی نخودی')
+                ->assertSee('تنها در مدخل رسالۀ ۹۱۰۱/۲ آمده است.')
+                // the other treatises' endowment, once, and the seal; each treatise's scribe and date in the list
+                ->assertSee('data-collection-notes', false)->assertSee('وقف‌نامۀ آزمایشی مجموعه')->assertSee('مهر آزمایشی رسالۀ دوم')
+                ->assertSee('کاتب: کاتب آزمایشی مجموعه · ۱۱۲۵ق · اصفهان');
+            $this->assertSame(1, substr_count($this->get(route('manuscripts.show', $copy))->getContent(), 'وقف‌نامۀ آزمایشی مجموعه'));
+
+            // the first treatise states all: nothing is marked, and its own endowment is not repeated as the volume's
+            $page = $this->get(route('manuscripts.show', Manuscript::find($one)))->assertOk()->assertDontSee('data-from-collection', false)->assertDontSee('data-siblings-stating', false);
+            $volumeNotes = explode('</ul>', explode('data-collection-notes', $page->getContent(), 2)[1], 2)[0];
+            $this->assertStringContainsString('مهر آزمایشی رسالۀ دوم', $volumeNotes);
+            $this->assertStringNotContainsString('وقف‌نامۀ آزمایشی مجموعه', $volumeNotes);
+            // the second's shorter binding is the same binding said in brief: not set against the volume's
+            $this->get(route('manuscripts.show', Manuscript::find($two)))->assertOk()->assertDontSee('data-own-entry', false);
+
+            // a copy in no collection keeps its page: its binding among its own features
+            $alone = $this->copy($library, '4825', ['binding' => 'میشن عنابی تنها']);
+            $this->get(route('manuscripts.show', Manuscript::find($alone)))->assertOk()->assertSee('میشن عنابی تنها')->assertDontSee('data-collection-values', false);
+        } finally {
+            DB::table('manuscript_notes')->whereIn('manuscript_id', $this->manuscripts)->delete();
+            DB::table('manuscripts')->whereIn('id', $this->manuscripts)->delete();
+            DB::table('people')->where('id', $scribe)->delete();
+        }
+    }
+
+    public function test_the_search_finds_a_treatise_by_what_it_reads_from_its_collection()
+    {
+        $library = $this->library();
+        $scribe = DB::table('people')->insertGetId(['name' => 'کاتب آزمایشی نمایه', 'normalized_name' => 'کاتب ازمایشی نمایه', 'slug' => 'test-collections-' . uniqid(), 'is_scribe' => true]);
+        $script = DB::table('scripts')->insertGetId(['name' => 'خط آزمایشی نمایه ' . uniqid(), 'slug' => 'test-collections-' . uniqid()]);
+        try {
+            $columns = ['script_names' => 'خط آزمایشی نمایه', 'lines' => 17, 'scribe_id' => $scribe, 'scribe_name' => 'کاتب آزمایشی نمایه', 'binding' => 'تیماج'];
+            $one = $this->copy($library, '9101/1', $columns);
+            $two = $this->copy($library, '9101/2', ['binding' => 'تیماج مشکی'] + $columns);
+            $silent = $this->copy($library, '9101/3', ['is_bika' => true]);
+            $autograph = $this->copy($library, '9101/4', ['is_autograph' => true, 'script_names' => 'خط آزمایشی نمایه']);
+            foreach ([$one, $two] as $id) {
+                DB::table('manuscript_script')->insert(['manuscript_id' => $id, 'script_id' => $script, 'is_primary' => true]);
+                DB::table('manuscript_people')->insert(['manuscript_id' => $id, 'person_id' => $scribe, 'name' => 'کاتب آزمایشی نمایه', 'role' => 'scribe']);
+            }
+            DB::table('manuscript_notes')->insert(['manuscript_id' => $one, 'position' => 1, 'type' => 'endowment', 'text' => 'وقف آزمایشی نمایه', 'typed_by' => 'field']);
+            Collections::sync([$one, $two, $silent, $autograph]);
+
+            // the silent treatise's document: its volume's hand, lines, scribe and binding, and the endowment's type
+            $document = Manuscript::find($silent)->toSearchableArray();
+            $this->assertSame($this->collectionOf($silent)->id, $document['collection_id']);
+            $this->assertEqualsCanonicalizing(['script_names', 'lines', 'scribe'], $document['inherited']);
+            $this->assertSame(['خط آزمایشی نمایه', [DB::table('scripts')->where('id', $script)->value('name')], 17, [$scribe], 'تیماج مشکی', ['endowment']],
+                [$document['script_names'], $document['scripts'], $document['lines'], $document['scribe_ids'], $document['binding'], $document['note_types']]);
+            $this->assertStringContainsString('کاتب', (string) $document['scribe_name']);
+            // the author's own hand reads no scribe from the volume, and a treatise that names its hand keeps it
+            $own = Manuscript::find($autograph)->toSearchableArray();
+            $this->assertSame([['lines'], 'خط آزمایشی نمایه', [], []], [$own['inherited'], $own['script_names'], $own['scripts'], $own['scribe_ids']]);
+            // a treatise that states all reads nothing, and keeps the types of its own notes
+            $first = Manuscript::find($one)->toSearchableArray();
+            $this->assertSame([[], ['endowment'], 'تیماج مشکی'], [$first['inherited'], $first['note_types'], $first['binding']]);
+
+            // the filters asked of the database find the same copies as the documents
+            $found = fn (array $params) => (new \App\Support\SearchFilters('manuscripts', $params))->apply(Manuscript::query()->whereIn('manuscripts.id', [$one, $two, $silent, $autograph]))->orderBy('manuscripts.id')->pluck('manuscripts.id')->all();
+            $this->assertSame([$one, $two, $silent], $found(['scribe_id' => $scribe]));
+            $this->assertSame([$one, $two, $silent], $found(['script_id' => $script]));
+            $this->assertSame([$one, $two, $silent, $autograph], $found(['note_types' => ['endowment']]));
+            $this->assertSame([], $found(['note_types' => ['seal']]));
+
+            // a treatise that comes to name its own hand reads the volume's no more; a removed note is no longer the volume's
+            Manuscript::find($silent)->update(['script_names' => 'خط آزمایشی نمایه']);
+            $this->assertSame([$one, $two], $found(['script_id' => $script]));
+            \App\Models\ManuscriptNote::where('manuscript_id', $one)->first()->delete();
+            $this->assertSame([], $found(['note_types' => ['endowment']]));
+            $this->assertSame([$one, $two, $silent], $found(['scribe_id' => $scribe]));
+
+            // the partial update counts what is read
+            $this->artisan('fahares:index-collections')->expectsOutputToContain('reading from their collection:')->assertSuccessful();
+        } finally {
+            DB::table('manuscript_notes')->whereIn('manuscript_id', $this->manuscripts)->delete();
+            DB::table('manuscript_script')->where('script_id', $script)->delete();
+            DB::table('manuscript_people')->where('person_id', $scribe)->delete();
+            DB::table('manuscripts')->whereIn('id', $this->manuscripts)->delete();
+            DB::table('scripts')->where('id', $script)->delete();
+            DB::table('people')->where('id', $scribe)->delete();
+        }
+    }
+
+    public function test_a_collections_value_is_corrected_from_a_treatises_page_and_a_treatise_is_moved_by_hand()
+    {
+        $admin = \App\Models\User::firstOrCreate(['email' => 'test-admin@fahares.net'], ['name' => 'Admin Tester', 'password' => 'password123', 'role' => 'admin']);
+        $admin->forceFill(['role' => 'admin', 'email_verified_at' => $admin->email_verified_at ?? now()])->save();
+        $library = $this->library();
+        $one = $this->copy($library, '9101/1', ['binding' => 'تیماج', 'script_names' => 'نسخ']);
+        $two = $this->copy($library, '9101/2', ['binding' => 'تیماج', 'script_names' => 'نسخ']);
+        $silent = $this->copy($library, '9101/3');
+        Collections::sync([$one, $two, $silent]);
+        $volume = $this->collectionOf($one);
+        $direct = fn (int $copy, string $field, string $value) => $this->actingAs($admin)->postJson('/admin/suggestions/direct-edit', ['type' => 'manuscript', 'id' => $copy, 'field_name' => $field, 'suggested_value' => $value]);
+        try {
+            // the collection's fields are fields of each of its treatises, and of no copy outside a collection
+            $fields = \App\Suggestions\SuggestionRegistry::recordFields(Manuscript::find($silent));
+            $this->assertSame(['collection_binding', 'collection_dimensions', 'collection_folios', 'collection_paper', 'collection_script_names', 'collection_lines'], array_values(array_filter(array_keys($fields), fn ($f) => str_starts_with($f, 'collection_'))));
+            $alone = $this->copy($library, '4825');
+            $this->assertNull(\App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($alone), 'collection_binding'));
+            $direct($alone, 'collection_binding', 'میشن')->assertStatus(422);
+
+            // corrected from the silent treatise's page: the collection's, as an editor's, whatever the treatises say
+            $direct($silent, 'collection_binding', 'تیماج قهوه‌ای ضربی')->assertOk();
+            $this->assertSame(['تیماج قهوه‌ای ضربی', 'editor'], [$volume->fresh()->binding, $volume->fresh()->basis['binding']]);
+            $this->assertSame('تیماج', DB::table('manuscripts')->where('id', $one)->value('binding'));
+            Manuscript::find($one)->update(['binding' => 'میشن']);
+            $this->assertSame('تیماج قهوه‌ای ضربی', $volume->fresh()->binding);
+            $this->get(route('manuscripts.show', Manuscript::find($two)))->assertOk()->assertSee('تیماج قهوه‌ای ضربی')->assertSee('data-collection-basis="editor"', false);
+            // the lines, which no treatise gives: every silent treatise reads them, and the search document too
+            $direct($one, 'collection_lines', '۱۹')->assertOk();
+            $this->assertSame(19, $volume->fresh()->lines);
+            $this->assertTrue(Manuscript::find($silent)->inheritsFromCollection('lines'));
+            $this->assertSame(19, Manuscript::find($silent)->toSearchableArray()['lines']);
+            $direct($one, 'collection_lines', 'نوزده')->assertStatus(422);
+
+            // undone from the audit log: the binding is derived from the treatises again (they differ now: none)
+            $log = \App\Models\AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $silent)->latest('id')->first();
+            $this->actingAs($admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+            $this->assertArrayNotHasKey('binding', $volume->fresh()->basis);
+            Manuscript::find($one)->update(['binding' => 'تیماج']);
+            $this->assertSame(['تیماج', 'agreement'], [$volume->fresh()->binding, $volume->fresh()->basis['binding']]);
+            // an emptied value gives the field back to the derivation
+            $direct($one, 'collection_lines', '')->assertOk();
+            $this->assertNull($volume->fresh()->lines);
+
+            // moved by hand to another collection of the library, made for it; the rule leaves it there; and back
+            $this->actingAs($admin)->post(route('admin.manuscripts.collection', $silent), ['collection_key' => '۹۱۰۱-ب'])->assertSessionHas('success');
+            $moved = $this->collectionOf($silent);
+            $this->assertSame(['9101-ب', 1, 2], [$moved->key, $moved->copies_count, $volume->fresh()->copies_count]);
+            Collections::sync();
+            $this->assertSame($moved->id, $this->collectionOf($silent)->id);
+            $this->actingAs($admin)->post(route('admin.manuscripts.collection', $silent), ['collection_key' => ''])->assertSessionHas('success');
+            $this->assertSame([$volume->id, 3], [$this->collectionOf($silent)->id, $volume->fresh()->copies_count]);
+            $this->assertNull(ManuscriptCollection::find($moved->id));
+
+            // «نسخۀ تازه» opened from a treatise says what the new one will read
+            $this->actingAs($admin)->get(route('admin.manuscripts.create', ['from' => $one]))->assertOk()->assertSee('data-collection-read', false)->assertSee('خط: نسخ');
+        } finally {
+            \App\Models\AuditLog::where('auditable_type', Manuscript::class)->whereIn('auditable_id', $this->manuscripts)->delete();
+        }
+    }
+
+    public function test_a_catalogues_line_for_the_whole_volume_is_read_against_the_collection()
+    {
+        $library = $this->library();
+        $one = $this->copy($library, '649/1', ['dimensions' => '11×18سم', 'folios' => 30]);
+        $two = $this->copy($library, '649/2', ['dimensions' => '11×18سم', 'folios' => 12]);
+        Collections::sync([$one, $two]);
+        $volume = $this->collectionOf($one);
+        $line = fn () => (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 649 )\nرساله اول تا هفتم تاریخ کتابت ندارد.\n212 برگ، 11 × 18");
+        $comparer = new \App\Sources\FirstHand\CopyLineComparer();
+
+        // the size is the collection's and agrees; the 212 leaves are the volume's, never the treatise's 30
+        $result = $comparer->compare($line(), Manuscript::find($one));
+        $this->assertEqualsCanonicalizing(['shelfmark', 'collection_dimensions'], $result['confirmed']);
+        $this->assertSame([['collection_folios', '212', null]], array_map(fn ($c) => [$c['field'], $c['value'], $c['current']], $result['claims']));
+
+        // accepted as the collection's leaves (the claim's suggestion writes the collection's record): confirmed from then on
+        $field = \App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($one), 'collection_folios');
+        (new \App\Suggestions\SuggestionApplier())->apply(Manuscript::find($one), $field, ['applied_value' => '۲۱۲']);
+        $this->assertSame([212, 'editor', 30], [$volume->fresh()->folios, $volume->fresh()->basis['folios'], (int) DB::table('manuscripts')->where('id', $one)->value('folios')]);
+        $this->assertEqualsCanonicalizing(['shelfmark', 'collection_dimensions', 'collection_folios'], $comparer->compare($line(), Manuscript::find($two))['confirmed']);
+        // the derivation from the treatises leaves the leaves alone
+        Collections::sync([$one, $two]);
+        $this->assertSame(212, $volume->fresh()->folios);
+        $this->get(route('manuscripts.show', Manuscript::find($two)))->assertOk()->assertSee('شمار برگ کل')->assertSee('۲۱۲ برگ');
+
+        // (a value a catalogue gave with no reviewer has the basis «catalogue»)
+        $field = \App\Suggestions\SuggestionRegistry::fieldOf(Manuscript::find($one), 'collection_folios');
+        (new \App\Suggestions\SuggestionApplier())->apply(Manuscript::find($one), $field, ['applied_value' => '212', 'collection_basis' => 'catalogue']);
+        $this->assertSame('catalogue', $volume->fresh()->basis['folios']);
+        $this->assertTrue($volume->fresh()->hasOwnData());
+
+        // a size that differs is a claim on the collection, not on the treatise
+        $other = (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 649 )\n212 برگ، 14 × 20");
+        $this->assertSame([['collection_dimensions', '11×18سم']], array_map(fn ($c) => [$c['field'], $c['current']], $comparer->compare($other, Manuscript::find($one))['claims']));
+
+        // a treatise alone in its volume: the line's size is still read against the treatise, as before
+        $alone = $this->copy($library, '650/1', ['dimensions' => '11×18سم']);
+        Collections::sync([$alone]);
+        $single = (new \App\Sources\FirstHand\Readers\MasjidAzamReader())->read("( 650 )\n40 برگ، 11 × 18");
+        $this->assertEqualsCanonicalizing(['shelfmark', 'dimensions'], $comparer->compare($single, Manuscript::find($alone))['confirmed']);
+    }
+}
+

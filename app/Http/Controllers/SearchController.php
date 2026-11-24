@@ -77,8 +77,12 @@ class SearchController extends Controller
         $sort = self::SORTS[$type][$request->input('sort')] ?? null;
         $sortKey = $sort ? $request->input('sort') : '';
         // With «estimates», a work of no date is ordered by the middle of its estimated composition (step 14.197)
-        if ($sort && $type === 'works' && $sort[1] === 'composition_year_hijri' && $filters->get('estimates')) {
-            $sort = [$sort[0], 'composition_sort_year', $sort[2], \App\Support\DateEstimates\EstimateText::COMPOSITION_SORT_SQL];
+        // In the database a part is ordered by the year it reads from its whole, as in the index (step 14.315)
+        if ($sort && $type === 'works' && $sort[1] === 'composition_year_hijri') {
+            $year = \App\Support\WorkParts::compositionYearSql();
+            $sort = $filters->get('estimates')
+                ? [$sort[0], 'composition_sort_year', $sort[2], str_replace('COALESCE(works.composition_year_hijri,', "COALESCE({$year},", \App\Support\DateEstimates\EstimateText::COMPOSITION_SORT_SQL)]
+                : [$sort[0], $sort[1], $sort[2], $year];
         }
         // ...and an author of no death year by the year he was last seen alive (step 14.198)
         if ($sort && $type === 'authors' && $sort[1] === 'era_year' && $filters->get('estimates')) {
@@ -493,8 +497,8 @@ class SearchController extends Controller
             $work->has_autograph = isset($autographWorkIds[$work->id]);
 
             $minAllowedYear = 300;
-            if ($work->composition_year_hijri) {
-                $minAllowedYear = max($minAllowedYear, $work->composition_year_hijri - 40);
+            if ($work->effective_composition_year) {
+                $minAllowedYear = max($minAllowedYear, $work->effective_composition_year - 40);
             } elseif ($work->author?->death_year_hijri) {
                 $minAllowedYear = max($minAllowedYear, $work->author->death_year_hijri - 90);
             } elseif ($work->author?->century_hijri) {

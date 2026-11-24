@@ -25,9 +25,11 @@ class WorkParts
     public const MAX_DEPTH = 5;
 
     /** What a part reads from its whole */
-    public const TRAITS = ['author', 'subject', 'language'];
+    public const TRAITS = ['author', 'subject', 'language', 'composition'];
 
     private const KEY = 'work-parts.map';
+
+    private const DATES_KEY = 'work-parts.dates';
 
     /** @return array{up: array<int, list<int>>, down: array<int, list<int>>} the wholes of each part, the parts of each whole */
     private static function map(): array
@@ -51,6 +53,55 @@ class WorkParts
     public static function flush(): void
     {
         app()->forgetInstance(self::KEY);
+        app()->forgetInstance(self::DATES_KEY);
+    }
+
+    /** After a work's own date or author changed: the dates the parts read are worked out again */
+    public static function flushDates(): void
+    {
+        app()->forgetInstance(self::DATES_KEY);
+    }
+
+    /**
+     * The parts that read their date of composition from a whole (step 14.315), for what reads the dates of many
+     * works at once: the lists ordered or filtered in the database, the floors of the copies' dates and the estimates.
+     *
+     * @return array<int, Work> part id => the work its date is read from
+     */
+    public static function inheritedCompositions(): array
+    {
+        if (! app()->bound(self::DATES_KEY)) {
+            app()->scoped(self::DATES_KEY, function () {
+                $ids = array_keys(self::map()['up']);
+                $found = [];
+                foreach ($ids ? Work::whereIn('id', $ids)->orderBy('id')->get() : [] as $part) {
+                    $source = $part->traitSource('composition');
+                    if (! $source->is($part)) {
+                        $found[$part->id] = $source;
+                    }
+                }
+
+                return $found;
+            });
+        }
+
+        return app(self::DATES_KEY);
+    }
+
+    /**
+     * The year of composition of each row of a query on the works, in SQL: the work's own column, or for the parts
+     * that read their date from a whole, that whole's year. With no such part it is the column itself.
+     */
+    public static function compositionYearSql(string $column = 'works.composition_year_hijri', string $id = 'works.id'): string
+    {
+        $cases = '';
+        foreach (self::inheritedCompositions() as $partId => $source) {
+            if ($source->composition_year_hijri) {
+                $cases .= ' WHEN ' . (int) $partId . ' THEN ' . (int) $source->composition_year_hijri;
+            }
+        }
+
+        return $cases === '' ? $column : "(CASE {$id}{$cases} ELSE {$column} END)";
     }
 
     /** The one work this work is a part of; null for a work that is a part of none, or of more than one */
