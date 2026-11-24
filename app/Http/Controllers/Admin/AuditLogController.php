@@ -479,6 +479,22 @@ class AuditLogController extends Controller
             }
             $target->unsetRelation('notes');
         }
+        // A value of the copy's «مجموعه» (step 14.330) is in the collection's record: its earlier value and basis go
+        // back there, and a field that was derived from the treatises is derived again
+        if ($collection = $old['collection'] ?? null) {
+            unset($old['collection']);
+            if ($restored = \App\Models\ManuscriptCollection::find($collection['id'])) {
+                $basis = $restored->basis ?? [];
+                if ($collection['basis'] ?? null) {
+                    $basis[$collection['field']] = $collection['basis'];
+                } else {
+                    unset($basis[$collection['field']]);
+                }
+                $restored->forceFill(array_diff_key($collection, ['id' => 0, 'field' => 0, 'basis' => 0]) + ['basis' => $basis ?: null])->save();
+                \App\Support\Collections::derive([$restored->id]);
+                \App\Support\Collections::reindex([$restored->id]);
+            }
+        }
         // ...and before step 13.3, a catalogue reference (backlog item 51): it goes back with the entry copied from it
         if ($reference = $old['catalog_reference'] ?? null) {
             unset($old['catalog_reference']);

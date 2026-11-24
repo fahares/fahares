@@ -13175,6 +13175,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **دست‌نخورده:** `Insights` و `InsightsScope` (شمار آثار هر سده از ستون خود اثر)، `PersonPlaces`، `KnownRulers` در `RefreshDerivedCommand` و `BackfillWorkDedicationsCommand`، `FixLifeYearsCommand`، و `SuggestionRegistry::describe()`.
 - **پس از انتشار (یک بار، فقط نمایۀ جست‌وجو را می‌نویسد):** `php artisan tinker --execute='App\Models\Work::whereIn("id", DB::table("work_relations")->where("type", "part")->pluck("work_id"))->get()->searchable();' < /dev/null` با `scripts/dev/prod-run`. بی آن، سند جست‌وجوی بخش‌هایی که پیش از این گام وصل شده‌اند تا تغییر بعدی‌شان سال تألیف ندارد.
 - **آزمون:** `WorkPartsTest` سیزده آزمون؛ سه آزمون تازه: تاریخ ارثی و نبودن تخمین (صفحه، سند جست‌وجو، `estimate-dates`، `copyFloors`، مرتب‌سازی و فیلتر پایگاه، تغییر تاریخ اصل، برداشتن رابطه)، تاریخ اختصاصی بخش، و بخشِ دارای مؤلف دیگر.
+- **اجرا در production (۳ آذر ۱۴۰۵، `prod-run work-part-inherit`، پس از استقرار batch206):** همان دستور نمایه‌سازی؛ خروجی «reindexed [18714,58980]». سند ۵۸۹۸۰: `composition_year_hijri` و `era_year` ۸۳۷، `era_estimate_from` تهی؛ سند ۱۸۷۱۴: ۱۲۳۵ (بی تغییر). فقط نمایۀ Meilisearch نوشته شد، نه پایگاه داده؛ پس پشتیبان نگرفتیم. فایلی در `/tmp` کانتینر نماند.
 
 ### گام ۱۴.۳۱۶: برچسب `abridgment` و `part`
 - **`RecordRelations::WORK_TYPES`:** «گزیده» از برچسب `part` به `abridgment` رفت. کلیدها و داده دست نخورد؛ ارث‌بری (`WorkParts`) همچنان فقط روی `part` است.
@@ -13323,4 +13324,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Collections::reindex`:** تا ۲۵ مجموعه را درجا دوباره نمایه می‌کند؛ بیشتر از آن کار `fahares:index-collections` است، که مجموعه‌به‌مجموعه می‌رود (به ترتیب شناسۀ نسخه، تمرین از ده دقیقه گذشت؛ مجموعه‌به‌مجموعه ۲ دقیقه و ۵۷ ثانیه برای ۱۴۸٬۷۹۸ نسخه). `refreshReadings` همه: ۲۶۰ ثانیه.
 - **`ManuscriptNote`:** قلاب `saved` و `deleted` برای یادداشت‌های گروه `provenance`.
 - **آزمون:** `CollectionsTest::test_the_search_finds_a_treatise_by_what_it_reads_from_its_collection`.
+
+### گام ۱۴.۳۳۰: فیلدهای مجموعه در سامانۀ پیشنهاد
+- **`SuggestionRegistry`:** `COLLECTION_PREFIX`، `COLLECTION_FIELDS`، `collectionField($name)` (کلید `collection` در تعریف فیلد)؛ در `recordFields` برای نسخه‌ای که `boundCollection()` دارد؛ `fieldOf` برای نسخۀ بیرون از مجموعه تهی می‌دهد؛ `currentValue` مقدار رکورد مجموعه را.
+- **`SuggestionApplier::applyCollection`:** ستون‌های فیلد (`CollectionValues::columnsOf`) خالی و ستون اصلی نوشته می‌شود، `basis[field] = editor` (یا برداشته با مقدار خالی)، سپس `Collections::derive` و `reindex`. خروجی `old.collection` و `new.collection` با `id`، `field`، `basis` و ستون‌ها. `ProtectedColumns::META_KEYS` کلید `collection` را ستون نسخه نمی‌شمارد.
+- **`AuditLogController` (بازگرداندن):** کلید `collection`: ستون‌ها و مبنای پیشین به رکورد مجموعه برمی‌گردد و `derive` دوباره اجرا می‌شود.
+- **`Admin\ManuscriptController::moveCollection`** (`POST /admin/manuscripts/{id}/collection`، `can:suggestions.direct_edit`): `firstOrCreate` مجموعه با (`library_id`، `key`)، `collection_id` و `collection_pinned` نسخه، و لاگ `verify` با ستون‌های پیشین. قلاب `saved` نسخه با تغییر `collection_id` مجموعۀ ترک‌شده را هم می‌شمارد و می‌سازد.
+- **نما:** `manuscript-collection` (مداد `collection_{field}`، `data-collection-basis`، فرم `data-move-collection` در حالت پیشنهاد)، `show.blade.php` (مداد `collection_script_names` و `collection_lines` کنار «از مجموعه»)، `admin/manuscripts/create` (`data-collection-read`).
+- **آزمون:** `CollectionsTest::test_a_collections_value_is_corrected_from_a_treatises_page_and_a_treatise_is_moved_by_hand`.
 

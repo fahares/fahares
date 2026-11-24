@@ -243,8 +243,15 @@ class Manuscript extends Model
 
         // The «مجموعه» record of its volume follows its library and collection_key (backlog item 163, step 14.322)
         static::saved(function (Manuscript $manuscript) {
-            if ($manuscript->wasRecentlyCreated || $manuscript->wasChanged(['collection_key', 'library_id', 'work_id', 'collection_pinned'])) {
+            if ($manuscript->wasRecentlyCreated || $manuscript->wasChanged(['collection_key', 'library_id', 'work_id', 'collection_pinned', 'collection_id'])) {
+                // an editor moved it (collection_pinned, step 14.330): the collection it left is counted and derived again too
+                $left = $manuscript->wasChanged('collection_id') ? (int) $manuscript->getOriginal('collection_id') : 0;
                 \App\Support\Collections::sync([$manuscript->id]);
+                if ($left) {
+                    \App\Support\Collections::recount([$left]);
+                    \App\Support\Collections::derive([$left]);
+                    \App\Support\Collections::reindex([$left]);
+                }
                 $manuscript->collection_id = DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id');
                 $manuscript->syncOriginalAttribute('collection_id');
             } elseif ($manuscript->wasChanged(\App\Support\CollectionValues::COPY_COLUMNS)
