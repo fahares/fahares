@@ -13764,6 +13764,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
   - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
   - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵):**
+  - پشتیبان: `backups/step13/before_step14_365_kashan_soltani_20261124_1949.json` (md5 `c967f727…`). کتابخانۀ ۶۷ هیچ منبعی نداشت. بیشینۀ شناسۀ `source_entries` ۱۳۶۹۹۱۸ بود.
+  - `catalogs:set-facsimiles`: «1 created, 0 updated, 246 unchanged». جلد #۷۴۴ ساخته شد. اجرای خشک بعدی «0 created, 247 unchanged» داد.
+  - `catalogs:match-edition kashan-soltani --matches=…`: ۱۰۰ مدخل `llm_copy` روی جلد ۷۴۴ نوشته شد، برای ۱۰۰ نسخۀ جدا، ص ۷ تا ۴۶. هیچ‌کدام `verified` نیست. اجرای بعدی خشک بود.
+  - سنجش: صفحۀ نسخۀ ۱۹۳۷۷۱ ارجاع «سلطانی، چاپ ۱۳۵۰» و `kashan-soltani/v01/p0007.webp` را نشان داد (HTTP 200). در `/tmp` کانتینر چیزی نماند.
 
 ### گام ۱۴.۳۶۶: دو نوع تازۀ `fahares:fix-wrong-links` و `wrong_links_step14_366.json`
 
@@ -13823,6 +13828,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
 - **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_370_person_lives_before.jsonl.gz` (۹۱۱ سطر، md5 `f71955ba…`). اجرای آزمایشی و `--apply`: `rawdat` `created 150`، `has_life 13`؛ `mosaffa` `created 200`، `exists 1`، `has_life 17`؛ `mushar_authors` `created 601`، `exists 3`، `has_life 7`؛ اجرای دوم هر سه `created 0`. سطرهای اشخاص: `rawdat` ۱۹۴ (۱۵۰ با `name_llm`، ۱۳۱ با ۹۰ به بالا)، `mosaffa` ۲۹۸ (۲۰۰، ۱۷۷)، `mushar-authors` ۱٬۳۷۰ (۶۰۱، ۴۴۴). پدیدآورندگانِ پیونددار: ۴٬۷۳۳ از ۱۵٬۱۹۹؛ همۀ اشخاص: ۴٬۷۳۷ از ۶۶٬۳۰۳، نشان‌داده ۴٬۱۶۲. سطرها به روش: `name_llm` ۷٬۵۰۴، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحه‌های `/p/67241`، `/p/423` و `/p/147` با کد ۲۰۰ و نام منبع دیده شد.
 
 ### گام ۱۴.۳۷۱: `fankha_alt_title_step14_371.json`
 - **فایل تصمیم:** `category` «editorial_correction»؛ یک `work_updates` برای `shrh-frayd-alsgaondy-v20-366` با تنها یک ستون: `alternative_titles`، از «شرح الفزائض السراجية» به «شرح الفرائض السراجية» (آوانگاری همان).
