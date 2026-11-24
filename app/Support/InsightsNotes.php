@@ -46,6 +46,7 @@ class InsightsNotes
         'anonymous' => 'آیا اثر بی مؤلف یعنی مؤلفش ناشناخته است؟',
         'librarySubjects' => 'آیا موضوع پررنگ، بیشترین نسخه‌های کتابخانه را دارد؟',
         'catalogers' => 'چرا این آمار به کار خوانندۀ ارقام دیگر می‌آید؟',
+        'completeness' => 'آیا سهم پایین یعنی فهرست کم‌کاری کرده است؟',
     ];
 
     private array $data;
@@ -65,7 +66,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -514,6 +515,28 @@ class InsightsNotes
         return [[
             'جدول نخست برای هر کتابخانه موضوع‌هایی را می‌آورد که سهمشان در نسخه‌های آن کتابخانه بیش از سهمشان در همۀ کتابخانه‌هاست، با همان نسبت. فهرست دوم از سوی دیگر می‌خواند: برای هر موضوع، کتابخانه‌ای که آن موضوع بیشترین سهم را در نسخه‌هایش دارد. روی نام موضوع بزنید تا آمار همان موضوع در همان کتابخانه را ببینید.',
             'نه. موضوع پررنگ موضوعی است که کتابخانه بیش از دیگران از آن دارد، نه موضوعی که بیشترین نسخه‌اش را می‌سازد؛ ادبیات و فقه در بیشتر کتابخانه‌ها پرشمارترین‌اند و برای همین کمتر پررنگ می‌شوند. نسبت در کتابخانۀ کوچک با چند نسخه جابه‌جا می‌شود، پس شمار نسخه را هم ببینید. موضوع هر نسخه موضوع اثر آن است، و نسخه‌ای که اثرش موضوع ندارد در این شمارش نیست.',
+        ], $examples];
+    }
+
+    private function completeness(): array
+    {
+        $cp = $this->data['completeness'];
+        $by = array_column($cp['fields'], null, 'key');
+        $examples = [];
+        if ($cp['copies'] > 0) {
+            foreach (['date' => ['تاریخ کتابت', 'بی‌تا'], 'scribe' => ['نام کاتب', 'بی‌کا']] as $key => [$name, $word]) {
+                $examples[] = $name . ' ' . self::n($by[$key]['count']) . ' نسخه (' . self::pct($by[$key]['share']) . ') آمده است؛ فهرست ' . self::n($cp['absent'][$key]['stated'])
+                    . ' نسخه را «' . $word . '» خوانده و دربارۀ ' . self::n($cp['absent'][$key]['silent']) . ' نسخه چیزی نگفته است.';
+            }
+        }
+        if (($full = $cp['fullest']) && ($bare = $cp['barest'])) {
+            $examples[] = 'در میان ' . self::n($cp['library_count']) . ' کتابخانه‌ای که دست‌کم ' . self::n($cp['min_copies']) . ' نسخه دارند، میانگین هشت سهم در ' . $full['name']
+                . ($full['city'] ? '، ' . $full['city'] : '') . ' بیشترین است (' . self::pct($full['mean']) . ') و در ' . $bare['name'] . ($bare['city'] ? '، ' . $bare['city'] : '') . ' کمترین (' . self::pct($bare['mean']) . ').';
+        }
+
+        return [[
+            'میله‌ها می‌گویند فهرست‌ها برای چه سهمی از نسخه‌ها هر یک از هشت داده را نوشته‌اند. دو جدول همین سهم‌ها را برای بزرگ‌ترین کتابخانه‌ها و پرکارترین فهرست‌نگاران می‌آورند؛ هر خانه درصد نسخه‌هایی است که آن داده را دارند، و خانۀ پررنگ‌تر سهم بیشتر است. ستون «میانگین» میانگین سادۀ هشت سهم است.',
+            'نه. بسیاری از نسخه‌ها به‌راستی تاریخ یا نام کاتب ندارند، چون کاتب آن را ننوشته یا برگ پایانی افتاده است؛ فهرست این را با «بی‌تا» و «بی‌کا» می‌گوید. جای کتابت را هم کمتر کاتبی نوشته است. ولی شمار برگ، شمار سطر، ابعاد و خط را فهرست‌نگار خود می‌تواند ببیند و بنویسد، پس سهم پایین این چهار داده بیشتر از شیوۀ فهرست می‌گوید: فهرست مختصر، فهرست میکروفیلم و فهرست‌های کهن کمتر به آن‌ها پرداخته‌اند. آمار برگ، سطر، ابعاد و خط این صفحه را با همین سهم‌ها بخوانید.',
         ], $examples];
     }
 

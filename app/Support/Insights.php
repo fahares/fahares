@@ -31,8 +31,9 @@ class Insights
     // v13: every dynasty's count, for the chart of rows (step 14.278)
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
+    // v22: what the catalogues wrote of each copy (backlog item 162, step 14.348)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v21';
+    private const CACHE_KEY = 'insights.v22';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -154,6 +155,7 @@ class Insights
             'anonymous' => self::anonymous($scope),
             'library_subjects' => self::librarySubjects($scope),
             'catalogers' => self::catalogers($scope, $totals['manuscripts']),
+            'completeness' => self::completeness($scope),
         ];
     }
 
@@ -1351,6 +1353,66 @@ class Insights
     }
 
     /**
+     * What the catalogues wrote of each copy (backlog item 162, step 14.348): the share of the copies with each
+     * datum, in the whole scope, in its largest libraries and in the work of its most productive cataloguers, and in
+     * every catalogue volume with enough copies (for the data table). A copy with no date or no scribe is one the
+     * print calls «بی‌تا» or «بی‌کا», or one it says nothing of.
+     */
+    private static function completeness(InsightsScope $scope): array
+    {
+        $fields = self::COMPLETENESS;
+        $sums = implode(', ', array_map(fn ($key) => "SUM({$fields[$key][1]}) AS `{$key}`", array_keys($fields)));
+        $row = function (object $r) use ($fields) {
+            $shares = [];
+            foreach ($fields as $key => $_) {
+                $shares[$key] = self::share((int) $r->{$key}, (int) $r->n);
+            }
+
+            return ['count' => (int) $r->n, 'shares' => $shares, 'mean' => round(array_sum($shares) / count($shares), 1)];
+        };
+        $all = $scope->manuscripts()->selectRaw("COUNT(*) AS n, {$sums}, "
+            . 'SUM(manuscripts.copy_date_from IS NULL AND manuscripts.is_bita) AS no_date, SUM(NOT manuscripts.scribe_named AND manuscripts.is_bika) AS no_scribe')->first();
+        $total = (int) $all->n;
+        $min = (int) config('insights.completeness_min_copies');
+        $by = fn (string $column) => $scope->manuscripts()->whereNotNull("manuscripts.{$column}")
+            ->selectRaw("manuscripts.{$column} AS k, COUNT(*) AS n, {$sums}")->groupBy("manuscripts.{$column}")
+            ->havingRaw('COUNT(*) >= ?', [$min])->orderByDesc('n')->orderBy('k')->get();
+
+        $rows = $by('library_id');
+        $names = \App\Models\Library::whereIn('id', $rows->pluck('k'))->get(['id', 'name', 'city', 'slug'])->keyBy('id');
+        $libraries = $rows->filter(fn ($r) => isset($names[$r->k]))->map(fn ($r) => ['id' => (int) $r->k, 'key' => $names[$r->k]->getRouteKey(),
+            'name' => $names[$r->k]->name, 'city' => $names[$r->k]->city] + $row($r))->values();
+
+        $rows = $by('cataloger_id')->take(config('insights.catalogers_shown'));
+        $names = \App\Models\Cataloger::whereIn('id', $rows->pluck('k'))->get(['id', 'name', 'slug'])->keyBy('id');
+        $catalogers = $rows->filter(fn ($r) => isset($names[$r->k]))->map(fn ($r) => ['id' => (int) $r->k, 'key' => $names[$r->k]->getRouteKey(),
+            'name' => $names[$r->k]->name] + $row($r))->values();
+
+        $rows = $by('catalog_volume_id');
+        $names = \App\Models\CatalogVolume::whereIn('id', $rows->pluck('k'))->pluck('title', 'id');
+        $volumes = $rows->filter(fn ($r) => isset($names[$r->k]))->map(fn ($r) => ['id' => (int) $r->k, 'title' => $names[$r->k]] + $row($r))->values();
+
+        $ranked = $libraries->sortBy([['mean', 'desc'], ['id', 'asc']])->values();
+
+        return [
+            'copies' => $total,
+            'fields' => array_map(fn ($key) => ['key' => $key, 'name' => $fields[$key][0], 'count' => (int) $all->{$key}, 'share' => self::share((int) $all->{$key}, $total)], array_keys($fields)),
+            // The two the print has a word for: said to be absent, and not spoken of
+            'absent' => [
+                'date' => ['stated' => (int) $all->no_date, 'silent' => $total - (int) $all->date - (int) $all->no_date],
+                'scribe' => ['stated' => (int) $all->no_scribe, 'silent' => $total - (int) $all->scribe - (int) $all->no_scribe],
+            ],
+            'libraries' => $libraries->take(config('insights.completeness_libraries_shown'))->all(),
+            'library_count' => $libraries->count(),
+            'fullest' => $ranked->count() > 1 ? $ranked->first() : null,
+            'barest' => $ranked->count() > 1 ? $ranked->last() : null,
+            'catalogers' => $catalogers->all(),
+            'volumes' => $volumes->all(),
+            'min_copies' => $min,
+        ];
+    }
+
+    /**
      * The page of the copies (backlog item 162, step 14.314): how many fall in each band of height, the sizes written
      * most often, the mean height and width of the copies of each century, and of the copies of each main subject.
      * The height is the longer side (InsightsScope::open); a size outside `page_cm` is a slip of the catalogue or of
@@ -1926,6 +1988,21 @@ class Insights
             round(($m['lat1'] - $lat) * $k, 1),
         ];
     }
+
+    /**
+     * The data of a copy whose presence is counted (step 14.348): the name, and the condition on the scope's copies
+     * (InsightsScope::open).
+     */
+    public const COMPLETENESS = [
+        'date' => ['تاریخ کتابت', 'manuscripts.copy_date_from IS NOT NULL'],
+        'scribe' => ['نام کاتب', 'manuscripts.scribe_named'],
+        'place' => ['جای کتابت', "COALESCE(manuscripts.copy_place, '') != ''"],
+        'script' => ['خط', 'manuscripts.scripted'],
+        'extent' => ['شمار برگ', 'manuscripts.extent_given'],
+        'lines' => ['شمار سطر', 'manuscripts.`lines` IS NOT NULL'],
+        'size' => ['ابعاد', 'manuscripts.size_given'],
+        'incipit' => ['آغاز متن', 'manuscripts.incipit_given'],
+    ];
 
     private static function share(int $part, int $whole): float
     {
