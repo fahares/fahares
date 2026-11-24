@@ -13293,15 +13293,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید، پس از انتشار (پشتیبان `manuscripts.catalog_volume_id` و `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۰ پیش از آن):** `php -d memory_limit=1G artisan catalogs:move-cited-part --library=hmdan-mdrsh-ghrb-29 --names="رشت و همدان" --from="فهرست نسخه‌های خطی کتابخانه مدرسه غرب همدان (آخوند)" --to="فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان"`، نخست بی `--apply`.
 - **اجرا در تولید (۳ آذر ۱۴۰۵، پس از انتشار ۲۰۵):** پشتیبان `../fahares-sources/backups/step13/before_step14_326_move_cited_part_20261123_2356.json` (md5 `c1c228eb10f680e962097a13dc69dd98`؛ ۱٬۹۲۱ نسخه، ۱٬۹۲۱ ردیف `manuscript_catalog_references`، ۱٬۹۲۱ ارجاع). با `prod-run`: اجرای خشک «named: 1883, none: 38»، سپس «Moved 1883 copies.»، و اجرای خشک دوم «0 copies to move». جلد #۵۳۲ اکنون ۱٬۶۶۳ ارجاع در بازۀ اسکن دارد. چهار نسخۀ تصادفی (۸۹۳۵۴، ۲۱۶۲۰۹، ۱۰۴۹۰۸، ۳۲۱۴۰) در fahares.net به برگۀ صفحۀ خود در `rasht-hamedan/v01` می‌روند و برگه‌ها پاسخ ۲۰۰ می‌دهند.
 
-### گام ۱۴.۳۳۲: نشریۀ دانشگاه تهران دفتر ۶ و ۱۱، صفحه‌های بیرون از اسکن docibox
-
-- **یافته:** از شمارش نسخه‌های بی‌پیوند (۷٬۷۶۶ نسخه روی جلدهای تصویردار، کپی محلی تولید)، ۱٬۴۷۰ پس از پایان اسکن بودند، ۱٬۰۷۴ در دفتر ۱۱ (اسکن تا ص ۷۸۶، ارجاع‌ها تا ۱۰۲۶) و ۲۶۹ در دفتر ۶ (اسکن تا ۶۵۰).
-- **پرونده‌ها:** خزانه‌ها 2182 (دفتر ۶، ۳۵۴ برگ دوصفحه‌ای) و 2187 (دفتر ۱۱ و ۱۲، ۷۴۳ برگ)، از `../fahares-sources/telegram-khazaneha`، با پیوند سخت در `tehran-univ/nashriyye-kh/n06k.pdf` و `n11k.pdf`. همان چاپ است: سرصفحۀ «نسخه‌های خطی»/«دفتر ششم» و حروف‌چینی ص ۶۴۸–۶۵۰ با اسکن docibox یکی است.
-- **صفحه‌ها:** `_ahamd/strips.py` و `READ-HEADERS.md` (زیرعامل Sonnet). دفتر ۶: راست = ۲·برگ − ۱۰ برای برگ ۶ تا ۳۵۴ (ص ۲ تا ۶۹۸). دفتر ۱۱: راست = ۲·برگ − ۲۴ برای برگ ۳۶۱ تا ۵۲۹ (ص ۶۹۸ تا ۱۰۳۴)، و از برگ ۵۳۰ تصویر نسخه‌ها بی‌شماره. تنها ناسازگاری (برگ ۴۹۱ «۹۵۶») با دیدن برگ رد شد: ۹۵۸/۹۵۹ است؛ راست برگ ۴۹۰ صفحۀ عنوان بخش «رومانی» بی‌شماره است.
-- **نگاشت و تصویر:** `tehran-univ/n06k.map.json` (ص ۶۵۱–۶۹۸) و `n11k.map.json` (ص ۷۸۷–۱۰۳۴)، به صورت «برگ:r/l»؛ `extract_edition_pages.py --width 1100 --mupdf --keep-foot`: ۴۸ و ۲۴۸ برگه. در `catalog_facsimiles.json` پرونده و نگاشت دوم به ردیف هر جلد افزوده شد و `page_last` ۶۹۸ و ۱۰۳۴ شد.
-- **وارسی:** ص ۹۴۶ (۴۱۳/۱)، ۹۵۳ (۱۱/۲ و ۱۲/۳) و ۹۰۷ (۴۶۱) نسخۀ ارجاع را دارند.
-- **تمرین (`fahares_prod`):** «0 created, 2 updated, 237 unchanged»، سپس «0 updated». ۲۶۹ نسخه در دفتر ۶ و ۱٬۰۸۰ نسخه در دفتر ۱۱ در بازۀ تازه‌اند.
-- **پس از انتشار:** فرستادن `tehran-univ-nashriyye/v06` و `v11` با `send.sh` (C=tehran-univ-nashriyye) و `catalogs:set-facsimiles` با `prod-run`.
 ### گام ۱۴.۳۲۷: `SourceEntrySync::fitToVolume()` و `catalogs:import-fankha-references --changed`
 
 - **`fitToVolume(string $raw, array $parsed, int $volumeId, int $sourceId)`** (در `citedValues()` پس از `parse()`، وقتی نسخه جلد دارد): شماره و بازۀ صفحۀ جلدهای منبع یک بار خوانده و نگه داشته می‌شود (`$volumeNumbers`). متن ارجاع آن چیزی است که پس از آخرین «[» آمده؛ بخش‌ها با «؛» و با «و» پس از رقم جدا می‌شوند (نه «و» نام «رشت و همدان» و نه «88 و 89»).
@@ -13349,9 +13340,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`ClaimController::FIELD_LABELS`** و سطر «شمار برگ کل» در `manuscript-collection`.
 - **آزمون:** `CollectionsTest::test_a_catalogues_line_for_the_whole_volume_is_read_against_the_collection`.
 
-### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
-- **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
-- **آزمون:** `FirstHandReadingTest::test_the_leaves_of_a_whole_volume_are_accepted_by_themselves_where_the_collection_has_none`.
+### گام ۱۴.۳۳۲: نشریۀ دانشگاه تهران دفتر ۶ و ۱۱، صفحه‌های بیرون از اسکن docibox
+
+- **یافته:** از شمارش نسخه‌های بی‌پیوند (۷٬۷۶۶ نسخه روی جلدهای تصویردار، کپی محلی تولید)، ۱٬۴۷۰ پس از پایان اسکن بودند، ۱٬۰۷۴ در دفتر ۱۱ (اسکن تا ص ۷۸۶، ارجاع‌ها تا ۱۰۲۶) و ۲۶۹ در دفتر ۶ (اسکن تا ۶۵۰).
+- **پرونده‌ها:** خزانه‌ها 2182 (دفتر ۶، ۳۵۴ برگ دوصفحه‌ای) و 2187 (دفتر ۱۱ و ۱۲، ۷۴۳ برگ)، از `../fahares-sources/telegram-khazaneha`، با پیوند سخت در `tehran-univ/nashriyye-kh/n06k.pdf` و `n11k.pdf`. همان چاپ است: سرصفحۀ «نسخه‌های خطی»/«دفتر ششم» و حروف‌چینی ص ۶۴۸–۶۵۰ با اسکن docibox یکی است.
+- **صفحه‌ها:** `_ahamd/strips.py` و `READ-HEADERS.md` (زیرعامل Sonnet). دفتر ۶: راست = ۲·برگ − ۱۰ برای برگ ۶ تا ۳۵۴ (ص ۲ تا ۶۹۸). دفتر ۱۱: راست = ۲·برگ − ۲۴ برای برگ ۳۶۱ تا ۵۲۹ (ص ۶۹۸ تا ۱۰۳۴)، و از برگ ۵۳۰ تصویر نسخه‌ها بی‌شماره. تنها ناسازگاری (برگ ۴۹۱ «۹۵۶») با دیدن برگ رد شد: ۹۵۸/۹۵۹ است؛ راست برگ ۴۹۰ صفحۀ عنوان بخش «رومانی» بی‌شماره است.
+- **نگاشت و تصویر:** `tehran-univ/n06k.map.json` (ص ۶۵۱–۶۹۸) و `n11k.map.json` (ص ۷۸۷–۱۰۳۴)، به صورت «برگ:r/l»؛ `extract_edition_pages.py --width 1100 --mupdf --keep-foot`: ۴۸ و ۲۴۸ برگه. در `catalog_facsimiles.json` پرونده و نگاشت دوم به ردیف هر جلد افزوده شد و `page_last` ۶۹۸ و ۱۰۳۴ شد.
+- **وارسی:** ص ۹۴۶ (۴۱۳/۱)، ۹۵۳ (۱۱/۲ و ۱۲/۳) و ۹۰۷ (۴۶۱) نسخۀ ارجاع را دارند.
+- **تمرین (`fahares_prod`):** «0 created, 2 updated, 237 unchanged»، سپس «0 updated». ۲۶۹ نسخه در دفتر ۶ و ۱٬۰۸۰ نسخه در دفتر ۱۱ در بازۀ تازه‌اند.
+- **پس از انتشار:** فرستادن `tehran-univ-nashriyye/v06` و `v11` با `send.sh` (C=tehran-univ-nashriyye) و `catalogs:set-facsimiles` با `prod-run`.
 
 ### گام ۱۴.۳۳۳: عکسی دائرةالمعارف ج ۲ (جلد تازه) و مجلس ج ۳۶
 
@@ -13364,3 +13361,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `catalogs:set-facsimiles`: «1 created, 1 updated, 239 unchanged»، سپس «0 updated». جلد تازه #۷۴۳. `move-cited-part`: «2727 copies on #519; 1: 1624, 2: 1100, 5: 2, none: 1»، «Moved 1100 copies.»؛ هر ۱٬۱۰۰ ارجاع روی #۷۴۳ در ص ۱–۳۵۰‌اند.
 - **وارسی:** ج ۲ عکسی ص ۷۲ (۲۳۱/۳)، ۱۹۵ (۲۱۰/۷) و ۱۱۵ (۳۴/۱۹) نسخه را دارند؛ ص ۲۴۳ برای ۱۵۰ «لطائف العرفان» نادرست است (صفحه زیر «مج» است؛ خطای فنخا).
 - **پس از انتشار، به ترتیب:** فرستادن `dairat-akasi/v02` و `majlis/v36` با `send.sh`؛ پشتیبان؛ `catalogs:set-facsimiles`؛ پشتیبان جای نسخه‌های #۵۱۹؛ `catalogs:move-cited-part --library=thran-dayrh-almaaarf-20 --cited-volume=2 --from="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول" --to="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم"`، نخست بی `--apply`. شناسۀ جلد تازه در تولید جز ۷۴۳ خواهد بود.
+
+### گام ۱۴.۳۳۴: پذیرش خودکار `collection_folios`
+- **`ReadCopyLinesCommand::acceptsVolumeLeaves`:** فیلد `collection_folios`، `fills`، عدد میان ۲ و ۵۰۰۰، و نه کمتر از بیشینۀ `range_to_number` رساله‌های مجموعه. **`acceptVolumeLeaves`:** `SuggestionApplier::apply` با `collection_basis = catalogue`، لاگ `verify` بی کاربر با کلید `first_hand` (در `ProtectedColumns::META_KEYS`)، و `status = accepted` ادعا.
+- **آزمون:** `FirstHandReadingTest::test_the_leaves_of_a_whole_volume_are_accepted_by_themselves_where_the_collection_has_none`.
