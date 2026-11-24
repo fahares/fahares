@@ -5,7 +5,7 @@ D, CODE = sys.argv[1], sys.argv[2]
 os.makedirs(D + '/full', exist_ok=True)
 T = [json.loads(l) for l in open(f'{D}/tasks_{CODE}.jsonl', encoding='utf8')]
 # an entry that only points to another one is no life
-ptr = re.compile('يأتي|یأتی|ياتي|راجع|مر بعنوان|مرّ بعنوان|تقدم بعنوان|المذكور بعنوان')
+ptr = re.compile('يأتي|یأتی|ياتي|راجع|مر بعنوان|مرّ بعنوان|تقدم بعنوان|المذكور بعنوان|خواهد آمد|رجوع شود|رجوع نمایند|مذکور شد|نگارش یافت')
 keep = [t for t in T if not t['known'] and not (len(t['text']) < 170 and ptr.search(t['text']))]
 random.seed(1)
 random.shuffle(keep)

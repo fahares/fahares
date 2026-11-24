@@ -2,7 +2,7 @@
 usage: build.py <source-code> <step> [<out.json>]"""
 import json, glob, os, re, sys, collections
 # a short entry that only points to another one is no life, whatever the model answered
-POINTER = re.compile('يأتي|یأتی|ياتي|راجع|ذكر في|مر في|مرّ في|مر بعنوان|مرّ بعنوان|تقدم|المذكور بعنوان')
+POINTER = re.compile('يأتي|یأتی|ياتي|راجع|ذكر في|مر في|مرّ في|مر بعنوان|مرّ بعنوان|تقدم|المذكور بعنوان|خواهد آمد|رجوع شود|رجوع نمایند|مذکور شد|نگارش یافت')
 D = os.path.dirname(os.path.abspath(__file__))
 CODE, STEP = sys.argv[1], sys.argv[2]
 tasks = {t['item_id']: t for t in json.load(open(D + '/full_tasks.json', encoding='utf8'))}
