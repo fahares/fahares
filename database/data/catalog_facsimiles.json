@@ -4782,6 +4782,49 @@
      "step": "14.320"
     }
    }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 36,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و ششم",
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 456,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/435.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/435.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd (BO29747@36.pdf، سیاه‌وسفید ۳۰۰ dpi، ۵۲۸ برگ)؛ برگ = صفحه؛ نسخه‌های ۱۲۵۰۱ تا ۱۳۵۰۰",
+     "step": "14.333"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-dayrh-almaaarf-20",
+   "volume_number": 2,
+   "create": {
+    "title": "فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم",
+    "edition_label": "۱۳۸۸"
+   },
+   "facsimile_code": "dairat-akasi",
+   "page_first": 1,
+   "page_last": 350,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "_ahamd/519-v2.pdf"
+     ],
+     "leaf_maps": [
+      "_ahamd/519-v2.map.json"
+     ],
+     "note": "هارد اکسترنال ahamd (Binder2.pdf، ۵۰۹ برگ)؛ احمد منزوی، تهران ۱۳۸۸، از شمارۀ ۱ تا ۵۰۰؛ برگ = صفحه + ۱۷؛ نمایه از ص ۳۵۳ کنار ماند",
+     "step": "14.333"
+    }
+   }
   }
  ]
 }

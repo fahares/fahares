@@ -13342,3 +13342,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `manuscript-collection` (مداد `collection_{field}`، `data-collection-basis`، فرم `data-move-collection` در حالت پیشنهاد)، `show.blade.php` (مداد `collection_script_names` و `collection_lines` کنار «از مجموعه»)، `admin/manuscripts/create` (`data-collection-read`).
 - **آزمون:** `CollectionsTest::test_a_collections_value_is_corrected_from_a_treatises_page_and_a_treatise_is_moved_by_hand`.
 
+### گام ۱۴.۳۳۳: عکسی دائرةالمعارف ج ۲ (جلد تازه) و مجلس ج ۳۶
+
+- **پرونده‌ها (هارد `ahamd`، `ايران/تهران/`):** `فهرست نسخه هاي عكسي…/Binder2.pdf` (۵۰۹ برگ JPEG، ۳۲۲ مگابایت) به `_ahamd/519-v2.pdf`؛ `مجلس شورای اسلامی - تهران/36/BO29747@36.pdf` (۵۲۸ برگ سیاه‌وسفید CCITT، ۲۰۸۰×۲۸۹۳ در ۳۰۰ dpi) به `_ahamd/435.pdf`. `BO29747@36-.pdf` (۴ برگ) هم برداشته شد، بی‌کاربرد.
+- **چاپ:** ج ۲ عکسی: «جلد دوم (از شمارۀ ۱–۵۰۰)»، نگارش احمد منزوی، تهران ۱۳۸۸. مجلس ج ۳۶: نسخه‌های ۱۲۵۰۱ (ص ۳) تا ۱۳۵۰۰ (ص ۴۵۶).
+- **صفحه‌ها (`READ-FAST.md`، زیرعامل Sonnet):** ج ۲ عکسی: برگ = صفحه + ۱۷ برای برگ ۱۸ تا ۵۰۳ (ص ۱–۳۵۰ متن، از ص ۳۵۳ نمایه، ۴۷۹–۴۸۶ تصویر)؛ پیش‌گفتار با شمارۀ حروفی کنار ماند. مجلس ج ۳۶: برگ = صفحه برای همۀ کتاب؛ نمایه‌ها از برگ ۴۵۷.
+- **نگاشت و تصویر:** `_ahamd/519-v2.map.json` (ص ۱–۳۵۰) و `_ahamd/435.map.json` (ص ۳–۴۵۶)؛ `extract_edition_pages.py --width 1100 --mupdf`: ۳۵۰ برگه در `dairat-akasi/v02` و ۴۵۴ برگه در `majlis/v36`.
+- **جلد تازه:** ردیف `catalog_facsimiles.json` با `create` (عنوان «… - جلد دوم»، `edition_label` ۱۳۸۸) و کتابخانۀ `thran-dayrh-almaaarf-20`.
+- **کد:** `catalogs:move-cited-part --cited-volume=N`: نسخه‌ای جابه‌جا می‌شود که جلدِ ارجاعش (`ImportFankhaCatalogReferencesCommand::parse`) N است؛ «[عکسی ف: 2 - 57]» جلد ۲ است. ثبت در `audit_logs` با «move-cited-part --cited-volume (step 14.333)». آزمون: `MoveCitedPartTest::test_copies_whose_citation_gives_another_volume_move_to_it`.
+- **تمرین (`fahares_prod`):** `catalogs:set-facsimiles`: «1 created, 1 updated, 239 unchanged»، سپس «0 updated». جلد تازه #۷۴۳. `move-cited-part`: «2727 copies on #519; 1: 1624, 2: 1100, 5: 2, none: 1»، «Moved 1100 copies.»؛ هر ۱٬۱۰۰ ارجاع روی #۷۴۳ در ص ۱–۳۵۰‌اند.
+- **وارسی:** ج ۲ عکسی ص ۷۲ (۲۳۱/۳)، ۱۹۵ (۲۱۰/۷) و ۱۱۵ (۳۴/۱۹) نسخه را دارند؛ ص ۲۴۳ برای ۱۵۰ «لطائف العرفان» نادرست است (صفحه زیر «مج» است؛ خطای فنخا).
+- **پس از انتشار، به ترتیب:** فرستادن `dairat-akasi/v02` و `majlis/v36` با `send.sh`؛ پشتیبان؛ `catalogs:set-facsimiles`؛ پشتیبان جای نسخه‌های #۵۱۹؛ `catalogs:move-cited-part --library=thran-dayrh-almaaarf-20 --cited-volume=2 --from="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد اول" --to="فهرست نسخه‌های عکسی مرکز دائرةالمعارف بزرگ اسلامی - جلد دوم"`، نخست بی `--apply`. شناسۀ جلد تازه در تولید جز ۷۴۳ خواهد بود.
