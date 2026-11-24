@@ -13663,3 +13663,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   نوعِ ۱۶۸ تأییدشده را داور اصلاح کرده بود، پس سهمِ «نوع و شهر هر دو درست» از این کمتر است.
 - **کارِ نکرده:** `fahares:propose-life-periods` (اجرای خشک روی پروداکشن): ۸٬۵۹۶ مدخل، ۲٬۲۴۳ پیشنهاد تازه برای ۱٬۱۸۲ نفر (اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱). ثبت و داوری‌شان همان روند گام ۱۴.۳۱۱ را می‌خواهد.
 - **تست:** حالت‌های تازه در `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
+
+### گام ۱۴.۳۶۰: `person_lives_step14_360_kahhala.json`
+
+- **صافی (`blocker.py . kahhala`):** ۱۵٬۱۴۰ مدخل بی‌پیوند؛ `n0 11510`؛ ۴٬۲۰۹ با نامزد (با مدخل‌های پیونددار) و ۳٬۷۲۸ مدخل در ۷۵ دسته.
+- **داوری:** ۷۵ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سطر تاریخ‌ها («514- 602 ه 1120- 1206 م»، «كان حيا») و «من تصانيفه». ۱٬۸۳۹ پیوند، ۱٬۸۸۹ «هیچ‌کدام»؛ ۱٬۸۳۴ شاهد عیناً در متن.
+- **`build.py kahhala 14.360 <file>`:** `person_twice 113`، `dropped_second_entry 119`؛ ۱٬۷۲۰ پیوند: ۱٬۴۰۵ با ۹۰ به بالا، ۲۶۴ بین ۸۰ و ۸۹، ۵۱ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 1691`، `exists 29`؛ اجرای دوم `exists 1720`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_360_kahhala.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
