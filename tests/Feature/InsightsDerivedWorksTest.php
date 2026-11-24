@@ -51,6 +51,8 @@ class InsightsDerivedWorksTest extends TestCase
         $this->assertSame([['commentary', 4, 2], ['gloss', 3, 2], ['translation', 1, 1]], array_map(fn ($t) => [$t['key'], $t['made'], $t['texts']], $dv['types']));
         $this->assertEquals([['متن فقهی آزمایشی', 5, ['commentary' => 3, 'gloss' => 1, 'translation' => 1]], ['متن منطقی آزمایشی', 3, ['commentary' => 1, 'gloss' => 2]]],
             array_map(fn ($r) => [$r['title'], $r['count'], $r['types']], $dv['items']));
+        // The types of a row come the largest first
+        $this->assertSame([['commentary', 'gloss', 'translation'], ['gloss', 'commentary']], array_map(fn ($r) => array_keys($r['types']), $dv['items']));
         $this->assertSame([['متن منطقی آزمایشی', 2], ['متن فقهی آزمایشی', 1]], array_map(fn ($r) => [$r['title'], $r['count']], $dv['lists']['gloss']));
         $this->assertSame([['زبان آزمایشی ترجمه', 1]], array_map(fn ($l) => [$l['name'], $l['count']], $dv['languages']));
 

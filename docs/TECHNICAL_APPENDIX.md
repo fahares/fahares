@@ -13726,6 +13726,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ممیزی:** `old_values` و `new_values` شش ستون تاریخ را دارند، با `by = fahares:carry-life-years` و شناسۀ ردیف‌های دوره در `person_periods`.
 - **تمرین روی `fahares_prod`:** جدول `person_periods` رونوشت محلی با ۴٬۸۱۰ ردیف امروزِ پروداکشن جایگزین شد. اجرای آزمایشی و `--apply`: «birth years carried 139, death years carried 38»؛ اجرای دوم صفر. نمونه: #۱۳۲۹۸ («ق۱۳ قمری») تولد ۱۲۳۶، وفات ۱۳۰۴، سده ۱۳ تا ۱۴؛ #۲۶۲۱ (بی‌تاریخ) ۱۲۳۹ تا ۱۳۱۶.
 - **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
+- **اجرا (۳ آذر ۱۴۰۵):** پشتیبان `step14_363_people_dates_before.jsonl.gz` (۱٬۰۶۷ ردیف، md5 `6b38697edbaf3674f460a778772069ca`). خروجی: «birth years carried 139, death years carried 38»؛ ۱۶۶ سطر ممیزی با `by = fahares:carry-life-years`. نمونه: #۷۷۸۶ وفات ۱۳۰۷، سده ۱۳ تا ۱۴.
 
 ### گام ۱۴.۳۶۴: `person_lives_step14_364_zirikli.json`
 
@@ -13734,6 +13735,58 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py zirikli 14.364 <file>`:** `person_twice 15`، `dropped_second_entry 15`؛ ۹۸۷ پیوند: ۸۴۲ با ۹۰ به بالا، ۱۱۶ بین ۸۰ و ۸۹، ۲۹ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 982`، `exists 5`؛ اجرای دوم `exists 987`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_364_zirikli.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_364_person_lives_before.jsonl.gz` (۱٬۰۶۷ سطر، md5 `f3e44792…`). اجرای آزمایشی و `--apply` هر دو `created 890`، `exists 6`، `has_life 91`؛ اجرای دوم `created 0`، `exists 896`. سطرهای اشخاص در این منبع: ۱٬۹۵۷ (۸۹۰ با `name_llm`، ۷۵۱ با ۹۰ به بالا). پدیدآورندگانِ پیونددار: ۴٬۵۳۸ از ۱۵٬۱۹۹؛ نشان‌داده: ۴٬۰۱۸؛ همۀ اشخاص: ۴٬۵۴۲ از ۶۶٬۳۰۲. سطرها به روش: `name_llm` ۶٬۵۵۳، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحۀ `/p/8738` در سایت دیده شد.
+
+### گام ۱۴.۳۶۵: کاشان، مدرسۀ سلطانی (یادبود ۱۳۵۰)
+
+- **منبع:**
+  - `../fahares-sources/kashan-soltani/soltani-1350.pdf` (پیوند سخت به داکی‌باکس 1276469؛ ۵۹ برگ، ماسک JBIG2 با ۳۰۰ dpi روی لایۀ رنگی ۱۰۰ dpi؛ MD5 در `MD5SUMS`).
+  - برگ ۱ تا ۸ جلد، تصویر و پیش‌گفتار بی‌شماره است. برگ ۹ تا ۵۰ فهرست است و برگ ۵۱ به بعد مهر و لوحه‌های تصویر.
+- **نگاشت (`kashan-soltani.map.json`):**
+  - شمارۀ چاپی هر برگ از رونوشت گرفته شد: ص ۶ تا ۸ برگ ۹ تا ۱۱؛ ص ۱۱ تا ۱۴ برگ ۱۴ تا ۱۷؛ ص ۱۷ و ۱۸ برگ ۱۲ و ۱۳؛ ص ۱۹ تا ۴۷ برگ ۲۲ تا ۵۰.
+  - برگ ۱۸ تا ۲۱ تکرار ص ۲۳، ۲۴، ۱۷ و ۱۸ است. ص ۹، ۱۰، ۱۵ و ۱۶ نیست.
+  - تصویرها با `extract_edition_pages.py --code kashan-soltani --volume 1 --map … --width 1100 --mupdf` ساخته شدند (۳۸ برگه).
+- **رونویسی:**
+  - `TRANSCRIBE.md` و سه زیرعامل Sonnet؛ خروجی در `tsv/part{1,2,3}.tsv` با یازده ستون: برگ، صفحه، شماره، عنوان، مؤلف، زبان، خط، تاریخ، سال، شمارۀ کتاب، متن.
+  - ۳۹۰ سطر، ۳۵۳ مدخل یکتا. ۳۷ مدخلِ دوباره‌خوانده در عنوان، سال و شماره یکی بودند، جز فاصله‌گذاری.
+- **جفت کردن:**
+  - `candidates.json`: برای هر مدخل تا شش نسخۀ فنخا از ۴۷۳ نسخۀ «مدرسه سلطانی» جلد #۶۱۷ (`fankha-soltani.tsv`). امتیاز: سال برابر ۳، سال با فاصلۀ ۲ ۱؛ جاکارد واژه‌های عنوان ×۳، یا ۱٫۵ برای عنوانی که درون دیگری است؛ واژه‌های مؤلف و کاتب تا ۱٫۵.
+  - `MATCH.md` و چهار زیرعامل Sonnet (`match/m{1..4}.tsv`): ۱۰۳ مطمئن، ۳۵ محتمل، ۲۱۵ هیچ.
+  - مطمئن یعنی اثر یکی و سال یا کاتب هم‌خوان، یا تنها نسخۀ اثر بی‌تناقض. دو مطمئن به یک نسخه (۱۱۴ و ۲۴۶ به توضیح التذکره ۱۰۱۲) کنار رفتند.
+  - خروجی: `matched-high.tsv`، و `database/data/kashan_soltani_matches_step14_365.jsonl` با ۱۰۱ سطر `{manuscript_id, shelfmark, page, entry_number, heading, text, confidence: 80, note}`.
+- **کد:**
+  - `MatchCatalogEditionCommand`: `{pages?}` و `--matches=`؛ `importMatches()` نسخه را در کتابخانۀ منبع جلد و با همان `shelfmark` می‌خواهد، تا شناسۀ پایگاهی دیگر نسخۀ دیگری را نگیرد، و از همان `write()` می‌گذرد.
+  - `METHOD_MODEL = 'llm_copy'`.
+  - `SourceEntry::machineNote()` برای `llm_copy` توضیح خودش را دارد، و برچسب روش در `CatalogReferenceController::METHODS` است.
+  - آزمون: `test_matches_made_by_a_model_are_read_from_a_file_and_checked_against_the_library`.
+- **`catalog_facsimiles.json`:** ردیف `create` برای `kashan-mdrsh-sltany-67`، جلد ۱، «یادبود: فهرست کتب خطی کتابخانه مدرسه سلطانی کاشان»، چاپ ۱۳۵۰، ص ۶ تا ۴۷.
+- **تمرین روی `fahares_prod`:**
+  - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
+  - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
+  - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
+
+### گام ۱۴.۳۶۶: دو نوع تازۀ `fahares:fix-wrong-links` و `wrong_links_step14_366.json`
+
+- **تصویرها:** `storage/app/public/catalogs/<facsimile_code>/vNN/pNNNN.webp`؛ در جلدهای دیده‌شده شمارۀ فایل همان صفحۀ چاپی است.
+- **سنجش هشت رکورد بی‌تصمیم گام ۱۴.۳۴۱:**
+
+  | رکورد | برگۀ دیده‌شده | یافته | تصمیم |
+  | --- | --- | --- | --- |
+  | دیوان مشتری، ملک 6054 | `malek` ج ۲، ص ۳۵۱ | «نستعلیق رضاخان سیاوشی معلم مدرسۀ دولتی در ۱۹ آذرماه ۲۸ ج۲ ۱۳۴۷»؛ «۱۳۹۲» لغزش خود چاپ است | `other_scribe` |
+  | «الارث» هادی تهرانی | (متن فنخا) | «تاریخ تألیف 14 ربیع الاول 1334ق» همان تاریخ کتابت حجت کوهکمری 48/1 است («از روی خط مولف»)؛ نسخه‌های حدود ۱۳۱۸ و ۲۴ صفر ۱۳۳۳ پیش از آن‌اند | `composition` |
+  | «شرح الصلوات» شیروانی | `goharshad` ج ۲، ص ۵۳۸؛ `tehran-univ` ج ۱، ص ۱۳۹؛ `majlis` ج ۳۰، ص ۷۳ | گوهرشاد: فراغت ۲ ربیع‌الاول ۱۳۲۲، اهدا به مظفرالدین شاه، حکومت آصف‌الدوله، وفات شارح ۲۴ جمادی‌الاول ۱۳۲۲. دانشگاه: اهدا به ناصرالدین شاه، حکومت رکن‌الدوله؛ نسخه‌های ۱۳۰۸ و ۱۳۰۹ | به احتمال دو تحریر؛ دست نخورد |
+  | ژیل بلاس، دانشگاه 3601-ف | `tehran-univ-microfilm` ج ۱، ص ۱۱۸ و ج ۲، ص ۱۹۶ | هیچ‌یک تاریخ ندارد. «۱۵ تشرین» با ۱ جمادی‌الاول ۱۳۱۶ (سپتامبر ۱۸۹۸) نمی‌خواند و با ۱۳۱۰ (نوامبر ۱۸۹۲) با چند روز فاصله می‌خواند | به احتمال ۱۳۱۰؛ استنباط است و دست نخورد |
+  | «ارمغان ندیم» | `golpaygani` ج ۱، ص ۳۱۸ | خود فهرست هم ۱۳۳۸ و هم اهدا به ناصرالدین شاه را دارد | بی‌تصمیم (خود نسخه) |
+  | اجازۀ محمدهاشم خوانساری، مرعشی 13170/1 | جلد ۳۳ مرعشی تصویر ندارد | - | بی‌تصمیم |
+  | «نقل مجلس» میبدی (اثر و نسخه) | دو فهرست میبدی تصویر ندارند | - | بی‌تصمیم |
+
+- **فرمان:**
+  - `step` فایل تصمیم در هر ثبت نوشته می‌شود و اجرای دوباره با همان می‌سنجد؛ بی آن «۱۴.۳۴۱» است.
+  - `other_scribe` (عنوان، کتابخانه، شمارۀ نسخه، `scribe_name`): تنها نسخه‌ای که `is_autograph` است و کاتبش مؤلف اثر است. `SuggestionApplier::apply` روی `scribe_name` با `link` (شخصی به همان نام) یا `create`؛ سپس `is_autograph` برداشته و در همان ثبت `verify` نوشته می‌شود.
+  - `composition` (عنوان، مؤلف، `date`): تنها اگر `composition_date_raw` همان `date` باشد. `SuggestionApplier::apply` روی `composition_date_raw` با مقدار تهی؛ قلاب مدل `composition_year_hijri` و ستون‌های بازه را هم خالی می‌کند.
+- **تمرین روی `fahares_prod`:** «2 changed»، اجرای دوم «2 already right»؛ فایل گام ۱۴.۳۴۱ همچنان «6 already right». شخص تازه «رضاخان سیاوشی». پس از `estimate-dates --apply` هر پنج ناسازگاری مستقیم این دو رکورد رفت (دو تا از نسخۀ ملک، سه تا از «الارث»).
+- **آزمون:** `FixWrongLinksCommandTest` (۲).
+- **پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان `../fahares-sources/backups/step13/step14_366_before.json` (نسخه، اثر، `manuscript_people`، بیشینۀ شناسه‌ها). با `scripts/dev/prod-run`: آزمایشی «2 changed»، `--apply` «2 changed»، اجرای دوم «2 already right». شخص تازه #74825؛ دو ثبت `verify` با `step` برابر 14.366. `estimate-dates` اجرا نشد و به اجرای شبانه ماند.
 
 ### گام ۱۴.۳۶۷: ریلیز v2.9.0 پیکره
 - **ساخت:** `python3 scripts/fankha_parser_v2.py` روی کامیت `5e44eda`؛ هر ۳۴ فایل `parser_version` 2.9.0 و `text_commit` `a38c820` (آخرین کامیت `text/fankha`) دارند. آرشیو: `tar -czf fankha_json_v2.9.0.tar.gz -C json fankha_v2`، ۹۹٬۷۸۹٬۰۰۷ بایت، sha256 `29411d18…a124e4`.
@@ -13752,3 +13805,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `category` «editorial_correction»؛ یک `work_updates` برای `shrh-frayd-alsgaondy-v20-366` با تنها یک ستون: `alternative_titles`، از «شرح الفزائض السراجية» به «شرح الفرائض السراجية» (آوانگاری همان).
 - **آنچه دست نخورد:** `fahares-corpus/text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹، `works.raw_text` و `source_pages` #۴۶۹۰۱ (ج ۲۰ ص ۲۲۱)، که املای چاپ را دارند (`/storage/catalogs/fankha/v20/p0221.webp`). پس تجزیه‌گر نسخۀ ۲ برای `v20-366` همچنان «الفزائض» می‌خواند؛ هم‌سنجی بعدی پیکره با سایت نباید این ستون را برگرداند.
 - **تمرین محلی (`fahares_prod`):** «update 1»، بار دوم «update 0».
+
+### گام ۱۴.۳۶۹: `life_city`، `life_kind` و `Insights::lifeCities`
+
+- **سند جست‌وجوی شخص (`Person::toSearchableArray`):** `life_cities` (شهرهای دوره‌های تأییدشده)، `life_kinds` و `life_places` («study:نجف»). `Person::lifePlaces(ids)` برای یک دسته یک پرس‌وجو می‌زند و `makeSearchableUsing` آن را روی هر مدل می‌گذارد، مثل `scribeFacts`. هر سه در `filterableAttributes` نمایۀ اشخاص (`config/scout.php`).
+- **`PersonPeriod::booted`:** `saved` (ردیف تازۀ تأییدشده، یا تغییر `status`، `city`، `kind`، `person_id`) و `deleted` شخص را دوباره نمایه می‌کنند.
+- **`SearchFilters`:** `life_city` و `life_kind` در `PARAMS` هر دو زبانۀ اشخاص. `clean`: شهر باید `CopyPlaces::isCity` باشد و نوع کلیدی از `PersonPeriod::KINDS`.
+  - موتور: شهر تنها `life_cities = "…"`، نوع تنها `life_kinds = "…"`، هر دو `life_places = "kind:city"`.
+  - پایگاه داده: `people.id IN (SELECT person_id FROM person_periods WHERE status = approved AND city = ? [AND kind = ?])`.
+  - برچسب‌ها: «شهر زندگی: …» و «نوع دوره: …».
+- **`SearchController`:** `life_cities` و `life_kinds` به facetهای دو زبانه افزوده شد. `lifeCities` به ترتیب شمار می‌آید؛ بی شمارش، شهرهایی که دورۀ تأییدشده دارند. شمار کنار نوع‌ها وقتی شهری انتخاب شده نمایش داده نمی‌شود، چون facet نوع را در هر شهری می‌شمارد.
+- **`Insights::lifeCities($scope)`:** از `person_periods` تأییدشده، `COUNT(DISTINCT person_id)` بر شهر و نوع، بر شهر، و بر نوع. در دامنه با `joinSub` به مؤلفان آثار و کاتبان نسخه‌های دامنه محدود می‌شود (همان الگوی `origins`). خروجی: `cities` (تا `insights.life_cities_shown` = ۲۰)، `kinds`، `people`، `periods`، `all_cities`. کلید کش `insights.v24`.
+- **نما:** `resources/views/insights/charts/life-cities.blade.php` در موضوع `people` پس از `top-authors`. در دامنه شمارها پیوند ندارند، چون جست‌وجو آن دامنه را نمی‌شناسد. پیوندها به زبانۀ `authors` می‌روند؛ کاتبِ تنها که دوره دارد در جدول شمرده می‌شود ولی در آن زبانه نیست.
+- **`InsightsNotes::lifeCities` و `InsightsTables::lifeCities`:** نمونه‌ها از خود داده (پرشمارترین شهر و نوع غالبش، دو شهر نخست تحصیل و تدریس) و جدول `life-cities` با ستون هر نوع.
+- **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
+- **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.
+
+### گام ۱۴.۳۷۰: `person_lives_step14_370_{rawdat,mosaffa,mushar_authors}.json`
+
+- **صافی (`blocker.py . <code>`):** `rawdat` ۷۸۵ مدخل بی‌پیوند، `n0 540`، ۲۴۵ مدخل در ۵ دسته؛ `mosaffa` ۶۰۰ بی‌پیوند، `n0 299`، ۳۰۸ مدخل در ۷ دسته؛ `mushar-authors` ۳٬۳۰۷ بی‌پیوند، `n0 2340`، ۱٬۰۷۵ مدخل در ۲۲ دسته.
+- **داوری:** ۳۴ زیرعامل Sonnet در یک گردش کار، `brief.txt` با نام منبع و یک بند ویژۀ هر کتاب (روضات: سال‌ها به حروف و نقل از کتاب‌های دیگر؛ مؤلفین: تاریخ‌های درون پرانتز، «ش» و «زنده در سال»؛ مصفّی: سال‌های چهاررقمی در پرانتز و مدخل‌های کوتاه).
+- **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
+- **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.

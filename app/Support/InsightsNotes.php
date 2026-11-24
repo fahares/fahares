@@ -41,6 +41,7 @@ class InsightsNotes
         'sources' => 'منبع.',
         'sourceOverlap' => 'وصف دو فهرست از یک نسخه چه سودی دارد؟',
         'topAuthors' => 'چرا دو فهرست یکی نیستند؟',
+        'lifeCities' => 'این شمارها از کجا آمده و چه‌قدر کامل است؟',
         'formats' => 'آیا این همان قطع‌های رقعی و وزیری و رحلی است؟',
         'autographs' => 'آیا هر نسخۀ این شمار به‌راستی خط مؤلف است؟',
         'anonymous' => 'آیا اثر بی مؤلف یعنی مؤلفش ناشناخته است؟',
@@ -67,7 +68,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'lifeCities', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -438,6 +439,33 @@ class InsightsNotes
         return [[
             'دو فهرست کنار هم آمده است: مؤلفانی که بیشترین اثر به نامشان ثبت است، و مؤلفانی که از آثارشان بیشترین نسخه مانده است. در هر ردیف هر دو شمار آمده و شماری که فهرست بر پایۀ آن چیده شده پررنگ است. روی هر شمار بزنید تا آثار یا نسخه‌های همان مؤلف را ببینید.',
             'چون شمار اثر از پرکاری مؤلف می‌گوید و شمار نسخه از رواج آثارش. مؤلفی که ده‌ها رسالۀ کوتاه در پاسخ پرسش‌ها نوشته، آثار بسیار دارد و از هر کدام چند نسخه؛ مؤلف یک متن درسی، با چند اثر هزاران نسخه دارد. شمار اثر به شیوۀ فهرست‌نگاری هم بسته است: رساله‌هایی که جدا فهرست شده‌اند هر کدام یک اثر شمرده می‌شوند، و اثری که به نادرست به مؤلفی نسبت داده شده نیز در شمار اوست.',
+        ], $examples];
+    }
+
+    private function lifeCities(): array
+    {
+        $lc = $this->data['life_cities'];
+        $kinds = \App\Models\PersonPeriod::KINDS;
+        $examples = [];
+        if ($first = $lc['cities'][0] ?? null) {
+            arsort($first['kinds']);
+            $kind = array_key_first($first['kinds']);
+            $examples[] = 'پرشمارترین شهر ' . $first['name'] . ' است: دورۀ زندگی ' . self::n($first['people']) . ' تن در آن ثبت شده، و بیشترینش «' . $kinds[$kind] . '» است (' . self::n($first['kinds'][$kind]) . ' تن).';
+        }
+        foreach (['study' => 'تحصیل', 'teaching' => 'تدریس'] as $kind => $word) {
+            $rows = array_filter($lc['cities'], fn ($c) => ($c['kinds'][$kind] ?? 0) > 0);
+            usort($rows, fn ($a, $b) => $b['kinds'][$kind] <=> $a['kinds'][$kind]);
+            if (count($rows) > 1) {
+                $examples[] = 'در «' . $word . '» نخستین شهر ' . $rows[0]['name'] . ' است (' . self::n($rows[0]['kinds'][$kind]) . ' تن) و پس از آن ' . $rows[1]['name'] . ' (' . self::n($rows[1]['kinds'][$kind]) . ' تن).';
+            }
+        }
+        if ($lc['people'] > 0) {
+            $examples[] = 'روی هم ' . self::n($lc['periods']) . ' دورۀ تأییدشده برای ' . self::n($lc['people']) . ' تن در ' . self::n($lc['all_cities']) . ' شهر ثبت است.';
+        }
+
+        return [[
+            'هر ردیف یک شهر است و هر ستون یک نوع دوره از زندگی: چند تن در آن شهر زاده شده‌اند، درس خوانده‌اند، درس داده‌اند، ساکن بوده‌اند، منصبی داشته‌اند، به آن سفر کرده‌اند یا در آن درگذشته‌اند. هر کس برای هر شهر و هر نوع یک بار شمرده می‌شود. روی هر شمار بزنید تا همان اشخاص را ببینید.',
+            'از «دوره‌های زندگی» که از زندگی‌نامه‌های کتاب‌های تراجم خوانده و یکی‌یکی داوری شده است. پس جدول از همۀ اشخاص سایت نمی‌گوید: تنها کسانی در آن هستند که مدخلی در آن کتاب‌ها دارند و آن مدخل به رکوردشان پیوند خورده است، و این کتاب‌ها بیشتر از عالمان شیعه و از سده‌های متأخر می‌گویند. شمار پایین یک شهر یعنی دوره‌ای در آن ثبت نشده، نه این‌که کسی در آن نبوده است. شهرها همان شهرهای نقشۀ کتابت‌اند و جایی که در آن فهرست نیست شمرده نمی‌شود.',
         ], $examples];
     }
 

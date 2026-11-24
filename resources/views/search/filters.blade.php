@@ -17,7 +17,7 @@
             $options[$key] = $options[$key]->filter(fn ($o) => $live($o->matching_count, $param, $o->id))->values();
         }
     }
-    foreach (['volumes' => 'volume', 'centuries' => 'century', 'copyCities' => 'copy_city', 'cities' => 'city', 'roles' => 'role', 'workForms' => 'work_form', 'flags' => 'flags', 'noteTypes' => 'note_types'] as $key => $param) {
+    foreach (['volumes' => 'volume', 'centuries' => 'century', 'copyCities' => 'copy_city', 'lifeCities' => 'life_city', 'lifeKinds' => 'life_kind', 'cities' => 'city', 'roles' => 'role', 'workForms' => 'work_form', 'flags' => 'flags', 'noteTypes' => 'note_types'] as $key => $param) {
         // a plain list (the copies' places of copying) carries no counts
         if (! empty($options[$key]) && ! array_is_list(collect($options[$key])->all())) {
             $options[$key] = collect($options[$key])->filter(fn ($o, $k) => $live(is_array($o) ? $o[1] : $o, $param, $k))->all();
@@ -90,6 +90,26 @@
                 <span>با سدۀ فعالیت اشخاصِ بی‌تاریخ وفات <span class="text-muted">(تخمینی)</span></span>
             </label>
         @endif
+    @endif
+
+    {{-- Where the person lived, studied, taught, was born or died: the approved periods of the life (backlog item 139, step 14.369) --}}
+    @if(in_array($type, ['authors', 'scribes'], true))
+        <div class="space-y-2 {{ $hide('lifeCities') }}">
+            <label for="f-life-city" class="{{ $label }}">شهر زندگی <span class="font-normal text-muted">(دوره‌های زندگی)</span></label>
+            <select id="f-life-city" name="life_city" class="{{ $field }}">
+                <option value="">همۀ شهرها</option>
+                @foreach($options['lifeCities'] as $city => $count)
+                    <option value="{{ $city }}" @selected($v('life_city') === $city)>{{ $city }}{{ $n($count) }}</option>
+                @endforeach
+            </select>
+            <label for="f-life-kind" class="sr-only">نوع دوره</label>
+            <select id="f-life-kind" name="life_kind" class="{{ $field }} {{ $hide('lifeKinds') }}" title="با شهر: همان نوع دوره در همان شهر">
+                <option value="">هر نوع دوره</option>
+                @foreach($options['lifeKinds'] as $kind => [$kindLabel, $count])
+                    <option value="{{ $kind }}" @selected($v('life_kind') === $kind)>{{ $kindLabel }}{{ $v('life_city') ? '' : $n($count) }}</option>
+                @endforeach
+            </select>
+        </div>
     @endif
 
     {{-- A scribe is narrowed by the copies, not by a date of death, which almost none has (step 14.155) --}}
