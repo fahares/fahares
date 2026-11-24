@@ -108,6 +108,18 @@ class WorkCatalogueEntriesTest extends TestCase
         // «ناشناس» that stands for three works
         $this->assertSame([$by->id, $anon[0]->id, null, $anon[1]->id, null, null, $other->id, $glosses[0]->id, $glued->id, null],
             DB::table('work_text_relations')->where('work_id', $base->id)->orderBy('position')->pluck('linked_work_id')->all());
+
+        // step 14.345: an entry that stands for several works is no unlinked work: the page gives a search of its
+        // title, with no mark, author or count
+        $this->assertSame(['حاشیة الکتاب', 'حاشیة الکتاب'], array_column(WorkCatalogueEntries::page($base)['unlinked'], 'search'));
+        $this->assertSame('آداب المریدین', WorkCatalogueEntries::searchTitle('آداب المریدین (ترجمه) (سه ترجمه ناشناس)'));
+        $this->assertSame('شرح آداب البحث', WorkCatalogueEntries::searchTitle('شرح آداب البحث = شرح دیگر؛ ناشناس به همراه 28 شرح ناشناس دیگر رک: دنا 395/6 (29 شرح ناشناس)'));
+        $this->assertFalse(WorkCatalogueEntries::several('شرح الکتاب (ترجمه)؛ کسی، ب (-900)'));
+        $html = $this->followingRedirects()->get(route('works.show', $base))->assertOk()->getContent();
+        $this->assertSame(2, substr_count($html, 'جستجوی این عنوان'));
+        $this->assertStringContainsString(e(route('search', ['type' => 'works', 'scope' => 'titles', 'q' => 'حاشیة الکتاب'])), $html);
+        // the two entries of an author no work has are the unlinked works still
+        $this->assertSame(2, substr_count($html, 'بی پیوند به رکورد اثر'));
     }
 
     /** Step 14.337: a row of «وابسته به» that is only a name is the base text's author, tied to the person, and no work */

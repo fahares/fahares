@@ -13475,3 +13475,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
 - **جدول‌ها:** `library-subjects` و `subject-libraries`.
 - **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
+
+### گام ۱۴.۳۴۵: `WorkCatalogueEntries::several()`، `searchTitle()` و پیوند جستجو
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):** `several($text)`: کمانکی با «عنوان»، «ناشناس» یا «همراه» (`tie` همین را برای `many` می‌خواند). `searchTitle($text)`: بخش پیش از نخستین «؛» یا «=»، و برداشتن کمانک‌های پایانی تا جایی که هست («آداب المریدین (ترجمه) (سه ترجمه ناشناس)» ← «آداب المریدین»). `page()`: سطر `unlinked` که `several` است کلید `search` دارد.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** مورد با `search`: متن فهرست و پیوند `route('search', ['type' => 'works', 'scope' => 'titles', 'q' => …])` با عنوان «جستجوی این عنوان»؛ برچسب «بی پیوند به رکورد اثر» ندارد.
+- سطرِ «چند اثر» که دور یکم `tie` به تنها اثرِ مرتبطِ هم‌عنوان بسته، پیونددار می‌ماند و این نمایش را ندارد.
+- **آزمون:** در `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
+- **سنجش (رونوشت محلی، ۳ آذر ۱۴۰۵):** `page()` روی همۀ آثار: `search` ۵۴۸، بی آن ۱٬۵۱۱، `authors` ۳۵۲. جستجوها در `https://fahares.net/search?type=works&scope=titles&q=…` دیده شدند؛ `/api/search` فقط پیشنهاد می‌دهد و برای شمارش به کار نیامد.
+

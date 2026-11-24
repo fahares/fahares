@@ -25,7 +25,7 @@
         foreach ($rows['unlinked'] as $row) {
             $label = \App\Suggestions\RecordRelations::WORK_TYPES[$row['type']][$row['side'] === 'related' ? 0 : 1] ?? null;
             if ($label) {
-                $groups->put($label, ($groups->get($label) ?? collect())->push(['text' => $row['text']]));
+                $groups->put($label, ($groups->get($label) ?? collect())->push(['text' => $row['text']] + array_intersect_key($row, ['search' => 0])));
             }
         }
         // the kinds in their own order, «وابسته» (the kind not told) last
@@ -74,6 +74,10 @@
                                     @else
                                         <span class="text-ink">{{ Fa::digits($item['text']) }}</span>
                                     @endif
+                                @elseif(isset($item['search']))
+                                    {{-- an entry that stands for several works (step 14.345): no one work's, so a search of its title --}}
+                                    <span class="text-ink">{{ Fa::digits($item['text']) }}</span>
+                                    <a href="{{ route('search', ['type' => 'works', 'scope' => 'titles', 'q' => $item['search']]) }}" class="text-[11px] text-cinnabar hover:underline whitespace-nowrap"> · جستجوی این عنوان</a>
                                 @else
                                     {{-- a work with no record on the site: an entry of the catalogue tied to no work, or a relation added by hand --}}
                                     <span class="text-ink">{{ Fa::digits($item['text']) }}</span>
