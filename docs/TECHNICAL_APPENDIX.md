@@ -13177,7 +13177,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `WorkPartsTest` سیزده آزمون؛ سه آزمون تازه: تاریخ ارثی و نبودن تخمین (صفحه، سند جست‌وجو، `estimate-dates`، `copyFloors`، مرتب‌سازی و فیلتر پایگاه، تغییر تاریخ اصل، برداشتن رابطه)، تاریخ اختصاصی بخش، و بخشِ دارای مؤلف دیگر.
 - **اجرا در production (۳ آذر ۱۴۰۵، `prod-run work-part-inherit`، پس از استقرار batch206):** همان دستور نمایه‌سازی؛ خروجی «reindexed [18714,58980]». سند ۵۸۹۸۰: `composition_year_hijri` و `era_year` ۸۳۷، `era_estimate_from` تهی؛ سند ۱۸۷۱۴: ۱۲۳۵ (بی تغییر). فقط نمایۀ Meilisearch نوشته شد، نه پایگاه داده؛ پس پشتیبان نگرفتیم. فایلی در `/tmp` کانتینر نماند.
 
-
 ### گام ۱۴.۳۱۶: برچسب `abridgment` و `part`
 - **`RecordRelations::WORK_TYPES`:** «گزیده» از برچسب `part` به `abridgment` رفت. کلیدها و داده دست نخورد؛ ارث‌بری (`WorkParts`) همچنان فقط روی `part` است.
 - **`components/record-relations.blade.php`:** راهنمای فرم.
