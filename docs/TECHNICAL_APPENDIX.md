@@ -13703,6 +13703,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py kahhala 14.360 <file>`:** `person_twice 113`، `dropped_second_entry 119`؛ ۱٬۷۲۰ پیوند: ۱٬۴۰۵ با ۹۰ به بالا، ۲۶۴ بین ۸۰ و ۸۹، ۵۱ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 1691`، `exists 29`؛ اجرای دوم `exists 1720`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_360_kahhala.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_360_person_lives_before.jsonl.gz` (۹۴۹ سطر، md5 `59ed5a8d…`). اجرای آزمایشی و `--apply` هر دو `created 1414`، `exists 26`، `has_life 280`؛ اجرای دوم `created 0`، `exists 1440`. سطرهای اشخاص در این منبع: ۲٬۳۶۳ (۱٬۴۱۴ با `name_llm`، ۱٬۱۳۴ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۴٬۴۲۶ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۹۰۶. صفحۀ `/p/12946` در سایت دیده شد.
 
 ### گام ۱۴.۳۶۱: `fankha_split_head_step14_361.json`
 - **پیکره:** `text/fankha/fankha_vol_13.txt` سطر ۱۸۴۱۳: «… = نامه اول به دوانی در موضوع جذر⏎⏎ <!-- page: 333 --> اصم / منطق، فلسفه / عربی» ← یک سطر با همان نشان. `scripts/fankha_parser_v2.py 13`: ۲٬۲۲۹ اثر و ۱۰٬۳۰۲ نسخه مثل پیش؛ اثر `v13-864`: `author`، `alt_titles[2]`، `subjects`، `languages`، `transliteration` و `description` (بی دو سطر پدیدآور) عوض شد؛ آثار پس از آن فقط `provenance.line_*`. JSON نسخۀ ۱ (`json/fankha`) از پیش با متن یکی نیست و ساخته نشد.
@@ -13742,3 +13743,73 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
 - **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.
 
+### گام ۱۴.۳۶۴: `person_lives_step14_364_zirikli.json`
+
+- **صافی (`blocker.py . zirikli`):** ۱۱٬۵۳۹ مدخل بی‌پیوند؛ `n0 9268`؛ ۳٬۲۲۱ با نامزد (با مدخل‌های پیونددار) و ۲٬۳۳۹ مدخل در ۴۷ دسته.
+- **داوری:** ۴۷ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سطر تاریخ‌ها و «له»/«من كتبه». ۱٬۰۰۲ پیوند، ۱٬۳۳۷ «هیچ‌کدام»؛ ۹۷۶ شاهد عیناً در متن (متن این منبع حرکت‌گذاری دارد و شاهدِ بی‌حرکت سقف ۸۵ می‌گیرد).
+- **`build.py zirikli 14.364 <file>`:** `person_twice 15`، `dropped_second_entry 15`؛ ۹۸۷ پیوند: ۸۴۲ با ۹۰ به بالا، ۱۱۶ بین ۸۰ و ۸۹، ۲۹ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 982`، `exists 5`؛ اجرای دوم `exists 987`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_364_zirikli.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_364_person_lives_before.jsonl.gz` (۱٬۰۶۷ سطر، md5 `f3e44792…`). اجرای آزمایشی و `--apply` هر دو `created 890`، `exists 6`، `has_life 91`؛ اجرای دوم `created 0`، `exists 896`. سطرهای اشخاص در این منبع: ۱٬۹۵۷ (۸۹۰ با `name_llm`، ۷۵۱ با ۹۰ به بالا). پدیدآورندگانِ پیونددار: ۴٬۵۳۸ از ۱۵٬۱۹۹؛ نشان‌داده: ۴٬۰۱۸؛ همۀ اشخاص: ۴٬۵۴۲ از ۶۶٬۳۰۲. سطرها به روش: `name_llm` ۶٬۵۵۳، `name_death_llm` ۲٬۹۸۷، `via_works` ۱٬۳۲۹. صفحۀ `/p/8738` در سایت دیده شد.
+
+### گام ۱۴.۳۶۵: کاشان، مدرسۀ سلطانی (یادبود ۱۳۵۰)
+
+- **منبع:**
+  - `../fahares-sources/kashan-soltani/soltani-1350.pdf` (پیوند سخت به داکی‌باکس 1276469؛ ۵۹ برگ، ماسک JBIG2 با ۳۰۰ dpi روی لایۀ رنگی ۱۰۰ dpi؛ MD5 در `MD5SUMS`).
+  - برگ ۱ تا ۸ جلد، تصویر و پیش‌گفتار بی‌شماره است. برگ ۹ تا ۵۰ فهرست است و برگ ۵۱ به بعد مهر و لوحه‌های تصویر.
+- **نگاشت (`kashan-soltani.map.json`):**
+  - شمارۀ چاپی هر برگ از رونوشت گرفته شد: ص ۶ تا ۸ برگ ۹ تا ۱۱؛ ص ۱۱ تا ۱۴ برگ ۱۴ تا ۱۷؛ ص ۱۷ و ۱۸ برگ ۱۲ و ۱۳؛ ص ۱۹ تا ۴۷ برگ ۲۲ تا ۵۰.
+  - برگ ۱۸ تا ۲۱ تکرار ص ۲۳، ۲۴، ۱۷ و ۱۸ است. ص ۹، ۱۰، ۱۵ و ۱۶ نیست.
+  - تصویرها با `extract_edition_pages.py --code kashan-soltani --volume 1 --map … --width 1100 --mupdf` ساخته شدند (۳۸ برگه).
+- **رونویسی:**
+  - `TRANSCRIBE.md` و سه زیرعامل Sonnet؛ خروجی در `tsv/part{1,2,3}.tsv` با یازده ستون: برگ، صفحه، شماره، عنوان، مؤلف، زبان، خط، تاریخ، سال، شمارۀ کتاب، متن.
+  - ۳۹۰ سطر، ۳۵۳ مدخل یکتا. ۳۷ مدخلِ دوباره‌خوانده در عنوان، سال و شماره یکی بودند، جز فاصله‌گذاری.
+- **جفت کردن:**
+  - `candidates.json`: برای هر مدخل تا شش نسخۀ فنخا از ۴۷۳ نسخۀ «مدرسه سلطانی» جلد #۶۱۷ (`fankha-soltani.tsv`). امتیاز: سال برابر ۳، سال با فاصلۀ ۲ ۱؛ جاکارد واژه‌های عنوان ×۳، یا ۱٫۵ برای عنوانی که درون دیگری است؛ واژه‌های مؤلف و کاتب تا ۱٫۵.
+  - `MATCH.md` و چهار زیرعامل Sonnet (`match/m{1..4}.tsv`): ۱۰۳ مطمئن، ۳۵ محتمل، ۲۱۵ هیچ.
+  - مطمئن یعنی اثر یکی و سال یا کاتب هم‌خوان، یا تنها نسخۀ اثر بی‌تناقض. دو مطمئن به یک نسخه (۱۱۴ و ۲۴۶ به توضیح التذکره ۱۰۱۲) کنار رفتند.
+  - خروجی: `matched-high.tsv`، و `database/data/kashan_soltani_matches_step14_365.jsonl` با ۱۰۱ سطر `{manuscript_id, shelfmark, page, entry_number, heading, text, confidence: 80, note}`.
+- **کد:**
+  - `MatchCatalogEditionCommand`: `{pages?}` و `--matches=`؛ `importMatches()` نسخه را در کتابخانۀ منبع جلد و با همان `shelfmark` می‌خواهد، تا شناسۀ پایگاهی دیگر نسخۀ دیگری را نگیرد، و از همان `write()` می‌گذرد.
+  - `METHOD_MODEL = 'llm_copy'`.
+  - `SourceEntry::machineNote()` برای `llm_copy` توضیح خودش را دارد، و برچسب روش در `CatalogReferenceController::METHODS` است.
+  - آزمون: `test_matches_made_by_a_model_are_read_from_a_file_and_checked_against_the_library`.
+- **`catalog_facsimiles.json`:** ردیف `create` برای `kashan-mdrsh-sltany-67`، جلد ۱، «یادبود: فهرست کتب خطی کتابخانه مدرسه سلطانی کاشان»، چاپ ۱۳۵۰، ص ۶ تا ۴۷.
+- **تمرین روی `fahares_prod`:**
+  - `set-facsimiles`: «1 created». جلد #۷۴۴ ساخته شد، و منبع #۱۰۰۲۱۳ `catalogue-342dec00e8d8` از همگام‌سازی جلد پدید آمد.
+  - `match-edition kashan-soltani --matches=…`: lines 101، not of the library 1 (نسخۀ ۳۰۳۶۴۲، شمارۀ ۵۵، کتابخانۀ جعفری #۱۶۹)، insert 100. اجرای دوم «unchanged 100» داد.
+  - سنجش روی برگه: مدخل ۲۴۴ ص ۳۰ (کشف اللثام ۱۲۳۹)، ۲۹۸ ص ۳۶ (مسائل الخلاف ۹۷۷)، ۳۸۵ ص ۴۶ (الوافی ۱۱۹۷).
+
+### گام ۱۴.۳۶۶: دو نوع تازۀ `fahares:fix-wrong-links` و `wrong_links_step14_366.json`
+
+- **تصویرها:** `storage/app/public/catalogs/<facsimile_code>/vNN/pNNNN.webp`؛ در جلدهای دیده‌شده شمارۀ فایل همان صفحۀ چاپی است.
+- **سنجش هشت رکورد بی‌تصمیم گام ۱۴.۳۴۱:**
+
+  | رکورد | برگۀ دیده‌شده | یافته | تصمیم |
+  | --- | --- | --- | --- |
+  | دیوان مشتری، ملک 6054 | `malek` ج ۲، ص ۳۵۱ | «نستعلیق رضاخان سیاوشی معلم مدرسۀ دولتی در ۱۹ آذرماه ۲۸ ج۲ ۱۳۴۷»؛ «۱۳۹۲» لغزش خود چاپ است | `other_scribe` |
+  | «الارث» هادی تهرانی | (متن فنخا) | «تاریخ تألیف 14 ربیع الاول 1334ق» همان تاریخ کتابت حجت کوهکمری 48/1 است («از روی خط مولف»)؛ نسخه‌های حدود ۱۳۱۸ و ۲۴ صفر ۱۳۳۳ پیش از آن‌اند | `composition` |
+  | «شرح الصلوات» شیروانی | `goharshad` ج ۲، ص ۵۳۸؛ `tehran-univ` ج ۱، ص ۱۳۹؛ `majlis` ج ۳۰، ص ۷۳ | گوهرشاد: فراغت ۲ ربیع‌الاول ۱۳۲۲، اهدا به مظفرالدین شاه، حکومت آصف‌الدوله، وفات شارح ۲۴ جمادی‌الاول ۱۳۲۲. دانشگاه: اهدا به ناصرالدین شاه، حکومت رکن‌الدوله؛ نسخه‌های ۱۳۰۸ و ۱۳۰۹ | به احتمال دو تحریر؛ دست نخورد |
+  | ژیل بلاس، دانشگاه 3601-ف | `tehran-univ-microfilm` ج ۱، ص ۱۱۸ و ج ۲، ص ۱۹۶ | هیچ‌یک تاریخ ندارد. «۱۵ تشرین» با ۱ جمادی‌الاول ۱۳۱۶ (سپتامبر ۱۸۹۸) نمی‌خواند و با ۱۳۱۰ (نوامبر ۱۸۹۲) با چند روز فاصله می‌خواند | به احتمال ۱۳۱۰؛ استنباط است و دست نخورد |
+  | «ارمغان ندیم» | `golpaygani` ج ۱، ص ۳۱۸ | خود فهرست هم ۱۳۳۸ و هم اهدا به ناصرالدین شاه را دارد | بی‌تصمیم (خود نسخه) |
+  | اجازۀ محمدهاشم خوانساری، مرعشی 13170/1 | جلد ۳۳ مرعشی تصویر ندارد | - | بی‌تصمیم |
+  | «نقل مجلس» میبدی (اثر و نسخه) | دو فهرست میبدی تصویر ندارند | - | بی‌تصمیم |
+
+- **فرمان:**
+  - `step` فایل تصمیم در هر ثبت نوشته می‌شود و اجرای دوباره با همان می‌سنجد؛ بی آن «۱۴.۳۴۱» است.
+  - `other_scribe` (عنوان، کتابخانه، شمارۀ نسخه، `scribe_name`): تنها نسخه‌ای که `is_autograph` است و کاتبش مؤلف اثر است. `SuggestionApplier::apply` روی `scribe_name` با `link` (شخصی به همان نام) یا `create`؛ سپس `is_autograph` برداشته و در همان ثبت `verify` نوشته می‌شود.
+  - `composition` (عنوان، مؤلف، `date`): تنها اگر `composition_date_raw` همان `date` باشد. `SuggestionApplier::apply` روی `composition_date_raw` با مقدار تهی؛ قلاب مدل `composition_year_hijri` و ستون‌های بازه را هم خالی می‌کند.
+- **تمرین روی `fahares_prod`:** «2 changed»، اجرای دوم «2 already right»؛ فایل گام ۱۴.۳۴۱ همچنان «6 already right». شخص تازه «رضاخان سیاوشی». پس از `estimate-dates --apply` هر پنج ناسازگاری مستقیم این دو رکورد رفت (دو تا از نسخۀ ملک، سه تا از «الارث»).
+- **آزمون:** `FixWrongLinksCommandTest` (۲).
+
+### گام ۱۴.۳۶۷: ریلیز v2.9.0 پیکره
+- **ساخت:** `python3 scripts/fankha_parser_v2.py` روی کامیت `5e44eda`؛ هر ۳۴ فایل `parser_version` 2.9.0 و `text_commit` `a38c820` (آخرین کامیت `text/fankha`) دارند. آرشیو: `tar -czf fankha_json_v2.9.0.tar.gz -C json fankha_v2`، ۹۹٬۷۸۹٬۰۰۷ بایت، sha256 `29411d18…a124e4`.
+- **انتشار:** کامیت `0c4d13d` (README، CHANGELOG، `download_json.sh`) به `origin/main` پیکره، سپس `gh release create v2.9.0 … --target main`.
+- **وارسی:** دریافت با `curl` از نشانی ریلیز، ۳۴ فایل، و `cmp` جلد ۱۸ با فایل محلی برابر؛ digest گیت‌هاب همان sha256 است. ۳۵ آزمون corpus سبز.
+- **پوشش فیلدها در نسخه‌ها:** ارجاع فهرست ۳۲۱٬۹۷۸ (۱۰۰٫۰٪)، کاتب یا «بی‌کا» یا خط مؤلف ۳۱۵٬۳۷۸ (۹۷٫۹٪)، تاریخ یا «بی‌تا» ۳۱۵٬۳۳۹ (۹۷٫۹٪)، خط ۲۷۵٬۱۰۳ (۸۵٫۴٪)، برگ ۲۴۶٬۸۳۳ (۷۶٫۶٪)، اندازه ۲۳۶٬۱۷۱ (۷۳٫۳٪)، سطر ۱۹۹٬۸۹۱ (۶۲٫۱٪)، آغاز ۱۹۷٬۵۹۵ (۶۱٫۳٪)، جلد ۱۹۱٬۲۸۴ (۵۹٫۴٪)، انجام ۱۷۵٬۰۶۸ (۵۴٫۴٪)، تملک و مهر و وقف و ورود ۶۲٬۵۰۱ (۱۹٫۴٪)؛ ۷۱ نسخه بیش از یک کاتب دارند.
+
+### گام ۱۴.۳۶۸: `fankha_split_head_step14_368.json`
+- **پیکره:** `text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹: «● شرح فرائض السجاوندی = شرح الفزائض السراجية⏎/ فقه / عربی ⏎» ← یک سطر. `scripts/fankha_parser_v2.py 20`: ۱٬۸۷۵ اثر و ۹٬۵۳۹ نسخه مثل پیش؛ جز شمارۀ سطرها فقط `v20-366` عوض شد: `author`، `subjects`، `languages`، `transliteration`، `alt_transliterations` و `description`.
+- **فایل تصمیم:** `work_slug` `shrh-frayd-alsgaondy-v20-366`؛ `changes` برای `author_name`، `alternative_titles` (آوانگاری عنوان دوم)، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text`؛ `author` با `century: 10`، `subjects` «فقه»، `languages` «عربی».
+- **تمرین محلی (`fahares_prod`):** «update 1»، «Derived data of works: works=1»، بار دوم «update 0»؛ `author_id` ۲۶۴، یک ردیف `subject_work` و یک ردیف `language_work`.
+- **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
