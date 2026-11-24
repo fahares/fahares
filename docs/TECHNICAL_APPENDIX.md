@@ -13587,4 +13587,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `merge-duplicates`: «369 → 368 libraries».
   - `merge-split`: هر دو جلد ادغام شدند.
   - پس از آن جلد #۶۷۴ ۵۶۳ نسخه دارد، و همین شمار مدخل و همین شمار `manuscript_catalog_references` (۵۶۰ مدخل در ص ۸ تا ۲۵۳). جلد #۶۷۵ ۳۱۸ نسخه دارد (۳۱۶ در ص ۲۵۶ تا ۴۶۶). هیچ مدخلی روی #۵۳۰ و #۵۳۱ نماند.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار با `edf8f303`. `catalog_duplicates_step14_357.json` در کانتینر بود.
+  - پشتیبان در `../fahares-sources/backups/step13/before_step14_357_borujerdi_merge_20261124_1719.json` است (md5 `d2a6a864…`). در آن آمده‌اند: کتابخانه‌ها، منبع‌ها و چهار جلد؛ `catalog_volume_cataloger` ۴ ردیف؛ `collections` کتابخانه‌ها ۱۲۹ ردیف؛ `manuscripts` ۸۸۳ ردیف (ستون‌های کتابخانه، جلد و فهرست‌نگار)؛ `manuscript_catalog_references` ۸۸۱ ردیف؛ `source_entries` ۸۸۱ ردیف (ستون‌های منبع، جلد و نسخه)؛ و بزرگ‌ترین شناسۀ `audit_logs` پیش از اجرا.
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:merge-duplicates --data=…'`: «369 → 368 libraries»، و اجرای آزمایشی پس از آن کتابخانه‌ای نیافت.
+  - `prod-run … -- 'php artisan sources:merge-split --group=catalogue-fc87bea439f2,catalogue-60c781631af7 --only'`: دو جلد ادغام شدند. اجرای آزمایشی پس از آن «No catalogue is held as several sources» داد، و `set-facsimiles --dry-run` «0 updated, 246 unchanged».
+  - پس از اجرا: جلد #۶۷۴ ۵۶۳ نسخه و ۵۶۳ مدخل دارد (۵۶۰ روی برگه)، و جلد #۶۷۵ ۳۱۸ نسخه و ۳۱۸ مدخل (۳۱۶ روی برگه).
+  - در fahares.net نسخه‌های `/manuscripts/248990` (ج ۱ ص ۱۰۴)، `134703` (ص ۲۱۹)، `284863` (ص ۷۹) و `229276` (ج ۲ ص ۳۸۸) نشانی برگۀ `borujerdi` را دارند. در `/tmp` کانتینر پرونده‌ای نماند.
 
