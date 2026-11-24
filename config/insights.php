@@ -133,6 +133,13 @@ return [
     'anonymous_subjects_shown' => 16,
     'anonymous_min_works' => 30,
 
+    // The subjects a library is strong in (step 14.343): a library with this many copies of works with a subject,
+    // a subject with this many copies in it, and the libraries listed
+    'specialty_min_copies' => 300,
+    'specialty_min_cell' => 30,
+    'specialty_libraries_shown' => 20,
+    'specialty_skip_subjects' => ['متفرقه', 'گوناگون'],
+
     // Languages and scripts in the grids per century; catalogue volumes listed as sources
     'languages_grid' => 6,
     'scripts_grid' => 8,
@@ -181,8 +188,8 @@ return [
         'libraries' => [
             'name' => 'کتابخانه‌ها و فهرست‌ها',
             'title' => 'کتابخانه‌ها و فهرست‌هایشان',
-            'lead' => 'بزرگ‌ترین و کهن‌ترین گنجینه‌ها، فهرست‌هایی که این آمار بر آن‌ها بنا شده، و نسخه‌هایی که چند فهرست وصفشان کرده‌اند.',
-            'charts' => ['libraries', 'sources', 'firsthand', 'source-overlap'],
+            'lead' => 'بزرگ‌ترین و کهن‌ترین گنجینه‌ها، موضوع‌های پررنگ هر کتابخانه، فهرست‌هایی که این آمار بر آن‌ها بنا شده، و نسخه‌هایی که چند فهرست وصفشان کرده‌اند.',
+            'charts' => ['libraries', 'library-subjects', 'sources', 'firsthand', 'source-overlap'],
         ],
     ],
 

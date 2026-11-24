@@ -32,7 +32,7 @@ class Insights
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v19';
+    private const CACHE_KEY = 'insights.v20';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -152,6 +152,7 @@ class Insights
             'formats' => self::formats($scope),
             'autographs' => self::autographs($scope),
             'anonymous' => self::anonymous($scope),
+            'library_subjects' => self::librarySubjects($scope),
         ];
     }
 
@@ -1242,6 +1243,79 @@ class Insights
             'unlinked' => $scope->works()->whereNull('author_id')->where('author_named', 1)->count(),
             'subjects' => $subjects,
             'centuries' => $centuries,
+        ];
+    }
+
+    /**
+     * The subjects each library is strong in (backlog item 162, step 14.343): a subject whose share among the copies
+     * of a library is above its share among the copies of all the scope's libraries, by the ratio of the two shares.
+     * Only the copies whose work has a subject count, a copy of two subjects in each; a library with fewer than
+     * `specialty_min_copies` such copies, and a subject with fewer than `specialty_min_cell` copies in a library, say
+     * too little and are left out. `subjects` names for each subject the library where its share is highest.
+     */
+    private static function librarySubjects(InsightsScope $scope): array
+    {
+        $minCopies = (int) config('insights.specialty_min_copies');
+        $minCell = (int) config('insights.specialty_min_cell');
+        $ofSubject = DB::table('subject_work')->join('subjects', 'subjects.id', '=', 'subject_work.subject_id')
+            ->distinct()->selectRaw('subject_work.work_id, COALESCE(subjects.parent_id, subjects.id) AS s');
+        $cells = $scope->manuscripts()->whereNotNull('library_id')->joinSub($ofSubject, 'r', 'r.work_id', '=', 'manuscripts.work_id')
+            ->selectRaw('manuscripts.library_id, r.s, COUNT(*) AS n')->groupBy('manuscripts.library_id', 'r.s')->get();
+        $sizes = $scope->manuscripts()->whereNotNull('library_id')->whereIn('work_id', DB::table('subject_work')->select('work_id'))
+            ->selectRaw('library_id, COUNT(*) AS n')->groupBy('library_id')->pluck('n', 'library_id')->map(fn ($n) => (int) $n);
+        $all = (int) $sizes->sum();
+        $ofAll = [];
+        foreach ($cells as $cell) {
+            $ofAll[$cell->s] = ($ofAll[$cell->s] ?? 0) + (int) $cell->n;
+        }
+        // A catch-all subject («متفرقه», «گوناگون») is no field a library is strong in
+        $names = \App\Models\Subject::whereIn('id', array_keys($ofAll))->whereNotIn('name', config('insights.specialty_skip_subjects'))->pluck('name', 'id');
+
+        $strong = [];
+        $best = [];
+        foreach ($cells as $cell) {
+            $size = $sizes[$cell->library_id] ?? 0;
+            if ($size < $minCopies || $cell->n < $minCell || ! isset($names[$cell->s])) {
+                continue;
+            }
+            $share = $cell->n * 100 / $size;
+            $overall = $ofAll[$cell->s] * 100 / $all;
+            $row = ['id' => (int) $cell->s, 'name' => $names[$cell->s], 'count' => (int) $cell->n, 'share' => round($share, 1),
+                'overall' => round($overall, 1), 'ratio' => round($share / $overall, 1)];
+            if ($share > $overall) {
+                $strong[$cell->library_id][] = $row;
+            }
+            if (! isset($best[$cell->s]) || $share > $best[$cell->s]['at']) {
+                $best[$cell->s] = $row + ['library' => (int) $cell->library_id, 'at' => $share];
+            }
+        }
+        $shown = collect($strong)->keys()->sortByDesc(fn ($id) => $sizes[$id])->take(config('insights.specialty_libraries_shown'));
+        uasort($best, fn ($a, $b) => $ofAll[$b['id']] <=> $ofAll[$a['id']]);
+        $best = array_slice($best, 0, (int) config('insights.anonymous_subjects_shown'), true);
+        $libraries = \App\Models\Library::whereIn('id', $shown->concat(array_column($best, 'library')))->get(['id', 'name', 'city', 'slug'])->keyBy('id');
+        $library = fn ($id) => ['id' => (int) $id, 'key' => $libraries[$id]->getRouteKey(), 'name' => $libraries[$id]->name, 'city' => $libraries[$id]->city];
+
+        $items = [];
+        foreach ($shown as $id) {
+            if (! isset($libraries[$id])) {
+                continue;
+            }
+            usort($strong[$id], fn ($a, $b) => [$b['ratio'], $b['count']] <=> [$a['ratio'], $a['count']]);
+            $items[] = $library($id) + ['copies' => $sizes[$id], 'subjects' => array_slice($strong[$id], 0, 3)];
+        }
+        $subjects = [];
+        foreach ($best as $row) {
+            if (isset($libraries[$row['library']])) {
+                unset($row['at']);
+                $subjects[] = ['library' => $library($row['library'])] + $row;
+            }
+        }
+
+        return [
+            'items' => $items,
+            'subjects' => $subjects,
+            'copies' => $all,
+            'libraries' => $sizes->filter(fn ($n) => $n >= $minCopies)->count(),
         ];
     }
 

@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -232,6 +232,24 @@ class InsightsTables
                 array_map(fn ($s) => [$s['name'], $s['works'], $s['anonymous'], $s['share']], $an['subjects'])),
             self::table('آثار بی مؤلف بر پایۀ سدۀ کهن‌ترین نسخه', 'anonymous-by-century', [['سدۀ هجری', 'year'], ['اثر', 'num'], ['اثر بی مؤلف', 'num'], ['سهم', 'pct']],
                 array_map(fn ($c) => [$c['century'], $c['works'], $c['anonymous'], $c['share']], array_filter($an['centuries'], fn ($c) => $c['works'] > 0))),
+        ];
+    }
+
+    private function librarySubjects(): array
+    {
+        $ls = $this->data['library_subjects'];
+        $columns = [['کتابخانه', 'text'], ['شهر', 'text'], ['موضوع', 'text'], ['نسخه', 'num'], ['سهم در کتابخانه', 'pct'], ['سهم در کل', 'pct'], ['نسبت', 'dec']];
+        $strong = [];
+        foreach ($ls['items'] as $library) {
+            foreach ($library['subjects'] as $s) {
+                $strong[] = [$library['name'], $library['city'], $s['name'], $s['count'], $s['share'], $s['overall'], $s['ratio']];
+            }
+        }
+
+        return [
+            self::table('موضوع‌های پررنگ هر کتابخانه', 'library-subjects', $columns, $strong),
+            self::table('کتابخانه‌ای که هر موضوع در آن بیشترین سهم را دارد', 'subject-libraries', $columns,
+                array_map(fn ($s) => [$s['library']['name'], $s['library']['city'], $s['name'], $s['count'], $s['share'], $s['overall'], $s['ratio']], $ls['subjects'])),
         ];
     }
 
