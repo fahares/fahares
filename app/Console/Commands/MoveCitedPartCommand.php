@@ -26,6 +26,10 @@ use Illuminate\Support\Facades\DB;
  * that book: Fankha cites «رشت و همدان: ف: - 1338» for copies of the Akhund school of Hamadan, which went to that
  * library's own catalogue, while the page is in «فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان». The --to volume may
  * then be one of no library, found by its exact title among those.
+ *
+ * With --cited-volume instead (step 14.333, backlog item 112), a copy moves when its citation's volume
+ * (ImportFankhaCatalogReferencesCommand::parse) is that number: Fankha cites «عکسی ف: 2 - 57» for copies of the second
+ * volume of the Great Islamic Encyclopaedia's photocopies catalogue, which had only a row for the first.
  */
 class MoveCitedPartCommand extends Command
 {
@@ -34,6 +38,7 @@ class MoveCitedPartCommand extends Command
         {--volume= : Volume number the citations give (33)}
         {--part= : Part whose copies move (1)}
         {--names= : Instead of --volume and --part: text the citation names («رشت و همدان»)}
+        {--cited-volume= : Instead of --volume and --part: the volume number the citation gives (2)}
         {--from= : Exact title of the volume the copies are on}
         {--to= : Exact title of the part\'s volume}
         {--apply : Write; without it the command only reports}';
@@ -43,7 +48,8 @@ class MoveCitedPartCommand extends Command
     public function handle(): int
     {
         $names = $this->option('names');
-        foreach (filled($names) ? ['library', 'from', 'to'] : ['library', 'volume', 'part', 'from', 'to'] as $option) {
+        $citedVolume = $this->option('cited-volume');
+        foreach (filled($names) || filled($citedVolume) ? ['library', 'from', 'to'] : ['library', 'volume', 'part', 'from', 'to'] as $option) {
             if (blank($this->option($option))) {
                 $this->error("--{$option} is required");
 
@@ -73,11 +79,13 @@ class MoveCitedPartCommand extends Command
             $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->metadata, $m->raw_text);
             if (filled($names)) {
                 $cited = $raw !== null && str_contains(LinkCatalogVolumesCommand::normalize($raw), LinkCatalogVolumesCommand::normalize($names)) ? 'named' : null;
+            } elseif (filled($citedVolume)) {
+                $cited = $raw === null ? null : ImportFankhaCatalogReferencesCommand::parse($raw)['volume'];
             } else {
                 $cited = $raw === null ? null : self::partOf($raw, $volume);
             }
             $parts[$cited ?? 'none'] = ($parts[$cited ?? 'none'] ?? 0) + 1;
-            if ($cited === (filled($names) ? 'named' : $part)) {
+            if ($cited === (filled($names) ? 'named' : (filled($citedVolume) ? (int) $citedVolume : $part))) {
                 $moves[] = $m->id;
             }
         }
@@ -92,7 +100,7 @@ class MoveCitedPartCommand extends Command
             return self::SUCCESS;
         }
 
-        DB::transaction(function () use ($moves, $from, $to, $names) {
+        DB::transaction(function () use ($moves, $from, $to, $names, $citedVolume) {
             foreach (array_chunk($moves, 500) as $ids) {
                 DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $to->id]);
                 DB::table('manuscript_catalog_references')->whereIn('manuscript_id', $ids)->where('catalog_volume_id', $from->id)
@@ -101,7 +109,7 @@ class MoveCitedPartCommand extends Command
             foreach ($moves as $id) {
                 AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $id, 'action' => 'corpus_update',
                     'old_values' => ['catalog_volume_id' => $from->id],
-                    'new_values' => ['catalog_volume_id' => $to->id, 'corpus_fix' => filled($names) ? 'move-cited-part --names (step 14.326)' : 'move-cited-part (step 14.152)']]);
+                    'new_values' => ['catalog_volume_id' => $to->id, 'corpus_fix' => filled($names) ? 'move-cited-part --names (step 14.326)' : (filled($citedVolume) ? 'move-cited-part --cited-volume (step 14.333)' : 'move-cited-part (step 14.152)')]]);
             }
             DB::table('manuscripts')->whereIn('catalog_volume_id', [$from->id, $to->id])->select(['id', 'metadata', 'raw_text', 'catalog_volume_id'])
                 ->orderBy('id')->chunkById(1000, fn ($rows) => SourceEntrySync::syncCited($rows));
