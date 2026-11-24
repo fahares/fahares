@@ -13814,6 +13814,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`InsightsNotes::lifeCities` و `InsightsTables::lifeCities`:** نمونه‌ها از خود داده (پرشمارترین شهر و نوع غالبش، دو شهر نخست تحصیل و تدریس) و جدول `life-cities` با ستون هر نوع.
 - **تمرین روی `fahares_prod`:** ساخت آمار ۳۱ ثانیه؛ ۳٬۹۱۸ دوره، ۱٬۸۴۸ تن، ۱۲۹ شهر. به تفکیک نوع: وفات ۹۲۸، اقامت ۷۹۱، تولد ۶۳۷، تحصیل ۳۶۵، سفر ۳۳۰، خاستگاه ۲۱۴، منصب ۱۴۵، تدریس ۱۱۶ تن.
 - **آزمون:** `SearchFiltersTest::test_people_are_filtered_by_the_city_and_kind_of_the_approved_periods_of_their_life` و `InsightsAuthorsFormatsTest::test_the_cities_of_the_periods_of_lives_are_counted_by_kind_and_shown_with_links`.
+
 ### گام ۱۴.۳۷۰: `person_lives_step14_370_{rawdat,mosaffa,mushar_authors}.json`
 
 - **صافی (`blocker.py . <code>`):** `rawdat` ۷۸۵ مدخل بی‌پیوند، `n0 540`، ۲۴۵ مدخل در ۵ دسته؛ `mosaffa` ۶۰۰ بی‌پیوند، `n0 299`، ۳۰۸ مدخل در ۷ دسته؛ `mushar-authors` ۳٬۳۰۷ بی‌پیوند، `n0 2340`، ۱٬۰۷۵ مدخل در ۲۲ دسته.
