@@ -13716,3 +13716,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`tests/test_fankha_v2_cases.py`:** `physical()` یک سطر فیزیکی را با `parse_physical` می‌خواند و `copy()` یک نسخۀ کامل را با `parse_copy`. پنج کلاس: برچسب بی نشانه (۲.۴.۰)، تکۀ ادامۀ فیلد (۲.۵.۰)، کاتبان بعدی (۲.۶.۰)، ویرگول جابه‌جا (۲.۷.۰)، و سطر خود نسخه (۲.۸.۰ و ۲.۹.۰). موردهای وابسته به تصمیم مدل از متن واقعی فنخا گرفته شده‌اند.
 - **`continues()`:** پروندۀ تصمیم‌ها با `with` باز می‌شود (هشدار `ResourceWarning` در آزمون‌ها).
 
+### گام ۱۴.۳۶۴: `person_lives_step14_364_zirikli.json`
+
+- **صافی (`blocker.py . zirikli`):** ۱۱٬۵۳۹ مدخل بی‌پیوند؛ `n0 9268`؛ ۳٬۲۲۱ با نامزد (با مدخل‌های پیونددار) و ۲٬۳۳۹ مدخل در ۴۷ دسته.
+- **داوری:** ۴۷ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سطر تاریخ‌ها و «له»/«من كتبه». ۱٬۰۰۲ پیوند، ۱٬۳۳۷ «هیچ‌کدام»؛ ۹۷۶ شاهد عیناً در متن (متن این منبع حرکت‌گذاری دارد و شاهدِ بی‌حرکت سقف ۸۵ می‌گیرد).
+- **`build.py zirikli 14.364 <file>`:** `person_twice 15`، `dropped_second_entry 15`؛ ۹۸۷ پیوند: ۸۴۲ با ۹۰ به بالا، ۱۱۶ بین ۸۰ و ۸۹، ۲۹ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 982`، `exists 5`؛ اجرای دوم `exists 987`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_364_zirikli.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+
