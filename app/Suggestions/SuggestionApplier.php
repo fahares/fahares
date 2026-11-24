@@ -53,7 +53,7 @@ class SuggestionApplier
 
         // A field of the copy's «مجموعه» lives in the collection's record (step 14.330)
         if (isset($field['collection'])) {
-            return $this->applyCollection($record, $field, $value);
+            return $this->applyCollection($record, $field, $value, ($input['collection_basis'] ?? null) === 'catalogue' ? 'catalogue' : 'editor');
         }
 
         switch ($field['input']) {
@@ -298,7 +298,7 @@ class SuggestionApplier
      * basis «editor», so the derivation from the treatises leaves it alone; an emptied value gives the field back to
      * the derivation. The treatises that read the collection are found again and sent to the search index.
      */
-    private function applyCollection(Model $record, array $field, ?string $value): array
+    private function applyCollection(Model $record, array $field, ?string $value, string $from = 'editor'): array
     {
         $collection = $record instanceof Manuscript ? $record->boundCollection() : null;
         if (! $collection) {
@@ -317,7 +317,8 @@ class SuggestionApplier
         if ($value === null) {
             unset($basis[$column]);
         } else {
-            $basis[$column] = 'editor';
+            // «catalogue»: a library's own catalogue gave it and no reviewer read it (sources:read-copy-lines, step 14.334)
+            $basis[$column] = $from;
         }
         // the hand's style and the lines' wording are the treatises': an editor's value stands alone
         $collection->forceFill(array_fill_keys($columns, null) + ['basis' => $basis ?: null])->forceFill([$column => in_array($column, ['lines', 'folios'], true) && $value !== null ? (int) $value : $value])->save();

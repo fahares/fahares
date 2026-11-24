@@ -105,6 +105,37 @@ class FirstHandReadingTest extends TestCase
         $this->assertSame(2, Claim::where('subject_id', $ms->id)->where('field', 'folios')->count());
     }
 
+    public function test_the_leaves_of_a_whole_volume_are_accepted_by_themselves_where_the_collection_has_none()
+    {
+        // the volume's own line stands under the entry of each of its treatises (backlog item 163, step 14.334)
+        $line = "( 649 )\nرساله اول تا هفتم تاریخ کتابت ندارد.\n212 برگ، 11 × 18";
+        [$first, $one] = $this->copyWithLine($line, ['shelfmark' => '649/1', 'dimensions' => '11×18سم', 'range_to_number' => 30]);
+        [, $two] = $this->copyWithLine($line, ['shelfmark' => '649/2', 'dimensions' => '11×18سم']);
+        // fewer leaves than a treatise is said to reach: a misread number, left for the reviewer
+        $short = "( 650 )\n20 برگ، 11 × 18";
+        [, $three] = $this->copyWithLine($short, ['shelfmark' => '650/1', 'dimensions' => '11×18سم', 'range_to_number' => 45]);
+        [, $four] = $this->copyWithLine($short, ['shelfmark' => '650/2', 'dimensions' => '11×18سم']);
+
+        $this->artisan('sources:read-copy-lines', ['source' => 'masjid-azam-ostadi', '--apply' => true])->expectsOutputToContain('Accepted by themselves: the leaves of 1 whole volumes')->assertOk();
+        $volume = $one->fresh()->collection;
+        $this->assertSame([212, 'catalogue', $two->fresh()->collection_id], [$volume->folios, $volume->basis['folios'], $volume->id]);
+        $claim = Claim::whereIn('subject_id', [$one->id, $two->id])->where('field', 'collection_folios')->sole();
+        $this->assertSame([Claim::STATUS_ACCEPTED, $one->id, null], [$claim->status, $claim->subject_id, $claim->reviewed_by]);
+        // undone from the audit log like a reviewer's edit
+        $log = \App\Models\AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $one->id)->where('action', 'verify')->sole();
+        $this->assertSame($claim->id, $log->new_values['first_hand']['claim_id']);
+        $this->assertNull($one->fresh()->folios);
+
+        $waiting = Claim::whereIn('subject_id', [$three->id, $four->id])->where('field', 'collection_folios')->sole();
+        $this->assertSame([Claim::STATUS_CANDIDATE, '20'], [$waiting->status, $waiting->value_text]);
+        $this->assertNull($three->fresh()->collection->folios);
+
+        // read again: the leaves agree now, and no second claim is made
+        $this->artisan('sources:read-copy-lines', ['source' => 'masjid-azam-ostadi', '--apply' => true])->doesntExpectOutputToContain('Accepted by themselves')->assertOk();
+        $this->assertContains('collection_folios', $first->fresh()->confirmed_fields);
+        $this->assertSame(1, Claim::whereIn('subject_id', [$one->id, $two->id])->where('field', 'collection_folios')->count());
+    }
+
     public function test_the_coverage_counts_a_copy_complete_when_its_core_fields_are_confirmed()
     {
         [, $ms] = $this->copyWithLine('ش 2308، 114 برگ، 14×21، نستعلیق، بیکا، بیتا.', ['shelfmark' => '2308', 'folios' => 114]);
