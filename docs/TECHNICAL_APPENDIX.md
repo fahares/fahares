@@ -13543,16 +13543,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: اجرای آزمایشی پیش از آن «0 created, 2 updated, 241 unchanged» داد، خود اجرا هم همین را داد، و اجرای آزمایشی پس از آن «0 updated, 243 unchanged».
   - در fahares.net نسخه‌های `/manuscripts/208969` (ج ۳۷ ص ۱۱۶)، `250197` (ج ۳۶ ص ۵۰۱)، `332391` (ص ۴۸۳) و `80964` (ص ۱۱) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
 
+### گام ۱۴.۳۵۰: `Insights::derived()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v23`. ثابت `DERIVED`: نوع‌های `work_relations` که شمرده می‌شوند با نامشان (`related` و `part` نه). `derived`: `types` (`key, name, made, texts`)، `items` (ردیف اثر با `count` و `types`؛ `insights.derived_shown` = ۱۵)، `lists` (برای هر نوعِ `insights.derived_lists`، `insights.derived_list_shown` = ۸ متن)، `texts`، `made`، `languages` (زبان آثار ترجمه)، `titled` (`works, linked, share`؛ تنها برای کل داده).
+- **دامنه:** `whereWork` روی `work_relations.related_work_id` (متن پایه). شمارش‌ها `COUNT(DISTINCT work_id)` است.
+- **نما:** `charts/derived.blade.php`، در `insights.topics.works` پس از `century-works`؛ در دامنۀ یک اثر پنهان. جدول‌های داده: `derived-types`، `derived-texts`، `derived-commentary`، `derived-gloss`، `derived-translation`، `translation-languages`.
+- **آزمون:** `InsightsDerivedWorksTest`.
+
 ### گام ۱۴.۳۵۱: `MarkHedgedAuthorsCommand`، تردید پس از نام
 
 - **گذر تازه:** ردیف‌های `work_people` با نقش پدیدآور، `certainty` تهی و شخصی که نامش به کمانک پایان می‌یابد؛ `TRAILING` (`^نام\s*\((؟|شاید|به احتمال|احتمالاً|محتملاً|ظاهراً|گویا)\)$`). ردیف پیشنهاددار («left_reviewed») دست نمی‌خورد.
 - **`writeTrailing()`:** `certainty` با `PersonNameMatcher::certainty()` («به احتمال» → `probable`) و `hedge_raw`؛ `works.author_name` اگر همان نام شخص است؛ `people.name` و `normalized_name` تنها اگر شخص درست یک ردیف `work_people` دارد و در `manuscript_people` و `manuscripts.scribe_id` نیست. دو سطر ممیزی `corpus_update` (اثر و شخص)، و نمایه‌سازی هر دو.
 - **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
 - **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
-
-### گام ۱۴.۳۵۰: `Insights::derived()`
-- **[Insights](../app/Support/Insights.php):** کلید `insights.v23`. ثابت `DERIVED`: نوع‌های `work_relations` که شمرده می‌شوند با نامشان (`related` و `part` نه). `derived`: `types` (`key, name, made, texts`)، `items` (ردیف اثر با `count` و `types`؛ `insights.derived_shown` = ۱۵)، `lists` (برای هر نوعِ `insights.derived_lists`، `insights.derived_list_shown` = ۸ متن)، `texts`، `made`، `languages` (زبان آثار ترجمه)، `titled` (`works, linked, share`؛ تنها برای کل داده).
-- **دامنه:** `whereWork` روی `work_relations.related_work_id` (متن پایه). شمارش‌ها `COUNT(DISTINCT work_id)` است.
-- **نما:** `charts/derived.blade.php`، در `insights.topics.works` پس از `century-works`؛ در دامنۀ یک اثر پنهان. جدول‌های داده: `derived-types`، `derived-texts`، `derived-commentary`، `derived-gloss`، `derived-translation`، `translation-languages`.
-- **آزمون:** `InsightsDerivedWorksTest`.
 
