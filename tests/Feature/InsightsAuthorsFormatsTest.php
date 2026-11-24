@@ -155,4 +155,51 @@ class InsightsAuthorsFormatsTest extends TestCase
         // The list of authors says nothing in the scope of one author
         $this->get(route('insights.topic', ['topic' => 'people', 'author' => $one->id]))->assertOk()->assertDontSee('id="top-authors"', false);
     }
+
+    public function test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted()
+    {
+        config(['insights.author_scribe_min_works' => 2]);
+        $scholar = $this->author('دانشمند کاتب آزمایشی', 1110);
+        $once = $this->author('کاتب تک‌اثر آزمایشی');
+        $other = $this->author('مؤلف دیگر آزمایشی');
+        $plain = Person::create(['name' => 'کاتب سادۀ آزمایشی', 'normalized_name' => 'کاتب سادۀ آزمایشی', 'slug' => 'insights-formats-' . uniqid(), 'is_scribe' => true]);
+        $own = $this->work('اثر دانشمند', $scholar);
+        $second = $this->work('اثر دوم دانشمند', $scholar);
+        $theirs = $this->work('اثر مؤلف دیگر', $other);
+        // In his own hand: the scribe is the author, whether the catalogue says so or not
+        $this->copy($own, ['scribe_id' => $scholar->id, 'is_autograph' => true]);
+        $this->copy($own, ['scribe_id' => $scholar->id]);
+        // The catalogue calls it an autograph and names no scribe: the author's
+        $this->copy($theirs, ['is_autograph' => true]);
+        // Called an autograph under a scribe who is not the author: in `flagged` alone
+        $this->copy($theirs, ['scribe_id' => $plain->id, 'is_autograph' => true]);
+        // The scholar copies another's work, three times; a plain scribe is no author
+        foreach (range(1, 3) as $i) {
+            $this->copy($theirs, ['scribe_id' => $scholar->id]);
+        }
+        $this->copy($second, ['scribe_id' => $plain->id]);
+        // An author of one work who copies another's: counted, but not listed among the scholars
+        $this->work('تنها اثر کاتب', $once);
+        $this->copy($theirs, ['scribe_id' => $once->id]);
+
+        $figures = $this->figures();
+        $ag = $figures['autographs'];
+
+        $this->assertSame([3, 3, 2, 2], [$ag['flagged'], $ag['copies'], $ag['works'], $ag['authors']]);
+        $this->assertSame([['دانشمند کاتب آزمایشی', 1110, 2, 1, 2], ['مؤلف دیگر آزمایشی', null, 1, 1, 1]],
+            array_map(fn ($r) => [$r['name'], $r['death'], $r['copies'], $r['works'], $r['of_works']], $ag['items']));
+        $this->assertSame([2, 2, 4], [$ag['author_scribes'], $ag['other_scribes'], $ag['other_copies']]);
+        $this->assertSame([['دانشمند کاتب آزمایشی', 3, 2]], array_map(fn ($r) => [$r['name'], $r['others'], $r['own']], $ag['others']));
+
+        $note = InsightsNotes::for($figures)['autographs'];
+        $this->assertStringContainsString('۳ نسخه به خط مؤلف خود است، از ۲ اثر و ۲ مؤلف', $note['examples'][0]);
+        $this->assertStringContainsString('۲ نسخه به خط خودش، از ۱ اثر، در حالی که ۲ اثر به نامش ثبت است', $note['examples'][1]);
+        $this->assertSame(['autographs', 'author-scribes'], array_column(InsightsTables::for($figures)['autographs'], 'file'));
+
+        $this->get(route('insights.topic', ['topic' => 'people', 'library' => $this->library->id]))->assertOk()
+            ->assertSee('id="autographs"', false)
+            ->assertSee('نسخه‌های خط مؤلف و مؤلفان کاتب')
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'author_id' => $scholar->id, 'scribe_id' => $scholar->id, 'library_id' => $this->library->id])), false)
+            ->assertSee('data-insights-table="autographs"', false);
+    }
 }

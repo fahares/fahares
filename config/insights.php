@@ -126,6 +126,9 @@ return [
     // The authors listed by their works and by their copies
     'authors_shown' => 15,
 
+    // An author who copied the works of others is listed with this many works of his own (step 14.336)
+    'author_scribe_min_works' => 5,
+
     // Languages and scripts in the grids per century; catalogue volumes listed as sources
     'languages_grid' => 6,
     'scripts_grid' => 8,
@@ -168,8 +171,8 @@ return [
         'people' => [
             'name' => 'اشخاص',
             'title' => 'مؤلفان، کاتبان و حامیان',
-            'lead' => 'مؤلفان پرکار و پرنسخه، کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
-            'charts' => ['top-authors', ['scribes', 'patrons'], 'dedications'],
+            'lead' => 'مؤلفان پرکار و پرنسخه، نسخه‌های خط مؤلف، کاتبان پرکار، سفارش‌دهندگان کتابت، و کسانی که اثری به نام یا به درخواستشان نوشته شده است.',
+            'charts' => ['top-authors', 'autographs', ['scribes', 'patrons'], 'dedications'],
         ],
         'libraries' => [
             'name' => 'کتابخانه‌ها و فهرست‌ها',

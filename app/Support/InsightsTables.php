@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -208,6 +208,18 @@ class InsightsTables
         return [
             self::table('مؤلفان با بیشترین اثر', 'authors-by-works', $columns, $rows($ta['by_works'])),
             self::table('مؤلفان با بیشترین نسخه', 'authors-by-copies', $columns, $rows($ta['by_copies'])),
+        ];
+    }
+
+    private function autographs(): array
+    {
+        $ag = $this->data['autographs'];
+
+        return [
+            self::table('مؤلفان با بیشترین نسخۀ خط خود', 'autographs', [['مؤلف', 'text'], ['سال درگذشت', 'year'], ['نسخۀ خط مؤلف', 'num'], ['اثر با نسخۀ خط مؤلف', 'num'], ['همۀ آثار', 'num']],
+                array_map(fn ($r) => [$r['name'], $r['death'], $r['copies'], $r['works'], $r['of_works']], $ag['items'])),
+            self::table('مؤلفانی که آثار دیگران را کتابت کرده‌اند', 'author-scribes', [['شخص', 'text'], ['سال درگذشت', 'year'], ['نسخه از آثار دیگران', 'num'], ['نسخه از آثار خود', 'num']],
+                array_map(fn ($r) => [$r['name'], $r['death'], $r['others'], $r['own']], $ag['others'])),
         ];
     }
 
