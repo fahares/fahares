@@ -13746,3 +13746,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `work_slug` `shrh-frayd-alsgaondy-v20-366`؛ `changes` برای `author_name`، `alternative_titles` (آوانگاری عنوان دوم)، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text`؛ `author` با `century: 10`، `subjects` «فقه»، `languages` «عربی».
 - **تمرین محلی (`fahares_prod`):** «update 1»، «Derived data of works: works=1»، بار دوم «update 0»؛ `author_id` ۲۶۴، یک ردیف `subject_work` و یک ردیف `language_work`.
 - **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، `prod-run --wait`):** پشتیبان ردیف اثر، `subject_work`، `language_work` و ردیف شخص #۲۶۴ در `../fahares-sources/backups/step13/step14_368_work40507_backup.json` (md5 `b915528d…`). بی `--apply` «update 1»؛ با آن «Derived data of works: works=1»؛ بار سوم «update 0». وارسی: `author_id` ۲۶۴، `subject_summary` «فقه»، `language_summary` «عربی»، یک ردیف `subject_work` و یک ردیف `language_work`.
+
+### گام ۱۴.۳۷۱: `fankha_alt_title_step14_371.json`
+- **فایل تصمیم:** `category` «editorial_correction»؛ یک `work_updates` برای `shrh-frayd-alsgaondy-v20-366` با تنها یک ستون: `alternative_titles`، از «شرح الفزائض السراجية» به «شرح الفرائض السراجية» (آوانگاری همان).
+- **آنچه دست نخورد:** `fahares-corpus/text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹، `works.raw_text` و `source_pages` #۴۶۹۰۱ (ج ۲۰ ص ۲۲۱)، که املای چاپ را دارند (`/storage/catalogs/fankha/v20/p0221.webp`). پس تجزیه‌گر نسخۀ ۲ برای `v20-366` همچنان «الفزائض» می‌خواند؛ هم‌سنجی بعدی پیکره با سایت نباید این ستون را برگرداند.
+- **تمرین محلی (`fahares_prod`):** «update 1»، بار دوم «update 0».
