@@ -13514,6 +13514,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خروجی:** `work_updates` برای `fahares:add-corpus-works` (`{work_slug, v2, id, changes: {description, composition_date_raw, composition_place?, dedication?}}`). `database/data/fankha_description_dates_step14_347.json`: ۱۹۸ رکورد.
 - **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
 - **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان ۱۹۸ اثر؛ `add-corpus-works` «update 198» و سپس «update 0».
 
 ### گام ۱۴.۳۴۸: `Insights::completeness()`
 - **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
@@ -13541,7 +13542,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان دو ردیف `catalog_volumes` و `source_volumes` (#۳۵۵ و #۳۵۷، `facsimile_code` تهی) در `../fahares-sources/backups/step13/before_step14_349_set_facsimiles_20261124_1617.json` است (md5 `cd247d2a…`).
   - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: اجرای آزمایشی پیش از آن «0 created, 2 updated, 241 unchanged» داد، خود اجرا هم همین را داد، و اجرای آزمایشی پس از آن «0 updated, 243 unchanged».
   - در fahares.net نسخه‌های `/manuscripts/208969` (ج ۳۷ ص ۱۱۶)، `250197` (ج ۳۶ ص ۵۰۱)، `332391` (ص ۴۸۳) و `80964` (ص ۱۱) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
-- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان ۱۹۸ اثر؛ `add-corpus-works` «update 198» و سپس «update 0».
 
 ### گام ۱۴.۳۵۱: `MarkHedgedAuthorsCommand`، تردید پس از نام
 
