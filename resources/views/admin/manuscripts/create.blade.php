@@ -77,7 +77,7 @@
                 <x-admin.field label="شمارۀ نسخه" for="shelfmark" error="shelfmark" hint="چنان‌که کتابخانه می‌نویسد: «۲۸۹۷/۳»، یا شمارۀ خود مجموعه.">
                     <input type="text" name="shelfmark" id="shelfmark" value="{{ $val('shelfmark') }}" maxlength="100" dir="ltr" required class="admin-field w-full">
                 </x-admin.field>
-                <x-admin.field label="شمارۀ مجموعه" for="collection_key" error="collection_key" hint="اگر نسخه جزئی از یک مجموعه است. با شمارۀ بخش‌دار («۲۸۹۷/۳») خودش به دست می‌آید.">
+                <x-admin.field label="شمارۀ مجموعه" for="collection_key" error="collection_key" hint="اگر نسخه جزئی از یک مجموعه است. با شمارۀ بخش‌دار («۲۸۹۷/۳») خودش به دست می‌آید. اگر شمارۀ نسخه چیز دیگری است ولی کتابخانه مجموعه‌ای با این شماره دارد، نسخه دستی در همان مجموعه جای می‌گیرد.">
                     <input type="text" name="collection_key" id="collection_key" value="{{ $val('collection_key') }}" maxlength="100" dir="ltr" class="admin-field w-full">
                 </x-admin.field>
             </div>

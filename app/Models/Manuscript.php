@@ -263,7 +263,17 @@ class Manuscript extends Model
         });
         // (the link is written beside the model, so the row is asked which collection it leaves)
         static::deleting(fn (Manuscript $manuscript) => $manuscript->setAttribute('collection_id', DB::table('manuscripts')->where('id', $manuscript->id)->value('collection_id')));
-        static::deleted(fn (Manuscript $manuscript) => $manuscript->collection_id ? \App\Support\Collections::recount([(int) $manuscript->collection_id]) : null);
+        static::deleted(function (Manuscript $manuscript) {
+            if (! $manuscript->collection_id) {
+                return;
+            }
+            $left = [(int) $manuscript->collection_id];
+            \App\Support\Collections::recount($left);
+            // what the volume is said to be no longer rests on the treatise that is gone (step 14.350): a copy removed,
+            // merged away, or a panel copy undone; nothing to do for a collection the recount removed
+            \App\Support\Collections::derive($left);
+            \App\Support\Collections::reindex($left);
+        });
 
         // The scribes' tab of the search holds when and where each scribe copied (step 14.155)
         static::updated(function (Manuscript $manuscript) {
