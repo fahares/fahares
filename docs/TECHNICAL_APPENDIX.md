@@ -13394,4 +13394,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جدول‌ها:** `autographs` و `author-scribes`.
 - **آزمون:** `InsightsAuthorsFormatsTest::test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted`.
 - **فهرست دوم پیش از آستانه (رونوشت محلی):** صحبت‌الله خان ۲۶۳ + ۱، حکیم هندی ۱۳۰ + ۱، مراغی ۱۰۰ + ۲، «علی بن محمد» ۶۱ + ۱. **پس از آن:** گلپایگانی (زین‌العابدین) ۶۷ + ۳، عبرت نائینی ۲۹ + ۷، زنوزی ۲۰ + ۳، حر عاملی ۱۵ + ۳۶، مجلسی ۱۳ + ۱۰۰.
+### گام ۱۴.۳۳۸: بریدن «انجام» و یادداشت‌های v2.8.0
+
+- **سنجش:** نسخه‌هایی که `explicit` آن‌ها میان `scratch/fankha_v2_271` و خروجی کنونی دگرگون شده و `explicit_text` سایت نه مقدار پیشین v2 است و نه تازه: ۴۲. با `letters()`: «سایت در پایان بیشتر دارد» ۴۰، «v2 درون متن سایت» ۱، «دیگر» ۱.
+- **پروندۀ بریدن (اسکریپت یک‌باره):** جای برش آن جاست که حروف متن سایت به شمار حروف `explicit` تازه برسد، با نشانۀ پایانی («.»، «»»، «)») پس از آن. هر تکۀ دنباله (جدا با «؛» و سطر) باید با حروفش در یادداشت‌های تازۀ همان نسخه باشد، مگر گروه «کاتب/خط/تا». `database/data/fankha_explicit_cuts_step14_338.json`: ۳۰ رکورد `{explicit_text: {from, to}}` (۹ رکورد بی دنباله برداشته شد).
+- **`ImportCopyNotesCommand`:** سطر باید `id` و آرایۀ `notes` داشته باشد؛ آرایۀ تهی «changed» شمرده می‌شود و ردیف‌ها برداشته می‌شوند. نگهبان «ویراستار یادداشتی را دست زده» همان است.
+- **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
+- **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
+- **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
 
