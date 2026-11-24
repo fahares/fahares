@@ -160,8 +160,11 @@ class InsightsScope
         $one = "CAST(REPLACE(SUBSTRING_INDEX(dimensions, '×', 1), '/', '.') AS DECIMAL(6,1))";
         $other = "CAST(REPLACE(TRIM(REPLACE(SUBSTRING_INDEX(dimensions, '×', -1), 'سم', '')), '/', '.') AS DECIMAL(6,1))";
         $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
-            . "CASE WHEN {$sized} THEN GREATEST({$one}, {$other}) END AS page_height, CASE WHEN {$sized} THEN LEAST({$one}, {$other}) END AS page_width"
+            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, cataloger_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
+            . "CASE WHEN {$sized} THEN GREATEST({$one}, {$other}) END AS page_height, CASE WHEN {$sized} THEN LEAST({$one}, {$other}) END AS page_width, "
+            // What the catalogue wrote of each copy (step 14.348): «بی‌تا» and «بی‌کا» are the print's own words
+            . "is_bita, is_bika, COALESCE(scribe_name, '') != '' AS scribe_named, COALESCE(script_names, '') != '' AS scripted, "
+            . "folios IS NOT NULL OR pages IS NOT NULL AS extent_given, COALESCE(dimensions, '') != '' AS size_given, COALESCE(incipit_text, '') != '' AS incipit_given"
         ));
         DB::statement('CREATE TEMPORARY TABLE ' . self::COPIES . ' (PRIMARY KEY (id), KEY (work_id)) ' . $copies->toSql(), $copies->getBindings());
 

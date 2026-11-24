@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
+use App\Models\ManuscriptCollection;
 use App\Models\ManuscriptNote;
 use App\Models\Person;
 use App\Models\Script;
@@ -85,7 +86,7 @@ class ManuscriptCreator
             if ($shelfmark === '') {
                 throw new InvalidArgumentException('شمارۀ نسخه را بنویسید.');
             }
-            $key = $this->collectionKey($shelfmark, $data['collection_key'] ?? null);
+            [$key, $placed] = $this->collectionKey($library, $shelfmark, $data['collection_key'] ?? null);
             $made = ['manuscript_id' => null, 'work_id' => null, 'source_entry_ids' => [], 'keyed_manuscript_ids' => []];
 
             [$work, $made['work_id']] = $this->work($data, $library, $shelfmark);
@@ -106,6 +107,8 @@ class ManuscriptCreator
                 'city' => $library->city,
                 'shelfmark' => $shelfmark,
                 'collection_key' => $key,
+                // placed by hand in a collection its shelfmark does not name (step 14.353): the rule of the shelfmark leaves it there
+                ...($placed ? ['collection_id' => $placed->id, 'collection_pinned' => true] : []),
                 'scribe_id' => $scribe?->id,
                 'scribe_name' => self::text($data['scribe_name'] ?? null) ?? $scribe?->name,
                 'copy_date_raw' => self::text($data['copy_date_raw'] ?? null),
@@ -150,7 +153,7 @@ class ManuscriptCreator
                 // the suggestion that reported the copy is in metadata.provenance: not under suggestion_id, which
                 // would make this entry the change that suggestion's approval made (AuditLog::activeForSuggestion)
                 'new_values' => ['panel' => true]
-                    + array_filter($manuscript->only(['work_id', 'library_id', 'shelfmark', 'collection_key', 'scribe_id', 'scribe_name', 'copy_date_raw',
+                    + array_filter($manuscript->only(['work_id', 'library_id', 'shelfmark', 'collection_key', ...($placed ? ['collection_id', 'collection_pinned'] : []), 'scribe_id', 'scribe_name', 'copy_date_raw',
                         'folios', 'pages', 'range_from', 'range_to', 'incipit_text', 'explicit_text', 'metadata', 'copy_place', 'commissioned_by', 'dimensions', 'paper', 'binding',
                         'lines', 'script_names', 'script_style', ...array_keys(self::FLAGS)]), fn ($v) => $v !== null && $v !== false),
                 'ip_address' => $ip,
@@ -206,16 +209,26 @@ class ManuscriptCreator
     /**
      * The volume the copy is bound in: the one its shelfmark names («2897/3»), or the given one when the shelfmark is
      * that volume's plain number («3522» in volume 3522), as fahares:link-plain-volumes keys such copies.
+     *
+     * Where the shelfmark names another volume or none and the given number is a «مجموعه» the library has (backlog
+     * item 163), the copy is placed in that collection by hand, as Admin\ManuscriptController::moveCollection does:
+     * a treatise under another number bound in the volume. Its collection_key stays what its shelfmark says.
+     *
+     * @return array{0: ?string, 1: ?ManuscriptCollection} the key, and the collection the copy is pinned to
      */
-    private function collectionKey(string $shelfmark, ?string $given): ?string
+    private function collectionKey(Library $library, string $shelfmark, ?string $given): array
     {
         $given = self::text($given) === null ? null : self::shelfmarkKey($given);
         $key = Manuscript::resolvedCollectionKey($shelfmark, null, $given);
-        if ($given !== null && $key !== $given) {
-            throw new InvalidArgumentException("شمارۀ نسخه با مجموعۀ «{$given}» نمی‌خواند: یا همان شمارۀ مجموعه را بنویسید، یا شماره‌ای با بخش، مانند «{$given}/۳».");
+        if ($given === null || $key === $given) {
+            return [$key, null];
+        }
+        $collection = ManuscriptCollection::where('library_id', $library->id)->where('key', $given)->first();
+        if (! $collection) {
+            throw new InvalidArgumentException("شمارۀ نسخه با مجموعۀ «{$given}» نمی‌خواند و کتابخانه مجموعه‌ای با این شماره ندارد: یا همان شمارۀ مجموعه را بنویسید، یا شماره‌ای با بخش، مانند «{$given}/۳».");
         }
 
-        return $key;
+        return [Manuscript::resolvedCollectionKey($shelfmark, null, null), $collection];
     }
 
     /** @return array{0: Work, 1: ?int} the copy's work, and its id when it was made here */

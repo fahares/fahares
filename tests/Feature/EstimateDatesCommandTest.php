@@ -108,10 +108,19 @@ class EstimateDatesCommandTest extends TestCase
         $period($person, ['mode' => 'point', 'start' => 1090], ['status' => 'proposed']);
         $period($person, ['mode' => 'point', 'start' => 900], ['status' => 'rejected']);
         $period($person, ['mode' => 'point', 'start' => 1095], ['period_certainty' => 'probable']);
+        // nor do the place of a birth or a death with the year a biography gives it, nor the place the person was from:
+        // they are no stretch of the life (step 14.358)
+        $period($person, ['mode' => 'point', 'start' => 1098], ['kind' => 'death']);
+        $period($person, ['mode' => 'point', 'start' => 990], ['kind' => 'birth']);
+        $period($person, ['mode' => 'point', 'start' => 1099], ['kind' => 'origin']);
         // a period after the death, and one before the birth: conflicts of the person's own dates
         $dead = $this->person('شخص آزمایشی دوره پس از وفات');
         DB::table('people')->where('id', $dead->id)->update(['death_year_hijri' => 1020, 'death_from' => 1020, 'death_to' => 1020, 'birth_year_hijri' => 1010]);
         $period($dead, ['mode' => 'span', 'start' => 1000, 'end' => 1030]);
+        // a biography's year of death two years off the record's is no conflict of a period
+        $near = $this->person('شخص آزمایشی وفات زندگی‌نامه');
+        DB::table('people')->where('id', $near->id)->update(['death_year_hijri' => 1240, 'death_from' => 1240, 'death_to' => 1240]);
+        $period($near, ['mode' => 'point', 'start' => 1242], ['kind' => 'death']);
 
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
 
@@ -128,6 +137,8 @@ class EstimateDatesCommandTest extends TestCase
         $this->assertSame([['birth', 1010, 'period', 1000, 10], ['period', 1030, 'death', 1020, 10]],
             $conflicts->map(fn ($c) => [$c->a_field, (int) $c->a_from, $c->b_field, (int) $c->b_to, (int) $c->gap])->all());
         $this->assertSame(['دوره‌ای از زندگی پیش از تولد', 'دوره‌ای از زندگی پس از وفات'], \App\Models\DateConflict::whereIn('id', $conflicts->pluck('id'))->orderBy('a_field')->get()->map->label->all());
+
+        $this->assertSame(0, DB::table('date_conflicts')->where('rule', Loader::RULE_PERIOD)->where('a_id', $near->id)->count());
 
         // the pages that show a conflict take the new field: the person's own page, and the panel's list and queue
         $this->get(route('people.show', $person))->assertOk()->assertSee('زنده در ۱۰۴۰ ق');

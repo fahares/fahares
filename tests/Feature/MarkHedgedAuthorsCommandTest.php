@@ -69,4 +69,35 @@ class MarkHedgedAuthorsCommandTest extends TestCase
         $this->assertNull($work->fresh()->description);
         @unlink($file);
     }
+
+    /** Step 14.351: «سید احمد (؟)», a doubt written after the name, goes to the author row and leaves the name. */
+    public function test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name()
+    {
+        config(['scout.driver' => 'collection']);
+        $alone = Person::create(['name' => 'میرزا صادق آزمایشی (به احتمال)', 'normalized_name' => 'میرزا صادق آزمایشی (به احتمال)', 'slug' => 'sadeq-' . uniqid()]);
+        $shared = Person::create(['name' => 'سید احمد آزمایشی (؟)', 'normalized_name' => 'سید احمد آزمایشی (؟)', 'slug' => 'ahmad-' . uniqid()]);
+        $work = fn ($person, $page) => Work::create(['primary_title' => 'اثر آزمایشی تردید', 'clean_title' => 'اثر آزمایشی تردید', 'slug' => 'hedge-' . uniqid(),
+            'volume_number' => 99, 'page_start' => $page, 'author_id' => $person->id, 'author_name' => $person->name]);
+        $one = $work($alone, 1);
+        $two = $work($shared, 2);
+        $three = $work($shared, 3);
+
+        $this->artisan('fahares:mark-hedged-authors', ['--apply' => true])->assertSuccessful();
+
+        $row = fn ($w) => DB::table('work_people')->where('work_id', $w->id)->where('role', 'author')->first();
+        $this->assertSame(['probable', 'به احتمال'], [$row($one)->certainty, $row($one)->hedge_raw]);
+        $this->assertSame('میرزا صادق آزمایشی', $one->fresh()->author_name);
+        $this->assertSame('میرزا صادق آزمایشی', $alone->fresh()->name);
+        // a person of two works keeps the name, and each work's row its certainty
+        $this->assertSame(['doubtful', '؟'], [$row($two)->certainty, $row($two)->hedge_raw]);
+        $this->assertSame('doubtful', $row($three)->certainty);
+        $this->assertSame('سید احمد آزمایشی', $two->fresh()->author_name);
+        $this->assertSame('سید احمد آزمایشی (؟)', $shared->fresh()->name);
+
+        DB::table('audit_logs')->whereIn('auditable_id', [$one->id, $two->id, $three->id, $alone->id])->where('action', 'corpus_update')->delete();
+        foreach ([$one, $two, $three] as $w) {
+            $w->delete();
+        }
+        Person::whereIn('id', [$alone->id, $shared->id])->delete();
+    }
 }

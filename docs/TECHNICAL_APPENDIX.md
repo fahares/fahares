@@ -13403,6 +13403,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `WorkCatalogueEntriesTest::test_a_row_that_is_only_the_base_texts_author_is_tied_to_the_person`.
 - **تمرین (`fahares_prod` محلی، ۳ آذر ۱۴۰۵):** نسخۀ نخست: «Entries: 535»، اجرای دوم «0 to add, 63 to remove» (۱۸۳ سطر `author` بی شخص، از جمله «آب حیات استرآبادی، محمد جعفر بن سیف الدین (1263-1198)»). پس از اصلاح، سه اجرا: «Entries: 279» بی تغییر رابطه؛ «63 to add»، «Entries: 91»؛ سپس همه صفر. پایان: `author` با شخص ۳۵۲ و بی شخص صفر؛ `linked/auto` ۱۷٬۸۹۲، `linked/model` ۶۱۳، `proposed` ۲۴۸، بی `link_status` ۱٬۸۱۳؛ صفحه‌ها «بی پیوند» ۲٬۰۵۹، «پدیدآور» ۳۵۲.
 - **اجرا در تولید، پس از استقرار (پشتیبان دو جدول رابطه پیش از آن):** `works:link-related --dry-run`، اجرا، و اجرای دوم؛ انتظار: رابطه‌ها بی تغییر در هر دو، و حدود ۳۵۰ سطر در اجرای یکم.
+- **اجرای پروداکشن (انتشار `d049582b`؛ ۳ آذر ۱۴۰۵، به تأیید کاربر):** ستون `linked_person_id` و `authorOnly()` پس از استقرار بودند. پشتیبان `work_relations` (۱۱٬۰۶۴ ردیف) و `work_text_relations` (۲۰٬۹۱۸ ردیف) در `../fahares-sources/backups/step13/step14_337_relations_backup.json` (md5 `7b66e668…`). `prod-run --wait`، سه اجرای پیاپی: `--dry-run` «10823 relations: 0 to add, 0 to remove»؛ اجرا «Saved: 0 added, 0 removed»، «Entries: 352 tied or untied»؛ اجرای دوم «Entries: 0 tied or untied». وارسی: `type = author` با `linked_person_id` ۳۵۲ و بی آن صفر؛ `linked/auto` ۱۷٬۸۸۵، `linked/model` ۶۱۳، `proposed/review` ۲۴۸، بی `link_status` ۱٬۸۲۰ (با ۲ یادداشت)؛ `work_relations` همان auto ۱۰٬۸۲۳، model ۲۳۶، suggestion ۵. `/works/641` در مرورگر: گروه «پدیدآور متن اصلی» در آغاز بخش، پیوند به `/people/4430`.
 
 ### گام ۱۴.۳۳۸: بریدن «انجام» و یادداشت‌های v2.8.0
 
@@ -13412,6 +13413,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`fankha_v2_copy_notes_export.py --empty` (corpus):** نسخۀ جفت‌شده‌ای که یادداشتی ندارد با `notes: []` نوشته می‌شود. خروجی کامل ۳۲۱٬۳۸۸ نسخه و ۳۴۶٬۷۷۰ یادداشت؛ پروندۀ سایت تنها نسخه‌های ناهمسان: `copy_notes_step14_338.jsonl.gz`، ۴۳۷ سطر.
 - **تمرین روی `fahares_prod`:** `rebuild-copies` «write 30» و سپس «already»؛ `import-copy-notes` «changed 436, same 1»، «Wrote 514 notes of 436 copies»، سپس «same 437».
 - **آزمون:** `ImportCopyNotesCommandTest::test_an_empty_list_removes_the_copys_notes_unless_an_editor_typed_one`.
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، سپس `rebuild-copies` (۳۰)، `import-copy-notes` (۴۳۶ نسخه، ۵۱۴ یادداشت) و `index-note-types --apply`.
 
 ### گام ۱۴.۳۳۹: `Insights::anonymous()`
 - **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت آثار ستون `author_named` دارد (`author_name` ناتهی).
@@ -13488,3 +13490,260 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `composition` (عنوان، مؤلف، `date`): تنها اگر `composition_date_raw` همان `date` باشد. `SuggestionApplier::apply` روی `composition_date_raw` با مقدار تهی؛ قلاب مدل `composition_year_hijri` و ستون‌های بازه را هم خالی می‌کند.
 - **تمرین روی `fahares_prod`:** «2 changed»، اجرای دوم «2 already right»؛ فایل گام ۱۴.۳۴۱ همچنان «6 already right». شخص تازه «رضاخان سیاوشی». پس از `estimate-dates --apply` هر پنج ناسازگاری مستقیم این دو رکورد رفت (دو تا از نسخۀ ملک، سه تا از «الارث»).
 - **آزمون:** `FixWrongLinksCommandTest` (۲).
+### گام ۱۴.۳۴۲: `person_lives_step14_342_fuqaha.json`
+
+- **صافی (`blocker.py . fuqaha`):** ۶٬۲۹۵ مدخل بی‌پیوند؛ ۲٬۳۸۴ با نامزد (با ۲۱۴ مدخلِ پیونددار) و پس از کنار رفتن ارجاع‌ها و پیونددارها ۲٬۱۸۵ مدخل در ۴۴ دسته. سرعنوان‌های این منبع بیشتر شهرت‌اند («الزَّنجاني»، «العلقمي») و نام کامل پس از سال‌ها در آغاز متن می‌آید؛ زنجیرۀ دوم نام در `blocker.py` همین را می‌خواند.
+- **داوری:** ۴۴ زیرعامل Sonnet، `brief.txt` با نام منبع. ۱٬۱۳۶ پیوند (۵۲٪ مدخل‌ها)، ۱٬۰۴۹ «هیچ‌کدام»؛ ۱٬۱۲۷ شاهد عیناً در متن.
+- **`build.py fuqaha 14.342 <file>`:** `person_twice 6`، `dropped_second_entry 6`؛ ۱٬۱۳۰ پیوند. یک پیوند نادرستِ نمونۀ دستی (`heravi-mohammad-ebn-e-yusof-12331`، مدخل `284#1` جلد ۱۰) دستی برداشته شد: ۱٬۱۲۹ پیوند، ۹۴۶ با ۹۰ به بالا.
+- **تمرین (`fahares_prod`):** `created 1126`، `exists 4`؛ اجرای دوم `exists 1130`؛ سپس سطر همان پیوند نادرست از کپی محلی پاک شد (۱٬۱۲۵ سطر `name_llm`: ۹۴۴ با ۹۰ به بالا و ۱۸۱ زیر آن).
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_342_fuqaha.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_342_person_lives_before.jsonl.gz` (۲۱۹ سطر، md5 `0f870725…`). اجرای آزمایشی و `--apply` هر دو `created 1123`، `exists 4`، `has_life 2`؛ اجرای دوم `created 0`، `exists 1127`. سطرهای اشخاص در این منبع: ۱٬۳۴۲ (۱٬۱۲۳ با `name_llm`، ۹۴۳ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۳٬۸۵۷ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۴۳۵. صفحۀ `/p/19106` در سایت دیده شد (۲۰۰، با نام منبع).
+
+### گام ۱۴.۳۴۳: `Insights::librarySubjects()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v20`. `library_subjects`: `items` (کتابخانه با `id, key, name, city, copies` و تا سه `subjects`: `id, name, count, share, overall, ratio`)، `subjects` (همان ردیف با `library`)، `copies`، `libraries`.
+  - `share` = نسخه‌های موضوع در کتابخانه بر نسخه‌های موضوع‌دار کتابخانه؛ `overall` = همین در همۀ کتابخانه‌های دامنه (کتابخانه‌های کوچک هم در مخرج هستند)؛ `ratio` = نسبت این دو. نسخۀ اثری با دو موضوع اصلی در هر دو شمرده می‌شود و در اندازۀ کتابخانه یک بار.
+  - آستانه‌ها: `specialty_min_copies` = ۳۰۰، `specialty_min_cell` = ۳۰، `specialty_libraries_shown` = ۲۰، `specialty_skip_subjects` = متفرقه و گوناگون.
+- **نما:** `charts/library-subjects.blade.php`، در `insights.topics.libraries` پس از `libraries`؛ در دامنۀ یک کتابخانه، موضوع یا اثر نمی‌آید.
+- **جدول‌ها:** `library-subjects` و `subject-libraries`.
+- **آزمون:** `InsightsLibrarySubjectsTest` (در دامنۀ یک مؤلف با سه کتابخانه).
+
+### گام ۱۴.۳۴۴: `Insights::catalogers()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون `cataloger_id` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v21`. `catalogers`: `items` (`id, key, name, death, count, share, libraries, volumes`؛ `insights.catalogers_shown` = ۱۵)، `catalogers`، `counted`، `unknown`، `coverage`، `top_five`.
+- **نما:** `charts/catalogers.blade.php`، در `insights.topics.libraries` پس از `sources`. جدول داده: `catalogers`.
+- **آزمون:** `InsightsLibrarySubjectsTest::test_cataloguers_are_ranked_by_the_copies_they_described`.
+- **زمان هر رقم (رونوشت محلی، بار دستگاه ۶ تا ۷):** `open` ۱۳٫۹ ثانیه (ساخت جدول موقت نسخه‌ها بی ستون‌های ابعاد ۸٫۹ تا ۹٫۴ ثانیه و با آن‌ها ۱۳ ثانیه)، `topAuthors` ۱٫۱، `formats` ۴٫۴، `autographs` ۳٫۲، `librarySubjects` ۳٫۵، `catalogers` ۰٫۵؛ برای سنجش: `scribes` ۱٫۳، `sizes` ۱٫۴، `libraries` ۰٫۷.
+
+### گام ۱۴.۳۴۵: `WorkCatalogueEntries::several()`، `searchTitle()` و پیوند جستجو
+- **[WorkCatalogueEntries](../app/Support/WorkCatalogueEntries.php):** `several($text)`: کمانکی با «عنوان»، «ناشناس» یا «همراه» (`tie` همین را برای `many` می‌خواند). `searchTitle($text)`: بخش پیش از نخستین «؛» یا «=»، و برداشتن کمانک‌های پایانی تا جایی که هست («آداب المریدین (ترجمه) (سه ترجمه ناشناس)» ← «آداب المریدین»). `page()`: سطر `unlinked` که `several` است کلید `search` دارد.
+- **[record-relations](../resources/views/components/record-relations.blade.php):** مورد با `search`: متن فهرست و پیوند `route('search', ['type' => 'works', 'scope' => 'titles', 'q' => …])` با عنوان «جستجوی این عنوان»؛ برچسب «بی پیوند به رکورد اثر» ندارد.
+- سطرِ «چند اثر» که دور یکم `tie` به تنها اثرِ مرتبطِ هم‌عنوان بسته، پیونددار می‌ماند و این نمایش را ندارد.
+- **آزمون:** در `WorkCatalogueEntriesTest::test_entries_of_one_title_are_tied_by_their_author`.
+- **سنجش (رونوشت محلی، ۳ آذر ۱۴۰۵):** `page()` روی همۀ آثار: `search` ۵۴۸، بی آن ۱٬۵۱۱، `authors` ۳۵۲. جستجوها در `https://fahares.net/search?type=works&scope=titles&q=…` دیده شدند؛ `/api/search` فقط پیشنهاد می‌دهد و برای شمارش به کار نیامد.
+
+### گام ۱۴.۳۴۶: تجزیه‌گر v2.9.0
+
+- **`fahares-corpus/scripts/fankha_parser_v2.py` (کامیت `8790e72`):** در `parse_copy()`، هنگام مرور یادداشت‌های `remark`: `IE_IN_BODY` (`^(آغاز|انجام|پایان|آخر)( نسخه|موجود|کتاب|متن)?: متن`). مقدار اگر با ««» آغاز شود باید با «»» پایان یابد و درست یک جفت گیومه داشته باشد؛ بی گیومه نباید ««»، «»»، برچسب «آغاز/انجام/پایان [N]:» یا آغاز «برابر» داشته باشد. اگر `c[side]` تهی است، مقدار دست‌کم هشت نویسه است و `IE_BARE_PROSE` در آغازش نیست، `{text, same_as_work: false}` می‌شود و یادداشت برداشته می‌شود.
+- **سنجش با ۲.۸.۰ (`scratch/fankha_v2_280`):** ۳۶ نسخه؛ `explicit` ۳۲، `incipit` ۶؛ هیچ فیلد دیگری.
+- **پرونده‌ها:** `fankha_changed_columns_step14_346.json` (۱۸ رکورد: ۶ «انجام» پرشده از `fankha_v2_changed_columns_export.py`، و ۱۲ برش آغاز یا انجام با همان روش گام ۱۴.۳۳۸)؛ `copy_notes_step14_346.jsonl.gz` (۳۷ سطر).
+- **تمرین روی `fahares_prod`:** `rebuild-copies` «write 18» و سپس «already 18»؛ `import-copy-notes` «changed 36, same 1» و سپس «same 37».
+
+### گام ۱۴.۳۴۷: `fankha_v2_description_dates_export.py`
+
+- **`fahares-corpus/scripts/fankha_v2_description_dates_export.py --out FILE --step N`:** آثار فنخای سایت که در شرحشان «تألیف»، «تاریخ ترجمه»، «به امر»، «اهدا» و مانند آن هست (۸٬۳۳۸). جفت‌کردن: پسوند `-v{جلد}-{شماره}` نشانی اگر `letters()` عنوان‌ها یکی باشد (۵٬۴۸۹)، وگرنه تنها اثر v2 با همان `(جلد، page_start، عنوان)` (۲٬۳۹۸)؛ ۴۵۱ اثر جفت نشدند.
+- **سطرها:** `DATE` (`(تاریخ|سال|زمان) تألیف` یا `تاریخ ترجمه`، با یا بی «:»، و «؛ محل تألیف: …» اختیاری) وقتی `composition_date_raw` سایت تهی و `tight(مقدار) == tight(v2.composition.date)`؛ محل تنها اگر `composition_place` سایت تهی و برابر v2 باشد، وگرنه کل سطر می‌ماند. `DEDICATION` («به امر»، «به دستور»، «به نام»، «به درخواست»، «اهداء [به]»، «تقدیم به») وقتی `dedication` سایت تهی و حروف مقدار در `v2.dedication` باشد. شرط پایانی: `letters(باقی شرح) == letters(v2.description)`.
+- **خروجی:** `work_updates` برای `fahares:add-corpus-works` (`{work_slug, v2, id, changes: {description, composition_date_raw, composition_place?, dedication?}}`). `database/data/fankha_description_dates_step14_347.json`: ۱۹۸ رکورد.
+- **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
+- **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان ۱۹۸ اثر؛ `add-corpus-works` «update 198» و سپس «update 0».
+
+### گام ۱۴.۳۴۸: `Insights::completeness()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v22`. ثابت `COMPLETENESS`: کلید هر داده با نام و شرط آن. `completeness`: `copies`، `fields` (`key, name, count, share`)، `absent` (`date` و `scribe`: `stated`, `silent`)، `libraries` (`id, key, name, city, count, shares, mean`؛ `insights.completeness_libraries_shown` = ۲۰)، `library_count`، `fullest`، `barest`، `catalogers` (`insights.catalogers_shown`)، `volumes` (`id, title, count, shares, mean`؛ همۀ جلدها)، `min_copies` (`insights.completeness_min_copies` = ۳۰۰).
+- **نما:** `charts/completeness.blade.php`، آخرین نمودار `insights.topics.libraries`. جدول‌های داده: `completeness`، `completeness-libraries`، `completeness-catalogers`، `completeness-volumes`.
+- **آزمون:** `InsightsCompletenessTest`.
+
+### گام ۱۴.۳۴۹: مرعشی ج ۳۶ و ۳۷ (نور)
+
+- **منبع:**
+  - `../fahares-sources/marashi/v36.pdf`: ۸۴۸ برگ JPEG، ۶۹۹×۱۰۲۴؛ برگ ۱ برگۀ اطلاعات نور است.
+  - `v37.pdf`: ۹۳۶ برگ، ۷۲۳×۱۰۲۴.
+  - MD5 هر دو در `MD5SUMS` ثبت است.
+  - بقیۀ دانلودها: `v32-pp1-149.pdf`، و در `beyond-fankha/`: `v39-pp1-157.pdf`، `v40`، `v41`، `v42`، `v43` (نخست `v43-a`؛ `v43-b-pp502-1040` نیمۀ دوم ج ۳۴ بود و در گام ۱۴.۳۵۴ به `../v34-b-pp502-1040.pdf` رفت)، `v44-a` و `v44-b-pp504-1034`. فهرست این پوشه در `CONTENTS.txt` است.
+- **نگاشت برگ به صفحه:**
+  - فاصله‌ها ثابت‌اند: ج ۳۶ `--offset 1` و ج ۳۷ `--offset 2`.
+  - سرصفحۀ برگ‌های ۲۰، ۱۲۰، ۴۲۴، ۵۶۰، ۷۹۰ و ۸۴۸ از ج ۳۶ خوانده شد، و برگ‌های ۱۲، ۱۲۰، ۲۲۰، ۳۳۰، ۴۶۸، ۷۰۰، ۷۹۰ و ۹۳۵ از ج ۳۷.
+- **ساخت تصویر:** `extract_edition_pages.py v{36,37}.pdf --code marashi --volume N --offset K --first 1 --last {847,934} --width 723 --mupdf`، با لاگ در `marashi/work/extract_v3{6,7}.log`.
+- **ردیف‌ها:** `km-mraashy-2` با شمارۀ جلد ۳۶ (ص ۱ تا ۸۴۷) و ۳۷ (ص ۱ تا ۹۳۴). `leaf_maps` تهی است.
+- **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` «0 created, 2 updated, 241 unchanged» داد.
+- **سنجش کور:** ج ۳۶ ص ۱۳۲، ۲۶۵، ۴۶۱ و ۴۷۹ (نسخه‌های 14299، 14362/6، 14472/7 و 14488/3). روی ص ۴۶۱ شمارۀ چاپی نسخۀ بالای صفحه 14477/6 است. ج ۳۷ ص ۶۷، ۲۳۱ و ۳۴۵ (نسخه‌های 14635، 14706 و 14754): پیش از هر کدام شمارۀ نسخۀ پیشین (14634/2، 14753) چاپ شده است.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار `86eb0e8e`. فایل داده در کانتینر با شاخه یکی بود (md5 `711eb6ce…`).
+  - تصویرها با `C=marashi N=4 send.sh` فرستاده شد. ۱٬۷۸۱ برگ رفت و دور دوم برگ جامانده‌ای نیافت. مالک پوشه‌های v36 و v37 `ubuntu:ubuntu` و سطح دسترسی ۷۷۵ شد.
+  - پشتیبان دو ردیف `catalog_volumes` و `source_volumes` (#۳۵۵ و #۳۵۷، `facsimile_code` تهی) در `../fahares-sources/backups/step13/before_step14_349_set_facsimiles_20261124_1617.json` است (md5 `cd247d2a…`).
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: اجرای آزمایشی پیش از آن «0 created, 2 updated, 241 unchanged» داد، خود اجرا هم همین را داد، و اجرای آزمایشی پس از آن «0 updated, 243 unchanged».
+  - در fahares.net نسخه‌های `/manuscripts/208969` (ج ۳۷ ص ۱۱۶)، `250197` (ج ۳۶ ص ۵۰۱)، `332391` (ص ۴۸۳) و `80964` (ص ۱۱) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
+
+### گام ۱۴.۳۵۰: `Insights::derived()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v23`. ثابت `DERIVED`: نوع‌های `work_relations` که شمرده می‌شوند با نامشان (`related` و `part` نه). `derived`: `types` (`key, name, made, texts`)، `items` (ردیف اثر با `count` و `types`؛ `insights.derived_shown` = ۱۵)، `lists` (برای هر نوعِ `insights.derived_lists`، `insights.derived_list_shown` = ۸ متن)، `texts`، `made`، `languages` (زبان آثار ترجمه)، `titled` (`works, linked, share`؛ تنها برای کل داده).
+- **دامنه:** `whereWork` روی `work_relations.related_work_id` (متن پایه). شمارش‌ها `COUNT(DISTINCT work_id)` است.
+- **نما:** `charts/derived.blade.php`، در `insights.topics.works` پس از `century-works`؛ در دامنۀ یک اثر پنهان. جدول‌های داده: `derived-types`، `derived-texts`، `derived-commentary`، `derived-gloss`، `derived-translation`، `translation-languages`.
+- **آزمون:** `InsightsDerivedWorksTest`.
+
+### گام ۱۴.۳۵۱: `MarkHedgedAuthorsCommand`، تردید پس از نام
+
+- **گذر تازه:** ردیف‌های `work_people` با نقش پدیدآور، `certainty` تهی و شخصی که نامش به کمانک پایان می‌یابد؛ `TRAILING` (`^نام\s*\((؟|شاید|به احتمال|احتمالاً|محتملاً|ظاهراً|گویا)\)$`). ردیف پیشنهاددار («left_reviewed») دست نمی‌خورد.
+- **`writeTrailing()`:** `certainty` با `PersonNameMatcher::certainty()` («به احتمال» → `probable`) و `hedge_raw`؛ `works.author_name` اگر همان نام شخص است؛ `people.name` و `normalized_name` تنها اگر شخص درست یک ردیف `work_people` دارد و در `manuscript_people` و `manuscripts.scribe_id` نیست. دو سطر ممیزی `corpus_update` (اثر و شخص)، و نمایه‌سازی هر دو.
+- **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
+- **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
+
+### گام ۱۴.۳۵۲: `person_lives_step14_352_rayhana.json`
+
+- **صافی (`blocker.py . rayhana`):** ۸٬۱۹۷ مدخل بی‌پیوند؛ `n0 5585`، `skipped 1986`، ۲٬۶۵۵ با نامزد؛ بازیابی روی پیوندهای موجود همان ۸۶٫۴٪ (ریحانه ۳۵ از ۴۳).
+- **`batches.py` و `build.py`:** `POINTER` با «خواهد آمد»، «رجوع شود»، «رجوع نمایند»، «مذکور شد»، «نگارش یافت»؛ ۱٬۹۵۱ مدخل در ۴۰ دسته.
+- **داوری:** ۴۰ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سال‌های به‌حروف و سرعنوان‌های لقبی. ۱٬۲۰۳ پیوند، ۷۴۸ «هیچ‌کدام»؛ ۱٬۲۰۲ شاهد عیناً در متن.
+- **`build.py rayhana 14.352 <file>`:** `person_twice 70`، `dropped_second_entry 73`؛ ۱٬۱۳۰ پیوند: ۹۶۹ با ۹۰ به بالا، ۱۴۶ بین ۸۰ و ۸۹، ۱۵ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 1127`، `exists 3`؛ اجرای دوم `exists 1130`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_352_rayhana.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_352_person_lives_before.jsonl.gz` (۳۴۱ سطر، md5 `0b37c97e…`). اجرای آزمایشی و `--apply` هر دو `created 907`، `exists 3`، `has_life 220`؛ اجرای دوم `created 0`، `exists 910`. سطرهای اشخاص در این منبع: ۱٬۲۴۸ (۹۰۷ با `name_llm`، ۷۷۴ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۴٬۰۴۴ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۶۰۰. صفحۀ `/p/22300` در سایت دیده شد.
+
+### گام ۱۴.۳۵۳: `ManuscriptCreator` و رکورد `collections`
+
+- **آنچه بی تغییر درست بود:** قلاب `saved` نسخه (`Collections::sync`) نسخۀ تازه را با `library_id` و `collection_key` به مجموعه پیوند می‌دهد، مجموعه را می‌سازد، می‌شمارد و مقدارها را برمی‌گیرد؛ `keySiblings()` با `update(['collection_key' => …])` همان قلاب را برای نسخۀ همراه اجرا می‌کند؛ یادداشت‌ها قلاب `ManuscriptNote` را دارند. `inheritsFromCollection('script_names' | 'lines')` برای نسخۀ پنلِ بی خط و سطر درست است.
+- **`Manuscript` قلاب `deleted`:** پس از `Collections::recount`، `Collections::derive` و `Collections::reindex` برای همان مجموعه. پیش‌تر مجموعه‌ای که با رسالۀ سوم «خط» مشترکش را از دست داده بود پس از حذف آن رساله بی مقدار می‌ماند، تا اجرای بعدی `fahares:build-collections`. برای مجموعه‌ای که بازشماری حذفش کرده `derive` کاری نمی‌کند.
+- **`ManuscriptCreator::collectionKey(Library, shelfmark, given)`** اکنون `[key, ?ManuscriptCollection]` می‌دهد: اگر `resolvedCollectionKey` با شمارۀ داده‌شده نخواند و `collections` ردیفی با آن `library_id` و `key` داشته باشد، نسخه با `collection_id` همان ردیف و `collection_pinned = true` ساخته می‌شود (همان کار `Admin\ManuscriptController::moveCollection`) و `collection_key` آن همان می‌ماند که شماره‌اش می‌گوید. بی چنین ردیفی، خطای پیشین. دو ستون در `new_values` سطر `create` می‌آیند.
+- **`Admin\ManuscriptController::create`:** کلید پیش‌فرض `$from->collection?->key` است و سپس زنجیرۀ پیشین؛ برای نسخۀ `collection_pinned` شمارۀ نسخه از پیش پر نمی‌شود. پیام موفقیت برای نسخۀ جای‌داده‌شده شمارۀ مجموعه را می‌گوید. راهنمای فیلد «شمارۀ مجموعه» همین را می‌گوید.
+- **آزمون:** `tests/Feature/Admin/NewManuscriptCollectionTest.php`، ۳ آزمون (پیوستن، خواندن از مجموعه و بازگشت مقدارها پس از بازگرداندن؛ مجلد تک‌شماره؛ فرم از نسخۀ جای‌داده‌شده). در `NewManuscriptTest` شمارۀ ردشونده «31313» شد، چون «12422» اکنون مجموعۀ موجود است.
+
+### گام ۱۴.۳۵۴: مرعشی ج ۳۴ و ۳۲، دلیل المخطوطات
+
+- **مرعشی ج ۳۴:**
+  - `marashi/v34-a.pdf`: ۵۰۳ برگ، ۷۱۷×۱۰۲۴. با `--offset 2 --first 1 --last 501` ساخته شد.
+  - `marashi/v34-b-pp502-1040.pdf`: ۵۴۱ برگ؛ برگ ۲۰ = ص ۵۱۹ و برگ ۵۴۱ = ص ۱۰۴۰. با `--offset -499 --first 502 --last 1040` ساخته شد.
+  - هر دو در یک پوشه (`marashi/v34`، ۱٬۰۴۰ برگه) و با `--width 723 --mupdf`.
+  - سنجش کور: ص ۱۳۰، ۱۸۱ و ۸۲۳ (13449/4، 13468/1، 13791/2). شمارۀ نسخۀ پیشین هر کدام روی همان صفحه چاپ شده است.
+- **مرعشی ج ۳۲:** `v32-pp1-149.pdf` (۱۴۹ برگ، برگ = صفحه) با `--offset 0 --first 3 --last 149`. برگ ۱ برگۀ اطلاعات نور است. برای صفحه‌های پس از ۱۴۹، `SourceEntry::viewer()` برگه نمی‌دهد (گام ۱۴.۳۲۵).
+- **دلیل المخطوطات:**
+  - `docibox/دليل المخطوطات - الاول - 1397 [1111774].pdf`: ۳۴۳ برگ، ۱۸۴۳×۲۶۰۵ با ۶۰۰ dpi؛ برگ = صفحه + ۴ (سرصفحۀ برگ‌های ۳۱، ۱۵۰، ۳۰۰ و ۳۳۵).
+  - با `--code dalil-makhtutat --volume 1 --offset 4 --first 1 --last 339 --width 1100 --mupdf` ساخته شد.
+  - ردیف آن `library_slug` تهی دارد و به #۷۰۹ «دلیل المخطوطات - جلد 1» می‌خورد.
+- **کنار رفته‌ها:** خزانه‌ها 2118 (رضوی ج ۲) PDF متنی بازتایپ است. خزانه‌ها 2108 (دلیل المخطوطات) هم بازتایپ است. داکی‌باکس 1276469 (کاشان) را فنخا تنها «ف مخ» ارجاع می‌دهد.
+- **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` سه ردیف تازه را «update» نشان داد.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار `fb13fecf`.
+  - تصویرها پیش از انتشار با `send.sh` فرستاده شد: `marashi` ۱٬۱۸۷ برگ و `dalil-makhtutat` ۳۳۹ برگ. دور دوم برگ جامانده‌ای نیافت. مالک پوشه‌ها `ubuntu:ubuntu` و سطح دسترسی ۷۷۵ شد.
+  - پشتیبان سه ردیف `catalog_volumes` و `source_volumes` (#۹۶، #۲۷۶، #۷۰۹) در `../fahares-sources/backups/step13/before_step14_354_set_facsimiles_20261124_1656.json` است (md5 `e19f81b3…`).
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:set-facsimiles'`: «0 created, 3 updated, 243 unchanged»، و اجرای آزمایشی پس از آن «0 updated, 246 unchanged».
+  - در fahares.net نسخه‌های `/manuscripts/169111` (ج ۳۴ ص ۶۴۶)، `315376` (ص ۲۹۵)، `239944` (ج ۳۲ ص ۴۸)، `330353` (ص ۱۶)، `114125` (دلیل ص ۱۰۴) و `58660` (ص ۹۶) نشانی برگۀ درست را دارند و برگه‌ها ۲۰۰ برمی‌گردانند. در `/tmp` کانتینر پرونده‌ای نماند.
+
+### گام ۱۴.۳۵۵: دور سوم تصمیم‌های `related_works_model_decisions_20261121.json`
+- **یافتن:** برای هر سطر بی‌پیوند (نه «چند اثر»، نه پدیدآور و یادداشت) آثارِ همۀ پایگاه با کلید یکی از عنوان‌های مدخل و همان `authorKey`، نه فقط آثار مرتبط. روی رونوشت محلی: با پدیدآور ۵۶۳ بی نامزد، ۷۳ تک‌نامزد، ۲۰ دونامزد، ۱۶ با سه یا بیشتر؛ بی پدیدآور ۳۰۰ بی نامزد، ۱۲۸ تک‌نامزد، ۵۳ دونامزد، ۸۷ با سه یا بیشتر؛ ۵۴۱ «چند اثر»، ۳۰ ناخوانا.
+- **تصمیم‌ها:** ۴۸ ردیف با `round: 3`، `row` (شناسۀ سطر) و `entry` برابر همۀ متن سطر، تا `works:link-decisions` سطر را با متنش بیابد. پیوند «مدل» اثر را از سطری که قاعده‌ها به آن داده بودند می‌گیرد (`tie()`: اثرِ سطرِ ثابت مال مدخل دیگری نیست)، پس پس از `works:link-decisions` باید `works:link-related` اجرا شود. در تمرین محلی همین جابه‌جایی سطر «مکاتبات دوانی و دشتکی» را بی‌پیوند کرد و تصمیمش افزوده شد.
+- **جهت رابطه:** برای #۴۷۷۶ ← #۲۳۲۷ از سمت «وابسته به»ی #۴۷۷۶ تصمیمی نوشته نشد تا دو اثر دو رابطۀ وارونه نگیرند؛ آن سطر را قاعده‌ها بستند.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، `prod-run --wait`):** پشتیبان `work_relations` (۱۱٬۰۶۴) و `work_text_relations` (۲۰٬۹۱۸) در `../fahares-sources/backups/step13/step14_355_relations_backup.json` (md5 `449f8e84…`). اجرای یکم: `--dry-run` «656 entries: 43 to add», «261 relations: 25 to add», «3 proposals to add»؛ اجرا «Saved: 43 entries and 25 relations added», «Indexed 23 works again»؛ `works:link-related` «0 to add, 0 to remove», «Entries: 7 tied or untied» و بار دوم صفر. اجرای دوم (دو تصمیم #۲۴۹۰۱): «658 entries: 2 to add», سپس `works:link-related` صفر. وارسی پس از اجرای یکم: بی `link_status` ۲٬۱۳۴، `linked/auto` ۱۷٬۸۷۸، `linked/model` ۶۵۶، `proposed/review` ۲۵۰؛ `work_relations` auto ۱۰٬۸۲۳، model ۲۶۱، suggestion ۵.
+- **پیکره:** commitهای `3290e77` و پس از آن در `fahares-corpus` (push نشده).
+- **دور چهارم (`round: 4`، ۳۹ ردیف، `kind` «one work of the title and author»):** تصمیم دور یکمِ #۵۵۹۱۳ «شرح اللمع فی الحساب» ← #۴۱۲۸۱ به `unsure` برگشت (کلید آن مدخل، بی نام پدیدآورِ بی‌تاریخ، به سطرِ «دری» می‌خورد). اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر): پشتیبان `step14_355_relations_backup_round4.json` (۱۱٬۰۸۹ و ۲۰٬۹۱۸ ردیف، md5 `e2164f91…`)؛ `--dry-run` «696 entries: 39 to add, 1 to remove», «293 relations: 32 to add»؛ اجرا «Saved: 39 entries and 32 relations added, 1 and 0 removed», «Indexed 32 works again»؛ `works:link-related` «0 to add, 0 to remove», «Entries: 12 tied or untied» و بار دوم صفر. وارسی: بی `link_status` ۲٬۰۸۵، `linked/auto` ۱۷٬۸۸۷، `linked/model` ۶۹۶، `proposed/review` ۲۵۰؛ `work_relations` auto ۱۰٬۸۲۳، model ۲۹۳، suggestion ۵. پیکره: commit `a5df188`.
+
+### گام ۱۴.۳۵۶: `fahares:clean-scribe-names`
+
+- **دسته‌بندی (اسکریپت یک‌باره، روی ۱٬۰۶۳ نامزد گام ۱۴.۳۵۱):** به ترتیب: برچسب «کاتب:»/«کا:» (با دونقطه؛ «کاتب دیوان تفرشی» لقب است)؛ خط مؤلف (`(= )?(به خط|بخط|خط)? (خود )?(مؤلف|مصنف|ناظم|شارح|مترجم|جامع|گردآورنده|شاعر|محشی)`)؛ تردیدِ آغاز نام؛ کمانک پایانی پس از بخشی که نام‌مانند است (`namelike`: بی فعل، رقم و نشانه، ۱ تا ۱۴ واژه، نه با آغاز جمله‌وار)؛ تاریخ چسبیده («…، تا: 1152ق»، «…، 1235ق»)؛ توضیح بی کمانک پس از تردید؛ و «متن» تنها با نشانه‌های بی‌ابهام («به خط»، «نونویس»، «نسخه»، «نوشته»، «چند»، «مختلف»، «عصر مؤلف»، «برای»، «شاگرد» و مانند آن). خط مؤلفِ همراه تردید «متن» می‌ماند، چون نسخه برای تردید ستونی ندارد.
+- **پروندۀ تصمیم:** `database/data/scribe_names_step14_356.json`، `{items: [{name, action: rename|text|autograph, kind, new_name?, note?}]}`، ۸۱۷ قلم.
+- **`app/Console/Commands/CleanScribeNamesCommand.php`:** `Person::where('name', …)`؛ کنار می‌رود اگر ردیف `manuscript_people` با نقشی جز کاتب، `work_people`، `works.author_id` یا `catalogers` داشته باشد.
+  - `rename()`: یادداشت به `note` ردیف‌های کاتب او افزوده می‌شود (اگر از پیش در آن نیست)؛ `scribe_name` نسخه‌هایی که همان نام کهنه را دارند؛ `people.name` و `normalized_name`؛ سطر ممیزی شخص. سپس `sameScribe()` و در صورت یافتن، `PersonMerger::merge(…, keepPrintedNames: true)`.
+  - `text()`: ردیف‌ها `person_id` تهی و `name` همان متن؛ `scribe_id` تهی؛ `RecordRemover::remove()` با `redirect_work_id` اثرِ نخستین نسخه.
+  - `autograph()`: ردیف‌ها حذف، `is_autograph = 1`، `scribe_id` تهی، `is_bika = 0`، `scribe_name` تهی اگر همان متن بود؛ سطر ممیزی نسخه؛ حذف شخص.
+  - پایان: `Person::recountMany` و نمایه‌سازی اشخاص و نسخه‌ها.
+- **تمرین روی `fahares_prod`:** «rename 670, text 139, autograph 7, copies 1053, merged 30»؛ ۱۴۶ سطر `remove` و ۳۰ سطر `merge` در ممیزی؛ اجرای دوم «no such person 816».
+- **آزمون:** `tests/Feature/CleanScribeNamesCommandTest.php` (۲ آزمون).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان، `mark-hedged-authors --apply`، `clean-scribe-names --apply`، `link-autograph-scribes --sync-search`.
+
+### گام ۱۴.۳۵۷: ادغام بروجردی
+
+- **پیش از ادغام:**
+  - کتابخانۀ #۳۷ `km-mossh-ayh-allh-brogrdy-37` (۷۹۵ نسخه): منبع #۱۰۰۰۹۷ `catalogue-60c781631af7` با جلدهای #۵۳۰ و #۵۳۱، بی‌تصویر.
+  - کتابخانۀ #۳۳۷ `km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337` (۸۷ نسخه): منبع #۱۰۰۱۷۸ `catalogue-fc87bea439f2` با جلدهای #۶۷۴ و #۶۷۵، با کد `borujerdi` و MTIF 23991 و 23992 (گام ۱۴.۳۲۰).
+  - پروندۀ کارت حافظه `8428 - فهرست نسخه های خطی کتابخانه مؤسسه آیة الله بروجردی.pdf` (۲۱۷ برگ، دفتر دوم، برگ = صفحه − ۲۵۰) همان چاپ است و به کار نرفت.
+- **`database/data/catalog_duplicates_step14_357.json`:** فقط همین یک گروه کتابخانه است، تا `volume_fixes` پروندۀ اصلی دوباره اجرا نشود. `LibraryMerger` نسخه‌ها و جلدهای #۳۳۷ را به #۳۷ می‌برد و ادغام را در `audit_logs` ثبت می‌کند.
+- **`sources:merge-split --group=catalogue-fc87bea439f2,catalogue-60c781631af7 --only`:**
+  - کد نخست می‌ماند.
+  - جلد ۱ و ۲ منبع کنارگذاشته (#۵۳۰ و #۵۳۱) هم‌شمارۀ #۶۷۴ و #۶۷۵ هستند. ۴۹۲ و ۳۰۳ مدخل آن‌ها، همراه نسخه‌ها، صفحه‌ها و فهرست‌نگاران، به جلد ماندگار رفتند و جلد کنارگذاشته پاک شد.
+  - کد منبع کنارگذاشته در `metadata.merged_codes` می‌ماند و نشانی‌اش هدایت می‌شود.
+- **`catalog_facsimiles.json`:** `library_slug` دو ردیف `borujerdi` از `…-337` به `km-mossh-ayh-allh-brogrdy-37` تغییر کرد. پس از ادغام، `set-facsimiles` آن‌ها را «unchanged» می‌یابد.
+- **تمرین روی `fahares_prod`:**
+  - `merge-duplicates`: «369 → 368 libraries».
+  - `merge-split`: هر دو جلد ادغام شدند.
+  - پس از آن جلد #۶۷۴ ۵۶۳ نسخه دارد، و همین شمار مدخل و همین شمار `manuscript_catalog_references` (۵۶۰ مدخل در ص ۸ تا ۲۵۳). جلد #۶۷۵ ۳۱۸ نسخه دارد (۳۱۶ در ص ۲۵۶ تا ۴۶۶). هیچ مدخلی روی #۵۳۰ و #۵۳۱ نماند.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر):**
+  - انتشار با `edf8f303`. `catalog_duplicates_step14_357.json` در کانتینر بود.
+  - پشتیبان در `../fahares-sources/backups/step13/before_step14_357_borujerdi_merge_20261124_1719.json` است (md5 `d2a6a864…`). در آن آمده‌اند: کتابخانه‌ها، منبع‌ها و چهار جلد؛ `catalog_volume_cataloger` ۴ ردیف؛ `collections` کتابخانه‌ها ۱۲۹ ردیف؛ `manuscripts` ۸۸۳ ردیف (ستون‌های کتابخانه، جلد و فهرست‌نگار)؛ `manuscript_catalog_references` ۸۸۱ ردیف؛ `source_entries` ۸۸۱ ردیف (ستون‌های منبع، جلد و نسخه)؛ و بزرگ‌ترین شناسۀ `audit_logs` پیش از اجرا.
+  - `prod-run youthful-grothendieck-3b7ad8 -- 'php artisan catalogs:merge-duplicates --data=…'`: «369 → 368 libraries»، و اجرای آزمایشی پس از آن کتابخانه‌ای نیافت.
+  - `prod-run … -- 'php artisan sources:merge-split --group=catalogue-fc87bea439f2,catalogue-60c781631af7 --only'`: دو جلد ادغام شدند. اجرای آزمایشی پس از آن «No catalogue is held as several sources» داد، و `set-facsimiles --dry-run` «0 updated, 246 unchanged».
+  - پس از اجرا: جلد #۶۷۴ ۵۶۳ نسخه و ۵۶۳ مدخل دارد (۵۶۰ روی برگه)، و جلد #۶۷۵ ۳۱۸ نسخه و ۳۱۸ مدخل (۳۱۶ روی برگه).
+  - در fahares.net نسخه‌های `/manuscripts/248990` (ج ۱ ص ۱۰۴)، `134703` (ص ۲۱۹)، `284863` (ص ۷۹) و `229276` (ج ۲ ص ۳۸۸) نشانی برگۀ `borujerdi` را دارند. در `/tmp` کانتینر پرونده‌ای نماند.
+
+### گام ۱۴.۳۵۸: `Loader::periods` بی `PLACE_KINDS`، و سنجش قاعدۀ `period` روی پروداکشن
+
+- **داده (۳ آذر ۱۴۰۵، پرس‌وجوهای سبک روی پروداکشن):** `person_periods`: ۲٬۱۶۹ تأییدشده، ۲۴۰ ردشده، ۱۵۸ منتظر. تأییدشده‌های سال‌دار به تفکیک نوع: وفات ۵۶۳، تولد ۳۲۷، اقامت ۳۷، سفر ۲۰، تحصیل ۶، منصب ۱، تدریس ۱.
+- **قاعدۀ `period` پیش از این گام:**
+
+| | شمار | از کدام نوع |
+|---|---:|---|
+| تناقض مستقیم `period>death` | ۱۶ | همه «وفات»، فاصله ۱ یا ۲ سال |
+| تناقض مستقیم `birth>period` | ۹ | همه «تولد»، فاصله ۱ یا ۲ سال |
+| تناقض نامستقیم | ۱۴ | بیشتر از همان‌ها |
+| تخمین تولد (`to_rule = period`) | ۹۳ | ۸۴ «تولد»، ۲ «وفات»، ۷ «اقامت» |
+| تخمین وفات (`from_rule = period`) | ۲ | هر دو «وفات» |
+
+- **چرا زیان داشت:** `Engine::solve` دو بذرِ هر تناقض مستقیم را کنار می‌گذارد (quarantine)، هر قدر هم فاصله کم باشد. یادداشت صفحه و صف «تناقض تاریخ» فاصلۀ تا ۲ سال را نشان نمی‌دهند (`DateConflictNote::MIN_GAP`)، پس این تناقض‌ها دیده نمی‌شدند ولی تاریخ رکورد را از کار می‌انداختند.
+- **تغییر:** `->whereNotIn('kind', PersonPeriod::PLACE_KINDS)` در پرس‌وجوی `Loader::periods`.
+- **دقت پیشنهادهای ماشینی از روی داوری‌های ثبت‌شده** (گام‌های ۱۴.۲۹۸ و ۱۴.۳۱۱؛ داوری با مدل و بازبینی نشست، نه بازبین انسانی: `audit_logs.user_id` تهی و همه در چهار دقیقۀ جدا در ۳۰ آبان):
+
+| نوع | تأیید | رد | سهم تأیید |
+|---|---:|---:|---:|
+| اقامت | ۴۸۱ | ۶۷ | ۸۸٪ |
+| سفر | ۱۷۱ | ۳۵ | ۸۳٪ |
+| تحصیل | ۲۱۳ | ۱۶ | ۹۳٪ |
+| منصب | ۸۹ | ۱۲ | ۸۸٪ |
+| تدریس | ۴۰ | ۸ | ۸۳٪ |
+| تولد | ۴۰۱ | ۲۶ | ۹۴٪ |
+| وفات | ۵۷۵ | ۷۴ | ۸۹٪ |
+| خاستگاه | ۱۹۹ | ۲ | ۹۹٪ |
+
+  نوعِ ۱۶۸ تأییدشده را داور اصلاح کرده بود، پس سهمِ «نوع و شهر هر دو درست» از این کمتر است.
+- **کارِ نکرده:** `fahares:propose-life-periods` (اجرای خشک روی پروداکشن): ۸٬۵۹۶ مدخل، ۲٬۲۴۳ پیشنهاد تازه برای ۱٬۱۸۲ نفر (اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱). ثبت و داوری‌شان همان روند گام ۱۴.۳۱۱ را می‌خواهد.
+- **تست:** حالت‌های تازه در `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
+
+### گام ۱۴.۳۵۹: داوری پیشنهادهای تازۀ `fahares:propose-life-periods`
+
+- **ثبت (۳ آذر ۱۴۰۵، پروداکشن، زیر `prod-run`):** پشتیبان `step14_359_person_periods_before.jsonl.gz` (۲٬۵۶۷ ردیف، بیشترین شناسه ۳۰۰۷، md5 `c0fce011ec0404766b2a7808c09a647f`). `propose-life-periods --apply`: اقامت ۷۳۰، سفر ۴۱۶، وفات ۴۱۲، تولد ۲۶۳، تحصیل ۲۳۲، منصب ۹۲، تدریس ۷۷، خاستگاه ۲۱.
+- **داوری:** هر دسته را یک زیرعامل (Sonnet) با یک دستور یکسان خواند: سه پرسش، هشت نوع، سه رأی (`approve`، `reject`، `doubt`)، `place` به نگارش خود منبع، `year` فقط اگر در جمله یا متن پیرامون آمده و سال همان رویداد باشد، و `year_is` (`in` یا `from`). «مصر» و «الشام»ِ بی‌قرینه، جای «قیل»، و ناسازگاری سال‌های مدخل با شخص «تردید» می‌گیرند.
+- **رأی به تفکیک نوع پیشنهادشده:**
+
+| نوع پیشنهاد | تأیید | رد | تردید | نوع اصلاح‌شده | تأیید از داوری‌شده‌ها |
+|---|---:|---:|---:|---:|---:|
+| اقامت | ۶۲۱ | ۴۷ | ۶۲ | ۱۵۲ | ۹۳٪ |
+| سفر | ۳۷۱ | ۲۹ | ۱۶ | ۱۷۳ | ۹۳٪ |
+| وفات | ۳۵۸ | ۳۶ | ۱۸ | ۳ | ۹۱٪ |
+| تولد | ۲۳۷ | ۱۴ | ۱۲ | ۱ | ۹۴٪ |
+| تحصیل | ۱۹۷ | ۱۷ | ۱۸ | ۳۹ | ۹۲٪ |
+| منصب | ۷۱ | ۱۶ | ۵ | ۱۰ | ۸۲٪ |
+| تدریس | ۵۹ | ۱۳ | ۵ | ۴ | ۸۲٪ |
+| خاستگاه | ۱۸ | ۰ | ۳ | ۰ | ۱۰۰٪ |
+
+  پرشمارترین اصلاح‌ها: سفر به اقامت ۱۰۹ («ارتحل إلى … فأقام بها»)، اقامت به تحصیل ۶۹، سفر به تحصیل ۵۶، اقامت به سفر ۵۰.
+- **نمونۀ ردها:** مدخلِ هم‌نام؛ جمله دربارۀ پدر، استاد یا کس دیگری که در مدخل آمده؛ «مدینة (سبزوار)» که مدینه خوانده شده؛ «التفت» که تفت خوانده شده؛ «مشهد أبي حنيفة» در بغداد؛ کربلا در شعر.
+- **سال:** از ۶۱۴ سالِ تأییدها، رقمِ ۳۴۹ تا در متن بود و ۲۶۵ تا به حروف نوشته شده بود («سنة إحدى و سبعين و ستمائة»)؛ نمونۀ این دسته با متن خوانده شد.
+- **پروندۀ تصمیم‌ها:** ۱٬۹۲۱ ردیف (۱٬۷۴۹ تأیید، ۱۷۲ رد؛ ۵۹۶ سال‌دار). نوعِ تأییدها: اقامت ۵۳۰، وفات ۳۵۷، تولد ۲۳۸، تحصیل ۲۲۸، سفر ۲۲۷، تدریس ۸۵، منصب ۶۶، خاستگاه ۱۸. تکراری‌ها با کلید (شخص، نوعِ پس از اصلاح، `city`) در برابر ردیف‌های تأییدشدۀ پروداکشن و ردیف‌های پیشینِ همین پرونده کنار رفتند. `person_periods` قید یکتایی ندارد و پیش از این گام ۳۰ گروه تکراری تأییدشده داشت.
+- **فرمان:** `ReviewLifePeriodsCommand` تغییری نکرد؛ `reason` هر تصمیم در `audit_logs` می‌نشیند.
+- **اجرا (۳ آذر ۱۴۰۵):** پشتیبان `step14_359_person_periods_before_review.jsonl.gz` (۴٬۸۱۰ ردیف، md5 `451ea37554b6bae6b601225fde8e45ba`؛ پیش از اجرا ۲٬۴۰۱ منتظر، ۲٬۱۶۹ تأییدشده، ۲۴۰ ردشده). پروندۀ تصمیم‌ها با md5 `e8eddf079d77c1490f916550e250c42c` در دو سو یکی بود. خروجی: «approve 1749, reject 172, skipped 0, with_year 596, bad 0». `build-insights` در ۳۶٫۸ ثانیه.
+
+### گام ۱۴.۳۶۰: `person_lives_step14_360_kahhala.json`
+
+- **صافی (`blocker.py . kahhala`):** ۱۵٬۱۴۰ مدخل بی‌پیوند؛ `n0 11510`؛ ۴٬۲۰۹ با نامزد (با مدخل‌های پیونددار) و ۳٬۷۲۸ مدخل در ۷۵ دسته.
+- **داوری:** ۷۵ زیرعامل Sonnet، `brief.txt` با نام منبع و یک بند دربارۀ سطر تاریخ‌ها («514- 602 ه 1120- 1206 م»، «كان حيا») و «من تصانيفه». ۱٬۸۳۹ پیوند، ۱٬۸۸۹ «هیچ‌کدام»؛ ۱٬۸۳۴ شاهد عیناً در متن.
+- **`build.py kahhala 14.360 <file>`:** `person_twice 113`، `dropped_second_entry 119`؛ ۱٬۷۲۰ پیوند: ۱٬۴۰۵ با ۹۰ به بالا، ۲۶۴ بین ۸۰ و ۸۹، ۵۱ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 1691`، `exists 29`؛ اجرای دوم `exists 1720`.
+- **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_360_kahhala.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+
+### گام ۱۴.۳۶۱: `fankha_split_head_step14_361.json`
+- **پیکره:** `text/fankha/fankha_vol_13.txt` سطر ۱۸۴۱۳: «… = نامه اول به دوانی در موضوع جذر⏎⏎ <!-- page: 333 --> اصم / منطق، فلسفه / عربی» ← یک سطر با همان نشان. `scripts/fankha_parser_v2.py 13`: ۲٬۲۲۹ اثر و ۱۰٬۳۰۲ نسخه مثل پیش؛ اثر `v13-864`: `author`، `alt_titles[2]`، `subjects`، `languages`، `transliteration` و `description` (بی دو سطر پدیدآور) عوض شد؛ آثار پس از آن فقط `provenance.line_*`. JSON نسخۀ ۱ (`json/fankha`) از پیش با متن یکی نیست و ساخته نشد.
+- **فایل تصمیم:** `category` «leading_author»؛ `work_updates[0]`: `work_slug` `hl-shbh-gthr-alasm-v13-862`، `changes` برای `author_name`، `alternative_titles`، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text` (همان یکی‌شدن سطر)، `author` با `century: 10`، `subjects` و `languages`. مقدارهای `from` از رونوشت پروداکشن خوانده شد؛ فرمان اگر سایت مقدار دیگری داشته باشد آن ستون را نمی‌نویسد.
+- **تمرین محلی (`fahares_prod`):** بی `--apply` «Would add 0 works, fill 0 works and update 1»؛ با آن «Derived data of works: works=1»؛ بار دوم «update 0». `author_id` ۱۵۴۰، `subject_work` دو ردیف (۲۱ و ۳۷)، `language_work` یک ردیف.
+- **اجرای پروداکشن (۳ آذر ۱۴۰۵، به تأیید کاربر، `prod-run --wait`):** پشتیبان ردیف اثر، `subject_work`، `language_work` و ردیف شخص #۱۵۴۰ در `../fahares-sources/backups/step13/step14_361_work24901_backup.json` (md5 `3bc80257…`). بی `--apply` «update 1»؛ با آن «Derived data of works: works=1»؛ بار سوم «update 0». وارسی: `author_id` ۱۵۴۰، `subject_summary` «منطق، فلسفه»، `language_summary` «عربی»، دو ردیف `subject_work` و یک ردیف `language_work`. `/works/24901` در مرورگر: نام شخص با سال‌های ۸۲۸–۹۰۳، رده‌های فلسفه و منطق، سه عنوان دیگر.
+
+### گام ۱۴.۳۶۲: مقایسۀ سراسری و آزمون‌های بازگشتی
+
+- **`fankha_v2_db_compare.py` (corpus، کامیت `5e44eda`):** `related_work` و `commentaries_and_glosses` از `WORK_FIELDS` و `V1_WORK` برداشته شد (اکنون سطرهای `work_text_relations` هستند و مقایسه نمی‌شوند). هم‌ترازی آثار v2 با شماره‌های v1 (`align()`) دست نخورد؛ اسکریپت گام ۱۴.۳۴۷ که خودش با پسوند نشانی جفت می‌کرد جداست.
+- **اجرا:** `--out reports/fankha_v2_db_review11` (پوشۀ `reports` در git نیست): `diffs.jsonl` ۷۷٬۴۷۶ سطر، `report.md` و `report.json`.
+- **`tests/test_fankha_v2_cases.py`:** `physical()` یک سطر فیزیکی را با `parse_physical` می‌خواند و `copy()` یک نسخۀ کامل را با `parse_copy`. پنج کلاس: برچسب بی نشانه (۲.۴.۰)، تکۀ ادامۀ فیلد (۲.۵.۰)، کاتبان بعدی (۲.۶.۰)، ویرگول جابه‌جا (۲.۷.۰)، و سطر خود نسخه (۲.۸.۰ و ۲.۹.۰). موردهای وابسته به تصمیم مدل از متن واقعی فنخا گرفته شده‌اند.
+- **`continues()`:** پروندۀ تصمیم‌ها با `with` باز می‌شود (هشدار `ResourceWarning` در آزمون‌ها).
+
+### گام ۱۴.۳۶۳: `fahares:carry-life-years`
+
+- **`app/Console/Commands/CarryLifeYearsCommand.php`:** ردیف‌های `person_periods` با `status = approved`، `kind` تولد یا وفات و `period_from` پر، گروه‌شده بر شخص. برای هر شخص نخست وفات و سپس تولد سنجیده می‌شود، تا تولد با وفاتِ همان اجرا هم بخواند.
+- **`unfit()` (دلیل کنار ماندن):** «the rows differ»، «not one year»، «the life dates rule the year out» (`Person::isNoDeathYear`)، «the record has a death range» (`death_from` پر)، «does not fit the birth/death» (فاصلۀ کمتر از ۱۰ یا بیش از ۱۲۰ سال)، «the life dates give another birth» (عدد پیش از خط تیره در `life_dates_raw` قمری، حتی با «؟»)، «another century».
+- **ذخیره:** با `Person::save()`، پس قلاب `saving` ستون‌های `death_from`، `death_to`، `death_kind`، `century_hijri` و `century_from` را می‌سازد و نمایۀ جست‌وجو تازه می‌شود. `century_from` فقط وقتی دستی پر می‌شود که وفات سده را جلو ببرد و تولدی نباشد.
+- **ممیزی:** `old_values` و `new_values` شش ستون تاریخ را دارند، با `by = fahares:carry-life-years` و شناسۀ ردیف‌های دوره در `person_periods`.
+- **تمرین روی `fahares_prod`:** جدول `person_periods` رونوشت محلی با ۴٬۸۱۰ ردیف امروزِ پروداکشن جایگزین شد. اجرای آزمایشی و `--apply`: «birth years carried 139, death years carried 38»؛ اجرای دوم صفر. نمونه: #۱۳۲۹۸ («ق۱۳ قمری») تولد ۱۲۳۶، وفات ۱۳۰۴، سده ۱۳ تا ۱۴؛ #۲۶۲۱ (بی‌تاریخ) ۱۲۳۹ تا ۱۳۱۶.
+- **آزمون:** `PersonPeriodsTest::test_birth_and_death_years_of_approved_rows_are_carried_to_a_record_that_has_none`.
+

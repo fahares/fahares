@@ -2381,6 +2381,25 @@
   },
   {
    "library_slug": "km-mraashy-2",
+   "volume_number": 34,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و چهارم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 1040,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v34-a.pdf",
+      "marashi/v34-b-pp502-1040.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)، در دو پرونده؛ ص ۱ تا ۵۰۱: برگ = صفحه + ۲؛ ص ۵۰۲ تا ۱۰۴۰: برگ = صفحه − ۴۹۹",
+     "step": "14.354"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
    "volume_number": 35,
    "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و پنجم",
    "facsimile_code": "marashi",
@@ -2396,6 +2415,42 @@
      ],
      "note": "خزانه‌ها 4392؛ عکس موبایلی؛ برگ ۸۷ و ۸۸ عکس دوباره‌ی ص ۸۴ و ۸۵ است",
      "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 36,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و ششم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 847,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v36.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)؛ برگ = صفحه + 1",
+     "step": "14.349"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 37,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و هفتم",
+   "facsimile_code": "marashi",
+   "page_first": 1,
+   "page_last": 934,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v37.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)؛ برگ = صفحه + 2",
+     "step": "14.349"
     }
    }
   },
@@ -3811,6 +3866,24 @@
   },
   {
    "library_slug": "km-mraashy-2",
+   "volume_number": 32,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و دوم",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 149,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "marashi/v32-pp1-149.pdf"
+     ],
+     "leaf_maps": [],
+     "note": "نور (دانلود کاربر، تلگرام ۳ آذر ۱۴۰۵)؛ نسخۀ نور تنها ۱۴۹ برگ است؛ برگ = صفحه",
+     "step": "14.354"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
    "volume_number": 1,
    "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 1",
    "facsimile_code": "marashi-akasi",
@@ -4684,7 +4757,7 @@
    }
   },
   {
-   "library_slug": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+   "library_slug": "km-mossh-ayh-allh-brogrdy-37",
    "volume_number": 1,
    "title": "فهرست نسخه های خطی کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی - 1",
    "facsimile_code": "borujerdi",
@@ -4704,7 +4777,7 @@
    }
   },
   {
-   "library_slug": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+   "library_slug": "km-mossh-ayh-allh-brogrdy-37",
    "volume_number": 2,
    "title": "فهرست نسخه های خطی کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی - 2",
    "facsimile_code": "borujerdi",
@@ -4823,6 +4896,24 @@
      ],
      "note": "هارد اکسترنال ahamd (Binder2.pdf، ۵۰۹ برگ)؛ احمد منزوی، تهران ۱۳۸۸، از شمارۀ ۱ تا ۵۰۰؛ برگ = صفحه + ۱۷؛ نمایه از ص ۳۵۳ کنار ماند",
      "step": "14.333"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "دلیل المخطوطات - جلد 1",
+   "facsimile_code": "dalil-makhtutat",
+   "page_first": 1,
+   "page_last": 339,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/دليل المخطوطات - الاول - 1397 [1111774].pdf"
+     ],
+     "leaf_maps": [],
+     "note": "docibox 1111774؛ احمد حسینی، دلیل المخطوطات ج ۱، ۱۳۹۷ق؛ برگ = صفحه + ۴؛ فنخا گاه «دلیل المخطوطات کاشف الغطاء» می‌نویسد",
+     "step": "14.354"
     }
    }
   }

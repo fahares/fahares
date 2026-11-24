@@ -44,6 +44,10 @@ class InsightsNotes
         'formats' => 'آیا این همان قطع‌های رقعی و وزیری و رحلی است؟',
         'autographs' => 'آیا هر نسخۀ این شمار به‌راستی خط مؤلف است؟',
         'anonymous' => 'آیا اثر بی مؤلف یعنی مؤلفش ناشناخته است؟',
+        'librarySubjects' => 'آیا موضوع پررنگ، بیشترین نسخه‌های کتابخانه را دارد؟',
+        'catalogers' => 'چرا این آمار به کار خوانندۀ ارقام دیگر می‌آید؟',
+        'completeness' => 'آیا سهم پایین یعنی فهرست کم‌کاری کرده است؟',
+        'derived' => 'احتیاط.',
     ];
 
     private array $data;
@@ -63,7 +67,7 @@ class InsightsNotes
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
             [$reading, $examples] = $notes->$chart();
             $all[$chart] = ['reading' => $reading, 'lead' => self::LEADS[$chart], 'examples' => array_values(array_filter($examples))];
         }
@@ -489,6 +493,102 @@ class InsightsNotes
         return [[
             'فهرست راست سهم آثار بی مؤلف را در آثار هر موضوع نشان می‌دهد، از بیشترین. نمودار چپ همین سهم را در آثاری نشان می‌دهد که کهن‌ترین نسخۀ تاریخ‌دارشان از هر سده است. اثر بی مؤلف اثری است که فهرست برایش نام مؤلفی نیاورده است؛ اثری که نام مؤلف دارد ولی آن نام به رکورد شخصی پیوند نخورده، مؤلف‌دار شمرده شده است.',
             'نه همیشه. گاه مؤلف به‌راستی ناشناخته است، گاه نسخه آغاز و انجام ندارد و فهرست‌نگار نتوانسته اثر را بشناسد، و گاه نوشته از آغاز مؤلفی به معنای معمول نداشته است، مانند سند، دعا، جُنگ و بیاض. پس سهم بالا در یک موضوع بیشتر از سرشت نوشته‌های آن موضوع می‌گوید تا از کم‌کاری فهرست. سدۀ هر اثر هم سدۀ کهن‌ترین نسخۀ آن است، نه سدۀ تألیف.',
+        ], $examples];
+    }
+
+    private function librarySubjects(): array
+    {
+        $ls = $this->data['library_subjects'];
+        $ratio = fn ($v) => Fa::digits(str_replace('.', '٫', (string) $v));
+        $examples = [];
+        if (($first = $ls['items'][0] ?? null) && ($subject = $first['subjects'][0] ?? null)) {
+            $examples[] = 'در ' . $first['name'] . '، ' . self::pct($subject['share']) . ' نسخه‌ها از «' . $subject['name'] . '» است (' . self::n($subject['count']) . ' نسخه)، در حالی که سهم این موضوع در همۀ کتابخانه‌ها '
+                . self::pct($subject['overall']) . ' است؛ یعنی ' . $ratio($subject['ratio']) . ' برابر.';
+        }
+        $rows = array_merge(...array_map(fn ($l) => array_map(fn ($s) => $s + ['library' => $l['name']], $l['subjects']), $ls['items']) ?: [[]]);
+        if ($peak = self::top($rows, 'ratio')) {
+            $examples[] = 'بزرگ‌ترین نسبت این جدول از ' . $peak['library'] . ' است: «' . $peak['name'] . '» با ' . self::pct($peak['share']) . ' نسخه‌هایش، ' . $ratio($peak['ratio']) . ' برابر سهم همین موضوع در کل.';
+        }
+        if ($row = $ls['subjects'][0] ?? null) {
+            $examples[] = 'در فهرست دوم، «' . $row['name'] . '» بیشترین سهم را در ' . $row['library']['name'] . ' دارد: ' . self::pct($row['share']) . '، در برابر ' . self::pct($row['overall']) . ' در کل.';
+        }
+
+        return [[
+            'جدول نخست برای هر کتابخانه موضوع‌هایی را می‌آورد که سهمشان در نسخه‌های آن کتابخانه بیش از سهمشان در همۀ کتابخانه‌هاست، با همان نسبت. فهرست دوم از سوی دیگر می‌خواند: برای هر موضوع، کتابخانه‌ای که آن موضوع بیشترین سهم را در نسخه‌هایش دارد. روی نام موضوع بزنید تا آمار همان موضوع در همان کتابخانه را ببینید.',
+            'نه. موضوع پررنگ موضوعی است که کتابخانه بیش از دیگران از آن دارد، نه موضوعی که بیشترین نسخه‌اش را می‌سازد؛ ادبیات و فقه در بیشتر کتابخانه‌ها پرشمارترین‌اند و برای همین کمتر پررنگ می‌شوند. نسبت در کتابخانۀ کوچک با چند نسخه جابه‌جا می‌شود، پس شمار نسخه را هم ببینید. موضوع هر نسخه موضوع اثر آن است، و نسخه‌ای که اثرش موضوع ندارد در این شمارش نیست.',
+        ], $examples];
+    }
+
+    private function completeness(): array
+    {
+        $cp = $this->data['completeness'];
+        $by = array_column($cp['fields'], null, 'key');
+        $examples = [];
+        if ($cp['copies'] > 0) {
+            foreach (['date' => ['تاریخ کتابت', 'بی‌تا'], 'scribe' => ['نام کاتب', 'بی‌کا']] as $key => [$name, $word]) {
+                $examples[] = $name . ' ' . self::n($by[$key]['count']) . ' نسخه (' . self::pct($by[$key]['share']) . ') آمده است؛ فهرست ' . self::n($cp['absent'][$key]['stated'])
+                    . ' نسخه را «' . $word . '» خوانده و دربارۀ ' . self::n($cp['absent'][$key]['silent']) . ' نسخه چیزی نگفته است.';
+            }
+        }
+        if (($full = $cp['fullest']) && ($bare = $cp['barest'])) {
+            $examples[] = 'در میان ' . self::n($cp['library_count']) . ' کتابخانه‌ای که دست‌کم ' . self::n($cp['min_copies']) . ' نسخه دارند، میانگین هشت سهم در ' . $full['name']
+                . ($full['city'] ? '، ' . $full['city'] : '') . ' بیشترین است (' . self::pct($full['mean']) . ') و در ' . $bare['name'] . ($bare['city'] ? '، ' . $bare['city'] : '') . ' کمترین (' . self::pct($bare['mean']) . ').';
+        }
+
+        return [[
+            'میله‌ها می‌گویند فهرست‌ها برای چه سهمی از نسخه‌ها هر یک از هشت داده را نوشته‌اند. دو جدول همین سهم‌ها را برای بزرگ‌ترین کتابخانه‌ها و پرکارترین فهرست‌نگاران می‌آورند؛ هر خانه درصد نسخه‌هایی است که آن داده را دارند، و خانۀ پررنگ‌تر سهم بیشتر است. ستون «میانگین» میانگین سادۀ هشت سهم است.',
+            'نه. بسیاری از نسخه‌ها به‌راستی تاریخ یا نام کاتب ندارند، چون کاتب آن را ننوشته یا برگ پایانی افتاده است؛ فهرست این را با «بی‌تا» و «بی‌کا» می‌گوید. جای کتابت را هم کمتر کاتبی نوشته است. ولی شمار برگ، شمار سطر، ابعاد و خط را فهرست‌نگار خود می‌تواند ببیند و بنویسد، پس سهم پایین این چهار داده بیشتر از شیوۀ فهرست می‌گوید: فهرست مختصر، فهرست میکروفیلم و فهرست‌های کهن کمتر به آن‌ها پرداخته‌اند. آمار برگ، سطر، ابعاد و خط این صفحه را با همین سهم‌ها بخوانید.',
+        ], $examples];
+    }
+
+    private function derived(): array
+    {
+        $dv = $this->data['derived'];
+        $names = \App\Support\Insights::DERIVED;
+        $examples = [];
+        if ($first = $dv['items'][0] ?? null) {
+            $parts = [];
+            foreach ($first['types'] as $type => $n) {
+                $parts[] = self::n($n) . ' ' . $names[$type];
+            }
+            $examples[] = 'نخستین ردیف «' . $first['title'] . '»' . ($first['author'] ? ' از ' . $first['author'] : '') . ' است: ' . self::n($first['count']) . ' اثر بر پایۀ آن نوشته شده است (' . implode('، ', $parts) . ').';
+        }
+        if ($dv['made'] > 0) {
+            $examples[] = 'در این دامنه ' . self::n($dv['made']) . ' اثر بر پایۀ ' . self::n($dv['texts']) . ' متن نوشته شده است'
+                . (($type = $dv['types'][0] ?? null) ? '؛ ' . self::n($type['made']) . ' اثر ' . $type['name'] . ' است، بر ' . self::n($type['texts']) . ' متن.' : '.');
+        }
+        if ($language = $dv['languages'][0] ?? null) {
+            $examples[] = 'از ترجمه‌ها، ' . self::n($language['count']) . ' اثر به زبان ' . $language['name'] . ' است.';
+        }
+        if ($dv['titled']) {
+            $examples[] = 'از ' . self::n($dv['titled']['works']) . ' اثری که عنوانشان با «شرح» آغاز می‌شود، ' . self::n($dv['titled']['linked']) . ' اثر (' . self::pct($dv['titled']['share']) . ') به متن خود پیوند دارد.';
+        }
+
+        return [[
+            'جدول متن‌هایی را می‌آورد که بیشترین اثر بر پایه‌شان نوشته شده است: شرح، حاشیه، ترجمه، تلخیص، تکمله، نظم و ردیه. سه فهرست زیر آن، پرشرح‌ترین، پرحاشیه‌ترین و پرترجمه‌ترین متن‌ها را جدا می‌آورند. روی عنوان بزنید تا صفحۀ متن و آثار وابسته‌اش را ببینید.',
+            'این ارقام کف شمارند، نه همۀ آنچه هست. پیوند شرح به متن از مدخل‌های فهرست برآمده است، و شرحی که فهرست آن را زیر متن خود نیاورده یا متنش در این داده رکوردی ندارد شمرده نشده است. شمار، شمار آثار است نه نسخه‌ها: شرحی با صد نسخه و شرحی با یک نسخه هر دو یک اثرند. حاشیه بر شرحِ یک متن هم به نام همان شرح شمرده شده است، نه به نام متن نخست.',
+        ], $examples];
+    }
+
+    private function catalogers(): array
+    {
+        $cg = $this->data['catalogers'];
+        $examples = [];
+        if ($first = $cg['items'][0] ?? null) {
+            $examples[] = 'نخستین ردیف ' . $first['name'] . ' است: ' . self::n($first['count']) . ' نسخه (' . self::pct($first['share']) . ' نسخه‌هایی که فهرست‌نگارشان معلوم است)، در '
+                . self::n($first['volumes']) . ' جلد فهرست از ' . self::n($first['libraries']) . ' کتابخانه.';
+        }
+        if ($cg['catalogers'] > 5) {
+            $examples[] = 'پنج فهرست‌نگار نخست روی هم ' . self::pct($cg['top_five']) . ' نسخه‌ها را وصف کرده‌اند، از ' . self::n($cg['catalogers']) . ' فهرست‌نگار این دامنه.';
+        }
+        if ($cg['counted'] > 0) {
+            $examples[] = 'فهرست‌نگار ' . self::n($cg['counted']) . ' نسخه (' . self::pct($cg['coverage']) . ') معلوم است'
+                . ($cg['unknown'] > 0 ? '؛ ' . self::n($cg['unknown']) . ' نسخه فهرست‌نگار ثبت‌شده ندارند.' : '.');
+        }
+
+        return [[
+            'جدول فهرست‌نگارانی را می‌آورد که بیشترین نسخه را وصف کرده‌اند، با شمار کتابخانه‌ها و جلدهای فهرستی که آن نسخه‌ها در آن‌ها آمده‌اند. روی نام بزنید تا صفحۀ فهرست‌نگار را ببینید.',
+            'چون بیشتر ارقام این صفحه از وصف همین کسان برآمده است. وقتی چند فهرست‌نگار بخش بزرگی از نسخه‌ها را وصف کرده‌اند، شیوۀ هر کدام (این که خط، حاشیه یا ابعاد را همیشه می‌نویسد یا نه) بر آمار ویژگی‌ها و خط‌ها اثر می‌گذارد. هر نسخه به نام یک فهرست‌نگار شمرده شده است: فهرست‌نگار همان بخش از جلد، و در جلدی که چند تن با هم نوشته‌اند، نخستین ایشان.',
         ], $examples];
     }
 

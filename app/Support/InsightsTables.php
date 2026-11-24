@@ -26,7 +26,7 @@ class InsightsTables
         $all = [];
         foreach (['timeline', 'dynasties', 'authors', 'works', 'copyGap', 'places', 'movement', 'subjects', 'features', 'scribes', 'libraries', 'dedications',
             'patrons', 'facsimiles', 'sizes', 'languageScripts', 'topWorks', 'copiesPerWork', 'centuryWorks', 'unprinted', 'collections',
-            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous'] as $chart) {
+            'scripts', 'languages', 'sources', 'sourceOverlap', 'topAuthors', 'formats', 'autographs', 'anonymous', 'librarySubjects', 'catalogers', 'completeness', 'derived'] as $chart) {
             $all[$chart] = array_values(array_filter($tables->$chart(), fn ($t) => $t['rows']));
         }
 
@@ -233,6 +233,68 @@ class InsightsTables
             self::table('آثار بی مؤلف بر پایۀ سدۀ کهن‌ترین نسخه', 'anonymous-by-century', [['سدۀ هجری', 'year'], ['اثر', 'num'], ['اثر بی مؤلف', 'num'], ['سهم', 'pct']],
                 array_map(fn ($c) => [$c['century'], $c['works'], $c['anonymous'], $c['share']], array_filter($an['centuries'], fn ($c) => $c['works'] > 0))),
         ];
+    }
+
+    private function librarySubjects(): array
+    {
+        $ls = $this->data['library_subjects'];
+        $columns = [['کتابخانه', 'text'], ['شهر', 'text'], ['موضوع', 'text'], ['نسخه', 'num'], ['سهم در کتابخانه', 'pct'], ['سهم در کل', 'pct'], ['نسبت', 'dec']];
+        $strong = [];
+        foreach ($ls['items'] as $library) {
+            foreach ($library['subjects'] as $s) {
+                $strong[] = [$library['name'], $library['city'], $s['name'], $s['count'], $s['share'], $s['overall'], $s['ratio']];
+            }
+        }
+
+        return [
+            self::table('موضوع‌های پررنگ هر کتابخانه', 'library-subjects', $columns, $strong),
+            self::table('کتابخانه‌ای که هر موضوع در آن بیشترین سهم را دارد', 'subject-libraries', $columns,
+                array_map(fn ($s) => [$s['library']['name'], $s['library']['city'], $s['name'], $s['count'], $s['share'], $s['overall'], $s['ratio']], $ls['subjects'])),
+        ];
+    }
+
+    private function completeness(): array
+    {
+        $cp = $this->data['completeness'];
+        $names = array_map(fn ($f) => [$f['name'], 'pct'], $cp['fields']);
+        $cells = fn (array $r) => [...array_values($r['shares']), $r['mean']];
+        $grid = fn (string $title, string $file, array $lead, array $rows) => self::table($title, $file, [...$lead, ['نسخه', 'num'], ...$names, ['میانگین', 'pct']], $rows);
+
+        return [
+            self::table('داده‌ای که فهرست‌ها از هر نسخه نوشته‌اند', 'completeness', [['داده', 'text'], ['نسخه', 'num'], ['سهم', 'pct']],
+                array_map(fn ($f) => [$f['name'], $f['count'], $f['share']], $cp['fields'])),
+            $grid('سهم هر داده در بزرگ‌ترین کتابخانه‌ها', 'completeness-libraries', [['کتابخانه', 'text'], ['شهر', 'text']],
+                array_map(fn ($r) => [$r['name'], $r['city'], $r['count'], ...$cells($r)], $cp['libraries'])),
+            $grid('سهم هر داده در کار فهرست‌نگاران پرکار', 'completeness-catalogers', [['فهرست‌نگار', 'text']],
+                array_map(fn ($r) => [$r['name'], $r['count'], ...$cells($r)], $cp['catalogers'])),
+            $grid('سهم هر داده در هر جلد فهرست', 'completeness-volumes', [['جلد فهرست', 'text']],
+                array_map(fn ($r) => [$r['title'], $r['count'], ...$cells($r)], $cp['volumes'])),
+        ];
+    }
+
+    private function derived(): array
+    {
+        $dv = $this->data['derived'];
+        $names = \App\Support\Insights::DERIVED;
+        $tables = [
+            self::table('آثاری که بر پایۀ متنی دیگر نوشته شده‌اند', 'derived-types', [['گونه', 'text'], ['اثر', 'num'], ['متن پایه', 'num']],
+                array_map(fn ($t) => [$t['name'], $t['made'], $t['texts']], $dv['types'])),
+            self::table('متن‌هایی که بیشترین اثر بر پایه‌شان نوشته شده', 'derived-texts', [['متن', 'text'], ['مؤلف', 'text'], ['اثر', 'num'], ...array_map(fn ($n) => [$n, 'num'], array_values($names))],
+                array_map(fn ($r) => [$r['title'], $r['author'], $r['count'], ...array_map(fn ($type) => $r['types'][$type] ?? 0, array_keys($names))], $dv['items'])),
+        ];
+        foreach ($dv['lists'] as $type => $rows) {
+            $tables[] = self::table('متن‌هایی با بیشترین ' . $names[$type], 'derived-' . $type, [['متن', 'text'], ['مؤلف', 'text'], [$names[$type], 'num']],
+                array_map(fn ($r) => [$r['title'], $r['author'], $r['count']], $rows));
+        }
+        $tables[] = self::table('زبان ترجمه‌ها', 'translation-languages', [['زبان', 'text'], ['اثر', 'num']], array_map(fn ($l) => [$l['name'], $l['count']], $dv['languages']));
+
+        return $tables;
+    }
+
+    private function catalogers(): array
+    {
+        return [self::table('فهرست‌نگاران پرکار', 'catalogers', [['فهرست‌نگار', 'text'], ['نسخه', 'num'], ['سهم', 'pct'], ['کتابخانه', 'num'], ['جلد فهرست', 'num']],
+            array_map(fn ($r) => [$r['name'], $r['count'], $r['share'], $r['libraries'], $r['volumes']], $this->data['catalogers']['items']))];
     }
 
     private function formats(): array
