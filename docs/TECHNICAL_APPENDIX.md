@@ -13740,3 +13740,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **انتشار:** کامیت `0c4d13d` (README، CHANGELOG، `download_json.sh`) به `origin/main` پیکره، سپس `gh release create v2.9.0 … --target main`.
 - **وارسی:** دریافت با `curl` از نشانی ریلیز، ۳۴ فایل، و `cmp` جلد ۱۸ با فایل محلی برابر؛ digest گیت‌هاب همان sha256 است. ۳۵ آزمون corpus سبز.
 - **پوشش فیلدها در نسخه‌ها:** ارجاع فهرست ۳۲۱٬۹۷۸ (۱۰۰٫۰٪)، کاتب یا «بی‌کا» یا خط مؤلف ۳۱۵٬۳۷۸ (۹۷٫۹٪)، تاریخ یا «بی‌تا» ۳۱۵٬۳۳۹ (۹۷٫۹٪)، خط ۲۷۵٬۱۰۳ (۸۵٫۴٪)، برگ ۲۴۶٬۸۳۳ (۷۶٫۶٪)، اندازه ۲۳۶٬۱۷۱ (۷۳٫۳٪)، سطر ۱۹۹٬۸۹۱ (۶۲٫۱٪)، آغاز ۱۹۷٬۵۹۵ (۶۱٫۳٪)، جلد ۱۹۱٬۲۸۴ (۵۹٫۴٪)، انجام ۱۷۵٬۰۶۸ (۵۴٫۴٪)، تملک و مهر و وقف و ورود ۶۲٬۵۰۱ (۱۹٫۴٪)؛ ۷۱ نسخه بیش از یک کاتب دارند.
+
+### گام ۱۴.۳۶۸: `fankha_split_head_step14_368.json`
+- **پیکره:** `text/fankha/fankha_vol_20.txt` سطر ۱۱۸۷۹: «● شرح فرائض السجاوندی = شرح الفزائض السراجية⏎/ فقه / عربی ⏎» ← یک سطر. `scripts/fankha_parser_v2.py 20`: ۱٬۸۷۵ اثر و ۹٬۵۳۹ نسخه مثل پیش؛ جز شمارۀ سطرها فقط `v20-366` عوض شد: `author`، `subjects`، `languages`، `transliteration`، `alt_transliterations` و `description`.
+- **فایل تصمیم:** `work_slug` `shrh-frayd-alsgaondy-v20-366`؛ `changes` برای `author_name`، `alternative_titles` (آوانگاری عنوان دوم)، `description`، `subject_summary`، `language_summary`، `transliteration` و `raw_text`؛ `author` با `century: 10`، `subjects` «فقه»، `languages` «عربی».
+- **تمرین محلی (`fahares_prod`):** «update 1»، «Derived data of works: works=1»، بار دوم «update 0»؛ `author_id` ۲۶۴، یک ردیف `subject_work` و یک ردیف `language_work`.
+- **جستجوی موارد دیگر:** در رونوشت محلی `author_name LIKE '% / %'` فقط همین دو اثر (#۲۴۹۰۱ و #۴۰۵۰۷) را می‌داد.
