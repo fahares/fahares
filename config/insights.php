@@ -129,6 +129,10 @@ return [
     // An author who copied the works of others is listed with this many works of his own (step 14.336)
     'author_scribe_min_works' => 5,
 
+    // Works with no author (step 14.339): the subjects listed, each with this many works at least
+    'anonymous_subjects_shown' => 16,
+    'anonymous_min_works' => 30,
+
     // Languages and scripts in the grids per century; catalogue volumes listed as sources
     'languages_grid' => 6,
     'scripts_grid' => 8,
@@ -159,8 +163,8 @@ return [
         'works' => [
             'name' => 'آثار',
             'title' => 'آثار و نسخه‌هایشان',
-            'lead' => 'آثار پرنسخه، شمار نسخۀ هر اثر، متن‌های رایج هر سده، آثار پرنسخۀ بی نشانی چاپ، موضوع‌ها و زبان‌ها.',
-            'charts' => ['top-works', 'copies-per-work', 'century-works', 'unprinted', 'subjects', 'languages'],
+            'lead' => 'آثار پرنسخه، شمار نسخۀ هر اثر، متن‌های رایج هر سده، آثار پرنسخۀ بی نشانی چاپ، آثار بی مؤلف، موضوع‌ها و زبان‌ها.',
+            'charts' => ['top-works', 'copies-per-work', 'century-works', 'unprinted', 'anonymous', 'subjects', 'languages'],
         ],
         'copies' => [
             'name' => 'نسخه‌ها',

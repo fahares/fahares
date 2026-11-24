@@ -156,6 +156,57 @@ class InsightsAuthorsFormatsTest extends TestCase
         $this->get(route('insights.topic', ['topic' => 'people', 'author' => $one->id]))->assertOk()->assertDontSee('id="top-authors"', false);
     }
 
+    public function test_works_with_no_author_are_counted_by_subject_and_by_the_century_of_their_oldest_copy()
+    {
+        config(['insights.anonymous_min_works' => 2, 'insights.min_sample' => 3]);
+        $deeds = Subject::create(['name' => 'اسناد آزمایشی', 'slug' => 'insights-formats-' . uniqid()]);
+        $law = Subject::create(['name' => 'فقه آزمایشی بی مؤلف', 'slug' => 'insights-formats-' . uniqid()]);
+        $author = $this->author('مؤلف آثار فقهی آزمایشی');
+        $make = function (string $title, Subject $subject, ?Person $by, array $dates, array $attributes = []) {
+            $work = $this->work($title, $by);
+            $work->forceFill($attributes)->save();
+            $work->subjects()->attach($subject->id);
+            foreach ($dates as $date) {
+                $this->copy($work, $date ? ['copy_date_raw' => $date] : []);
+            }
+
+            return $work;
+        };
+        // Deeds: three nameless works of the thirteenth century, each of one copy
+        foreach (['سند یکم', 'سند دوم', 'سند سوم'] as $title) {
+            $make($title, $deeds, null, ['1250ق']);
+        }
+        // Law: two works of a known author, one nameless, and one whose author is named with no record of a person
+        $make('کتاب فقهی یکم', $law, $author, ['1050ق', '1260ق']);
+        $make('کتاب فقهی دوم', $law, $author, ['1070ق']);
+        $make('رسالۀ فقهی بی نام', $law, null, ['1080ق', null]);
+        $make('رسالۀ مؤلف بی رکورد', $law, null, ['1090ق'], ['author_name' => 'محمد جعفر']);
+
+        $figures = $this->figures();
+        $an = $figures['anonymous'];
+        $century = fn (int $c) => collect($an['centuries'])->firstWhere('century', $c);
+
+        $this->assertSame([7, 1], [$an['works'], $an['unlinked']]);
+        $this->assertSame(['works' => 4, 'copies' => 5, 'single' => 3, 'copied' => 4], $an['nameless']);
+        $this->assertSame(['works' => 3, 'copies' => 4, 'single' => 2, 'copied' => 3], $an['authored']);
+        $this->assertSame([['اسناد آزمایشی', 3, 3, 100.0], ['فقه آزمایشی بی مؤلف', 4, 1, 25.0]],
+            array_map(fn ($s) => [$s['name'], $s['works'], $s['anonymous'], $s['share']], $an['subjects']));
+        // The work copied in 1050 and in 1260 is of the eleventh century, the century of its oldest copy
+        $this->assertSame(['century' => 11, 'works' => 4, 'anonymous' => 1, 'share' => 25.0], $century(11));
+        $this->assertSame(['century' => 13, 'works' => 3, 'anonymous' => 3, 'share' => 100.0], $century(13));
+        $this->assertSame(['century' => 12, 'works' => 0, 'anonymous' => 0, 'share' => null], $century(12));
+
+        $note = InsightsNotes::for($figures)['anonymous'];
+        $this->assertStringContainsString('از ۷ اثر این دامنه، ۴ اثر (۵۷٫۱٪) مؤلفی ندارند؛ ۱ اثر دیگر نام مؤلف دارند', $note['examples'][0]);
+        $this->assertStringContainsString('«اسناد آزمایشی» بیشترین سهم اثر بی مؤلف را دارد (۱۰۰٪ از ۳ اثر)', $note['examples'][3]);
+        $this->assertSame(['anonymous-by-subject', 'anonymous-by-century'], array_column(InsightsTables::for($figures)['anonymous'], 'file'));
+
+        $this->get(route('insights.topic', ['topic' => 'works', 'library' => $this->library->id]))->assertOk()
+            ->assertSee('id="anonymous"', false)
+            ->assertSee('آثار بی مؤلف')
+            ->assertSee('data-insights-table="anonymous-by-subject"', false);
+    }
+
     public function test_autographs_and_the_authors_who_copied_the_works_of_others_are_counted()
     {
         config(['insights.author_scribe_min_works' => 2]);

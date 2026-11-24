@@ -32,7 +32,7 @@ class Insights
     // v14: the density and the share of each dynasty (step 14.281)
     // v15: the works composed under each dynasty (step 14.288)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
-    private const CACHE_KEY = 'insights.v18';
+    private const CACHE_KEY = 'insights.v19';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -151,6 +151,7 @@ class Insights
             'top_authors' => self::topAuthors($scope),
             'formats' => self::formats($scope),
             'autographs' => self::autographs($scope),
+            'anonymous' => self::anonymous($scope),
         ];
     }
 
@@ -1195,6 +1196,52 @@ class Insights
             'other_scribes' => $scribes->filter(fn ($r) => $r->n > $r->own)->count(),
             'other_copies' => (int) $scribes->sum(fn ($r) => $r->n - $r->own),
             'others' => $others->filter(fn ($r) => isset($people[$r['id']]))->map(fn ($r) => $person($r['id']) + ['others' => $r['others'], 'own' => $r['own']])->values()->all(),
+        ];
+    }
+
+    /**
+     * The works with no author (backlog item 162, step 14.339): how many of the scope's works name no author at all,
+     * how many name one who has no record of a person, and the share of the nameless among the works of each main
+     * subject and among the works first copied in each century (the century of a work's oldest copy dated to one
+     * century: an anonymous work has no author's death to date it by).
+     */
+    private static function anonymous(InsightsScope $scope): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $anon = '(works.author_id IS NULL AND works.author_named = 0)';
+        $perWork = $scope->manuscripts()->whereNotNull('work_id')->selectRaw('work_id, COUNT(*) AS n')->groupBy('work_id');
+        $sides = $scope->works()->leftJoinSub($perWork, 'c', 'c.work_id', '=', 'works.id')
+            ->selectRaw("{$anon} AS a, COUNT(*) AS works, SUM(COALESCE(c.n, 0)) AS copies, SUM(c.n = 1) AS single, SUM(c.n IS NOT NULL) AS copied")
+            ->groupBy('a')->get()->keyBy(fn ($r) => (int) $r->a);
+        $side = fn (int $a) => ['works' => (int) ($sides[$a]->works ?? 0), 'copies' => (int) ($sides[$a]->copies ?? 0),
+            'single' => (int) ($sides[$a]->single ?? 0), 'copied' => (int) ($sides[$a]->copied ?? 0)];
+
+        $ofSubject = DB::table('subject_work')->join('subjects', 'subjects.id', '=', 'subject_work.subject_id')
+            ->distinct()->selectRaw('subject_work.work_id, COALESCE(subjects.parent_id, subjects.id) AS s');
+        $rows = $scope->works()->joinSub($ofSubject, 'r', 'r.work_id', '=', 'works.id')
+            ->selectRaw("r.s, COUNT(*) AS n, SUM({$anon}) AS a")->groupBy('r.s')
+            ->having('n', '>=', config('insights.anonymous_min_works'))->orderByDesc('n')->limit(config('insights.anonymous_subjects_shown'))->get();
+        $names = \App\Models\Subject::whereIn('id', $rows->pluck('s'))->pluck('name', 'id');
+        $subjects = $rows->filter(fn ($r) => isset($names[$r->s]))
+            ->map(fn ($r) => ['id' => (int) $r->s, 'name' => $names[$r->s], 'works' => (int) $r->n, 'anonymous' => (int) $r->a, 'share' => self::share((int) $r->a, (int) $r->n)])
+            ->sortBy([['share', 'desc'], ['works', 'desc']])->values()->all();
+
+        $oldest = DB::table(self::WORK_CENTURIES)->selectRaw('work_id, MIN(c) AS c')->groupBy('work_id');
+        $cells = $scope->works()->joinSub($oldest, 'f', 'f.work_id', '=', 'works.id')
+            ->selectRaw("f.c, COUNT(*) AS n, SUM({$anon}) AS a")->groupBy('f.c')->get()->keyBy(fn ($r) => (int) $r->c);
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $r = $cells[$c] ?? null;
+            $centuries[] = ['century' => $c, 'works' => (int) ($r->n ?? 0), 'anonymous' => (int) ($r->a ?? 0), 'share' => $r ? self::share((int) $r->a, (int) $r->n) : null];
+        }
+
+        return [
+            'works' => $side(0)['works'] + $side(1)['works'],
+            'nameless' => $side(1),
+            'authored' => $side(0),
+            'unlinked' => $scope->works()->whereNull('author_id')->where('author_named', 1)->count(),
+            'subjects' => $subjects,
+            'centuries' => $centuries,
         ];
     }
 
