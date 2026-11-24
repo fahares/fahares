@@ -13514,6 +13514,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خروجی:** `work_updates` برای `fahares:add-corpus-works` (`{work_slug, v2, id, changes: {description, composition_date_raw, composition_place?, dedication?}}`). `database/data/fankha_description_dates_step14_347.json`: ۱۹۸ رکورد.
 - **تمرین روی `fahares_prod`:** «update 198»، «Derived data of works: works=198, with_dedication=82»، اجرای دوم «update 0». سنجش پیش و پس: `composition_date_raw` ۱۹۲، `composition_year_hijri` ۱۸۵، بازه ۱۹۱، `composition_place` ۳۴، `composition_city` ۲۹، `dedication` ۶. یک تاریخ بی بازه ماند («11140ق»، غلط چاپ).
 - **`fankha_v2_db_compare.py`:** با «Unknown column 'related_work'» می‌ایستد (ستون در گام ۱۴.۲۸۵ برداشته شد).
+- **اجرا در پروداکشن (۲۴ نوامبر ۲۰۲۶):** پشتیبان ۱۹۸ اثر؛ `add-corpus-works` «update 198» و سپس «update 0».
+
+### گام ۱۴.۳۴۸: `Insights::completeness()`
+- **[InsightsScope](../app/Support/InsightsScope.php):** جدول موقت نسخه‌ها ستون‌های `is_bita`، `is_bika`، `scribe_named`، `scripted`، `extent_given` (برگ یا صفحه)، `size_given` و `incipit_given` دارد.
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v22`. ثابت `COMPLETENESS`: کلید هر داده با نام و شرط آن. `completeness`: `copies`، `fields` (`key, name, count, share`)، `absent` (`date` و `scribe`: `stated`, `silent`)، `libraries` (`id, key, name, city, count, shares, mean`؛ `insights.completeness_libraries_shown` = ۲۰)، `library_count`، `fullest`، `barest`، `catalogers` (`insights.catalogers_shown`)، `volumes` (`id, title, count, shares, mean`؛ همۀ جلدها)، `min_copies` (`insights.completeness_min_copies` = ۳۰۰).
+- **نما:** `charts/completeness.blade.php`، آخرین نمودار `insights.topics.libraries`. جدول‌های داده: `completeness`، `completeness-libraries`، `completeness-catalogers`، `completeness-volumes`.
+- **آزمون:** `InsightsCompletenessTest`.
 
 ### گام ۱۴.۳۴۹: مرعشی ج ۳۶ و ۳۷ (نور)
 
@@ -13550,4 +13557,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ردیف آن `library_slug` تهی دارد و به #۷۰۹ «دلیل المخطوطات - جلد 1» می‌خورد.
 - **کنار رفته‌ها:** خزانه‌ها 2118 (رضوی ج ۲) PDF متنی بازتایپ است. خزانه‌ها 2108 (دلیل المخطوطات) هم بازتایپ است. داکی‌باکس 1276469 (کاشان) را فنخا تنها «ف مخ» ارجاع می‌دهد.
 - **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` سه ردیف تازه را «update» نشان داد.
+### گام ۱۴.۳۵۱: `MarkHedgedAuthorsCommand`، تردید پس از نام
+
+- **گذر تازه:** ردیف‌های `work_people` با نقش پدیدآور، `certainty` تهی و شخصی که نامش به کمانک پایان می‌یابد؛ `TRAILING` (`^نام\s*\((؟|شاید|به احتمال|احتمالاً|محتملاً|ظاهراً|گویا)\)$`). ردیف پیشنهاددار («left_reviewed») دست نمی‌خورد.
+- **`writeTrailing()`:** `certainty` با `PersonNameMatcher::certainty()` («به احتمال» → `probable`) و `hedge_raw`؛ `works.author_name` اگر همان نام شخص است؛ `people.name` و `normalized_name` تنها اگر شخص درست یک ردیف `work_people` دارد و در `manuscript_people` و `manuscripts.scribe_id` نیست. دو سطر ممیزی `corpus_update` (اثر و شخص)، و نمایه‌سازی هر دو.
+- **سنجش کاتبان (اسکریپت یک‌باره):** اشخاص با `manuscripts_count > 0` و `works_count = 0`: ۵۱٬۲۳۲. `VERB` («است»، «شده»، «می‌…» با نیم‌فاصله، «باشد»)، `LEAD` («به خط»، «گویا»، «ظاهراً»، «کاتب»، «از»، «برای»)، `MARK` («:»، «؛»، گیومه، «=»، سال، کمانک دوازده نویسه و بیشتر جز تردید). «میمندی» و «میدانی» فعل نیستند.
+- **آزمون:** `MarkHedgedAuthorsCommandTest::test_a_hedge_after_the_name_goes_to_the_author_row_and_leaves_the_name`.
 

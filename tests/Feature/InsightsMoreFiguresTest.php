@@ -207,7 +207,7 @@ class InsightsMoreFiguresTest extends TestCase
         $this->copy($this->work('اثر تنهای آزمایشی'));
         $notes = \App\Support\InsightsNotes::for($this->figures());
 
-        $this->assertCount(31, $notes);
+        $this->assertCount(32, $notes);
         foreach ($notes as $chart => $note) {
             $this->assertNotEmpty($note['reading'], $chart);
             $this->assertIsList($note['examples']);
@@ -236,7 +236,7 @@ class InsightsMoreFiguresTest extends TestCase
         $this->copy($this->work('اثر تنهای جدول‌ها'));
         $tables = \App\Support\InsightsTables::for($this->figures());
 
-        $this->assertCount(31, $tables);
+        $this->assertCount(32, $tables);
         foreach ($tables as $chart => $list) {
             $this->assertIsList($list, $chart);
             foreach ($list as $table) {
