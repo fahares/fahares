@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Writes the copies' typed notes to manuscript_notes (backlog item 87, step 14.254) from a file the corpus makes
  * (fankha_v2_copy_notes_export.py): gzipped JSON lines, one copy a line, {"id", "shelfmark", "notes": [{"type",
- * "text", "typed_by", "also"?, "by_author"?, "by_author_hedge"?, "hedge"?}]}. A copy's rows are replaced as a whole,
+ * "text", "typed_by", "also"?, "by_author"?, "by_author_hedge"?, "hedge"?}]}. A copy's rows are replaced as a whole
+ * (an empty list removes them: every note of the copy has gone to its fields),
  * in the file's order. Left alone: a copy the site lacks, one whose shelfmark is another than the file's, one with a
  * note a reviewer typed, changed or removed, and one whose rows are the file's already. The copy's own columns and metadata are not
  * touched, so nothing is logged or reindexed. Safe to run again.
@@ -48,8 +49,9 @@ class ImportCopyNotesCommand extends Command
         // the whole file is checked before the first write
         for ($n = 1; ($line = gzgets($in)) !== false; $n++) {
             $rec = trim($line) === '' ? null : json_decode($line, true);
-            if (trim($line) !== '' && (! isset($rec['id']) || empty($rec['notes']))) {
-                $this->error("Line {$n}: no copy id or no notes.");
+            // an empty list is a copy whose notes all went to its fields: its rows are removed (step 14.338)
+            if (trim($line) !== '' && (! isset($rec['id']) || ! is_array($rec['notes'] ?? null))) {
+                $this->error("Line {$n}: no copy id or no list of notes.");
                 gzclose($in);
 
                 return 1;
