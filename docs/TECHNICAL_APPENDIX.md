@@ -13564,6 +13564,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py rayhana 14.352 <file>`:** `person_twice 70`، `dropped_second_entry 73`؛ ۱٬۱۳۰ پیوند: ۹۶۹ با ۹۰ به بالا، ۱۴۶ بین ۸۰ و ۸۹، ۱۵ زیر ۸۰.
 - **تمرین (`fahares_prod`):** `created 1127`، `exists 3`؛ اجرای دوم `exists 1130`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_352_rayhana.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_352_person_lives_before.jsonl.gz` (۳۴۱ سطر، md5 `0b37c97e…`). اجرای آزمایشی و `--apply` هر دو `created 907`، `exists 3`، `has_life 220`؛ اجرای دوم `created 0`، `exists 910`. سطرهای اشخاص در این منبع: ۱٬۲۴۸ (۹۰۷ با `name_llm`، ۷۷۴ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۴٬۰۴۴ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۶۰۰. صفحۀ `/p/22300` در سایت دیده شد.
 
 ### گام ۱۴.۳۵۳: `ManuscriptCreator` و رکورد `collections`
 
