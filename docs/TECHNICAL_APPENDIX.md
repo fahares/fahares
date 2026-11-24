@@ -13476,6 +13476,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py fuqaha 14.342 <file>`:** `person_twice 6`، `dropped_second_entry 6`؛ ۱٬۱۳۰ پیوند. یک پیوند نادرستِ نمونۀ دستی (`heravi-mohammad-ebn-e-yusof-12331`، مدخل `284#1` جلد ۱۰) دستی برداشته شد: ۱٬۱۲۹ پیوند، ۹۴۶ با ۹۰ به بالا.
 - **تمرین (`fahares_prod`):** `created 1126`، `exists 4`؛ اجرای دوم `exists 1130`؛ سپس سطر همان پیوند نادرست از کپی محلی پاک شد (۱٬۱۲۵ سطر `name_llm`: ۹۴۴ با ۹۰ به بالا و ۱۸۱ زیر آن).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این منبع، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_342_fuqaha.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+- **اجرای تولید (۳ آذر ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_342_person_lives_before.jsonl.gz` (۲۱۹ سطر، md5 `0f870725…`). اجرای آزمایشی و `--apply` هر دو `created 1123`، `exists 4`، `has_life 2`؛ اجرای دوم `created 0`، `exists 1127`. سطرهای اشخاص در این منبع: ۱٬۳۴۲ (۱٬۱۲۳ با `name_llm`، ۹۴۳ با ۹۰ به بالا). پدیدآورندگانِ پیونددار به کتاب تراجم: ۳٬۸۵۷ از ۱۵٬۱۹۹؛ نشان‌داده به خواننده: ۳٬۴۳۵. صفحۀ `/p/19106` در سایت دیده شد (۲۰۰، با نام منبع).
 
 ### گام ۱۴.۳۴۳: `Insights::librarySubjects()`
 - **[Insights](../app/Support/Insights.php):** کلید `insights.v20`. `library_subjects`: `items` (کتابخانه با `id, key, name, city, copies` و تا سه `subjects`: `id, name, count, share, overall, ratio`)، `subjects` (همان ردیف با `library`)، `copies`، `libraries`.
