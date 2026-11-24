@@ -13827,3 +13827,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`build.py <code> 14.370 <file>`:** `rawdat` ۱۶۳ پیوند (۱۶۲ شاهد عیناً در متن): ۱۴۴ با ۹۰ به بالا، ۱۶ بین ۸۰ و ۸۹، ۳ زیر ۸۰. `mosaffa` ۲۲۰ پیوند، `person_twice 2`، ۲۱۸ مانده: ۱۹۴، ۱۹، ۵. `mushar-authors` ۶۱۵ پیوند، `person_twice 4`، ۶۱۱ مانده: ۴۵۱، ۱۲۴، ۳۶.
 - **تمرین (`fahares_prod`):** `rawdat` `created 163`؛ `mosaffa` `created 216`، `exists 2`؛ `mushar_authors` `created 609`، `exists 2`؛ اجرای دوم هر سه `created 0`.
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای اشخاص در این سه منبع، سپس برای هر فایل `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_370_<code>.json`، اول بی `--apply`، یکی پس از دیگری. بازگشت: همان با `--undo --apply`.
+
+### گام ۱۴.۳۷۳: مرعشی ج ۲۹، ۳۰، ۳۳ و ۳۸ (نور)
+
+- **منبع:** `../fahares-sources/marashi/v{29,30,33,38}.pdf`، پیوند سخت به دانلودهای کاربر. شمار برگ‌ها: ۷۸۵، ۹۱۲، ۹۶۰ و ۸۵۵، همه ۷۲۳×۱۰۲۴. MD5 هر چهار در `MD5SUMS` ثبت است. لایۀ متن ندارند.
+- **نگاشت برگ به صفحه:**
+  - برگ ۱ جلد و برگ ۲ برگۀ اطلاعات نور است.
+  - ج ۲۹ `--offset 1` (سرصفحۀ برگ‌های ۱۲، ۱۰۲، ۳۰۰، ۵۰۰، ۶۱۸ و ۷۸۴ خوانده شد). ج ۳۰ `--offset 0` (برگ‌های ۲۰، ۳۰۰، ۵۰۰ و ۹۱۱). ج ۳۳ `--offset 0` (۳۰۰، ۵۰۰ و ۹۵۹). ج ۳۸ `--offset -1` (۱۵، ۳۰۰، ۵۰۰ و ۸۵۴).
+  - سنجش محتوا: ج ۲۹ ص ۱۰۱ (11475، 11476/1)، ج ۳۰ ص ۴۰۰ (12037/3)، ج ۳۳ ص ۴۰۰ (13214)، ج ۳۸ ص ۴۰۰ (15133).
+- **ساخت تصویر:** `extract_edition_pages.py vN.pdf --code marashi --volume N --offset K --first A --last B --width 723 --mupdf`، با لاگ در `marashi/work/extract_vN.log`. pymupdf در site-packages کاربر است، پس اسکریپت بی `-I` اجرا شد.
+- **ردیف‌ها:** `km-mraashy-2`: ج ۲۹ ص ۲ تا ۷۸۴، ج ۳۰ ص ۳ تا ۹۱۲، ج ۳۳ ص ۳ تا ۹۶۰، ج ۳۸ ص ۴ تا ۸۵۶. `leaf_maps` تهی است.
+- **تمرین:** `set-facsimiles --dry-run` روی `fahares_prod` جلدهای #۹۳، #۹۴، #۹۷ و #۳۸۹ را «update» نشان داد.
+- **ارجاع‌ها در بازه:** ۷۴۵ از ۷۴۵، ۷۸۰ از ۷۸۰، ۷۶۱ از ۷۶۲ و ۷۹۲ از ۷۹۲.
+- **پس از انتشار، به ترتیب:** فرستادن با `C=marashi N=4 send.sh`، پشتیبان چهار ردیف `catalog_volumes` و `source_volumes`، سپس `catalogs:set-facsimiles`.
