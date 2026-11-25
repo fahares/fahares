@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\DB;
  * person_periods rows with status «proposed» and origin «machine», shown to reviewers on the person's page and at
  * admin/period-proposals, never to readers. Nothing is proposed twice: a person who has a period of the same kind in
  * the same city, approved, proposed or rejected, gets no other. Without --apply it only counts. Beside the periods
- * (LifePeriodExtractor), the cities of birth, of death and of origin are proposed (PersonOrigins, step 14.291).
+ * (LifePeriodExtractor), the cities of birth, of death and of origin are proposed (PersonOrigins, step 14.291), and
+ * where a biography names no city for one of those three but a country or a region («من أهل خوارزم», «ولد بالهند»),
+ * that is proposed (step 14.380); not for a person who already has a city of that kind, of any status.
  *
  * With --prune (step 14.227) the proposals a tighter reading no longer gives are taken back: a row that is still
  * «proposed» and of origin «machine» is deleted when the biographies no longer yield its kind and city for the person,
@@ -35,8 +37,8 @@ class ProposeLifePeriodsCommand extends Command
     public function handle(): int
     {
         $apply = (bool) $this->option('apply');
-        $counts = ['entries' => 0, 'read' => 0, 'new' => 0, 'known' => 0, 'people' => 0, 'with_years' => 0];
-        // every reading of this run: "person|kind|city" => the columns a proposal of it holds
+        $counts = ['entries' => 0, 'read' => 0, 'new' => 0, 'known' => 0, 'people' => 0, 'with_years' => 0, 'regions' => 0, 'beside_a_place' => 0];
+        // every reading of this run: "person|kind|city (or country or region)" => the columns a proposal of it holds
         $yielded = [];
         $kinds = [];
         $shown = [];
@@ -52,15 +54,21 @@ class ProposeLifePeriodsCommand extends Command
             ->orderBy('se.id')->chunkById(300, function ($entries) use ($apply, &$counts, &$kinds, &$shown, &$people, &$proposed, &$yielded) {
                 // what each person of the chunk has already, of any status
                 $have = $proposed;
-                foreach (DB::table('person_periods')->whereIn('person_id', $entries->pluck('person_id')->unique())->get(['person_id', 'kind', 'city']) as $row) {
-                    $have["{$row->person_id}|{$row->kind}|{$row->city}"] = true;
+                // … and the kinds a person has a city for: no country or region is proposed beside it
+                $placed = [];
+                foreach (array_keys($proposed) as $key) {
+                    $placed[implode('|', array_slice(explode('|', $key), 0, 2))] = true;
+                }
+                foreach (DB::table('person_periods')->whereIn('person_id', $entries->pluck('person_id')->unique())->get(['person_id', 'kind', 'city', 'region']) as $row) {
+                    $have["{$row->person_id}|{$row->kind}|" . ($row->city ?: $row->region)] = true;
+                    $placed["{$row->person_id}|{$row->kind}"] = true;
                 }
                 foreach ($entries as $entry) {
                     $counts['entries']++;
                     // The periods of the life, and the cities of birth, death and origin the entry names (step 14.291)
                     $readings = array_merge(LifePeriodExtractor::extract($entry->text), array_map(
-                        fn (array $hit) => ['kind' => $hit['kind'], 'city' => $hit['city'], 'years' => [], 'snippet' => $hit['text']],
-                        PersonOrigins::fromBiography($entry->text)));
+                        fn (array $hit) => ['kind' => $hit['kind'], 'city' => $hit['city'], 'years' => [], 'snippet' => $hit['text'], 'region' => $hit['region'] ?? false],
+                        PersonOrigins::fromBiography($entry->text, true)));
                     foreach ($readings as $found) {
                         $counts['read']++;
                         $key = "{$entry->person_id}|{$found['kind']}|{$found['city']}";
@@ -70,7 +78,13 @@ class ProposeLifePeriodsCommand extends Command
                             $counts['known']++;
                             continue;
                         }
-                        $have[$key] = $proposed[$key] = true;
+                        // A country or a region says less than the place of that kind the person has already
+                        if (($found['region'] ?? false) && isset($placed["{$entry->person_id}|{$found['kind']}"])) {
+                            $counts['beside_a_place']++;
+                            continue;
+                        }
+                        $have[$key] = $proposed[$key] = $placed["{$entry->person_id}|{$found['kind']}"] = true;
+                        $counts['regions'] += ($found['region'] ?? false) ? 1 : 0;
                         $counts['new']++;
                         $counts['with_years'] += $found['years'] ? 1 : 0;
                         $kinds[$found['kind']] = ($kinds[$found['kind']] ?? 0) + 1;
@@ -93,7 +107,7 @@ class ProposeLifePeriodsCommand extends Command
             $waiting = PersonPeriod::where('status', PersonPeriod::PROPOSED)->where('origin', 'machine')
                 ->when($this->option('person'), fn ($q, $id) => $q->where('person_id', (int) $id))->orderBy('id')->get();
             foreach ($waiting as $row) {
-                $now = $yielded["{$row->person_id}|{$row->kind}|{$row->city}"] ?? null;
+                $now = $yielded["{$row->person_id}|{$row->kind}|" . ($row->city ?: $row->region)] ?? null;
                 if ($now === null) {
                     $counts['pruned']++;
                     if ($apply) {

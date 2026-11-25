@@ -15,6 +15,9 @@ use App\Helpers\TextNormalizer;
  *    «توفي بها» and a place a few sentences on are not.
  *
  * Both are guesses of a rule, not a reading by a person: the figures built on them say so.
+ *
+ * A biography may name a country or a region where it names no city («من أهل خوارزم», «ولد بالهند»): fromBiography
+ * reads those too when asked (step 14.380), for the proposals of the periods of a life; the map has only cities.
  */
 final class PersonOrigins
 {
@@ -39,6 +42,9 @@ final class PersonOrigins
 
     /** @var array{0: string, 1: array<string, string>}|null the cities as a pattern, and each name's city */
     private static ?array $names = null;
+
+    /** @var array{0: string, 1: array<string, string>}|null the countries and regions as a pattern, and each name's region */
+    private static ?array $regionNames = null;
 
     /**
      * The nisbas of the cities of the map: the name of a city or of its other names with «ی» («اصفهانی», «طهرانی»,
@@ -94,20 +100,57 @@ final class PersonOrigins
     }
 
     /**
-     * The places a biographical entry names for the person's birth, death and origin.
+     * The places a biographical entry names for the person's birth, death and origin: the cities of the map, and
+     * with $regions the countries and regions too (config insights.copy_regions, step 14.380). A country or region is
+     * taken only for a kind the entry names no city for («ولد فی النجف … بالعراق» is Najaf), and its hit says
+     * `region` => true; `city` is then the name of the country or region.
      *
-     * @return array<int, array{kind: string, city: string, text: string}>
+     * @return array<int, array{kind: string, city: string, text: string, region?: bool}>
      */
-    public static function fromBiography(?string $text): array
+    public static function fromBiography(?string $text, bool $regions = false): array
     {
         $text = TextNormalizer::normalize($text);
         if ($text === '') {
             return [];
         }
-        [$city, $cityOf] = self::names();
+        $found = self::read($text, ...self::names());
+        if ($regions) {
+            $kinds = array_column($found, 'kind', 'kind');
+            foreach (self::read($text, ...[...self::regionNames(), true]) as $hit) {
+                if (! isset($kinds[$hit['kind']])) {
+                    $found[] = $hit + ['region' => true];
+                }
+            }
+        }
+
+        return $found;
+    }
+
+    /** A place of a life that is a country by its name, though the same word is another name of a city of the map */
+    public static function isCountry(?string $place): bool
+    {
+        return in_array(preg_replace('/^ال/u', '', trim(TextNormalizer::normalize($place))), self::COUNTRIES, true);
+    }
+
+    /**
+     * @param  string  $city  the names to look for, as a pattern
+     * @param  array<string, string>  $cityOf  each name's place
+     * @return array<int, array{kind: string, city: string, text: string}>
+     */
+    private static function read(string $text, string $city, array $cityOf, bool $oneClause = false): array
+    {
+        if ($city === '') {
+            return [];
+        }
         // Up to three words between the verb and the place («ولد سنه 1200 فی», «توفی شهیدا ب»)
         // … but not the birth or death of a kinsman («ولد ابوه فی القطیف»)
         $gap = '(?!\s+(?:ابوه|ابیه|والده|جده|اخوه|ابنه|ولده|حفیده|عمه)(?![\p{L}]))(?:\s+[\p{L}\p{N}]+){0,3}?';
+        // For a country or region the words between must be of the same clause: no «و», which begins another
+        // («ولد باسفرایین و تنقل فی ایران» is not a birth in Iran), but for «مولده و وفاته بمصر», «ولد و نشا فی
+        // خوارزم», «ولد و عاش بخوارزم», where the second verb is of the same place
+        if ($oneClause) {
+            $gap = '(?!\s+(?:ابوه|ابیه|والده|جده|اخوه|ابنه|ولده|حفیده|عمه)(?![\p{L}]))(?:\s+و\s+(?:وفاته|نشا|عاش)(?:\s+(?!و(?![\p{L}]))[\p{L}\p{N}]+)?|(?:\s+(?!و(?![\p{L}]))[\p{L}\p{N}]+){0,3}?)';
+        }
         $in = '\s+(?:فی\s+(?:بلده\s+|مدینه\s+)?(?:ال)?|ب(?:بلده\s+|مدینه\s+)?(?:ال)?)';
         $end = '(?![\p{L}])';
         $patterns = [
@@ -218,9 +261,36 @@ final class PersonOrigins
         return self::$names = [implode('|', array_map(fn ($n) => str_replace(' ', '\s+', preg_quote($n, '/')), $names)), $cityOf];
     }
 
+    /**
+     * The countries and regions by their names, without the names the cities have («بحرین», «کشمیر» are cities of
+     * the map as well, and are read as those).
+     *
+     * @return array{0: string, 1: array<string, string>}
+     */
+    private static function regionNames(): array
+    {
+        if (self::$regionNames !== null) {
+            return self::$regionNames;
+        }
+        $cities = self::names()[1];
+        $regionOf = [];
+        foreach (CopyPlaces::regions() as $region => $info) {
+            foreach ([$region, ...($info['aliases'] ?? [])] as $name) {
+                $name = TextNormalizer::normalize($name);
+                if (! isset($cities[$name])) {
+                    $regionOf[$name] ??= $region;
+                }
+            }
+        }
+        $names = array_keys($regionOf);
+        usort($names, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+
+        return self::$regionNames = [implode('|', array_map(fn ($n) => str_replace(' ', '\s+', preg_quote($n, '/')), $names)), $regionOf];
+    }
+
     /** For the tests, which change the config */
     public static function forget(): void
     {
-        self::$nisbas = self::$names = null;
+        self::$nisbas = self::$names = self::$regionNames = null;
     }
 }
