@@ -136,13 +136,41 @@ class Cataloger extends Model
      */
     public function catalogedCopies(): Builder
     {
+        // by the copies' citation entries (step 14.402)
+        return Manuscript::whereIn('manuscripts.id', DB::query()->fromSub($this->catalogedCopyIds(), 'c')->select('legacy_id'));
+    }
+
+    /**
+     * The ids of the copies this cataloger catalogued, as «legacy_id» of their citation entries (step 14.402): a union
+     * of the three ways a copy comes to them, each read on its own index. One condition with «or» over the entries
+     * read the whole table for the largest cataloger (2.8 s against 0.3 s).
+     */
+    public function catalogedCopyIds(): \Illuminate\Database\Query\Builder
+    {
         [$volumes, $parted] = $this->volumeIds();
         $parts = CatalogVolumePart::ready() ? $this->catalogVolumeParts()->pluck('catalog_volume_parts.id') : collect();
+        $cited = fn () => SourceEntry::citations()->toBase()->select('legacy_id');
 
-        // by the copies' citation entries (step 14.402)
-        return Manuscript::whereCitation(fn ($q) => $q->where('cataloger_id', $this->id)
-            ->orWhereIn('source_volume_id', $volumes->diff($parted)->values())
-            ->orWhereIn('catalog_volume_part_id', $parts));
+        return $cited()->where('cataloger_id', $this->id)
+            ->union($cited()->whereIn('source_volume_id', $volumes->diff($parted)->values()->all() ?: [0]))
+            ->union($cited()->whereIn('catalog_volume_part_id', $parts->all() ?: [0]));
+    }
+
+    /** Those copies' ids («c.legacy_id») with each copy's Fankha entry as «fe», for a page in Fankha's order. */
+    public function catalogedCitations(): \Illuminate\Database\Query\Builder
+    {
+        return DB::query()->fromSub($this->catalogedCopyIds(), 'c')
+            ->join('source_entries as fe', fn ($j) => $j->on('fe.legacy_id', '=', 'c.legacy_id')->where('fe.legacy_type', 'manuscript'));
+    }
+
+    /** The citation entries of supervisedCopies(), with the copy's Fankha entry as «fe», for a count. */
+    public function supervisedCitations(): \Illuminate\Database\Query\Builder
+    {
+        [$volumes, $parted] = $this->volumeIds();
+
+        return DB::table('source_entries as c')->select('c.legacy_id')->where('c.legacy_type', 'fankha_citation')->where('c.legacy_index', 0)
+            ->whereIn('c.source_volume_id', $volumes->intersect($parted)->values()->all() ?: [0])
+            ->join('source_entries as fe', fn ($j) => $j->on('fe.legacy_id', '=', 'c.legacy_id')->where('fe.legacy_type', 'manuscript'));
     }
 
     /** The copies of the volumes with parts this cataloger is on as a whole: edited or supervised by them. */
@@ -176,8 +204,10 @@ class Cataloger extends Model
                 ->merge($cataloger->catalogVolumeParts()->pluck('catalog_volume_parts.catalog_volume_id'))->unique();
             DB::table('catalogers')->where('id', $cataloger->id)->update([
                 'volumes_count' => $volumes->count(),
-                'manuscripts_count' => $cataloger->catalogedCopies()->count(),
-                'supervised_count' => $cataloger->supervisedCopies()->count(),
+                // counted on the citation entries with the copy's Fankha entry (step 14.402): a lookup of each copy's row
+                // took seconds for a large cataloger
+                'manuscripts_count' => $cataloger->catalogedCitations()->count(),
+                'supervised_count' => $cataloger->supervisedCitations()->count(),
             ]);
         });
     }

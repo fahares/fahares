@@ -43,7 +43,8 @@ class CatalogerController extends Controller
         $stats = [
             'total_catalogers' => Cataloger::count(),
             'total_volumes' => CatalogVolume::whereNull('edition_of_id')->count(),
-            'total_manuscripts' => Manuscript::whereCitation(fn ($q) => $q->whereNotNull('cataloger_id'))->count(),
+            // counted on the copies' citation entries, by their cataloger index (step 14.402): a lookup per copy took seconds
+            'total_manuscripts' => \App\Models\SourceEntry::citations()->whereNotNull('cataloger_id')->count(),
         ];
 
         return view('catalogers.index', compact('catalogers', 'stats', 'search', 'sort'));
@@ -104,15 +105,16 @@ class CatalogerController extends Controller
         })->values();
 
         // the copies they catalogued: named, of their volumes without parts, and of their parts (Cataloger::catalogedCopies)
-        $manuscripts = $cataloger->catalogedCopies()
-            ->with(['work.author', 'libraryRecord', 'citedEntry',
-                // the copy's place in the printed catalogue, shown instead of Fankha's (backlog item 147)
-                'sourceEntries' => fn ($q) => $q->where('role', \App\Models\SourceEntry::ROLE_ENTRY)->where('origin', '!=', \App\Models\SourceEntry::ORIGIN_FANKHA)
-                    ->where('status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)->whereNotNull('page_start'),
-                'sourceEntries.source.library', 'sourceEntries.sourceVolume'])
-            ->orderBy('volume_number')
-            ->orderBy('page_start')
-            ->paginate(24, ['*'], 'manuscripts_page');
+        // a page in Fankha's order, found on the entries (step 14.402), then the page's copies
+        $manuscripts = $cataloger->catalogedCitations()->orderBy('fe.volume_number')->orderBy('fe.page_start')->orderBy('c.legacy_id')
+            ->paginate(24, ['c.legacy_id'], 'manuscripts_page');
+        $copies = Manuscript::with(['work.author', 'libraryRecord', 'citedEntry',
+            // the copy's place in the printed catalogue, shown instead of Fankha's (backlog item 147)
+            'sourceEntries' => fn ($q) => $q->where('role', \App\Models\SourceEntry::ROLE_ENTRY)->where('origin', '!=', \App\Models\SourceEntry::ORIGIN_FANKHA)
+                ->where('status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)->whereNotNull('page_start'),
+            'sourceEntries.source.library', 'sourceEntries.sourceVolume'])
+            ->whereIn('id', $manuscripts->pluck('legacy_id'))->get()->keyBy('id');
+        $manuscripts->setCollection($manuscripts->getCollection()->map(fn ($row) => $copies->get($row->legacy_id))->filter()->values());
 
         return view('catalogers.show', compact('cataloger', 'volumes', 'catalogues', 'parts', 'manuscripts'));
     }
