@@ -162,6 +162,13 @@ export default (config) => ({
         return this.textBase ? this.textBase + this.page : null;
     },
 
+    // The citation of the page shown (step 14.389, backlog item 132)
+    get citeUrl() {
+        if (!config.citeUrl) return null;
+        const q = new URLSearchParams({ catalog: this.catalog, volume: this.volume, page: this.page });
+        return `${config.citeUrl}?${q}`;
+    },
+
     openViewer(detail) {
         const catalog = detail.catalog || 'fankha';
         const volume = parseInt(detail.volume) || 1;

@@ -501,8 +501,8 @@ class CatalogReferencesTest extends TestCase
             // Fankha's own card folded under them, «مأخذ دست دوم», and no «به نشانی فنخا» (backlog item 147)
             ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'چاپ ۱۳۶۵', $this->fankhaVolume->title, 'مأخذ دست دوم', 'دیدن برگه در فنخا'])
             ->assertDontSee('به نشانی فنخا')
-            // the citation window cites the printed catalogue, not Fankha
-            ->assertSee('ارجاع به فهرست چاپی')->assertDontSee('قالب مأخذ فنخا')->assertDontSee('درایتی، مصطفی')
+            // no citation window of its own: citing is on the source's text and image pages (step 14.390, backlog item 133)
+            ->assertDontSee('citationModalOpen', false)->assertDontSee('ارجاع به فهرست چاپی')->assertDontSee('درایتی، مصطفی')
             ->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
             ->assertSee('masjid-azam-ostadi')
             ->assertSee($note)

@@ -42,9 +42,9 @@
             <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance"><x-suggest.centered name="title" class="md:ms-0">{{ $source->title }}</x-suggest.centered></h1>
             {{-- the compiler, publisher and year, each correctable (step 14.52); an empty one shows only in suggestion mode --}}
             @php
-                $makers = ['compiler' => ['پدیدآورنده', $source->compiler], 'publisher' => ['ناشر', $source->publisher], 'publication_year' => ['سال نشر', $source->publication_year]];
+                $makers = ['compiler' => ['پدیدآورنده', $source->compiler], 'publication_place' => ['محل نشر', $source->publication_place], 'publisher' => ['ناشر', $source->publisher], 'publication_year' => ['سال نشر', $source->publication_year]];
             @endphp
-            <p class="flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1 text-sm text-muted" @unless($about || $source->publication_year) x-show="$store.suggest.on" x-cloak @endunless data-source-makers>
+            <p class="flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1 text-sm text-muted" @unless($about || $source->publication_year || $source->publication_place) x-show="$store.suggest.on" x-cloak @endunless data-source-makers>
                 @foreach($makers as $field => [$label, $value])
                     <span class="inline-flex items-center gap-1" @unless($value) x-show="$store.suggest.on" x-cloak @endunless>
                         @if($value){{ Fa::digits($value) }}@else<span class="text-muted/70">{{ $label }}: ثبت نشده</span>@endif
@@ -86,6 +86,7 @@
                 @if($counts['works'] && in_array($source->kind, SearchFilters::SOURCE_KINDS, true))
                     <x-ui.btn size="sm" :href="route('search', ['type' => 'works', 'source_id' => $source->id])">آثار یادشده در آن</x-ui.btn>
                 @endif
+                <x-source.cite-link :source="$source->code" label="ارجاع به این کتاب" />
             </div>
             @if($source->description)
                 <p class="max-w-3xl mt-3 text-sm text-ink leading-loose text-justify">{{ Fa::digits($source->description) }} <x-suggest.field name="description" class="ms-1" /></p>

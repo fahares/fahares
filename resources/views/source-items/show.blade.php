@@ -29,6 +29,7 @@
         <p class="text-xs font-bold text-cinnabar">مدخل {{ $item->source->title }}</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">{{ $heading }}</h1>
         <p class="text-sm text-muted" data-item-place>{{ $item->placeLabel() }}</p>
+        <x-source.cite-link :source="$item->source->code" :volume="$item->volume_number" :entry="$item->urlKey()" label="ارجاع به این مدخل" />
         @if($item->parent)
             <p class="text-xs text-muted">ذیل <a href="{{ $item->parent->url() }}" class="text-cinnabar hover:underline">«{{ $item->parent->title }}»{{ $item->parent->entry_number ? Fa::digits(' (ش ' . $item->parent->entry_number . ')') : '' }}</a></p>
         @endif
@@ -36,6 +37,7 @@
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
         <div class="min-w-0 space-y-8">
+            <x-source.cite-quote :cite="\App\Support\SourceReference::forItem($item)->inText()">
             <x-ui.source-text :title="$item->source->title" :address="$item->placeLabel()"
                 :viewer="$item->viewer() ? '$dispatch(\'open-catalog-viewer\', ' . \Illuminate\Support\Js::from($item->viewer()) . ')' : null">
                 @foreach($item->pageSegments() as $i => $segment)
@@ -50,6 +52,7 @@
                     <div class="mt-4 pt-3 border-t border-line text-xs text-muted whitespace-pre-line" data-footnotes>{{ Fa::digits($item->footnotes) }}</div>
                 @endif
             </x-ui.source-text>
+            </x-source.cite-quote>
 
             @if($item->children->isNotEmpty())
                 <x-ui.section title="مدخل‌های بی‌شمارۀ ذیل آن">

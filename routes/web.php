@@ -90,6 +90,9 @@ Route::get('/sources/{code}/{volume}/{key}', [\App\Http\Controllers\SourceItemCo
     ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+', 'key' => '[0-9p][0-9.\-]*'])
     ->name('source-items.show');
 
+// The citation of a source, one of its pages or one entry, with BibTeX and RIS (step 14.389, backlog item 132)
+Route::get('/cite', [\App\Http\Controllers\CiteController::class, 'show'])->name('cite.show');
+
 // The page range of a volume's scanned pages, for the page viewer (backlog item 94)
 Route::get('/api/page-images/{code}/{volume}', [\App\Http\Controllers\PageImagesController::class, 'show'])
     ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+'])

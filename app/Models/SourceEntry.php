@@ -555,31 +555,6 @@ class SourceEntry extends Model
         return $v ? asset('storage/catalogs/' . $v['catalog'] . '/v' . str_pad($v['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($v['page'], 4, '0', STR_PAD_LEFT) . '.webp') : null;
     }
 
-    /**
-     * The entry as a reader cites it in print (backlog item 147): «اکبری، محمد، فهرست نسخه‌های خطی کتابخانه …، چاپ ۱۳۸۴،
-     * ج ۱، ص ۸۲.». The compiler is the source's, or the cataloger of the copy's volume; a part the data lacks is left
-     * out, never «-».
-     */
-    public function referenceCitation(?Model $record = null): string
-    {
-        $compiler = $this->source?->compiler
-            ?: ($record instanceof Manuscript && $this->source?->kind === Source::KIND_LIBRARY_CATALOGUE ? $record->cataloger?->name : null);
-        $year = $this->sourceVolume?->publication_year ?: $this->source?->publication_year;
-        $edition = $this->editionLabel();
-        $row = $this->is_primary && $record instanceof Manuscript && $record->sequence_number ? 'ردیف ' . $record->sequence_number : null;
-
-        return Fa::digits(implode('، ', array_filter([
-            $compiler,
-            $this->source?->title,
-            $edition ? 'چاپ ' . $edition : null,
-            $this->source?->publisher,
-            $year && ! ($edition && str_contains($edition, (string) $year)) ? $year : null,
-            $this->placeLabel($record instanceof Work),
-            $this->itemLabel(),
-            $row,
-        ])) . '.');
-    }
-
     /** The printing as its volume, or else its source, names it: «۱۳۸۸، به کوشش رضا استادی». */
     public function editionLabel(): ?string
     {

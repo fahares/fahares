@@ -58,6 +58,24 @@
             <x-admin.field label="نام کوتاه" for="short_name" error="short_name" hint="نامی که در فهرست‌ها و ارجاع‌ها کوتاه‌تر می‌آید.">
                 <input type="text" name="short_name" id="short_name" value="{{ old('short_name', $source->short_name) }}" class="admin-field w-full">
             </x-admin.field>
+            <p class="text-xs font-bold text-ink pt-2">شناسنامۀ چاپی <span class="font-normal text-muted">(در ارجاع صفحه‌های منبع می‌آید؛ آنچه جلدی جدا دارد، از جلد خوانده می‌شود)</span></p>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <x-admin.field label="پدیدآورنده" for="compiler" error="compiler" hint="مؤلف یا فهرست‌نگار، چنان‌که برگۀ عنوان می‌نویسد. خالی بماند، ارجاع فهرست‌نگاران هر جلد را می‌آورد.">
+                    <input type="text" name="compiler" id="compiler" value="{{ old('compiler', $source->compiler) }}" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="چاپ" for="edition_label" error="edition_label" hint="مانند «دوم» یا «۱۳۸۸، به کوشش رضا استادی».">
+                    <input type="text" name="edition_label" id="edition_label" value="{{ old('edition_label', $source->edition_label) }}" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="محل نشر" for="publication_place" error="publication_place">
+                    <input type="text" name="publication_place" id="publication_place" value="{{ old('publication_place', $source->publication_place) }}" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="ناشر" for="publisher" error="publisher">
+                    <input type="text" name="publisher" id="publisher" value="{{ old('publisher', $source->publisher) }}" class="admin-field w-full">
+                </x-admin.field>
+                <x-admin.field label="سال نشر" for="publication_year" error="publication_year">
+                    <input type="text" name="publication_year" id="publication_year" value="{{ old('publication_year', $source->publication_year) }}" class="admin-field w-full">
+                </x-admin.field>
+            </div>
             <div class="grid grid-cols-2 gap-4">
                 <x-admin.field label="نوع" for="kind" error="kind">
                     <select name="kind" id="kind" class="admin-field w-full">
