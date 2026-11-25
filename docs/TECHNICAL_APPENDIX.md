@@ -13978,3 +13978,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «section 1 not found» داد و چیزی ننوشت. در `/tmp` چیزی نماند.
 - **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
 - **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.
+### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
+- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
+- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
+- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
+- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
