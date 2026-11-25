@@ -69,7 +69,7 @@ class AuthorInQueryTest extends TestCase
         $this->assertSame('قانون ابن سینا', $whole->toArray()['q']);
         $this->assertSame(['languages = "عربی"'], $whole->toArray()['filter']);
         $this->assertSame('قانون', $byAuthor->toArray()['q']);
-        $this->assertSame(['languages = "عربی"', 'author_id IN [7,9]'], $byAuthor->toArray()['filter']);
+        $this->assertSame(['languages = "عربی"', 'author_ids IN [7,9]'], $byAuthor->toArray()['filter']);
         $this->assertSame(AuthorInQuery::WEIGHT, $byAuthor->toArray()['federationOptions']['weight']);
     }
 }

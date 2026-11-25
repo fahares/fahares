@@ -82,7 +82,7 @@ class AuthorInQuery
     /** The whole query, and its title words among the named authors' works, weighted up */
     public static function queries(string $index, string $searchQuery, array $split, ?array $searchAttrs, ?string $filter, ?callable $tune = null): array
     {
-        $byAuthor = 'author_id IN [' . implode(',', $split['author_ids']) . ']';
+        $byAuthor = 'author_ids IN [' . implode(',', $split['author_ids']) . ']';
         $make = function (string $words, array $filters, float $weight) use ($index, $searchAttrs, $tune) {
             $query = (new SearchQuery)->setIndexUid($index)->setQuery($words)->setMatchingStrategy('all')
                 ->setFederationOptions((new FederationOptions)->setWeight($weight));
