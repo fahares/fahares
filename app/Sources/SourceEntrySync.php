@@ -535,7 +535,7 @@ class SourceEntrySync
      * a match's text, entry number, shelfmark page and end page, a review, notes, a corrected page. Of an existing
      * entry only the citation's own columns are written, and its volume and page where the entry still holds what its
      * citation read before ($readingsBefore gives those [volume, page] pairs), or where the citation now reads another
-     * place than those (a citation edited, a copy moved to another volume). A page corrected by a match or a reviewer
+     * place than those (a citation edited), or where the copy moved to another volume. A page corrected by a match or a reviewer
      * («[ف: 5-197]» found on page 196) stays while the citation reads as before. An entry moved to another place keeps
      * its text marked stale, for sources:retext, as a reviewer's new address does (SuggestionApplier).
      *
@@ -572,7 +572,8 @@ class SourceEntrySync
             $was = [$int($entry->volume_number), $int($entry->page_start)];
             $now = [$int($row['volume_number']), $int($row['page_start'])];
             $before = array_map(fn ($r) => [$int($r[0]), $int($r[1])], $readingsBefore($entry, $row));
-            $sourceChanged = (int) $entry->source_id !== (int) $row['source_id'];
+            // an address found in one volume says nothing of another: a copy moved to another volume follows its citation
+            $sourceChanged = (int) $entry->source_id !== (int) $row['source_id'] || (int) $entry->source_volume_id !== (int) $row['source_volume_id'];
             $moved = $sourceChanged || ! in_array($now, $before, true);
             if ($was !== $now && ($moved || in_array($was, $before, true))) {
                 $kept['volume_number'] = $row['volume_number'];
@@ -582,7 +583,7 @@ class SourceEntrySync
                     $kept['page_end'] = null;
                 }
             }
-            // text taken at the place the entry has left: at another page, or of another source
+            // text taken at the place the entry has left: at another page, or in another volume
             $place = [$int($kept['volume_number']), $int($kept['page_start'])];
             $outOfPlace = $entry->text_page !== null && [$int($entry->text_volume_number), $int($entry->text_page)] !== $place;
             if ((filled($entry->entry_text) || filled($entry->copy_text)) && $entry->text_status !== SourceEntry::TEXT_STALE
