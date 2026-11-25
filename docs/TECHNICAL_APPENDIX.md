@@ -14002,3 +14002,31 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «section 1 not found» داد و چیزی ننوشت. در `/tmp` چیزی نماند.
 - **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
 - **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.
+
+### گام ۱۴.۳۸۴: وارسی تراکنش‌های بلند در `prod-run` (مورد ۱۶۵)
+- **[prod-run](../scripts/dev/prod-run):**
+  - **پرس‌وجو:** `db_long()` یک تکه PHP را از stdin به `ssh fahares-app 'cd /app && php -- <ثانیه>'` می‌دهد. تکه Laravel را بالا می‌آورد و با اتصال خود برنامه می‌خواند، پس رمز پایگاه داده از کانتینر بیرون نمی‌آید. کاربر برنامه اجازۀ PROCESS دارد.
+    - `information_schema.INNODB_TRX` با `PROCESSLIST` پیوند می‌خورد. تراکنشی که از `trx_started` بیش از آستانه گذشته، با `trx_state`، `trx_rows_locked`، `trx_rows_modified`، فرمان رشته (`Query`، `Execute` یا `Sleep`) و متن پرس‌وجو (`INFO` یا `trx_query`، ۱۱۰ نویسه).
+    - `PROCESSLIST` جدا: هر فرمانی جز `Sleep`، `Daemon` و `Binlog Dump`، جز `system user` و خود اتصال وارسی، که `TIME` آن از آستانه گذشته و تراکنش InnoDB ندارد. پس رشتۀ «Execute» هم دیده می‌شود. وارسی گام ۱۴.۳۲۷ فقط «Query» را نگاه می‌کرد و آن را ندید.
+    - سطر پایانی `#ok` است، یا `#error <پیام>` اگر خود وارسی شکست بخورد. شکست وارسی اجرا را نمی‌بندد و فقط هشدار می‌دهد.
+  - **متغیرها:** `PROD_RUN_DB_AGE` (پیش‌فرض ۳۰۰ ثانیه)؛ `PROD_RUN_DB_CHECK=refuse` (پیش‌فرض)، `warn` یا `off`.
+  - **`--status`:** سطر `database transactions and statements open over 300s: none`، یا فهرست رشته‌ها، میان «production artisan runs» و «last runs». کد خروج همان ۰ است.
+  - **پیش از اجرا:** پس از وارسی `artisan`. بی `--wait`، کد ۷۵ با فهرست و راهنمای `PROD_RUN_DB_CHECK=warn`. با `--wait`، هر ۱۵ ثانیه تا ۱۲۰ بار.
+- **آزمون:**
+  - روی پروداکشن `--status` در ۵ ثانیه `none` داد.
+  - پرس‌وجوها با root روی MariaDB محلی، با یک تراکنش `FOR UPDATE` و یک `sleep()` باز، سطرهای درست دادند، از جمله رشته‌ای در «LOCK WAIT». کاربر برنامۀ محلی اجازۀ PROCESS ندارد و همان مسیر `#error` را آزمود.
+  - رونوشتی از اسکریپت با `db_long` ساختگی: اجرای عادی، رد (۷۵)، `warn`، `off`، شکست وارسی و `--status`.
+- **[CLAUDE.md](../CLAUDE.md):** بند `prod-run` و بند وارسی پیش از انتشار به‌روز شدند. بند تازه: پرس‌وجوی سنگین فقط‌خواندنی روی `fahares_prod`.
+
+### گام ۱۴.۳۸۵: `scripts/dev/refresh-prod-copy` (مورد ۲۰)
+- **[refresh-prod-copy](../scripts/dev/refresh-prod-copy):**
+  - **کانال:** `tdl chat ls` کانالی به نام «Fahares Backup» را پیدا می‌کند (یا `FAHARES_BACKUP_CHAT`). `tdl chat export -T last -i 120` و تازه‌ترین پیام `fahares-db-<stamp>.manifest.json`، یا همان `--stamp`.
+  - **دریافت:** manifest برای هر تکه `file`، `sha256` و `message_id` دارد. تکه‌ها با `tdl dl -u https://t.me/c/<chat>/<id>`، پنج‌تا در هر بار، در پوشه‌ای تازه و با `--restart` دریافت می‌شوند. `--skip-same` به کار نرفت: نام را بی پسوند می‌سنجد، و همۀ تکه‌ها نام `….sql.zst.age` و اندازۀ یکسان دارند. تکه‌ای که sha256 آن نخواند دوباره خواسته می‌شود، تا سه بار.
+  - **حد زمانی:** هر فرمان `tdl` با `timeout` است (فهرست ۳ دقیقه، export ۵ دقیقه، هر دستۀ دریافت ۱۵ دقیقه)، چون با اتصال بد بی‌پایان دوباره وصل می‌شود. قفل `~/.fahares/prodcopy.lock` با `8>&-` به `tdl` نمی‌رسد، تا `tdl` جامانده قفل را نگه ندارد.
+  - **سنجش:** sha256 هر تکه، فایل سرهم (`encrypted.sha256`)، `age -d -i ~/fahares-age.key` (یا `FAHARES_AGE_KEY`)، sha256 فایل رمزگشوده (`dump.sha256`) و `zstd -t`. فایل رمزدار یا رمزگشودۀ درست در `~/.cache/fahares-prodcopy/<stamp>/` می‌ماند و اجرای دوباره دوباره دریافت نمی‌کند. `--check-only` همین‌جا می‌ایستد.
+  - **جای دیسک:** آزادی حجم MariaDB (`df /var/lib/mysql` در کانتینر) باید دست‌کم اندازۀ `fahares_prod` کنونی و `FAHARES_MIN_FREE_GB` (پیش‌فرض ۱) باشد.
+  - **بارگذاری:** [fahares-restore.sh](../scripts/backup/fahares-restore.sh) `--file <dump> --container fahares_mariadb --database fahares_prod_new --replace`، که `CREATE DATABASE` و `USE` را به نام مقصد برمی‌گرداند. سپس `row_counts` manifest با `COUNT(*)` پایگاه موقت سنجیده می‌شود. اگر نخواند، `fahares_prod` دست نمی‌خورد.
+  - **جابه‌جایی:** اگر پرس‌وجویی (جز `Sleep`) روی `fahares_prod` در جریان باشد، نمی‌شود. یک `RENAME TABLE` همۀ جدول‌های `fahares_prod` را به `fahares_prod_<تاریخ رونوشت پیشین>` و جدول‌های `fahares_prod_new` را به `fahares_prod` می‌برد. پیش از آن پرسش `[y/N]` است، مگر با `--yes`. پایگاه موقتِ خالی‌شده حذف می‌شود.
+  - **سابقه:** `~/.fahares/prodcopy.tsv` (زمان، stamp، `created_at`، بایگانی، شمارها). سطر رونوشت گام ۱۴.۹۱ (`fahares-db-20261108-034701`) دستی افزوده شد. `--status` رونوشت کنونی، اندازۀ پایگاه‌های `fahares_prod*` و جای آزاد را نشان می‌دهد.
+- **آزمون (۴ آذر):** با یک `age` ساختگی که شکست می‌خورد: export، ۱۹ تکه (۳۶۶ مگابایت، دو تکه از پیش) با sha256 درست، فایل سرهم درست، و ایستادن در رمزگشایی. اجرای نخست پس از ۹ دقیقه با شکست `tdl` ایستاد و تکه‌های رسیده را دور ریخت. از آن پس تکه‌های رسیده می‌مانند و حد زمانی افزوده شد.
+- **جای دیسک (۴ آذر):** ۷٫۵ گیگابایت آزاد. `fahares_prod` ۳٫۹۲، بایگانی‌های `fahares_prod_20261014` ۱٫۰۲ و `fahares_prod_20261029` ۳٫۲۱، و `fahares_prod_bak_13114` ۲٫۳۱ گیگابایت.
