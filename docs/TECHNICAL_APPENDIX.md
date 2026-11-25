@@ -14096,7 +14096,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - هر چهار رکورد حذف‌شده ارجاع دارند، و `/m/191330` به ۷۹۲/۴ می‌رود.
     - مدخل‌های چاپی شش رکورد `auto` با صفحۀ خودشان‌اند. ۵۲۱/۲ تاریخ `1071ق` دارد.
     - صفحه‌ها پاسخ ۲۰۰ دادند و `laravel.log` خطایی نداشت.
-  - **مانده:** پس از انتشار commit اصلاح‌های ۱۷۲۳، همین فرمان دوباره اجرا شود (باید `done before 6` و `corrected 8` بدهد)، سپس `sources:take-texts catalogue-7ac531af190e`.
+- **اجرای دوم پروداکشن (۴ آذر ۱۴۰۵، پس از انتشار اصلاح‌های ۱۷۲۳، به تأیید کاربر):**
+  - **پشتیبان:**
+    - `before_step14_387_1733_prod_20261125_1719.json` (md5 `ee77b7bf…`).
+    - پشتیبان فرمان: `merge_shelfmark_twins_step14_387_1733_prod.json` (md5 `b8b1c65d…`).
+  - **اجرا:** یک `prod-run`.
+    - فرمان: `done before 6` و `corrected 8`، لاگ‌های ۱۸۴۸۱۶ تا ۱۸۴۸۲۳.
+    - `take-texts catalogue-7ac531af190e`: ۸ برداشت.
+  - **وارسی:** ۱۷۳۳/۱ تا ۱۰ در مجموعۀ ۱۹۱۰۲ است و همه `text_status = auto` در ص ۳۵۱ دارند. در `/tmp` چیزی نماند.
 
 ### گام ۱۴.۳۸۸: `person_period_decisions_step14_388.json`
 - **پرونده:** ۹۲ تصمیم برای ردیف‌های ۶۹۱۲ تا ۷۰۰۴ `person_periods` (۷ تأیید، یکی با `year: 1255, year_is: from`؛ ۸۵ رد با `reason`). ردیف ۶۹۵۷ در پرونده نیست.
