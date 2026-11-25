@@ -39,7 +39,7 @@ class RemoveCatalogueTest extends TestCase
     {
         $copy = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark,
             'catalog_volume_id' => $volume->id, 'volume_number' => 1, 'page_start' => $page, 'metadata' => ['catalog_citation' => $citation]]);
-        \App\Sources\SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $copy->id)->get());
+        \App\Sources\SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $copy->id)->get());
 
         return $copy;
     }

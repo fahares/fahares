@@ -94,7 +94,8 @@ class OtherCitationsTest extends TestCase
             'table' => 'manuscripts', 'id' => $wrong->id, 'shelfmark' => $wrong->shelfmark, 'category' => 'rebuild', 'v2' => 'v1-1#0',
             'changes' => [
                 'raw_text' => ['from' => $wrong->fankhaText(), 'to' => 'نسخه، 9گ [ف: 21-1200]'],
-                'metadata' => ['from' => $meta ?: null, 'to' => ['catalog_citation' => '[ف: 21-1200]']],
+                // the corpus's export holds the citation in the metadata; the copy's citation entry holds it on the site (step 14.413)
+                'metadata' => ['from' => $meta + ['catalog_citation' => '[اهدائی رهبر: 3-650]'], 'to' => ['catalog_citation' => '[ف: 21-1200]']],
             ],
         ]]], JSON_UNESCAPED_UNICODE));
 

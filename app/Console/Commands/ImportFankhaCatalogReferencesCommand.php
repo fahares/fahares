@@ -41,11 +41,11 @@ class ImportFankhaCatalogReferencesCommand extends Command
         $stats = array_fill_keys(['manuscripts', 'no citation or volume', 'volume and page', 'page only', 'volume only', 'not parsed', 'written', 'removed'], 0);
         $series = [];
 
-        \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_volume_id', 'metadata', 'raw_text'])
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_volume_id', 'catalog_citation', 'raw_text'])
             ->chunkById((int) $this->option('chunk'), function ($rows) use (&$stats, &$series, $dry) {
                 foreach ($rows as $row) {
                     $stats['manuscripts']++;
-                    $raw = self::rawCitation($row->metadata, $row->raw_text);
+                    $raw = self::rawCitation($row->catalog_citation, $row->raw_text);
                     if ($raw === null && ! $row->catalog_volume_id) {
                         $stats['no citation or volume']++;
 
@@ -87,14 +87,14 @@ class ImportFankhaCatalogReferencesCommand extends Command
     {
         $updates = [];
         $kinds = ['a lone number is the page' => 0, 'another citation is the tied volume\'s' => 0, 'volume and page swapped' => 0];
-        \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_volume_id', 'metadata', 'raw_text'])->whereNotNull('ce.source_volume_id')
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_volume_id', 'catalog_citation', 'raw_text'])->whereNotNull('ce.source_volume_id')
             ->chunkById(5000, function ($rows) use (&$updates, &$kinds) {
                 $sources = DB::table('source_volumes')->whereIn('id', $rows->pluck('catalog_volume_id')->unique())->pluck('source_id', 'id')->all();
                 $entries = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $rows->pluck('id'))
                     ->get(['id', 'legacy_id', 'volume_number', 'page_start'])->keyBy('legacy_id');
                 foreach ($rows as $row) {
                     $entry = $entries[$row->id] ?? null;
-                    $raw = self::rawCitation($row->metadata, $row->raw_text);
+                    $raw = self::rawCitation($row->catalog_citation, $row->raw_text);
                     if (! $entry || $raw === null || ! isset($sources[$row->catalog_volume_id])) {
                         continue;
                     }
@@ -127,9 +127,8 @@ class ImportFankhaCatalogReferencesCommand extends Command
     }
 
     /** The citation as Fankha prints it, brackets included; null when the copy has none. */
-    public static function rawCitation(?string $metadata, ?string $rawText): ?string
+    public static function rawCitation(?string $citation, ?string $rawText): ?string
     {
-        $citation = $metadata ? (json_decode($metadata, true)['catalog_citation'] ?? null) : null;
         if (! $citation && $rawText) {
             $raw = preg_replace('/<!--.*?-->/su', '', $rawText);
             if (preg_match_all('/\[[^\[\]]*\]/u', $raw, $m)) {

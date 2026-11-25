@@ -54,7 +54,7 @@ class RebuildCopiesCommand extends Command
         $apply = (bool) $this->option('apply');
         $guard = ProtectedColumns::for(Manuscript::class);
         // the text, the row and the source are the copy's Fankha entry's (step 14.399, backlog item 170)
-        $rows = \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::EXTENT, ...self::COLUMNS])
+        $rows = \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', 'catalog_citation', ...self::EXTENT, ...self::COLUMNS])
             ->whereIn('manuscripts.id', array_column($plan['records'], 'id'))->get()->keyBy('id');
         $counts = [];
         $problems = [];
@@ -93,6 +93,9 @@ class RebuildCopiesCommand extends Command
                 $citation = $rec['changes']['metadata']['to']['catalog_citation'] ?? null;
                 $citationChanged = isset($rec['changes']['metadata'])
                     && ($rec['changes']['metadata']['from']['catalog_citation'] ?? null) !== $citation;
+                // the citation goes to the copy's citation entry, the rest of the metadata to its row (step 14.413)
+                $lifted = isset($new['metadata']) ? RecordEntries::liftCitation(['metadata' => $new['metadata']]) : [];
+                array_key_exists('metadata', $lifted) && $new['metadata'] = $lifted['metadata'];
                 $extra = [];
                 if ($citationChanged) {
                     // the catalogue volume came from the other copy's citation: catalogs:link-volumes relinks it
@@ -128,14 +131,15 @@ class RebuildCopiesCommand extends Command
                     array_key_exists($column, $new) && $entry[$key] = $new[$column];
                 }
                 $entry && RecordEntries::fankha((new Manuscript)->forceFill(['id' => $rec['id']]), $entry);
+                $citationChanged && RecordEntries::take((new Manuscript)->forceFill(['id' => $rec['id']]), ['catalog_citation' => $citation], false);
                 array_key_exists('catalog_volume_id', $extra) && SourceEntrySync::setCatalogue([$rec['id']], ['catalog_volume_id' => null, 'cataloger_id' => null]);
                 AuditLog::create([
                     'user_id' => null,
                     'auditable_type' => Manuscript::class,
                     'auditable_id' => $rec['id'],
                     'action' => 'corpus_update',
-                    'old_values' => $old + array_intersect_key((array) $row, $extra),
-                    'new_values' => $new + $extra + ['corpus_fix' => $note, 'category' => 'rebuild', 'v2' => $rec['v2']],
+                    'old_values' => $old + array_intersect_key((array) $row, $extra) + ($citationChanged ? ['catalog_citation' => $row->catalog_citation] : []),
+                    'new_values' => $new + $extra + ($citationChanged ? ['catalog_citation' => $citation] : []) + ['corpus_fix' => $note, 'category' => 'rebuild', 'v2' => $rec['v2']],
                 ]);
             }
         });
@@ -220,6 +224,10 @@ class RebuildCopiesCommand extends Command
                 return "field {$field} not allowed";
             }
             $current = $field === 'metadata' ? json_decode($row->metadata ?? 'null', true) : $row->$field;
+            // the export's metadata holds the catalogue citation, which the copy's citation entry holds now (step 14.413)
+            if ($field === 'metadata' && (array_key_exists('catalog_citation', (array) $change['to']) || array_key_exists('catalog_citation', (array) $change['from']))) {
+                $current = array_diff_key((array) $current, ['catalog_citation' => 1]) + ['catalog_citation' => $row->catalog_citation];
+            }
             if ($this->same($current, $change['to'])) {
                 continue;
             }

@@ -120,8 +120,8 @@ class LinkCatalogVolumesTest extends TestCase
 
     public function test_citation_falls_back_to_the_last_bracket_of_the_raw_text()
     {
-        $this->assertSame('الفبائی: -512', Linker::citationOf('{"catalog_citation": null}', "۱. مشهد؛ رضوی؛ شماره نسخه: 1\nخط: نسخ [الفبائی: -512]"));
-        $this->assertSame('ف: 3-10', Linker::citationOf('{"catalog_citation": "[ف: 3-10]"}', 'متن [رایانه]'));
+        $this->assertSame('الفبائی: -512', Linker::citationOf(null, "۱. مشهد؛ رضوی؛ شماره نسخه: 1\nخط: نسخ [الفبائی: -512]"));
+        $this->assertSame('ف: 3-10', Linker::citationOf('[ف: 3-10]', 'متن [رایانه]'));
     }
 
     public function test_manuscripts_are_linked_by_natural_key_and_the_run_is_repeatable()

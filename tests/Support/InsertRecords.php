@@ -38,6 +38,8 @@ class InsertRecords
 
     private static function insert(Model $model, array $columns): int
     {
+        // a copy's catalogue citation given in its metadata is its citation entry's (step 14.413)
+        $model instanceof Manuscript && $columns = RecordEntries::liftCitation($columns);
         $source = array_intersect_key($columns, array_flip($model::SOURCE_ATTRIBUTES));
         $id = DB::table($model->getTable())->insertGetId(array_diff_key($columns, $source));
         $source && RecordEntries::take($model->forceFill(['id' => $id]), $source, true);

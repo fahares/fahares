@@ -353,7 +353,6 @@ class SeedFaharesDataCommand extends Command
                 'explicits' => $m['explicits'] ?? [],
                 'editorial_notes' => $m['editorial_notes'] ?? [],
                 'ownership_and_seals' => $m['ownership_and_seals'] ?? [],
-                'catalog_citation' => $m['catalog_citation'] ?? null,
                 'residual_notes' => $m['residual_notes'] ?? null,
             ];
 
@@ -403,6 +402,8 @@ class SeedFaharesDataCommand extends Command
             \App\Sources\RecordEntries::fankha((new \App\Models\Manuscript)->forceFill(['id' => $msId]), [
                 'source_id' => \App\Sources\RecordEntries::fankhaSourceId(), 'volume_number' => $volNum, 'page_start' => (int) ($m['page_start'] ?? 0),
                 'page_end' => (int) ($m['page_end'] ?? 0), 'entry_number' => (int) ($m['sequence_number'] ?? ($idx + 1)), 'text' => $m['raw_text'] ?? null]);
+            // the catalogue citation is the copy's citation entry's (step 14.413)
+            \App\Sources\RecordEntries::take((new \App\Models\Manuscript)->forceFill(['id' => $msId]), ['catalog_citation' => $m['catalog_citation'] ?? null], false);
 
             $msInsertedCount++;
 

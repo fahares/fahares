@@ -307,18 +307,18 @@ class ImportVolumePartsCommand extends Command
         $slugs = DB::table('libraries')->whereIn('slug', array_column($this->data['copies'] ?? [], 'library') ?: [''])->pluck('id', 'slug');
         $named = collect($this->data['copies'] ?? [])->mapWithKeys(fn ($c) => [($slugs[$c['library']] ?? 0) . '|' . $c['shelfmark'] . '|' . $c['page'] => (int) $c['volume']])->all();
         $found = [];
-        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id', 'library_id', 'shelfmark'])
+        EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id', 'library_id', 'shelfmark'])
             ->where(fn ($q) => $q->whereNull('ce.source_volume_id')->orWhereIn('ce.source_volume_id', $on ?: [0]))
             // a series many catalogues share («ف مخ», «ف»): only the copies of the book's own libraries
             ->when($this->data['only_libraries'] ?? false, fn ($q) => $q->whereIn('manuscripts.library_id', $this->ownLibraries() ?: [0]))
             ->where(function ($q) use ($likes) {
                 foreach ($likes as $like) {
-                    $q->orWhere('manuscripts.metadata->catalog_citation', 'like', $like)->orWhere(EntryColumns::column('manuscripts', 'raw_text'), 'like', $like);
+                    $q->orWhere('ce.citation_text', 'like', $like)->orWhere(EntryColumns::column('manuscripts', 'raw_text'), 'like', $like);
                 }
             })
             ->orderBy('manuscripts.id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, &$found, $have, $numbers, $folds, $named) {
                 foreach ($rows as $m) {
-                    $raw = References::rawCitation($m->metadata, $m->raw_text);
+                    $raw = References::rawCitation($m->catalog_citation, $m->raw_text);
                     // a citation that lost its opening bracket («بی‌کا تا قرن 10 نشریه: 7 - 537]»)
                     if ($raw === null && preg_match('/(' . preg_quote($this->series(), '/') . '\s*:[^\]]*)\]/u', (string) $m->raw_text, $b)) {
                         $raw = '[' . $b[1] . ']';

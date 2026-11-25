@@ -114,7 +114,7 @@ class AddCorpusWorksCommandTest extends TestCase
         $this->assertSame($work->id, DB::table('manuscripts')->where('id', $wrong)->value('work_id'));
         $made = Manuscript::where('work_id', $work->id)->where('shelfmark', '88/2')->sole();
         $this->assertSame(['تهران', 'کتابخانه ملی'], [$made->city, $made->library]);
-        $this->assertSame('[ف: 1-2]', $made->metadata['catalog_citation']);
+        $this->assertSame('[ف: 1-2]', $made->catalog_citation);
         $row = DB::table('work_people')->where('work_id', $work->id)->sole();
         $this->assertSame(['translator', 'مترجم دیگر آزمایشی', 'probable'], [$row->role, $row->name, $row->certainty]);
 

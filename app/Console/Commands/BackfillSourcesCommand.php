@@ -183,7 +183,7 @@ class BackfillSourcesCommand extends Command
     {
         $stats = [SourceEntry::ORIGIN_FANKHA_CITATION => 0];
         // Fankha's citation is the manuscript's own (one per copy)
-        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->chunkById(self::CHUNK, function ($rows) use (&$stats) {
+        EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->chunkById(self::CHUNK, function ($rows) use (&$stats) {
             if ($this->dry) {
                 $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += $rows->filter(fn ($m) => Sync::citedValues($m, $this->volumeSources))->count();
 

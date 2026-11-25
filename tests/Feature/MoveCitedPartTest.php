@@ -45,7 +45,7 @@ class MoveCitedPartTest extends TestCase
         $one = $copy('10470', '[ف: 1 / 33 - 43]');
         $two = $copy('11250', '[ف: 33/2-150]');
         $none = $copy('1-طباطبائی', '[ف: 33-24]');
-        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$one->id, $two->id, $none->id])->get());
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$one->id, $two->id, $none->id])->get());
         $args = ['--library' => $library->slug, '--volume' => 33, '--part' => 1, '--from' => $part2->title, '--to' => $part1->title];
 
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('1 copies to move')->assertSuccessful();
@@ -81,7 +81,7 @@ class MoveCitedPartTest extends TestCase
         $named = $copy('12', '[رشت و همدان: ف: - 1338]');
         $dash = $copy('13', '[رشت و همدان - ف: -1395]');
         $plain = $copy('14', '[ف: 1251]');
-        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$named->id, $dash->id, $plain->id])->get());
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$named->id, $dash->id, $plain->id])->get());
         $args = ['--library' => $library->slug, '--names' => 'رشت و همدان', '--from' => $own->title, '--to' => $book->title, '--apply' => true];
 
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 2 copies.')->assertSuccessful();
@@ -111,7 +111,7 @@ class MoveCitedPartTest extends TestCase
         };
         $second = $copy('20', '[عکسی ف: 2 - 57]');
         $first = $copy('21', '[عکسی ف: 1-358]');
-        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$second->id, $first->id])->get());
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$second->id, $first->id])->get());
         $args = ['--library' => $library->slug, '--cited-volume' => 2, '--from' => $one->title, '--to' => $two->title, '--apply' => true];
 
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 1 copies.')->assertSuccessful();

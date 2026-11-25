@@ -364,7 +364,7 @@ class ImportVolumePartsTest extends TestCase
         $this->assertSame(['تراثنا - السنة 6، العدد 2 (23)', 'تراثنا: س6ش2', 50695], array_values(SourceVolume::find($volumes[23])->only(['title', 'citation_pattern', 'mtif_entry_id'])));
         foreach ([[$first, 22, $fazel], [$second, 23, $fazel], [$bare, 22, $fazel], [$misprint, 52, $fazeli], [$double, 50, $fazeli], [$single, 50, $fazeli]] as [$copy, $number, $cataloger]) {
             $fresh = $copy->fresh();
-            $this->assertSame([$volumes[$number], $cataloger->id], [(int) $fresh->citedEntry?->source_volume_id, (int) $fresh->citedEntry?->cataloger_id], $copy->metadata['catalog_citation']);
+            $this->assertSame([$volumes[$number], $cataloger->id], [(int) $fresh->citedEntry?->source_volume_id, (int) $fresh->citedEntry?->cataloger_id], $copy->catalog_citation);
             $this->assertNotNull($fresh->citedEntry?->catalog_volume_part_id);
         }
         $this->assertNull($stray->fresh()->citedEntry?->source_volume_id, 'another source\'s copy on a folded volume is untied');

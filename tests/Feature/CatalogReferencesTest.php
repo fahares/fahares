@@ -139,7 +139,7 @@ class CatalogReferencesTest extends TestCase
             $this->assertSame(['series' => $series, 'volume' => $volume, 'page' => $page], Import::parse($citation), $citation);
         }
         $this->assertSame('[ف مخ: 1]', Import::rawCitation(null, "متن نسخه [ف مخ: 1]"));
-        $this->assertNull(Import::rawCitation('{"catalog_citation": ""}', 'بی‌ارجاع'));
+        $this->assertNull(Import::rawCitation('', 'بی‌ارجاع'));
     }
 
     public function test_the_import_adds_one_fankha_row_per_copy_and_never_duplicates()
@@ -148,10 +148,12 @@ class CatalogReferencesTest extends TestCase
         $bare = $this->manuscript(['catalog_volume_id' => null, 'metadata' => []]);
 
         $cited = fn (Manuscript $m) => SourceEntry::where('citable_id', $m->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION);
-        // saving the copy wrote it already; the command reads every copy's citation again (the volume is the entry's own, step 14.407)
-        $cited($ms)->update(['citation_text' => null, 'volume_number' => null, 'page_start' => null]);
+        // saving the copy wrote it already; the command reads every entry's citation again (the volume is the entry's
+        // own, step 14.407; the citation the entry's own text, step 14.413), and a dry run writes nothing
+        $cited($ms)->update(['volume_number' => 5]);
         $this->artisan('catalogs:import-fankha-references', ['--dry-run' => true])->assertSuccessful();
-        $this->assertNull($cited($ms)->value('citation_text'));
+        $this->assertSame(5, (int) $cited($ms)->value('volume_number'));
+        $cited($ms)->update(['volume_number' => 2]);
 
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();

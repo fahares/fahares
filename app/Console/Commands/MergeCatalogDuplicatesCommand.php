@@ -126,9 +126,9 @@ class MergeCatalogDuplicatesCommand extends Command
         }
         $moves = [];
         if ($splits) {
-            \App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->where('ce.source_volume_id', $volume->id)->orderBy('manuscripts.id')
+            \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text'])->where('ce.source_volume_id', $volume->id)->orderBy('manuscripts.id')
                 ->each(function ($ms) use ($splits, &$moves) {
-                    $parsed = LinkCatalogVolumesCommand::parseCitation(LinkCatalogVolumesCommand::citationOf($ms->metadata, $ms->raw_text), 'ف');
+                    $parsed = LinkCatalogVolumesCommand::parseCitation(LinkCatalogVolumesCommand::citationOf($ms->catalog_citation, $ms->raw_text), 'ف');
                     if ($parsed && isset($splits[$parsed['volume']])) {
                         $moves[$parsed['volume']][] = $ms->id;
                     }

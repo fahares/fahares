@@ -118,13 +118,13 @@ class SourceEntrySync
     }
 
     /**
-     * Reads a copy's citation entry again after a writer changed its metadata with the query builder (a work has
-     * nothing to take in: its entries are written as entries, step 14.407).
+     * Reads a copy's citation entry again after a writer changed its text with the query builder: a citation that
+     * stands in the text alone follows it (a work has nothing to take in: its entries are written as entries, step 14.407).
      */
     public static function syncRecord(Model $record): void
     {
         if ($record instanceof Manuscript) {
-            self::syncCited(EntryColumns::query('manuscripts', ['id', 'library_id', 'metadata', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $record->getKey())->get());
+            self::syncCited(EntryColumns::query('manuscripts', ['id', 'library_id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $record->getKey())->get());
         }
     }
 
@@ -136,7 +136,7 @@ class SourceEntrySync
      */
     public static function citedValues(object $m, array $volumeSources): ?array
     {
-        $raw = \App\Console\Commands\ImportFankhaCatalogReferencesCommand::rawCitation($m->metadata, $m->raw_text);
+        $raw = \App\Console\Commands\ImportFankhaCatalogReferencesCommand::rawCitation($m->catalog_citation, $m->raw_text);
         if ($raw === null && ! $m->catalog_volume_id) {
             return null;
         }
@@ -161,7 +161,7 @@ class SourceEntrySync
     }
 
     /**
-     * Writes the cited page of each manuscript (rows with id, metadata, raw_text, catalog_volume_id) and removes
+     * Writes the cited page of each manuscript (rows with id, catalog_citation, raw_text, catalog_volume_id) and removes
      * it from a copy that no longer has one. Returns [written, removed].
      */
     /** @var array<int, array<int, object>> source id => its volumes (number, first and last page) by volume id */
@@ -280,7 +280,7 @@ class SourceEntrySync
         $others = [];
         $texts = [];
         foreach ($manuscripts as $m) {
-            $others[$m->id] = \App\Support\CatalogCitations::others($m->metadata, $m->raw_text);
+            $others[$m->id] = \App\Support\CatalogCitations::others($m->catalog_citation, $m->raw_text);
             $texts[$m->id] = (string) $m->raw_text;
         }
         if (! $others) {
@@ -755,11 +755,11 @@ class SourceEntrySync
      */
     public static function relinkVolumes(array $ids): int
     {
-        $rows = EntryColumns::query('manuscripts', ['id', 'library_id', 'metadata'])->whereIn('manuscripts.id', $ids)->whereNull('ce.source_volume_id')->get();
+        $rows = EntryColumns::query('manuscripts', ['id', 'library_id', 'catalog_citation'])->whereIn('manuscripts.id', $ids)->whereNull('ce.source_volume_id')->get();
         $volumes = self::seriesVolumes($rows->pluck('library_id')->filter()->unique()->values()->all());
         $done = 0;
         foreach ($rows as $row) {
-            $citation = json_decode($row->metadata ?? 'null', true)['catalog_citation'] ?? null;
+            $citation = $row->catalog_citation;
             $place = $citation ? (\App\Support\CatalogCitations::places($citation)[0] ?? null) : null;
             if (! $place || $place['series'] === null) {
                 continue;
@@ -791,7 +791,7 @@ class SourceEntrySync
         foreach (collect($ids)->unique()->chunk(1000) as $chunk) {
             $chunk = $chunk->values()->all();
             if (array_key_exists('catalog_volume_id', $values)) {
-                $rows = EntryColumns::query('manuscripts', ['id', 'library_id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', $chunk)->get()
+                $rows = EntryColumns::query('manuscripts', ['id', 'library_id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', $chunk)->get()
                     ->each(fn ($m) => $m->catalog_volume_id = $values['catalog_volume_id']);
                 self::syncCited($rows);
             }

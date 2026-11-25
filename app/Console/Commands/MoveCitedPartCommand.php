@@ -72,11 +72,11 @@ class MoveCitedPartCommand extends Command
         $volume = (int) $this->option('volume');
         $part = (int) $this->option('part');
 
-        $copies = \App\Support\EntryColumns::query('manuscripts', ['id', 'shelfmark', 'metadata', 'raw_text'])->where('ce.source_volume_id', $from->id)->orderBy('manuscripts.id')->get();
+        $copies = \App\Support\EntryColumns::query('manuscripts', ['id', 'shelfmark', 'catalog_citation', 'raw_text'])->where('ce.source_volume_id', $from->id)->orderBy('manuscripts.id')->get();
         $moves = [];
         $parts = [];
         foreach ($copies as $m) {
-            $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->metadata, $m->raw_text);
+            $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->catalog_citation, $m->raw_text);
             if (filled($names)) {
                 $cited = $raw !== null && str_contains(LinkCatalogVolumesCommand::normalize($raw), LinkCatalogVolumesCommand::normalize($names)) ? 'named' : null;
             } elseif (filled($citedVolume)) {
@@ -109,7 +109,7 @@ class MoveCitedPartCommand extends Command
                     'old_values' => ['catalog_volume_id' => $from->id],
                     'new_values' => ['catalog_volume_id' => $to->id, 'corpus_fix' => filled($names) ? 'move-cited-part --names (step 14.326)' : (filled($citedVolume) ? 'move-cited-part --cited-volume (step 14.333)' : 'move-cited-part (step 14.152)')]]);
             }
-            \App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('ce.source_volume_id', [$from->id, $to->id])
+            \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('ce.source_volume_id', [$from->id, $to->id])
                 ->chunkById(1000, fn ($rows) => SourceEntrySync::syncCited($rows), 'manuscripts.id', 'id');
         });
 

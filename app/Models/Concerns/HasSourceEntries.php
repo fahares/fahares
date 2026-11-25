@@ -24,7 +24,7 @@ trait HasSourceEntries
      * create or update, as a convenience; they are no columns, and the record's entries take them on save.
      */
     public const SOURCE_ATTRIBUTES = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', 'sequence_number',
-        'bibliography', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id'];
+        'bibliography', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id', 'catalog_citation'];
 
     /** @var \WeakMap<object, array{0: array<string, mixed>, 1: bool}>|null the source values a record was given and whether it is being made, until it is saved */
     private static ?\WeakMap $pendingSources = null;
@@ -57,6 +57,14 @@ trait HasSourceEntries
                 return;
             }
             $given = [];
+            // a copy's catalogue citation given in its metadata goes to its citation entry (step 14.413)
+            if ($record instanceof \App\Models\Manuscript && $record->isDirty('metadata')) {
+                $lifted = RecordEntries::liftCitation(['metadata' => $record->metadata]);
+                if (array_key_exists('catalog_citation', $lifted)) {
+                    $record->metadata = $lifted['metadata'];
+                    array_key_exists('catalog_citation', $record->getAttributes()) || $given['catalog_citation'] = $lifted['catalog_citation'];
+                }
+            }
             foreach (self::SOURCE_ATTRIBUTES as $name) {
                 if (array_key_exists($name, $record->getAttributes())) {
                     $given[$name] = $record->getAttributes()[$name];

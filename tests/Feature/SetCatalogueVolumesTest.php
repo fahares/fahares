@@ -40,7 +40,7 @@ class SetCatalogueVolumesTest extends TestCase
     {
         $copy = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => (string) random_int(1, 99999), 'catalog_volume_id' => $volume->id,
             'cataloger_id' => $cataloger, 'volume_number' => 1, 'page_start' => 1, 'metadata' => ['catalog_citation' => $citation]]);
-        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $copy->id)->get());
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $copy->id)->get());
 
         return $copy;
     }

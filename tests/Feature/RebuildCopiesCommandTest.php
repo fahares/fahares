@@ -84,7 +84,9 @@ class RebuildCopiesCommandTest extends TestCase
         $this->assertStringStartsWith('تهران؛ دانشگاه؛ شماره نسخه: 6030/8-ف', $row->raw_text);
         $this->assertNull($row->copy_date_raw);
         $this->assertNull($row->scribe_name);
-        $this->assertSame('[فیلم‌ها - ف: 3-193]', json_decode($row->metadata, true)['catalog_citation']);
+        // the citation is the copy's citation entry's, not its metadata's (step 14.413)
+        $this->assertSame('[فیلم‌ها - ف: 3-193]', Manuscript::find($wrong)->catalog_citation);
+        $this->assertArrayNotHasKey('catalog_citation', json_decode($row->metadata, true));
         $this->assertFalse(DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $wrong)->exists());
         // the copy's own text has no «خط:» line, so the other copy's script goes too
         $this->assertNull($row->script_names);

@@ -136,6 +136,7 @@ class RecordEntries
      */
     public static function insertRow(string $class, array $attributes): void
     {
+        $class === Manuscript::class && $attributes = self::liftCitation($attributes);
         $source = defined($class . '::SOURCE_ATTRIBUTES') && $class !== \App\Models\Library::class ? array_intersect_key($attributes, array_flip($class::SOURCE_ATTRIBUTES)) : [];
         $row = array_diff_key($attributes, $source);
         $table = (new $class)->getTable();
@@ -152,6 +153,7 @@ class RecordEntries
      */
     public static function write(Model $record, array $payload): void
     {
+        $record instanceof Manuscript && $payload = self::liftCitation($payload);
         $source = array_intersect_key($payload, array_flip($record::SOURCE_ATTRIBUTES));
         $columns = array_diff_key($payload, $source);
         $columns && DB::table($record->getTable())->where('id', $record->getKey())->update($columns);
@@ -167,17 +169,39 @@ class RecordEntries
     }
 
     /**
-     * A copy's citation entry: Fankha's citation of its catalogue place (its metadata's catalog_citation, until that
-     * goes too) at the catalogue volume given or held, then the part and the cataloger given.
+     * A copy's metadata gives up its catalog_citation (step 14.413, backlog item 170): Fankha's citation of the copy's
+     * catalogue place is held by the copy's citation entry (citation_text), and a writer that still gives it in the
+     * metadata (the corpus's export, an old audit log, a merge of metadata maps) gives it as the source value
+     * catalog_citation. The metadata keeps its form: an array, a JSON string or null.
+     */
+    public static function liftCitation(array $values): array
+    {
+        $metadata = $values['metadata'] ?? null;
+        $map = is_string($metadata) ? json_decode($metadata, true) : $metadata;
+        if (! is_array($map) || ! array_key_exists('catalog_citation', $map)) {
+            return $values;
+        }
+        array_key_exists('catalog_citation', $values) || $values['catalog_citation'] = $map['catalog_citation'];
+        unset($map['catalog_citation']);
+        $values['metadata'] = $map === [] ? null : (is_string($metadata) ? json_encode($map, JSON_UNESCAPED_UNICODE) : $map);
+
+        return $values;
+    }
+
+    /**
+     * A copy's citation entry: Fankha's citation of its catalogue place (the citation given, else the one the entry
+     * holds, else the last bracket of the copy's text) at the catalogue volume given or held, then the part and the
+     * cataloger given.
      */
     private static function citation(Manuscript $copy, array $given, bool $created): void
     {
         $held = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->getKey())->where('legacy_index', 0)->first();
-        if ($created || $copy->wasChanged('metadata') || array_key_exists('catalog_volume_id', $given) || array_key_exists('raw_text', $given)) {
+        if ($created || array_key_exists('catalog_citation', $given) || array_key_exists('catalog_volume_id', $given) || array_key_exists('raw_text', $given)) {
+            $citation = array_key_exists('catalog_citation', $given) ? $given['catalog_citation'] : $held?->citation_text;
             SourceEntrySync::syncCited([(object) [
                 'id' => $copy->getKey(),
                 'library_id' => $copy->library_id,
-                'metadata' => DB::table('manuscripts')->where('id', $copy->getKey())->value('metadata'),
+                'catalog_citation' => is_string($citation) ? $citation : null,
                 'raw_text' => self::fankhaOf($copy)['text'],
                 'catalog_volume_id' => array_key_exists('catalog_volume_id', $given) ? $given['catalog_volume_id'] : $held?->source_volume_id,
             ]]);

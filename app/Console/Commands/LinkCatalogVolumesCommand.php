@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 /**
  * Links manuscripts without a cataloger to their catalog volume and cataloger (backlog item 49).
  *
- * The citation is read from metadata.catalog_citation, or from the last bracket of raw_text when the
+ * The citation is read from the copy's citation entry (citation_text), or from the last bracket of raw_text when the
  * corpus parser left it among the editorial notes («[الفبائی: -512]», «[ف مخ: 1]», «[رایانه]» …).
  * Volumes and catalogers come from database/data/catalog_volume_links.json, sourced from MTIF or the
  * catalogue bibliography in Fankha's introduction, and approved by the user. Everything is matched by
@@ -206,14 +206,14 @@ class LinkCatalogVolumesCommand extends Command
         $matched = [];
         $unlinked = [];
         $skipped = 0;
-        $query = EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id', 'cataloger_id'])->where('manuscripts.library_id', $library->id);
+        $query = EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id', 'cataloger_id'])->where('manuscripts.library_id', $library->id);
         if (! $authoritative) {
             $query->where(fn ($q) => $q->whereNull('ce.cataloger_id')->orWhereIn('manuscripts.id', $released));
         }
         $freedIds = array_flip($released);
         $query->chunkById(2000, function ($chunk) use ($link, $volumes, $single, $parts, $authoritative, $ownVolumeIds, $freedIds, &$matched, &$unlinked, &$skipped) {
                 foreach ($chunk as $ms) {
-                    $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), $link['series'], $parts);
+                    $parsed = self::parseCitation(self::citationOf($ms->catalog_citation, $ms->raw_text), $link['series'], $parts);
                     if (! $parsed) {
                         continue;
                     }
@@ -421,10 +421,10 @@ class LinkCatalogVolumesCommand extends Command
             ->whereIn('mtif_entry_id', array_values($spec['razavi_volumes']))->get()->keyBy('mtif_entry_id');
 
         $moves = [];
-        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->whereIn('ce.source_volume_id', $malekVolumes->pluck('id'))
+        EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text'])->whereIn('ce.source_volume_id', $malekVolumes->pluck('id'))
             ->where('manuscripts.library_id', $razavi->id)->orderBy('manuscripts.id')
             ->each(function ($ms) use ($spec, $razaviVolumes, &$moves) {
-                $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), 'ف');
+                $parsed = self::parseCitation(self::citationOf($ms->catalog_citation, $ms->raw_text), 'ف');
                 $mtif = $parsed && $parsed['volume'] ? ($spec['razavi_volumes'][(string) $parsed['volume']] ?? null) : null;
                 $moves[$mtif ? ($razaviVolumes->get($mtif)?->id ?? 0) : 0][] = $ms->id;
             });
@@ -450,10 +450,10 @@ class LinkCatalogVolumesCommand extends Command
     protected function markNonCatalogSources(): void
     {
         $marked = [self::SOURCE_LIBRARY_DATABASE => [], self::SOURCE_REGISTER => []];
-        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->whereNull('ce.cataloger_id')
+        EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text'])->whereNull('ce.cataloger_id')
             ->chunkById(5000, function ($chunk) use (&$marked) {
                 foreach ($chunk as $ms) {
-                    if ($source = self::nonCatalogSource(self::citationOf($ms->metadata, $ms->raw_text))) {
+                    if ($source = self::nonCatalogSource(self::citationOf($ms->catalog_citation, $ms->raw_text))) {
                         $marked[$source][] = $ms->id;
                     }
                 }
@@ -489,9 +489,9 @@ class LinkCatalogVolumesCommand extends Command
     }
 
     /** The catalogue citation: the parsed field, else the last bracket of the raw text. */
-    public static function citationOf(?string $metadata, ?string $rawText): string
+    public static function citationOf(?string $citation, ?string $rawText): string
     {
-        $citation = $metadata ? (json_decode($metadata, true)['catalog_citation'] ?? '') : '';
+        $citation ??= '';
         if (! $citation && $rawText) {
             $raw = preg_replace('/<!--.*?-->/su', '', $rawText);
             if (preg_match_all('/\[([^\[\]]*)\]/u', $raw, $m)) {
