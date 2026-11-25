@@ -14134,8 +14134,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
 - **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
 
-### گام ۱۴.۳۹۳: `insights/presets.blade.php`
-- `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
 ### گام ۱۴.۳۹۲: فرمان‌های یک‌باره
 
 - **دسته‌بندی:** جدول ۱۵۲ فرمان (حکم، شاهد، ستون‌های رکوردی که هر فرمان می‌نویسد، آزمون‌ها) را یک زیرعامل Sonnet ساخت و من بازبینی کردم. سنجه‌ها: `routes/console.php`، `Artisan::call` و `->call(` در `app`، اسکریپت‌های `scripts/`، ثبت اجرا در `PROCESS_DOCUMENTATION` و `TECHNICAL_APPENDIX`، و کار مانده در `BACKLOG`.
@@ -14144,3 +14142,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **migration:** `2026_09_29_000001_fix_autograph_false_positives` حالا بدنه ندارد. پایگاه تازه چیزی برای اصلاح ندارد و پروداکشن آن را پیش‌تر اجرا کرده است.
 - **آزمون‌ها:** `AuthorLinkQueueTest` ردیف `PersonReview` از نوع `author_link` را مستقیم می‌سازد. `DuplicatePeopleTest` از `DuplicatePeopleFinder::key/groups/looseGroups` و `PersonMerger::merge(..., keepPrintedNames: true)` استفاده می‌کند. `PersonReviewTest` گروه‌های داوری‌شده را با `PersonReview::create` می‌سازد. در `CatalogVolumePartsTest` به جای `catalogs:assign-volume-parts`، `Cataloger::recount()` صدا زده می‌شود و بخش هر نسخه از قلاب ذخیره می‌آید.
 - **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
+
+### گام ۱۴.۳۹۳: `insights/presets.blade.php`
+- `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
