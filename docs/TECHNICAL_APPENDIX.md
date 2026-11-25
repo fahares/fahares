@@ -14000,6 +14000,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان‌ها:** نوشتن در جدول قدیم و کلیدهای پشتیبان آن از `SourceMerger`، `catalogs:fix-misnamed-isfahan`، `fix-reversed-citations`، `import-volume-parts`، `move-cited-part`، `rebuild-copies`، `remove-catalogue`، `set-catalogue-volumes` و `repair-tabriz-volumes` رفت. پشتیبان‌های JSON قدیم با `--revert` هنوز کار می‌کنند، چون کلید جدول قدیم فقط نادیده می‌ماند. `remove-catalogue` صفحه را از `source_entries` (`legacy_type = fankha_citation`، `source_volume_id` در جلدها) می‌خواند.
 - **آزمون‌ها:** `BackfillSourcesTest::test_fankha_citations_come_from_the_copy_and_catalogue_matches_stay` (مدخل `catalog_reference` پس از اجرا می‌ماند). `SourceCorrectionsTest` (بازگردانی لاگ و تأیید گروهی پیش از ۱۳.۳ بی جدول). آزمون `evidence` حذف شد. درج‌های جدول قدیم از چهار آزمون فرمان‌ها رفت.
 - **تمرین روی `fahares_prod`:** `migrate --force` در ۱۰۸ ms. صفحه‌ها با `php -S` در کانتینر: `/`، `/manuscripts/10368`، `/works/33`، `/works/385`، `/sources`، `/sources/hadiyya`، `/search`، `/libraries` و `/insights` همه ۲۰۰. نسخۀ ۱۰۳۶۸ مدخل ۷۱۹۲۱۲ (match، verified، legacy catalog_reference) را نشان می‌دهد. `sources:backfill --dry-run --only=references --only=bibliography`: ۳۲۳٬۱۷۵ استناد فنخا و ۴۵٬۴۰۲ ارجاع کتاب‌شناسی.
+
 ### گام ۱۴.۳۸۳: ردپای فنخا در سایت؛ `pages.about`، `sources/index` و `layouts/app`
 
 - **جست‌وجو:**
