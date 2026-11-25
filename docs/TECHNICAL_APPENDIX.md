@@ -13982,3 +13982,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان‌ها:** نوشتن در جدول قدیم و کلیدهای پشتیبان آن از `SourceMerger`، `catalogs:fix-misnamed-isfahan`، `fix-reversed-citations`، `import-volume-parts`، `move-cited-part`، `rebuild-copies`، `remove-catalogue`، `set-catalogue-volumes` و `repair-tabriz-volumes` رفت. پشتیبان‌های JSON قدیم با `--revert` هنوز کار می‌کنند، چون کلید جدول قدیم فقط نادیده می‌ماند. `remove-catalogue` صفحه را از `source_entries` (`legacy_type = fankha_citation`، `source_volume_id` در جلدها) می‌خواند.
 - **آزمون‌ها:** `BackfillSourcesTest::test_fankha_citations_come_from_the_copy_and_catalogue_matches_stay` (مدخل `catalog_reference` پس از اجرا می‌ماند). `SourceCorrectionsTest` (بازگردانی لاگ و تأیید گروهی پیش از ۱۳.۳ بی جدول). آزمون `evidence` حذف شد. درج‌های جدول قدیم از چهار آزمون فرمان‌ها رفت.
 - **تمرین روی `fahares_prod`:** `migrate --force` در ۱۰۸ ms. صفحه‌ها با `php -S` در کانتینر: `/`، `/manuscripts/10368`، `/works/33`، `/works/385`، `/sources`، `/sources/hadiyya`، `/search`، `/libraries` و `/insights` همه ۲۰۰. نسخۀ ۱۰۳۶۸ مدخل ۷۱۹۲۱۲ (match، verified، legacy catalog_reference) را نشان می‌دهد. `sources:backfill --dry-run --only=references --only=bibliography`: ۳۲۳٬۱۷۵ استناد فنخا و ۴۵٬۴۰۲ ارجاع کتاب‌شناسی.
+### گام ۱۴.۳۸۳: ردپای فنخا در سایت؛ `pages.about`، `sources/index` و `layouts/app`
+
+- **جست‌وجو:**
+  - `grep` «فنخا|فهرستگان» در `resources/views`، `lang`، `resources/js`، `app` و `config` (بی پنل مدیریت و فرمان‌ها). در کد فقط سه رشته ماند: `DirectAnswer::FANKHA` و دو برچسب `fankha_page` در `SuggestionRegistry`.
+  - ستون‌های متنی `pages`، `posts`، `announcements` و `site_settings` در پروداکشن، فقط خواندنی.
+  - خزش متن دیدنی ۲۰ صفحۀ زنده، بی `script` و `style`. JSON-LD و تگ‌های head صفحه‌های رکورد چیزی نداشتند.
+- **`pages` (slug `about`، #۱):**
+  - پشتیبان: `../fahares-sources/backups/step13/before_step14_383_about_page_20261125_1246.json` (md5 `4849aae9…`)، با md5 متن `d8bdf22f…`. پیش از اجرا دوباره سنجیده شد، چون انتشار batch253 در میانه رخ داد و `/tmp` کانتینر پاک شد.
+  - اسکریپت tinker در `prod-run` با `APPLY=1`. بخش ۱ از « و از آنجا که اطلاعات مجلدات فنخا» تا پایان بند (`\r\n`) جایگزین شد. به بخش ۵ یک جمله افزوده شد.
+  - طول متن ۹٬۸۶۱ ← ۹٬۷۷۱ نویسه. «فنخا» ۴ ← ۳.
+  - اجرای دوم «section 1 not found» داد و چیزی ننوشت. در `/tmp` چیزی نماند.
+- **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
+- **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.

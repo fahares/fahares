@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')</title>
-    <meta name="description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
+    <meta name="description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایۀ فهرست‌های چاپی کتابخانه‌ها و مراجع معتبر')">
     @hasSection('robots')<meta name="robots" content="@yield('robots')">@endif
     {{-- One address per page for search engines (backlog item 72): none on a page that is not indexed --}}
     @unless(str_contains($__env->yieldContent('robots'), 'noindex'))<link rel="canonical" href="@yield('canonical', \App\Support\Indexing::canonical())">@endunless
@@ -12,7 +12,7 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:site_name" content="فهارس | پایگاه جامع نسخه‌های خطی">
     <meta property="og:title" content="@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')">
-    <meta property="og:description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
+    <meta property="og:description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایۀ فهرست‌های چاپی کتابخانه‌ها و مراجع معتبر')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:image" content="@yield('og_image', \App\Support\VersionedAsset::url('images/brand/og-image.jpg'))">
