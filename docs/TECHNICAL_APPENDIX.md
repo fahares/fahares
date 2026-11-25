@@ -14327,3 +14327,41 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان‌ها:** `set-volumes`، `remove-catalogue`، `import-volume-parts`، `link-volumes`، `merge-duplicates`، `move-cited-part`، `import-fankha-references`، `sync-other-citations`، `rebuild-copies`، `apply-corpus-diff`، `sync-work-details`، `add-corpus-works` و `seed` از `EntryColumns` می‌خوانند و از `setCatalogue` یا `RecordEntries` می‌نویسند. بخش `fankha` در `sources:backfill` و فرمان `sources:fill-catalogue-entries` (یک‌باره، اجراشده) حذف شدند.
 - **آزمون‌ها:** `tests/Support/InsertRecords.php` و `TestCase::fankhaOf`/`bibliographyOf`. حدود ۳۰ فایل از مدخل‌ها می‌خوانند. همۀ ۱۰۷۲ آزمون سبز.
 - **خروجی پروداکشن:** `step14_407_record_source_columns_before_drop.sql.gz` (۳۹۴٬۹۳۲ دستور `UPDATE`، ۶۱ MB). برای بازگشت، ستون‌ها باید با migrationهای پیشین بازساخته شوند و این دستورها اجرا شوند.
+### گام ۱۴.۴۰۶: Worker ‏`fahares-failover` و `scripts/dev/maintenance` (مورد ۱۳۶)
+- **[failover.js](../docker/down/cloudflare/failover.js)** (منطق)، **[worker.js](../docker/down/cloudflare/worker.js)** (`fetch` و `scheduled`)، **[wrangler.toml](../docker/down/cloudflare/wrangler.toml)**:
+  - routeهای `fahares.net/*`، `www.fahares.net/*` و `failover-test.fahares.net/*`؛ cron `* * * * *`.
+  - vars: `ZONE_NAME`، `ZONE_ID` و `DNS_TTL=60`. secret: `CF_API_TOKEN` (Zone → DNS → Edit، فقط این zone).
+  - صفحه همان [index.html](../docker/down/index.html) است که با قاعدۀ Text در bundle می‌آید.
+- **`runCheck`:** رکوردهای A، AAAA و CNAME همین دو نام را می‌خواند.
+  - اگر TXT ‏`_maintenance.fahares.net` با پیشوند `fahares-maintenance` باشد: همه proxied می‌شوند (`maintenance`).
+  - وگرنه `hostAnswers` به `/up?failover=<ts>` (۱۰ ثانیه، `redirect: manual`) درخواست می‌دهد. «پاسخ نداد» یعنی خطا، timeout، یا ۵۲۰ تا ۵۲۷ و ۵۳۰.
+  - رکورد خاکستری و دو بی‌پاسخی به فاصلۀ ۲۰ ثانیه: PATCH با `proxied: true, ttl: 1` (`switched`). یک بی‌پاسخی تنها: `blip`.
+  - رکورد نارنجی و دو پاسخ: `proxied: false, ttl: 60` (`restored`). وگرنه `still-down`.
+- **`handleFetch`:** `fetch(request)` با ۱۵ ثانیه مهلت برای سرآیندها؛ بدنه قطع نمی‌شود. پاسخ اگر ۵۲x/۵۳۰ نباشد، همان برگردانده می‌شود.
+  - وگرنه صفحه با `503`، `Retry-After: 120`، `Cache-Control: no-store` و `X-Robots-Tag: noindex` برمی‌گردد.
+  - عنوان و جملۀ نخست صفحه به «در حال ارتقا یا نگهداری» عوض می‌شوند. یادداشت و ساعت تهران به‌جای `<!--maintenance-note-->` می‌نشینند.
+  - یادداشت از TXT خوانده می‌شود و ۶۰ ثانیه در `caches.default` می‌ماند.
+- **قالب TXT:** `fahares-maintenance until=<unix> msg=<base64url UTF-8>`. msg حداکثر ۲۰۰ نویسه است، یعنی حدود ۷۰ حرف فارسی.
+- **[scripts/dev/maintenance](../scripts/dev/maintenance):**
+  - token از `~/.fahares/cloudflare-dns-token` (۶۰۰) خوانده می‌شود و در فایل سرآیند موقت `-H @file` می‌رود؛ در آرگومان‌ها نیست.
+  - zone id از `wrangler.toml` یا `~/.fahares/cloudflare-zone-id` خوانده می‌شود. `FAHARES_CF_API` برای آزمون است.
+  - `on [--minutes N] [--no-lock] ["یادداشت"]` TXT را می‌سازد یا PUT می‌کند و رکوردها را proxied می‌کند.
+  - قفل `prod.lock` را با نگه‌دارندۀ جدا (`setsid`، pid در `~/.fahares/maintenance-hold.pid`) می‌گیرد و holder را می‌نویسد.
+  - `off` TXT را پاک و قفل را رها می‌کند. برگشت به خاکستری با cron Worker است.
+- **[CloudflareClientIp](../app/Http/Middleware/CloudflareClientIp.php)** (global، پس از `trustProxies`): اگر `ip()` در بازه‌های [cloudflare.com/ips](https://www.cloudflare.com/ips/) باشد و `CF-Connecting-IP` نشانی معتبر باشد، `X-Forwarded-For` همان می‌شود.
+- **آزمون:**
+  - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
+  - `CloudflareClientIpTest`: ۳ آزمون.
+  - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
+
+### گام ۱۴.۴۰۸: حامی علمی در فوتر
+- **تصویر:** [mtif-160.png](../public/images/partners/mtif-160.png) و [mtif-320.png](../public/images/partners/mtif-320.png) (srcset 2x). ساخته با Pillow از JPEG ‏CMYK ‏۷۹۹×۱۴۱۲: خاکستری، آلفا = وارونۀ روشنایی، رنگ `#FEF3C7` (`amber-100`).
+- **[app.blade.php](../resources/views/layouts/app.blade.php):** بلوک `data-footer-sponsor` در پایان ستون نخست گرید فوتر (`md:col-span-2`)، لوگو و دو سطر کنار هم؛ تصویر با `VersionedAsset::url` و `loading="lazy"`، ارتفاع ۱۲۰ پیکسل.
+- **همان فایل:** پیوندهای `github.com/fahares/fahares` و `fahares-corpus`، نشان و جملۀ «آزمایشی» در فراخوان، و «Beta v1.0» در خط پایانی برداشته شد.
+
+### گام ۱۴.۴۰۹: `<x-suggest.reading>` با مستند باز
+- `components/suggest/reading.blade.php`: `x-data="{ open: true }"`، `x-cloak` از بند مستند برداشته شد، متن آغازین دکمه «بستن مستند». آزمون: `ReadingEvidenceOpenTest`.
+- `Contributions::summary()`: کلید `evidence` (‏`rationale_citation` برای `kind = field` بی `review_queue`)؛ `contributions/index.blade.php` آن را در `[data-contribution-evidence]` می‌آورد.
+
+### گام ۱۴.۴۱۰: `evidence` برای `note` و `relation`
+- `Contributions::summary()`: `evidence` برای `kind` در `field`، `note`، `relation` بی `review_queue`. برچسب جعبه در `contributions/index.blade.php` برای `note` «توضیح پژوهشگر» است.
