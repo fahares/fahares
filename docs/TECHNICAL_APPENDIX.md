@@ -14092,6 +14092,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان JSON از `manuscripts`، `source_entries`، `manuscript_people` و `manuscript_script` ۱۸ رکورد (۴ جفت و ۱۰ اصلاح، با شناسه‌های بالا) به `../fahares-sources/backups/step13/`.
   2. `fahares:merge-shelfmark-twins`: باید همان ۴ ادغام و ۱۰ اصلاح را نشان دهد. سپس `--apply`، و رونوشت پشتیبان فرمان از `storage/app/private/backups/` به همان پوشه.
   3. `sources:take-texts catalogue-7ac531af190e --show=0` و `sources:take-texts catalogue-af2952129bfd --show=0`.
+- **اجرای پروداکشن (۴ آذر ۱۴۰۵، پس از انتشار batch266، به تأیید کاربر):**
+  - **پشتیبان:**
+    - `../fahares-sources/backups/step13/before_step14_387_prod_20261125_1711.json` (md5 `68ec9feb…`) دارد: ۱۸ نسخه، ۳۶ مدخل، `manuscript_people`، `manuscript_script`، ۱۱ مجموعه و `field_suggestions`. با `ssh` و خروجی مستقیم گرفته شد، و فایلی در `/tmp` نماند.
+    - پشتیبان فرمان: `merge_shelfmark_twins_step14_387_prod.json` در همان پوشه (md5 `68ae385e…`)، برای `--revert`.
+  - **اجرا:** یک `prod-run` با `fahares:merge-shelfmark-twins --apply` و دو `sources:take-texts`.
+    - batch266 فایل داده را بی اصلاح‌های ۱۷۲۳ داشت. نتیجه: `merged 4`، `corrected 2`، لاگ‌های ۱۸۴۸۰۸ تا ۱۸۴۸۱۳.
+    - `take-texts` ملک ۱ و مجلس ۱ برداشت: همان دو رکورد اصلاح‌شده.
+  - **وارسی:**
+    - هر چهار رکورد حذف‌شده ارجاع دارند، و `/m/191330` به ۷۹۲/۴ می‌رود.
+    - مدخل‌های چاپی شش رکورد `auto` با صفحۀ خودشان‌اند. ۵۲۱/۲ تاریخ `1071ق` دارد.
+    - صفحه‌ها پاسخ ۲۰۰ دادند و `laravel.log` خطایی نداشت.
+  - **مانده:** پس از انتشار commit اصلاح‌های ۱۷۲۳، همین فرمان دوباره اجرا شود (باید `done before 6` و `corrected 8` بدهد)، سپس `sources:take-texts catalogue-7ac531af190e`.
 
 ### گام ۱۴.۳۸۸: `person_period_decisions_step14_388.json`
 - **پرونده:** ۹۲ تصمیم برای ردیف‌های ۶۹۱۲ تا ۷۰۰۴ `person_periods` (۷ تأیید، یکی با `year: 1255, year_is: from`؛ ۸۵ رد با `reason`). ردیف ۶۹۵۷ در پرونده نیست.
