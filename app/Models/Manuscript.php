@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasSourceCitations;
 use App\Models\Concerns\HasSourceEntries;
 use App\Models\Concerns\SyncsPrimaryContributor;
 use App\Support\CopyDateRange;
@@ -17,7 +16,6 @@ use Laravel\Scout\Searchable;
 
 class Manuscript extends Model
 {
-    use HasSourceCitations;
     use HasSourceEntries;
     use Searchable;
     use SyncsPrimaryContributor;
@@ -812,10 +810,17 @@ class Manuscript extends Model
         return $id ? self::find($id) : null;
     }
 
-    /** Where the copy is described in library catalogues (backlog item 51); rejected matches are kept for the record only. */
-    public function catalogReferences(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /** Whether the copy's own Fankha entry sits in a catalogue's addenda section (see config/catalogs.php). */
+    public function getIsAddendumEntryAttribute(): bool
     {
-        return $this->hasMany(ManuscriptCatalogReference::class);
+        $code = $this->catalog?->code ?? 'fankha';
+        foreach (config("catalogs.addenda.{$code}", []) as $range) {
+            if ((int) $this->volume_number === $range['volume'] && $this->page_start >= $range['from'] && $this->page_start <= $range['to']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function work(): BelongsTo

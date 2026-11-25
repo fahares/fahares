@@ -40,9 +40,6 @@ class FixReversedCitationsTest extends TestCase
     {
         $copy = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark, 'catalog_volume_id' => $volume?->id,
             'volume_number' => 4, 'page_start' => 1, 'raw_text' => "1. تهران؛ نوربخش؛ شماره نسخه: {$shelfmark}\nخط: نستعلیق، بی‌کا {$citation}", 'metadata' => ['catalog_citation' => $citation]]);
-        $parsed = \App\Console\Commands\ImportFankhaCatalogReferencesCommand::parse($citation);
-        DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $copy->id, 'catalog_volume_id' => $volume?->id, 'volume_number' => $parsed['volume'],
-            'page_start' => $parsed['page'], 'raw_text' => $citation, 'source' => 'fankha', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
         SourceEntrySync::syncCited(DB::table('manuscripts')->where('id', $copy->id)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
 
         return $copy;
@@ -64,7 +61,6 @@ class FixReversedCitationsTest extends TestCase
 
         return [
             'copies' => $rows('manuscripts', ['id', 'raw_text', 'metadata', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
-            'references' => $rows('manuscript_catalog_references', ['id', 'raw_text', 'volume_number', 'page_start', 'catalog_volume_id']),
             'entries' => $rows('source_entries', ['id', 'citation_text', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
             'volumes' => $rows('catalog_volumes', ['id', 'manuscripts_count']),
             'catalogers' => $rows('catalogers', ['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
@@ -107,8 +103,6 @@ class FixReversedCitationsTest extends TestCase
         $this->assertSame([$two->id, $second->id], [(int) $copy->catalog_volume_id, (int) $copy->cataloger_id], 'the copy goes to the volume it names, and its cataloger');
         $this->assertEquals([$source->id, $two->id, 2, 236], array_values((array) DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $onFirst->id)
             ->first(['source_id', 'source_volume_id', 'volume_number', 'page_start'])));
-        $this->assertEquals(['[ف: 2-236]', 2, 236, $two->id], array_values((array) DB::table('manuscript_catalog_references')->where('manuscript_id', $onFirst->id)
-            ->first(['raw_text', 'volume_number', 'page_start', 'catalog_volume_id'])));
         $this->assertSame($one->id, (int) DB::table('manuscripts')->where('id', $right->id)->value('catalog_volume_id'));
         $this->assertEquals([1, 40], array_values((array) DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $right->id)->first(['volume_number', 'page_start'])));
         $this->assertSame('ویرایش شده', DB::table('manuscripts')->where('id', $edited->id)->value('raw_text'));
@@ -141,7 +135,6 @@ class FixReversedCitationsTest extends TestCase
             ->expectsOutput('1 copies on no volume tied to the one their citation names.');
 
         $this->assertSame([$tenth->id, $cataloger->id], [(int) $copy->fresh()->catalog_volume_id, (int) $copy->fresh()->cataloger_id]);
-        $this->assertSame($tenth->id, (int) DB::table('manuscript_catalog_references')->where('manuscript_id', $copy->id)->value('catalog_volume_id'));
         $this->assertEquals([$source->id, $tenth->id, 10, 1851], array_values((array) DB::table('source_entries')->where('legacy_type', 'fankha_citation')
             ->where('legacy_id', $copy->id)->first(['source_id', 'source_volume_id', 'volume_number', 'page_start'])));
         $this->assertSame(1, (int) DB::table('catalog_volumes')->where('id', $tenth->id)->value('manuscripts_count'));

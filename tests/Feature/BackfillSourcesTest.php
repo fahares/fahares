@@ -5,11 +5,8 @@ namespace Tests\Feature;
 use App\Console\Commands\BackfillSourcesCommand as Backfill;
 use App\Models\Catalog;
 use App\Models\CatalogVolume;
-use App\Models\FieldEvidence;
-use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
-use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceVolume;
@@ -135,13 +132,16 @@ class BackfillSourcesTest extends TestCase
         $this->assertTrue($copy->fresh()->textIsOutOfPlace());
     }
 
-    public function test_catalogue_references_keep_their_review_and_text()
+    public function test_fankha_citations_come_from_the_copy_and_catalogue_matches_stay()
     {
-        Ref::create(['manuscript_id' => $this->manuscript->id, 'catalog_volume_id' => $this->cited->id, 'volume_number' => 2, 'page_start' => 414, 'raw_text' => '[ف: 2-414]', 'source' => Ref::SOURCE_FANKHA]);
-        $match = Ref::create([
-            'manuscript_id' => $this->manuscript->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414,
-            'shelfmark_page' => 415, 'entry_number' => 606, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 90,
-            'entry_text' => 'دیوان قدسی، شعر', 'copy_text' => 'ش 1939، 162 برگ',
+        // a match copied from a manuscript_catalog_references row before step 13.3: that table is gone (step 14.382)
+        // and the entry is the match's only record, so a run leaves it as it is
+        $match = SourceEntry::create([
+            'citable_type' => Manuscript::class, 'citable_id' => $this->manuscript->id, 'source_id' => SourceVolume::find($this->edition->id)->source_id,
+            'source_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'entry_number' => 606,
+            'origin' => SourceEntry::ORIGIN_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 90, 'entry_text' => 'دیوان قدسی، شعر',
+            'copy_text' => 'ش 1939، 162 برگ', 'text_volume_number' => 2, 'text_page' => 414, 'text_status' => SourceEntry::TEXT_AUTO,
+            'legacy_type' => 'catalog_reference', 'legacy_id' => 991,
         ]);
         $computer = Manuscript::create(['work_id' => $this->work->id, 'shelfmark' => '7', 'volume_number' => 15, 'page_start' => 121, 'sequence_number' => 2, 'raw_text' => 'قم؛ مسجد اعظم؛ شماره نسخه: 7 [رایانه]']);
         // the Fankha row only repeated the copy's own citation: the entry is made from the manuscript, and only once
@@ -156,7 +156,8 @@ class BackfillSourcesTest extends TestCase
         $this->assertSame(SourceEntry::TEXT_NONE, $cited->text_status);
         $this->assertSame(0, SourceEntry::where('legacy_type', 'catalog_reference')->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->count());
 
-        $entry = SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', $match->id)->sole();
+        $entry = SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', 991)->sole();
+        $this->assertTrue($entry->is($match));
         $this->assertSame([SourceEntry::ORIGIN_MATCH, 'shelfmark_title', 90, SourceEntry::STATUS_UNVERIFIED], [$entry->origin, $entry->match_method, $entry->confidence, $entry->status]);
         $this->assertSame([415, 606], [$entry->shelfmark_page, $entry->entry_number]);
         $this->assertSame(['دیوان قدسی، شعر', 'ش 1939، 162 برگ'], [$entry->entry_text, $entry->copy_text]);
@@ -185,7 +186,7 @@ class BackfillSourcesTest extends TestCase
         $this->assertNull($rows[1]->source_id, 'دنا is not a source of the site yet');
     }
 
-    public function test_a_second_run_changes_nothing_and_follows_the_old_tables()
+    public function test_a_second_run_changes_nothing_and_follows_the_records()
     {
         $this->backfill();
         $count = SourceEntry::count();
@@ -214,26 +215,6 @@ class BackfillSourcesTest extends TestCase
         $this->assertSame($entries, SourceEntry::count());
         $this->assertSame($sources, Source::count());
         $this->assertSame(0, SourceEntry::where('legacy_type', 'catalog_reference')->count());
-    }
-
-    public function test_rationales_become_the_researchers_evidence()
-    {
-        $suggestion = FieldSuggestion::create([
-            'suggestable_type' => Manuscript::class, 'suggestable_id' => $this->manuscript->id, 'field_name' => 'copy_date_raw',
-            'suggested_value' => '897', 'rationale_citation' => 'ترقیمه چنین خوانده می‌شود …',
-        ]);
-        DB::table('scholarly_annotations')->insert([
-            'annotatable_type' => Manuscript::class, 'annotatable_id' => $this->manuscript->id, 'field_name' => 'copy_date_raw',
-            'corrected_value' => '897', 'revision_category' => 'correction', 'citation_source' => 'ترقیمه چنین خوانده می‌شود …',
-            'suggestion_id' => $suggestion->id, 'created_at' => now(), 'updated_at' => now(),
-        ]);
-
-        $this->backfill(['--only' => ['evidence']]);
-
-        $evidence = FieldEvidence::sole();
-        $this->assertSame([FieldEvidence::KIND_RESEARCH, 'ترقیمه چنین خوانده می‌شود …', 'copy_date_raw'], [$evidence->kind, $evidence->note, $evidence->field_name]);
-        $this->assertTrue($evidence->suggestion->is($suggestion));
-        $this->assertTrue($evidence->subject->is($this->manuscript));
     }
 
     public function test_a_volume_title_loses_its_volume_part_only()

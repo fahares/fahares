@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
-use App\Models\SourceCitation;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
@@ -58,8 +57,6 @@ class SuggestionWorkflowTest extends TestCase
         foreach (['manuscripts' => $msIds->all(), 'works' => $workIds, 'people' => $this->peopleIds] as $entity => $ids) {
             EntityRedirect::where('entity_type', $entity)->where(fn ($q) => $q->whereIn('source_id', $ids)->orWhereIn('target_id', $ids))->delete();
         }
-        SourceCitation::where('citable_type', Work::class)->whereIn('citable_id', $workIds)->delete();
-        SourceCitation::where('citable_type', Manuscript::class)->whereIn('citable_id', $msIds)->delete();
         Work::whereIn('id', $workIds)->delete();
         Person::whereIn('id', $this->peopleIds)->delete();
 
@@ -2079,7 +2076,6 @@ class SuggestionWorkflowTest extends TestCase
         DB::table('manuscript_script')->insert(['manuscript_id' => $dup->id, 'script_id' => $scriptId]);
         $owner = DB::table('manuscript_people')->insertGetId(['manuscript_id' => $dup->id, 'name' => 'مالک', 'role' => 'owner']);
         $relation = DB::table('manuscript_relations')->insertGetId(['manuscript_id' => $dup->id, 'related_manuscript_id' => $third->id, 'type' => 'copied_from']);
-        $citation = $dup->sourceCitations()->create(['catalog_id' => \App\Models\Catalog::where('code', 'fankha')->value('id'), 'volume_number' => 9, 'page_start' => 9, 'role' => 'mention']);
         EntityRedirect::recordRedirect('manuscripts', 999999001, $dup->id);
         $this->suggest($dup, ['field_name' => 'folios', 'suggested_value' => '۱۰', 'rationale_citation' => 'شمارش'])->assertOk();
         $open = $this->pendingFor($dup);
@@ -2103,8 +2099,6 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertTrue(DB::table('manuscript_script')->where(['manuscript_id' => $dup->id, 'script_id' => $scriptId])->exists());
         $this->assertSame($dup->id, DB::table('manuscript_people')->where('id', $owner)->value('manuscript_id'));
         $this->assertSame($dup->id, DB::table('manuscript_relations')->where('id', $relation)->value('manuscript_id'));
-        $this->assertSame($dup->id, $citation->fresh()->citable_id);
-        $this->assertSame(0, $kept->sourceCitations()->count(), 'the citation the merge added goes');
         $this->assertSame($dup->id, $open->fresh()->suggestable_id);
         $this->assertNull(EntityRedirect::resolveTargetId('manuscripts', $dup->id));
         $this->assertSame($dup->id, EntityRedirect::resolveTargetId('manuscripts', 999999001));

@@ -39,8 +39,6 @@ class RemoveCatalogueTest extends TestCase
     {
         $copy = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark,
             'catalog_volume_id' => $volume->id, 'volume_number' => 1, 'page_start' => $page, 'metadata' => ['catalog_citation' => $citation]]);
-        DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $copy->id, 'catalog_volume_id' => $volume->id, 'volume_number' => 1,
-            'page_start' => $page, 'raw_text' => $citation, 'source' => 'fankha', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
         \App\Sources\SourceEntrySync::syncCited(DB::table('manuscripts')->where('id', $copy->id)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
 
         return $copy;
@@ -57,7 +55,6 @@ class RemoveCatalogueTest extends TestCase
             'pivot' => $rows('catalog_volume_cataloger', ['id', 'catalog_volume_id', 'cataloger_id', 'role']),
             'parts' => $rows('catalog_volume_parts', ['id', 'manuscripts_count']),
             'entries' => $rows('source_entries', ['id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
-            'references' => $rows('manuscript_catalog_references', ['id', 'catalog_volume_id']),
             'copies' => $rows('manuscripts', ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
             'catalogers' => $rows('catalogers', ['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
@@ -110,8 +107,6 @@ class RemoveCatalogueTest extends TestCase
         $this->assertSame($dalilVolume->id, $collection->fresh()->catalog_volume_id);
         $this->assertEquals([[$awraq->id, $awraqVolume->id, 171], [$dalil->id, $dalilVolume->id, 151]], DB::table('source_entries')->whereIn('legacy_id', [$numbered->id, $collection->id])
             ->where('legacy_type', 'fankha_citation')->orderBy('page_start', 'desc')->get()->map(fn ($e) => [$e->source_id, $e->source_volume_id, $e->page_start])->all());
-        $this->assertSame([$awraqVolume->id, $dalilVolume->id], DB::table('manuscript_catalog_references')->whereIn('manuscript_id', [$numbered->id, $collection->id])
-            ->orderBy('page_start', 'desc')->pluck('catalog_volume_id')->map(fn ($id) => (int) $id)->all());
         $this->assertSame([0, 0], [$hazrati->fresh()->volumes_count, $hazrati->fresh()->manuscripts_count]);
         $this->assertSame(1, DB::table('catalog_volume_parts')->where('id', $part)->value('manuscripts_count'));
 

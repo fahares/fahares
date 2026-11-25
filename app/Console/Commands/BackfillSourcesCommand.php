@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\FieldEvidence;
 use App\Models\Manuscript;
-use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\Work;
@@ -13,31 +11,31 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Copies the site's sources into the one registry of step 13.1, leaving the old tables as they are:
+ * Copies the site's sources into the one registry of step 13.1:
  *
  * - registry: catalogs (same ids) and the reference works of config('bibliography.sources') become sources with
  *   their volumes; catalog_volumes become source_volumes (same ids) under one source per library and title, the
  *   volume's title without its last « - …» part (a later printing, edition_of_id, is a source of its own).
  * - fankha: the Fankha entry of every work and manuscript, its raw_text as the entry's text (a manuscript's
  *   is the copy's own line, so copy_text).
- * - addenda: source_citations (addenda and errata).
  * - references: the library catalogue page Fankha cites for each manuscript (SourceEntrySync::citedValues, from its
- *   own columns), and the pages of manuscript_catalog_references matched in other printings or set by hand.
+ *   own columns).
  * - bibliography: each string of works.bibliography, with the places it cites of the sources the site knows.
- * - evidence: the rationale of suggestions (field_suggestions.rationale_citation, scholarly_annotations).
  *
  * Every row keeps the row it came from (legacy_type, legacy_id, legacy_index), so running it again updates what
- * changed and removes what is gone. It is meant for the time the old tables are still the site's data.
+ * changed and removes what is gone. The parts «addenda» (source_citations), «evidence» (field_evidence) and the
+ * catalogue matches of «references» (manuscript_catalog_references) went with those tables in step 14.382
+ * (backlog item 69): since step 13.3 their entries are written in source_entries alone.
  */
 class BackfillSourcesCommand extends Command
 {
     protected $signature = 'sources:backfill
-        {--only=* : registry, fankha, addenda, references, bibliography, evidence (default: all, in this order)}
+        {--only=* : registry, fankha, references, bibliography (default: all, in this order)}
         {--dry-run : Count what would be written without writing}';
 
-    protected $description = 'Copy catalogs, catalogue references, Fankha texts and bibliographies into sources and source_entries';
+    protected $description = 'Copy catalogs, Fankha texts, Fankha\'s catalogue citations and bibliographies into sources and source_entries';
 
-    public const PARTS = ['registry', 'fankha', 'addenda', 'references', 'bibliography', 'evidence'];
+    public const PARTS = ['registry', 'fankha', 'references', 'bibliography'];
 
     /** The kind of each reference work of config('bibliography.sources'). */
     public const CONFIG_KINDS = [
@@ -209,47 +207,10 @@ class BackfillSourcesCommand extends Command
         return $count;
     }
 
-    private function addenda(): array
-    {
-        $rows = [];
-        foreach (DB::table('source_citations')->orderBy('id')->get() as $c) {
-            $text = filled($c->raw_text) ? $c->raw_text : null;
-            $volume = $c->volume_number !== null ? (int) $c->volume_number : null;
-            $rows[] = Sync::row([
-                'citable_type' => $c->citable_type,
-                'citable_id' => $c->citable_id,
-                'source_id' => $c->catalog_id,
-                'source_volume_id' => $this->volumeIds[$c->catalog_id][$volume] ?? null,
-                'volume_number' => $volume,
-                'page_start' => $c->page_start,
-                'page_end' => $c->page_end,
-                'role' => $c->role,
-                // a manuscript's text is its own line, a work's the entry
-                $c->citable_type === Manuscript::class ? 'copy_text' : 'entry_text' => $text,
-                'text_volume_number' => $text ? $volume : null,
-                'text_page' => $text ? $c->page_start : null,
-                'text_status' => $text ? SourceEntry::TEXT_AUTO : SourceEntry::TEXT_NONE,
-                'origin' => SourceEntry::ORIGIN_FANKHA,
-                'status' => SourceEntry::STATUS_VERIFIED,
-                'notes' => $c->label,
-                'sort_order' => $c->sort_order,
-                'legacy_type' => 'source_citation',
-                'legacy_id' => $c->id,
-            ], $c->created_at, $c->updated_at);
-        }
-        foreach (array_chunk($rows, self::CHUNK) as $chunk) {
-            $this->write($chunk);
-        }
-        $this->prune('source_citation', 'source_citations');
-
-        return ['addenda and errata' => count($rows)];
-    }
-
     private function references(): array
     {
-        $origins = [Ref::SOURCE_FANKHA => SourceEntry::ORIGIN_FANKHA_CITATION, Ref::SOURCE_AI_MATCH => SourceEntry::ORIGIN_MATCH, Ref::SOURCE_MANUAL => SourceEntry::ORIGIN_MANUAL];
-        $stats = array_fill_keys(array_values($origins), 0) + ['with text' => 0, 'no volume' => 0];
-        // Fankha's citation is the manuscript's own (one per copy); the rows of source fankha only repeated it
+        $stats = [SourceEntry::ORIGIN_FANKHA_CITATION => 0];
+        // Fankha's citation is the manuscript's own (one per copy)
         DB::table('manuscripts')->select(['id', 'metadata', 'raw_text', 'catalog_volume_id'])->chunkById(self::CHUNK, function ($rows) use (&$stats) {
             if ($this->dry) {
                 $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += $rows->filter(fn ($m) => Sync::citedValues($m, $this->volumeSources))->count();
@@ -258,50 +219,8 @@ class BackfillSourcesCommand extends Command
             }
             $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += Sync::syncCited($rows)[0];
         });
-        $this->dry || DB::table('source_entries')->where('legacy_type', 'catalog_reference')
-            ->whereIn('legacy_id', DB::table('manuscript_catalog_references')->where('source', Ref::SOURCE_FANKHA)->select('id'))->delete();
         $this->prune('fankha_citation', 'manuscripts');
         $this->prune('fankha_citation_more', 'manuscripts');
-
-        DB::table('manuscript_catalog_references')->where('source', '!=', Ref::SOURCE_FANKHA)->chunkById(self::CHUNK, function ($refs) use ($origins, &$stats) {
-            $rows = [];
-            foreach ($refs as $r) {
-                $hasText = filled($r->entry_text) || filled($r->copy_text);
-                $origin = $origins[$r->source] ?? SourceEntry::ORIGIN_MANUAL;
-                $stats[$origin]++;
-                $hasText && $stats['with text']++;
-                $r->catalog_volume_id || $stats['no volume']++;
-                $rows[] = Sync::row([
-                    'citable_type' => Manuscript::class,
-                    'citable_id' => $r->manuscript_id,
-                    'source_id' => $r->catalog_volume_id ? $this->volumeSources[$r->catalog_volume_id] ?? null : null,
-                    'source_volume_id' => $r->catalog_volume_id,
-                    'volume_number' => $r->volume_number,
-                    'page_start' => $r->page_start,
-                    'page_end' => $r->page_end,
-                    'entry_number' => $r->entry_number,
-                    'shelfmark_page' => $r->shelfmark_page,
-                    'citation_text' => $r->raw_text,
-                    'entry_text' => $r->entry_text,
-                    'copy_text' => $r->copy_text,
-                    // texts were taken at the address the reference has (catalogs:match-edition --texts)
-                    'text_volume_number' => $hasText ? $r->volume_number : null,
-                    'text_page' => $hasText ? $r->page_start : null,
-                    'text_status' => $hasText ? SourceEntry::TEXT_AUTO : SourceEntry::TEXT_NONE,
-                    'origin' => $origin,
-                    'match_method' => $r->match_method,
-                    'confidence' => $r->confidence,
-                    'status' => $r->status,
-                    'reviewed_by' => $r->reviewed_by,
-                    'reviewed_at' => $r->reviewed_at,
-                    'notes' => $r->notes,
-                    'legacy_type' => 'catalog_reference',
-                    'legacy_id' => $r->id,
-                ], $r->created_at, $r->updated_at);
-            }
-            $this->write($rows);
-        });
-        $this->prune('catalog_reference', 'manuscript_catalog_references');
 
         return $stats;
     }
@@ -337,53 +256,6 @@ class BackfillSourcesCommand extends Command
         }
 
         return $stats;
-    }
-
-    private function evidence(): array
-    {
-        $rows = [];
-        $suggestions = DB::table('field_suggestions')->whereNotNull('rationale_citation')->where('rationale_citation', '<>', '')->orderBy('id')->get();
-        foreach ($suggestions as $s) {
-            if (! $s->suggestable_type || ! $s->suggestable_id) {
-                continue;
-            }
-            $rows[] = $this->evidenceRow($s->suggestable_type, $s->suggestable_id, $s->field_name, $s->id, $s->rationale_citation, $s->user_id, 'field_suggestion', $s->id, $s->created_at);
-        }
-        $covered = array_column($rows, 'field_suggestion_id');
-        $annotations = DB::table('scholarly_annotations')->where('citation_source', '<>', '')->orderBy('id')->get();
-        foreach ($annotations as $a) {
-            // an annotation made from a suggestion has its grounds already
-            if ($a->suggestion_id && in_array($a->suggestion_id, $covered)) {
-                continue;
-            }
-            $rows[] = $this->evidenceRow($a->annotatable_type, $a->annotatable_id, $a->field_name, $a->suggestion_id, $a->citation_source, $a->user_id, 'scholarly_annotation', $a->id, $a->created_at);
-        }
-        if (! $this->dry && $rows) {
-            DB::table('field_evidence')->upsert($rows, ['legacy_type', 'legacy_id'], ['subject_type', 'subject_id', 'field_name', 'field_suggestion_id', 'note', 'user_id']);
-        }
-
-        return ['from suggestions' => $suggestions->count(), 'from annotations' => count($rows) - count($covered)];
-    }
-
-    /**
-     * A contributor's rationale as written: reasoning, quotations and links mixed in one text, so it is kept as the
-     * researcher's own note; the form of step 13.1's later phases asks for each ground apart.
-     */
-    private function evidenceRow(string $type, int $id, ?string $field, ?int $suggestion, string $text, ?int $user, string $legacy, int $legacyId, $created): array
-    {
-        return [
-            'subject_type' => $type,
-            'subject_id' => $id,
-            'field_name' => $field,
-            'field_suggestion_id' => $suggestion,
-            'kind' => FieldEvidence::KIND_RESEARCH,
-            'note' => $text,
-            'user_id' => $user,
-            'legacy_type' => $legacy,
-            'legacy_id' => $legacyId,
-            'created_at' => $created ?? now(),
-            'updated_at' => now(),
-        ];
     }
 
     private function write(array $rows): void

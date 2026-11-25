@@ -201,7 +201,6 @@ class SetCatalogueVolumesCommand extends Command
             foreach ($group->pluck(0)->chunk(1000) as $chunk) {
                 $old = DB::table('manuscripts')->whereIn('id', $chunk->all())->pluck('catalog_volume_id')->unique()->all();
                 DB::table('manuscripts')->whereIn('id', $chunk->all())->update(['catalog_volume_id' => $to, 'cataloger_id' => $catalogers[$to] ?? null]);
-                DB::table('manuscript_catalog_references')->whereIn('manuscript_id', $chunk->all())->whereIn('catalog_volume_id', $old)->update(['catalog_volume_id' => $to]);
                 $copies = array_merge($copies, $chunk->all());
             }
         }
@@ -248,7 +247,6 @@ class SetCatalogueVolumesCommand extends Command
             'catalog_volume_cataloger' => DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->get(),
             'catalog_volume_parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(['id', 'manuscripts_count']),
             'manuscripts' => $chunked('manuscripts', 'id', $copies, ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
-            'manuscript_catalog_references' => $chunked('manuscript_catalog_references', 'manuscript_id', $copies, ['id', 'catalog_volume_id']),
             'source_entries' => array_values(array_filter($chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'source_id', 'source_volume_id']),
                 fn ($e) => $e->legacy_type === 'fankha_citation')),
             'catalogers' => DB::table('catalogers')->whereIn('id', $people)->get(['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
@@ -278,7 +276,6 @@ class SetCatalogueVolumesCommand extends Command
         $this->info(sprintf('Restoring %d sources, %d volumes and %d copies from %s', count($sources), count($kept), count($backup['manuscripts']), $file));
         DB::transaction(function () use ($backup, $sources, $kept) {
             FixMisnamedIsfahanCataloguesCommand::restoreColumns('manuscripts', $backup['manuscripts']);
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('manuscript_catalog_references', $backup['manuscript_catalog_references']);
             FixMisnamedIsfahanCataloguesCommand::restoreColumns('source_entries', $backup['source_entries']);
             $made = DB::table('source_volumes')->whereIn('source_id', $sources)->whereNotIn('id', $kept)->pluck('id')->all();
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', array_merge($kept, $made))->delete();

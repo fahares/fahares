@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  *
  * The two volumes are found by library slug and exact title, never by local id. A copy moves when the citation's
  * volume number is --volume and its part --part; copies naming no part, or another, stay. The move writes
- * manuscripts.catalog_volume_id and the copy's manuscript_catalog_references row on the old volume, logs each copy in
+ * manuscripts.catalog_volume_id, logs each copy in
  * audit_logs, and writes the cited page again (SourceEntrySync::syncCited) for the copies of both volumes. Without
  * --apply nothing is written. Safe to run again: a copy already moved is no longer on the old volume.
  *
@@ -103,8 +103,6 @@ class MoveCitedPartCommand extends Command
         DB::transaction(function () use ($moves, $from, $to, $names, $citedVolume) {
             foreach (array_chunk($moves, 500) as $ids) {
                 DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $to->id]);
-                DB::table('manuscript_catalog_references')->whereIn('manuscript_id', $ids)->where('catalog_volume_id', $from->id)
-                    ->update(['catalog_volume_id' => $to->id]);
             }
             foreach ($moves as $id) {
                 AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $id, 'action' => 'corpus_update',
