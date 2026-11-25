@@ -86,7 +86,7 @@ class AuditLogController extends Controller
             'split' => $this->rollbackSplit($log, $request),
             'remove' => $this->rollbackRemove($log, $request),
             'update' => $this->rollbackUpdate($log, $request),
-            // a copy made in the panel (backlog item 149): the record goes, with the work made for it
+            // a copy, work or person made in the panel (backlog items 149 and 161): the record goes, with what was made for it
             'create' => $this->rollbackCreate($log, $request),
             // the people of a source's volumes, set by an approved suggestion (step 14.58)
             'volume_people' => app(\App\Suggestions\VolumeCatalogers::class)->undo($log),
@@ -460,7 +460,6 @@ class AuditLogController extends Controller
             unset($old['source_entry']);
             if ($restored = \App\Models\SourceEntry::find($entry['id'])) {
                 $restored->forceFill(array_diff_key($entry, ['id' => 0]))->save();
-                \App\Sources\LegacyMirror::reference($restored);
             }
         }
         // A copy's typed note is a row of its own too (steps 14.264, 14.318): an added one goes, a removed one comes
@@ -495,11 +494,11 @@ class AuditLogController extends Controller
                 \App\Support\Collections::reindex([$restored->id]);
             }
         }
-        // ...and before step 13.3, a catalogue reference (backlog item 51): it goes back with the entry copied from it
+        // ...and before step 13.3, a catalogue reference (backlog item 51): its entry, copied from it, goes back (the
+        // reference's own table went in step 14.382)
         if ($reference = $old['catalog_reference'] ?? null) {
             unset($old['catalog_reference']);
             $columns = array_diff_key($reference, ['id' => 0]);
-            \App\Models\ManuscriptCatalogReference::whereKey($reference['id'])->first()?->forceFill($columns)->save();
             if (array_key_exists('source', $columns)) {
                 $columns['origin'] = array_flip([\App\Models\SourceEntry::ORIGIN_MATCH => 'ai_match', \App\Models\SourceEntry::ORIGIN_MANUAL => 'manual', \App\Models\SourceEntry::ORIGIN_FANKHA_CITATION => 'fankha'])[$columns['source']] ?? \App\Models\SourceEntry::ORIGIN_MANUAL;
             }
@@ -682,10 +681,12 @@ class AuditLogController extends Controller
         ]);
     }
 
-    /** A copy made in the panel (ManuscriptCreator) is removed, with what was made for it. */
+    /** A copy, work or person made in the panel (ManuscriptCreator, RecordCreator) is removed, with what was made for it. */
     protected function rollbackCreate(AuditLog $log, Request $request): void
     {
-        app(\App\Suggestions\ManuscriptCreator::class)->undo($log);
+        $log->auditable_type === \App\Models\Manuscript::class
+            ? app(\App\Suggestions\ManuscriptCreator::class)->undo($log)
+            : app(\App\Suggestions\RecordCreator::class)->undo($log);
 
         AuditLog::create([
             'user_id' => auth()->id(),

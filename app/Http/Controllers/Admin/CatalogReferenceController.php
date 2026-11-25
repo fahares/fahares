@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Manuscript;
-use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\SourceEntry as Entry;
 use App\Models\SourceVolume;
 use App\Support\Fa;
@@ -52,19 +51,19 @@ class CatalogReferenceController extends Controller
             ->orderBy('confidence')->orderBy('source_volume_id')->orderBy('page_start')->orderBy('id')
             ->paginate(40)->withQueryString();
 
-        $bulkAllowed = $status === Entry::STATUS_UNVERIFIED && $request->query('method') === Ref::BULK_METHOD;
+        $bulkAllowed = $status === Entry::STATUS_UNVERIFIED && $request->query('method') === Entry::BULK_METHOD;
         $lastBulk = Entry::lastBulkVerify()?->load('user');
 
         return view('admin.catalog_references.index', compact('references', 'volumes', 'counts', 'status', 'bulkAllowed', 'lastBulk'));
     }
 
     /**
-     * Verifies every match of the queue's filters at once (title matches only, see Ref::BULK_METHOD). The count the
+     * Verifies every match of the queue's filters at once (title matches only, see Entry::BULK_METHOD). The count the
      * reviewer confirmed is sent back and must still hold, so a queue changed meanwhile is not verified blind.
      */
     public function bulkVerify(Request $request)
     {
-        abort_unless($request->input('method') === Ref::BULK_METHOD, 422, 'تأیید گروهی فقط برای روش «شماره و عنوان» است.');
+        abort_unless($request->input('method') === Entry::BULK_METHOD, 422, 'تأیید گروهی فقط برای روش «شماره و عنوان» است.');
         $query = $this->filtered($request)->awaitingReview();
         $count = (clone $query)->count();
         if ($count === 0 || $count !== $request->integer('expected')) {

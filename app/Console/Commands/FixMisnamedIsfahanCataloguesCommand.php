@@ -235,11 +235,9 @@ class FixMisnamedIsfahanCataloguesCommand extends Command
             'source_entries' => DB::table('source_entries')
                 ->where(fn ($q) => $q->whereIn('source_id', $misnamed)->orWhereIn('source_volume_id', $same)->orWhere($locations))
                 ->get(['id', 'source_id', 'source_volume_id', 'source_item_id', 'volume_number', 'text_volume_number', 'locations']),
-            'field_evidence' => DB::table('field_evidence')->whereIn('source_id', $misnamed)->get(['id', 'source_id', 'volume_number']),
             'source_pages' => DB::table('source_pages')->whereIn('source_volume_id', $same)->get(['id', 'source_volume_id']),
             'source_item_refs' => DB::table('source_item_refs')->whereIn('target_item_id', $items)->get(['id', 'target_item_id']),
             'manuscripts' => DB::table('manuscripts')->whereIn('catalog_volume_id', $same)->get(['id', 'catalog_volume_id']),
-            'manuscript_catalog_references' => DB::table('manuscript_catalog_references')->whereIn('catalog_volume_id', $same)->get(['id', 'catalog_volume_id']),
             'editions' => [
                 'sources' => DB::table('sources')->whereIn('edition_of_id', $misnamed)->get(['id', 'edition_of_id']),
                 'source_volumes' => DB::table('source_volumes')->whereIn('edition_of_id', $same)->get(['id', 'edition_of_id']),
@@ -278,7 +276,7 @@ class FixMisnamedIsfahanCataloguesCommand extends Command
             }
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();
             DB::table('catalog_volume_cataloger')->insert($backup['catalog_volume_cataloger']);
-            foreach (['source_entries', 'field_evidence', 'source_pages', 'source_item_refs', 'manuscripts', 'manuscript_catalog_references', 'catalogers'] as $table) {
+            foreach (['source_entries', 'source_pages', 'source_item_refs', 'manuscripts', 'catalogers'] as $table) {
                 self::restoreColumns($table, $backup[$table]);
             }
             foreach ($backup['editions'] as $table => $rows) {

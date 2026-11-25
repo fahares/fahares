@@ -40,8 +40,6 @@ class SetCatalogueVolumesTest extends TestCase
     {
         $copy = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => (string) random_int(1, 99999), 'catalog_volume_id' => $volume->id,
             'cataloger_id' => $cataloger, 'volume_number' => 1, 'page_start' => 1, 'metadata' => ['catalog_citation' => $citation]]);
-        DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $copy->id, 'catalog_volume_id' => $volume->id, 'raw_text' => $citation,
-            'source' => 'fankha', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
         SourceEntrySync::syncCited(DB::table('manuscripts')->where('id', $copy->id)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
 
         return $copy;
@@ -57,7 +55,6 @@ class SetCatalogueVolumesTest extends TestCase
             'catalog_volumes' => $rows('catalog_volumes'),
             'pivot' => DB::table('catalog_volume_cataloger')->orderBy('catalog_volume_id')->orderBy('cataloger_id')->get(['catalog_volume_id', 'cataloger_id', 'role'])->map(fn ($r) => (array) $r)->all(),
             'copies' => $rows('manuscripts', ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
-            'references' => $rows('manuscript_catalog_references', ['id', 'catalog_volume_id']),
             'entries' => $rows('source_entries', ['id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
             'catalogers' => $rows('catalogers', ['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
@@ -99,7 +96,6 @@ class SetCatalogueVolumesTest extends TestCase
         $this->assertSame([[$held->id, $haeri->id], [(int) $volumes[3]->id, $hafezian->id], [$held->id, $haeri->id]],
             collect([$first, $third, $none])->map(fn ($c) => [(int) $c->fresh()->catalog_volume_id, (int) $c->fresh()->cataloger_id])->all(),
             'a copy goes to the volume it cites with its cataloger; one citing a volume the file has not stays, with its volume\'s cataloger');
-        $this->assertSame((int) $volumes[3]->id, (int) DB::table('manuscript_catalog_references')->where('manuscript_id', $third->id)->value('catalog_volume_id'));
         $this->assertSame((int) $volumes[3]->id, (int) DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $third->id)->value('source_volume_id'));
         $this->assertSame([2, 1], [(int) DB::table('catalog_volumes')->where('id', $held->id)->value('manuscripts_count'), (int) DB::table('catalog_volumes')->where('id', $volumes[3]->id)->value('manuscripts_count')]);
         $this->assertSame(2, (int) DB::table('sources')->where('id', $source->id)->value('volumes_count'));

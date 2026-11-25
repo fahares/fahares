@@ -92,11 +92,6 @@ class FixReversedCitationsCommand extends Command
                 $new = ['raw_text' => $rec['changes']['raw_text']['to'], 'metadata' => json_encode($meta, JSON_UNESCAPED_UNICODE)];
                 DB::table('manuscripts')->where('id', $rec['id'])->update($new + ['updated_at' => now()]);
 
-                $parsed = ImportFankhaCatalogReferencesCommand::parse($meta['catalog_citation']);
-                DB::table('manuscript_catalog_references')->where('manuscript_id', $rec['id'])->where('source', 'fankha')
-                    ->where('raw_text', $rec['changes']['catalog_citation']['from'])
-                    ->update(['raw_text' => $meta['catalog_citation'], 'volume_number' => $parsed['volume'], 'page_start' => $parsed['page'], 'updated_at' => now()]);
-
                 $logs[] = AuditLog::create([
                     'user_id' => null,
                     'auditable_type' => Manuscript::class,
@@ -152,7 +147,6 @@ class FixReversedCitationsCommand extends Command
         $catalogers = CatalogVolumePart::primaryCatalogers(array_values(array_unique(array_column($moves, 1))));
         foreach ($moves as $id => [$from, $to]) {
             DB::table('manuscripts')->where('id', $id)->update(['catalog_volume_id' => $to, 'cataloger_id' => $catalogers[$to] ?? null]);
-            DB::table('manuscript_catalog_references')->where('manuscript_id', $id)->where('catalog_volume_id', $from)->update(['catalog_volume_id' => $to]);
         }
         $this->info(sprintf('%d copies moved to the volume their citation names.', count($moves)));
 
@@ -166,7 +160,6 @@ class FixReversedCitationsCommand extends Command
         $done = [];
         foreach ($ties as $id => $volume) {
             if (DB::table('manuscripts')->where('id', $id)->whereNull('catalog_volume_id')->update(['catalog_volume_id' => $volume, 'cataloger_id' => $catalogers[$volume] ?? null])) {
-                DB::table('manuscript_catalog_references')->where('manuscript_id', $id)->where('source', 'fankha')->whereNull('catalog_volume_id')->update(['catalog_volume_id' => $volume]);
                 $done[] = $volume;
             }
         }
@@ -222,8 +215,6 @@ class FixReversedCitationsCommand extends Command
             'command' => $this->getName(),
             'written_at' => now()->toIso8601String(),
             'manuscripts' => DB::table('manuscripts')->whereIn('id', $ids)->get(['id', 'raw_text', 'metadata', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
-            'manuscript_catalog_references' => DB::table('manuscript_catalog_references')->whereIn('manuscript_id', $ids)->where('source', 'fankha')
-                ->get(['id', 'raw_text', 'volume_number', 'page_start', 'catalog_volume_id']),
             'source_entries' => DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $ids)
                 ->get(['id', 'citation_text', 'volume_number', 'page_start', 'source_id', 'source_volume_id']),
             // a copy moves within its catalogue, or to the one the file ties it to
@@ -265,7 +256,7 @@ class FixReversedCitationsCommand extends Command
         }
         $this->info(sprintf('Restoring %d copies from %s', count($backup['manuscripts']), $file));
         DB::transaction(function () use ($backup) {
-            foreach (['manuscripts', 'manuscript_catalog_references', 'source_entries', 'catalog_volumes', 'catalog_volume_parts', 'catalogers'] as $table) {
+            foreach (['manuscripts', 'source_entries', 'catalog_volumes', 'catalog_volume_parts', 'catalogers'] as $table) {
                 foreach ($backup[$table] as $row) {
                     DB::table($table)->where('id', $row['id'])->update(collect($row)->except('id')->all());
                 }

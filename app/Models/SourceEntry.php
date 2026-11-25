@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\ManuscriptCatalogReference as Ref;
-use App\Sources\LegacyMirror;
 use App\Support\Fa;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -144,13 +142,12 @@ class SourceEntry extends Model
         return DB::transaction(function () use ($user, $status, $ip) {
             $old = $this->only(['status', 'reviewed_by', 'reviewed_at']);
             $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
-            LegacyMirror::reference($this);
             // the researchers' opinions on the match in «تصحیح جمعی» (backlog item 80)
             if ($decision = \App\Review\CatalogMatchQueue::decision($this)) {
                 \App\Review\CollectiveReview::settle('catalog', $this->id, $decision, $user);
             }
 
-            return $this->logReview(Ref::ACTION_REVIEW, $user, $old, $ip);
+            return $this->logReview(self::ACTION_REVIEW, $user, $old, $ip);
         });
     }
 
@@ -166,14 +163,37 @@ class SourceEntry extends Model
                 return null;
             }
             $review = AuditLog::where('auditable_type', static::class)->where('auditable_id', $this->id)
-                ->where('action', Ref::ACTION_REVIEW)->latest('id')->first();
+                ->where('action', self::ACTION_REVIEW)->latest('id')->first();
             $old = $this->only(['status', 'reviewed_by', 'reviewed_at']) + ['rolled_back_log_id' => $review?->id];
             $this->update(['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null]);
-            LegacyMirror::reference($this);
 
-            return $this->logReview(Ref::ACTION_REOPEN, $user, $old, $ip);
+            return $this->logReview(self::ACTION_REOPEN, $user, $old, $ip);
         });
     }
+
+    /** Audit log actions of a bulk verification in a review queue and of its revert. */
+    public const ACTION_BULK_VERIFY = 'bulk_verify';
+
+    public const ACTION_BULK_REVERT = 'rollback_bulk_verify';
+
+    /** Audit log actions of one match's review and of its «بازگردانی» (backlog item 59); not in AuditLog::UNDOABLE, the undo has its own route. */
+    public const ACTION_REVIEW = 'review';
+
+    public const ACTION_REOPEN = 'rollback_review';
+
+    /**
+     * The only match method the catalogue queue may verify in bulk: the title confirms the number. A close title on a
+     * single page (shelfmark_single_page, 35 to 60), the number alone (shelfmark_only, 25) or several places
+     * (ambiguous, 10) says nothing more than the number, so those are reviewed one by one.
+     */
+    public const BULK_METHOD = 'shelfmark_title';
+
+    /**
+     * The auditable_type of the audit logs written on manuscript_catalog_references rows before step 13.3. The table
+     * and its model went in step 14.382 (backlog item 69); a bulk verification of then is still reverted
+     * through the entries copied from its rows (legacy_type catalog_reference).
+     */
+    public const LEGACY_REFERENCE = 'App\\Models\\ManuscriptCatalogReference';
 
     /** The audit action of a tie moved to another printed entry by a reviewer (step 13.72). */
     public const ACTION_MOVE_ITEM = 'move_item';
@@ -265,7 +285,6 @@ class SourceEntry extends Model
             foreach (array_chunk($ids, 1000) as $chunk) {
                 static::whereIn('id', $chunk)->update($values);
             }
-            LegacyMirror::reviews($ids, $values);
             $answered = \App\Models\FieldSuggestion::where('review_queue', 'catalog')->whereIn('review_item_id', $ids)->where('status', 'pending')
                 ->distinct()->pluck('review_item_id');
             foreach ($answered as $id) {
@@ -276,7 +295,7 @@ class SourceEntry extends Model
                 'user_id' => $user->id,
                 'auditable_type' => static::class,
                 'auditable_id' => 0,
-                'action' => Ref::ACTION_BULK_VERIFY,
+                'action' => self::ACTION_BULK_VERIFY,
                 'old_values' => ['status' => self::STATUS_UNVERIFIED, 'ids' => $ids],
                 'new_values' => ['status' => self::STATUS_VERIFIED, 'count' => count($ids), 'filters' => $filters, 'reviewed_at' => $now->toDateTimeString()],
                 'ip_address' => $ip,
@@ -288,7 +307,7 @@ class SourceEntry extends Model
     /** A bulk verification, of entries or, before step 13.3, of manuscript_catalog_references rows. */
     public static function isBulkVerify(AuditLog $log): bool
     {
-        return $log->action === Ref::ACTION_BULK_VERIFY && in_array($log->auditable_type, [static::class, Ref::class], true);
+        return $log->action === self::ACTION_BULK_VERIFY && in_array($log->auditable_type, [static::class, self::LEGACY_REFERENCE], true);
     }
 
     /**
@@ -297,8 +316,8 @@ class SourceEntry extends Model
      */
     public static function lastBulkVerify(?string $queue = null): ?AuditLog
     {
-        return AuditLog::whereIn('auditable_type', [static::class, Ref::class])->where('action', Ref::ACTION_BULK_VERIFY)
-            ->whereNotIn('id', AuditLog::where('auditable_type', AuditLog::class)->where('action', Ref::ACTION_BULK_REVERT)->select('auditable_id'))
+        return AuditLog::whereIn('auditable_type', [static::class, self::LEGACY_REFERENCE])->where('action', self::ACTION_BULK_VERIFY)
+            ->whereNotIn('id', AuditLog::where('auditable_type', AuditLog::class)->where('action', self::ACTION_BULK_REVERT)->select('auditable_id'))
             ->when($queue, fn ($q) => $q->where('new_values', 'like', '%"queue":"' . $queue . '"%'),
                 fn ($q) => $q->where('new_values', 'not like', '%"queue":%'))
             ->latest('id')->first();
@@ -319,11 +338,11 @@ class SourceEntry extends Model
         throw_unless(self::isBulkVerify($batch), new \InvalidArgumentException("Audit log #{$batch->id} is not a bulk verification."));
 
         return DB::transaction(function () use ($batch, $user, $ip) {
-            throw_if(AuditLog::where('auditable_type', AuditLog::class)->where('action', Ref::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->lockForUpdate()->exists(),
+            throw_if(AuditLog::where('auditable_type', AuditLog::class)->where('action', self::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->lockForUpdate()->exists(),
                 new \RuntimeException("تأیید گروهی #{$batch->id} پیش‌تر برگردانده شده است."));
             $ids = $batch->old_values['ids'] ?? [];
             // a batch of before step 13.3 names the references; their entries are the ones to revert
-            if ($batch->auditable_type === Ref::class) {
+            if ($batch->auditable_type === self::LEGACY_REFERENCE) {
                 $ids = collect(array_chunk($ids, 1000))->flatMap(fn ($chunk) => static::where('legacy_type', 'catalog_reference')->whereIn('legacy_id', $chunk)->pluck('id'))->all();
             }
             $reverted = [];
@@ -334,13 +353,12 @@ class SourceEntry extends Model
                 $match->update(['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null, 'updated_at' => now()]);
                 $reverted = array_merge($reverted, $found);
             }
-            LegacyMirror::reviews($reverted, ['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null, 'updated_at' => now()]);
             $count = count($batch->old_values['ids'] ?? []);
             AuditLog::create([
                 'user_id' => $user?->id,
                 'auditable_type' => AuditLog::class,
                 'auditable_id' => $batch->id,
-                'action' => Ref::ACTION_BULK_REVERT,
+                'action' => self::ACTION_BULK_REVERT,
                 'new_values' => ['reverted' => count($reverted), 'kept' => $count - count($reverted)],
                 'ip_address' => $ip,
             ]);

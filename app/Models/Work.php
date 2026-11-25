@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasSourceCitations;
 use App\Models\Concerns\HasSourceEntries;
 use App\Models\Concerns\SyncsPrimaryContributor;
 use App\Support\HijriYear;
@@ -15,7 +14,6 @@ use Laravel\Scout\Searchable;
 
 class Work extends Model
 {
-    use HasSourceCitations;
     use HasSourceEntries;
     use Searchable;
     use SyncsPrimaryContributor;

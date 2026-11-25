@@ -95,7 +95,6 @@ class SourceMerger
             'catalogers' => DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->distinct()->count('cataloger_id'),
             'items' => DB::table('source_items')->whereIn('source_volume_id', $volumes)->count(),
             'pages' => DB::table('source_pages')->whereIn('source_volume_id', $volumes)->count(),
-            'evidence' => DB::table('field_evidence')->whereIn('source_id', $folded)->count(),
             'drop_entries' => DB::table('source_entries')->whereIn('source_volume_id', $drops)->count(),
             'editions' => DB::table('sources')->whereIn('edition_of_id', $folded)->count(),
         ];
@@ -176,7 +175,6 @@ class SourceMerger
             DB::table($table)->where('edition_of_id', $drop)->update(['edition_of_id' => $keep]);
         }
         DB::table('manuscripts')->where('catalog_volume_id', $drop)->update(['catalog_volume_id' => $keep]);
-        DB::table('manuscript_catalog_references')->where('catalog_volume_id', $drop)->update(['catalog_volume_id' => $keep]);
         $has = DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $keep)->pluck('cataloger_id')->all();
         DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $drop)->whereNotIn('cataloger_id', $has)
             ->update(['catalog_volume_id' => $keep]);
@@ -238,7 +236,7 @@ class SourceMerger
         }
         foreach ($group as $source) {
             $map = array_filter($numbers[$source->id] ?? [], fn ($new, $old) => $new !== $old, ARRAY_FILTER_USE_BOTH);
-            foreach (['source_entries' => ['volume_number', 'text_volume_number'], 'field_evidence' => ['volume_number']] as $table => $columns) {
+            foreach (['source_entries' => ['volume_number', 'text_volume_number']] as $table => $columns) {
                 foreach ($columns as $column) {
                     if ($map) {
                         // in one statement, so that 1 → 2 and 2 → 3 do not run into each other
@@ -306,9 +304,7 @@ class SourceMerger
             'source_item_refs' => $all('source_item_refs', 'source_item_id', $dropItems),
             'source_item_targets' => $cols(DB::table('source_item_refs')->whereIn('target_item_id', $dropItems), ['id', 'target_item_id']),
             'source_pages' => $all('source_pages', 'source_volume_id', $drops),
-            'field_evidence' => $cols(DB::table('field_evidence')->whereIn('source_id', $ids), ['id', 'source_id', 'volume_number']),
             'manuscripts' => $cols(DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes), ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
-            'manuscript_catalog_references' => $cols(DB::table('manuscript_catalog_references')->whereIn('catalog_volume_id', $drops), ['id', 'catalog_volume_id']),
             'source_citation_forms' => CitationForms::ready() ? DB::table('source_citation_forms')->where(fn ($q) => $q->whereIn('cited_source_id', $ids)
                 ->orWhereIn('citing_source_id', $ids))->orderBy('id')->get()->map(fn ($r) => (array) $r)->all() : [],
         ];
@@ -344,9 +340,7 @@ class SourceMerger
         // a page text the kept volume had too was deleted with the duplicate; the others moved
         $insert('source_pages', $snapshot['source_pages']);
         self::restoreColumns('source_entries', $snapshot['source_entries']);
-        self::restoreColumns('field_evidence', $snapshot['field_evidence']);
         self::restoreColumns('manuscripts', $snapshot['manuscripts']);
-        self::restoreColumns('manuscript_catalog_references', $snapshot['manuscript_catalog_references']);
         $insert('source_citation_forms', $snapshot['source_citation_forms'] ?? []);
 
         foreach ($snapshot['volume_ids'] as $id) {
