@@ -413,6 +413,22 @@
                             <span>پیکره متنی (fahares-corpus)</span>
                         </a>
                     </div>
+
+                    <!-- Scientific sponsor and project director -->
+                    <div class="pt-6 flex items-center gap-5" data-footer-sponsor>
+                        <a href="https://mtif.org" target="_blank" rel="noopener" class="shrink-0 opacity-90 hover:opacity-100 transition" title="بنیاد محقق طباطبائی">
+                            <img src="{{ \App\Support\VersionedAsset::url('images/partners/mtif-160.png') }}"
+                                 srcset="{{ \App\Support\VersionedAsset::url('images/partners/mtif-320.png') }} 2x"
+                                 alt="بنیاد محقق طباطبائی" width="68" height="120" loading="lazy" class="h-[120px] w-auto">
+                        </a>
+                        <div class="space-y-2 border-r-2 border-gold/40 pr-4">
+                            <p class="text-sm text-stone-300">
+                                با حمایت علمی
+                                <a href="https://mtif.org" target="_blank" rel="noopener" class="font-bold text-amber-100 hover:text-amber-300 transition">بنیاد محقق طباطبائی</a>
+                            </p>
+                            <p class="text-sm text-stone-400">مدیر و مجری پروژه: <span class="font-bold text-amber-100">سید محسن حائری</span></p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Col 2: Quick Links -->
@@ -445,22 +461,6 @@
                     </ul>
                 </div>
 
-            </div>
-
-            <!-- Scientific sponsor and project director -->
-            <div class="border-t border-stone-700/60 py-8 flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-8 text-center sm:text-right" data-footer-sponsor>
-                <a href="https://mtif.org" target="_blank" rel="noopener" class="shrink-0 opacity-90 hover:opacity-100 transition" title="بنیاد محقق طباطبائی">
-                    <img src="{{ \App\Support\VersionedAsset::url('images/partners/mtif-160.png') }}"
-                         srcset="{{ \App\Support\VersionedAsset::url('images/partners/mtif-320.png') }} 2x"
-                         alt="بنیاد محقق طباطبائی" width="68" height="120" loading="lazy" class="h-[120px] w-auto">
-                </a>
-                <div class="space-y-2">
-                    <p class="text-sm text-stone-300">
-                        با حمایت علمی
-                        <a href="https://mtif.org" target="_blank" rel="noopener" class="font-bold text-amber-100 hover:text-amber-300 transition">بنیاد محقق طباطبائی</a>
-                    </p>
-                    <p class="text-sm text-stone-400">مدیر و مجری پروژه: <span class="font-bold text-amber-100">سید محسن حائری</span></p>
-                </div>
             </div>
 
             <!-- Bottom Copyright -->
