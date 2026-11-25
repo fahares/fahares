@@ -141,7 +141,16 @@ class RecordMerger
         if (! $snapshot || ! array_key_exists('added_scribe_ids', $old)) {
             throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل نسخۀ حذف‌شده در همین لاگ (source_snapshot) هست.');
         }
-        $source = $this->restore(Manuscript::class, 'manuscripts', $snapshot['attributes']);
+        $attributes = $snapshot['attributes'];
+        // The merge removed the «مجموعه» it alone made (step 14.387): it comes back linked as its key says
+        $gone = ! empty($attributes['collection_id']) && ! DB::table('collections')->where('id', $attributes['collection_id'])->exists();
+        if ($gone) {
+            $attributes['collection_id'] = null;
+        }
+        $source = $this->restore(Manuscript::class, 'manuscripts', $attributes);
+        if ($gone) {
+            \App\Support\Collections::sync([$source->id]);
+        }
         DB::table('manuscript_script')->insertOrIgnore($snapshot['pivots']['manuscript_script'] ?? []);
         // The scribes were deleted with the copy and come back; the other people were moved and go back
         $people = $snapshot['pivots']['manuscript_people'] ?? [];

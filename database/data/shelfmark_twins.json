@@ -1,0 +1,47 @@
+{
+    "about": "Backlog item 159, step 14.387: copies that Fankha gives twice, once under its wrong shelfmark and once under the printed one (sources:shelfmark-claims, step 14.266, list ../fahares-sources/ocr-claude/duplicate_candidates_step14_266.tsv). Each pair was judged from the printed catalogue's page text. Records are keyed by library slug, shelfmark and work slug, never by id.",
+    "merges": [
+        {
+            "library": "thran-mlk-15",
+            "removed": {"shelfmark": "972/4", "work": "s-u-qasidat-il-gamamat-wa-l-basat-v20-727"},
+            "kept": {"shelfmark": "792/4", "work": "s-e-hadis-e-qamama-va-basat-v19-1035"},
+            "why": "Malek vol. 5 p. 177–178: collection 792, part 4 «شرح حدیث غمامه وبساط از منهج‌التحقیق حیدر خوانساری», the very words of the removed record. Malek 972 is منتخب اللغات شاهجهانی (vol. 4 p. 788), a single work."
+        },
+        {
+            "library": "thran-mgls-4",
+            "removed": {"shelfmark": "8915/16", "work": "asar-v3-1470"},
+            "kept": {"shelfmark": "8919/16", "work": "ashaaar-v3-1473"},
+            "fields": {"scribe_name": "target", "copy_date_raw": "target"},
+            "why": "Majlis vol. 29/1 p. 331: 8919 (جنگ قلندرشاه) part 16 «اشعار، ۴۹پ ـ ۵۰ر، از امیرالمؤمنین(ع) و مولوی», the removed record's leaves and words. 8915/16 is اسکندریه (pp. 257–293), which keeps its own record. The print names the collection's scribe (محمود بن جلال‌الدین قلندرشاه خویی) and dates, so the removed record's «بی‌کا، بی‌تا» does not become an alternative reading."
+        },
+        {
+            "library": "thran-mroy-7",
+            "removed": {"shelfmark": "7988/3", "work": "sawahid-ul-bahja-til-mariyya-v21-477"},
+            "kept": {"shelfmark": "798/3", "work": "s-u-sawahid-il-bahjat-il-mariyya-v20-12"},
+            "why": "Marvi p. 307: «(ش ۷۹۸ ـ خشتی) ۳ ـ شواهد سیوطی تحریر ۱۲۳۵», the removed record's date and format. Marvi has no number 7988."
+        },
+        {
+            "library": "thran-mroy-7",
+            "removed": {"shelfmark": "512/2", "work": "saifat-ur-ria-v21-849"},
+            "kept": {"shelfmark": "521/2", "work": "saifat-ur-ria-v21-849"},
+            "fields": {"copy_date_raw": "source"},
+            "why": "Marvi p. 284: «(ش ۵۲۱ - خشتی) ۲ - صحیفه الرضا. تحریر اسماعیل بن محمد صالح الحسینی در ۱۰۷۱». Marvi 512 is شرح الفوائد الصمدية (p. 161), a single work. The print's date is the removed record's 1071, not the kept record's 1074."
+        }
+    ],
+    "corrections": [
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1230/30",
+            "work": "d-e-raqem-e-mashadi-v15-564",
+            "to": "1232/30",
+            "why": "Malek vol. 5 p. 248: collection 1232, part 30 «شعر ابوتراب بیك و سعدالدین محمد مشهدی»: one part with two poets, so two records (1232/30 دیوان ابوتراب بیک کاشانی stays). Malek 1230 is القوانين المحكمة, a single work."
+        },
+        {
+            "library": "thran-mgls-4",
+            "shelfmark": "210055/1",
+            "work": "al-eteqadat-v4-879",
+            "to": "10055/21",
+            "why": "Majlis vol. 32 p. 69: collection 10055, «۲۱. الاعتقادات (ص ۲۴۲ ـ ۲۴۸) از شاه قاسم انوار», the removed record's pages and words. 10055/1 is حدیث المعراج (pp. 1–11), and 10055/21 had no record."
+        }
+    ]
+}
