@@ -14332,6 +14332,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **همان فایل:** پیوندهای `github.com/fahares/fahares` و `fahares-corpus`، نشان و جملۀ «آزمایشی» در فراخوان، و «Beta v1.0» در خط پایانی برداشته شد.
 - **پس از انتشار نخست:** دو سطر بلوک `text-stone-400`، بی `font-bold` و `text-amber-100` روی نام‌ها.
 - **تراز:** ضلع پایین مربع لوگو ۱۴ پیکسل بالای پای تصویر ۱۲۰ پیکسلی است (ردیف ۱۲۴۵ از ۱۴۱۲). دو سطر `text-[13px] leading-6`، `mb-[6px]` تا خط کرسی سطر دوم روی آن ضلع بنشیند؛ `gap-3`، بی `border-r`.
+- **ترتیب و فاصله:** سطر مدیر پروژه بالا و سطر حامی پایین؛ `leading-5` و `mb-[8px]` (دو پیکسل نیم‌فاصلۀ کمتر جبران شد تا خط کرسی سطر دوم همان‌جا بماند).
 
 ### گام ۱۴.۴۰۹: `<x-suggest.reading>` با مستند باز
 - `components/suggest/reading.blade.php`: `x-data="{ open: true }"`، `x-cloak` از بند مستند برداشته شد، متن آغازین دکمه «بستن مستند». آزمون: `ReadingEvidenceOpenTest`.
