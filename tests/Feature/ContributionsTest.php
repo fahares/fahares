@@ -142,6 +142,21 @@ class ContributionsTest extends TestCase
             ->assertSee('اصفهان')->assertSee('هرات');
     }
 
+    public function test_the_evidence_of_a_field_correction_is_shown_but_not_that_of_a_note()
+    {
+        $m = $this->manuscript();
+        $this->suggestion($m, ['credit_name' => "پژوهشگر {$this->tag}", 'rationale_citation' => "مستند فیلد {$this->tag} https://example.org/a"]);
+        $this->suggestion($m, ['kind' => 'note', 'field_name' => 'observation', 'standing' => null, 'suggested_value' => "یادداشت {$this->tag}",
+            'rationale_citation' => "توضیح یادداشت {$this->tag}"]);
+
+        $this->get('/contributions?type=manuscript')->assertOk()
+            ->assertSee('data-contribution-evidence', false)
+            ->assertSee("مستند فیلد {$this->tag}")
+            ->assertSee('<a href="https://example.org/a"', false)
+            ->assertSee("یادداشت {$this->tag}")
+            ->assertDontSee("توضیح یادداشت {$this->tag}");
+    }
+
     public function test_a_researcher_page_lists_only_the_corrections_credited_by_name()
     {
         $researcher = $this->user();
