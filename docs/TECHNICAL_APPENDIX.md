@@ -14273,3 +14273,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[FillCatalogueEntriesCommand](../app/Console/Commands/FillCatalogueEntriesCommand.php):** `sources:fill-catalogue-entries {--dry-run}`. اگر `SourceEntry::holdsCatalogue()` نادرست باشد خطا می‌دهد. پیش و پس از نوشتن، شمار ناهمخوان‌ها را چاپ می‌کند.
 - **تمرین:** وضع پروداکشن روی `fahares_prod` بازسازی شد: `UPDATE … SET NULL` (۹٫۲ ثانیه) و حذف ردیف `migrations`. سپس `migrate` در ۲٫۰۳ ms، و فرمان: ۲۹۲٬۳۲۰ نوشته در ۴۵ ثانیه، ۰ ناهمخوان.
 - **آزمون:** `FillCatalogueEntriesTest` (dry run، پر کردن، اجرای دوباره بی نوشتن).
+
+### گام ۱۴.۴۰۴: متن راهنمای `libraries`
+- `InsightsNotes::libraries()`: جملۀ نخست `reading[0]`. آزمون: `InsightsLibrarySubjectsTest`.
