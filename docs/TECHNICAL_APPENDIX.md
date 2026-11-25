@@ -14325,4 +14325,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
   - `CloudflareClientIpTest`: ۳ آزمون.
   - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
-
