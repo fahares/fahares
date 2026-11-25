@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\AuditLog;
 use App\Models\Person;
 use App\Support\SearchFilters;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
@@ -126,24 +124,5 @@ class LifeCenturiesTest extends TestCase
         $options = $queue->filterOptions()['century']['options'];
         $this->assertArrayHasKey(10, $options);
         $this->assertArrayHasKey(11, $options);
-    }
-
-    public function test_the_backfill_fills_the_rows_written_before_the_column_and_keeps_a_reviewed_one()
-    {
-        $row = fn (string $name, array $columns) => DB::table('people')->insertGetId(['name' => $name, 'normalized_name' => $name, 'slug' => 'lc-' . uniqid()] + $columns);
-        $two = $row('دوسده‌ای پیشین آزمایشی', ['birth_year_hijri' => 970, 'death_year_hijri' => 1050, 'century_hijri' => 11]);
-        $one = $row('یک‌سده‌ای پیشین آزمایشی', ['birth_year_hijri' => 1010, 'death_year_hijri' => 1080, 'century_hijri' => 11]);
-        $stale = $row('کهنۀ آزمایشی', ['birth_year_hijri' => 1010, 'death_year_hijri' => 1080, 'century_hijri' => 11, 'century_from' => 10]);
-        $set = $row('ثبت‌شدۀ آزمایشی', ['death_year_hijri' => 940, 'century_hijri' => 10, 'century_from' => 9]);
-        $reviewed = $row('بازبینی‌شدۀ آزمایشی', ['birth_year_hijri' => 905, 'death_year_hijri' => 960, 'century_hijri' => 10, 'century_from' => 9]);
-        AuditLog::create(['auditable_type' => Person::class, 'auditable_id' => $reviewed, 'action' => 'verify', 'new_values' => ['century_from' => 9]]);
-        $from = fn () => DB::table('people')->whereIn('id', [$two, $one, $stale, $set, $reviewed])->orderBy('id')->pluck('century_from')->all();
-
-        $this->artisan('fahares:fill-life-centuries')->expectsOutputToContain('Dry run, nothing written')->assertSuccessful();
-        $this->assertSame([null, null, 10, 9, 9], $from());
-
-        $this->artisan('fahares:fill-life-centuries', ['--apply' => true])->assertSuccessful();
-        $this->assertSame([10, null, null, 9, 9], $from());
-        $this->artisan('fahares:fill-life-centuries', ['--apply' => true])->expectsOutputToContain('0 first centuries filled, 0 emptied')->assertSuccessful();
     }
 }

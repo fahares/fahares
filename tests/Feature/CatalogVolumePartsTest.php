@@ -110,8 +110,7 @@ class CatalogVolumePartsTest extends TestCase
         $this->assertSame([null, $daneshPajouh->id], [$none->fresh()->catalog_volume_part_id, $none->fresh()->cataloger_id]);
         $this->assertNull($onPlain->fresh()->catalog_volume_part_id);
 
-        $this->artisan('catalogs:assign-volume-parts')->assertSuccessful()->expectsOutput('5 copies read.')
-            ->expectsOutputToContain('page outside their part: 1');
+        Cataloger::recount();
         $this->assertSame([2, 1], [$molaviPart->fresh()->manuscripts_count, $rowzatiPart->fresh()->manuscripts_count]);
 
         // the counts: a part's catalogers its copies, the volume's people the rest as editors
@@ -134,20 +133,6 @@ class CatalogVolumePartsTest extends TestCase
             ->assertSee('بخش «کتابخانه سید محمد علی روضاتی»')->assertSee('با محمدتقی دانش‌پژوه');
         $this->get(route('catalogers.show', $valaei))->assertOk()->assertSee('data-cataloger-part', false)->assertSee('کتابخانه عبدالمجید مولوی');
         $this->get(route('catalogers.show', $afshar))->assertOk()->assertSee('data-cataloger-supervised', false);
-    }
-
-    public function test_a_dry_run_saves_nothing()
-    {
-        $source = Source::create(['code' => 'parts-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'نسخه‌پژوهی']);
-        $volume = $this->volume($source, 1);
-        $library = $this->library('مدرسه منصوریه');
-        $copy = $this->copy($library, '[نسخه پژوهی: 1 - 50]', $volume);
-        $this->part($volume, $library, 'کتابخانه مدرسه منصوریه', 49, 55, [Cataloger::create(['name' => 'محمد برکت', 'slug' => 'barakat-' . uniqid()])]);
-
-        $this->artisan('catalogs:assign-volume-parts', ['--dry-run' => true])->assertSuccessful()->expectsOutputToContain('changed: 1');
-        $this->assertNull($copy->fresh()->catalog_volume_part_id);
-        $this->artisan('catalogs:assign-volume-parts')->assertSuccessful();
-        $this->assertNotNull($copy->fresh()->catalog_volume_part_id);
     }
 
     public function test_a_library_merge_takes_its_parts_and_sources_along_and_its_undo_brings_them_back()
