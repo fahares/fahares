@@ -8,7 +8,8 @@
     ];
     $linkify = fn (string $text) => preg_replace('~https?://[^\s<]+~u', '<a href="$0" target="_blank" rel="nofollow noopener" class="text-cinnabar hover:underline break-all" dir="ltr">$0</a>', e($text));
 @endphp
-<div x-data="{ open: false }" class="space-y-1.5">
+{{-- The evidence is open from the start; the button closes it (step 14.409) --}}
+<div x-data="{ open: true }" class="space-y-1.5">
     <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         @if($chosen)
             <span class="inline-block size-2.5 rounded-full bg-emerald-500 shrink-0 self-center" title="مقدار منتخب" aria-label="مقدار منتخب" role="img"></span>
@@ -23,11 +24,11 @@
             <span>· @jdate($s->reviewed_at, 'long')</span>
         @endif
         @if($s->rationale_citation)
-            <button type="button" @click="open = !open" class="font-bold text-cinnabar hover:underline cursor-pointer" x-text="open ? 'بستن مستند' : 'مستند'">مستند</button>
+            <button type="button" @click="open = !open" class="font-bold text-cinnabar hover:underline cursor-pointer" x-text="open ? 'بستن مستند' : 'مستند'">بستن مستند</button>
         @endif
     </div>
     @if($s->rationale_citation)
-        <p x-show="open" x-cloak class="p-3 rounded-xl bg-paper text-xs text-ink/80 leading-loose whitespace-pre-line break-words">{!! $linkify($s->rationale_citation) !!}</p>
+        <p x-show="open" class="p-3 rounded-xl bg-paper text-xs text-ink/80 leading-loose whitespace-pre-line break-words">{!! $linkify($s->rationale_citation) !!}</p>
     @endif
     @if($s->standing === 'superseded' && $s->supersededBy)
         <p class="text-[11px] text-muted">جای خود را به قول «{{ \Illuminate\Support\Str::limit($s->supersededBy->display_value, 80) }}» داد.</p>

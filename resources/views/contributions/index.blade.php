@@ -188,6 +188,14 @@
                         @endforeach
                     </div>
                 @endif
+
+                {{-- The researcher's evidence for a field's reading, as on the record page (step 14.409) --}}
+                @if($item['evidence'])
+                    <div class="p-3 rounded-sm bg-paper text-xs text-ink/80 leading-loose break-words" data-contribution-evidence>
+                        <span class="block text-[10px] font-bold text-muted">مستند</span>
+                        <p class="m-0 whitespace-pre-line">{!! preg_replace('~https?://[^\s<]+~u', '<a href="$0" target="_blank" rel="nofollow noopener" class="text-cinnabar hover:underline break-all" dir="ltr">$0</a>', e($item['evidence'])) !!}</p>
+                    </div>
+                @endif
             </article>
         @empty
             <div class="p-8 rounded-sm bg-surface border border-line text-center text-sm text-muted">

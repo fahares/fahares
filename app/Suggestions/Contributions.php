@@ -122,7 +122,7 @@ class Contributions
 
     /**
      * @return array{suggestion: FieldSuggestion, date: mixed, action: string, record: ?array, type: string,
-     *     before: ?array, after: ?array, text: ?string, standing: ?string, contributor: array}
+     *     before: ?array, after: ?array, text: ?string, evidence: ?string, standing: ?string, contributor: array}
      */
     public static function summary(FieldSuggestion $s, ?AuditLog $log = null): array
     {
@@ -135,6 +135,8 @@ class Contributions
             'before' => null,
             'after' => null,
             'text' => null,
+            // What the researcher wrote for a field's reading, the same text its record page shows under the reading (step 14.409)
+            'evidence' => $s->kind === 'field' && ! $s->review_queue ? (trim((string) $s->rationale_citation) ?: null) : null,
             'standing' => $s->kind === 'field' ? $s->standing_label : null,
             'contributor' => self::contributor($s),
         ];
