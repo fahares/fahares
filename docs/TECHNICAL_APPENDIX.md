@@ -14254,3 +14254,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۴۰۰: `topic-icon` در زبانه‌ها و سربرگ
 - `insights/index.blade.php`: `@include('insights.topic-icon', ['slug' => $topic, 'class' => 'size-9'])` در `<header>` صفحۀ موضوع، و `['class' => 'size-4']` در هر پیوند `[data-insights-tabs]` (اکنون `inline-flex`). آزمون: `InsightsTopicPagesTest`.
+
+### گام ۱۴.۴۰۱: `source_entries.catalog_volume_part_id` و `cataloger_id`
+
+- **migration:** `2026_11_25_300001_add_part_and_cataloger_to_source_entries` دو foreign key با `nullOnDelete` می‌افزاید و مقدار را برای `legacy_type = fankha_citation`، `legacy_index = 0` با `UPDATE … JOIN manuscripts` پر می‌کند. روی رونوشت پروداکشن ۷۷ ثانیه طول کشید (ALTER با بازسازی جدول).
+- **[SourceEntry](../app/Models/SourceEntry.php):**
+  - `holdsCatalogue()`: ستون‌ها هستند (ذخیره‌شده در حافظه) و `CatalogVolumePart::ready()` درست است (هر بار سنجیده می‌شود، چون آزمون پیش از migration آن را خاموش می‌کند).
+  - رابطه‌های `catalogVolumePart()` و `cataloger()`.
+- **[SourceEntrySync](../app/Sources/SourceEntrySync.php):**
+  - `syncCatalogue($ids)`، `syncCatalogueOfVolumes($volumes)` و `syncCatalogueAll()` (فقط ردیف‌های ناهمخوان؛ روی رونوشت پروداکشن ۵ ثانیه) با `UPDATE … JOIN`.
+  - این‌ها را صدا می‌زنند: `syncCited` (پس از `assign`)، `CatalogVolumePart::assign`، `relinkVolumes`، `VolumeEditor`، `SourceMerger::undo`، `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` (که `merge-duplicates` هم صدا می‌زند)، `recount` و `revert` در `import-volume-parts`، `set-volumes` و `remove-catalogue`، و hook ذخیرۀ نسخه وقتی `catalog_volume_part_id` یا `cataloger_id` تغییر کند.
+- **آزمون:** `CatalogVolumePartsTest` بخش و فهرست‌نگار مدخل استناد را با نسخه می‌سنجد. `test_the_pages_and_a_save_before_the_deploy_has_migrated` هنوز سبز است.
