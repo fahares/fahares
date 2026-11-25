@@ -14325,4 +14325,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
   - `CloudflareClientIpTest`: ۳ آزمون.
   - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
+- **استقرار (۴ آذر ۱۴۰۵):**
+  - wrangler 4.168.0 از `docker/down/cloudflare`. نخستین `deploy` cron را با خطای 10063 ثبت نکرد، چون حساب زیردامنۀ `workers.dev` نداشت. با باز کردن Workers & Pages در داشبورد ساخته شد.
+  - `node_modules` محلی پوشه (در `.gitignore`) برای cache wrangler است، چون `node_modules` ریشۀ checkout اصلی مال root است.
+  - token با `wrangler secret put CF_API_TOKEN < ~/.fahares/cloudflare-dns-token` داده شد.
+- **آزمون زنده:**
+  - cron: پنج `failover check: up` پیاپی (wall حدود ۵۰۰ ms).
+  - `failover-test` (نارنجی، `192.0.2.1`): `503`، `retry-after: 120`، `x-robots-tag: noindex`، `server: cloudflare`، در ۱۵٫۶ ثانیه (`ORIGIN_TIMEOUT_MS`). رکورد پاک شد.
+  - `maintenance on --no-lock`: پاسخ نام‌سرور پس از چند ثانیه `172.67.149.123` و `104.21.47.175` شد. `/`، `/up` و `/search` ۲۰۰ دادند با `server: cloudflare`، بی ریدایرکت (Full strict).
+  - `off`: پس از ۴۰ ثانیه `proxied=false, ttl=60`. پاسخ‌های DNS از راه کش میانی تا ۳۰۰ ثانیه (TTL رکورد proxied) نارنجی ماندند.
 

@@ -110,6 +110,7 @@ for (const state of ['refused', '522', 'hang']) {
         assert.equal(response.headers.get('Retry-After'), '120');
         const html = await response.text();
         assert.match(html, /سرور فهارس در حال نگهداری است/);
+        assert.match(html, /<title>فهارس \| در حال نگهداری<\/title>/);
         assert.match(html, /ارتقای حافظۀ سرور/);
         assert.match(html, /زمان تقریبی بازگشت/);
     });

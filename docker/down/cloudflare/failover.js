@@ -118,6 +118,7 @@ function tehranTime(unix) {
 
 export function renderPage(page, note) {
     let html = page
+        .replace('<title>فهارس | موقتاً در دسترس نیست</title>', '<title>فهارس | در حال نگهداری</title>')
         .replace('سایت چند لحظه در دسترس نیست', 'سرور فهارس در حال نگهداری است')
         .replace(/<p>سرور فهارس زیر فشار است[^<]*<\/p>/, '<p>سرور فهارس در حال ارتقا یا نگهداری است و به‌زودی برمی‌گردد.</p>');
     const parts = [];
