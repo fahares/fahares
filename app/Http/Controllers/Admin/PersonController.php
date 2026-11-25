@@ -46,14 +46,47 @@ class PersonController extends Controller
         return view('admin.people.index', compact('people', 'search', 'role', 'century'));
     }
 
-    public function edit(Person $person)
+    /**
+     * «شخص تازه» (backlog item 161, step 14.381): the fields of the edit form, with the source the person was read
+     * from. The namesakes the site has are shown first, and the person is made only when told again.
+     */
+    public function create()
     {
-        return view('admin.people.edit', compact('person'));
+        return view('admin.people.create', [
+            'picked' => ['source_id' => ($id = (int) old('source_id')) && ($source = \App\Models\Source::find($id)) ? \App\Suggestions\SuggestionRegistry::describe($source) : null],
+            'duplicates' => session('duplicates') ? Person::whereIn('id', session('duplicates'))->orderByDesc('works_count')->get() : collect(),
+        ]);
     }
 
-    public function update(Request $request, Person $person)
+    public function store(Request $request, \App\Suggestions\RecordCreator $creator)
     {
-        $validated = $request->validate([
+        $data = $request->validate(self::personRules() + [
+            'source_id' => 'nullable|integer|exists:sources,id',
+            'source_place' => 'nullable|required_with:source_id|string|max:60',
+            'source_text' => 'nullable|string|max:300',
+        ]);
+
+        $duplicates = $creator->personDuplicates($data['name'], self::nameLines(self::withoutTransliterations($data['aliases'] ?? null)) ?? []);
+        if ($duplicates->isNotEmpty() && ! $request->boolean('confirm_duplicate')) {
+            return back()->withInput()->with('duplicates', $duplicates->pluck('id')->all());
+        }
+
+        try {
+            $person = $creator->createPerson($data, $request->user()->id, $request->ip());
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('admin.people.edit', $person)
+            ->with('success', 'رکورد شخص ساخته شد.'
+                . ($duplicates->isNotEmpty() ? ' اگر با یکی از هم‌نام‌ها یک شخص است، از «ادغام با شخص دیگر» ادغامش کنید.' : '')
+                . ' از لاگ ممیزی بازگرداندنی است.');
+    }
+
+    /** The person's own fields, as the edit form and the new-person form take them. */
+    private static function personRules(): array
+    {
+        return [
             'name' => 'required|string|max:600',
             'birth_year_hijri' => 'nullable|integer',
             'death_year_hijri' => 'nullable|integer',
@@ -64,7 +97,17 @@ class PersonController extends Controller
             'bio_notes' => 'nullable|string',
             'aliases' => 'nullable|string|max:20000',
             'wrong_names' => 'nullable|string|max:20000',
-        ]);
+        ];
+    }
+
+    public function edit(Person $person)
+    {
+        return view('admin.people.edit', compact('person'));
+    }
+
+    public function update(Request $request, Person $person)
+    {
+        $validated = $request->validate(self::personRules());
 
         $oldValues = $person->toArray();
 
@@ -210,13 +253,13 @@ class PersonController extends Controller
     }
 
     /** The lines of the other names without what follows «|». */
-    private static function withoutTransliterations(?string $text): string
+    public static function withoutTransliterations(?string $text): string
     {
         return implode("\n", array_map(fn ($line) => trim(explode('|', $line, 2)[0]), preg_split('/\R/u', (string) $text)));
     }
 
     /** name => transliteration, from the lines written «نام | آوانگاری». */
-    private static function transliterations(?string $text): ?array
+    public static function transliterations(?string $text): ?array
     {
         $map = [];
         foreach (preg_split('/\R/u', (string) $text) as $line) {

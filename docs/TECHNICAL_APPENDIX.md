@@ -13984,3 +13984,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «section 1 not found» داد و چیزی ننوشت. در `/tmp` چیزی نماند.
 - **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
 - **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.
+### گام ۱۴.۳۸۱: `RecordCreator`، `Admin\WorkController` و `admin.people.create`
+
+- **[RecordCreator](../app/Suggestions/RecordCreator.php):**
+  - `personDuplicates(name, aliases)` با `PersonNameMatcher::ids` (نام و نام‌های دیگر، با `TextNormalizer`). `workDuplicates(title, others, authorId)` عنوان‌ها و عناوین دیگر را نرمال‌شده می‌سنجد: آثار همان پدیدآور (`author_id` یا ردیف `work_people`)، یا اگر پدیدآوری نیست، آثار با همان `primary_title` یا `clean_title`.
+  - `createPerson` و `createWork` با `slug` به شکل `<نام>-<id>`، `normalized_name` مانند فرم ویرایش (حذف اعراب). `century_hijri` خالی فرستاده نمی‌شود تا مدل آن را از سال درگذشت بگیرد.
+  - `contributor(data, role)`: شخص `{role}_id`، یا شخص تازه برای `{role}_name` اگر `{role}_new` باشد (با `{role}_death_year` اختیاری). `ManuscriptCreator` آن را برای `author` و `scribe` به کار می‌برد و شناسه‌ها را در `created.person_ids` نگه می‌دارد.
+  - `linkTerms(Work)`: `subject_summary` و `language_summary` با «،»، «,» یا «/» جدا و با نام دقیق به `subject_work` و `language_work` پیوند می‌خورند. `works_count` موضوع، پدر آن و زبان بازشماری می‌شود.
+  - `sourceEntry`: `SourceEntry` با `role=entry`، `origin=manual`، `status=verified`، نشانی از `SuggestionRegistry::parseCatalogPage`.
+  - لاگ: `action=create`، `old_values.created = {person_id|work_id, person_ids, source_entry_ids}`، `new_values.panel = true` با فیلدها و `source_text`.
+  - `undo(log)`: اثر با `RecordRemover::remove` (خطا اگر نسخه دارد)، شخص با همان (خطا اگر پیوند دارد). `removePeople(ids)` شخصی را که هنوز پیوند دارد نگه می‌دارد.
+- **[AuditLogController::rollbackCreate](../app/Http/Controllers/Admin/AuditLogController.php):** نسخه به `ManuscriptCreator::undo`، شخص و اثر به `RecordCreator::undo`.
+- **[PersonController](../app/Http/Controllers/Admin/PersonController.php):** `create`، `store` و `personRules()` مشترک با `update`. `withoutTransliterations` و `transliterations` عمومی شدند. نشست `duplicates` هم‌نام‌ها را به فرم برمی‌گرداند و `confirm_duplicate` از آن می‌گذرد.
+- **[WorkController](../app/Http/Controllers/Admin/WorkController.php):** `create` و `store`. `author_id` با `author_new` با هم رد می‌شوند. نشست `duplicates` (آثار) و `namesakes` (اشخاص) با یک `confirm_duplicate`.
+- **[ManuscriptController](../app/Http/Controllers/Admin/ManuscriptController.php):** `author_new` و `scribe_new`؛ نشست `namesakes` به تفکیک نقش و تأیید `confirm_people`.
+- **نماها:** `admin/people/create`، `admin/works/create`، `admin/people/_namesakes` (فهرست هم‌نام‌ها با `data-namesake`)، `admin/_record-source` (منبع اطلاع). دکمۀ «شخص تازه» در فهرست اشخاص و دو پیوند تازه در منوی پنل (`AdminNav`).
+- **دسترسی:** `admin.works.*` زیر `manuscripts.create` (برچسب: «ساختن رکورد نسخه و اثر»)؛ `admin.people.create` و `store` زیر `people.edit`.
+- **آزمون:** [`NewPersonAndWorkTest`](../tests/Feature/Admin/NewPersonAndWorkTest.php)، ۹ آزمون: دسترسی، شخص با کارت منبع و بازگرداندن، هشدار هم‌نام با «ي» عربی، اثر با موضوع، پدر موضوع و زبان، اثر هم‌عنوان همان پدیدآور، پدیدآور تازه از فرم اثر و بازگرداندن هر دو، اثرِ نسخه‌دار بازگرداندنی نیست، پدیدآور و کاتب تازه از فرم نسخه، و شخصی که پس از ساختن اثر دیگری گرفته می‌ماند.

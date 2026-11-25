@@ -87,13 +87,18 @@ class ManuscriptCreator
                 throw new InvalidArgumentException('شمارۀ نسخه را بنویسید.');
             }
             [$key, $placed] = $this->collectionKey($library, $shelfmark, $data['collection_key'] ?? null);
-            $made = ['manuscript_id' => null, 'work_id' => null, 'source_entry_ids' => [], 'keyed_manuscript_ids' => []];
+            $made = ['manuscript_id' => null, 'work_id' => null, 'source_entry_ids' => [], 'keyed_manuscript_ids' => [], 'person_ids' => []];
 
-            [$work, $made['work_id']] = $this->work($data, $library, $shelfmark);
+            [$work, $made['work_id'], $author] = $this->work($data, $library, $shelfmark);
             $range = filled($data['range'] ?? null)
                 ? (CopyExtent::parseRange($data['range']) ?? throw new InvalidArgumentException('جای نسخه را به شکل «۷پ تا ۱۲پ» یا «۱–۱۲» بنویسید.'))
                 : null;
             $scribe = filled($data['scribe_id'] ?? null) ? (Person::find($data['scribe_id']) ?? throw new InvalidArgumentException('کاتبی با این شناسه پیدا نشد.')) : null;
+            // a scribe or author the site lacks, made from the same form (backlog item 161)
+            if (! $scribe) {
+                [$scribe, $madeScribe] = app(RecordCreator::class)->contributor($data, 'scribe');
+            }
+            $made['person_ids'] = array_values(array_filter([$author, $madeScribe ?? null]));
 
             $manuscript = Manuscript::create([
                 'work_id' => $work->id,
@@ -231,16 +236,15 @@ class ManuscriptCreator
         return [Manuscript::resolvedCollectionKey($shelfmark, null, null), $collection];
     }
 
-    /** @return array{0: Work, 1: ?int} the copy's work, and its id when it was made here */
+    /** @return array{0: Work, 1: ?int, 2: ?int} the copy's work, its id when it was made here, and its author's id when the author was made here */
     private function work(array $data, Library $library, string $shelfmark): array
     {
         $mode = $data['work_mode'] ?? 'existing';
         if ($mode === 'existing') {
-            return [Work::find($data['work_id'] ?? 0) ?? throw new InvalidArgumentException('اثر را از فهرست پیشنهادها انتخاب کنید.'), null];
+            return [Work::find($data['work_id'] ?? 0) ?? throw new InvalidArgumentException('اثر را از فهرست پیشنهادها انتخاب کنید.'), null, null];
         }
-        $author = $mode === 'new' && filled($data['author_id'] ?? null)
-            ? (Person::find($data['author_id']) ?? throw new InvalidArgumentException('پدیدآوری با این شناسه پیدا نشد.'))
-            : null;
+        // the author is a person of the site, or one made here for the name given (backlog item 161)
+        [$author, $madeAuthor] = $mode === 'new' ? app(RecordCreator::class)->contributor($data, 'author') : [null, null];
         $title = $mode === 'new' ? self::text($data['work_title'] ?? null) : 'بی‌عنوان (' . $library->name . '، ش ' . $shelfmark . ')';
         if ($title === null) {
             throw new InvalidArgumentException('عنوان اثر تازه را بنویسید.');
@@ -257,7 +261,7 @@ class ManuscriptCreator
         ]);
         $work->update(['slug' => mb_substr(Str::slug($title, '-', null) ?: 'work', 0, 180) . '-' . $work->id]);
 
-        return [$work, $work->id];
+        return [$work, $work->id, $madeAuthor];
     }
 
     /** What the copy's page says of where the knowledge came from (Manuscript::provenance). */
@@ -353,6 +357,8 @@ class ManuscriptCreator
             && ! Manuscript::where('library_id', $libraryId)->where('collection_key', $key)->whereNotIn('id', $made['keyed_manuscript_ids'])->exists()) {
             Manuscript::whereIn('id', $made['keyed_manuscript_ids'])->where('collection_key', $key)->get()->each->update(['collection_key' => null]);
         }
+        // the author and scribe made from the form, unless something else has since named them
+        app(RecordCreator::class)->removePeople($made['person_ids'] ?? []);
         $this->recount($workId, $libraryId);
     }
 
