@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // The Jarideh (posts) section on the public site (step 14.411). Off for now: no menu or footer link, no sitemap
+    // entry, and its pages answer 404 to everyone but those who manage posts, who can still preview them.
+    'posts_public' => (bool) env('POSTS_PUBLIC', false),
+
 ];

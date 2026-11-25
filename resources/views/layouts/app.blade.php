@@ -99,9 +99,11 @@
                     <a href="{{ route('sources.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('sources.*', 'source-pages.*', 'source-items.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         منابع
                     </a>
-                                        <a href="{{ route('posts.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    @if (config('app.posts_public'))
+                    <a href="{{ route('posts.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         جریده
                     </a>
+                    @endif
                     <a href="{{ route('contributions.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         {{ config('contributions.title') }}
                     </a>
@@ -258,7 +260,9 @@
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
                             <a href="{{ route('sources.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('sources.*', 'source-pages.*', 'source-items.*') ? 'text-cinnabar font-bold' : '' }}">منابع</a>
+                            @if (config('app.posts_public'))
                             <a href="{{ route('posts.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('posts.*') ? 'text-cinnabar font-bold' : '' }}">جریده</a>
+                            @endif
                             <a href="{{ route('contributions.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar font-bold' : '' }}">{{ config('contributions.title') }}</a>
                             <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights', 'insights.topic') ? 'text-cinnabar font-bold' : '' }}">آمار</a>
                             <a href="{{ route('about') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('about') ? 'text-cinnabar font-bold' : '' }}">درباره ما</a>
@@ -347,18 +351,14 @@
     <footer class="bg-[#221C17] text-stone-300 border-t-2 border-gold mt-16 pt-12 pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <!-- Beta Notice & Scholarly Collaboration Callout Banner -->
+            <!-- Scholarly Collaboration Callout Banner -->
             <div class="bg-black/20 border border-gold/30 rounded-2xl p-5 sm:p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-5 shadow-inner">
                 <div class="space-y-2 text-justify md:text-right">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cinnabar/20 text-amber-300 border border-gold/30">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                            وضعیت سامانه: نسخه آزمایشی
-                        </span>
                         <h4 class="text-sm font-bold text-amber-100">فراخوان همیاری علمی پژوهشگران و نسخه‌شناسان</h4>
                     </div>
                     <p class="text-xs text-stone-300/90 leading-relaxed max-w-4xl">
-                        سامانه «فهارس» هم‌اکنون مراحل آزمایشی خود را سپری می‌کند. از آنجا که پردازش و ساختاردهی صدها هزار رکورد نسخه‌شناسی و کتاب‌شناسی همواره با خطاهای ناگزیر چاپی، پردازشی یا داده‌ای همراه است، از عموم استادان، نسخه‌پژوهان و محققان ارجمند صمیمانه تقاضا داریم با بازبینی داده‌ها و گزارش نارسایی‌های محتوایی یا فنی، ما را در ارتقای دقت و غنای این مرجع علمی یاری فرمایند.
+                        از آنجا که پردازش و ساختاردهی صدها هزار رکورد نسخه‌شناسی و کتاب‌شناسی همواره با خطاهای ناگزیر چاپی، پردازشی یا داده‌ای همراه است، از عموم استادان، نسخه‌پژوهان و محققان ارجمند صمیمانه تقاضا داریم با بازبینی داده‌ها و گزارش نارسایی‌های محتوایی یا فنی، ما را در ارتقای دقت و غنای این مرجع علمی یاری فرمایند.
                     </p>
                 </div>
                 <div class="shrink-0 flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
@@ -404,14 +404,23 @@
                                 <span>کانال تلگرام</span>
                             </a>
                         @endif
-                        <span>•</span>
-                        <a href="https://github.com/fahares/fahares" target="_blank" class="hover:text-amber-300 underline flex items-center gap-1">
-                            <span>گیت‌هاب فهارس</span>
+                    </div>
+
+                    <!-- Scientific sponsor and project director -->
+                    <div class="pt-6 flex items-end gap-3" data-footer-sponsor>
+                        <a href="https://mtif.org" target="_blank" rel="noopener" class="shrink-0 opacity-90 hover:opacity-100 transition" title="بنیاد محقق طباطبائی">
+                            <img src="{{ \App\Support\VersionedAsset::url('images/partners/mtif-160.png') }}"
+                                 srcset="{{ \App\Support\VersionedAsset::url('images/partners/mtif-320.png') }} 2x"
+                                 alt="بنیاد محقق طباطبائی" width="68" height="120" loading="lazy" class="h-[120px] w-auto">
                         </a>
-                        <span>•</span>
-                        <a href="https://github.com/fahares/fahares-corpus" target="_blank" class="hover:text-amber-300 underline flex items-center gap-1">
-                            <span>پیکره متنی (fahares-corpus)</span>
-                        </a>
+                        {{-- mb-[8px]: the last line's baseline sits on the bottom of the logo's square, 14px above the image's foot --}}
+                        <div class="mb-[8px] text-[13px] leading-5 text-stone-400">
+                            <p>مدیر و مجری پروژه: سید محسن حائری</p>
+                            <p>
+                                با حمایت علمی
+                                <a href="https://mtif.org" target="_blank" rel="noopener" class="hover:text-amber-300 transition">بنیاد محقق طباطبائی</a>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -426,7 +435,9 @@
                         <li><a href="{{ route('search', ['type' => 'scribes']) }}" class="hover:text-amber-100 transition">کاتبان نسخه‌ها</a></li>
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
                         <li><a href="{{ route('sources.index') }}" class="hover:text-amber-100 transition">منابع و مراجع: فهرست‌ها و کتاب‌شناسی‌ها</a></li>
+                        @if (config('app.posts_public'))
                         <li><a href="{{ route('posts.index') }}" class="hover:text-amber-100 transition">جریده: گزارش‌ها و یادداشت‌ها</a></li>
+                        @endif
                         <li><a href="{{ route('insights') }}" class="hover:text-amber-100 transition">آمار: نسخه‌ها در گذر سده‌ها</a></li>
                         <li><a href="{{ route('contributions.index') }}" class="hover:text-amber-100 transition">{{ config('contributions.title') }}</a></li>
                         <li><a href="{{ route('about') }}" class="hover:text-amber-100 transition">درباره فهارس</a></li>
@@ -450,7 +461,7 @@
             <!-- Bottom Copyright -->
             <div class="border-t border-stone-700/60 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-3">
                 <p>© @jdate(now(), 'year') فهارس (fahares.net) • سامانه جامع کتاب‌شناسی و مراجع نسخه‌شناسی</p>
-                <p class="text-stone-400">نسخه آزمایشی (Beta v1.0) • Laravel 13 & Meilisearch</p>
+                <p class="text-stone-400">Laravel 13 & Meilisearch</p>
             </div>
         </div>
     </footer>

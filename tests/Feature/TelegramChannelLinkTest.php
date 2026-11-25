@@ -9,6 +9,12 @@ use Tests\TestCase;
 /** Step 14.321: the site's Telegram channel is linked from the footer and the Jarideh page. */
 class TelegramChannelLinkTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['app.posts_public' => true]);
+    }
+
     public function test_footer_and_jarideh_link_the_channel_of_the_setting()
     {
         SiteSetting::put('telegram.channel', '@fahares_net');

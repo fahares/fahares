@@ -15,6 +15,7 @@ class PostTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['app.posts_public' => true]);
         Storage::fake('public');
 
         $this->admin = User::create([

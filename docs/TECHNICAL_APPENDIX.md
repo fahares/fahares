@@ -14335,3 +14335,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `maintenance on --no-lock`: پاسخ نام‌سرور پس از چند ثانیه `172.67.149.123` و `104.21.47.175` شد. `/`، `/up` و `/search` ۲۰۰ دادند با `server: cloudflare`، بی ریدایرکت (Full strict).
   - `off`: پس از ۴۰ ثانیه `proxied=false, ttl=60`. پاسخ‌های DNS از راه کش میانی تا ۳۰۰ ثانیه (TTL رکورد proxied) نارنجی ماندند.
 
+### گام ۱۴.۴۰۸: حامی علمی در فوتر
+- **تصویر:** [mtif-160.png](../public/images/partners/mtif-160.png) و [mtif-320.png](../public/images/partners/mtif-320.png) (srcset 2x). ساخته با Pillow از JPEG ‏CMYK ‏۷۹۹×۱۴۱۲: خاکستری، آلفا = وارونۀ روشنایی، رنگ `#FEF3C7` (`amber-100`).
+- **[app.blade.php](../resources/views/layouts/app.blade.php):** بلوک `data-footer-sponsor` در پایان ستون نخست گرید فوتر (`md:col-span-2`)، لوگو و دو سطر کنار هم؛ تصویر با `VersionedAsset::url` و `loading="lazy"`، ارتفاع ۱۲۰ پیکسل.
+- **همان فایل:** پیوندهای `github.com/fahares/fahares` و `fahares-corpus`، نشان و جملۀ «آزمایشی» در فراخوان، و «Beta v1.0» در خط پایانی برداشته شد.
+- **پس از انتشار نخست:** دو سطر بلوک `text-stone-400`، بی `font-bold` و `text-amber-100` روی نام‌ها.
+- **تراز:** ضلع پایین مربع لوگو ۱۴ پیکسل بالای پای تصویر ۱۲۰ پیکسلی است (ردیف ۱۲۴۵ از ۱۴۱۲). دو سطر `text-[13px] leading-6`، `mb-[6px]` تا خط کرسی سطر دوم روی آن ضلع بنشیند؛ `gap-3`، بی `border-r`.
+- **ترتیب و فاصله:** سطر مدیر پروژه بالا و سطر حامی پایین؛ `leading-5` و `mb-[8px]` (دو پیکسل نیم‌فاصلۀ کمتر جبران شد تا خط کرسی سطر دوم همان‌جا بماند).
+
+### گام ۱۴.۴۰۹: `<x-suggest.reading>` با مستند باز
+- `components/suggest/reading.blade.php`: `x-data="{ open: true }"`، `x-cloak` از بند مستند برداشته شد، متن آغازین دکمه «بستن مستند». آزمون: `ReadingEvidenceOpenTest`.
+- `Contributions::summary()`: کلید `evidence` (‏`rationale_citation` برای `kind = field` بی `review_queue`)؛ `contributions/index.blade.php` آن را در `[data-contribution-evidence]` می‌آورد.
+
+### گام ۱۴.۴۱۰: `evidence` برای `note` و `relation`
+- `Contributions::summary()`: `evidence` برای `kind` در `field`، `note`، `relation` بی `review_queue`. برچسب جعبه در `contributions/index.blade.php` برای `note` «توضیح پژوهشگر» است.
+
+### گام ۱۴.۴۱۱: `app.posts_public`
+- `config/app.php`: `posts_public` از `POSTS_PUBLIC`، پیش‌فرض `false`.
+- `PostController::abortUnlessShown()`: در `index` و `show` ۴۰۴ مگر کلید روشن باشد یا کاربر `posts.manage` داشته باشد.
+- `layouts/app.blade.php`: سه پیوند `posts.index` (منوی بالا، منوی موبایل، فوتر) زیر `@if (config('app.posts_public'))`.
+- `SitemapController::getStaticUrls()`: `posts.index` و `posts.show` فقط با کلید روشن.
+- آزمون‌ها: `JaridehHiddenTest`؛ `PostTest` و `TelegramChannelLinkTest` در `setUp` کلید را روشن می‌کنند.

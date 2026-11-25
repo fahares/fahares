@@ -226,12 +226,15 @@ class SitemapController extends Controller
             ],
         ];
 
-        $urls[] = [
-            'loc' => route('posts.index'),
-            'lastmod' => $defaultDate,
-            'changefreq' => 'weekly',
-            'priority' => '0.6',
-        ];
+        // the Jarideh only while it is shown (step 14.411)
+        if (config('app.posts_public')) {
+            $urls[] = [
+                'loc' => route('posts.index'),
+                'lastmod' => $defaultDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.6',
+            ];
+        }
         // the statistics: the hub and its topic pages (step 14.263); a page narrowed to a scope stays out (noindex)
         $urls[] = ['loc' => route('insights'), 'lastmod' => $defaultDate, 'changefreq' => 'daily', 'priority' => '0.7'];
         foreach (array_keys(config('insights.topics')) as $topic) {
@@ -249,7 +252,7 @@ class SitemapController extends Controller
                 ];
             }
         }
-        foreach (Post::published()->orderBy('id')->get() as $post) {
+        foreach (config('app.posts_public') ? Post::published()->orderBy('id')->get() : [] as $post) {
             $urls[] = [
                 'loc' => route('posts.show', $post),
                 'lastmod' => $post->updated_at?->toIso8601String() ?? $defaultDate,
