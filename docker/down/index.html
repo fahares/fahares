@@ -97,11 +97,14 @@
     <button type="button" onclick="location.reload()">تلاش دوباره</button>
 </main>
 <script>
-    // /up answers 200 only when the app itself is back (this page answers 503)
+    // /up answers 200 only when the app itself is back (this page answers 503). When the app serves this
+    // page itself in a database outage (App\Support\DatabaseUnavailable), /up still answers 200 and the
+    // page checks its own address instead.
     (function () {
+        var probe = '/up';
         var delay = 10000;
         function check() {
-            fetch('/up', { cache: 'no-store' })
+            fetch(probe, { cache: 'no-store' })
                 .then(function (r) { if (r.ok) { location.reload(); } else { later(); } })
                 .catch(later);
         }

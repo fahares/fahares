@@ -14356,3 +14356,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `layouts/app.blade.php`: سه پیوند `posts.index` (منوی بالا، منوی موبایل، فوتر) زیر `@if (config('app.posts_public'))`.
 - `SitemapController::getStaticUrls()`: `posts.index` و `posts.show` فقط با کلید روشن.
 - آزمون‌ها: `JaridehHiddenTest`؛ `PostTest` و `TelegramChannelLinkTest` در `setUp` کلید را روشن می‌کنند.
+
+### گام ۱۴.۴۱۲: `App\Support\DatabaseUnavailable` (مورد ۱۳۶، بند ۳)
+- `bootstrap/app.php`: `$exceptions->render(fn (\Throwable $e, Request $request) => DatabaseUnavailable::render($e, $request))`. اگر خطا از اتصال نباشد، `null` برمی‌گردد و Laravel همان رفتار پیشین را دارد.
+- `causedBy()`: زنجیرۀ `getPrevious()` را می‌پیماید. یکی از این سه کافی است:
+  - `LostConnectionDetector::causedByLostConnection()`؛
+  - `PDOException::$errorInfo[1]` در فهرست کدها؛
+  - `SQLSTATE[..] [کد]` در پیام.
+- کدها: ۱۰۴۰ (Too many connections)، ۱۰۵۳ (Server shutdown in progress)، ۲۰۰۲ و ۲۰۰۳ (اتصال نشد)، ۲۰۰۵ (نام میزبان نامعلوم، وقتی کانتینر پایگاه داده نیست)، ۲۰۰۶ و ۲۰۱۳ (اتصال افتاد).
+- `page()`: `base_path('docker/down/index.html')` را می‌خواند و `var probe = '/up';` را با `var probe = location.href;` جابه‌جا می‌کند. اگر فایل نباشد، یک صفحۀ کوتاه فارسی برمی‌گرداند. این فایل در ایمیج پروداکشن هست (`/app/docker/down/index.html`).
+- Worker ‏`fahares-failover` همان فایل را می‌خواند. متغیر `probe` در آنجا `/up` می‌ماند.
+- آزمون: `tests/Feature/DatabaseUnavailableTest.php` با `QueryException` ساختگی برای ۲۰۰۲، ۱۰۵۳ و ۱۰۶۴. ۱۰۶۴ خطای نحوی است و باید ۵۰۰ بماند.
+- وارسی دستی در `fahares_app`: `php -S` از پوشۀ worktree، یک بار با `DB_HOST=127.0.0.1 DB_PORT=1` و یک بار با `DB_HOST=no-such-db-host`.

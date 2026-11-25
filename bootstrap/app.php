@@ -28,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // A database that restarts or refuses connections answers 503 with the fahares-down page (backlog item 136)
+        $exceptions->render(fn (\Throwable $e, Request $request) => \App\Support\DatabaseUnavailable::render($e, $request));
         // The admins hear of search index errors, at most once an hour (backlog item 25); the error is still logged
         $exceptions->report(function (\Meilisearch\Exceptions\ApiException|\Meilisearch\Exceptions\CommunicationException|\Meilisearch\Exceptions\TimeOutException $e) {
             \App\Notifications\SystemNotices::searchFailed($e);
