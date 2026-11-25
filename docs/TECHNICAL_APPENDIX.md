@@ -13943,11 +13943,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[data-table.blade.php](../resources/views/insights/data-table.blade.php):** ردیف جدول در یک سطر.
 - **آزمون:** `InsightsMapTest` (دو آزمون تازه)، `InsightsDynastiesTest`.
 
-### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
-- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
-- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
-- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
-- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
 ### گام ۱۴.۳۷۸: `config('catalogs.describe_works')`، `WorkCatalogues` و `x-source.work-catalogue`
 
 - **دسته‌بندی:** ۶۴ مأخذ `library_catalogue` با جلد تصویردار و نسخۀ پیوندخورده. از هر کدام دو برگۀ نمونه برداشته شد (`se.id % 97 = 3`، دو جلد جدا اگر بود). چهار زیرعامل Sonnet برگه‌ها را خواندند.
@@ -13969,3 +13964,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[WorkCatalogues](../app/Support/WorkCatalogues.php):** ترتیب `[rank, -copies, source_id]`.
 - **آزمون:** `CatalogReferencesTest::test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest`. چهار فهرست می‌سازد. فهرستی که دو نسخه دارد پیش از بقیه می‌آید. یک کارت جمع‌شده و چهار کارت روی هم.
 - **سنجش روی `fahares_prod`:** اثر ۵۰۹۳۳: ۳ پیدا (۵۲۷، ۲۸۸ و ۹۵ نسخه)، ۲۵ جمع‌شده. اثر ۴: ۳ پیدا، ۱ جمع‌شده.
+
+### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
+- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
+- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
+- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
+- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
