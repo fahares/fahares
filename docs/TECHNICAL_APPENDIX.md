@@ -14336,3 +14336,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۴۰۹: `<x-suggest.reading>` با مستند باز
 - `components/suggest/reading.blade.php`: `x-data="{ open: true }"`، `x-cloak` از بند مستند برداشته شد، متن آغازین دکمه «بستن مستند». آزمون: `ReadingEvidenceOpenTest`.
 - `Contributions::summary()`: کلید `evidence` (‏`rationale_citation` برای `kind = field` بی `review_queue`)؛ `contributions/index.blade.php` آن را در `[data-contribution-evidence]` می‌آورد.
+
+### گام ۱۴.۴۱۰: `evidence` برای `note` و `relation`
+- `Contributions::summary()`: `evidence` برای `kind` در `field`، `note`، `relation` بی `review_queue`. برچسب جعبه در `contributions/index.blade.php` برای `note` «توضیح پژوهشگر» است.
