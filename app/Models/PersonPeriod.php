@@ -48,7 +48,8 @@ class PersonPeriod extends Model
         // The city and the country or region the place names, beside its text, as for a copy's place (step 14.209)
         static::saving(function (PersonPeriod $period) {
             if ($period->isDirty('place') || ! $period->exists) {
-                $period->city = CopyPlaces::cityOf($period->place);
+                // «مصر» and «الشام» in a life are the country, not Cairo and Damascus (step 14.380)
+                $period->city = \App\Support\PersonOrigins::isCountry($period->place) ? null : CopyPlaces::cityOf($period->place);
                 $period->region = CopyPlaces::regionOf($period->place);
             }
         });
