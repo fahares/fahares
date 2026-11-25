@@ -141,7 +141,10 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-insights-cards>
         @foreach($topics as $slug => $card)
             <a href="{{ $pageUrl($slug, $scope->query()) }}" class="group bg-surface border border-line hover:border-cinnabar transition p-5 grid gap-2 content-start">
-                <h2 class="font-naskh text-xl font-bold text-ink group-hover:text-cinnabar transition">{{ $card['name'] }}</h2>
+                <span class="flex items-center gap-2.5">
+                    <span class="shrink-0 text-cinnabar/80 group-hover:text-cinnabar transition">@include('insights.topic-icon', ['slug' => $slug])</span>
+                    <h2 class="font-naskh text-xl font-bold text-ink group-hover:text-cinnabar transition">{{ $card['name'] }}</h2>
+                </span>
                 <p class="text-sm text-muted leading-relaxed">{{ $card['lead'] }}</p>
                 <p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink tabular-nums">
                     @foreach(array_filter($figures[$slug]) as $figure)
