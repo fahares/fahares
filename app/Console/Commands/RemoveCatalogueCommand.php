@@ -69,14 +69,11 @@ class RemoveCatalogueCommand extends Command
             $people = DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id');
             foreach ($moves as [$copy, $target]) {
                 DB::table('manuscripts')->where('id', $copy)->update(['catalog_volume_id' => $target]);
-                // the legacy references follow
-                DB::table('manuscript_catalog_references')->where('manuscript_id', $copy)->whereIn('catalog_volume_id', $volumes)->update(['catalog_volume_id' => $target]);
             }
             $copies = array_column($moves, 0);
             SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $copies)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
 
             DB::table('source_entries')->where('source_id', $source->id)->update(['source_id' => null, 'source_volume_id' => null]);
-            DB::table('manuscript_catalog_references')->whereIn('catalog_volume_id', $volumes)->update(['catalog_volume_id' => null]);
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();
             DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->delete();
             DB::table('source_volumes')->whereIn('id', $volumes)->delete();
@@ -109,7 +106,7 @@ class RemoveCatalogueCommand extends Command
             $target = DB::table('source_volumes')->where('source_id', DB::table('sources')->where('code', $copy['to'])->value('id'))
                 ->where('volume_number', $copy['volume'])->value('id');
             $found = $on->first(fn ($m) => (int) $m->library_id === (int) $library && (string) $m->shelfmark === (string) $copy['shelfmark']
-                && (int) DB::table('manuscript_catalog_references')->where('manuscript_id', $m->id)->whereIn('catalog_volume_id', $volumes)->value('page_start') === (int) $copy['page']);
+                && (int) DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $m->id)->whereIn('source_volume_id', $volumes)->value('page_start') === (int) $copy['page']);
             if (! $found || ! $target) {
                 $this->error(sprintf('Not found: copy %s of %s (p. %d) or «%s» v. %d.', $copy['shelfmark'], $copy['library'], $copy['page'], $copy['to'], $copy['volume']));
 
@@ -163,7 +160,6 @@ class RemoveCatalogueCommand extends Command
             'source_entries' => DB::table('source_entries')->where('source_id', $source->id)
                 ->orWhere(fn ($q) => $q->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $copies ?: [0]))
                 ->get(['id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
-            'manuscript_catalog_references' => DB::table('manuscript_catalog_references')->whereIn('catalog_volume_id', $volumes)->get(['id', 'catalog_volume_id']),
             'catalogers' => DB::table('catalogers')->whereIn('id', $people)->get(['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
 
@@ -191,7 +187,7 @@ class RemoveCatalogueCommand extends Command
             foreach (['catalog_volumes', 'source_volumes', 'catalog_volume_cataloger', 'catalog_volume_parts'] as $table) {
                 $backup[$table] && DB::table($table)->upsert($backup[$table], ['id']);
             }
-            foreach (['manuscripts', 'source_entries', 'manuscript_catalog_references', 'catalogers'] as $table) {
+            foreach (['manuscripts', 'source_entries', 'catalogers'] as $table) {
                 FixMisnamedIsfahanCataloguesCommand::restoreColumns($table, $backup[$table]);
             }
             FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalog_volumes', $backup['target_volumes']);

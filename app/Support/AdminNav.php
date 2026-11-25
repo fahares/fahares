@@ -22,6 +22,7 @@ class AdminNav
                     'count' => fn () => FieldSuggestion::inQueue()->count()],
                 ['label' => 'ابزارهای ساختاری', 'route' => 'admin.structure.index', 'active' => 'admin.structure.*', 'can' => 'structure.direct'],
                 ['label' => 'نسخۀ تازه', 'route' => 'admin.manuscripts.create', 'active' => 'admin.manuscripts.*', 'can' => 'manuscripts.create'],
+                ['label' => 'اثر تازه', 'route' => 'admin.works.create', 'active' => 'admin.works.*', 'can' => 'manuscripts.create'],
                 ['label' => 'نشانی‌های خودکار فهرست', 'route' => 'admin.catalog-references.index', 'active' => 'admin.catalog-references.*', 'can' => 'catalog_refs.review',
                     'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Manuscript::class)->count()],
                 ['label' => 'پیوندهای خودکار آثار', 'route' => 'admin.source-links.index', 'active' => 'admin.source-links.*', 'can' => 'catalog_refs.review',
@@ -33,6 +34,7 @@ class AdminNav
             ]],
             ['title' => 'داده‌ها و مراجع', 'items' => [
                 ['label' => 'اشخاص', 'route' => 'admin.people.index', 'active' => ['admin.people.index', 'admin.people.edit'], 'can' => 'people.edit'],
+                ['label' => 'شخص تازه', 'route' => 'admin.people.create', 'active' => 'admin.people.create', 'can' => 'people.edit'],
                 ['label' => 'پیشنهادهای دورۀ زندگی', 'route' => 'admin.people.periods.proposals', 'active' => 'admin.people.periods.proposals', 'can' => 'people.edit',
                     'count' => fn () => \App\Models\PersonPeriod::where('status', \App\Models\PersonPeriod::PROPOSED)->count(), 'soft' => true],
                 ['label' => 'ادغام اشخاص', 'route' => 'admin.people.merge', 'active' => 'admin.people.merge', 'can' => 'people.merge'],

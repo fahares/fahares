@@ -39,8 +39,6 @@ class MoveCitedPartTest extends TestCase
         $copy = function (string $shelf, string $citation) use ($library, $work, $part2) {
             $m = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelf, 'catalog_volume_id' => $part2->id,
                 'volume_number' => 1, 'page_start' => 1, 'sequence_number' => 1, 'metadata' => ['catalog_citation' => $citation]]);
-            DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $m->id, 'catalog_volume_id' => $part2->id, 'raw_text' => $citation,
-                'source' => 'fankha', 'created_at' => now(), 'updated_at' => now()]);
 
             return $m;
         };
@@ -57,7 +55,6 @@ class MoveCitedPartTest extends TestCase
         $this->assertSame($part1->id, $one->fresh()->catalog_volume_id);
         $this->assertSame($part2->id, $two->fresh()->catalog_volume_id);
         $this->assertSame($part2->id, $none->fresh()->catalog_volume_id);
-        $this->assertSame($part1->id, DB::table('manuscript_catalog_references')->where('manuscript_id', $one->id)->value('catalog_volume_id'));
         $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $one->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->sole();
         $this->assertSame($part1->id, $entry->source_volume_id);
         $this->assertSame(43, $entry->page_start);
@@ -78,8 +75,6 @@ class MoveCitedPartTest extends TestCase
         $copy = function (string $shelf, string $citation) use ($library, $work, $own) {
             $m = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelf, 'catalog_volume_id' => $own->id,
                 'volume_number' => 1, 'page_start' => 1, 'sequence_number' => 1, 'metadata' => ['catalog_citation' => $citation]]);
-            DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $m->id, 'catalog_volume_id' => $own->id, 'raw_text' => $citation,
-                'source' => 'fankha', 'created_at' => now(), 'updated_at' => now()]);
 
             return $m;
         };
@@ -111,8 +106,6 @@ class MoveCitedPartTest extends TestCase
         $copy = function (string $shelf, string $citation) use ($library, $work, $one) {
             $m = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelf, 'catalog_volume_id' => $one->id,
                 'volume_number' => 1, 'page_start' => 1, 'sequence_number' => 1, 'metadata' => ['catalog_citation' => $citation]]);
-            DB::table('manuscript_catalog_references')->insert(['manuscript_id' => $m->id, 'catalog_volume_id' => $one->id, 'raw_text' => $citation,
-                'source' => 'fankha', 'created_at' => now(), 'updated_at' => now()]);
 
             return $m;
         };

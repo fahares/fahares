@@ -68,13 +68,19 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
   and one command at a time across sessions.
 - Run every command that writes production data through `scripts/dev/prod-run <session-name> -- '<command>'`, never
   plain `ssh fahares-app`. It holds a lock shared by all sessions on this machine and refuses (exit 75) while another run
-  holds it or an artisan run is still going in production. `--wait` queues instead of refusing; `--status` shows the
-  holder, the production artisan runs and the last runs (`~/.fahares/prod-runs.log`). Read-only checks may use plain ssh.
+  holds it, an artisan run is still going in production, or a MariaDB transaction or statement has been open over five
+  minutes (`PROD_RUN_DB_AGE`). `--wait` queues instead of refusing; `--status` shows the holder, the production artisan
+  runs, the long transactions and statements, and the last runs (`~/.fahares/prod-runs.log`). Read-only checks may use
+  plain ssh.
+- Run heavy read-only queries (statistics, counts over big joins) on the local copy `fahares_prod`, refreshed from the
+  latest daily backup with `scripts/dev/refresh-prod-copy`. One that must run on production runs outside a transaction
+  and without a temporary table. Stopping its ssh or tinker does not stop the statement in MariaDB, which keeps its row
+  locks: check `scripts/dev/prod-run --status` afterwards. Killing another session's thread needs the user's OK.
 - A backup taken before a production run must leave the container at once: copy it to
   `../fahares-sources/backups/step13/` on this machine before reporting the run. `storage/app` and `/tmp` in the app
   container are wiped by the next deploy, which may start the moment your run frees the lock.
 - Before a release push, the task-management session checks `scripts/dev/prod-run --status`: a deploy replaces the app
-  container and would cut off a running command.
+  container and would cut off a running command, and its migrations would wait behind a long open transaction.
 
 ## Merging the step logs
 

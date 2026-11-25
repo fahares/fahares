@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# Refresh the local production copy `fahares_prod` (in the local container fahares_mariadb) from the latest daily
+# production backup in the Telegram channel «Fahares Backup» (backlog item 20, step 14.385).
+#
+#   scripts/dev/refresh-prod-copy               the newest backup in the channel
+#   scripts/dev/refresh-prod-copy --stamp fahares-db-20261125-034701
+#                                               a given one
+#   scripts/dev/refresh-prod-copy --check-only  download and verify only; load nothing
+#   scripts/dev/refresh-prod-copy --status      which backup the copy is now, and the kept archives
+#   options: --keep (keep the downloaded files), --yes (no question before the swap)
+#
+# The path is the one the backups take to the laptop: the parts are read with `tdl` (the user's own Telegram session,
+# through the local proxy), never from the server, whose full dumps stay there. Each part and the whole are checked
+# against the manifest's sha256, decrypted with the age key, and loaded by scripts/backup/fahares-restore.sh into the
+# staging database fahares_prod_new. Only when the manifest's row counts match does one RENAME TABLE swap it in: the old
+# tables go to an archive database fahares_prod_<date of the old copy>, which is kept (dropping one is the user's call).
+# fahares_db and fahares_test are never touched. Meilisearch is not touched either: fahares_prod is used with
+# SCOUT_DRIVER=null.
+#
+# Environment: FAHARES_AGE_KEY (default ~/fahares-age.key), FAHARES_BACKUP_CHAT (channel id; default: found by name),
+# TDL_PROXY (default $ALL_PROXY or $https_proxy), FAHARES_PRODCOPY_WORK (default ~/.cache/fahares-prodcopy),
+# FAHARES_MIN_FREE_GB (free space to leave in the MariaDB volume after the load, default 1).
+set -Eeuo pipefail
+umask 077
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+STATE="${FAHARES_STATE_DIR:-$HOME/.fahares}"
+LOG="$STATE/prodcopy.tsv"
+CONTAINER=fahares_mariadb
+TARGET=fahares_prod
+STAGING=fahares_prod_new
+AGE_KEY="${FAHARES_AGE_KEY:-$HOME/fahares-age.key}"
+WORK_ROOT="${FAHARES_PRODCOPY_WORK:-$HOME/.cache/fahares-prodcopy}"
+PROXY="${TDL_PROXY:-${ALL_PROXY:-${https_proxy:-}}}"
+MIN_FREE_GB="${FAHARES_MIN_FREE_GB:-1}"
+STAMP="" KEEP=0 CHECK_ONLY=0 YES=0
+
+log() { printf '[%s] %s\n' "$(date '+%T')" "$*" >&2; }
+die() { log "ERROR: $*"; exit 1; }
+sql() { docker exec -i "$CONTAINER" sh -c 'exec mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" -N -B "$@"' sh "$@"; }
+# Every tdl call has a time limit: on a bad connection tdl reconnects forever, and a scheduled run must not hang.
+tdl_() { local limit="$1"; shift; timeout --kill-after=30 "$limit" tdl ${PROXY:+--proxy "$PROXY"} "$@" </dev/null 8>&-; }
+
+status() {
+    if [[ -s "$LOG" ]]; then
+        echo "fahares_prod is: $(tail -n 1 "$LOG" | cut -f2,3 | tr '\t' ' ') (loaded $(tail -n 1 "$LOG" | cut -f1))"
+    else
+        echo "fahares_prod: no refresh recorded in $LOG"
+    fi
+    echo "databases (GB):"
+    sql -e "SELECT table_schema, ROUND(SUM(data_length + index_length) / 1e9, 2) FROM information_schema.tables
+            WHERE table_schema = '$TARGET' OR table_schema LIKE '${TARGET}\\_%' GROUP BY 1 ORDER BY 1" | sed 's/^/  /'
+    echo "free in the MariaDB volume: $(docker exec "$CONTAINER" df -h --output=avail /var/lib/mysql | tail -n 1 | tr -d ' ')"
+}
+
+while (( $# )); do
+    case "$1" in
+        --stamp) STAMP="${2:?--stamp needs a name such as fahares-db-20261125-034701}"; shift 2 ;;
+        --keep) KEEP=1; shift ;;
+        --check-only) CHECK_ONLY=1; shift ;;
+        --yes) YES=1; shift ;;
+        --status) status; exit 0 ;;
+        -h|--help) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        *) die "unknown option: $1" ;;
+    esac
+done
+[[ -z "$STAMP" || "$STAMP" =~ ^fahares-db-[0-9]{8}-[0-9]{6}$ ]] || die "bad --stamp: $STAMP"
+
+for tool in tdl age zstd jq sha256sum docker; do
+    command -v "$tool" >/dev/null || die "$tool is not installed$([[ $tool == age ]] && echo ' (sudo apt install age)')"
+done
+[[ -r "$AGE_KEY" ]] || die "cannot read the age key $AGE_KEY (set FAHARES_AGE_KEY)"
+docker exec "$CONTAINER" true 2>/dev/null || die "container $CONTAINER is not running"
+
+mkdir -p "$STATE"
+exec 8>>"$STATE/prodcopy.lock"
+flock -n 8 || die "another refresh-prod-copy is running"
+
+# 1. The channel and the manifest.
+chat="${FAHARES_BACKUP_CHAT:-}"
+if [[ -z "$chat" ]]; then
+    chat=$(tdl_ 180 chat ls -o json 2>/dev/null \
+        | jq -r '[.[] | select(.type == "channel" and .visible_name == "Fahares Backup")][0].id // empty')
+    [[ -n "$chat" ]] || die "channel «Fahares Backup» not found with tdl (is Telegram reachable? proxy: ${PROXY:-none})"
+fi
+mkdir -p "$WORK_ROOT"
+export_json="$WORK_ROOT/channel.json"
+tdl_ 300 chat export -c "$chat" -T last -i 120 -o "$export_json" >/dev/null 2>&1 || die "tdl chat export failed or took over 5 minutes (is Telegram reachable? proxy: ${PROXY:-none})"
+pick='[.messages[] | select(.file | test("^fahares-db-[0-9]{8}-[0-9]{6}\\.manifest\\.json$"))]'
+if [[ -n "$STAMP" ]]; then
+    manifest_msg=$(jq -r --arg f "$STAMP.manifest.json" "$pick | map(select(.file == \$f))[0].id // empty" "$export_json")
+else
+    manifest_msg=$(jq -r "$pick | max_by(.id).id // empty" "$export_json")
+    STAMP=$(jq -r "$pick | max_by(.id).file // empty" "$export_json"); STAMP="${STAMP%.manifest.json}"
+fi
+[[ -n "$manifest_msg" && -n "$STAMP" ]] || die "no manifest ${STAMP:+for $STAMP }in the last 120 messages of the channel"
+log "backup $STAMP (manifest message $manifest_msg)"
+
+WORK="$WORK_ROOT/$STAMP"
+mkdir -p "$WORK"
+manifest="$WORK/$STAMP.manifest.json"
+fetch() {  # message ids → files in $WORK, five per tdl call; a fresh directory each time, so nothing is skipped by
+           # name. What finished is kept even when tdl fails; the caller checks every part and asks again for the rest.
+    local tmp ids=("$@") i id urls
+    for (( i = 0; i < ${#ids[@]}; i += 5 )); do
+        tmp=$(mktemp -d "$WORK/dl.XXXXXX")
+        urls=(); for id in "${ids[@]:i:5}"; do urls+=(-u "https://t.me/c/$chat/$id"); done
+        tdl_ 900 dl "${urls[@]}" -d "$tmp" --template '{{ .FileName }}' --restart -l 3 --disable-progress-ps \
+            >"$WORK/tdl.log" 2>&1 || log "tdl dl stopped (exit $?); its log: $WORK/tdl.log"
+        find "$tmp" -maxdepth 1 -type f ! -name '*.tmp' -exec mv -f {} "$WORK/" \;
+        rm -rf "$tmp"
+    done
+}
+[[ -s "$manifest" ]] || fetch "$manifest_msg"
+jq -e '.name and .dump.sha256 and .encrypted.sha256 and (.chunks | length > 0)' "$manifest" >/dev/null \
+    || die "bad manifest $manifest"
+[[ "$(jq -r .name "$manifest")" == "$STAMP" ]] || die "manifest name is not $STAMP"
+
+# 2. The parts: download what is missing or wrong, check each against the manifest.
+enc="$WORK/$(jq -r .dump.file "$manifest").age"
+plain="$WORK/$(jq -r .dump.file "$manifest")"
+sha_is() { [[ -f "$1" && "$(sha256sum "$1" | cut -d' ' -f1)" == "$2" ]]; }
+if ! sha_is "$plain" "$(jq -r .dump.sha256 "$manifest")"; then
+    if ! sha_is "$enc" "$(jq -r .encrypted.sha256 "$manifest")"; then
+        for round in 1 2 3 4; do
+            missing=()
+            while IFS=$'\t' read -r file sha msg; do
+                sha_is "$WORK/$file" "$sha" || { rm -f "$WORK/$file"; missing+=("$msg"); }
+            done < <(jq -r '.chunks[] | [.file, .sha256, .message_id] | @tsv' "$manifest")
+            (( ${#missing[@]} )) || break
+            (( round < 4 )) || die "${#missing[@]} parts still missing or wrong after three tries (see $WORK/tdl.log)"
+            log "downloading ${#missing[@]} of $(jq '.chunks | length' "$manifest") parts (try $round)"
+            fetch "${missing[@]}"
+        done
+        log "all parts match the manifest; joining"
+        jq -r '.chunks[].file' "$manifest" | while read -r file; do cat "$WORK/$file"; done > "$enc"
+        sha_is "$enc" "$(jq -r .encrypted.sha256 "$manifest")" || die "sha256 of the joined file"
+        jq -r '.chunks[].file' "$manifest" | while read -r file; do rm -f "$WORK/$file"; done
+    fi
+    log "decrypting"
+    age -d -i "$AGE_KEY" -o "$plain.part" "$enc" || { rm -f "$plain.part"; die "age could not decrypt $enc"; }
+    mv -f "$plain.part" "$plain"
+    sha_is "$plain" "$(jq -r .dump.sha256 "$manifest")" || die "sha256 of the decrypted dump"
+    rm -f "$enc"
+fi
+zstd -q -t "$plain"
+log "dump verified: $plain ($(numfmt --to=iec "$(stat -c %s "$plain")"), $(numfmt --to=iec "$(jq .dump.decompressed "$manifest")") of SQL)"
+if (( CHECK_ONLY )); then
+    log "check only: nothing loaded; the dump stays in $WORK"
+    exit 0
+fi
+
+# 3. Room for one more copy: the size of the present one, plus the margin.
+need=$(sql -e "SELECT COALESCE(SUM(data_length + index_length), 0) FROM information_schema.tables WHERE table_schema = '$TARGET'")
+(( need > 3000000000 )) || need=5000000000
+need=$(( need + MIN_FREE_GB * 1000000000 ))
+free=$(( $(docker exec "$CONTAINER" df -P -k /var/lib/mysql | awk 'NR == 2 { print $4 }') * 1024 ))
+(( free >= need )) || die "the MariaDB volume has $(numfmt --to=si "$free") free, and a new copy needs about \
+$(numfmt --to=si "$need"). Drop an old archive first (see --status), e.g. DROP DATABASE fahares_prod_<date>, \
+with the user's OK."
+
+# 4. Load into the staging database (fahares-restore.sh renames the dump's `default` database to it).
+started=$(date +%s)
+"$ROOT/scripts/backup/fahares-restore.sh" --file "$plain" --container "$CONTAINER" --database "$STAGING" --replace
+log "loaded in $(( ($(date +%s) - started) / 60 )) min"
+
+bad=0
+while IFS=$'\t' read -r table expected; do
+    got=$(sql "$STAGING" -e "SELECT COUNT(*) FROM \`$table\`")
+    [[ "$got" == "$expected" ]] || { log "row count of $table: $got, manifest $expected"; bad=1; }
+done < <(jq -r '.row_counts | to_entries[] | [.key, .value] | @tsv' "$manifest")
+(( ! bad )) || die "row counts differ from the manifest; $STAGING is left for a look, $TARGET is unchanged"
+log "row counts match the manifest"
+
+# 5. Swap. A statement running on fahares_prod (another session's rehearsal) stops it; idle connections only warn.
+busy=$(sql -e "SELECT CONCAT(ID, ' ', COMMAND, ' ', TIME, 's ', LEFT(COALESCE(INFO, ''), 80)) FROM information_schema.PROCESSLIST
+               WHERE DB = '$TARGET' AND ID <> CONNECTION_ID() AND COMMAND <> 'Sleep'")
+[[ -z "$busy" ]] || die "something is running on $TARGET, swap not done ($STAGING is ready; run again later):
+$busy"
+idle=$(sql -e "SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE DB = '$TARGET' AND ID <> CONNECTION_ID()")
+(( idle == 0 )) || log "note: $idle idle connections on $TARGET; their next query sees the new tables"
+
+old=$(tail -n 1 "$LOG" 2>/dev/null | cut -f2 | grep -oE '[0-9]{8}' || true)
+archive="${TARGET}_${old:-$(date +%Y%m%d)_prev}"
+n=2; base="$archive"
+while [[ "$(sql -e "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name = '$archive'")" != 0 ]]; do
+    archive="${base}_$n"; n=$((n + 1))
+done
+renames=$(sql -e "SET SESSION group_concat_max_len = 10000000; SELECT GROUP_CONCAT(x SEPARATOR ', ') FROM (
+    SELECT CONCAT('\`$TARGET\`.\`', table_name, '\` TO \`$archive\`.\`', table_name, '\`') x
+      FROM information_schema.tables WHERE table_schema = '$TARGET'
+    UNION ALL
+    SELECT CONCAT('\`$STAGING\`.\`', table_name, '\` TO \`$TARGET\`.\`', table_name, '\`')
+      FROM information_schema.tables WHERE table_schema = '$STAGING') r")
+if (( ! YES )); then
+    read -r -p "Swap $STAMP in as $TARGET, keeping the present tables in $archive? [y/N] " answer </dev/tty
+    [[ "$answer" == [yY]* ]] || die "not swapped; $STAGING is ready"
+fi
+sql -e "CREATE DATABASE \`$archive\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        CREATE DATABASE IF NOT EXISTS \`$TARGET\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        RENAME TABLE $renames;"
+left=$(sql -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$STAGING'")
+(( left == 0 )) && sql -e "DROP DATABASE \`$STAGING\`"
+
+counts=$(jq -r '.row_counts | to_entries | map("\(.key)=\(.value)") | join(" ")' "$manifest")
+printf '%s\t%s\t%s\t%s\t%s\n' "$(date '+%F %T')" "$STAMP" "$(jq -r .created_at "$manifest")" "$archive" "$counts" >> "$LOG"
+log "done: $TARGET is $STAMP; the previous tables are in $archive"
+(( KEEP )) || rm -rf "$WORK"
+status

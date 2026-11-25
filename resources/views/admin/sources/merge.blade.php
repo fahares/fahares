@@ -61,9 +61,9 @@
                     </div>
                 @endforeach
             </dl>
-            @if($counts['evidence'] || $counts['editions'])
+            @if($counts['editions'])
                 <p class="mt-2 text-xs text-muted">
-                    همچنین {{ $fa($counts['evidence']) }} شاهد فیلد که به منبع ادغام‌شده ارجاع می‌دهند، و {{ $fa($counts['editions']) }} منبع که چاپ دیگری از آن‌اند، به منبع ماندنی وصل می‌شوند.
+                    همچنین {{ $fa($counts['editions']) }} منبع که چاپ دیگری از آن‌اند، به منبع ماندنی وصل می‌شوند.
                 </p>
             @endif
         </x-ui.section>

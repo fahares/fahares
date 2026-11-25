@@ -7,10 +7,17 @@
 #   scripts/dev/prod-run --wait <session-name> -- '…'
 #                                          the same, but wait for the lock (and for an artisan run without it)
 #                                          instead of refusing
-#   scripts/dev/prod-run --status          who holds the lock now, artisan processes running in production, last runs
+#   scripts/dev/prod-run --status          who holds the lock now, artisan processes running in production, long
+#                                          database transactions and queries, last runs
 #
 # Before taking the lock it also looks for artisan commands already running in production: a run started with plain ssh
 # or nohup, or one whose ssh connection dropped (PHP keeps running), holds no lock but is caught here.
+# It then looks in MariaDB (information_schema.INNODB_TRX and PROCESSLIST, read-only) for a transaction or a statement
+# open for PROD_RUN_DB_AGE seconds (default 300). A statement keeps running in MariaDB after its ssh or tinker client is
+# gone, holding its row locks (3 Azar 1405: ten hours), and the next run would stop with «Lock wait timeout». Such a
+# one is refused like an artisan run (waited out with --wait); PROD_RUN_DB_CHECK=warn only warns, =off skips the check.
+# Nothing is ever killed here: stopping another session's thread (KILL <thread>) is for the user to approve.
+# (backlog item 165, step 14.384)
 # Read-only checks may still use plain `ssh fahares-app`; anything that writes production data goes through this script.
 set -euo pipefail
 
@@ -24,6 +31,63 @@ BUSY_PATTERN='artisan (fahares|sources|catalogs|catalogers|people|import|admin|s
 
 mkdir -p "$DIR"
 touch "$LOG"
+
+DB_AGE="${PROD_RUN_DB_AGE:-300}"
+DB_CHECK="${PROD_RUN_DB_CHECK:-refuse}"
+[[ "$DB_AGE" =~ ^[0-9]+$ ]] || { echo "PROD_RUN_DB_AGE must be a number of seconds" >&2; exit 2; }
+
+# Read-only: open InnoDB transactions and running statements (any command but Sleep, so a prepared statement's «Execute»
+# counts too) older than $1 seconds, through the app's own database connection; the credentials never leave the
+# container. One line per thread: kind, thread, age, state, rows locked, rows modified, command, its time, db, query.
+# The last line is «#ok», or «#error <message>» when the check itself failed.
+read -r -d '' DB_PROBE <<'PHP' || true
+<?php
+require "/app/vendor/autoload.php";
+$app = require "/app/bootstrap/app.php";
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+try {
+$db = Illuminate\Support\Facades\DB::connection();
+$min = (int) ($argv[1] ?? 300);
+$clean = fn ($q) => mb_substr(trim(preg_replace("/\\s+/u", " ", (string) $q)), 0, 110);
+$trx = $db->select("SELECT t.trx_mysql_thread_id AS id, TIMESTAMPDIFF(SECOND, t.trx_started, NOW()) AS age,
+        t.trx_state AS state, t.trx_rows_locked AS locked, t.trx_rows_modified AS modified, p.COMMAND AS command,
+        p.TIME AS time, p.DB AS db, COALESCE(p.INFO, t.trx_query) AS query
+    FROM information_schema.INNODB_TRX t LEFT JOIN information_schema.PROCESSLIST p ON p.ID = t.trx_mysql_thread_id
+    WHERE t.trx_started <= NOW() - INTERVAL ? SECOND ORDER BY t.trx_started", [$min]);
+$stmt = $db->select("SELECT ID AS id, TIME AS age, STATE AS state, COMMAND AS command, TIME AS time, DB AS db,
+        INFO AS query
+    FROM information_schema.PROCESSLIST
+    WHERE COMMAND NOT IN ('Sleep', 'Daemon', 'Binlog Dump') AND USER <> 'system user' AND TIME >= ?
+      AND ID <> CONNECTION_ID()
+      AND ID NOT IN (SELECT trx_mysql_thread_id FROM information_schema.INNODB_TRX)
+    ORDER BY TIME DESC", [$min]);
+foreach ([["trx", $trx], ["query", $stmt]] as [$kind, $rows]) {
+    foreach ($rows as $r) {
+        echo implode("\t", [$kind, $r->id, $r->age, $r->state ?? "", $r->locked ?? "", $r->modified ?? "",
+            $r->command ?? "", $r->time ?? "", $r->db ?? "", $clean($r->query)]), "\n";
+    }
+}
+echo "#ok\n";
+} catch (Throwable $e) {
+    echo "#error ", mb_substr(strtok($e->getMessage(), "\n"), 0, 200), "\n";
+}
+PHP
+
+# Prints the long transactions and statements, one line each; returns 1 (and prints why) when the check itself failed.
+db_long() {
+    local out
+    out=$(ssh -o BatchMode=yes -o ConnectTimeout=20 "$HOST" "cd /app && php -- $DB_AGE" <<<"$DB_PROBE" 2>&1) || true
+    if [[ "$(tail -n 1 <<<"$out")" != "#ok" ]]; then
+        echo "check failed: $( (grep -m1 '^#error ' <<<"$out" || tail -n 1 <<<"$out") | sed 's/^#error //' | cut -c1-200)"
+        return 1
+    fi
+    sed '$d' <<<"$out" | awk -F'\t' '
+        function hm(s) { return s >= 3600 ? sprintf("%dh%02dm", s / 3600, (s % 3600) / 60) : sprintf("%dm%02ds", s / 60, s % 60) }
+        $1 == "trx" { printf "  thread %s  transaction open %s (%s, %s rows locked, %s modified)  %s  db %s  %s\n",
+                             $2, hm($3), $4, $5, $6, ($7 == "" ? "no thread" : $7 " " $8 "s"), ($9 == "" ? "-" : $9), $10 }
+        $1 == "query" { printf "  thread %s  statement running %s (%s)  %s  db %s  %s\n",
+                             $2, hm($3), $7, $4, ($9 == "" ? "-" : $9), $10 }'
+}
 
 remote_busy() {
     # -n: leave stdin to the run itself, so a tar stream can be piped into prod-run (step 14.148)
@@ -39,6 +103,19 @@ if [[ "${1:-}" == "--status" ]]; then
     fi
     busy=$(remote_busy)
     echo "production artisan runs: ${busy:-none}"
+    if [[ "$DB_CHECK" != off ]]; then
+        if long=$(db_long); then
+            if [[ -n "$long" ]]; then
+                echo "database transactions and statements open over ${DB_AGE}s:"
+                echo "$long"
+                echo "  (never KILL another session's thread without the user's OK)"
+            else
+                echo "database transactions and statements open over ${DB_AGE}s: none"
+            fi
+        else
+            echo "database transactions and statements open over ${DB_AGE}s: $long"
+        fi
+    fi
     echo "last runs:"
     tail -n 8 "$LOG"
     exit 0
@@ -74,6 +151,32 @@ if [[ -n "$busy" ]]; then
     echo "production is busy, an artisan run without the lock is still going:" >&2
     echo "$busy" >&2
     exit 75
+fi
+
+# A long transaction or statement in MariaDB: a run would wait on its row locks and stop with «Lock wait timeout».
+if [[ "$DB_CHECK" != off ]]; then
+    long=""
+    ok=1
+    long=$(db_long) || ok=0
+    for (( tries = 0; ok && wait && tries < 120 && ${#long}; tries++ )); do
+        (( tries )) || { echo "production database is busy, waiting for a long transaction or statement:" >&2; echo "$long" >&2; }
+        sleep 15
+        long=$(db_long) || ok=0
+    done
+    if (( ! ok )); then
+        echo "warning: the database check failed, going on without it: $long" >&2
+    elif [[ -n "$long" ]]; then
+        if [[ "$DB_CHECK" == warn ]]; then
+            echo "warning: a database transaction or statement has been open over ${DB_AGE}s:" >&2
+            echo "$long" >&2
+        else
+            echo "production database is busy, a transaction or statement has been open over ${DB_AGE}s:" >&2
+            echo "$long" >&2
+            echo "It holds its row locks after its ssh client is gone. Find whose it is; killing it needs the user's OK." >&2
+            echo "To run anyway: PROD_RUN_DB_CHECK=warn scripts/dev/prod-run …" >&2
+            exit 75
+        fi
+    fi
 fi
 
 started="$(date '+%F %H:%M:%S')"

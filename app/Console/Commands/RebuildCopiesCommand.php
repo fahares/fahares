@@ -95,10 +95,6 @@ class RebuildCopiesCommand extends Command
                 if ($citationChanged) {
                     // the catalogue volume came from the other copy's citation: catalogs:link-volumes relinks it
                     $extra = ['catalog_volume_id' => null, 'cataloger_id' => null];
-                    $parsed = $citation ? ImportFankhaCatalogReferencesCommand::parse($citation) : ['volume' => null, 'page' => null];
-                    DB::table('manuscript_catalog_references')->where('manuscript_id', $rec['id'])
-                        ->where('source', 'fankha')->where('status', 'unverified')
-                        ->update(['raw_text' => $citation, 'volume_number' => $parsed['volume'], 'page_start' => $parsed['page'], 'updated_at' => now()]);
                 }
                 // fahares:rebuild-scripts leaves a copy with no «خط:» line alone, so its scripts would stay the other copy's
                 if (isset($new['raw_text']) && ! preg_match(RebuildScriptsCommand::LINE, (string) $new['raw_text'])) {
