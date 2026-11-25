@@ -317,6 +317,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/manuscripts/create', 'create')->name('manuscripts.create');
         Route::post('/manuscripts', 'store')->name('manuscripts.store');
     });
+    // The works and copies of the site, listed for the panel; the review queues on one page (step 14.397)
+    Route::get('/works', [\App\Http\Controllers\Admin\WorkController::class, 'index'])->name('works.index');
+    Route::get('/manuscripts', [\App\Http\Controllers\Admin\ManuscriptController::class, 'index'])->name('manuscripts.index');
+    Route::get('/review-queues', [AdminDashboardController::class, 'queues'])->name('review-queues');
     // A work without a copy, made from the panel (backlog item 161, step 14.381)
     Route::middleware('can:manuscripts.create')->controller(\App\Http\Controllers\Admin\WorkController::class)->group(function () {
         Route::get('/works/create', 'create')->name('works.create');
