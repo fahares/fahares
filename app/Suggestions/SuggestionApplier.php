@@ -68,8 +68,7 @@ class SuggestionApplier
                     if ($entries === null) {
                         throw new InvalidArgumentException('این ارجاع در متن مآخذ خودکار بازنویسی نشد. آن را در فیلد «مآخذ کتاب‌شناسی» دستی اصلاح کنید.');
                     }
-                    $record->bibliography = $entries;
-                    break;
+                    return $this->applyBibliography($record, $entries);
                 }
                 return $this->applyFankhaPlace($record, $field, $page);
 
@@ -129,6 +128,9 @@ class SuggestionApplier
 
             case 'list':
                 $items = $value === null ? [] : array_values(array_filter(array_map('trim', preg_split('/\R/u', $value)), 'strlen'));
+                if ($record instanceof \App\Models\Work && $name === 'bibliography') {
+                    return $this->applyBibliography($record, $items);
+                }
                 if (isset($field['meta_key'])) {
                     $meta = $record->metadata ?? [];
                     $meta[$field['meta_key']] = $items;
@@ -222,9 +224,26 @@ class SuggestionApplier
                 $new[$columns[$key]] = $value;
             }
         }
-        $old && RecordEntries::fankha($record, $values);
+        if ($old) {
+            RecordEntries::fankha($record, $values);
+            $record->searchable();
+        }
 
         return ['old' => $old, 'new' => $new, 'resolution' => []];
+    }
+
+    /** A work's bibliography, written in its entries, which the column follows (step 14.396); the log keeps the lists. */
+    private function applyBibliography(\App\Models\Work $work, array $strings): array
+    {
+        $before = RecordEntries::bibliographyOf($work);
+        RecordEntries::bibliography($work, $strings);
+        $after = RecordEntries::bibliographyOf($work);
+        if ($before === $after) {
+            return ['old' => [], 'new' => [], 'resolution' => []];
+        }
+        $work->searchable();
+
+        return ['old' => ['bibliography' => $before ?: null], 'new' => ['bibliography' => $after ?: null], 'resolution' => []];
     }
 
     /**

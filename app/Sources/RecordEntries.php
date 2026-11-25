@@ -67,9 +67,11 @@ class RecordEntries
      */
     public static function fankha(Model $record, array $values): array
     {
-        $before = self::fankhaOf($record);
-        $after = array_merge($before, array_intersect_key($values, array_flip(self::FANKHA)));
         $held = self::primary($record);
+        $before = self::fankhaOf($record);
+        // a record whose entry was never made (a row written by the query builder) starts from its own columns
+        $base = $held ? $before : self::columnsOf($record);
+        $after = array_merge($base, array_intersect_key($values, array_flip(self::FANKHA)));
 
         if (! $after['source_id']) {
             $held && DB::table('source_entries')->where('id', $held->id)->delete();
@@ -108,6 +110,19 @@ class RecordEntries
     public const COLUMNS = ['catalog_id' => 'source_id', 'volume_number' => 'volume_number', 'page_start' => 'page_start',
         'page_end' => 'page_end', 'sequence_number' => 'entry_number', 'raw_text' => 'text'];
 
+    /** The Fankha values the record's own columns hold, as stored (self::FANKHA keys). */
+    private static function columnsOf(Model $record): array
+    {
+        $columns = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', ...($record instanceof Manuscript ? ['sequence_number'] : [])];
+        $row = (array) DB::table($record->getTable())->where('id', $record->getKey())->first($columns);
+        $values = array_fill_keys(self::FANKHA, null);
+        foreach ($row as $column => $value) {
+            $values[self::COLUMNS[$column]] = $value;
+        }
+
+        return $values;
+    }
+
     /**
      * Puts back the Fankha columns an audit log kept (a suggestion's or an edit's old values) through the entry, and
      * returns the other values for the caller to restore on the record.
@@ -125,8 +140,71 @@ class RecordEntries
             }
         }
         $fankha && self::fankha($record, $fankha);
+        if ($record instanceof Work && array_key_exists('bibliography', $old)) {
+            self::bibliography($record, SourceEntrySync::bibliographyStrings($old['bibliography']));
+            unset($old['bibliography']);
+        }
 
         return $old;
+    }
+
+    /** A work's bibliography as its entries hold it: the strings in their order. */
+    public static function bibliographyOf(Work $work): array
+    {
+        return DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('legacy_id', $work->getKey())
+            ->orderBy('legacy_index')->pluck('citation_text')->all();
+    }
+
+    /** The columns of a bibliography entry its string gives; a text taken there, a tie and a review are kept. */
+    private const CITATION_COLUMNS = ['source_id', 'source_volume_id', 'volume_number', 'page_start', 'role', 'citation_text', 'locations',
+        'origin', 'sort_order'];
+
+    /**
+     * Writes a work's bibliography, one entry per string in order (step 14.396): a string changed at its index
+     * rewrites that entry's citation and places, and marks a text taken at a place the entry has left; strings past
+     * the new end go. The work's bibliography column follows.
+     *
+     * @param  list<string>  $strings
+     */
+    public static function bibliography(Work $work, array $strings): void
+    {
+        $strings = SourceEntrySync::bibliographyStrings($strings);
+        $sources = SourceEntrySync::configSources();
+        $values = SourceEntrySync::bibliographyValues($work->getKey(), $strings, $sources, SourceEntrySync::volumeIds(array_values(array_filter($sources))));
+        $held = DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('legacy_id', $work->getKey())->get()->keyBy('legacy_index');
+        $new = [];
+        foreach ($values as $i => $v) {
+            $entry = $held[$i] ?? null;
+            if (! $entry) {
+                $new[] = SourceEntrySync::row($v, $work->created_at);
+
+                continue;
+            }
+            $update = array_intersect_key($v, array_flip(self::CITATION_COLUMNS));
+            $update += array_fill_keys(array_diff(self::CITATION_COLUMNS, array_keys($update)), null);
+            $moved = [(int) $entry->volume_number, (int) $entry->page_start, (int) $entry->source_id] !== [(int) $update['volume_number'], (int) $update['page_start'], (int) $update['source_id']];
+            if ($moved && (filled($entry->entry_text) || filled($entry->copy_text)) && $entry->text_status !== SourceEntry::TEXT_STALE) {
+                $update['text_status'] = SourceEntry::TEXT_STALE;
+            }
+            $resolved = (int) $entry->source_volume_id !== (int) $update['source_volume_id'] || $entry->locations != $update['locations'];
+            if ($entry->citation_text !== $update['citation_text'] || $moved || $resolved || isset($update['text_status'])) {
+                DB::table('source_entries')->where('id', $entry->id)->update($update + ['updated_at' => now()]);
+            }
+        }
+        $new && SourceEntrySync::upsert($new);
+        DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('legacy_id', $work->getKey())
+            ->where('legacy_index', '>=', count($strings))->delete();
+        self::mirrorBibliography($work);
+    }
+
+    /** Copies a work's bibliography entries into its column, as mirror() does the Fankha entry. */
+    public static function mirrorBibliography(Work $work): void
+    {
+        $strings = self::bibliographyOf($work);
+        $value = $strings ? json_encode($strings, JSON_UNESCAPED_UNICODE) : null;
+        DB::table('works')->where('id', $work->getKey())->update(['bibliography' => $value]);
+        $work->setAttribute('bibliography', $strings ?: null);
+        $work->syncOriginalAttributes(['bibliography']);
     }
 
     /**

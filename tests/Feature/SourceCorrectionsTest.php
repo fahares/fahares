@@ -104,7 +104,28 @@ class SourceCorrectionsTest extends TestCase
         $this->assertSame([15, 121], [$this->primary($this->manuscript)->volume_number, $this->primary($this->manuscript)->page_start]);
     }
 
-    /** Step 14.393: the Fankha entry is the record of truth; the place is written there and the columns follow. */
+    /** Step 14.396: saving a record writes only what changed into its entries; what a review or a match wrote stays. */
+    public function test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns()
+    {
+        $entry = $this->primary($this->work);
+        $entry->forceFill(['notes' => 'یادداشت بازبین', 'reviewed_by' => $this->admin()->id])->save();
+        $dharia = SourceEntry::where('legacy_type', 'work_bibliography')->where('legacy_id', $this->work->id)->where('legacy_index', 1)->sole();
+        $dharia->forceFill(['entry_text' => 'متن مدخل الذریعه', 'text_volume_number' => 25, 'text_page' => 101, 'text_status' => SourceEntry::TEXT_AUTO])->save();
+
+        $this->work->update(['raw_text' => 'متن تازه', 'bibliography' => ['منزوی 977/2', 'الذریعه 101/25', 'کشف 1/2']]);
+        $entry->refresh();
+        $this->assertSame(['متن تازه', 'یادداشت بازبین'], [$entry->entry_text, $entry->notes]);
+        $this->assertNotNull($entry->reviewed_by);
+        $this->assertSame(['متن مدخل الذریعه', SourceEntry::TEXT_AUTO], [$dharia->fresh()->entry_text, $dharia->fresh()->text_status], 'a string unchanged keeps its text');
+        $this->assertSame(3, SourceEntry::where('legacy_type', 'work_bibliography')->where('legacy_id', $this->work->id)->count());
+
+        // the string now cites another page: the text taken at the old one is marked
+        $this->work->update(['bibliography' => ['منزوی 977/2', 'الذریعه 102/25']]);
+        $this->assertSame(['الذریعه 102/25', 102, SourceEntry::TEXT_STALE], [$dharia->fresh()->citation_text, $dharia->fresh()->page_start, $dharia->fresh()->text_status]);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->work->fresh()->bibliography);
+    }
+
+    /** Step 14.396: the Fankha entry is the record of truth; the place is written there and the columns follow. */
     public function test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds()
     {
         $entry = $this->primary($this->manuscript);
