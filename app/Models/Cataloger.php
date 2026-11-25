@@ -151,9 +151,10 @@ class Cataloger extends Model
         $parts = CatalogVolumePart::ready() ? $this->catalogVolumeParts()->pluck('catalog_volume_parts.id') : collect();
         $cited = fn () => SourceEntry::citations()->toBase()->select('legacy_id');
 
-        return $cited()->where('cataloger_id', $this->id)
-            ->union($cited()->whereIn('source_volume_id', $volumes->diff($parted)->values()->all() ?: [0]))
-            ->union($cited()->whereIn('catalog_volume_part_id', $parts->all() ?: [0]));
+        $ids = $cited()->where('cataloger_id', $this->id)
+            ->union($cited()->whereIn('source_volume_id', $volumes->diff($parted)->values()->all() ?: [0]));
+
+        return CatalogVolumePart::ready() ? $ids->union($cited()->whereIn('catalog_volume_part_id', $parts->all() ?: [0])) : $ids;
     }
 
     /** Those copies' ids («c.legacy_id») with each copy's Fankha entry as «fe», for a page in Fankha's order. */
