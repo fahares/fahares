@@ -360,8 +360,6 @@ class RecordMerger
      */
     private function moveAttachments($source, $target): array
     {
-        $citations = $source->sourceCitations()->pluck('id')->all();
-        $source->sourceCitations()->update(['citable_id' => $target->id]);
         $entries = SourceEntry::where('citable_type', $source::class)->where('citable_id', $source->id)
             ->where('role', '!=', SourceEntry::ROLE_CITATION)->get(['id', 'is_primary', 'legacy_type', 'legacy_id'])
             ->map(fn ($e) => $e->only(['id', 'is_primary', 'legacy_type', 'legacy_id']))->all();
@@ -375,15 +373,14 @@ class RecordMerger
             ->where('status', 'pending')->pluck('id')->all();
         FieldSuggestion::whereIn('id', $suggestions)->update(['suggestable_id' => $target->id]);
 
-        return ['citation_ids' => $citations, 'moved_entries' => $entries, 'suggestion_ids' => $suggestions];
+        return ['moved_entries' => $entries, 'suggestion_ids' => $suggestions];
     }
 
     private function undoAttachments($source, $target, array $old): void
     {
-        $target->sourceCitations()->whereIn('id', $old['citation_ids'] ?? [])->update(['citable_id' => $source->id]);
-        // a merge of before step 13.3 cited the duplicate's entry in a source citation of its own
+        // a merge of before step 13.3 cited the duplicate's entry in a source citation of its own, and moved the
+        // duplicate's citations («citation_ids»); that table went in step 14.382, and the entry copied from the citation goes
         if ($entry = $old['cited_entry_id'] ?? null) {
-            $target->sourceCitations()->whereKey($entry)->delete();
             SourceEntry::where('legacy_type', 'source_citation')->where('legacy_id', $entry)->delete();
         }
         foreach ($old['moved_entries'] ?? [] as $e) {

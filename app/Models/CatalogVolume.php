@@ -88,11 +88,6 @@ class CatalogVolume extends Model
         return $this->hasMany(self::class, 'edition_of_id');
     }
 
-    public function catalogReferences(): HasMany
-    {
-        return $this->hasMany(ManuscriptCatalogReference::class);
-    }
-
     /** The title without the trailing « - جلد دوم», as the viewer header and the link show it. */
     public function getShortTitleAttribute(): string
     {

@@ -13971,6 +13971,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
 - **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
 
+### گام ۱۴.۳۸۱: `RecordCreator`، `Admin\WorkController` و `admin.people.create`
+
+- **[RecordCreator](../app/Suggestions/RecordCreator.php):**
+  - `personDuplicates(name, aliases)` با `PersonNameMatcher::ids` (نام و نام‌های دیگر، با `TextNormalizer`). `workDuplicates(title, others, authorId)` عنوان‌ها و عناوین دیگر را نرمال‌شده می‌سنجد: آثار همان پدیدآور (`author_id` یا ردیف `work_people`)، یا اگر پدیدآوری نیست، آثار با همان `primary_title` یا `clean_title`.
+  - `createPerson` و `createWork` با `slug` به شکل `<نام>-<id>`، `normalized_name` مانند فرم ویرایش (حذف اعراب). `century_hijri` خالی فرستاده نمی‌شود تا مدل آن را از سال درگذشت بگیرد.
+  - `contributor(data, role)`: شخص `{role}_id`، یا شخص تازه برای `{role}_name` اگر `{role}_new` باشد (با `{role}_death_year` اختیاری). `ManuscriptCreator` آن را برای `author` و `scribe` به کار می‌برد و شناسه‌ها را در `created.person_ids` نگه می‌دارد.
+  - `linkTerms(Work)`: `subject_summary` و `language_summary` با «،»، «,» یا «/» جدا و با نام دقیق به `subject_work` و `language_work` پیوند می‌خورند. `works_count` موضوع، پدر آن و زبان بازشماری می‌شود.
+  - `sourceEntry`: `SourceEntry` با `role=entry`، `origin=manual`، `status=verified`، نشانی از `SuggestionRegistry::parseCatalogPage`.
+  - لاگ: `action=create`، `old_values.created = {person_id|work_id, person_ids, source_entry_ids}`، `new_values.panel = true` با فیلدها و `source_text`.
+  - `undo(log)`: اثر با `RecordRemover::remove` (خطا اگر نسخه دارد)، شخص با همان (خطا اگر پیوند دارد). `removePeople(ids)` شخصی را که هنوز پیوند دارد نگه می‌دارد.
+- **[AuditLogController::rollbackCreate](../app/Http/Controllers/Admin/AuditLogController.php):** نسخه به `ManuscriptCreator::undo`، شخص و اثر به `RecordCreator::undo`.
+- **[PersonController](../app/Http/Controllers/Admin/PersonController.php):** `create`، `store` و `personRules()` مشترک با `update`. `withoutTransliterations` و `transliterations` عمومی شدند. نشست `duplicates` هم‌نام‌ها را به فرم برمی‌گرداند و `confirm_duplicate` از آن می‌گذرد.
+- **[WorkController](../app/Http/Controllers/Admin/WorkController.php):** `create` و `store`. `author_id` با `author_new` با هم رد می‌شوند. نشست `duplicates` (آثار) و `namesakes` (اشخاص) با یک `confirm_duplicate`.
+- **[ManuscriptController](../app/Http/Controllers/Admin/ManuscriptController.php):** `author_new` و `scribe_new`؛ نشست `namesakes` به تفکیک نقش و تأیید `confirm_people`.
+- **نماها:** `admin/people/create`، `admin/works/create`، `admin/people/_namesakes` (فهرست هم‌نام‌ها با `data-namesake`)، `admin/_record-source` (منبع اطلاع). دکمۀ «شخص تازه» در فهرست اشخاص و دو پیوند تازه در منوی پنل (`AdminNav`).
+- **دسترسی:** `admin.works.*` زیر `manuscripts.create` (برچسب: «ساختن رکورد نسخه و اثر»)؛ `admin.people.create` و `store` زیر `people.edit`.
+- **آزمون:** [`NewPersonAndWorkTest`](../tests/Feature/Admin/NewPersonAndWorkTest.php)، ۹ آزمون: دسترسی، شخص با کارت منبع و بازگرداندن، هشدار هم‌نام با «ي» عربی، اثر با موضوع، پدر موضوع و زبان، اثر هم‌عنوان همان پدیدآور، پدیدآور تازه از فرم اثر و بازگرداندن هر دو، اثرِ نسخه‌دار بازگرداندنی نیست، پدیدآور و کاتب تازه از فرم نسخه، و شخصی که پس از ساختن اثر دیگری گرفته می‌ماند.
+
+### گام ۱۴.۳۸۲: حذف `manuscript_catalog_references`، `source_citations` و `field_evidence`
+
+- **[migration](../database/migrations/2026_11_25_100001_drop_pre_unification_source_tables.php):** `2026_11_25_100001_drop_pre_unification_source_tables` سه جدول را `dropIfExists` می‌کند. `down()` خطا می‌دهد: بازگشت فقط از خروجی است.
+- **خروجی پروداکشن:** `fahares-sources/backups/step13/step14_382_legacy_source_tables_before_drop.sql.gz` (۶٫۷ MB، sha256 `443be3f4…ff6ca`). `SHOW CREATE TABLE` و `INSERT`ها به ترتیب id، با PHP در کانتینر app ساخته شد (کانتینر `mariadb-dump` ندارد). هیچ نوشتنی در پروداکشن نبود. بازگردانی در `step14382_check` محلی: ۳۲۸٬۵۰۸، ۳۸ و ۱۳ ردیف (بیشینۀ id نشانی‌ها ۳۲۹٬۹۶۴).
+- **[SourceEntry](../app/Models/SourceEntry.php):** ثابت‌های `ACTION_BULK_VERIFY`، `ACTION_BULK_REVERT`، `ACTION_REVIEW`، `ACTION_REOPEN` و `BULK_METHOD` از مدل قدیم آمدند. `LEGACY_REFERENCE = 'App\\Models\\ManuscriptCatalogReference'` برای `isBulkVerify`، `lastBulkVerify` و `revertBulkVerify` است. لاگ #۱۱۸۴ پروداکشن (۴٬۸۹۱ شناسه، برنگشته) هنوز از راه `legacy_id` برمی‌گردد.
+- **حذف‌شده:** `App\Models\ManuscriptCatalogReference`، `SourceCitation`، `FieldEvidence`، `App\Sources\LegacyMirror`، `Concerns\HasSourceCitations`، و `catalogReferences()` در `Manuscript` و `CatalogVolume`. `getIsAddendumEntryAttribute` به `Manuscript` رفت.
+- **[AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php):** `rollbackVerify` با کلید `catalog_reference` فقط مدخل را برمی‌گرداند. [RecordMerger](../app/Suggestions/RecordMerger.php) دیگر `citation_ids` نمی‌نویسد و با `cited_entry_id` قدیم فقط مدخل را پاک می‌کند. [AuditLog](../app/Models/AuditLog.php) برچسب «نشانی فهرست» را برای رشتۀ نوع قدیم نگه داشت. `SuggestionRegistry::sourceEntryField` (`catalog_reference_{id}`) دست نخورد.
+- **[BackfillSourcesCommand](../app/Console/Commands/BackfillSourcesCommand.php):** `PARTS = registry, fankha, references, bibliography`. `references` فقط `syncCited` و هرس `fankha_citation` و `fankha_citation_more` است. مدخل‌های `catalog_reference` و `source_citation` دیگر هرس نمی‌شوند.
+- **فرمان‌ها:** نوشتن در جدول قدیم و کلیدهای پشتیبان آن از `SourceMerger`، `catalogs:fix-misnamed-isfahan`، `fix-reversed-citations`، `import-volume-parts`، `move-cited-part`، `rebuild-copies`، `remove-catalogue`، `set-catalogue-volumes` و `repair-tabriz-volumes` رفت. پشتیبان‌های JSON قدیم با `--revert` هنوز کار می‌کنند، چون کلید جدول قدیم فقط نادیده می‌ماند. `remove-catalogue` صفحه را از `source_entries` (`legacy_type = fankha_citation`، `source_volume_id` در جلدها) می‌خواند.
+- **آزمون‌ها:** `BackfillSourcesTest::test_fankha_citations_come_from_the_copy_and_catalogue_matches_stay` (مدخل `catalog_reference` پس از اجرا می‌ماند). `SourceCorrectionsTest` (بازگردانی لاگ و تأیید گروهی پیش از ۱۳.۳ بی جدول). آزمون `evidence` حذف شد. درج‌های جدول قدیم از چهار آزمون فرمان‌ها رفت.
+- **تمرین روی `fahares_prod`:** `migrate --force` در ۱۰۸ ms. صفحه‌ها با `php -S` در کانتینر: `/`، `/manuscripts/10368`، `/works/33`، `/works/385`، `/sources`، `/sources/hadiyya`، `/search`، `/libraries` و `/insights` همه ۲۰۰. نسخۀ ۱۰۳۶۸ مدخل ۷۱۹۲۱۲ (match، verified، legacy catalog_reference) را نشان می‌دهد. `sources:backfill --dry-run --only=references --only=bibliography`: ۳۲۳٬۱۷۵ استناد فنخا و ۴۵٬۴۰۲ ارجاع کتاب‌شناسی.
+
 ### گام ۱۴.۳۸۳: ردپای فنخا در سایت؛ `pages.about`، `sources/index` و `layouts/app`
 
 - **جست‌وجو:**
@@ -14014,3 +14044,53 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان JSON از `manuscripts`، `source_entries`، `manuscript_people` و `manuscript_script` ۱۲ رکورد (۴ جفت و ۲ اصلاح، با شناسه‌های بالا) به `../fahares-sources/backups/step13/`.
   2. `fahares:merge-shelfmark-twins`: باید همان ۴ ادغام و ۲ اصلاح را نشان دهد. سپس `--apply`، و رونوشت پشتیبان فرمان از `storage/app/private/backups/` به همان پوشه.
   3. `sources:take-texts catalogue-7ac531af190e --show=0` و `sources:take-texts catalogue-af2952129bfd --show=0`.
+### گام ۱۴.۳۸۴: وارسی تراکنش‌های بلند در `prod-run` (مورد ۱۶۵)
+- **[prod-run](../scripts/dev/prod-run):**
+  - **پرس‌وجو:** `db_long()` یک تکه PHP را از stdin به `ssh fahares-app 'cd /app && php -- <ثانیه>'` می‌دهد. تکه Laravel را بالا می‌آورد و با اتصال خود برنامه می‌خواند، پس رمز پایگاه داده از کانتینر بیرون نمی‌آید. کاربر برنامه اجازۀ PROCESS دارد.
+    - `information_schema.INNODB_TRX` با `PROCESSLIST` پیوند می‌خورد. تراکنشی که از `trx_started` بیش از آستانه گذشته، با `trx_state`، `trx_rows_locked`، `trx_rows_modified`، فرمان رشته (`Query`، `Execute` یا `Sleep`) و متن پرس‌وجو (`INFO` یا `trx_query`، ۱۱۰ نویسه).
+    - `PROCESSLIST` جدا: هر فرمانی جز `Sleep`، `Daemon` و `Binlog Dump`، جز `system user` و خود اتصال وارسی، که `TIME` آن از آستانه گذشته و تراکنش InnoDB ندارد. پس رشتۀ «Execute» هم دیده می‌شود. وارسی گام ۱۴.۳۲۷ فقط «Query» را نگاه می‌کرد و آن را ندید.
+    - سطر پایانی `#ok` است، یا `#error <پیام>` اگر خود وارسی شکست بخورد. شکست وارسی اجرا را نمی‌بندد و فقط هشدار می‌دهد.
+  - **متغیرها:** `PROD_RUN_DB_AGE` (پیش‌فرض ۳۰۰ ثانیه)؛ `PROD_RUN_DB_CHECK=refuse` (پیش‌فرض)، `warn` یا `off`.
+  - **`--status`:** سطر `database transactions and statements open over 300s: none`، یا فهرست رشته‌ها، میان «production artisan runs» و «last runs». کد خروج همان ۰ است.
+  - **پیش از اجرا:** پس از وارسی `artisan`. بی `--wait`، کد ۷۵ با فهرست و راهنمای `PROD_RUN_DB_CHECK=warn`. با `--wait`، هر ۱۵ ثانیه تا ۱۲۰ بار.
+- **آزمون:**
+  - روی پروداکشن `--status` در ۵ ثانیه `none` داد.
+  - پرس‌وجوها با root روی MariaDB محلی، با یک تراکنش `FOR UPDATE` و یک `sleep()` باز، سطرهای درست دادند، از جمله رشته‌ای در «LOCK WAIT». کاربر برنامۀ محلی اجازۀ PROCESS ندارد و همان مسیر `#error` را آزمود.
+  - رونوشتی از اسکریپت با `db_long` ساختگی: اجرای عادی، رد (۷۵)، `warn`، `off`، شکست وارسی و `--status`.
+- **[CLAUDE.md](../CLAUDE.md):** بند `prod-run` و بند وارسی پیش از انتشار به‌روز شدند. بند تازه: پرس‌وجوی سنگین فقط‌خواندنی روی `fahares_prod`.
+
+### گام ۱۴.۳۸۵: `scripts/dev/refresh-prod-copy` (مورد ۲۰)
+- **[refresh-prod-copy](../scripts/dev/refresh-prod-copy):**
+  - **کانال:** `tdl chat ls` کانالی به نام «Fahares Backup» را پیدا می‌کند (یا `FAHARES_BACKUP_CHAT`). `tdl chat export -T last -i 120` و تازه‌ترین پیام `fahares-db-<stamp>.manifest.json`، یا همان `--stamp`.
+  - **دریافت:** manifest برای هر تکه `file`، `sha256` و `message_id` دارد. تکه‌ها با `tdl dl -u https://t.me/c/<chat>/<id>`، پنج‌تا در هر بار، در پوشه‌ای تازه و با `--restart` دریافت می‌شوند. `--skip-same` به کار نرفت: نام را بی پسوند می‌سنجد، و همۀ تکه‌ها نام `….sql.zst.age` و اندازۀ یکسان دارند. تکه‌ای که sha256 آن نخواند دوباره خواسته می‌شود، تا سه بار.
+  - **حد زمانی:** هر فرمان `tdl` با `timeout` است (فهرست ۳ دقیقه، export ۵ دقیقه، هر دستۀ دریافت ۱۵ دقیقه)، چون با اتصال بد بی‌پایان دوباره وصل می‌شود. قفل `~/.fahares/prodcopy.lock` با `8>&-` به `tdl` نمی‌رسد، تا `tdl` جامانده قفل را نگه ندارد.
+  - **سنجش:** sha256 هر تکه، فایل سرهم (`encrypted.sha256`)، `age -d -i ~/fahares-age.key` (یا `FAHARES_AGE_KEY`)، sha256 فایل رمزگشوده (`dump.sha256`) و `zstd -t`. فایل رمزدار یا رمزگشودۀ درست در `~/.cache/fahares-prodcopy/<stamp>/` می‌ماند و اجرای دوباره دوباره دریافت نمی‌کند. `--check-only` همین‌جا می‌ایستد.
+  - **جای دیسک:** آزادی حجم MariaDB (`df /var/lib/mysql` در کانتینر) باید دست‌کم اندازۀ `fahares_prod` کنونی و `FAHARES_MIN_FREE_GB` (پیش‌فرض ۱) باشد.
+  - **بارگذاری:** [fahares-restore.sh](../scripts/backup/fahares-restore.sh) `--file <dump> --container fahares_mariadb --database fahares_prod_new --replace`، که `CREATE DATABASE` و `USE` را به نام مقصد برمی‌گرداند. سپس `row_counts` manifest با `COUNT(*)` پایگاه موقت سنجیده می‌شود. اگر نخواند، `fahares_prod` دست نمی‌خورد.
+  - **جابه‌جایی:** اگر پرس‌وجویی (جز `Sleep`) روی `fahares_prod` در جریان باشد، نمی‌شود. یک `RENAME TABLE` همۀ جدول‌های `fahares_prod` را به `fahares_prod_<تاریخ رونوشت پیشین>` و جدول‌های `fahares_prod_new` را به `fahares_prod` می‌برد. پیش از آن پرسش `[y/N]` است، مگر با `--yes`. پایگاه موقتِ خالی‌شده حذف می‌شود.
+  - **سابقه:** `~/.fahares/prodcopy.tsv` (زمان، stamp، `created_at`، بایگانی، شمارها). سطر رونوشت گام ۱۴.۹۱ (`fahares-db-20261108-034701`) دستی افزوده شد. `--status` رونوشت کنونی، اندازۀ پایگاه‌های `fahares_prod*` و جای آزاد را نشان می‌دهد.
+- **آزمون (۴ آذر):** با یک `age` ساختگی که شکست می‌خورد: export، ۱۹ تکه (۳۶۶ مگابایت، دو تکه از پیش) با sha256 درست، فایل سرهم درست، و ایستادن در رمزگشایی. اجرای نخست پس از ۹ دقیقه با شکست `tdl` ایستاد و تکه‌های رسیده را دور ریخت. از آن پس تکه‌های رسیده می‌مانند و حد زمانی افزوده شد.
+- **جای دیسک (۴ آذر):** ۷٫۵ گیگابایت آزاد. `fahares_prod` ۳٫۹۲، بایگانی‌های `fahares_prod_20261014` ۱٫۰۲ و `fahares_prod_20261029` ۳٫۲۱، و `fahares_prod_bak_13114` ۲٫۳۱ گیگابایت.
+- **نخستین اجرا (۴ آذر، پس از نصب `age`):** `refresh-prod-copy --yes` با فایل رمزدار مانده از آزمون. رمزگشایی ۱۱ ثانیه و بارگذاری در `fahares_prod_new` ۸ دقیقه طول کشید (۲٫۵ گیگابایت SQL). `row_counts` برابر بود: ۱۱۴ کاربر، ۶۰۵ پیشنهاد، ۹٬۷۵۹ نشانی برگشت، ۳۲۳٬۲۵۰ نسخه، ۷۱٬۶۸۶ اثر و ۶۶٬۳۰۳ شخص. رونوشت پیشین به `fahares_prod_20261108` رفت. اندازه‌ها: `fahares_prod` ۴٫۲۱ و `fahares_prod_20261108` ۳٫۹۲ گیگابایت.
+- **پاک‌سازی (به تصمیم کاربر):** پیش از بارگذاری، پس از وارسی این که پرس‌وجویی روی آن‌ها نیست، `DROP DATABASE` روی `fahares_prod_20261014`، `fahares_prod_20261029` و `fahares_prod_bak_13114` اجرا شد. پس از اجرا ۹٫۵ گیگابایت آزاد ماند.
+- **زمان‌بندی (به خواست کاربر):** تایمر systemd کاربر روی لپ‌تاپ، بیرون از git: `~/.config/systemd/user/fahares-prodcopy.{service,timer}`.
+  - `OnCalendar=Sat 10:00` با `Persistent=true`: اگر لپ‌تاپ آن ساعت خاموش باشد، اجرا پس از روشن شدن انجام می‌شود.
+  - فرمان: `refresh-prod-copy --yes` از checkout اصلی، با `TDL_PROXY=http://127.0.0.1:20171`. خروجی به `~/.fahares/prodcopy-run.log` می‌رود.
+  - اسکریپت پس از انتشار به checkout اصلی می‌رسد. اجرای پیش از انتشار شکست می‌خورد.
+  - وضع: `systemctl --user list-timers fahares-prodcopy.timer`. خاموش کردن: `systemctl --user disable --now fahares-prodcopy.timer`.
+
+### گام ۱۴.۳۸۶: `SourceEntrySync::keepTheirs()`
+
+- **[SourceEntrySync](../app/Sources/SourceEntrySync.php):** `syncCited()` و `syncOtherCited()` ردیف‌ها را پیش از `upsert()` از `keepTheirs()` می‌گذرانند. مدخل موجود (همان `legacy_type`، `legacy_id`، `legacy_index`) همۀ ستون‌هایش را نگه می‌دارد جز `CITED_COLUMNS`: `citable_type`، `citable_id`، `source_id`، `source_volume_id`، `citation_text`، `sort_order`، `updated_at`. `origin` هم نگه داشته می‌شود، پس نشانی‌ای که داور نوشته (`manual`) می‌ماند.
+- **جلد و صفحه:** `$readingsBefore` جفت‌های [جلد، صفحه] را می‌دهد که ارجاع پیش از این می‌داد.
+  - `fankha_citation`: خواندن `citation_text` موجود، تنها و با `fitToVolume()` روی جلد موجود.
+  - `fankha_citation_more`: مدخلی که تطبیق یا داوری بر آن ننوشته (`matched()`: متن، شمارۀ مدخل، صفحۀ شماره، داور یا `origin = manual`) جلد و صفحۀ خودش را؛ مدخل تطبیق‌شده با همان متن ارجاع، خواندن تازه را؛ و با متن دیگر هیچ.
+  - جلد و صفحۀ تازه نوشته می‌شوند اگر مدخل یکی از آن جفت‌ها را دارد، یا خواندن تازه هیچ‌کدام نیست، یا منبع یا جلد وصل‌شده عوض شده است. `page_end` تهی می‌شود مگر صفحۀ تازه در همان جلد و درون مدخل باشد.
+  - متنی که جایش دیگر نشانی مدخل نیست، یا از جلد دیگری است، `text_status = stale` می‌گیرد.
+- **آزمون:** `CitedEntryKeepsMatchTest`، چهار آزمون: ذخیرۀ نسخه همۀ ستون‌های تطبیق و صفحۀ ۱۹۶ را نگه می‌دارد؛ مدخل اصلاح‌نشده با ارجاع تازه به ص ۳۰۰ می‌رود و متنش کهنه می‌شود؛ مدخل اصلاح‌شده با ارجاعی که جای دیگری را نام می‌برد می‌رود، و با ارجاعی که همان‌گونه خوانده می‌شود («5 - 197») می‌ماند؛ و جای دیگر ارجاع آنچه تطبیق نوشته را نگه می‌دارد.
+- **سنجش و ترمیم روی `fahares_prod`:** `sources:take-texts <id> --dry-run` برای پنج فهرست دارای خواننده با مدخل ارجاع فنخا: ۱۰۰۰۲۰ (`numbered_copies`) ۶۱، ۱۰۰۰۳۰ (`shelfmark_headings`) ۲۳، ۱۰۰۰۳۹ (`serial_shelfmarks`) ۱۳، ۱۰۰۰۹۳ (`listed_shelfmarks`) ۱۲، ۱۰۰۱۳۸ (`moayyed`) ۳؛ روی هم ۱۱۲. اجرای واقعی همان ۱۱۲ را نوشت و اجرای آزمایشی دوم صفر. نشانی این مدخل‌ها با `updated_at` آن‌ها با چند ثانیه فاصله پس از `updated_at` نسخه است (ذخیره‌های گروهی ۲۹ آبان ۲۱:۳۳ و ۳۰ آبان ۰۵:۳۱ و ۰۶:۴۰). در پروداکشن شناسۀ منبع‌ها را با `code` بجویید.
+
+### گام ۱۴.۳۸۸: `person_period_decisions_step14_388.json`
+- **پرونده:** ۹۲ تصمیم برای ردیف‌های ۶۹۱۲ تا ۷۰۰۴ `person_periods` (۷ تأیید، یکی با `year: 1255, year_is: from`؛ ۸۵ رد با `reason`). ردیف ۶۹۵۷ در پرونده نیست.
+- **اثر انگشت ردیف‌ها:** `md5(group_concat(concat_ws('|', id, person_id, kind, city) order by id))` برای `id > 6911` باید `9f3e58def6b07d687d6b798ab485eee4` باشد؛ پیش‌شرطش این است که هشت دورۀ «مصر» دوباره `city = قاهره` داشته باشند.
+- کدی عوض نشد.

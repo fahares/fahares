@@ -68,7 +68,7 @@
                 <p class="flex-1 min-w-64 text-muted">
                     تأیید گروهی فقط برای روش «شماره و عنوان» است. در روش‌های «شماره، عنوان نزدیک»، «فقط شماره» و «مبهم» عنوان شماره را تأیید نمی‌کند و هر نشانی باید جداگانه با برگه سنجیده شود.
                 </p>
-                <x-ui.btn :href="route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\ManuscriptCatalogReference::BULK_METHOD, 'confidence' => 'high']))">پالایۀ پیشنهادی: شماره و عنوان، اطمینان بالا</x-ui.btn>
+                <x-ui.btn :href="route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\SourceEntry::BULK_METHOD, 'confidence' => 'high']))">پالایۀ پیشنهادی: شماره و عنوان، اطمینان بالا</x-ui.btn>
             @endif
         </x-admin.notice>
     @endif

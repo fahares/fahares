@@ -1,0 +1,655 @@
+[
+ {
+  "id": 6912,
+  "person_id": 315,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6913,
+  "person_id": 27372,
+  "city": "همدان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6914,
+  "person_id": 47040,
+  "city": "قاهره",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6915,
+  "person_id": 21914,
+  "city": "بیت المقدس",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and teaching in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6916,
+  "person_id": 53654,
+  "city": "مکه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and teaching in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6917,
+  "person_id": 19305,
+  "city": "شیراز",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6918,
+  "person_id": 223,
+  "city": "شیراز",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6919,
+  "person_id": 41925,
+  "city": "قاهره",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6920,
+  "person_id": 2075,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6921,
+  "person_id": 2101,
+  "city": "خوانسار",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6922,
+  "person_id": 19799,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6923,
+  "person_id": 2022,
+  "city": "کاشان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6924,
+  "person_id": 61031,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6925,
+  "person_id": 2543,
+  "city": "نجف",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6926,
+  "person_id": 32541,
+  "city": "نجف",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence and study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6927,
+  "person_id": 68557,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "he went to Baghdad after his studies («بعد از تحصیل … ببغداد رفت»); no study there"
+ },
+ {
+  "id": 6928,
+  "person_id": 10324,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6929,
+  "person_id": 10264,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6930,
+  "person_id": 45289,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6931,
+  "person_id": 17798,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6932,
+  "person_id": 3865,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as an office in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6933,
+  "person_id": 69982,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6934,
+  "person_id": 46147,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6935,
+  "person_id": 46147,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6936,
+  "person_id": 62618,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as teaching in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6937,
+  "person_id": 59493,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6938,
+  "person_id": 10123,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6939,
+  "person_id": 14512,
+  "city": "حلب",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as an office in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6940,
+  "person_id": 54882,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "«قرأ عليه خلق ببغداد»: others read under him, which is recorded as teaching"
+ },
+ {
+  "id": 6941,
+  "person_id": 1328,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6942,
+  "person_id": 46191,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "«و درس و عين عضوا بمحكمة الاستئناف»: he studied, then was appointed; no teaching in Baghdad is said"
+ },
+ {
+  "id": 6943,
+  "person_id": 30775,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6944,
+  "person_id": 64136,
+  "city": "حلب",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6945,
+  "person_id": 23323,
+  "city": "مکه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6946,
+  "person_id": 11727,
+  "city": "قزوین",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6947,
+  "person_id": 11727,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6948,
+  "person_id": 37436,
+  "city": "قاهره",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6949,
+  "person_id": 37436,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6950,
+  "person_id": 13079,
+  "city": "قاهره",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6951,
+  "person_id": 2069,
+  "city": "بیت المقدس",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6952,
+  "person_id": 9053,
+  "city": "بورسا",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as teaching in this city; an office there is not a period of its own"
+ },
+ {
+  "id": 6953,
+  "person_id": 52289,
+  "city": "قاهره",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6954,
+  "person_id": 33509,
+  "city": "دمشق",
+  "verdict": "approve",
+  "place": "دمشق",
+  "reason": "«من اهل دمشق» is said of him at the head of the entry; the birth of the same clause is a period of its own"
+ },
+ {
+  "id": 6955,
+  "person_id": 3733,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as teaching in this city; an office there is not a period of its own"
+ },
+ {
+  "id": 6956,
+  "person_id": 3454,
+  "city": "بیت المقدس",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6958,
+  "person_id": 56868,
+  "city": "مدینه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6959,
+  "person_id": 29580,
+  "city": "قاهره",
+  "verdict": "approve",
+  "place": "القاهرة",
+  "reason": "«انتقل إلى القاهرة» and he studied there until he was made judge of Syria: he moved there, beside the study"
+ },
+ {
+  "id": 6960,
+  "person_id": 1149,
+  "city": "قاهره",
+  "verdict": "approve",
+  "place": "القاهرة",
+  "reason": "«انتقل إلى القاهرة فدرّس فيها و اشتهر»: he moved there, beside the teaching"
+ },
+ {
+  "id": 6961,
+  "person_id": 19882,
+  "city": "شوشتر",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as an office in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6962,
+  "person_id": 19182,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6963,
+  "person_id": 52024,
+  "city": "اسکندریه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6964,
+  "person_id": 15179,
+  "city": "لندن",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6965,
+  "person_id": 21895,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "«درّس تحت قبة النسر»: he taught there, which is recorded as teaching"
+ },
+ {
+  "id": 6966,
+  "person_id": 9113,
+  "city": "موصل",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6967,
+  "person_id": 793,
+  "city": "قونیه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as teaching in this city; an office there is not a period of its own"
+ },
+ {
+  "id": 6968,
+  "person_id": 32422,
+  "city": "دمشق",
+  "verdict": "approve",
+  "place": "دمشق",
+  "reason": "«من اهل دمشق مولدا و وفاة» is said of him at the head of the entry; the birth of the same clause is a period of its own"
+ },
+ {
+  "id": 6969,
+  "person_id": 6181,
+  "city": "حلب",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6970,
+  "person_id": 2556,
+  "city": "کربلا",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6971,
+  "person_id": 12975,
+  "city": "بغداد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6972,
+  "person_id": 12975,
+  "city": "مکه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6973,
+  "person_id": 10257,
+  "city": "حلب",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a residence in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6974,
+  "person_id": 8742,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as teaching in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6975,
+  "person_id": 38746,
+  "city": "استانبول",
+  "verdict": "reject",
+  "reason": "he studied in Aleppo and Egypt and lived in Istanbul; no study in Istanbul"
+ },
+ {
+  "id": 6976,
+  "person_id": 20762,
+  "city": "نائین",
+  "verdict": "reject",
+  "reason": "he came back to Nain after his studies; no study there"
+ },
+ {
+  "id": 6977,
+  "person_id": 14398,
+  "city": "تهران",
+  "verdict": "reject",
+  "reason": "he went to Tehran after his studies and was a teacher there; no study there"
+ },
+ {
+  "id": 6978,
+  "person_id": 34001,
+  "city": "کاشان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6979,
+  "person_id": 14119,
+  "city": "ملتان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6980,
+  "person_id": 13115,
+  "city": "بمبئی",
+  "verdict": "reject",
+  "reason": "he travelled to Bombay after his studies; no study there"
+ },
+ {
+  "id": 6981,
+  "person_id": 12418,
+  "city": "نجف",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a journey there is not a period of its own"
+ },
+ {
+  "id": 6982,
+  "person_id": 14426,
+  "city": "تهران",
+  "verdict": "approve",
+  "place": "طهران",
+  "reason": "«بطهران مهاجرت کرد» and studied medicine there before he went back to Tabriz: he moved there, beside the study"
+ },
+ {
+  "id": 6983,
+  "person_id": 677,
+  "city": "یزد",
+  "verdict": "reject",
+  "reason": "he came back to Yazd after his studies; no study there"
+ },
+ {
+  "id": 6984,
+  "person_id": 1797,
+  "city": "نجف",
+  "verdict": "approve",
+  "place": "نجف",
+  "year": 1255,
+  "year_is": "from",
+  "reason": "«در سنۀ 1255 ق بنجف مهاجرت نموده»: he moved there in that year, beside the study"
+ },
+ {
+  "id": 6985,
+  "person_id": 3941,
+  "city": "موصل",
+  "verdict": "reject",
+  "reason": "«تحصیل تمکن و اموال» is the gaining of wealth, not study; he taught in Mosul"
+ },
+ {
+  "id": 6986,
+  "person_id": 73865,
+  "city": "مشهد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6987,
+  "person_id": 42,
+  "city": "شیراز",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6988,
+  "person_id": 2546,
+  "city": "کرمان",
+  "verdict": "reject",
+  "reason": "he went to Kerman after his studies in Samarqand; the clause says no study there"
+ },
+ {
+  "id": 6989,
+  "person_id": 508,
+  "city": "تبریز",
+  "verdict": "approve",
+  "place": "تبریز",
+  "reason": "«به تبریز مراجعت و بتحصیل علم طب پرداخت»: he studied medicine in Tabriz, beside the residence"
+ },
+ {
+  "id": 6990,
+  "person_id": 5394,
+  "city": "نیشابور",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6991,
+  "person_id": 49601,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6992,
+  "person_id": 49601,
+  "city": "تهران",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6993,
+  "person_id": 23833,
+  "city": "تهران",
+  "verdict": "reject",
+  "reason": "he settled in Tehran after years of travel and study; no study there"
+ },
+ {
+  "id": 6994,
+  "person_id": 34127,
+  "city": "شیراز",
+  "verdict": "reject",
+  "reason": "he went to Shiraz with the governor; no office of his own is said"
+ },
+ {
+  "id": 6995,
+  "person_id": 34127,
+  "city": "اصفهان",
+  "verdict": "reject",
+  "reason": "the journeys were to Tehran; in Isfahan he was a panegyrist, which is recorded as residence"
+ },
+ {
+  "id": 6996,
+  "person_id": 24071,
+  "city": "کرمانشاه",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6997,
+  "person_id": 3254,
+  "city": "دمشق",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as an office in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6998,
+  "person_id": 1486,
+  "city": "نجف",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as study in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 6999,
+  "person_id": 1486,
+  "city": "قم",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as teaching in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 7000,
+  "person_id": 14400,
+  "city": "بصره",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 7001,
+  "person_id": 14400,
+  "city": "حیدرآباد",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 7002,
+  "person_id": 14400,
+  "city": "برهانپور",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 7003,
+  "person_id": 14400,
+  "city": "دهلی",
+  "verdict": "reject",
+  "reason": "the same clause is recorded as a journey in this city; a residence there is not a period of its own"
+ },
+ {
+  "id": 7004,
+  "person_id": 49433,
+  "city": "رشت",
+  "verdict": "reject",
+  "reason": "he moved to Rasht after his studies and taught there; no study there"
+ }
+]

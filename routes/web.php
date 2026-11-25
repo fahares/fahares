@@ -314,6 +314,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/manuscripts/create', 'create')->name('manuscripts.create');
         Route::post('/manuscripts', 'store')->name('manuscripts.store');
     });
+    // A work without a copy, made from the panel (backlog item 161, step 14.381)
+    Route::middleware('can:manuscripts.create')->controller(\App\Http\Controllers\Admin\WorkController::class)->group(function () {
+        Route::get('/works/create', 'create')->name('works.create');
+        Route::post('/works', 'store')->name('works.store');
+    });
 
     // Structural tools run directly, with a preview and confirmation, through the same code as an approved suggestion (backlog item 45)
     Route::middleware('can:structure.direct')->group(function () {
@@ -335,7 +340,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/people/search', [AdminPersonController::class, 'search'])->name('people.search');
         Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
     });
-    Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update'])->middleware('can:people.edit');
+    Route::resource('people', AdminPersonController::class)->only(['index', 'create', 'store', 'edit', 'update'])->middleware('can:people.edit');
     // The periods of a person's life, entered on the person's page (backlog item 139, step 14.218)
     Route::middleware('can:people.edit')->group(function () {
         Route::post('/people/{person}/periods', [\App\Http\Controllers\Admin\PersonPeriodController::class, 'store'])->name('people.periods.store');

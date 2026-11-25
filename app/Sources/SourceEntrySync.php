@@ -267,7 +267,18 @@ class SourceEntrySync
             $values = self::citedValues($m, $volumeSources);
             $values ? $rows[] = self::row($values) : $none[] = $m->id;
         }
-        $rows && self::upsert($rows);
+        $rows && self::upsert(self::keepTheirs($rows, 'fankha_citation', function (object $held) {
+            // the readings the entry's citation gave before, at the volume it was on: the citation alone and with that volume in mind
+            $raw = $held->citation_text;
+            $plain = $raw === null ? ['volume' => null, 'page' => null] : \App\Console\Commands\ImportFankhaCatalogReferencesCommand::parse($raw);
+            $readings = [[$plain['volume'], $plain['page']]];
+            if ($raw !== null && $held->source_volume_id && $held->source_id) {
+                $fitted = self::fitToVolume($raw, $plain, (int) $held->source_volume_id, (int) $held->source_id);
+                $readings[] = [$fitted['volume'], $fitted['page']];
+            }
+
+            return $readings;
+        }));
         $removed = $none ? DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $none)->delete() : 0;
         // a copy on a volume with parts is of the one its library and page name (step 13.150)
         \App\Models\CatalogVolumePart::assign($manuscripts->pluck('id'));
@@ -354,7 +365,13 @@ class SourceEntrySync
                 ]);
             }
         }
-        $rows && self::upsert($rows);
+        // a place is read from the copy's whole text, so its reading before is not kept: one nothing wrote on follows the
+        // new reading; one a match or a reviewer wrote on keeps its page while its citation's text is the same
+        $rows && self::upsert(self::keepTheirs($rows, 'fankha_citation_more', fn (object $held, array $row) => match (true) {
+            ! self::matched($held) => [[$held->volume_number, $held->page_start]],
+            $held->citation_text === $row['citation_text'] => [[$row['volume_number'], $row['page_start']]],
+            default => [],
+        }));
         foreach (array_chunk(array_keys($others), 1000, true) as $part) {
             DB::table('source_entries')->where('legacy_type', 'fankha_citation_more')
                 ->where(function ($q) use ($part, $others) {
@@ -508,6 +525,83 @@ class SourceEntrySync
         foreach (collect($ids)->unique()->chunk(1000) as $chunk) {
             $class::whereIn('id', $chunk->all())->get()->each(fn ($record) => self::syncRecord($record));
         }
+    }
+
+    /** The columns of a copy's citation entry that the citation itself gives; the rest belong to the steps after it. */
+    private const CITED_COLUMNS = ['citable_type', 'citable_id', 'source_id', 'source_volume_id', 'citation_text', 'sort_order', 'updated_at'];
+
+    /**
+     * The rows of citation entries with what later steps wrote on the entries that already exist (backlog item 166):
+     * a match's text, entry number, shelfmark page and end page, a review, notes, a corrected page. Of an existing
+     * entry only the citation's own columns are written, and its volume and page where the entry still holds what its
+     * citation read before ($readingsBefore gives those [volume, page] pairs), or where the citation now reads another
+     * place than those (a citation edited), or where the copy moved to another volume. A page corrected by a match or a reviewer
+     * («[ف: 5-197]» found on page 196) stays while the citation reads as before. An entry moved to another place keeps
+     * its text marked stale, for sources:retext, as a reviewer's new address does (SuggestionApplier).
+     *
+     * @param  list<array>  $rows  full rows from row()
+     * @param  callable(object, array): list<array{0: int|null, 1: int|null}>  $readingsBefore  the held entry, the new row
+     */
+    private static function keepTheirs(array $rows, string $legacyType, callable $readingsBefore): array
+    {
+        $columns = array_keys($rows[0]);
+        $held = [];
+        foreach (array_chunk(array_unique(array_column($rows, 'legacy_id')), 1000) as $ids) {
+            DB::table('source_entries')->where('legacy_type', $legacyType)->whereIn('legacy_id', $ids)
+                ->get(array_unique([...$columns, 'legacy_id', 'legacy_index']))
+                ->each(function ($e) use (&$held) {
+                    $held[$e->legacy_id . '|' . $e->legacy_index] = $e;
+                });
+        }
+        if (! $held) {
+            return $rows;
+        }
+
+        foreach ($rows as &$row) {
+            $entry = $held[$row['legacy_id'] . '|' . ($row['legacy_index'] ?? 0)] ?? null;
+            if (! $entry) {
+                continue;
+            }
+            $kept = $row;
+            foreach ($columns as $column) {
+                if (! in_array($column, self::CITED_COLUMNS, true)) {
+                    $kept[$column] = $entry->$column;
+                }
+            }
+            $int = fn ($v) => $v === null ? null : (int) $v;
+            $was = [$int($entry->volume_number), $int($entry->page_start)];
+            $now = [$int($row['volume_number']), $int($row['page_start'])];
+            $before = array_map(fn ($r) => [$int($r[0]), $int($r[1])], $readingsBefore($entry, $row));
+            // an address found in one volume says nothing of another: a copy moved to another volume follows its citation
+            $sourceChanged = (int) $entry->source_id !== (int) $row['source_id'] || (int) $entry->source_volume_id !== (int) $row['source_volume_id'];
+            $moved = $sourceChanged || ! in_array($now, $before, true);
+            if ($was !== $now && ($moved || in_array($was, $before, true))) {
+                $kept['volume_number'] = $row['volume_number'];
+                $kept['page_start'] = $row['page_start'];
+                // the entry still ends where it did when the new page falls inside it
+                if ($now[0] !== $was[0] || $entry->page_end === null || $now[1] === null || $now[1] < $was[1] || $now[1] > (int) $entry->page_end) {
+                    $kept['page_end'] = null;
+                }
+            }
+            // text taken at the place the entry has left: at another page, or in another volume
+            $place = [$int($kept['volume_number']), $int($kept['page_start'])];
+            $outOfPlace = $entry->text_page !== null && [$int($entry->text_volume_number), $int($entry->text_page)] !== $place;
+            if ((filled($entry->entry_text) || filled($entry->copy_text)) && $entry->text_status !== SourceEntry::TEXT_STALE
+                && ($sourceChanged || ($was !== $place && $outOfPlace))) {
+                $kept['text_status'] = SourceEntry::TEXT_STALE;
+            }
+            $row = $kept;
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    /** Whether a match or a reviewer wrote on an entry: its text, its entry number or shelfmark page, a review. */
+    private static function matched(object $entry): bool
+    {
+        return filled($entry->entry_text) || filled($entry->copy_text) || $entry->entry_number !== null
+            || $entry->shelfmark_page !== null || $entry->reviewed_by !== null || $entry->origin === SourceEntry::ORIGIN_MANUAL;
     }
 
     /** Inserts or updates rows by the record they come from (legacy_type, legacy_id, legacy_index). */
