@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The entries a work or manuscript carries in its own columns (step 13.3): its Fankha entry (catalog_id,
- * volume_number, page_start, page_end, raw_text) and a work's bibliography. sources:backfill copies them all;
- * syncRecord() keeps one record's entries in step whenever those columns are saved, so every writer of the
- * record (a suggestion, its rollback, a merge, an import) leaves the two the same.
+ * volume_number, page_start, page_end, raw_text) and a work's bibliography. Since step 14.396 (backlog item 170) the
+ * entries are the record of truth and RecordEntries writes them; syncRecord() and syncIds() take in what a writer
+ * that used the query builder put in the columns.
  */
 class SourceEntrySync
 {
@@ -122,29 +122,28 @@ class SourceEntrySync
         return array_values(array_filter((array) $list, fn ($e) => is_string($e) && trim($e) !== ''));
     }
 
-    /** Brings one record's entries in line with its columns: its Fankha entry and, for a work, its bibliography. */
+    /**
+     * Brings one record's entries in line with its columns, after a writer that used the query builder (step 14.396:
+     * through RecordEntries, so what else the entries hold, a review, a text, a tie, stays).
+     */
     public static function syncRecord(Model $record): void
     {
-        $class = $record::class;
-        // a record made without catalog_id has the column's default, which the model has not read back
-        if (! array_key_exists('catalog_id', $record->getAttributes())) {
-            $record->setRawAttributes(['catalog_id' => DB::table($record->getTable())->where('id', $record->id)->value('catalog_id')] + $record->getAttributes(), true);
+        $row = (array) DB::table($record->getTable())->where('id', $record->getKey())->first();
+        if (! $row) {
+            return;
         }
-        if ($record->catalog_id) {
-            self::ensureCatalogSource((int) $record->catalog_id);
-            $volumeIds = self::volumeIds([(int) $record->catalog_id]);
-            $codes = DB::table('catalogs')->where('id', $record->catalog_id)->pluck('code', 'id')->all();
-            self::upsert([self::row(self::primaryValues($record, $class, $volumeIds, $codes), $record->created_at)]);
-        } else {
-            DB::table('source_entries')->where('legacy_type', $class === Manuscript::class ? 'manuscript' : 'work')->where('legacy_id', $record->id)->delete();
+        $fankha = [];
+        foreach (RecordEntries::COLUMNS as $column => $key) {
+            if (array_key_exists($column, $row)) {
+                $fankha[$key] = $row[$column];
+            }
         }
-
+        RecordEntries::fankha($record, $fankha);
         if ($record instanceof Work) {
-            self::syncBibliography($record);
+            RecordEntries::bibliography($record, self::bibliographyStrings($row['bibliography'] ?? null));
         }
         if ($record instanceof Manuscript) {
-            // the row as stored: a model just made holds only the columns it was given
-            self::syncCited([DB::table('manuscripts')->where('id', $record->id)->first(['id', 'metadata', 'raw_text', 'catalog_volume_id'])]);
+            self::syncCited([(object) array_intersect_key($row, array_flip(['id', 'metadata', 'raw_text', 'catalog_volume_id']))]);
         }
     }
 
