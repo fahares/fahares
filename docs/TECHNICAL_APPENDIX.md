@@ -14054,15 +14054,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `CitedEntryKeepsMatchTest`، چهار آزمون: ذخیرۀ نسخه همۀ ستون‌های تطبیق و صفحۀ ۱۹۶ را نگه می‌دارد؛ مدخل اصلاح‌نشده با ارجاع تازه به ص ۳۰۰ می‌رود و متنش کهنه می‌شود؛ مدخل اصلاح‌شده با ارجاعی که جای دیگری را نام می‌برد می‌رود، و با ارجاعی که همان‌گونه خوانده می‌شود («5 - 197») می‌ماند؛ و جای دیگر ارجاع آنچه تطبیق نوشته را نگه می‌دارد.
 - **سنجش و ترمیم روی `fahares_prod`:** `sources:take-texts <id> --dry-run` برای پنج فهرست دارای خواننده با مدخل ارجاع فنخا: ۱۰۰۰۲۰ (`numbered_copies`) ۶۱، ۱۰۰۰۳۰ (`shelfmark_headings`) ۲۳، ۱۰۰۰۳۹ (`serial_shelfmarks`) ۱۳، ۱۰۰۰۹۳ (`listed_shelfmarks`) ۱۲، ۱۰۰۱۳۸ (`moayyed`) ۳؛ روی هم ۱۱۲. اجرای واقعی همان ۱۱۲ را نوشت و اجرای آزمایشی دوم صفر. نشانی این مدخل‌ها با `updated_at` آن‌ها با چند ثانیه فاصله پس از `updated_at` نسخه است (ذخیره‌های گروهی ۲۹ آبان ۲۱:۳۳ و ۳۰ آبان ۰۵:۳۱ و ۰۶:۴۰). در پروداکشن شناسۀ منبع‌ها را با `code` بجویید.
 
-### گام ۱۴.۳۹۲: فرمان‌های یک‌باره
-
-- **دسته‌بندی:** جدول ۱۵۲ فرمان (حکم، شاهد، ستون‌های رکوردی که هر فرمان می‌نویسد، آزمون‌ها) را یک زیرعامل Sonnet ساخت و من بازبینی کردم. سنجه‌ها: `routes/console.php`، `Artisan::call` و `->call(` در `app`، اسکریپت‌های `scripts/`، ثبت اجرا در `PROCESS_DOCUMENTATION` و `TECHNICAL_APPENDIX`، و کار مانده در `BACKLOG`.
-- **سه فرمان شخص‌های تکراری:** `fahares:find-duplicate-people`، `merge-duplicate-people` و `queue-judged-people` رفتند، چون `fahares:refresh-person-reviews` (شبانه) خودش `DuplicatePeopleFinder` و `PersonReviewQueue` را صدا می‌زند و به گزارش آن فرمان‌ها نیازی ندارد.
-- **جابه‌جایی:** `LinkDhariaTitlesCommand::marksOf` به `App\Support\PageMarks::marksOf` رفت (خوانندۀ آن `SourceMentions`). `FixMisnamedIsfahanCataloguesCommand::restoreColumns` با `SourceMerger::restoreColumns` (همان کد) جایگزین شد، در `set-volumes`، `import-volume-parts` و `remove-catalogue`. `FillEmptyCataloguesCommand::source` به `Source::byCode` رفت.
-- **migration:** `2026_09_29_000001_fix_autograph_false_positives` حالا بدنه ندارد. پایگاه تازه چیزی برای اصلاح ندارد و پروداکشن آن را پیش‌تر اجرا کرده است.
-- **آزمون‌ها:** `AuthorLinkQueueTest` ردیف `PersonReview` از نوع `author_link` را مستقیم می‌سازد. `DuplicatePeopleTest` از `DuplicatePeopleFinder::key/groups/looseGroups` و `PersonMerger::merge(..., keepPrintedNames: true)` استفاده می‌کند. `PersonReviewTest` گروه‌های داوری‌شده را با `PersonReview::create` می‌سازد. در `CatalogVolumePartsTest` به جای `catalogs:assign-volume-parts`، `Cataloger::recount()` صدا زده می‌شود و بخش هر نسخه از قلاب ذخیره می‌آید.
-- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
-
 ### گام ۱۴.۳۸۷: `fahares:merge-shelfmark-twins` و `database/data/shelfmark_twins.json`
 
 - **داده‌های داوری:**
@@ -14142,3 +14133,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خوانندگان تازه:** `authors()`، `scribes()` (شمارها `COUNT(DISTINCT manuscripts.id)`)، کاتبان و مؤلفان `places()`، `lifeCities()`، `origins()`، و `autographs()` (`EXISTS` روی `manuscript_people` به جای `manuscripts.scribe_id`).
 - **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
 - **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
+
+### گام ۱۴.۳۹۲: فرمان‌های یک‌باره
+
+- **دسته‌بندی:** جدول ۱۵۲ فرمان (حکم، شاهد، ستون‌های رکوردی که هر فرمان می‌نویسد، آزمون‌ها) را یک زیرعامل Sonnet ساخت و من بازبینی کردم. سنجه‌ها: `routes/console.php`، `Artisan::call` و `->call(` در `app`، اسکریپت‌های `scripts/`، ثبت اجرا در `PROCESS_DOCUMENTATION` و `TECHNICAL_APPENDIX`، و کار مانده در `BACKLOG`.
+- **سه فرمان شخص‌های تکراری:** `fahares:find-duplicate-people`، `merge-duplicate-people` و `queue-judged-people` رفتند، چون `fahares:refresh-person-reviews` (شبانه) خودش `DuplicatePeopleFinder` و `PersonReviewQueue` را صدا می‌زند و به گزارش آن فرمان‌ها نیازی ندارد.
+- **جابه‌جایی:** `LinkDhariaTitlesCommand::marksOf` به `App\Support\PageMarks::marksOf` رفت (خوانندۀ آن `SourceMentions`). `FixMisnamedIsfahanCataloguesCommand::restoreColumns` با `SourceMerger::restoreColumns` (همان کد) جایگزین شد، در `set-volumes`، `import-volume-parts` و `remove-catalogue`. `FillEmptyCataloguesCommand::source` به `Source::byCode` رفت.
+- **migration:** `2026_09_29_000001_fix_autograph_false_positives` حالا بدنه ندارد. پایگاه تازه چیزی برای اصلاح ندارد و پروداکشن آن را پیش‌تر اجرا کرده است.
+- **آزمون‌ها:** `AuthorLinkQueueTest` ردیف `PersonReview` از نوع `author_link` را مستقیم می‌سازد. `DuplicatePeopleTest` از `DuplicatePeopleFinder::key/groups/looseGroups` و `PersonMerger::merge(..., keepPrintedNames: true)` استفاده می‌کند. `PersonReviewTest` گروه‌های داوری‌شده را با `PersonReview::create` می‌سازد. در `CatalogVolumePartsTest` به جای `catalogs:assign-volume-parts`، `Cataloger::recount()` صدا زده می‌شود و بخش هر نسخه از قلاب ذخیره می‌آید.
+- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
