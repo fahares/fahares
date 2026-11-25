@@ -506,13 +506,19 @@ class CatalogReferencesTest extends TestCase
             ->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
             ->assertSee('masjid-azam-ostadi')
             ->assertSee($note)
-            ->assertSee('گزارش نشانی نادرست');
+            ->assertSee('گزارش نشانی نادرست')
+            // the reader sees the printed catalogue's page, so Fankha's card shows in suggestion mode only (step 14.376)
+            ->assertSee('data-suggest-only', false);
 
         $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
         $this->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
 
-        $ref->update(['status' => SourceEntry::STATUS_REJECTED]);
-        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
+        // a citation of the volume with no page to see keeps Fankha in view
+        $ref->update(['status' => SourceEntry::STATUS_UNVERIFIED, 'page_start' => null, 'shelfmark_page' => null]);
+        $this->get(route('manuscripts.show', $ms))->assertSee($this->fankhaVolume->title)->assertDontSee('data-suggest-only', false);
+
+        $ref->update(['status' => SourceEntry::STATUS_REJECTED, 'page_start' => 414]);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title)->assertDontSee('data-suggest-only', false);
     }
 
     public function test_the_queue_reviews_a_match_without_a_reload_and_can_put_it_back()

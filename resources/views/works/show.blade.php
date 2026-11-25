@@ -196,8 +196,11 @@
                     $entryCards = $sources->cards()->reject(fn ($e) => $e->isMention());
                     $coveredPages = $entryCards->filter(fn ($e) => $e->sourceItem)->map(fn ($e) => [$e->sourceVolume?->facsimile_code, $e->volumeNumber(), $e->sourceItem->page_start, $e->sourceItem->page_end]);
                     $covered = fn ($vp) => $coveredPages->contains(fn ($c) => $c[0] === $vp['catalog'] && $c[1] === (int) $vp['volume'] && $vp['page'] >= $c[2] && $vp['page'] <= $c[3]);
+                    $viewerPages = collect(\App\Support\BibliographyLinks::viewerPages($bibliography))->reject($covered);
+                    // Fankha's card and text left out, but in suggestion mode, when the reader sees the work in a bibliography (step 14.376)
+                    $seesFirstHand = $viewerPages->isNotEmpty() || $sources->seesFirstHand();
                 @endphp
-                @foreach(collect(\App\Support\BibliographyLinks::viewerPages($bibliography))->reject($covered) as $vp)
+                @foreach($viewerPages as $vp)
                     @php
                         $vpRef = Fa::digits("ج {$vp['volume']}، " . config("bibliography.sources.{$vp['catalog']}.unit", 'ص') . " {$vp['page']}");
                         $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
@@ -221,7 +224,7 @@
                 @endforeach
                 @if($secondHandCards->isNotEmpty())
                     {{-- Fankha's own card folded under the others (backlog item 147) --}}
-                    <x-source.secondary>
+                    <x-source.secondary :suggest-only="$seesFirstHand">
                         @foreach($secondHandCards as $entry)
                             <x-source.page-card :entry="$entry" :record="$work" />
                         @endforeach
@@ -379,16 +382,20 @@
             </x-ui.section>
 
             <!-- The text printed at each of those places, under one heading and in the same order -->
-            @php $texts = $sources->texts(); @endphp
+            @php
+                $texts = $sources->texts();
+                [$secondHandTexts, $firstHandTexts] = $texts->partition(fn ($e) => $e->isSecondHand());
+            @endphp
             @if($texts->isNotEmpty())
+                {{-- Fankha's text alone, left out (step 14.376): the heading goes with it, but in suggestion mode --}}
+                <div @if($seesFirstHand && $firstHandTexts->isEmpty()) data-suggest-only style="display: none" x-data x-show="$store.suggest?.on" @endif>
                 <x-ui.section title="متن مأخذ">
-                    @php [$secondHandTexts, $firstHandTexts] = $texts->partition(fn ($e) => $e->isSecondHand()); @endphp
                     <div class="space-y-6">
                         @foreach($firstHandTexts as $entry)
                             <x-source.text :entry="$entry" :record="$work" />
                         @endforeach
                         @if($secondHandTexts->isNotEmpty())
-                            <x-source.secondary>
+                            <x-source.secondary :suggest-only="$seesFirstHand">
                                 @foreach($secondHandTexts as $entry)
                                     <x-source.text :entry="$entry" :record="$work" />
                                 @endforeach
@@ -396,6 +403,7 @@
                         @endif
                     </div>
                 </x-ui.section>
+                </div>
             @endif
 
             <!-- Relations with other works (commentary on, translation of…) -->
