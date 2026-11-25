@@ -14146,6 +14146,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۳۹۳: `insights/presets.blade.php`
 - `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
 
+### گام ۱۴.۳۹۴: `fahares:fill-source-imprints`
+- **[FillSourceImprintsCommand](../app/Console/Commands/FillSourceImprintsCommand.php):** `--file=database/data/source_imprints_step14_394.json`، `--apply`.
+  - فایل: `sources.{code}.set` (فیلدهای `compiler`، `edition_label`، `publication_place`، `publisher`، `publication_year`) و `volumes[]` با `volume`، `facsimile_code` اختیاری و `set`. هر ردیف یک `evidence` هم دارد، با منبع رقم.
+  - مقدار `null` فیلد را پاک می‌کند، مثلاً «مخطوط» جلدهای گلپایگانی که سال منبع را می‌پوشاند. فیلدی که همان مقدار را دارد دست نمی‌خورد، پس اجرای دوباره هیچ ردیفی را تغییر نمی‌دهد.
+  - جلد با شمارۀ جلد پیدا می‌شود. اگر چند جلد یک شماره دارند (مثل ج ۲۴ مجلس، `majlis-p1` و `majlis-p2`)، با `facsimile_code` جدا می‌شوند. ردیفی که هیچ جلد یا بیش از یک جلد بیابد، کنار می‌رود و نامش چاپ می‌شود. کلیدی بیرون از فهرست فیلدها پذیرفته نمی‌شود (`compiler` در سطح جلد ستونی ندارد).
+  - هر تغییر یک `AuditLog` (`corpus_update`) با مقدار پیشین و تازه دارد.
+- **داده:** [source_imprints_step14_394.json](../database/data/source_imprints_step14_394.json): ۳۱ منبع. منبع‌های رقم‌ها:
+  - شناسنامۀ XML نور (`library_volumes.info` و `lib_Document.info`، `<publish-date>`، `<publish-place>`، `<publisher>`، `<edition>`) در پایگاه‌های کتب مرجع ۲، آقابزرگ، دار الحدیث و تاریخ، و `books.citation_fa` در تراجم۳؛
+  - برگۀ عنوان اسکن‌ها؛
+  - CiNii (`BB1751539X`، `BA73760701`، `BA73763823`، `BA67261059`، `AA12312152`، `BA41342723`).
+- **تمرین:** migration `2026_11_25_100001` روی `fahares_prod` اجرا شد. اجرای آزمایشی: ۳۱ منبع، ۴۷ جلد، ۱۷۷ فیلد، و هیچ ردیف نیافته‌ای.
+- **آزمون:** [FillSourceImprintsTest](../tests/Feature/FillSourceImprintsTest.php)، ۳ آزمون.
+
 ### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
 - `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
 
