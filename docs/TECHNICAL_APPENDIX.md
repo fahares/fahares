@@ -14143,6 +14143,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:** `AuthorLinkQueueTest` ردیف `PersonReview` از نوع `author_link` را مستقیم می‌سازد. `DuplicatePeopleTest` از `DuplicatePeopleFinder::key/groups/looseGroups` و `PersonMerger::merge(..., keepPrintedNames: true)` استفاده می‌کند. `PersonReviewTest` گروه‌های داوری‌شده را با `PersonReview::create` می‌سازد. در `CatalogVolumePartsTest` به جای `catalogs:assign-volume-parts`، `Cataloger::recount()` صدا زده می‌شود و بخش هر نسخه از قلاب ذخیره می‌آید.
 - **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
 
+### گام ۱۴.۳۹۳: `insights/presets.blade.php`
+- `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
+
+### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
+- `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
+
 ### گام ۱۴.۳۹۶: `RecordEntries`
 
 - **[RecordEntries](../app/Sources/RecordEntries.php):**
@@ -14156,8 +14162,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[SyncWorkBibliographies](../app/Jobs/SyncWorkBibliographies.php):** `RecordEntries::bibliography($work, bibliographyOf($work))`.
 - **migration:** `2026_11_25_200001_fill_entry_number_of_copies_fankha_entries`.
 - **آزمون‌ها:** `SourceCorrectionsTest::test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns` و `test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds`. همۀ ۱۰۶۲ آزمون سبز.
-### گام ۱۴.۳۹۳: `insights/presets.blade.php`
-- `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
-
-### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
-- `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
