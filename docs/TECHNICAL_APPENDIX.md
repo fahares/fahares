@@ -14337,3 +14337,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۴۱۰: `evidence` برای `note` و `relation`
 - `Contributions::summary()`: `evidence` برای `kind` در `field`، `note`، `relation` بی `review_queue`. برچسب جعبه در `contributions/index.blade.php` برای `note` «توضیح پژوهشگر» است.
+
+### گام ۱۴.۴۱۱: `app.posts_public`
+- `config/app.php`: `posts_public` از `POSTS_PUBLIC`، پیش‌فرض `false`.
+- `PostController::abortUnlessShown()`: در `index` و `show` ۴۰۴ مگر کلید روشن باشد یا کاربر `posts.manage` داشته باشد.
+- `layouts/app.blade.php`: سه پیوند `posts.index` (منوی بالا، منوی موبایل، فوتر) زیر `@if (config('app.posts_public'))`.
+- `SitemapController::getStaticUrls()`: `posts.index` و `posts.show` فقط با کلید روشن.
+- آزمون‌ها: `JaridehHiddenTest`؛ `PostTest` و `TelegramChannelLinkTest` در `setUp` کلید را روشن می‌کنند.
