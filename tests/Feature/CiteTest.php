@@ -210,7 +210,10 @@ class CiteTest extends TestCase
         $this->assertStringStartsWith('@periodical{', $contents->bibtex());
 
         $this->get(route('cite.show', ['source' => 'turathuna-test', 'volume' => 7, 'page' => 150]))->assertOk()
-            ->assertSee('ارجاع به مقالۀ نشریه')->assertSee('ارجاع به این صفحه')->assertDontSee('data-cite-missing', false);
+            ->assertSee('ارجاع به مقالۀ نشریه')->assertSee('ارجاع به این صفحه')->assertDontSee('data-cite-missing', false)
+            // the permanent address comes with its QR code, drawn in the browser, and its downloads
+            ->assertSee('data-cite-qr', false)->assertSee('دریافت QR (PNG)')->assertSee('دریافت QR (SVG، برای چاپ)')
+            ->assertSee('qr-fahares-turathuna-test-7-150', false);
     }
 
     public function test_the_work_page_has_no_citation_window_of_its_own()
