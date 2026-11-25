@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Console\Commands\FindDuplicatePeopleCommand;
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\User;
 use App\Models\Work;
+use App\Services\DuplicatePeopleFinder;
+use App\Services\PersonMerger;
 use Tests\TestCase;
 
 class DuplicatePeopleTest extends TestCase
@@ -16,16 +17,12 @@ class DuplicatePeopleTest extends TestCase
     protected array $peopleIds = [];
     protected array $works = [];
     protected string $tag;
-    protected string $report;
-    protected string $decisions;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->tag = 'آزمونکیکتا' . random_int(10000, 99999);
-        $this->report = tempnam(sys_get_temp_dir(), 'dups') . '.json';
-        $this->decisions = tempnam(sys_get_temp_dir(), 'dupdec') . '.json';
     }
 
     protected function tearDown(): void
@@ -35,8 +32,6 @@ class DuplicatePeopleTest extends TestCase
         AuditLog::where('auditable_type', Person::class)->whereIn('auditable_id', $this->peopleIds)->delete();
         Work::whereIn('id', array_map(fn($w) => $w->id, $this->works))->delete();
         Person::whereIn('id', $this->peopleIds)->delete();
-        @unlink($this->report);
-        @unlink($this->decisions);
 
         parent::tearDown();
     }
@@ -62,24 +57,31 @@ class DuplicatePeopleTest extends TestCase
         ]);
     }
 
-    /** The report limited to this test's groups, so a shared database never leaks into it */
-    protected function reportGroups(): array
+    /** The groups of the finder limited to this test's records, so a shared database never leaks into it */
+    protected function reportGroups(bool $loose = false): array
     {
-        $this->artisan('fahares:find-duplicate-people', ['--out' => $this->report])->assertSuccessful();
-        $all = json_decode(file_get_contents($this->report), true);
-        $mine = array_values(array_filter($all['groups'], fn($g) => array_intersect(array_column($g['members'], 'id'), $this->peopleIds)));
-        file_put_contents($this->report, json_encode(['groups' => $mine], JSON_UNESCAPED_UNICODE));
+        ['groups' => $all] = $loose ? DuplicatePeopleFinder::looseGroups() : DuplicatePeopleFinder::groups();
+        $mine = array_values(array_filter($all, fn ($g) => array_intersect(array_column($g['members'], 'id'), $this->peopleIds)));
 
         return collect($mine)->keyBy('key')->all();
+    }
+
+    /** Merges the listed records into the target the way the review did: the printed scribe and author names stay as the catalog gives them */
+    protected function mergeInto(int $targetId, array $ids): void
+    {
+        $merger = app(PersonMerger::class);
+        foreach (array_diff($ids, [$targetId]) as $id) {
+            $merger->merge(Person::findOrFail($id), Person::findOrFail($targetId), null, null, ['reason' => 'duplicate people test'], keepPrintedNames: true);
+        }
     }
 
     public function test_key_ignores_spelling_variants_and_the_inverted_form()
     {
         $this->assertSame(
-            FindDuplicatePeopleCommand::key('محمد بن علی الدامغانی الجابرمی'),
-            FindDuplicatePeopleCommand::key('دامغانی جابرمی، محمد ابن على')
+            DuplicatePeopleFinder::key('محمد بن علی الدامغانی الجابرمی'),
+            DuplicatePeopleFinder::key('دامغانی جابرمی، محمد ابن على')
         );
-        $this->assertNotSame(FindDuplicatePeopleCommand::key('محمد بن علی'), FindDuplicatePeopleCommand::key('علی بن محمد'));
+        $this->assertNotSame(DuplicatePeopleFinder::key('محمد بن علی'), DuplicatePeopleFinder::key('علی بن محمد'));
     }
 
     public function test_tiers_and_merge_keep_the_printed_names_and_can_be_rolled_back()
@@ -98,12 +100,11 @@ class DuplicatePeopleTest extends TestCase
         $groups = $this->reportGroups();
         $this->assertCount(2, $groups);
         $tiers = collect($groups)->pluck('tier', 'key')->all();
-        $this->assertSame('likely', $tiers[FindDuplicatePeopleCommand::key($a->name)]);
-        $this->assertSame('conflict', $tiers[FindDuplicatePeopleCommand::key($c->name)]);
+        $this->assertSame('likely', $tiers[DuplicatePeopleFinder::key($a->name)]);
+        $this->assertSame('conflict', $tiers[DuplicatePeopleFinder::key($c->name)]);
 
-        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions])
-            ->expectsOutputToContain('Merged 1 records into 1 people')
-            ->assertSuccessful();
+        $likely = $groups[DuplicatePeopleFinder::key($a->name)];
+        $this->mergeInto($likely['target_id'], array_column($likely['members'], 'id'));
 
         $kept = Person::find($a->id) ?? Person::find($b->id);
         $gone = $kept->id === $a->id ? $b : $a;
@@ -137,13 +138,10 @@ class DuplicatePeopleTest extends TestCase
         $this->copyBy($c, 1262);
 
         $groups = $this->reportGroups();
-        $key = FindDuplicatePeopleCommand::key($a->name);
+        $key = DuplicatePeopleFinder::key($a->name);
         $this->assertNotSame('likely', $groups[$key]['tier'], 'a generic name is not merged without review');
 
-        file_put_contents($this->decisions, json_encode(['groups' => [
-            ['key' => $key, 'decision' => 'merge', 'merge_ids' => [$a->id, $b->id], 'target_id' => $a->id],
-        ]], JSON_UNESCAPED_UNICODE));
-        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions])->assertSuccessful();
+        $this->mergeInto($a->id, [$a->id, $b->id]);
 
         $this->assertNotNull(Person::find($a->id));
         $this->assertNull(Person::find($b->id));
@@ -168,26 +166,18 @@ class DuplicatePeopleTest extends TestCase
         $f = $this->person("شیخ جعفر {$tag} نجفی");
         $this->copyBy($f, 1270);
 
-        $this->assertSame(\App\Services\DuplicatePeopleFinder::looseKey($a->name), \App\Services\DuplicatePeopleFinder::looseKey($b->name));
-        $this->artisan('fahares:find-duplicate-people', ['--out' => $this->report, '--loose' => true])->assertSuccessful();
-        $all = json_decode(file_get_contents($this->report), true);
-        $mine = array_values(array_filter($all['groups'], fn ($g) => array_intersect(array_column($g['members'], 'id'), $this->peopleIds)));
-        file_put_contents($this->report, json_encode(['loose' => true, 'groups' => $mine], JSON_UNESCAPED_UNICODE));
+        $this->assertSame(DuplicatePeopleFinder::looseKey($a->name), DuplicatePeopleFinder::looseKey($b->name));
+        $mine = array_values($this->reportGroups(true));
         $sets = array_map(fn ($g) => collect($g['members'])->pluck('id')->sort()->values()->all(), $mine);
         $this->assertEqualsCanonicalizing([[$a->id, $b->id], [$e->id, $f->id]], $sets, 'the copies 60 years apart are not a group');
         $this->assertSame($e->id, collect($mine)->firstWhere('members.0.id', $e->id)['target_id'] ?? $e->id);
 
-        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions, '--dry-run' => true])
-            ->expectsOutputToContain('[dry run] Merged 2 records into 2 people')->assertSuccessful();
-        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions])
-            ->expectsOutputToContain('Merged 2 records into 2 people')->assertSuccessful();
+        foreach ($mine as $group) {
+            $this->mergeInto($group['target_id'], array_column($group['members'], 'id'));
+        }
         $this->assertSame(1, Person::whereIn('id', [$a->id, $b->id])->count());
         $this->assertNotNull(Person::find($e->id), 'the record with a death year is kept');
         $this->assertNull(Person::find($f->id));
         $this->assertSame(2, Person::whereIn('id', [$c->id, $d->id])->count());
-
-        // Run again: the merged records are gone, nothing more is merged
-        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions])
-            ->expectsOutputToContain('Merged 0 records')->assertSuccessful();
     }
 }

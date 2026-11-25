@@ -638,17 +638,6 @@ class SuggestionWorkflowTest extends TestCase
         $rename = AuditLog::where('auditable_type', Person::class)->where('auditable_id', $person->id)->where('action', 'verify')->latest('id')->first();
         $this->actingAs($this->admin)->post("/admin/audit-logs/{$rename->id}/rollback")->assertSessionHas('success');
         $this->assertSame([$old, $old, $old], [$person->fresh()->name, $work->fresh()->author_name, $copy->fresh()->scribe_name]);
-
-        // A work left with an earlier name (renamed before this step) is found and written by the command
-        $person->update(['name' => $new]);
-        DB::table('works')->where('id', $work->id)->update(['author_name' => $old]);
-        AuditLog::create(['auditable_type' => Person::class, 'auditable_id' => $person->id, 'action' => 'verify', 'old_values' => ['name' => $old], 'new_values' => ['name' => $new]]);
-        $this->artisan('fahares:follow-person-names', ['--person' => $person->id])->expectsOutputToContain('renamed   1')->expectsOutputToContain('several   1')->expectsOutputToContain('other     1')->assertSuccessful();
-        $this->assertSame($old, $work->fresh()->author_name);
-        $this->artisan('fahares:follow-person-names', ['--person' => $person->id, '--apply' => true])->expectsOutputToContain('Done: 1 works written.')->assertSuccessful();
-        $this->assertSame([$new, "منسوب به {$old}"], [$work->fresh()->author_name, $longer->fresh()->author_name]);
-        $this->artisan('fahares:follow-person-names', ['--person' => $person->id, '--apply' => true, '--reindex' => true])
-            ->expectsOutputToContain('Reindexed: 2 works.')->expectsOutputToContain('Done: 0 works written.')->assertSuccessful();
     }
 
     /** Step 14.286: a title is corrected with its transliteration, and each other title is a field of its own. */

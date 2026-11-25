@@ -75,7 +75,7 @@ class ImportVolumePartsCommand extends Command
             $this->warn('Dry run: nothing is saved.');
         }
 
-        $source = FillEmptyCataloguesCommand::source($this->data['source']);
+        $source = \App\Models\Source::byCode($this->data['source']);
         $slugs = array_values(array_filter(array_unique(array_column($this->data['parts'], 'library'))));
         $libraries = DB::table('libraries')->whereIn('slug', $slugs)->pluck('id', 'slug')->all();
         $create = $source ? null : ($this->data['create'] ?? null);
@@ -652,8 +652,8 @@ class ImportVolumePartsCommand extends Command
             foreach (['sources', 'catalog_volumes', 'source_volumes'] as $table) {
                 DB::table($table)->upsert($backup[$table], ['id']);
             }
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('manuscripts', $backup['manuscripts']);
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('source_entries', $backup['source_entries']);
+            \App\Sources\SourceMerger::restoreColumns('manuscripts', $backup['manuscripts']);
+            \App\Sources\SourceMerger::restoreColumns('source_entries', $backup['source_entries']);
             // a copy moved that had no entry was given one: it goes
             $had = array_column($backup['source_entries'], 'legacy_id');
             // (a backup written before step 13.166 has not the entries' copies)
@@ -662,7 +662,7 @@ class ImportVolumePartsCommand extends Command
                 DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $ids)->delete();
             }
             DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->whereNotIn('id', $backup['part_ids'])->delete();
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalog_volume_parts', $backup['parts'] ?? []);
+            \App\Sources\SourceMerger::restoreColumns('catalog_volume_parts', $backup['parts'] ?? []);
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();
             DB::table('catalog_volume_cataloger')->insert($backup['catalog_volume_cataloger']);
             if ($made = DB::table('sources')->where('code', $backup['made_source'] ?? '')->first()) {
@@ -675,7 +675,7 @@ class ImportVolumePartsCommand extends Command
             }
             $kept = array_column($backup['catalogers'], 'id');
             DB::table('catalogers')->where('metadata->made_by', $backup['marker'])->whereNotIn('id', $kept)->delete();
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalogers', $backup['catalogers']);
+            \App\Sources\SourceMerger::restoreColumns('catalogers', $backup['catalogers']);
         });
         foreach ($backup['source_ids'] as $id) {
             self::forget($id);

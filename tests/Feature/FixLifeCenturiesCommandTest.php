@@ -17,44 +17,9 @@ use Tests\TestCase;
  */
 class FixLifeCenturiesCommandTest extends TestCase
 {
-    private function person(string $name, ?string $raw, array $cols = []): int
-    {
-        return DB::table('people')->insertGetId(['name' => $name, 'normalized_name' => $name, 'slug' => 'life-' . md5($name), 'life_dates_raw' => $raw] + $cols);
-    }
-
     private function cols(int $id): array
     {
         return array_values((array) DB::table('people')->where('id', $id)->first(['death_year_hijri', 'century_hijri', 'death_from', 'death_to', 'death_kind']));
-    }
-
-    public function test_the_range_and_the_middle_year_are_emptied_only_with_apply_and_a_run_can_be_repeated()
-    {
-        $century = ['death_year_hijri' => 1250, 'century_hijri' => 13, 'death_from' => 1201, 'death_to' => 1300, 'death_kind' => 'between'];
-        $life = $this->person('مراغی آزمایشی', 'ق13 قمری', $century);
-        $noYear = $this->person('بی‌سال آزمایشی', 'قرن 12 قمری', ['death_from' => 1101, 'death_to' => 1200, 'death_kind' => 'between']);
-        $realYear = $this->person('سال‌دار آزمایشی', 'ق 11 قمری', ['death_year_hijri' => 1004, 'century_hijri' => 11, 'death_from' => 1001, 'death_to' => 1100, 'death_kind' => 'between']);
-        $deathCentury = $this->person('گیلانی آزمایشی', '-قرن 11ق', ['death_year_hijri' => 1050, 'century_hijri' => 11, 'death_from' => 1001, 'death_to' => 1100, 'death_kind' => 'between']);
-        $narrowed = $this->person('کازرونی آزمایشی', '1217ق-13 قمری', ['century_hijri' => 13, 'death_from' => 1217, 'death_to' => 1300, 'death_kind' => 'between']);
-        $year = $this->person('نائینی آزمایشی', '1188-1250 قمری', ['death_year_hijri' => 1250, 'century_hijri' => 13, 'death_from' => 1250, 'death_to' => 1250]);
-        $solar = $this->person('شمسی آزمایشی', 'ق 14 شمسی', ['death_year_hijri' => 1350, 'century_hijri' => 14, 'death_from' => 1350, 'death_to' => 1350]);
-
-        $this->artisan('fahares:fix-life-centuries')->expectsOutputToContain('Dry run, nothing written: 3 centuries of a life, 1 mid-century death years')->assertSuccessful();
-        $this->assertSame([1250, 13, 1201, 1300, 'between'], $this->cols($life));
-
-        $this->artisan('fahares:fix-life-centuries', ['--apply' => true])->assertSuccessful();
-        $this->assertSame([null, 13, null, null, null], $this->cols($life));
-        $this->assertSame([null, 12, null, null, null], $this->cols($noYear));
-        // a year that is not the middle of the century is a death year, and a range of its own
-        $this->assertSame([1004, 11, 1004, 1004, null], $this->cols($realYear));
-        // after a dash the century is the death's: only the made-up year goes
-        $this->assertSame([null, 11, 1001, 1100, 'between'], $this->cols($deathCentury));
-        $this->assertSame([null, 13, 1217, 1300, 'between'], $this->cols($narrowed));
-        $this->assertSame([1250, 13, 1250, 1250, null], $this->cols($year));
-        // another calendar is fahares:fix-calendar-deaths' to mend
-        $this->assertSame([1350, 14, 1350, 1350, null], $this->cols($solar));
-
-        $this->artisan('fahares:fix-life-centuries', ['--apply' => true])
-            ->expectsOutputToContain('Written: 0 centuries of a life, 0 mid-century death years, 3 already right')->assertSuccessful();
     }
 
     public function test_saving_a_person_reads_the_century_of_the_life_and_drops_the_middle_year()
