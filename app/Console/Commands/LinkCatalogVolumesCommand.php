@@ -483,6 +483,8 @@ class LinkCatalogVolumesCommand extends Command
     /** Same rule as the remediation command: direct links plus the copies of the cataloger's volumes. */
     public static function recountVolumesAndCatalogers(): void
     {
+        // the citation entries hold the copies' parts and catalogers (step 14.401)
+        \App\Sources\SourceEntrySync::syncCatalogueAll();
         $counts = DB::table('manuscripts')->whereNotNull('catalog_volume_id')
             ->groupBy('catalog_volume_id')->selectRaw('catalog_volume_id, count(*) as n')->pluck('n', 'catalog_volume_id');
         CatalogVolume::query()->each(fn ($v) => $v->update(['manuscripts_count' => (int) ($counts[$v->id] ?? 0)]));

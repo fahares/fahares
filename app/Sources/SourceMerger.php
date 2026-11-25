@@ -341,6 +341,7 @@ class SourceMerger
         $insert('source_pages', $snapshot['source_pages']);
         self::restoreColumns('source_entries', $snapshot['source_entries']);
         self::restoreColumns('manuscripts', $snapshot['manuscripts']);
+        SourceEntrySync::syncCatalogueOfVolumes(array_column($snapshot['manuscripts'], 'catalog_volume_id'));
         $insert('source_citation_forms', $snapshot['source_citation_forms'] ?? []);
 
         foreach ($snapshot['volume_ids'] as $id) {

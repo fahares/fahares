@@ -584,6 +584,7 @@ class ImportVolumePartsCommand extends Command
 
     private function recount(int $sourceId, array $volumes, array $kept = []): void
     {
+        \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($volumes);
         foreach (array_merge($volumes, $kept) as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
         }
@@ -676,6 +677,7 @@ class ImportVolumePartsCommand extends Command
             $kept = array_column($backup['catalogers'], 'id');
             DB::table('catalogers')->where('metadata->made_by', $backup['marker'])->whereNotIn('id', $kept)->delete();
             \App\Sources\SourceMerger::restoreColumns('catalogers', $backup['catalogers']);
+            \App\Sources\SourceEntrySync::syncCatalogueAll();
         });
         foreach ($backup['source_ids'] as $id) {
             self::forget($id);

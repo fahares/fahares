@@ -283,9 +283,52 @@ class SourceEntrySync
         $removed = $none ? DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $none)->delete() : 0;
         // a copy on a volume with parts is of the one its library and page name (step 13.150)
         \App\Models\CatalogVolumePart::assign($manuscripts->pluck('id'));
+        self::syncCatalogue($manuscripts->pluck('id'));
         self::syncOtherCited($manuscripts);
 
         return [count($rows), $removed];
+    }
+
+    /**
+     * Copies the part and the cataloger a writer set on copies (manuscripts.catalog_volume_part_id, cataloger_id) onto
+     * their citation entries (step 14.401, backlog item 170): the entry holds them, and the copy's columns are a mirror
+     * until phase 5. Run it after any query-builder write of those columns.
+     */
+    public static function syncCatalogue(iterable $manuscriptIds): void
+    {
+        if (! SourceEntry::holdsCatalogue()) {
+            return;
+        }
+        foreach (collect($manuscriptIds)->filter()->unique()->chunk(1000) as $ids) {
+            DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
+                ->where('e.legacy_type', 'fankha_citation')->where('e.legacy_index', 0)->whereIn('m.id', $ids->all())
+                ->update(['e.catalog_volume_part_id' => DB::raw('m.catalog_volume_part_id'), 'e.cataloger_id' => DB::raw('m.cataloger_id')]);
+        }
+    }
+
+    /** syncCatalogue() for every copy, after a command that rewrote the copies' volumes, parts or catalogers at large. */
+    public static function syncCatalogueAll(): void
+    {
+        if (! SourceEntry::holdsCatalogue()) {
+            return;
+        }
+        DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
+            ->where('e.legacy_type', 'fankha_citation')->where('e.legacy_index', 0)
+            ->where(fn ($q) => $q->whereRaw('NOT (e.catalog_volume_part_id <=> m.catalog_volume_part_id)')->orWhereRaw('NOT (e.cataloger_id <=> m.cataloger_id)'))
+            ->update(['e.catalog_volume_part_id' => DB::raw('m.catalog_volume_part_id'), 'e.cataloger_id' => DB::raw('m.cataloger_id')]);
+    }
+
+    /** syncCatalogue() for every copy on some catalogue volumes, after a write by volume. */
+    public static function syncCatalogueOfVolumes(iterable $volumeIds): void
+    {
+        if (! SourceEntry::holdsCatalogue()) {
+            return;
+        }
+        foreach (collect($volumeIds)->filter()->unique()->chunk(200) as $volumes) {
+            DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
+                ->where('e.legacy_type', 'fankha_citation')->where('e.legacy_index', 0)->whereIn('m.catalog_volume_id', $volumes->all())
+                ->update(['e.catalog_volume_part_id' => DB::raw('m.catalog_volume_part_id'), 'e.cataloger_id' => DB::raw('m.cataloger_id')]);
+        }
     }
 
     /**
@@ -807,6 +850,7 @@ class SourceEntrySync
             DB::table('manuscripts')->where('id', $row->id)->update(['catalog_volume_id' => $volume, 'cataloger_id' => $cataloger]);
             $done++;
         }
+        self::syncCatalogue($ids);
 
         return $done;
     }

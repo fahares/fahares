@@ -156,6 +156,8 @@ class CatalogVolumePart extends Model
             }
         }
         self::recount(array_filter($touched));
+        // the citation entries hold the part and the cataloger (step 14.401)
+        \App\Sources\SourceEntrySync::syncCatalogue($ids);
 
         return $stats;
     }

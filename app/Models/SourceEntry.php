@@ -130,6 +130,30 @@ class SourceEntry extends Model
         return $this->notes && $this->legacy_type === 'source_citation' ? $this->notes : (self::ROLE_LABELS[$this->role] ?? $this->role);
     }
 
+    private static ?bool $holdsCatalogue = null;
+
+    /**
+     * Whether the entries have the part and cataloger columns (step 14.401): a deploy brings the code up about a minute
+     * before it migrates, and saves must not fail meanwhile. Readers move to these columns only in a later release.
+     */
+    public static function holdsCatalogue(): bool
+    {
+        return (self::$holdsCatalogue ??= \Illuminate\Support\Facades\Schema::hasColumn('source_entries', 'cataloger_id'))
+            && CatalogVolumePart::ready();
+    }
+
+    /** The part of a catalogue volume a copy's citation entry is in (step 14.401, backlog item 170). */
+    public function catalogVolumePart(): BelongsTo
+    {
+        return $this->belongsTo(CatalogVolumePart::class);
+    }
+
+    /** Who described the copy in the catalogue its citation entry names (step 14.401). */
+    public function cataloger(): BelongsTo
+    {
+        return $this->belongsTo(Cataloger::class);
+    }
+
     /** Machine matches nobody has reviewed yet: the review queue, and the ⓘ badge on the record page. */
     public function scopeAwaitingReview(Builder $query): Builder
     {

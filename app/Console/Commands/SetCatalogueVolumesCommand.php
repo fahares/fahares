@@ -222,6 +222,7 @@ class SetCatalogueVolumesCommand extends Command
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
         }
         DB::table('sources')->where('id', $source->id)->update(['volumes_count' => count($all), 'updated_at' => now()]);
+        \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($all);
         CatalogVolumePart::recount(DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $all)->pluck('id')->all());
         Cataloger::recount($before->merge(DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $all)->pluck('cataloger_id'))->unique());
         $this->info(sprintf('«%s»: %d volumes set, %d copies moved.', $source->title, count($plan['volumes']), count($copies)));
@@ -287,6 +288,7 @@ class SetCatalogueVolumesCommand extends Command
             foreach (['sources', 'catalog_volume_parts', 'catalogers'] as $table) {
                 \App\Sources\SourceMerger::restoreColumns($table, $backup[$table]);
             }
+            \App\Sources\SourceEntrySync::syncCatalogueAll();
         });
         foreach ($sources as $id) {
             self::forget((int) $id);

@@ -51,6 +51,11 @@ trait HasSourceEntries
                 SourceEntrySync::syncCited([\Illuminate\Support\Facades\DB::table('manuscripts')->where('id', $record->id)->first(['id', 'metadata', 'raw_text', 'catalog_volume_id'])]);
                 $touched = true;
             }
+            // the part and the cataloger a writer set on the copy go onto its citation entry (step 14.401)
+            if ($record instanceof \App\Models\Manuscript && ! $created && $record->wasChanged(['catalog_volume_part_id', 'cataloger_id'])) {
+                SourceEntrySync::syncCatalogue([$record->id]);
+                $touched = true;
+            }
             $touched && $record->unsetRelation('sourceEntries');
         });
     }

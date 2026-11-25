@@ -124,6 +124,11 @@ class CatalogVolumePartsTest extends TestCase
         // a copy that leaves the volume leaves its part and gets its new volume's cataloger back
         $byLibrary->update(['catalog_volume_id' => $plain->id]);
         $this->assertSame([null, $daneshPajouh->id], [$byLibrary->fresh()->catalog_volume_part_id, $byLibrary->fresh()->cataloger_id]);
+        // the citation entries hold the part and the cataloger, as the copies do (step 14.401, backlog item 170)
+        foreach ([$byLibrary, $rowzatiCopy, $none] as $copy) {
+            $cited = \App\Models\SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->id)->sole();
+            $this->assertSame([$copy->fresh()->catalog_volume_part_id, $copy->fresh()->cataloger_id], [$cited->catalog_volume_part_id, $cited->cataloger_id]);
+        }
         $this->assertSame(1, $molaviPart->fresh()->manuscripts_count);
 
         // the pages: the volume's parts, the copy's part and editors, the cataloger's parts and edited copies

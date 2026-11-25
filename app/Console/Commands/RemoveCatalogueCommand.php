@@ -128,6 +128,7 @@ class RemoveCatalogueCommand extends Command
     /** The copies of the volumes and parts the copies went to, and the catalogers of them. */
     private function recount(array $volumes, iterable $people): void
     {
+        \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($volumes);
         foreach ($volumes as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
         }
@@ -192,6 +193,7 @@ class RemoveCatalogueCommand extends Command
             }
             \App\Sources\SourceMerger::restoreColumns('catalog_volumes', $backup['target_volumes']);
             \App\Sources\SourceMerger::restoreColumns('catalog_volume_parts', $backup['target_parts']);
+            \App\Sources\SourceEntrySync::syncCatalogueAll();
         });
         self::forget((int) $backup['source']['id']);
         foreach (array_column($backup['target_volumes'], 'id') as $id) {
