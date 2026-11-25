@@ -14134,3 +14134,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خوانندگان تازه:** `authors()`، `scribes()` (شمارها `COUNT(DISTINCT manuscripts.id)`)، کاتبان و مؤلفان `places()`، `lifeCities()`، `origins()`، و `autographs()` (`EXISTS` روی `manuscript_people` به جای `manuscripts.scribe_id`).
 - **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
 - **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
+
+### گام ۱۴.۳۹۳: `insights/presets.blade.php`
+- `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
