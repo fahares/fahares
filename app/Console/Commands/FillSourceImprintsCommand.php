@@ -17,14 +17,16 @@ use Illuminate\Support\Facades\DB;
  * several is skipped and reported.
  *
  * Each field named in the file is set to its value, and null clears it (a volume's «مخطوط» that hid the source's year).
+ * `metadata` is merged key by key: a journal's `periodical` flag and each issue's `articles` (first page, title,
+ * author, «تحقيق» role), which SourceReference cites a journal's page by; other keys stay as they are.
  * A field already holding the value is left alone, so a run can be repeated. Without --apply it only reports.
  */
 class FillSourceImprintsCommand extends Command
 {
     /** The fields the file may set; any other key is refused. */
-    public const SOURCE_FIELDS = ['compiler', 'edition_label', 'publication_place', 'publisher', 'publication_year'];
+    public const SOURCE_FIELDS = ['compiler', 'edition_label', 'publication_place', 'publisher', 'publication_year', 'metadata'];
 
-    public const VOLUME_FIELDS = ['edition_label', 'publication_place', 'publisher', 'publication_year'];
+    public const VOLUME_FIELDS = ['edition_label', 'publication_place', 'publisher', 'publication_year', 'metadata'];
 
     protected $signature = 'fahares:fill-source-imprints
         {--file=database/data/source_imprints_step14_394.json : The decision file}
@@ -91,6 +93,20 @@ class FillSourceImprintsCommand extends Command
         $old = [];
         $new = [];
         foreach ($set as $field => $value) {
+            if ($field === 'metadata') {
+                $merged = array_merge((array) ($record->metadata ?? []), (array) $value);
+                foreach ((array) $value as $key => $v) {
+                    if ($v === null) {
+                        unset($merged[$key]);
+                    }
+                }
+                if ($merged != (array) ($record->metadata ?? [])) {
+                    $old['metadata'] = $record->metadata;
+                    $new['metadata'] = $merged;
+                }
+
+                continue;
+            }
             $value = is_string($value) && trim($value) !== '' ? trim($value) : null;
             if ($record->{$field} === $value) {
                 continue;
@@ -106,7 +122,8 @@ class FillSourceImprintsCommand extends Command
         $this->counts[$record instanceof Source ? 'sources_changed' : 'volumes_changed']++;
         $this->counts['fields_changed'] += count($new);
         foreach ($new as $field => $value) {
-            $this->line("{$label}  {$field}: " . ($old[$field] ?? '∅') . ' → ' . ($value ?? '∅'));
+            $show = fn ($v) => is_array($v) ? json_encode(array_diff_key($v, ['articles' => 1]) + (isset($v['articles']) ? ['articles' => count($v['articles'])] : []), JSON_UNESCAPED_UNICODE) : ($v ?? '∅');
+            $this->line("{$label}  {$field}: " . $show($old[$field] ?? null) . ' → ' . $show($value));
         }
         if ($apply) {
             DB::transaction(function () use ($record, $old, $new) {

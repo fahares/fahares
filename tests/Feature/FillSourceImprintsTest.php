@@ -22,12 +22,14 @@ class FillSourceImprintsTest extends TestCase
     public function test_the_record_is_written_only_with_apply_and_only_once()
     {
         $source = Source::create(['code' => 'test-golpaygani', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 50,
-            'title' => 'فهرست نسخه‌های خطی کتابخانۀ گلپایگانی', 'publisher' => 'مؤسسه الجواد', 'unit' => 'صفحه']);
+            'title' => 'فهرست نسخه‌های خطی کتابخانۀ گلپایگانی', 'publisher' => 'مؤسسه الجواد', 'unit' => 'صفحه',
+            'metadata' => ['group' => 'g', 'images' => false]]);
         $v1 = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => 'golpaygani',
             'publisher' => 'مؤسسه الجواد', 'publication_year' => Source::UNPUBLISHED]);
         $file = $this->file(['test-golpaygani' => [
             'set' => ['compiler' => 'مصطفی درایتی', 'edition_label' => 'اول', 'publication_place' => 'تهران',
-                'publisher' => 'کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی', 'publication_year' => '۱۳۸۸'],
+                'publisher' => 'کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی', 'publication_year' => '۱۳۸۸',
+                'metadata' => ['periodical' => true, 'images' => null]],
             'volumes' => [['volume' => 1, 'set' => ['publisher' => null, 'publication_year' => null]]],
         ]]);
 
@@ -45,6 +47,8 @@ class FillSourceImprintsTest extends TestCase
         $v1->refresh();
         $this->assertSame('مصطفی درایتی', $source->compiler);
         $this->assertSame('۱۳۸۸', $source->publication_year);
+        // metadata is merged key by key, and null removes a key
+        $this->assertSame(['group' => 'g', 'periodical' => true], $source->metadata);
         $this->assertNull($v1->publication_year);
         $this->assertNull($v1->publisher);
         $this->assertSame([], (new SourceReference($source->load('volumes'), $v1))->missing());

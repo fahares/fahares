@@ -12,6 +12,10 @@ use Carbon\CarbonInterface;
  * entry. Each form the citation page offers is built from the same parts: who made it, the title, the printing, the
  * place, the publisher, the year, the volume and the page or entry. A part the site has not recorded is left out, never
  * written as «-», and missing() names it, so the page can say so.
+ *
+ * A journal (Source::isPeriodical(), step 14.394) is cited as journal articles are: the article that holds the page
+ * (its volume's `metadata.articles`, each from its first page to the next one's), its author, the journal, the issue
+ * («السنة ۲، العدد ۲ و ۳ (۷ و ۸)») and the year; place and publisher are not asked for.
  */
 final class SourceReference
 {
@@ -38,6 +42,11 @@ final class SourceReference
     /** Who made the book: its compiler, or else those who catalogued the volume (a library's catalogue), «زیر نظر» last. */
     public function authors(): ?string
     {
+        if ($this->source->isPeriodical()) {
+            $article = $this->article();
+
+            return $article && empty($article['role']) && filled($article['author'] ?? null) ? trim($article['author']) : null;
+        }
         if (filled($this->source->compiler)) {
             return trim($this->source->compiler);
         }
@@ -95,9 +104,55 @@ final class SourceReference
         return ($this->filled($this->volume?->publication_year) ?? $this->filled($this->source->publication_year)) === Source::UNPUBLISHED;
     }
 
-    /** «ج ۵», when a volume is cited. */
+    /**
+     * The journal article that holds the cited page: `title`, `author`, `role` («تحقيق» for an edited text, whose
+     * editor follows the title), `from` and `to` (its pages).
+     *
+     * @return array{title: string, author: ?string, role: ?string, from: int, to: ?int}|null
+     */
+    public function article(): ?array
+    {
+        if (! $this->source->isPeriodical() || ! $this->volume || ! $this->page) {
+            return null;
+        }
+        $articles = collect($this->volume->metadata['articles'] ?? [])->sortBy('page')->values();
+        $i = $articles->search(fn ($a, $k) => $a['page'] <= $this->page && ($articles[$k + 1]['page'] ?? PHP_INT_MAX) > $this->page);
+        if ($i === false) {
+            return null;
+        }
+        $next = $articles[$i + 1]['page'] ?? null;
+
+        return ['title' => trim($articles[$i]['title']), 'author' => $articles[$i]['author'] ?? null, 'role' => $articles[$i]['role'] ?? null,
+            'from' => (int) $articles[$i]['page'], 'to' => $next ? $next - 1 : ($this->volume->page_last ?: null)];
+    }
+
+    /** «تحقيق فارس حسّون كريم», for an edited text in a journal. */
+    private function articleEditor(): ?string
+    {
+        $article = $this->article();
+
+        return $article && filled($article['role'] ?? null) && filled($article['author'] ?? null) ? $article['role'] . ' ' . trim($article['author']) : null;
+    }
+
+    /** «السنة 2، العدد 2 و 3 (7 و 8)»: the issue, from what its volume's title says after « - ». */
+    public function issueLabel(): ?string
+    {
+        if (! $this->volume) {
+            return null;
+        }
+        $title = (string) $this->volume->title;
+        $label = str_contains($title, ' - ') ? trim(substr($title, strrpos($title, ' - ') + 3)) : null;
+
+        return $label ?: ($this->volume->volume_number ? 'العدد ' . $this->volume->volume_number : null);
+    }
+
+    /** «ج ۵», when a volume is cited; a journal's issue. */
     public function volumeLabel(): ?string
     {
+        if ($this->source->isPeriodical()) {
+            return $this->issueLabel();
+        }
+
         return $this->volume?->volume_number ? 'ج ' . $this->volume->volume_number : null;
     }
 
@@ -143,6 +198,10 @@ final class SourceReference
     /** @return list<string> the parts of the printed book the site has not recorded */
     public function missing(): array
     {
+        if ($this->source->isPeriodical()) {
+            return $this->year() === null ? [self::PARTS['year']] : [];
+        }
+
         return array_values(array_filter(self::PARTS, fn ($label, $part) => $this->{$part}() === null
             && ! ($this->unpublished() && in_array($part, ['place', 'year'], true)), ARRAY_FILTER_USE_BOTH));
     }
@@ -150,6 +209,10 @@ final class SourceReference
     /** The printed book: «احمد منزوی، فهرستوارۀ کتاب‌های فارسی، ج ۵، تهران: مرکز دائرة‌المعارف بزرگ اسلامی، ۱۳۸۲، ص ۳۳۶۶.» */
     public function printed(): string
     {
+        if ($this->source->isPeriodical()) {
+            return $this->sentence([$this->authors(), $this->articleTitle(), $this->articleEditor(), $this->title(), $this->volumeLabel(), $this->year(), $this->locator()]);
+        }
+
         return $this->sentence([
             $this->authors(),
             $this->title(),
@@ -164,7 +227,7 @@ final class SourceReference
     /** The page on Fahares: «…، ج ۵، ص ۳۳۶۶، فهارس، https://fahares.net/…، دیده‌شده در ۱۴۰۵/۰۹/۰۴.» */
     public function fahares(?CarbonInterface $seen = null): string
     {
-        $head = Fa::digits(implode('، ', array_filter([$this->authors(), $this->title(), $this->volumeLabel(), $this->locator(), 'فهارس'])));
+        $head = Fa::digits(implode('، ', array_filter([$this->authors(), $this->articleTitle(), $this->title(), $this->volumeLabel(), $this->locator(), 'فهارس'])));
 
         return $head . '، ' . $this->url() . '، دیده‌شده در ' . Jalali::format($seen ?? now()) . '.';
     }
@@ -172,12 +235,26 @@ final class SourceReference
     /** In the text: «(فهرستواره منزوی، ج ۵، ص ۳۳۶۶)». */
     public function inText(): string
     {
+        if ($this->source->isPeriodical() && $this->authors()) {
+            return '(' . Fa::digits(implode('، ', array_filter([$this->authors(), $this->year(), $this->locator()]))) . ')';
+        }
+
         return '(' . Fa::digits(implode('، ', array_filter([$this->shortTitle(), $this->volumeLabel(), $this->locator()]))) . ')';
     }
 
     /** APA's order, as Persian journals write it: «احمد منزوی. (۱۳۸۲). فهرستوارۀ کتاب‌های فارسی (ج ۵، ص ۳۳۶۶). تهران: …» */
     public function apa(): string
     {
+        if ($this->source->isPeriodical()) {
+            $article = $this->article();
+
+            return Fa::digits(implode(' ', array_filter([
+                $this->authors() ? $this->authors() . '.' : null,
+                '(' . ($this->year() ?? 'بی‌تا') . ').',
+                $article ? $article['title'] . ($this->articleEditor() ? '، ' . $this->articleEditor() : '') . '.' : null,
+                implode('، ', array_filter([$this->title(), $this->volumeLabel(), $this->articlePages() ?? $this->locator()])) . '.',
+            ])));
+        }
         $where = implode('، ', array_filter([$this->volumeLabel(), $this->locator()]));
 
         return Fa::digits(implode(' ', array_filter([
@@ -191,6 +268,16 @@ final class SourceReference
     /** Chicago's order for a book: «احمد منزوی. فهرستوارۀ کتاب‌های فارسی. ج ۵. تهران: …، ۱۳۸۲. ص ۳۳۶۶.» */
     public function chicago(): string
     {
+        if ($this->source->isPeriodical()) {
+            $issue = trim(implode(' ', array_filter([$this->title(), $this->volumeLabel(), $this->year() ? '(' . $this->year() . ')' : null])));
+            $pages = $this->articlePages() ?? $this->locator();
+
+            return Fa::digits(implode(' ', array_filter([
+                $this->authors() ? $this->authors() . '.' : null,
+                $this->articleTitle() ? $this->articleTitle() . ($this->articleEditor() ? '، ' . $this->articleEditor() : '') . '.' : null,
+                $issue . ($pages ? ': ' . $pages : '') . '.',
+            ])));
+        }
         $imprint = implode('، ', array_filter([$this->imprint(), $this->yearUnlessInEdition()]));
 
         return Fa::digits(implode(' ', array_filter([
@@ -203,9 +290,28 @@ final class SourceReference
         ])));
     }
 
-    /** For Zotero, JabRef and the like. */
+    /** For Zotero, JabRef and the like; a journal's page as @article (or @periodical, outside any article). */
     public function bibtex(?CarbonInterface $seen = null): string
     {
+        if ($this->source->isPeriodical()) {
+            [$year, $number] = $this->issueParts();
+            $article = $this->article();
+            $fields = array_filter([
+                'author' => $this->authors(),
+                'editor' => $article && filled($article['role'] ?? null) ? $article['author'] : null,
+                'title' => $article['title'] ?? $this->title(),
+                'journal' => $article ? $this->title() : null,
+                'volume' => $year,
+                'number' => $number,
+                'year' => $this->year(),
+                'pages' => $article ? $article['from'] . ($article['to'] ? '--' . $article['to'] : '') : $this->pages(),
+                'url' => $this->url(),
+                'urldate' => ($seen ?? now())->toDateString(),
+                'note' => 'فهارس',
+            ], fn ($v) => $v !== null && $v !== '');
+
+            return $this->bib($article ? 'article' : 'periodical', $fields);
+        }
         $fields = array_filter([
             'author' => $this->authors(),
             'title' => $this->title(),
@@ -220,9 +326,14 @@ final class SourceReference
             'urldate' => ($seen ?? now())->toDateString(),
             'note' => 'فهارس',
         ], fn ($v) => $v !== null && $v !== '');
+        return $this->bib('book', $fields);
+    }
+
+    private function bib(string $type, array $fields): string
+    {
         $lines = collect($fields)->map(fn ($v, $k) => '  ' . $k . ' = {' . str_replace(['{', '}'], ['\\{', '\\}'], self::latin((string) $v)) . '}');
 
-        return '@book{' . $this->key() . ",\n" . $lines->implode(",\n") . "\n}\n";
+        return '@' . $type . '{' . $this->key() . ",\n" . $lines->implode(",\n") . "\n}\n";
     }
 
     /** For EndNote, Mendeley and Zotero. */
@@ -232,6 +343,22 @@ final class SourceReference
         $tags = [['TY', 'BOOK']];
         foreach (preg_split('/\s+و\s+|،\s*/u', (string) $this->authors(), -1, PREG_SPLIT_NO_EMPTY) as $author) {
             $tags[] = ['AU', $author];
+        }
+        if ($this->source->isPeriodical()) {
+            [$year, $number] = $this->issueParts();
+            $article = $this->article();
+            $tags[0] = ['TY', 'JOUR'];
+            if ($article && filled($article['role'] ?? null)) {
+                $tags[] = ['ED', $article['author']];
+            }
+            [$from, $to] = $article ? [$article['from'], $article['to']] : [$from, $to];
+            $tags = array_merge($tags, [
+                ['TI', $article['title'] ?? $this->title()], ['T2', $this->title()], ['VL', $year], ['IS', $number], ['SP', $from], ['EP', $to],
+                ['PY', $this->year()], ['UR', $this->url()], ['Y2', ($seen ?? now())->toDateString()], ['DB', 'فهارس'], ['ER', ''],
+            ]);
+
+            return collect($tags)->filter(fn ($t) => $t[0] === 'ER' || ($t[1] !== null && $t[1] !== ''))
+                ->map(fn ($t) => $t[0] . '  - ' . self::latin((string) $t[1]))->implode("\r\n") . "\r\n";
         }
         $tags = array_merge($tags, [
             ['TI', $this->title()], ['ET', $this->edition()], ['VL', $this->volume?->volume_number], ['SP', $from], ['EP', $to],
@@ -248,6 +375,32 @@ final class SourceReference
     {
         return implode('-', array_filter(['fahares', $this->source->code, $this->volume?->volume_number,
             $this->item ? $this->item->urlKey() : $this->page]));
+    }
+
+    /** «ما تبقى من مخطوطات نهج البلاغة» in quotation marks, when a journal's page is cited. */
+    private function articleTitle(): ?string
+    {
+        $article = $this->article();
+
+        return $article ? '«' . $article['title'] . '»' : null;
+    }
+
+    /** «ص ۱۵۰–۱۶۳»: the pages of the article. */
+    private function articlePages(): ?string
+    {
+        $article = $this->article();
+
+        return $article ? 'ص ' . $article['from'] . ($article['to'] && $article['to'] > $article['from'] ? '–' . $article['to'] : '') : null;
+    }
+
+    /** @return array{0: ?string, 1: ?string} the journal's year of issue («السنة 2») and number («2 و 3»), for BibTeX and RIS */
+    private function issueParts(): array
+    {
+        $label = (string) $this->issueLabel();
+        preg_match('/السنة\s*([0-9۰-۹٠-٩]+)/u', $label, $year);
+        preg_match('/العدد\s*([^()،]+?)\s*(?:\(|$|،)/u', $label, $number);
+
+        return [$year[1] ?? null, isset($number[1]) ? trim($number[1]) : ($this->volume?->volume_number ? (string) $this->volume->volume_number : null)];
     }
 
     /** «تهران: مرکز دائرة‌المعارف بزرگ اسلامی», or the one of the two the site has. */

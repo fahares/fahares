@@ -4,11 +4,12 @@
     use App\Support\Fa;
     $source = $reference->source;
     $sourceName = $source->short_name ?: $source->title;
+    $journal = $source->isPeriodical();
     $what = match (true) {
         $reference->item !== null => 'این مدخل',
         $reference->page !== null => 'این صفحه',
-        $reference->volume !== null => 'این جلد',
-        default => 'این کتاب',
+        $reference->volume !== null => $journal ? 'این شماره' : 'این جلد',
+        default => $journal ? 'این نشریه' : 'این کتاب',
     };
     $missing = $reference->missing();
     $query = array_filter(['source' => $source->code, 'volume' => $reference->volume?->volume_number,
@@ -52,8 +53,8 @@
 
     {{-- the printed book: what to cite in research --}}
     <section class="border border-line-strong bg-surface p-4 sm:p-5 space-y-3" data-cite-form="printed">
-        <h2 class="text-sm font-bold text-ink">ارجاع به چاپ منبع</h2>
-        <p class="text-xs text-muted leading-6">در پژوهش، به کتاب چاپی که متن از آن است ارجاع دهید.</p>
+        <h2 class="text-sm font-bold text-ink">{{ $journal ? 'ارجاع به مقالۀ نشریه' : 'ارجاع به چاپ منبع' }}</h2>
+        <p class="text-xs text-muted leading-6">{{ $journal ? 'در پژوهش، به مقاله‌ای از نشریۀ چاپی که متن از آن است ارجاع دهید.' : 'در پژوهش، به کتاب چاپی که متن از آن است ارجاع دهید.' }}</p>
         <p class="font-lotus text-[1.1rem] leading-9 text-ink select-all" data-cite-text>{{ $reference->printed() }}</p>
         @if($missing)
             <p class="text-xs text-muted leading-6" data-cite-missing>
@@ -97,7 +98,7 @@
 
     @if($reference->volume)
         <p class="text-xs text-muted">
-            ارجاع به <a href="{{ route('cite.show', ['source' => $source->code]) }}" class="text-cinnabar hover:underline">کل کتاب</a>
+            ارجاع به <a href="{{ route('cite.show', ['source' => $source->code]) }}" class="text-cinnabar hover:underline">{{ $journal ? 'کل نشریه' : 'کل کتاب' }}</a>
             @if($reference->item && $reference->item->page_start)
                 · <a href="{{ route('cite.show', ['source' => $source->code, 'volume' => $reference->volume->volume_number, 'page' => $reference->item->page_start]) }}" class="text-cinnabar hover:underline">صفحۀ این مدخل</a>
             @endif
