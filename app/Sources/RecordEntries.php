@@ -9,10 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The one writer of a record's Fankha entry (backlog item 170, step 14.396). The entry is the record of truth: a
- * writer gives the place or the text, the entry takes it, and the record's own columns (catalog_id, volume_number,
- * page_start, page_end, raw_text, a copy's sequence_number) follow as a copy, written by mirror() without the saved
- * hook. Those columns stay only until the readers move to the entries (phase 2) and go in phase 5.
+ * The one writer of a record's source entries (backlog item 170, step 14.396): its Fankha entry (place, text, a copy's
+ * row), a work's bibliography and a copy's citation entry. Since step 14.407 the record has no columns of these; a
+ * writer that gives them under their old names on a model has them taken here on save (take()).
  */
 class RecordEntries
 {
@@ -69,13 +68,10 @@ class RecordEntries
     {
         $held = self::primary($record);
         $before = self::fankhaOf($record);
-        // a record whose entry was never made (a row written by the query builder) starts from its own columns
-        $base = $held ? $before : self::columnsOf($record);
-        $after = array_merge($base, array_intersect_key($values, array_flip(self::FANKHA)));
+        $after = array_merge($before, array_intersect_key($values, array_flip(self::FANKHA)));
 
         if (! $after['source_id']) {
             $held && DB::table('source_entries')->where('id', $held->id)->delete();
-            self::mirror($record);
 
             return [$before, array_fill_keys(self::FANKHA, null)];
         }
@@ -101,27 +97,72 @@ class RecordEntries
         } else {
             SourceEntrySync::upsert([$row]);
         }
-        self::mirror($record);
 
         return [$before, self::fankhaOf($record)];
+    }
+
+    /**
+     * Writes the source values a writer gave a work or a copy under their old names (HasSourceEntries, step 14.407):
+     * the Fankha place and text, a work's bibliography, a copy's catalogue volume, part and cataloger. A record made
+     * without a source is Fankha's, as the column's default made it; one made with none (a copy made in the panel)
+     * has no Fankha entry.
+     */
+    public static function take(Model $record, array $given, bool $created): void
+    {
+        $fankha = [];
+        foreach (self::COLUMNS as $column => $key) {
+            if (array_key_exists($column, $given)) {
+                $fankha[$key] = $given[$column];
+            }
+        }
+        if ($created && ! array_key_exists('source_id', $fankha)) {
+            $fankha['source_id'] = self::fankhaSourceId();
+        }
+        if ($fankha && (! $created || $fankha['source_id'])) {
+            self::fankha($record, $fankha);
+        }
+        if ($record instanceof Work && ($created || array_key_exists('bibliography', $given))) {
+            self::bibliography($record, SourceEntrySync::bibliographyStrings($given['bibliography'] ?? null));
+        }
+        if ($record instanceof Manuscript) {
+            self::citation($record, $given, $created);
+        }
+    }
+
+    /** Fankha's source (catalogs.id = sources.id), the one a record is made in when none is named. */
+    public static function fankhaSourceId(): ?int
+    {
+        static $id = null;
+
+        return $id ??= DB::table('catalogs')->where('code', 'fankha')->value('id');
+    }
+
+    /**
+     * A copy's citation entry: Fankha's citation of its catalogue place (its metadata's catalog_citation, until that
+     * goes too) at the catalogue volume given or held, then the part and the cataloger given.
+     */
+    private static function citation(Manuscript $copy, array $given, bool $created): void
+    {
+        $held = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->getKey())->where('legacy_index', 0)->first();
+        if ($created || $copy->wasChanged('metadata') || array_key_exists('catalog_volume_id', $given) || array_key_exists('raw_text', $given)) {
+            SourceEntrySync::syncCited([(object) [
+                'id' => $copy->getKey(),
+                'library_id' => $copy->library_id,
+                'metadata' => DB::table('manuscripts')->where('id', $copy->getKey())->value('metadata'),
+                'raw_text' => self::fankhaOf($copy)['text'],
+                'catalog_volume_id' => array_key_exists('catalog_volume_id', $given) ? $given['catalog_volume_id'] : $held?->source_volume_id,
+            ]]);
+        }
+        $catalogue = array_intersect_key($given, array_flip(['catalog_volume_part_id', 'cataloger_id']));
+        if ($catalogue) {
+            DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->getKey())->where('legacy_index', 0)
+                ->update($catalogue);
+        }
     }
 
     /** The record's columns of its Fankha place and text, by the key of self::FANKHA they stand for. */
     public const COLUMNS = ['catalog_id' => 'source_id', 'volume_number' => 'volume_number', 'page_start' => 'page_start',
         'page_end' => 'page_end', 'sequence_number' => 'entry_number', 'raw_text' => 'text'];
-
-    /** The Fankha values the record's own columns hold, as stored (self::FANKHA keys). */
-    private static function columnsOf(Model $record): array
-    {
-        $columns = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', ...($record instanceof Manuscript ? ['sequence_number'] : [])];
-        $row = (array) DB::table($record->getTable())->where('id', $record->getKey())->first($columns);
-        $values = array_fill_keys(self::FANKHA, null);
-        foreach ($row as $column => $value) {
-            $values[self::COLUMNS[$column]] = $value;
-        }
-
-        return $values;
-    }
 
     /**
      * Puts back the Fankha columns an audit log kept (a suggestion's or an edit's old values) through the entry, and
@@ -194,41 +235,5 @@ class RecordEntries
         $new && SourceEntrySync::upsert($new);
         DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('legacy_id', $work->getKey())
             ->where('legacy_index', '>=', count($strings))->delete();
-        self::mirrorBibliography($work);
-    }
-
-    /** Copies a work's bibliography entries into its column, as mirror() does the Fankha entry. */
-    public static function mirrorBibliography(Work $work): void
-    {
-        $strings = self::bibliographyOf($work);
-        $value = $strings ? json_encode($strings, JSON_UNESCAPED_UNICODE) : null;
-        DB::table('works')->where('id', $work->getKey())->update(['bibliography' => $value]);
-        $work->setAttribute('bibliography', $strings ?: null);
-        $work->syncOriginalAttributes(['bibliography']);
-    }
-
-    /**
-     * Copies the record's Fankha entry into its own columns, by the query builder (the saved hook does not run) and
-     * into the model, whose other unsaved changes stay unsaved.
-     */
-    public static function mirror(Model $record): void
-    {
-        $v = self::fankhaOf($record);
-        $columns = [
-            'catalog_id' => $v['source_id'],
-            'volume_number' => $v['volume_number'],
-            'page_start' => $v['page_start'],
-            'page_end' => $v['page_end'],
-            'raw_text' => $v['text'],
-        ];
-        // a copy's row in the work's entry; a copy of no Fankha place keeps the number it has
-        if ($record instanceof Manuscript && $v['entry_number'] !== null) {
-            $columns['sequence_number'] = $v['entry_number'];
-        }
-        DB::table($record->getTable())->where('id', $record->getKey())->update($columns);
-        foreach ($columns as $column => $value) {
-            $record->setAttribute($column, $value);
-        }
-        $record->syncOriginalAttributes(array_keys($columns));
     }
 }

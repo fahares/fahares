@@ -118,8 +118,9 @@ class CatalogVolumePart extends Model
         }
         $touched = [];
         foreach (collect($ids)->unique()->chunk(1000) as $chunk) {
-            $rows = DB::table('manuscripts')->whereIn('id', $chunk->all())
-                ->get(['id', 'library_id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']);
+            // the volume, part and cataloger of each copy are its citation entry's (step 14.407)
+            $rows = \App\Support\EntryColumns::query('manuscripts', ['id', 'library_id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id'])
+                ->whereIn('manuscripts.id', $chunk->all())->get();
             $volumeIds = $rows->pluck('catalog_volume_id')->filter()->unique()->values();
             $parts = $volumeIds->isEmpty() ? collect() : self::with('catalogers')->whereIn('catalog_volume_id', $volumeIds)->orderBy('sort')->orderBy('id')->get()->groupBy('catalog_volume_id');
             $leaving = $rows->filter(fn ($r) => $r->catalog_volume_part_id && ! isset($parts[$r->catalog_volume_id]));
@@ -143,14 +144,13 @@ class CatalogVolumePart extends Model
                     $cataloger = $primary[$r->catalog_volume_id] ?? $r->cataloger_id;
                 }
                 if ($part?->id !== ($r->catalog_volume_part_id ? (int) $r->catalog_volume_part_id : null) || (int) $cataloger !== (int) $r->cataloger_id) {
-                    DB::table('manuscripts')->where('id', $r->id)->update(['catalog_volume_part_id' => $part?->id, 'cataloger_id' => $cataloger]);
+                    DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $r->id)->where('legacy_index', 0)
+                        ->update(['catalog_volume_part_id' => $part?->id, 'cataloger_id' => $cataloger]);
                     $stats['changed']++;
                     array_push($touched, $part?->id, $r->catalog_volume_part_id);
                 }
             }
         }
-        // the citation entries hold the part and the cataloger (step 14.401); the recount reads them (step 14.402)
-        \App\Sources\SourceEntrySync::syncCatalogue($ids);
         self::recount(array_filter($touched));
 
         return $stats;
