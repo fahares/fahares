@@ -13984,3 +13984,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «section 1 not found» داد و چیزی ننوشت. در `/tmp` چیزی نماند.
 - **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
 - **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.
+
+### گام ۱۴.۳۸۹: `SourceReference`، `CiteController` و `/cite`
+
+- **[SourceReference](../app/Support/SourceReference.php):** `(Source, ?SourceVolume, ?int $page, ?SourceItem)`، با `forPage(PrintedPage)` و `forItem(SourceItem)`.
+  - جزءها: `authors()`، `title()`، `edition()`، `place()`، `publisher()`، `year()`، `volumeLabel()`، `locator()` و `url()`. داده‌ای که جلد دارد بر داده‌ای که منبع دارد پیش است.
+  - `authors()`: اگر `sources.compiler` نباشد، فهرست‌نگاران جلد (`catalog_volume_cataloger`) خوانده می‌شوند و `supervisor` با «زیر نظر» در پایان می‌آید.
+  - `year()` برای `Source::UNPUBLISHED` تهی است. `unpublished()` آن را «چاپ‌نشده» می‌نویسد و از `missing()` بیرون است.
+  - قالب‌ها: `printed()`، `fahares(?$seen)` (تاریخ با `Jalali::format`، نشانی با رقم لاتین)، `inText()`، `apa()`، `chicago()`، `bibtex()` و `ris()` (رقم لاتین).
+  - `url()`: صفحۀ مدخل، یا صفحۀ متن اگر `PrintedPage::exists`، وگرنه صفحۀ منبع.
+- **[CiteController](../app/Http/Controllers/CiteController.php):** `GET /cite` (`cite.show`).
+  - پارامترها: `source`، `volume`، `page` یا `entry` (کلید نشانی مدخل)، یا `catalog` (همان `facsimile_code` نمایشگر) به‌جای `source`.
+  - `format=bib|ris` فایل را با `Content-Disposition: attachment` برمی‌گرداند.
+  - ۴۰۴ برای منبع، جلد یا مدخل ناموجود، و برای صفحه‌ای که نه متن دارد نه جلدش تصویر.
+- **نما:**
+  - [cite/show](../resources/views/cite/show.blade.php). نشانی درون جملۀ فارسی در `<bdi dir="ltr">` است.
+  - [x-source.cite-link](../resources/views/components/source/cite-link.blade.php) در `source-pages/show`، `source-items/show` و `sources/show`.
+  - نمایشگر: getter به نام `citeUrl` در [catalog-viewer.js](../resources/js/catalog-viewer.js) و پیوندی در سربرگ [x-catalog-viewer](../resources/views/components/catalog-viewer.blade.php).
+- **رونوشت با ارجاع:** [x-source.cite-quote](../resources/views/components/source/cite-quote.blade.php) و [cite-quote.js](../resources/js/cite-quote.js) (`Alpine.data('citeQuote')`).
+  - `selectionchange` روی document. با `within` فقط گزینشی درون `.book-sheet` حساب است.
+  - دکمه با `x-teleport` به body می‌رود، `fixed` روی گزینش. `mousedown.prevent` گزینش را نگه می‌دارد.
+  - نتیجه: `«…» (درون‌متنی)`. رونوشت خود مرورگر دست نخورده است.
+  - در صفحۀ متن، سازه گرد ستون برگه است، بیرون x-data `{ copied }`، تا `$refs.sheet` دکمۀ «رونوشت متن» در دامنۀ خودش بماند.
+- **داده:**
+  - migration `2026_11_25_100001_add_publication_place_to_sources`: `publication_place` (۱۰۰) در `sources` و `source_volumes`.
+  - `SuggestionRegistry::sourceFields` به `publication_place`.
+  - `Admin\SourceController::update` پنج ستون شناسنامه را فقط وقتی تغییر می‌دهد که فرم آن را فرستاده باشد.
+- **آزمون:** [CiteTest](../tests/Feature/CiteTest.php)، ۸ آزمون.
+
+### گام ۱۴.۳۹۰: برداشتن `citationModalOpen`
+
+- [works/show](../resources/views/works/show.blade.php) و [manuscripts/show](../resources/views/manuscripts/show.blade.php): متغیر `citationModalOpen`، دکمه و پنجرۀ «ACADEMIC CITATION MODAL» برداشته شد. `copyText` و `copiedKey` برای پیوند کوتاه و QR ماند.
+- حذف شد: `SourceEntry::referenceCitation()` و `RecordSources::citable()` (مورد ۱۴۷، گام ۱۴.۲۳۶)، که فقط پنجره به کارشان می‌برد.
+- آزمون: `CatalogReferencesTest` نبودن `citationModalOpen` را می‌سنجد. `CiteTest::test_the_work_page_has_no_citation_window_of_its_own`.

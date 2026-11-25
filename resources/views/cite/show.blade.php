@@ -70,7 +70,8 @@
         <section class="border border-line bg-paper p-4 sm:p-5 space-y-3" data-cite-form="{{ $key }}">
             <h2 class="text-sm font-bold text-ink">{{ $title }}</h2>
             @if($hint)<p class="text-xs text-muted leading-6">{{ $hint }}</p>@endif
-            <p class="font-lotus text-[1.05rem] leading-8 text-ink select-all [overflow-wrap:anywhere]" data-cite-text>{{ $text }}</p>
+            {{-- the address in a Persian sentence keeps its own direction --}}
+            <p class="font-lotus text-[1.05rem] leading-8 text-ink select-all [overflow-wrap:anywhere]" data-cite-text>{!! str_replace(e($reference->url()), '<bdi dir="ltr" class="font-sans text-[0.8em]">' . e($reference->url()) . '</bdi>', e($text)) !!}</p>
             <x-ui.btn size="sm" x-on:click="copy('{{ $key }}', {{ \Illuminate\Support\Js::from($text) }})">
                 <span x-show="copied !== '{{ $key }}'">رونوشت</span>
                 <span x-show="copied === '{{ $key }}'" x-cloak class="text-emerald-600">رونوشت شد</span>

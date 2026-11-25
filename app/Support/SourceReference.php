@@ -89,6 +89,12 @@ final class SourceReference
         return $year === Source::UNPUBLISHED ? null : $year;
     }
 
+    /** A volume the registry marks never printed («مخطوط»): its citation says so instead of a year. */
+    public function unpublished(): bool
+    {
+        return ($this->filled($this->volume?->publication_year) ?? $this->filled($this->source->publication_year)) === Source::UNPUBLISHED;
+    }
+
     /** «ج ۵», when a volume is cited. */
     public function volumeLabel(): ?string
     {
@@ -137,7 +143,8 @@ final class SourceReference
     /** @return list<string> the parts of the printed book the site has not recorded */
     public function missing(): array
     {
-        return array_values(array_filter(self::PARTS, fn ($label, $part) => $this->{$part}() === null, ARRAY_FILTER_USE_BOTH));
+        return array_values(array_filter(self::PARTS, fn ($label, $part) => $this->{$part}() === null
+            && ! ($this->unpublished() && in_array($part, ['place', 'year'], true)), ARRAY_FILTER_USE_BOTH));
     }
 
     /** The printed book: «احمد منزوی، فهرستوارۀ کتاب‌های فارسی، ج ۵، تهران: مرکز دائرة‌المعارف بزرگ اسلامی، ۱۳۸۲، ص ۳۳۶۶.» */
@@ -175,7 +182,7 @@ final class SourceReference
 
         return Fa::digits(implode(' ', array_filter([
             $this->authors() ? $this->authors() . '.' : null,
-            '(' . ($this->year() ?? 'بی‌تا') . ').',
+            '(' . ($this->year() ?? ($this->unpublished() ? 'چاپ‌نشده' : 'بی‌تا')) . ').',
             $this->title() . ($where !== '' ? ' (' . $where . ')' : '') . '.',
             $this->imprint() ? $this->imprint() . '.' : null,
         ])));
@@ -252,6 +259,9 @@ final class SourceReference
     /** The year, unless the printing's label already gives it: «۱۳۸۸، به کوشش رضا استادی». */
     private function yearUnlessInEdition(): ?string
     {
+        if ($this->unpublished()) {
+            return 'چاپ‌نشده';
+        }
         $year = $this->year();
 
         return $year && ! ($this->edition() && str_contains(Fa::digits($this->edition()), Fa::digits($year))) ? $year : null;

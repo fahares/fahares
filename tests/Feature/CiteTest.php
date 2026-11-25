@@ -111,6 +111,11 @@ class CiteTest extends TestCase
         $ref = new SourceReference($catalogue, SourceVolume::findOrFail($cv->id), 414);
         $this->assertSame('رضا استادی و محمد حسین، زیر نظر سید محمود مرعشی', $ref->authors());
         $this->assertSame('رضا استادی و محمد حسین، زیر نظر سید محمود مرعشی، فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، ج ۲، قم: ناشر جلد، ۱۳۸۸، ص ۴۱۴.', $ref->printed());
+        // a volume the registry marks never printed says so, and no year is asked for
+        DB::table('source_volumes')->where('id', $cv->id)->update(['publication_year' => Source::UNPUBLISHED, 'publication_place' => null]);
+        $unprinted = new SourceReference($catalogue, SourceVolume::findOrFail($cv->id), 414);
+        $this->assertStringEndsWith('ج ۲، ناشر جلد، چاپ‌نشده، ص ۴۱۴.', $unprinted->printed());
+        $this->assertSame([], $unprinted->missing());
         // a page the site has no text of stands for the source's own page
         $this->assertSame(route('sources.show', 'masjid-test'), $ref->url());
     }
