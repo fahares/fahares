@@ -14015,35 +14015,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
 - **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.
 
-### گام ۱۴.۳۸۷: `fahares:merge-shelfmark-twins` و `database/data/shelfmark_twins.json`
-
-- **داده‌های داوری:**
-  - دو رکورد هر سطر `duplicate_candidates_step14_266.tsv` با کتابخانه و شماره، و متن سه صفحه (صفحه و صفحۀ پیش و پس) از `source_pages` جلدِ مدخل رکورد فنخا، خوانده شد. اسکریپت‌ها و خروجی در `storage/app/private/item159_*` این worktree بود.
-  - رکوردهای دیگر همان شماره‌ها هم دیده شد، مثلاً ملک ۹۷۲ «منتخب اللغات» است و مروی ۵۱۲ «شرح الفوائد الصمدية».
-  - داوری ۷۱ سطر: `../fahares-sources/ocr-claude/duplicate_candidates_step14_266_verdicts.tsv` (`merge` ۴، `correct` ۲، `unclear` ۱۰، `distinct` ۵۵). سطر ۴۶ تکرار سطر ۴۳ است.
-- **[`shelfmark_twins.json`](../database/data/shelfmark_twins.json):**
-  - `merges`: `library` (slug)، `removed` و `kept` (هر کدام `shelfmark` و slug اثر)، و `fields` اختیاری (کلید ردیف `MergeComparison` ⇒ `source`، `target`، `both` یا `reading`)، با `why`.
-  - `corrections`: `library`، `shelfmark`، `work` و `to`.
-  - ۸۹۱۹/۱۶: `scribe_name` و `copy_date_raw` ⇒ `target`. ۵۲۱/۲: `copy_date_raw` ⇒ `source`.
-- **[`MergeShelfmarkTwinsCommand`](../app/Console/Commands/MergeShelfmarkTwinsCommand.php):**
-  - `find()` یک رکورد را با `library_id`، `work_id` و `shelfmark` برابر می‌جوید. اگر بیش از یکی باشد، چیزی برنمی‌گرداند.
-  - **ادغام:** `RecordMerger::mergeManuscript($removed, $kept, $fields)` و `AuditLog` از نوع `merge`، با `new_values.corpus_fix = step 14.387 merge-shelfmark-twins` و `dropped_entries`.
-  - **مدخل تکراری:** مدخل‌های رکورد حذف‌شونده در منبعی جز فنخا که رکورد ماندنی هم در آن مدخل دارد (فهرست چاپی کتابخانه)، پس از ادغام پاک می‌شوند. ردیف کامل‌شان در لاگ و پشتیبان می‌ماند. جای دوم فنخا (`source_id` فنخا) روی رکورد ماندنی می‌ماند.
-  - **حفظ مدخل چاپی:** ردیف `legacy_type = fankha_citation` رکورد ماندنی پیش از ادغام خوانده می‌شود. اگر پس از ادغام `citation_text` همان باشد، همۀ ستون‌هایش برگردانده می‌شود (مورد ۱۷۲ را ببینید).
-  - **اصلاح:** `shelfmark` با `save()` (قلاب مدل `shelfmark_key`، `collection_key` و مجموعه را می‌سازد) و `AuditLog` از نوع `update` با `old_values.shelfmark`.
-  - **پشتیبان:** `storage/app/private/backups/merge-shelfmark-twins-*.json`، پس از هر تغییر نوشته می‌شود. `--revert` اصلاح‌ها را (اگر دست نخورده باشند) و ادغام‌ها را برمی‌گرداند، آخری اول. مدخل‌های پاک‌شده پیش از `undoManuscriptMerge` دوباره درج می‌شوند تا همراه بقیه به رکورد بازگشته برگردند.
-  - **اجرای دوباره:** جفتی که رکورد حذف‌شونده‌اش نیست و رکورد ماندنی‌اش لاگ ادغام این گام را دارد، و اصلاحی که رکورد با شمارۀ تازه هست، «done before» است.
-- **[`RecordMerger::undoManuscriptMerge`](../app/Suggestions/RecordMerger.php):** اگر `collection_id` عکس رکورد حذف‌شده در `collections` نباشد (ادغام مجموعۀ تک‌عضوی را پاک کرده است)، رکورد بی آن درج می‌شود و `Collections::sync` آن را از کلیدش دوباره پیوند می‌دهد. پیش از این، بازگرداندن چنین ادغامی، از صفحۀ audit log هم، با خطای کلید خارجی `manuscripts_collection_id_foreign` می‌شکست.
-- **تمرین روی `fahares_prod`:** این پایگاه همان روز از پروداکشن تازه شده بود؛ رونوشت پیشینش `source_citations` را نداشت و ادغام روی آن می‌شکست.
-  1. اجرای خشک: ۴ ادغام و ۲ اصلاح، شناسه‌ها ۱۹۱۳۳۰ ← ۱۸۲۶۹۸، ۳۶۳۳۲ ← ۳۷۲۳۷، ۱۹۹۲۶۵ ← ۱۸۷۵۴۶ و ۲۰۱۸۰۷ ← ۲۰۱۸۱۲، و ۱۴۲۵۹۸ و ۴۱۴۹۶.
-  2. `--apply`: چهار ارجاع، شش لاگ (`184619`–`184624`). نخستین اجرا، پیش از حفظ مدخل چاپی، مدخل‌های ۵۶۷۹۵۸ و ۴۲۲۵۵۰ را بی متن کرد. `--revert` همه را برگرداند و آن دو ردیف از پروداکشن (فقط خواندنی) بازنشانده شد.
-  3. اجرای دوم پس از اصلاح فرمان: مدخل‌های چاپی ماندنی با `text_status = auto` و صفحۀ خودشان ماندند. دو «قول دیگر» ساخته شد: برگ ۸۹۱۹/۱۶ (۱) و تاریخ ۷۹۲/۴ («با تاریخ 1123ق»). اجرای سوم: `done before 6`.
-  4. `sources:take-texts catalogue-7ac531af190e --show=0`: ۱۴ برداشت، از جمله ۱۴۲۵۹۸ (ص ۲۴۷، «۳۰ ـ شعر ابوتراب بیك و سعدالدین محمد مشهدی»). `sources:take-texts catalogue-af2952129bfd --show=0`: ۲۳ برداشت، از جمله ۴۱۴۹۶ (ص ۶۶، «۲۱. الاعتقادات»). بقیۀ برداشت‌ها مدخل‌های منتظر دیگری بودند.
-- **آزمون:** `ShelfmarkTwinsTest::test_a_wrong_shelfmark_is_merged_or_corrected_from_the_data_file_and_a_run_reverts` (اجرای خشک، ادغام با انتخاب فیلد، ارجاع، مدخل تکراری، جای دوم فنخا، اصلاح، اجرای دوباره، بازگردانی با مجموعۀ از نو ساخته).
-- **اجرا در پروداکشن (پس از انتشار، با تأیید کاربر، با `prod-run`):**
-  1. پشتیبان JSON از `manuscripts`، `source_entries`، `manuscript_people` و `manuscript_script` ۱۲ رکورد (۴ جفت و ۲ اصلاح، با شناسه‌های بالا) به `../fahares-sources/backups/step13/`.
-  2. `fahares:merge-shelfmark-twins`: باید همان ۴ ادغام و ۲ اصلاح را نشان دهد. سپس `--apply`، و رونوشت پشتیبان فرمان از `storage/app/private/backups/` به همان پوشه.
-  3. `sources:take-texts catalogue-7ac531af190e --show=0` و `sources:take-texts catalogue-af2952129bfd --show=0`.
 ### گام ۱۴.۳۸۴: وارسی تراکنش‌های بلند در `prod-run` (مورد ۱۶۵)
 - **[prod-run](../scripts/dev/prod-run):**
   - **پرس‌وجو:** `db_long()` یک تکه PHP را از stdin به `ssh fahares-app 'cd /app && php -- <ثانیه>'` می‌دهد. تکه Laravel را بالا می‌آورد و با اتصال خود برنامه می‌خواند، پس رمز پایگاه داده از کانتینر بیرون نمی‌آید. کاربر برنامه اجازۀ PROCESS دارد.
@@ -14089,6 +14060,35 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - متنی که جایش دیگر نشانی مدخل نیست، یا از جلد دیگری است، `text_status = stale` می‌گیرد.
 - **آزمون:** `CitedEntryKeepsMatchTest`، چهار آزمون: ذخیرۀ نسخه همۀ ستون‌های تطبیق و صفحۀ ۱۹۶ را نگه می‌دارد؛ مدخل اصلاح‌نشده با ارجاع تازه به ص ۳۰۰ می‌رود و متنش کهنه می‌شود؛ مدخل اصلاح‌شده با ارجاعی که جای دیگری را نام می‌برد می‌رود، و با ارجاعی که همان‌گونه خوانده می‌شود («5 - 197») می‌ماند؛ و جای دیگر ارجاع آنچه تطبیق نوشته را نگه می‌دارد.
 - **سنجش و ترمیم روی `fahares_prod`:** `sources:take-texts <id> --dry-run` برای پنج فهرست دارای خواننده با مدخل ارجاع فنخا: ۱۰۰۰۲۰ (`numbered_copies`) ۶۱، ۱۰۰۰۳۰ (`shelfmark_headings`) ۲۳، ۱۰۰۰۳۹ (`serial_shelfmarks`) ۱۳، ۱۰۰۰۹۳ (`listed_shelfmarks`) ۱۲، ۱۰۰۱۳۸ (`moayyed`) ۳؛ روی هم ۱۱۲. اجرای واقعی همان ۱۱۲ را نوشت و اجرای آزمایشی دوم صفر. نشانی این مدخل‌ها با `updated_at` آن‌ها با چند ثانیه فاصله پس از `updated_at` نسخه است (ذخیره‌های گروهی ۲۹ آبان ۲۱:۳۳ و ۳۰ آبان ۰۵:۳۱ و ۰۶:۴۰). در پروداکشن شناسۀ منبع‌ها را با `code` بجویید.
+
+### گام ۱۴.۳۸۷: `fahares:merge-shelfmark-twins` و `database/data/shelfmark_twins.json`
+
+- **داده‌های داوری:**
+  - دو رکورد هر سطر `duplicate_candidates_step14_266.tsv` با کتابخانه و شماره، و متن سه صفحه (صفحه و صفحۀ پیش و پس) از `source_pages` جلدِ مدخل رکورد فنخا، خوانده شد. اسکریپت‌ها و خروجی در `storage/app/private/item159_*` این worktree بود.
+  - رکوردهای دیگر همان شماره‌ها هم دیده شد، مثلاً ملک ۹۷۲ «منتخب اللغات» است و مروی ۵۱۲ «شرح الفوائد الصمدية».
+  - داوری ۷۱ سطر: `../fahares-sources/ocr-claude/duplicate_candidates_step14_266_verdicts.tsv` (`merge` ۴، `correct` ۲، `unclear` ۱۰، `distinct` ۵۵). سطر ۴۶ تکرار سطر ۴۳ است.
+- **[`shelfmark_twins.json`](../database/data/shelfmark_twins.json):**
+  - `merges`: `library` (slug)، `removed` و `kept` (هر کدام `shelfmark` و slug اثر)، و `fields` اختیاری (کلید ردیف `MergeComparison` ⇒ `source`، `target`، `both` یا `reading`)، با `why`.
+  - `corrections`: `library`، `shelfmark`، `work` و `to`.
+  - ۸۹۱۹/۱۶: `scribe_name` و `copy_date_raw` ⇒ `target`. ۵۲۱/۲: `copy_date_raw` ⇒ `source`.
+- **[`MergeShelfmarkTwinsCommand`](../app/Console/Commands/MergeShelfmarkTwinsCommand.php):**
+  - `find()` یک رکورد را با `library_id`، `work_id` و `shelfmark` برابر می‌جوید. اگر بیش از یکی باشد، چیزی برنمی‌گرداند.
+  - **ادغام:** `RecordMerger::mergeManuscript($removed, $kept, $fields)` و `AuditLog` از نوع `merge`، با `new_values.corpus_fix = step 14.387 merge-shelfmark-twins` و `dropped_entries`.
+  - **مدخل تکراری:** مدخل‌های رکورد حذف‌شونده در منبعی جز فنخا که رکورد ماندنی هم در آن مدخل دارد (فهرست چاپی کتابخانه)، پس از ادغام پاک می‌شوند. ردیف کامل‌شان در لاگ و پشتیبان می‌ماند. جای دوم فنخا (`source_id` فنخا) روی رکورد ماندنی می‌ماند.
+  - **اصلاح:** `shelfmark` با `save()` (قلاب مدل `shelfmark_key`، `collection_key` و مجموعه را می‌سازد) و `AuditLog` از نوع `update` با `old_values.shelfmark`.
+  - **پشتیبان:** `storage/app/private/backups/merge-shelfmark-twins-*.json`، پس از هر تغییر نوشته می‌شود. `--revert` اصلاح‌ها را (اگر دست نخورده باشند) و ادغام‌ها را برمی‌گرداند، آخری اول. متنی که `sources:take-texts` پس از اصلاح برداشته است، با `--revert` برنمی‌گردد. مدخل‌های پاک‌شده پیش از `undoManuscriptMerge` دوباره درج می‌شوند تا همراه بقیه به رکورد بازگشته برگردند.
+  - **اجرای دوباره:** جفتی که رکورد حذف‌شونده‌اش نیست و رکورد ماندنی‌اش لاگ ادغام این گام را دارد، و اصلاحی که رکورد با شمارۀ تازه هست، «done before» است.
+- **[`RecordMerger::undoManuscriptMerge`](../app/Suggestions/RecordMerger.php):** اگر `collection_id` عکس رکورد حذف‌شده در `collections` نباشد (ادغام مجموعۀ تک‌عضوی را پاک کرده است)، رکورد بی آن درج می‌شود و `Collections::sync` آن را از کلیدش دوباره پیوند می‌دهد. پیش از این، بازگرداندن چنین ادغامی، از صفحۀ audit log هم، با خطای کلید خارجی `manuscripts_collection_id_foreign` می‌شکست.
+- **تمرین روی `fahares_prod`:** این پایگاه همان روز از پروداکشن تازه شده بود؛ رونوشت پیشینش `source_citations` را نداشت و ادغام روی آن می‌شکست.
+  1. اجرای خشک: ۴ ادغام و ۲ اصلاح، شناسه‌ها ۱۹۱۳۳۰ ← ۱۸۲۶۹۸، ۳۶۳۳۲ ← ۳۷۲۳۷، ۱۹۹۲۶۵ ← ۱۸۷۵۴۶ و ۲۰۱۸۰۷ ← ۲۰۱۸۱۲، و ۱۴۲۵۹۸ و ۴۱۴۹۶.
+  2. `--apply` پیش از ادغام `main`: چهار ارجاع و شش لاگ. ذخیرۀ metadata رکورد ماندنی، مدخل‌های ۵۶۷۹۵۸ و ۴۲۲۵۵۰ را به صفحۀ ارجاع و بی متن برد (`syncCited`؛ گام ۱۴.۳۸۶ همین را در `main` درست کرده بود). `--revert` همه را برگرداند، و آن دو ردیف از پروداکشن (فقط خواندنی) بازنشانده شد.
+  3. پس از ادغام `main`: `--apply`، `--revert` و دوباره `--apply`. مدخل‌های چاپی رکورد ماندنی با `text_status = auto` و صفحۀ خودشان ماندند. دو «قول دیگر» ساخته شد: برگ ۸۹۱۹/۱۶ (۱) و تاریخ ۷۹۲/۴ («با تاریخ 1123ق»). اجرای بعدی: `done before 6`.
+  4. `sources:take-texts catalogue-7ac531af190e --show=0`: ۱۴ برداشت، از جمله ۱۴۲۵۹۸ (ص ۲۴۷، «۳۰ ـ شعر ابوتراب بیك و سعدالدین محمد مشهدی»). `sources:take-texts catalogue-af2952129bfd --show=0`: ۲۳ برداشت، از جمله ۴۱۴۹۶ (ص ۶۶، «۲۱. الاعتقادات»). بقیۀ برداشت‌ها مدخل‌های منتظر دیگری بودند.
+- **آزمون:** `ShelfmarkTwinsTest::test_a_wrong_shelfmark_is_merged_or_corrected_from_the_data_file_and_a_run_reverts` (اجرای خشک، ادغام با انتخاب فیلد، ارجاع، مدخل تکراری، جای دوم فنخا، اصلاح، اجرای دوباره، بازگردانی با مجموعۀ از نو ساخته).
+- **اجرا در پروداکشن (پس از انتشار، با تأیید کاربر، با `prod-run`):**
+  1. پشتیبان JSON از `manuscripts`، `source_entries`، `manuscript_people` و `manuscript_script` ۱۲ رکورد (۴ جفت و ۲ اصلاح، با شناسه‌های بالا) به `../fahares-sources/backups/step13/`.
+  2. `fahares:merge-shelfmark-twins`: باید همان ۴ ادغام و ۲ اصلاح را نشان دهد. سپس `--apply`، و رونوشت پشتیبان فرمان از `storage/app/private/backups/` به همان پوشه.
+  3. `sources:take-texts catalogue-7ac531af190e --show=0` و `sources:take-texts catalogue-af2952129bfd --show=0`.
 
 ### گام ۱۴.۳۸۸: `person_period_decisions_step14_388.json`
 - **پرونده:** ۹۲ تصمیم برای ردیف‌های ۶۹۱۲ تا ۷۰۰۴ `person_periods` (۷ تأیید، یکی با `year: 1255, year_is: from`؛ ۸۵ رد با `reason`). ردیف ۶۹۵۷ در پرونده نیست.

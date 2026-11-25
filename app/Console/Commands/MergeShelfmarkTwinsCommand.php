@@ -77,15 +77,7 @@ class MergeShelfmarkTwinsCommand extends Command
                 $entries = fn (Manuscript $m) => SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $m->id)->where('source_id', '!=', $fankha);
                 $repeats = $entries($removed)->whereIn('source_id', $entries($kept)->pluck('source_id'))->get();
                 $sourceId = $removed->id;
-                // saving the kept copy's metadata writes its cited entry again from the citation, without the page
-                // and text the print gave it (SourceEntrySync::syncCited); the citation is the same, so they come back
-                $cited = fn () => DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $kept->id)->where('legacy_index', 0)->first();
-                $before = $cited();
                 $result = $merger->mergeManuscript($removed, $kept, $pair['fields'] ?? []);
-                $after = $cited();
-                if ($before && $after && $after->id === $before->id && $after->citation_text === $before->citation_text) {
-                    DB::table('source_entries')->where('id', $before->id)->update(array_diff_key((array) $before, array_flip(['id', 'created_at'])));
-                }
                 $dropped = [];
                 foreach ($repeats as $entry) {
                     $dropped[] = (array) DB::table('source_entries')->where('id', $entry->id)->first();
