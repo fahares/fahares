@@ -282,37 +282,43 @@
                         @endif
                     </div>
                 @endif
-                @if($manuscript->cataloger)
+                @php
+                    // the cataloger, volume and part of the copy's citation entry (step 14.402)
+                    $cited = $manuscript->citedEntry;
+                    $cataloger = $cited?->cataloger;
+                    $catalogVolume = $cited?->catalogVolume;
+                @endphp
+                @if($cataloger)
                     @php
                         // A copy in a volume compiled under someone else (an article of «اوراق عتیق»): name the volume and its supervisor
-                        $supervisors = $manuscript->catalogVolume?->catalogers->where('pivot.role', 'supervisor')->where('id', '!=', $manuscript->cataloger_id);
+                        $supervisors = $catalogVolume?->catalogers->where('pivot.role', 'supervisor')->where('id', '!=', $cataloger->id);
                         // ...or of a part of a volume of several libraries' catalogues: the part, its other catalogers, and
                         // the volume's people, all its editors (step 13.150)
-                        $part = $manuscript->relationLoaded('catalogVolumePart') ? $manuscript->catalogVolumePart : null;
+                        $part = $cited->relationLoaded('catalogVolumePart') ? $cited->catalogVolumePart : null;
                         if ($part) {
-                            $supervisors = $manuscript->catalogVolume?->catalogers->where('id', '!=', $manuscript->cataloger_id);
-                            $coauthors = $part->catalogers->where('id', '!=', $manuscript->cataloger_id);
+                            $supervisors = $catalogVolume?->catalogers->where('id', '!=', $cataloger->id);
+                            $coauthors = $part->catalogers->where('id', '!=', $cataloger->id);
                         }
                     @endphp
-                    <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="flex items-center gap-3 pt-3 border-t border-line group">
+                    <a href="{{ route('catalogers.show', $cataloger) }}" class="flex items-center gap-3 pt-3 border-t border-line group">
                         <span class="w-11 h-14 shrink-0 rounded-t-full overflow-hidden border border-gold bg-paper grid place-items-center">
-                            @if($manuscript->cataloger->avatar_url)
-                                <img src="{{ $manuscript->cataloger->avatar_url }}" alt="" class="w-full h-full object-cover sepia-[.85]">
+                            @if($cataloger->avatar_url)
+                                <img src="{{ $cataloger->avatar_url }}" alt="" class="w-full h-full object-cover sepia-[.85]">
                             @else
-                                <span class="font-naskh text-lg text-muted">{{ mb_substr($manuscript->cataloger->name, 0, 1) }}</span>
+                                <span class="font-naskh text-lg text-muted">{{ mb_substr($cataloger->name, 0, 1) }}</span>
                             @endif
                         </span>
                         <span class="min-w-0">
                             <span class="block text-xs text-muted">فهرست‌نگار</span>
-                            <span class="block text-sm font-bold text-ink group-hover:text-cinnabar transition">{{ $manuscript->cataloger->display_name }}</span>
-                            @if($manuscript->cataloger->life_years_text)
-                                <span class="block text-[11px] text-muted">{{ Fa::digits($manuscript->cataloger->life_years_text) }}</span>
+                            <span class="block text-sm font-bold text-ink group-hover:text-cinnabar transition">{{ $cataloger->display_name }}</span>
+                            @if($cataloger->life_years_text)
+                                <span class="block text-[11px] text-muted">{{ Fa::digits($cataloger->life_years_text) }}</span>
                             @endif
                             @if($part)
                                 @if($coauthors->isNotEmpty())<span class="block text-[11px] text-muted" data-cataloger-coauthors>با {{ $coauthors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') }}</span>@endif
-                                <span class="block text-[11px] text-muted" data-cataloger-part>در «{{ Fa::digits($manuscript->catalogVolume->title) }}»، بخش «{{ Fa::digits($part->title) }}»{{ $part->pages_text ? ' (' . Fa::digits($part->pages_text) . ')' : '' }}{{ $supervisors?->isNotEmpty() ? '، زیر نظر ' . $supervisors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') : '' }}</span>
+                                <span class="block text-[11px] text-muted" data-cataloger-part>در «{{ Fa::digits($catalogVolume->title) }}»، بخش «{{ Fa::digits($part->title) }}»{{ $part->pages_text ? ' (' . Fa::digits($part->pages_text) . ')' : '' }}{{ $supervisors?->isNotEmpty() ? '، زیر نظر ' . $supervisors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') : '' }}</span>
                             @elseif($supervisors?->isNotEmpty())
-                                <span class="block text-[11px] text-muted" data-cataloger-volume>در «{{ Fa::digits($manuscript->catalogVolume->title) }}»، زیر نظر {{ $supervisors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') }}</span>
+                                <span class="block text-[11px] text-muted" data-cataloger-volume>در «{{ Fa::digits($catalogVolume->title) }}»، زیر نظر {{ $supervisors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') }}</span>
                             @endif
                         </span>
                     </a>

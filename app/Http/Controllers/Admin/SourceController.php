@@ -12,6 +12,7 @@ use App\Models\Source;
 use App\Models\SourceVolume;
 use App\Sources\SourceMerger;
 use App\Sources\VolumeEditor;
+use App\Support\EntryColumns;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -254,12 +255,12 @@ class SourceController extends Controller
         [$sourceVolume, $catalogVolume] = $this->volumeOf($source, $volume);
         $catalogVolume->load(['library:id,name,city', 'catalogers:id,name', 'parts.library:id,name,city', 'parts.catalogers:id,name']);
         $outside = $this->outside($catalogVolume);
-        $partless = DB::table('manuscripts')->where('catalog_volume_id', $catalogVolume->id)->whereNull('catalog_volume_part_id')->count();
+        $partless = EntryColumns::cited()->where('ce.source_volume_id', $catalogVolume->id)->whereNull('ce.catalog_volume_part_id')->count();
         $libraries = Library::orderBy('name')->get(['id', 'name', 'city']);
         $catalogers = Cataloger::orderBy('name')->get(['id', 'name']);
         // the libraries of the volume's copies, those with no part first: the parts one may be missing
-        $copyLibraries = DB::table('manuscripts')->where('catalog_volume_id', $catalogVolume->id)->whereNotNull('library_id')
-            ->groupBy('library_id')->selectRaw('library_id, count(*) c, sum(catalog_volume_part_id is null) partless')
+        $copyLibraries = EntryColumns::cited()->where('ce.source_volume_id', $catalogVolume->id)->whereNotNull('manuscripts.library_id')
+            ->groupBy('manuscripts.library_id')->selectRaw('manuscripts.library_id, count(*) c, sum(ce.catalog_volume_part_id is null) partless')
             ->orderByDesc('partless')->orderByDesc('c')->limit(30)->get();
         $copyLibraryNames = Library::whereIn('id', $copyLibraries->pluck('library_id'))->get(['id', 'name', 'city'])->keyBy('id');
         $history = AuditLog::with('user:id,name')->whereIn('auditable_type', [CatalogVolume::class, CatalogVolumePart::class])
@@ -422,8 +423,8 @@ class SourceController extends Controller
     private function outside(CatalogVolume $volume): array
     {
         $pages = DB::table('manuscripts as m')->join('source_entries as e', fn ($j) => $j->on('e.legacy_id', '=', 'm.id')->where('e.legacy_type', 'fankha_citation'))
-            ->where('m.catalog_volume_id', $volume->id)->whereNotNull('m.catalog_volume_part_id')->whereNotNull('e.page_start')
-            ->get(['m.catalog_volume_part_id as part', 'e.page_start as page']);
+            ->where('e.source_volume_id', $volume->id)->whereNotNull('e.catalog_volume_part_id')->whereNotNull('e.page_start')
+            ->get(['e.catalog_volume_part_id as part', 'e.page_start as page']);
         $out = [];
         foreach ($volume->parts as $part) {
             if ($part->page_first !== null) {

@@ -154,6 +154,18 @@ class SourceEntry extends Model
         return $this->belongsTo(Cataloger::class);
     }
 
+    /** The citation entries of the copies: the one entry (legacy_index 0) Fankha gives each copy of its catalogue place. */
+    public function scopeCitations(Builder $query): Builder
+    {
+        return $query->where('legacy_type', 'fankha_citation')->where('legacy_index', 0);
+    }
+
+    /** The catalogue volume the entry is in, when it names one (source_volumes and catalog_volumes share ids). */
+    public function catalogVolume(): BelongsTo
+    {
+        return $this->belongsTo(CatalogVolume::class, 'source_volume_id');
+    }
+
     /** Machine matches nobody has reviewed yet: the review queue, and the ⓘ badge on the record page. */
     public function scopeAwaitingReview(Builder $query): Builder
     {

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Cataloger;
 use App\Models\CatalogVolume;
 use App\Models\Library;
+use App\Support\EntryColumns;
 use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -94,8 +95,9 @@ class LinkCatalogVolumesCommand extends Command
     protected function counts(): array
     {
         return [
-            'no_cataloger' => DB::table('manuscripts')->whereNull('cataloger_id')->count(),
-            'no_volume' => DB::table('manuscripts')->whereNull('catalog_volume_id')->count(),
+            // by the copies' citation entries (step 14.402)
+            'no_cataloger' => EntryColumns::cited()->whereNull('ce.cataloger_id')->count(),
+            'no_volume' => EntryColumns::cited()->whereNull('ce.source_volume_id')->count(),
         ];
     }
 
@@ -485,8 +487,8 @@ class LinkCatalogVolumesCommand extends Command
     {
         // the citation entries hold the copies' parts and catalogers (step 14.401)
         \App\Sources\SourceEntrySync::syncCatalogueAll();
-        $counts = DB::table('manuscripts')->whereNotNull('catalog_volume_id')
-            ->groupBy('catalog_volume_id')->selectRaw('catalog_volume_id, count(*) as n')->pluck('n', 'catalog_volume_id');
+        $counts = EntryColumns::cited()->whereNotNull('ce.source_volume_id')
+            ->groupBy('ce.source_volume_id')->selectRaw('ce.source_volume_id, count(*) as n')->pluck('n', 'source_volume_id');
         CatalogVolume::query()->each(fn ($v) => $v->update(['manuscripts_count' => (int) ($counts[$v->id] ?? 0)]));
 
         Cataloger::recount();

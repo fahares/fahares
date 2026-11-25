@@ -10,6 +10,7 @@ use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Work;
 use App\Models\WorkPerson;
+use App\Support\EntryColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -71,9 +72,10 @@ class RecordMerger
         DB::table('manuscript_people')->where('manuscript_id', $source->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->update(['manuscript_id' => $target->id]);
         $relations = RecordRelations::moveOnMerge($source, $target);
 
+        // read before the entries move
+        $counters = $source->only(['work_id', 'library_id']) + $this->citedCounters($source);
         $attachments = $this->moveAttachments($source, $target);
 
-        $counters = $source->only(['work_id', 'library_id', 'catalog_volume_id', 'cataloger_id']);
         $people = $scribes($source->id)->pluck('person_id')->all();
         $scripts = DB::table('manuscript_script')->where('manuscript_id', $source->id)->pluck('script_id')->all();
 
@@ -174,7 +176,7 @@ class RecordMerger
 
         $this->recountWorks([$source->work_id, $target->work_id]);
         $scripts = array_merge(array_column($snapshot['pivots']['manuscript_script'] ?? [], 'script_id'), $old['added_script_ids'] ?? []);
-        $this->recountManuscriptOwners($source->only(['library_id', 'catalog_volume_id', 'cataloger_id']), $scripts);
+        $this->recountManuscriptOwners($source->only(['library_id']) + $this->citedCounters($source), $scripts);
         $this->recountPeople(DB::table('manuscript_people')->whereIn('manuscript_id', [$source->id, $target->id])->where('role', ManuscriptPerson::SCRIBE)->pluck('person_id')->all());
         $source->searchable();
         $target->searchable();
@@ -471,11 +473,19 @@ class RecordMerger
         }
     }
 
+    /** The catalogue volume and cataloger of a copy's citation entry, the ones its removal or restoring changes the counts of (step 14.402). */
+    private function citedCounters(Manuscript $copy): array
+    {
+        $entry = $copy->citedEntry;
+
+        return ['catalog_volume_id' => $entry?->source_volume_id, 'cataloger_id' => $entry?->cataloger_id];
+    }
+
     private function recountManuscriptOwners(array $counters, array $scriptIds): void
     {
         foreach (['library_id' => 'libraries', 'catalog_volume_id' => 'catalog_volumes', 'cataloger_id' => 'catalogers'] as $column => $table) {
             if ($id = $counters[$column] ?? null) {
-                DB::table($table)->where('id', $id)->update(['manuscripts_count' => Manuscript::where($column, $id)->count()]);
+                DB::table($table)->where('id', $id)->update(['manuscripts_count' => $column === 'library_id' ? Manuscript::where($column, $id)->count() : EntryColumns::copiesOf($column, $id)]);
             }
         }
         foreach (array_unique($scriptIds) as $id) {

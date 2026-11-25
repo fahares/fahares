@@ -14200,6 +14200,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین:** migration `2026_11_25_100001` روی `fahares_prod` اجرا شد. اجرای آزمایشی: ۳۱ منبع، ۴۷ جلد، ۱۸۹ فیلد، و هیچ ردیف نیافته‌ای.
 - **آزمون:** [FillSourceImprintsTest](../tests/Feature/FillSourceImprintsTest.php)، ۳ آزمون؛ `CiteTest::test_a_journal_page_is_cited_as_the_article_that_holds_it` (با رمزینه و دکمه‌های دریافت).
 - **تمرین روی `fahares_prod`:** `--apply` ۱۸۹ فیلد را نوشت و اجرای دوم چیزی ننوشت (`unchanged 78`).
+- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از همۀ ستون‌های `sources` و `source_volumes`، مستقیم به لپ‌تاپ (بی فایل در کانتینر). `prod-run task-management -- 'php artisan fahares:fill-source-imprints'` سپس `--apply`: `sources_changed 31`، `volumes_changed 47`، `fields_changed 189`، `not_found 0`؛ اجرای دوم `unchanged 78`.
 
 ### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
 - `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
@@ -14265,6 +14266,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `syncCatalogue($ids)`، `syncCatalogueOfVolumes($volumes)` و `syncCatalogueAll()` (فقط ردیف‌های ناهمخوان؛ روی رونوشت پروداکشن ۵ ثانیه) با `UPDATE … JOIN`.
   - این‌ها را صدا می‌زنند: `syncCited` (پس از `assign`)، `CatalogVolumePart::assign`، `relinkVolumes`، `VolumeEditor`، `SourceMerger::undo`، `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` (که `merge-duplicates` هم صدا می‌زند)، `recount` و `revert` در `import-volume-parts`، `set-volumes` و `remove-catalogue`، و hook ذخیرۀ نسخه وقتی `catalog_volume_part_id` یا `cataloger_id` تغییر کند.
 - **آزمون:** `CatalogVolumePartsTest` بخش و فهرست‌نگار مدخل استناد را با نسخه می‌سنجد. `test_the_pages_and_a_save_before_the_deploy_has_migrated` هنوز سبز است.
+
+### گام ۱۴.۴۰۲: خوانندگان `catalog_volume_id`، `catalog_volume_part_id`، `cataloger_id`
+
+- **[Cataloger](../app/Models/Cataloger.php):**
+  - `catalogedCopyIds()` اجتماع (`UNION`) سه پرس‌وجوی `SourceEntry::citations()` است: `cataloger_id`، `source_volume_id` در جلدهای بی‌بخش، `catalog_volume_part_id` (فقط اگر `CatalogVolumePart::ready()`).
+  - `catalogedCitations()` همان را با مدخل فنخای نسخه به نام `fe` می‌پیوندد. `supervisedCitations()` هم همین کار را برای جلدهای بخش‌دار می‌کند.
+  - `recount` با این دو می‌شمارد. `catalogedCopies()` و `supervisedCopies()` برای سازگاری می‌مانند (`whereIn` روی شناسه‌ها).
+  - روی رونوشت پروداکشن، شرط `or` روی مدخل‌ها کل جدول را می‌خواند (۲٫۸ ثانیه) و `whereIn` روی نسخه‌ها هر نسخه را جدا می‌خواند (۲–۴ ثانیه). اجتماع ۰٫۰۳ تا ۰٫۳ ثانیه است.
+- **[CatalogerController](../app/Http/Controllers/CatalogerController.php):**
+  - `show`: صفحه‌بندی روی `catalogedCitations()` به ترتیب `fe.volume_number`، `fe.page_start`، `c.legacy_id`. سپس ۲۴ نسخۀ صفحه با رابطه‌هایشان بار می‌شوند و به همان ترتیب گذاشته می‌شوند.
+  - `index`: `SourceEntry::citations()->whereNotNull('cataloger_id')->count()` (۹۳ ms).
+- **migration `2026_11_25_400001_add_citation_indexes_to_source_entries`:**
+  - نمایه‌های `se_citation_cataloger`، `se_citation_part`، `se_citation_volume` (ستون، `legacy_type`، `legacy_index`، `legacy_id`) و `se_fankha_place` (`legacy_type`، `legacy_id`، `volume_number`، `page_start`) با `ALGORITHM=INPLACE, LOCK=NONE`، فقط آن‌هایی که نیستند.
+  - foreign keyهای دو ستون تازه ممکن است از این نمایه‌ها استفاده کنند، پس `down()` آن‌ها را نمی‌اندازد.
+- **دیگر خواننده‌ها (کار زیرعامل، بازبینی‌شده):**
+  - `ManuscriptController` و `manuscripts/show` از `citedEntry.cataloger`، `citedEntry.catalogVolume` و `citedEntry.catalogVolumePart` می‌خوانند.
+  - `InsightsScope` برای کل داده جدول موقت `insights_scope_cited` را از مدخل‌ها می‌سازد.
+  - `EntryColumns` سه نام پیشین را به `ce.*` نگاشت می‌کند.
+  - شمارش جلدها و بخش‌ها در فرمان‌ها و `RecordMerger` و `RecordRemover` از مدخل خوانده می‌شود.
+  - رابطه‌های بی‌استفادۀ `Cataloger::manuscripts()`، `CatalogVolume::manuscripts()` و `CatalogVolumePart::manuscripts()` حذف شدند.
+- **سنجش شمارش:** برای هر ۱۰۷ فهرست‌نگار، `catalogedCitations()->count()` و `supervisedCitations()->count()` با پرس‌وجوی پیشین روی ستون‌های نسخه برابرند (اسکریپت مقایسه، ۴۳ ثانیه). شمار همۀ جلدها و بخش‌ها با شمار مدخل‌ها برابر است.
 
 ### گام ۱۴.۴۰۳: `sources:fill-catalogue-entries`
 

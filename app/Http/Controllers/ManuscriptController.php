@@ -15,15 +15,15 @@ class ManuscriptController extends Controller
 
         $manuscript = Manuscript::with([
             'fankhaEntry.source:id,code',
-            'citedEntry',
+            'citedEntry.cataloger',
+            'citedEntry.catalogVolume.catalogers',
             'work.author',
             'scribe',
             'scribeEntries.person',
             'work.subjects',
             'work.languages',
             'libraryRecord',
-            'catalogVolume.catalogers',
-            ...(\App\Models\CatalogVolumePart::ready() ? ['catalogVolumePart.catalogers'] : []),
+            ...(\App\Models\CatalogVolumePart::ready() ? ['citedEntry.catalogVolumePart.catalogers'] : []),
             'scripts',
             'notes',
             ...RecordSources::RELATIONS,

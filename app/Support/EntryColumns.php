@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\DB;
 class EntryColumns
 {
     private const MANUSCRIPT = ['raw_text' => 'fe.copy_text', 'catalog_id' => 'fe.source_id', 'volume_number' => 'fe.volume_number',
-        'page_start' => 'fe.page_start', 'page_end' => 'fe.page_end', 'sequence_number' => 'fe.entry_number', 'catalog_citation' => 'ce.citation_text'];
+        'page_start' => 'fe.page_start', 'page_end' => 'fe.page_end', 'sequence_number' => 'fe.entry_number', 'catalog_citation' => 'ce.citation_text',
+        // the catalogue volume, its part and the cataloger of the copy's citation entry (step 14.402)
+        'catalog_volume_id' => 'ce.source_volume_id', 'catalog_volume_part_id' => 'ce.catalog_volume_part_id', 'cataloger_id' => 'ce.cataloger_id'];
 
     private const WORK = ['raw_text' => 'fe.entry_text', 'catalog_id' => 'fe.source_id', 'volume_number' => 'fe.volume_number',
         'page_start' => 'fe.page_start', 'page_end' => 'fe.page_end'];
@@ -44,10 +46,25 @@ class EntryColumns
     {
         $legacy = $table === 'manuscripts' ? 'manuscript' : 'work';
         $query->leftJoin('source_entries as fe', fn ($j) => $j->on('fe.legacy_id', '=', "{$table}.id")->where('fe.legacy_type', $legacy));
-        if ($table === 'manuscripts') {
-            $query->leftJoin('source_entries as ce', fn ($j) => $j->on('ce.legacy_id', '=', 'manuscripts.id')->where('ce.legacy_type', 'fankha_citation')->where('ce.legacy_index', 0));
-        }
 
-        return $query;
+        return $table === 'manuscripts' ? self::citation($query) : $query;
+    }
+
+    /** Joins only the copy's citation entry as «ce», for a query on the copy's catalogue volume, part or cataloger (step 14.402). */
+    public static function citation(Builder $query): Builder
+    {
+        return $query->leftJoin('source_entries as ce', fn ($j) => $j->on('ce.legacy_id', '=', 'manuscripts.id')->where('ce.legacy_type', 'fankha_citation')->where('ce.legacy_index', 0));
+    }
+
+    /** How many copies a catalogue volume, part or cataloger has, by the copies' citation entries ($column: catalog_volume_id, catalog_volume_part_id or cataloger_id). */
+    public static function copiesOf(string $column, int $id): int
+    {
+        return self::cited()->where(self::MANUSCRIPT[$column], $id)->count();
+    }
+
+    /** The copies with their citation entry joined: filter or count them by ce.source_volume_id, ce.catalog_volume_part_id, ce.cataloger_id. */
+    public static function cited(): Builder
+    {
+        return self::citation(DB::table('manuscripts'));
     }
 }

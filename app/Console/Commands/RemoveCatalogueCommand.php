@@ -130,7 +130,7 @@ class RemoveCatalogueCommand extends Command
     {
         \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($volumes);
         foreach ($volumes as $id) {
-            DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
+            DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
         }
         $parts = DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes ?: [0])->pluck('id')->all();
         CatalogVolumePart::recount($parts);
