@@ -14179,8 +14179,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **migration:** `2026_11_25_200001_fill_entry_number_of_copies_fankha_entries`.
 - **آزمون‌ها:** `SourceCorrectionsTest::test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns` و `test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds`. همۀ ۱۰۶۲ آزمون سبز.
 
-### گام ۱۴.۳۹۸: `insights/topic-icon.blade.php`
-- پارۀ قالب با `$slug` (کلید `insights.topics`) و `$class` اختیاری (پیش‌فرض `size-7`): یک `<svg data-insights-icon>` با `stroke="currentColor"`. در کارت‌های هاب (`insights/index.blade.php`) کنار `<h2>`. آزمون: `InsightsTopicPagesTest`.
 ### گام ۱۴.۳۹۷: `AdminNav`، `ReviewQueues` و `admin.works.index` و `admin.manuscripts.index`
 
 - **[AdminNav](../app/Support/AdminNav.php):** گروه‌ها «کارتابل»، «داده‌ها»، «محتوای سایت» و «سامانه». ردیف می‌تواند `show` داشته باشد (کلوژری که پنهانش می‌کند): «صف‌های بررسی» برای کسی که هیچ صفی را نمی‌تواند باز کند دیده نمی‌شود. «اشخاص» در صفحه‌های ساختن و ادغام شخص هم فعال است.
@@ -14190,3 +14188,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[ManuscriptController::index](../app/Http/Controllers/Admin/ManuscriptController.php):** `admin/manuscripts`، با `library_id` (انتخابگر کتابخانه)، `q` (عدد ساده شمارۀ نسخه است: `shelfmark_key` برابر یا `LIKE '<q>/%'`، با رقم فارسی یا لاتین؛ شناسه فقط با «#» یا نشانی) و `filter=panel`. با کتابخانه، آثار هم‌عنوان (تا ۵٬۰۰۰) نخست جدا خوانده و با `whereIn` جست‌وجو می‌شوند: زیرپرسش `IN (SELECT …)` روی رونوشت تولید ۳٫۸ ثانیه بود و این راه زیر ۰٫۱ ثانیه است. `OR shelfmark = …` هم کنار گذاشته شد که جدول را کامل می‌خواند (۱٫۶ ثانیه).
 - **دسترسی:** دو فهرست زیر `panel.access`؛ دکمه‌های «اثر تازه»، «نسخۀ تازه» و «جزء دیگر» با `manuscripts.create` و «ابزارهای ساختاری» با `structure.direct`.
 - **آزمون:** [`AdminMenuAndListsTest`](../tests/Feature/Admin/AdminMenuAndListsTest.php) (منو، صفحۀ صف‌ها به تفکیک دسترسی و نشانۀ فعال، جست‌وجو و صافی دو فهرست). `AdminSourcesTest` پیوند ادغام منابع را حالا در صفحۀ منابع می‌جوید.
+
+### گام ۱۴.۳۹۸: `insights/topic-icon.blade.php`
+- پارۀ قالب با `$slug` (کلید `insights.topics`) و `$class` اختیاری (پیش‌فرض `size-7`): یک `<svg data-insights-icon>` با `stroke="currentColor"`. در کارت‌های هاب (`insights/index.blade.php`) کنار `<h2>`. آزمون: `InsightsTopicPagesTest`.
