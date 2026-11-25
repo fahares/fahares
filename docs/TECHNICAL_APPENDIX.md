@@ -13965,6 +13965,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `CatalogReferencesTest::test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest`. چهار فهرست می‌سازد. فهرستی که دو نسخه دارد پیش از بقیه می‌آید. یک کارت جمع‌شده و چهار کارت روی هم.
 - **سنجش روی `fahares_prod`:** اثر ۵۰۹۳۳: ۳ پیدا (۵۲۷، ۲۸۸ و ۹۵ نسخه)، ۲۵ جمع‌شده. اثر ۴: ۳ پیدا، ۱ جمع‌شده.
 
+### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
+- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
+- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
+- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
+- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
+
 ### گام ۱۴.۳۸۲: حذف `manuscript_catalog_references`، `source_citations` و `field_evidence`
 
 - **[migration](../database/migrations/2026_11_25_100001_drop_pre_unification_source_tables.php):** `2026_11_25_100001_drop_pre_unification_source_tables` سه جدول را `dropIfExists` می‌کند. `down()` خطا می‌دهد: بازگشت فقط از خروجی است.
@@ -13976,8 +13982,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان‌ها:** نوشتن در جدول قدیم و کلیدهای پشتیبان آن از `SourceMerger`، `catalogs:fix-misnamed-isfahan`، `fix-reversed-citations`، `import-volume-parts`، `move-cited-part`، `rebuild-copies`، `remove-catalogue`، `set-catalogue-volumes` و `repair-tabriz-volumes` رفت. پشتیبان‌های JSON قدیم با `--revert` هنوز کار می‌کنند، چون کلید جدول قدیم فقط نادیده می‌ماند. `remove-catalogue` صفحه را از `source_entries` (`legacy_type = fankha_citation`، `source_volume_id` در جلدها) می‌خواند.
 - **آزمون‌ها:** `BackfillSourcesTest::test_fankha_citations_come_from_the_copy_and_catalogue_matches_stay` (مدخل `catalog_reference` پس از اجرا می‌ماند). `SourceCorrectionsTest` (بازگردانی لاگ و تأیید گروهی پیش از ۱۳.۳ بی جدول). آزمون `evidence` حذف شد. درج‌های جدول قدیم از چهار آزمون فرمان‌ها رفت.
 - **تمرین روی `fahares_prod`:** `migrate --force` در ۱۰۸ ms. صفحه‌ها با `php -S` در کانتینر: `/`، `/manuscripts/10368`، `/works/33`، `/works/385`، `/sources`، `/sources/hadiyya`، `/search`، `/libraries` و `/insights` همه ۲۰۰. نسخۀ ۱۰۳۶۸ مدخل ۷۱۹۲۱۲ (match، verified، legacy catalog_reference) را نشان می‌دهد. `sources:backfill --dry-run --only=references --only=bibliography`: ۳۲۳٬۱۷۵ استناد فنخا و ۴۵٬۴۰۲ ارجاع کتاب‌شناسی.
-### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
-- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
-- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
-- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
-- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
