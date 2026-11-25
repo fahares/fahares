@@ -13965,6 +13965,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `CatalogReferencesTest::test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest`. چهار فهرست می‌سازد. فهرستی که دو نسخه دارد پیش از بقیه می‌آید. یک کارت جمع‌شده و چهار کارت روی هم.
 - **سنجش روی `fahares_prod`:** اثر ۵۰۹۳۳: ۳ پیدا (۵۲۷، ۲۸۸ و ۹۵ نسخه)، ۲۵ جمع‌شده. اثر ۴: ۳ پیدا، ۱ جمع‌شده.
 
+### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
+- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
+- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
+- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
+- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
+
 ### گام ۱۴.۳۸۱: `RecordCreator`، `Admin\WorkController` و `admin.people.create`
 
 - **[RecordCreator](../app/Suggestions/RecordCreator.php):**
@@ -13982,8 +13988,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نماها:** `admin/people/create`، `admin/works/create`، `admin/people/_namesakes` (فهرست هم‌نام‌ها با `data-namesake`)، `admin/_record-source` (منبع اطلاع). دکمۀ «شخص تازه» در فهرست اشخاص و دو پیوند تازه در منوی پنل (`AdminNav`).
 - **دسترسی:** `admin.works.*` زیر `manuscripts.create` (برچسب: «ساختن رکورد نسخه و اثر»)؛ `admin.people.create` و `store` زیر `people.edit`.
 - **آزمون:** [`NewPersonAndWorkTest`](../tests/Feature/Admin/NewPersonAndWorkTest.php)، ۹ آزمون: دسترسی، شخص با کارت منبع و بازگرداندن، هشدار هم‌نام با «ي» عربی، اثر با موضوع، پدر موضوع و زبان، اثر هم‌عنوان همان پدیدآور، پدیدآور تازه از فرم اثر و بازگرداندن هر دو، اثرِ نسخه‌دار بازگرداندنی نیست، پدیدآور و کاتب تازه از فرم نسخه، و شخصی که پس از ساختن اثر دیگری گرفته می‌ماند.
-### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
-- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
-- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
-- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
-- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
