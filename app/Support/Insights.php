@@ -35,7 +35,8 @@ class Insights
     // v22: what the catalogues wrote of each copy (backlog item 162, step 14.348)
     // v16: the periods of residence, and the reviewers' word on the places of a life (step 14.291)
     // v24: the cities of the periods of people's lives (backlog item 139, step 14.369)
-    private const CACHE_KEY = 'insights.v24';
+    // v25: every scribe of a copy and every author of a work is counted, not the first one alone (backlog item 160, step 14.391)
+    private const CACHE_KEY = 'insights.v25';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -249,17 +250,41 @@ class Insights
 
     private const DEATH_TO = 'COALESCE(people.death_to, people.century_hijri * 100)';
 
+    /**
+     * The copies of the scope with the scribes tied to them, a row for each scribe of a copy (manuscript_people; backlog
+     * item 160, step 14.391): where the people of a role are counted, a copy of two scribes counts for both, and
+     * `manuscripts.scribe_id`, the first of them alone, is not what is read.
+     */
+    private static function scribeLinks(InsightsScope $scope): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('manuscript_people')->where('manuscript_people.role', \App\Models\ManuscriptPerson::SCRIBE)->whereNotNull('manuscript_people.person_id')
+            ->join($scope->manuscriptsTable(), 'manuscripts.id', '=', 'manuscript_people.manuscript_id');
+    }
+
+    /** The works of the scope with the authors tied to them, a row for each author of a work (work_people) */
+    private static function authorLinks(InsightsScope $scope): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('work_people')->where('work_people.role', \App\Models\WorkPerson::AUTHOR)->whereNotNull('work_people.person_id')
+            ->join($scope->worksTable(), 'works.id', '=', 'work_people.work_id');
+    }
+
+    /** The authors and scribes of the scope, each once: `id` */
+    private static function scopePeople(InsightsScope $scope): \Illuminate\Database\Query\Builder
+    {
+        return self::authorLinks($scope)->select('work_people.person_id AS id')->union(self::scribeLinks($scope)->select('manuscript_people.person_id AS id'));
+    }
+
     /** Authors (people with a work) per century of death, from the death range (death_from/to, step 13.101). */
     private static function authors(InsightsScope $scope): array
     {
         [$from, $to] = config('insights.author_centuries');
         $rows = DB::table('people')
             ->whereRaw('(' . self::DEATH_FROM . ' IS NOT NULL OR ' . self::DEATH_TO . ' IS NOT NULL)')
-            ->whereExists(fn ($q) => $q->from($scope->worksTable())->whereColumn('works.author_id', 'people.id'))
+            ->whereIn('people.id', self::authorLinks($scope)->select('work_people.person_id'))
             ->selectRaw(self::DEATH_FROM . ' AS f, ' . self::DEATH_TO . ' AS t, death_certainty IS NOT NULL AS d, COUNT(*) AS n')
             ->groupBy('f', 't', 'd')
             ->get();
-        $authors = $scope->works()->whereNotNull('author_id')->distinct()->count('author_id');
+        $authors = self::authorLinks($scope)->distinct()->count('work_people.person_id');
         $layers = self::centuryLayers($rows, $from, $to);
 
         return $layers + ['total' => $authors, 'coverage' => self::share($layers['counted'], $authors)];
@@ -484,10 +509,11 @@ class Insights
 
             return count($persons);
         };
-        $scribesMapped = $people($scope->manuscripts()->whereNotNull('scribe_id')->whereNotNull('copy_place')->where('copy_place', '!=', '')
-            ->selectRaw('scribe_id AS person, copy_place AS place, MIN(' . $upto('manuscripts.copy_date_to') . ') AS upto')->groupBy('person', 'place')->get(), 'scribes', 'scribe_decades');
-        $authorsMapped = $people($scope->works()->whereNotNull('author_id')->whereNotNull('composition_place')->where('composition_place', '!=', '')
-            ->selectRaw('author_id AS person, composition_place AS place, MIN(' . $upto('works.composition_date_to') . ') AS upto')->groupBy('person', 'place')->get(), 'authors', 'author_decades');
+        // Every scribe of a copy and every author of a work, not the first alone (backlog item 160)
+        $scribesMapped = $people(self::scribeLinks($scope)->whereNotNull('manuscripts.copy_place')->where('manuscripts.copy_place', '!=', '')
+            ->selectRaw('manuscript_people.person_id AS person, manuscripts.copy_place AS place, MIN(' . $upto('manuscripts.copy_date_to') . ') AS upto')->groupBy('person', 'place')->get(), 'scribes', 'scribe_decades');
+        $authorsMapped = $people(self::authorLinks($scope)->whereNotNull('works.composition_place')->where('works.composition_place', '!=', '')
+            ->selectRaw('work_people.person_id AS person, works.composition_place AS place, MIN(' . $upto('works.composition_date_to') . ') AS upto')->groupBy('person', 'place')->get(), 'authors', 'author_decades');
         [$withPlace, $mapped] = [$copySums['with_place'], $copySums['mapped']];
         [$worksWithPlace, $worksMapped] = [$workSums['with_place'], $workSums['mapped']];
         $origins = self::origins($scope, $cities);
@@ -1049,13 +1075,14 @@ class Insights
         $span = (int) config('insights.exact_span');
         $year = "CASE WHEN manuscripts.copy_date_to - manuscripts.copy_date_from <= {$span} THEN FLOOR((manuscripts.copy_date_from + manuscripts.copy_date_to) / 2) END";
         $century = self::oneCentury('manuscripts.copy_date_from', 'manuscripts.copy_date_to');
-        $top = $scope->manuscripts()->whereNotNull('scribe_id')
-            ->selectRaw("scribe_id, COUNT(*) AS n, MIN({$year}) AS y0, MAX({$year}) AS y1, MIN({$century}) AS c0, MAX({$century}) AS c1")
-            ->groupBy('scribe_id')->orderByDesc('n')->limit(config('insights.scribes_shown'))
+        // A copy counts for each of its scribes (manuscript_people), and once in the copies that have a scribe
+        $top = self::scribeLinks($scope)
+            ->selectRaw("manuscript_people.person_id AS scribe_id, COUNT(DISTINCT manuscripts.id) AS n, MIN({$year}) AS y0, MAX({$year}) AS y1, MIN({$century}) AS c0, MAX({$century}) AS c1")
+            ->groupBy('manuscript_people.person_id')->orderByDesc('n')->orderBy('manuscript_people.person_id')->limit(config('insights.scribes_shown'))
             ->get()->keyBy('scribe_id');
-        $places = $scope->manuscripts()->whereIn('scribe_id', $top->keys())
-            ->whereNotNull('copy_place')->where('copy_place', '!=', '')
-            ->selectRaw('scribe_id, copy_place, COUNT(*) AS n')->groupBy('scribe_id', 'copy_place')->get();
+        $places = self::scribeLinks($scope)->whereIn('manuscript_people.person_id', $top->keys())
+            ->whereNotNull('manuscripts.copy_place')->where('manuscripts.copy_place', '!=', '')
+            ->selectRaw('manuscript_people.person_id AS scribe_id, manuscripts.copy_place, COUNT(DISTINCT manuscripts.id) AS n')->groupBy('manuscript_people.person_id', 'manuscripts.copy_place')->get();
         $cities = [];
         foreach ($places as $row) {
             if ($city = CopyPlaces::cityOf($row->copy_place)) {
@@ -1081,8 +1108,8 @@ class Insights
 
         return [
             'items' => $items,
-            'with_scribe' => $scope->manuscripts()->whereNotNull('scribe_id')->count(),
-            'scribes' => $scope->manuscripts()->whereNotNull('scribe_id')->distinct()->count('scribe_id'),
+            'with_scribe' => self::scribeLinks($scope)->distinct()->count('manuscripts.id'),
+            'scribes' => self::scribeLinks($scope)->distinct()->count('manuscript_people.person_id'),
         ];
     }
 
@@ -1197,8 +1224,7 @@ class Insights
     private static function lifeCities(InsightsScope $scope): array
     {
         $periods = fn () => DB::table('person_periods')->where('person_periods.status', PersonPeriod::APPROVED)
-            ->when(! $scope->isEmpty(), fn ($q) => $q->joinSub($scope->works()->whereNotNull('author_id')->select('author_id AS id')
-                ->union($scope->manuscripts()->whereNotNull('scribe_id')->select('scribe_id AS id')), 'scope_people', 'scope_people.id', '=', 'person_periods.person_id'));
+            ->when(! $scope->isEmpty(), fn ($q) => $q->joinSub(self::scopePeople($scope), 'scope_people', 'scope_people.id', '=', 'person_periods.person_id'));
         $cities = [];
         foreach ($periods()->whereNotNull('person_periods.city')->selectRaw('person_periods.city, person_periods.kind, COUNT(DISTINCT person_periods.person_id) AS n')
             ->groupBy('person_periods.city', 'person_periods.kind')->get() as $row) {
@@ -1233,7 +1259,8 @@ class Insights
         $author = \App\Models\WorkPerson::AUTHOR;
         $own = fn () => DB::table('work_people')->where('work_people.role', $author)
             ->join($scope->manuscriptsTable(), 'manuscripts.work_id', '=', 'work_people.work_id')
-            ->whereRaw('(manuscripts.scribe_id = work_people.person_id OR (manuscripts.is_autograph = 1 AND manuscripts.scribe_id IS NULL))');
+            ->whereRaw("(EXISTS (SELECT 1 FROM manuscript_people WHERE manuscript_people.manuscript_id = manuscripts.id AND manuscript_people.role = 'scribe'"
+                . ' AND manuscript_people.person_id = work_people.person_id) OR (manuscripts.is_autograph = 1 AND manuscripts.scribe_id IS NULL))');
         $totals = $own()->selectRaw('COUNT(DISTINCT manuscripts.id) AS copies, COUNT(DISTINCT manuscripts.work_id) AS works, COUNT(DISTINCT work_people.person_id) AS authors')->first();
         $top = $own()->selectRaw('work_people.person_id, COUNT(DISTINCT manuscripts.id) AS copies, COUNT(DISTINCT manuscripts.work_id) AS works')
             ->groupBy('work_people.person_id')->orderByDesc('copies')->orderBy('work_people.person_id')->limit($shown)->get();
@@ -1242,10 +1269,11 @@ class Insights
             ->selectRaw('work_people.person_id, COUNT(DISTINCT work_people.work_id) AS n')->groupBy('work_people.person_id')->pluck('n', 'person_id');
 
         // The scribes who are authors too, with the copies of their own works among those they wrote
-        $isOwn = "EXISTS (SELECT 1 FROM work_people WHERE work_people.work_id = manuscripts.work_id AND work_people.person_id = manuscripts.scribe_id AND work_people.role = '{$author}')";
-        $scribes = $scope->manuscripts()->whereNotNull('scribe_id')
-            ->whereExists(fn ($q) => $q->from('work_people')->whereColumn('work_people.person_id', 'manuscripts.scribe_id')->where('work_people.role', $author))
-            ->selectRaw("scribe_id, COUNT(*) AS n, SUM({$isOwn}) AS own")->groupBy('scribe_id')->get();
+        $isOwn = "EXISTS (SELECT 1 FROM work_people WHERE work_people.work_id = manuscripts.work_id AND work_people.person_id = manuscript_people.person_id AND work_people.role = '{$author}')";
+        $scribes = self::scribeLinks($scope)
+            ->whereExists(fn ($q) => $q->from('work_people')->whereColumn('work_people.person_id', 'manuscript_people.person_id')->where('work_people.role', $author))
+            ->selectRaw("manuscript_people.person_id AS scribe_id, COUNT(DISTINCT manuscripts.id) AS n, COUNT(DISTINCT CASE WHEN {$isOwn} THEN manuscripts.id END) AS own")
+            ->groupBy('manuscript_people.person_id')->get();
         // The list names those with several works of their own: a scribe with one work, or a record of a common name
         // («علی بن محمد») that gathers namesakes, is no scholar copying for himself
         $several = DB::table('work_people')->where('role', $author)->whereIn('person_id', $scribes->pluck('scribe_id'))
@@ -2050,8 +2078,7 @@ class Insights
      */
     private static function origins(InsightsScope $scope, array &$cities): array
     {
-        $ids = fn () => $scope->works()->whereNotNull('author_id')->select('author_id AS id')
-            ->union($scope->manuscripts()->whereNotNull('scribe_id')->select('scribe_id AS id'));
+        $ids = fn () => self::scopePeople($scope);
         $at = [];
         $found = [];
         $people = DB::table('people')->joinSub($ids(), 'scope_people', 'scope_people.id', '=', 'people.id')
