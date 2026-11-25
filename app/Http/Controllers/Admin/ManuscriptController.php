@@ -39,6 +39,8 @@ class ManuscriptController extends Controller
             'defaults' => $defaults,
             'picked' => $this->picked($request, $defaults),
             'duplicates' => session('duplicates') ? Manuscript::with('work:id,primary_title,clean_title')->whereIn('id', session('duplicates'))->get() : collect(),
+            // the people of the name of a new author or scribe (backlog item 161), by role
+            'namesakes' => collect((array) session('namesakes'))->map(fn ($ids) => Person::whereIn('id', $ids)->orderByDesc('works_count')->get())->filter->isNotEmpty(),
         ]);
     }
 
@@ -85,6 +87,17 @@ class ManuscriptController extends Controller
         if ($duplicates->isNotEmpty() && ! $request->boolean('confirm_duplicate')) {
             return back()->withInput()->with('duplicates', $duplicates->pluck('id')->all());
         }
+        // a new person for the author or scribe (backlog item 161): the people of that name first
+        $namesakes = [];
+        foreach (['author' => ($data['work_mode'] ?? null) === 'new', 'scribe' => true] as $role => $applies) {
+            if ($applies && ! empty($data["{$role}_new"]) && blank($data["{$role}_id"] ?? null)) {
+                $ids = app(\App\Suggestions\RecordCreator::class)->personDuplicates($data["{$role}_name"] ?? null)->pluck('id')->all();
+                $ids && $namesakes[$role] = $ids;
+            }
+        }
+        if ($namesakes && ! $request->boolean('confirm_people')) {
+            return back()->withInput()->with('namesakes', $namesakes);
+        }
 
         try {
             $manuscript = $creator->create($data, $request->user()->id, $request->ip());
@@ -110,12 +123,14 @@ class ManuscriptController extends Controller
             'work_id' => 'nullable|required_if:work_mode,existing|integer|exists:works,id',
             'work_title' => 'nullable|required_if:work_mode,new|string|max:255',
             'author_id' => 'nullable|integer|exists:people,id',
-            'author_name' => 'nullable|string|max:500',
+            'author_name' => 'nullable|required_if:author_new,1|string|max:500',
+            'author_new' => 'nullable|boolean',
             'range' => 'nullable|string|max:30',
             'folios' => 'nullable|integer|between:1,5000',
             'pages' => 'nullable|integer|between:1,10000',
             'scribe_id' => 'nullable|integer|exists:people,id',
-            'scribe_name' => 'nullable|string|max:600',
+            'scribe_name' => 'nullable|required_if:scribe_new,1|string|max:600',
+            'scribe_new' => 'nullable|boolean',
             'copy_date_raw' => 'nullable|string|max:300',
             'incipit_text' => 'nullable|string|max:5000',
             'explicit_text' => 'nullable|string|max:5000',

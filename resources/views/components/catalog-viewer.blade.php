@@ -5,7 +5,7 @@
     $bar = 'absolute inset-x-0 z-10 bg-surface/95 backdrop-blur-sm transition duration-200';
 @endphp
 <div
-    x-data="catalogViewer({ baseUrl: @js(asset('storage/catalogs')), rangeUrl: @js(url('/api/page-images')) })"
+    x-data="catalogViewer({ baseUrl: @js(asset('storage/catalogs')), rangeUrl: @js(url('/api/page-images')), citeUrl: @js(route('cite.show')) })"
     x-show="open"
     x-cloak
     class="fixed inset-x-0 top-0 h-dvh z-50 overflow-hidden select-none bg-stone-200 dark:bg-paper"
@@ -136,6 +136,13 @@
                 class="inline-flex items-center justify-center gap-1 shrink-0 h-9 px-3 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-line-strong text-xs font-bold text-ink hover:border-cinnabar hover:text-cinnabar transition">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10M4 18h7" /></svg>
                 <span>متن</span>
+            </a>
+
+            <!-- The citation of this page (step 14.389) -->
+            <a x-show="citeUrl" :href="citeUrl" aria-label="ارجاع به این برگه" title="ارجاع به این برگه" data-cite-link
+                class="inline-flex items-center justify-center gap-1 shrink-0 h-9 px-3 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-line-strong text-xs font-bold text-ink hover:border-cinnabar hover:text-cinnabar transition">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-9 8l3-3h11a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v11"/></svg>
+                <span>ارجاع</span>
             </a>
 
             <a :href="imageUrl" target="_blank" rel="noopener" aria-label="باز کردن تصویر در زبانۀ تازه" title="باز کردن تصویر در زبانۀ تازه"

@@ -6,7 +6,6 @@
 
 @section('content')
 <div x-data="{ 
-    citationModalOpen: false,
     qrModalOpen: false,
     copiedKey: null,
     copyText(text, key) {
@@ -58,7 +57,7 @@
     @php
         use App\Support\Fa;
         // the record's sources (steps 13.2 and 13.4), all alike in the order of their rank; its Fankha entry gives the
-        // addendum chip and the Fankha citation format
+        // addendum chip
         $sources = $manuscript->sources();
         $fankha = $sources->primary();
         $libraryName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'کتابخانۀ نامشخص';
@@ -171,7 +170,7 @@
 
     <div class="jadval" aria-hidden="true"></div>
 
-    <!-- Quick actions: permalink, QR, citation, digital image, suggestion mode -->
+    <!-- Quick actions: permalink, QR, digital image, suggestion mode; citing is on the source pages (step 14.390) -->
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-2">
             <div class="inline-flex items-center gap-1 p-1 ps-2.5 rounded-sm bg-surface border border-line text-xs">
@@ -187,10 +186,6 @@
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                 </button>
             </div>
-            <x-ui.btn size="sm" @click="citationModalOpen = true">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
-                استناد
-            </x-ui.btn>
             {{-- A published digital image of this copy (research note), see <x-suggest.notes> --}}
             @if($imageNote)
                 <x-ui.btn size="sm" href="#research-notes">
@@ -723,134 +718,6 @@
                     class="px-4 py-2 rounded-xl border border-line-strong hover:border-gold text-ink text-xs font-semibold transition cursor-pointer">
                     <span x-show="copiedKey !== 'qr-modal'">کپی آدرس</span>
                     <span x-show="copiedKey === 'qr-modal'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                </button>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ACADEMIC CITATION MODAL DIALOG (Alpine.js) -->
-    <div 
-        x-show="citationModalOpen" 
-        x-cloak
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-        style="display: none;">
-        
-        <div 
-            @click.away="citationModalOpen = false"
-            class="bg-surface w-full max-w-2xl rounded-3xl p-6 sm:p-8 border border-line shadow-2xl space-y-6 text-right max-h-[90vh] overflow-y-auto">
-            
-            <div class="flex items-center justify-between pb-3 border-b border-line">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-5 bg-cinnabar rounded-sm"></span>
-                    <h3 class="font-bold text-lg text-ink">دریافت استناد علمی و ارجاع استاندارد</h3>
-                </div>
-                <button @click="citationModalOpen = false" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-lg leading-none cursor-pointer">✕</button>
-            </div>
-
-            <p class="text-xs text-muted leading-relaxed">
-                پژوهشگر گرامی؛ جهت استناد به این نسخه خطی در مقالات علمی، پایان‌نامه‌ها و طرح‌های کتاب‌شناختی، می‌توانید از قالب‌های آماده زیر استفاده فرمایید:
-            </p>
-
-            @php
-                // the printed catalogue the copy is in, not Fankha, which only cites it (backlog item 147)
-                $citedEntry = $sources->citable();
-                $catalogCitation = $citedEntry?->referenceCitation($manuscript);
-                
-                $workTitle = $manuscript->work?->primary_title ?? 'نسخه خطی';
-                $authorName = $manuscript->work?->effective_author?->name ?? 'ناشناخته';
-                $libName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'نامشخص';
-                $shelfmark = $manuscript->shelfmark ?? 'بی‌شماره';
-                $shortUrl = url('/m/' . $manuscript->id);
-
-                $persianArticleCitation = "{$workTitle} (مؤلف: {$authorName})، نسخه خطی {$libName}، شماره بازیابی: {$shelfmark}. پایگاه فهارس: {$shortUrl}";
-
-                $authorEn = $manuscript->work?->effective_author?->name ?? 'Unknown';
-                $cityEn = $manuscript->city ?? 'Iran';
-                $chicagoCitation = "{$authorEn}. \"{$workTitle}.\" Manuscript {$shelfmark}, {$libName}, {$cityEn}. Fahares: {$shortUrl}";
-            @endphp
-
-            <div class="space-y-4">
-                
-                <!-- Format 1: the printed catalogue -->
-                @if($catalogCitation)
-                <div class="p-4 rounded-2xl bg-paper border border-line space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-cinnabar text-[11px] font-bold">
-                                قالب ۱
-                            </span>
-                            <span class="text-xs font-bold text-ink">ارجاع به فهرست چاپی</span>
-                        </div>
-                        <button 
-                            type="button" 
-                            @click="copyText(@js($catalogCitation), 'catalog')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
-                            <span x-show="copiedKey !== 'catalog'">کپی ارجاع</span>
-                            <span x-show="copiedKey === 'catalog'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                        </button>
-                    </div>
-                    <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-normal select-all">
-                        {{ $catalogCitation }}
-                    </div>
-                </div>
-                @endif
-
-                <!-- Format 2: Persian Articles / Codicological Reference -->
-                <div class="p-4 rounded-2xl bg-stone-50 dark:bg-paper border border-stone-200 dark:border-line space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-ink text-[11px] font-bold">
-                                قالب ۲
-                            </span>
-                            <span class="text-xs font-bold text-ink">قالب ارجاع نسخه‌شناسی در مقالات و رسائل</span>
-                        </div>
-                        <button 
-                            type="button" 
-                            @click="copyText(@js($persianArticleCitation), 'article')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line-strong text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
-                            <span x-show="copiedKey !== 'article'">کپی ارجاع</span>
-                            <span x-show="copiedKey === 'article'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                        </button>
-                    </div>
-                    <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-normal select-all">
-                        {{ $persianArticleCitation }}
-                    </div>
-                </div>
-
-                <!-- Format 3: Chicago Style -->
-                <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-paper border border-indigo-100 dark:border-line space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-ink dark:text-indigo-300 text-[11px] font-bold">
-                                قالب ۳
-                            </span>
-                            <span class="text-xs font-bold text-ink">قالب استاندارد شیکاگو (Chicago Style)</span>
-                        </div>
-                        <button 
-                            type="button" 
-                            @click="copyText(@js($chicagoCitation), 'chicago')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line-strong text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
-                            <span x-show="copiedKey !== 'chicago'">کپی ارجاع</span>
-                            <span x-show="copiedKey === 'chicago'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                        </button>
-                    </div>
-                    <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-mono select-all text-left" dir="ltr">
-                        {{ $chicagoCitation }}
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="pt-2 flex justify-end">
-                <button type="button" @click="citationModalOpen = false" class="px-5 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-ink text-xs font-bold transition cursor-pointer">
-                    بستن
                 </button>
             </div>
 

@@ -208,9 +208,23 @@ class SourceController extends Controller
             'kind' => ['required', Rule::in(array_keys(Source::KIND_LABELS))],
             'rank' => 'required|integer|min:0|max:999',
             'library_id' => 'nullable|integer|exists:libraries,id',
+            // the book's imprint, which the citation of its pages is made of (step 14.389)
+            'compiler' => 'nullable|string|max:255',
+            'edition_label' => 'nullable|string|max:255',
+            'publication_place' => 'nullable|string|max:100',
+            'publisher' => 'nullable|string|max:255',
+            'publication_year' => 'nullable|string|max:50',
         ]);
         $validated['title'] = trim(preg_replace('/\s+/u', ' ', $validated['title']));
         $validated['short_name'] = filled($validated['short_name'] ?? null) ? trim($validated['short_name']) : null;
+        // the imprint changes only as far as the form sent it
+        foreach (['compiler', 'edition_label', 'publication_place', 'publisher', 'publication_year'] as $field) {
+            if (! $request->has($field)) {
+                unset($validated[$field]);
+                continue;
+            }
+            $validated[$field] = filled($validated[$field] ?? null) ? trim(preg_replace('/\s+/u', ' ', $validated[$field])) : null;
+        }
         $validated['library_id'] = $validated['library_id'] ?? null;
 
         $source->fill($validated);

@@ -890,6 +890,7 @@ class SuggestionRegistry
         return [
             'title' => ['label' => 'عنوان منبع', 'input' => 'text', 'required' => true],
             'compiler' => ['label' => 'پدیدآورنده (مؤلف یا فهرست‌نگار)', 'input' => 'text'],
+            'publication_place' => ['label' => 'محل نشر', 'input' => 'text'],
             'publisher' => ['label' => 'ناشر', 'input' => 'text'],
             'publication_year' => ['label' => 'سال نشر', 'input' => 'text'],
             'description' => ['label' => 'معرفی منبع', 'input' => 'textarea'],

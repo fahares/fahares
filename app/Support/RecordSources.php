@@ -50,16 +50,6 @@ class RecordSources
     }
 
     /**
-     * The place the citation window cites (backlog item 147): the first card with a page, so a library's own printed
-     * catalogue, or a bibliography, before Fankha; Fankha's entry only when the record has no other place.
-     */
-    public function citable(): ?SourceEntry
-    {
-        return $this->cards()->first(fn (SourceEntry $e) => $e->page_start && $e->origin !== SourceEntry::ORIGIN_FANKHA)
-            ?? $this->primary();
-    }
-
-    /**
      * Whether the reader sees the record in a source other than Fankha (step 14.376): a card of another source with a
      * page image, the text of its page, or its printed entry. Fankha's card and text, compiled from those sources, are
      * then left out of the page (<x-source.secondary :suggest-only>), but in suggestion mode. A bare citation of a

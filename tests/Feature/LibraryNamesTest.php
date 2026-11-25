@@ -38,8 +38,8 @@ class LibraryNamesTest extends TestCase
             ->assertSeeInOrder(['<h1', 'کتابخانۀ آزمایشی نام کامل', '</h1>', $library->name], false);
 
         $this->get(route('manuscripts.show', $manuscript))->assertOk()
-            ->assertSee('"name": "کتابخانۀ آزمایشی نام کامل"', false)
-            ->assertSee('نسخه خطی کتابخانۀ آزمایشی نام کامل، شماره بازیابی', false);
+            // the copy page no longer has a citation window of its own (step 14.390)
+            ->assertSee('"name": "کتابخانۀ آزمایشی نام کامل"', false);
 
         $this->get(route('works.show', $work))->assertOk()
             ->assertSee('title="کتابخانۀ آزمایشی نام کامل"', false)
