@@ -92,6 +92,8 @@ class WorkController extends Controller
                       ->orderByFankhaColumn('entry_number', $direction);
                 break;
         }
+        // copies of no Fankha place (made in the panel) last, in the order they were made (step 14.405)
+        $query->orderBy('manuscripts.id');
 
         $manuscripts = $query->paginate(30)
             ->withQueryString()

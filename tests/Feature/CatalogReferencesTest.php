@@ -792,11 +792,13 @@ class CatalogReferencesTest extends TestCase
 
         $this->suggestAddress($ms, "source_entry_{$ref->id}", 'ج 2، ص 416')->assertOk();
         $this->assertSame('ج ۲، ص ۴۱۶', FieldSuggestion::latest('id')->first()->suggested_value);
-        $this->assertSame('ج ۲، ص ۴۱۴', FieldSuggestion::latest('id')->first()->current_value);
+        // the entry's number at its place is part of its address (step 14.405)
+        $this->assertSame('ج ۲، ص ۴۱۴، ش ۶۰۶', FieldSuggestion::latest('id')->first()->current_value);
         $this->approveLatest($ms)->assertSessionHasNoErrors();
 
         $ref->refresh();
         $this->assertSame([416, SourceEntry::ORIGIN_MANUAL, SourceEntry::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->origin, $ref->status, $ref->reviewed_by]);
+        $this->assertNull($ref->entry_number, 'an address on another page without a number leaves the old page\'s number behind');
         $this->assertSame([1, 1, 1], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number], 'the Fankha columns are untouched');
         $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
 
@@ -807,6 +809,23 @@ class CatalogReferencesTest extends TestCase
         $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->latest('id')->value('id') . '/rollback')->assertSessionHas('success');
         $this->assertSame([414, SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED], [$ref->fresh()->page_start, $ref->fresh()->origin, $ref->fresh()->status]);
         unlink($pages);
+    }
+
+    /** Step 14.405 (backlog item 170): any source's address takes the number the source gives the entry there. */
+    public function test_an_address_takes_the_entry_number_and_a_library_shows_its_places_in_the_sources()
+    {
+        $ms = $this->manuscript();
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match']);
+        $this->suggestAddress($ms, "source_entry_{$ref->id}", 'ج 2، ص 416، ش 12')->assertOk();
+        $this->assertSame('ج ۲، ص ۴۱۶، ش ۱۲', FieldSuggestion::latest('id')->first()->suggested_value);
+        $this->approveLatest($ms)->assertSessionHasNoErrors();
+        $this->assertSame([416, 12], [$ref->fresh()->page_start, $ref->fresh()->entry_number]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶، ش ۱۲');
+
+        $library = \App\Models\Library::findOrFail($ms->library_id);
+        SourceEntry::create(['citable_type' => \App\Models\Library::class, 'citable_id' => $library->id, 'source_id' => SourceVolume::findOrFail($this->edition->id)->source_id,
+            'source_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 3, 'origin' => SourceEntry::ORIGIN_MANUAL, 'status' => SourceEntry::STATUS_VERIFIED]);
+        $this->get(route('libraries.show', $library))->assertOk()->assertSee('data-library-sources', false)->assertSee('ج ۲، ص ۳');
     }
 
     public function test_a_copy_reported_absent_loses_the_link_and_fankha_addresses_are_applied_to_the_copy()

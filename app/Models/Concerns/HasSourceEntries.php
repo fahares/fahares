@@ -25,6 +25,10 @@ trait HasSourceEntries
         // A writer that still sets the record's source columns (step 14.396): what it changed goes into the entries
         // through RecordEntries, which keeps what else they hold (a review, a text, a tie), and the columns follow
         static::saved(function ($record) {
+            // a library has no source columns of its own: its entries are written as entries (step 14.405)
+            if (! $record instanceof \App\Models\Work && ! $record instanceof \App\Models\Manuscript) {
+                return;
+            }
             $created = $record->wasRecentlyCreated;
             // a record made without catalog_id has the column's default (Fankha), which the model has not read back
             if ($created && ! array_key_exists('catalog_id', $record->getAttributes())) {
@@ -110,9 +114,12 @@ trait HasSourceEntries
     public function scopeOrderByFankhaColumn(Builder $query, string $column, string $direction = 'asc'): Builder
     {
         $legacy = $this instanceof \App\Models\Manuscript ? 'manuscript' : 'work';
+        $value = \Illuminate\Support\Facades\DB::table('source_entries')->select($column)
+            ->whereColumn('legacy_id', $this->getTable() . '.id')->where('legacy_type', $legacy)->limit(1);
+        // a record of no Fankha place (a copy made in the panel) comes after Fankha's, in the order it was made (step 14.405)
+        $query->orderByRaw('(' . $value->toSql() . ') is null', $value->getBindings());
 
-        return $query->orderBy(\Illuminate\Support\Facades\DB::table('source_entries')->select($column)
-            ->whereColumn('legacy_id', $this->getTable() . '.id')->where('legacy_type', $legacy)->limit(1), $direction);
+        return $query->orderBy($value, $direction);
     }
 
     /** Fankha's order: volume, page, and a copy's row in the work's entry. */
