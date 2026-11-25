@@ -13970,3 +13970,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
 - **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
 - **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
+### گام ۱۴.۳۸۳: ردپای فنخا در سایت؛ `pages.about`، `sources/index` و `layouts/app`
+
+- **جست‌وجو:**
+  - `grep` «فنخا|فهرستگان» در `resources/views`، `lang`، `resources/js`، `app` و `config` (بی پنل مدیریت و فرمان‌ها). در کد فقط سه رشته ماند: `DirectAnswer::FANKHA` و دو برچسب `fankha_page` در `SuggestionRegistry`.
+  - ستون‌های متنی `pages`، `posts`، `announcements` و `site_settings` در پروداکشن، فقط خواندنی.
+  - خزش متن دیدنی ۲۰ صفحۀ زنده، بی `script` و `style`. JSON-LD و تگ‌های head صفحه‌های رکورد چیزی نداشتند.
+- **`pages` (slug `about`، #۱):**
+  - پشتیبان: `../fahares-sources/backups/step13/before_step14_383_about_page_20261125_1246.json` (md5 `4849aae9…`)، با md5 متن `d8bdf22f…`. پیش از اجرا دوباره سنجیده شد، چون انتشار batch253 در میانه رخ داد و `/tmp` کانتینر پاک شد.
+  - اسکریپت tinker در `prod-run` با `APPLY=1`. بخش ۱ از « و از آنجا که اطلاعات مجلدات فنخا» تا پایان بند (`\r\n`) جایگزین شد. به بخش ۵ یک جمله افزوده شد.
+  - طول متن ۹٬۸۶۱ ← ۹٬۷۷۱ نویسه. «فنخا» ۴ ← ۳.
+  - اجرای دوم «section 1 not found» داد و چیزی ننوشت. در `/tmp` چیزی نماند.
+- **[sources/index](../resources/views/sources/index.blade.php):** متن سطر آغاز و `meta_description`.
+- **[layouts/app](../resources/views/layouts/app.blade.php):** توضیح متای پیش‌فرض و `og:description`.
