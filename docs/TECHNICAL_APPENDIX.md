@@ -14145,3 +14145,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۳۹۳: `insights/presets.blade.php`
 - `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
+
+### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
+- `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.

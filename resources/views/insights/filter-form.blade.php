@@ -103,4 +103,6 @@
             <p class="text-[11px] text-muted basis-full sm:basis-auto sm:ms-auto">فیلترها با هم می‌آیند؛ نشانی صفحه را می‌شود نگه داشت یا فرستاد.</p>
         </div>
     </form>
+    {{-- The ready-made scopes, in the box and so seen only when it is opened; on the hub alone (step 14.395) --}}
+    @includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')
 </details>

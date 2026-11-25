@@ -60,15 +60,20 @@ class InsightsPresetsTest extends TestCase
         $this->copies(4, '1040ق');
         $link = route('insights.topic', ['topic' => 'time', 'library' => $this->library->id, 'century' => '11']);
 
-        foreach ([route('insights'), route('insights.topic', 'places')] as $page) {
-            $this->get($page)->assertOk()
-                ->assertSee('چند دامنه برای دیدن')
-                ->assertSee('دامنۀ پرنسخه')
-                ->assertSee('جملۀ دامنۀ پرنسخه')
-                ->assertSee('href="' . e($link) . '"', false)
-                ->assertDontSee('دامنۀ کم‌نسخه')
-                ->assertDontSee('دامنۀ بی رکورد');
-        }
+        // On the hub of the whole data, inside the box of the filters (step 14.395)
+        $hub = $this->get(route('insights'))->assertOk()
+            ->assertSee('چند دامنه برای دیدن')
+            ->assertSee('دامنۀ پرنسخه')
+            ->assertSee('جملۀ دامنۀ پرنسخه')
+            ->assertSee('href="' . e($link) . '"', false)
+            ->assertDontSee('دامنۀ کم‌نسخه')
+            ->assertDontSee('دامنۀ بی رکورد')
+            ->getContent();
+        $box = strpos($hub, '<details class="group border border-line bg-surface">');
+        $at = strpos($hub, 'data-insights-presets');
+        $this->assertTrue($box !== false && $at > $box && $at < strpos($hub, '</details>', $box));
+        // Not on a topic page, and not on a scoped one
+        $this->get(route('insights.topic', 'places'))->assertOk()->assertDontSee('چند دامنه برای دیدن');
         $this->get($link)->assertOk()->assertDontSee('چند دامنه برای دیدن');
     }
 
