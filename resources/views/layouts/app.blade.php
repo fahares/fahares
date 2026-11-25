@@ -410,11 +410,11 @@
                                  alt="بنیاد محقق طباطبائی" width="68" height="120" loading="lazy" class="h-[120px] w-auto">
                         </a>
                         <div class="space-y-2 border-r-2 border-gold/40 pr-4">
-                            <p class="text-sm text-stone-300">
+                            <p class="text-sm text-stone-400">
                                 با حمایت علمی
-                                <a href="https://mtif.org" target="_blank" rel="noopener" class="font-bold text-amber-100 hover:text-amber-300 transition">بنیاد محقق طباطبائی</a>
+                                <a href="https://mtif.org" target="_blank" rel="noopener" class="hover:text-amber-300 transition">بنیاد محقق طباطبائی</a>
                             </p>
-                            <p class="text-sm text-stone-400">مدیر و مجری پروژه: <span class="font-bold text-amber-100">سید محسن حائری</span></p>
+                            <p class="text-sm text-stone-400">مدیر و مجری پروژه: سید محسن حائری</p>
                         </div>
                     </div>
                 </div>
