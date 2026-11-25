@@ -86,4 +86,10 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact('queue', 'pendingSuggestions', 'counts', 'recentLogs'));
     }
+
+    /** «صف‌های بررسی» (step 14.397): the queues the machine fills, on one page. */
+    public function queues()
+    {
+        return view('admin.review-queues', ['groups' => \App\Support\ReviewQueues::cards(auth()->user())]);
+    }
 }

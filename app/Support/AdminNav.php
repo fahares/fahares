@@ -3,12 +3,13 @@
 namespace App\Support;
 
 use App\Models\FieldSuggestion;
-use App\Models\SourceEntry;
 use App\Models\User;
 
 /**
  * The admin panel's menu (backlog item 65): four groups, each item shown only to roles holding its permission
- * of the access matrix. Items with work waiting carry its count.
+ * of the access matrix. Items with work waiting carry its count. Since step 14.397 a group is a subject of work
+ * (the desk, the records, the site's content, the system); the review queues are one item (ReviewQueues), and
+ * making or merging a record is a button of its list.
  */
 class AdminNav
 {
@@ -16,46 +17,26 @@ class AdminNav
     public static function groups(User $user): array
     {
         $groups = [
-            ['title' => 'داوری', 'items' => [
+            // the daily work: the users' suggestions keep their own item; the queues the machine fills are one page (step 14.397)
+            ['title' => 'کارتابل', 'items' => [
                 ['label' => 'پیشخوان', 'route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'can' => 'panel.access'],
-                ['label' => 'پیشنهادهای اصلاح', 'route' => 'admin.suggestions.index', 'active' => 'admin.suggestions.*', 'can' => 'suggestions.review',
-                    'count' => fn () => FieldSuggestion::inQueue()->count()],
-                ['label' => 'ابزارهای ساختاری', 'route' => 'admin.structure.index', 'active' => 'admin.structure.*', 'can' => 'structure.direct'],
-                ['label' => 'نسخۀ تازه', 'route' => 'admin.manuscripts.create', 'active' => 'admin.manuscripts.*', 'can' => 'manuscripts.create'],
-                ['label' => 'اثر تازه', 'route' => 'admin.works.create', 'active' => 'admin.works.*', 'can' => 'manuscripts.create'],
-                ['label' => 'نشانی‌های خودکار فهرست', 'route' => 'admin.catalog-references.index', 'active' => 'admin.catalog-references.*', 'can' => 'catalog_refs.review',
-                    'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Manuscript::class)->count()],
-                ['label' => 'پیوندهای خودکار آثار', 'route' => 'admin.source-links.index', 'active' => 'admin.source-links.*', 'can' => 'catalog_refs.review',
-                    'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Work::class)->whereNotNull('source_item_id')->count()],
-                ['label' => 'زندگی‌نامه‌های خودکار اشخاص', 'route' => 'admin.person-lives.index', 'active' => 'admin.person-lives.*', 'can' => 'catalog_refs.review',
-                    'count' => fn () => SourceEntry::awaitingReview()->where('citable_type', \App\Models\Person::class)->whereNotNull('source_item_id')->count()],
                 ['label' => 'اعلان‌های من', 'route' => 'notifications.index', 'active' => 'notifications.*', 'can' => 'panel.access',
                     'count' => fn () => $user->unreadNotifications()->count(), 'soft' => true],
+                ['label' => 'پیشنهادهای اصلاح', 'route' => 'admin.suggestions.index', 'active' => 'admin.suggestions.*', 'can' => 'suggestions.review',
+                    'count' => fn () => FieldSuggestion::inQueue()->count()],
+                ['label' => 'صف‌های بررسی', 'route' => 'admin.review-queues', 'active' => fn () => ReviewQueues::isActive($user), 'can' => 'panel.access',
+                    'count' => fn () => ReviewQueues::count($user), 'show' => fn () => ReviewQueues::forUser($user) !== []],
+                ['label' => 'ابزارهای ساختاری', 'route' => 'admin.structure.index', 'active' => 'admin.structure.*', 'can' => 'structure.direct'],
             ]],
-            ['title' => 'داده‌ها و مراجع', 'items' => [
-                ['label' => 'اشخاص', 'route' => 'admin.people.index', 'active' => ['admin.people.index', 'admin.people.edit'], 'can' => 'people.edit'],
-                ['label' => 'شخص تازه', 'route' => 'admin.people.create', 'active' => 'admin.people.create', 'can' => 'people.edit'],
-                ['label' => 'پیشنهادهای دورۀ زندگی', 'route' => 'admin.people.periods.proposals', 'active' => 'admin.people.periods.proposals', 'can' => 'people.edit',
-                    'count' => fn () => \App\Models\PersonPeriod::where('status', \App\Models\PersonPeriod::PROPOSED)->count(), 'soft' => true],
-                ['label' => 'ادغام اشخاص', 'route' => 'admin.people.merge', 'active' => 'admin.people.merge', 'can' => 'people.merge'],
-                ['label' => 'اشخاص هم‌نام', 'route' => 'admin.person-reviews.index', 'active' => fn () => request()->routeIs('admin.person-reviews.*') && request()->query('type') !== 'mixed', 'can' => 'people.merge',
-                    'count' => fn () => \App\Models\PersonReview::where('type', 'duplicate')->where('status', 'open')->count()],
-                ['label' => 'رکوردهای قاطی‌شده', 'route' => ['admin.person-reviews.index', ['type' => 'mixed']], 'active' => fn () => request()->routeIs('admin.person-reviews.*') && request()->query('type') === 'mixed', 'can' => 'structure.split',
-                    'count' => fn () => \App\Models\PersonReview::where('type', 'mixed')->where('status', 'open')->count()],
-                ['label' => 'پیوند پدیدآور', 'route' => 'admin.author-links.index', 'active' => 'admin.author-links.*', 'can' => 'structure.link',
-                    'count' => fn () => \App\Models\PersonReview::where('type', 'author_link')->where('status', 'open')->count()],
-                ['label' => 'پیوند آثار مرتبط', 'route' => 'admin.work-entry-links.index', 'active' => 'admin.work-entry-links.*', 'can' => 'structure.link',
-                    'count' => fn () => \App\Models\WorkEntryLink::review()->where('link_status', \App\Models\WorkEntryLink::PROPOSED)->count(), 'soft' => true],
-                ['label' => 'تناقض‌های تاریخی', 'route' => 'admin.date-conflicts.index', 'active' => 'admin.date-conflicts.*', 'can' => 'suggestions.review',
-                    'count' => fn () => \App\Models\DateConflict::open()->where('direct', true)->count(), 'soft' => true],
-                ['label' => 'ادعاهای فهرست‌های چاپی', 'route' => 'admin.claims.index', 'active' => 'admin.claims.*', 'can' => 'suggestions.review',
-                    'count' => fn () => \App\Models\Claim::candidate()->count(), 'soft' => true],
-                ['label' => 'فهرست‌نگاران', 'route' => 'admin.catalogers.index', 'active' => 'admin.catalogers.*', 'can' => 'catalogers.edit'],
-                ['label' => 'منابع', 'route' => 'admin.sources.index', 'active' => ['admin.sources.index', 'admin.sources.show', 'admin.sources.volume'], 'can' => 'sources.edit'],
-                ['label' => 'ادغام منابع', 'route' => 'admin.sources.merge', 'active' => 'admin.sources.merge', 'can' => 'sources.merge'],
+            // the records: making one and merging two are buttons of their list (step 14.397)
+            ['title' => 'داده‌ها', 'items' => [
+                ['label' => 'اشخاص', 'route' => 'admin.people.index', 'active' => ['admin.people.index', 'admin.people.edit', 'admin.people.create', 'admin.people.merge'], 'can' => 'people.edit'],
+                ['label' => 'آثار', 'route' => 'admin.works.index', 'active' => 'admin.works.*', 'can' => 'panel.access'],
+                ['label' => 'نسخه‌ها', 'route' => 'admin.manuscripts.index', 'active' => 'admin.manuscripts.*', 'can' => 'panel.access'],
                 ['label' => 'کتابخانه‌ها', 'route' => 'admin.libraries.index', 'active' => 'admin.libraries.*', 'can' => 'libraries.edit'],
-                ['label' => 'موضوعات', 'route' => 'admin.subjects.index', 'active' => ['admin.subjects.index', 'admin.subjects.create', 'admin.subjects.edit', 'admin.subjects.tree'], 'can' => 'subjects.edit'],
-                ['label' => 'ادغام موضوعات', 'route' => 'admin.subjects.merge', 'active' => 'admin.subjects.merge', 'can' => 'subjects.merge'],
+                ['label' => 'منابع', 'route' => 'admin.sources.index', 'active' => 'admin.sources.*', 'can' => 'sources.edit'],
+                ['label' => 'فهرست‌نگاران', 'route' => 'admin.catalogers.index', 'active' => 'admin.catalogers.*', 'can' => 'catalogers.edit'],
+                ['label' => 'موضوعات', 'route' => 'admin.subjects.index', 'active' => 'admin.subjects.*', 'can' => 'subjects.edit'],
             ]],
             ['title' => 'محتوای سایت', 'items' => [
                 ['label' => 'صفحۀ خانه', 'route' => 'admin.home.index', 'active' => 'admin.home.*', 'can' => 'home.manage'],
@@ -80,7 +61,7 @@ class AdminNav
         foreach ($groups as $group) {
             $items = [];
             foreach ($group['items'] as $item) {
-                if (! $user->can($item['can'])) {
+                if (! $user->can($item['can']) || (isset($item['show']) && ! ($item['show'])())) {
                     continue;
                 }
                 [$name, $params] = is_array($item['route']) ? $item['route'] : [$item['route'], []];
