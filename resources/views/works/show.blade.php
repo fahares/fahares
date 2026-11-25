@@ -197,8 +197,11 @@
                     $coveredPages = $entryCards->filter(fn ($e) => $e->sourceItem)->map(fn ($e) => [$e->sourceVolume?->facsimile_code, $e->volumeNumber(), $e->sourceItem->page_start, $e->sourceItem->page_end]);
                     $covered = fn ($vp) => $coveredPages->contains(fn ($c) => $c[0] === $vp['catalog'] && $c[1] === (int) $vp['volume'] && $vp['page'] >= $c[2] && $vp['page'] <= $c[3]);
                     $viewerPages = collect(\App\Support\BibliographyLinks::viewerPages($bibliography))->reject($covered);
-                    // Fankha's card and text left out, but in suggestion mode, when the reader sees the work in a bibliography (step 14.376)
-                    $seesFirstHand = $viewerPages->isNotEmpty() || $sources->seesFirstHand();
+                    // the printed catalogues of its copies that introduce the work (step 14.378)
+                    $workCatalogues = \App\Support\WorkCatalogues::for($work);
+                    // Fankha's card and text left out, but in suggestion mode, when the reader sees the work in a bibliography
+                    // or a catalogue (steps 14.376 and 14.378)
+                    $seesFirstHand = $viewerPages->isNotEmpty() || $workCatalogues->isNotEmpty() || $sources->seesFirstHand();
                 @endphp
                 @foreach($viewerPages as $vp)
                     @php
@@ -221,6 +224,9 @@
                 @php [$secondHandCards, $firstHandCards] = $entryCards->partition(fn ($e) => $e->isSecondHand()); @endphp
                 @foreach($firstHandCards as $entry)
                     <x-source.page-card :entry="$entry" :record="$work" />
+                @endforeach
+                @foreach($workCatalogues as $group)
+                    <x-source.work-catalogue :group="$group" />
                 @endforeach
                 @if($secondHandCards->isNotEmpty())
                     {{-- Fankha's own card folded under the others (backlog item 147) --}}

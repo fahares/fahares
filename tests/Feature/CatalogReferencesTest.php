@@ -521,6 +521,32 @@ class CatalogReferencesTest extends TestCase
         $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title)->assertDontSee('data-suggest-only', false);
     }
 
+    public function test_a_catalogue_that_introduces_works_shows_on_the_work_page()
+    {
+        $ms = $this->manuscript(['shelfmark' => '1939']);
+        $twin = $this->manuscript(['shelfmark' => '1940', 'work_id' => $ms->work_id]);
+        $third = $this->manuscript(['shelfmark' => '1941', 'work_id' => $ms->work_id]);
+        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 500, 'source' => Ref::SOURCE_MANUAL]);
+        $this->refEntry(['manuscript_id' => $twin->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_MANUAL]);
+        $this->refEntry(['manuscript_id' => $third->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_MANUAL]);
+        $code = SourceVolume::findOrFail($this->edition->id)->source->code;
+
+        // not a catalogue that introduces works: nothing on the work page
+        config(['catalogs.describe_works' => []]);
+        $this->get(route('works.show', $ms->work))->assertOk()->assertDontSee('data-work-catalogue', false);
+
+        // one card, on the page of the first entry, the other page beside it; two copies on one page are one place (step 14.378)
+        config(['catalogs.describe_works' => [$code]]);
+        $this->get(route('works.show', $ms->work))->assertOk()
+            ->assertSee('data-work-catalogue="' . $code . '"', false)
+            ->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
+            ->assertSeeInOrder(['ج ۲، ص ۴۱۴', '۳ نسخه از این اثر در این فهرست', 'صفحه‌های دیگر:', 'ج ۲، ص ۵۰۰']);
+
+        // a rejected entry is not a place of the work
+        SourceEntry::where('citable_id', $ms->id)->where('source_volume_id', $this->edition->id)->update(['status' => SourceEntry::STATUS_REJECTED]);
+        $this->get(route('works.show', $ms->work))->assertSee('۲ نسخه از این اثر در این فهرست')->assertDontSee('صفحه‌های دیگر:');
+    }
+
     public function test_the_queue_reviews_a_match_without_a_reload_and_can_put_it_back()
     {
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);

@@ -13942,3 +13942,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[insights-dynasties.js](../resources/js/insights-dynasties.js):** `mapLink(row)` از `config.map` و `config.mapYears`؛ در قالب، `$mapLink($row)` برای فهرست.
 - **[data-table.blade.php](../resources/views/insights/data-table.blade.php):** ردیف جدول در یک سطر.
 - **آزمون:** `InsightsMapTest` (دو آزمون تازه)، `InsightsDynastiesTest`.
+
+### گام ۱۴.۳۷۸: `config('catalogs.describe_works')`، `WorkCatalogues` و `x-source.work-catalogue`
+
+- **دسته‌بندی:** ۶۴ مأخذ `library_catalogue` با جلد تصویردار و نسخۀ پیوندخورده. از هر کدام دو برگۀ نمونه برداشته شد (`se.id % 97 = 3`، دو جلد جدا اگر بود). چهار زیرعامل Sonnet برگه‌ها را خواندند.
+  - نتیجه با کد، شمار نسخه، دسته و یادداشت در [`fankha-retirement/catalogue_work_tiers.tsv`](plans/fankha-retirement/catalogue_work_tiers.tsv) است.
+  - شمار: work ۳۹ (۱۸۶٬۳۱۸ نسخه)، short ۲۱ (۴۶٬۵۰۶)، copy ۴ (۱۰٬۴۳۱).
+  - وارسی دستی: سپهسالار قدیم (#۱۰۰۰۴۴) از copy به work رفت (ج ۴ ص ۵۴: معرفی محتوای جنگ‌ها). ملک (#۱۰۰۰۳۹) short ماند (سرعنوان اثر با مؤلف، تاریخ و گاه «مشار»). نمازی خوی مدرسه (#۱۰۰۱۷۵) و کاشان (#۱۰۰۲۱۳) short هستند.
+- **[config/catalogs.php](../config/catalogs.php):** `describe_works` کد ۳۹ مأخذ است. کدها در محلی و پروداکشن یکی‌اند (سه نمونه سنجیده شد).
+- **[WorkCatalogues](../app/Support/WorkCatalogues.php):** `for(Work)` مدخل‌های نسخه‌های اثر را در این مأخذها می‌خواند (`status != rejected`، `page_start` پر، `viewer()` پر). آن‌ها را به تفکیک مأخذ گروه می‌کند، صفحه‌های تکراری را یکی می‌کند و بر پایۀ جلد و صفحه مرتب می‌کند. خروجی `entry` (نخستین صفحه)، `others` و `copies` است، به ترتیب `rank` مأخذ.
+- **[work-catalogue.blade.php](../resources/views/components/source/work-catalogue.blade.php):** همان کارت برگه‌های کتاب‌شناسی (`data-viewer-card`)، با `data-work-catalogue="<code>"`، «متن صفحه ←» اگر باشد، شمار نسخه‌ها، و تا ۱۲ صفحۀ دیگر که هر کدام بیننده را باز می‌کند.
+- **[works/show](../resources/views/works/show.blade.php):** کارت‌ها پس از کارت‌های دست اول می‌آیند. `$seesFirstHand` حالا `$workCatalogues->isNotEmpty()` را هم دارد.
+- **آزمون:** `CatalogReferencesTest::test_a_catalogue_that_introduces_works_shows_on_the_work_page`. بی کد در config کارتی نیست. با کد، یک کارت روی ص ۴۱۴ می‌آید، با «۳ نسخه» و ص ۵۰۰ در «صفحه‌های دیگر». مدخل ردشده از شمار می‌افتد.
+- **سنجش روی `fahares_prod`:**
+  - رندر: اثر ۵۰۹۳۳ (۲٬۵۹۰ نسخه) ۲۸ کارت در ۰٫۴۴ ثانیه. اثر ۴: ۴ کارت. اثر ۱۲۳: بی کارت و فنخا پیدا.
+  - شمارش با همۀ ۷۱٬۶۸۵ اثر: پیش از این گام ۱۴٬۶۲۷، با کارت فهرست ۴۴٬۸۵۴، روی هم ۴۷٬۳۷۶ (۶۶٫۱٪).
