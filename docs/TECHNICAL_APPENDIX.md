@@ -14325,3 +14325,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
   - `CloudflareClientIpTest`: ۳ آزمون.
   - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
+
+### گام ۱۴.۴۰۸: نوار حامی علمی در فوتر
+- **تصویر:** [mtif-160.png](../public/images/partners/mtif-160.png) و [mtif-320.png](../public/images/partners/mtif-320.png) (srcset 2x). ساخته با Pillow از JPEG ‏CMYK ‏۷۹۹×۱۴۱۲: خاکستری، آلفا = وارونۀ روشنایی، رنگ `#FEF3C7` (`amber-100`).
+- **[app.blade.php](../resources/views/layouts/app.blade.php):** بلوک `data-footer-sponsor` میان گرید فوتر و خط کپی‌رایت؛ تصویر با `VersionedAsset::url` و `loading="lazy"`، ارتفاع ۱۲۰ پیکسل.
