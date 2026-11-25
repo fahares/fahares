@@ -46,6 +46,7 @@
     <h1 class="sr-only">{{ $source->title }}، {{ $printed->placeLabel() }}</h1>
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] items-start">
+        <x-source.cite-quote :cite="\App\Support\SourceReference::forPage($printed)->inText()" within=".book-sheet" class="min-w-0">
         <div class="min-w-0 space-y-5" x-data="{ copied: false }">
             {{-- turning the page: back, the page to go to with the tools, and on; the same bar under the sheet --}}
             <nav class="book-nav {{ $width }} mx-auto" aria-label="صفحه‌های پیش و پس" data-page-nav>
@@ -66,6 +67,7 @@
                         <span x-show="!copied">رونوشت متن</span>
                         <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                     </x-ui.btn>
+                    <x-source.cite-link :source="$source->code" :volume="$volumeNumber" :page="$printed->page" />
                 </div>
                 @if($printed->next)
                     <a href="{{ $pageUrl($printed->next) }}" class="book-turn" rel="next">{{ $pageLabel($printed->next) }} <span aria-hidden="true">←</span></a>
@@ -172,6 +174,7 @@
                 @endif
             </nav>
         </div>
+        </x-source.cite-quote>
 
         <aside class="space-y-4 lg:sticky lg:top-24">
             @if($printed->items->isEmpty() && $printed->records)

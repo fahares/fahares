@@ -14042,13 +14042,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **سابقه:** `~/.fahares/prodcopy.tsv` (زمان، stamp، `created_at`، بایگانی، شمارها). سطر رونوشت گام ۱۴.۹۱ (`fahares-db-20261108-034701`) دستی افزوده شد. `--status` رونوشت کنونی، اندازۀ پایگاه‌های `fahares_prod*` و جای آزاد را نشان می‌دهد.
 - **آزمون (۴ آذر):** با یک `age` ساختگی که شکست می‌خورد: export، ۱۹ تکه (۳۶۶ مگابایت، دو تکه از پیش) با sha256 درست، فایل سرهم درست، و ایستادن در رمزگشایی. اجرای نخست پس از ۹ دقیقه با شکست `tdl` ایستاد و تکه‌های رسیده را دور ریخت. از آن پس تکه‌های رسیده می‌مانند و حد زمانی افزوده شد.
 - **جای دیسک (۴ آذر):** ۷٫۵ گیگابایت آزاد. `fahares_prod` ۳٫۹۲، بایگانی‌های `fahares_prod_20261014` ۱٫۰۲ و `fahares_prod_20261029` ۳٫۲۱، و `fahares_prod_bak_13114` ۲٫۳۱ گیگابایت.
-- **نخستین اجرا (۴ آذر، پس از نصب `age`):** `refresh-prod-copy --yes` با فایل رمزدار مانده از آزمون. رمزگشایی ۱۱ ثانیه و بارگذاری در `fahares_prod_new` ۸ دقیقه طول کشید (۲٫۵ گیگابایت SQL). `row_counts` برابر بود: ۱۱۴ کاربر، ۶۰۵ پیشنهاد، ۹٬۷۵۹ نشانی برگشت، ۳۲۳٬۲۵۰ نسخه، ۷۱٬۶۸۶ اثر و ۶۶٬۳۰۳ شخص. رونوشت پیشین به `fahares_prod_20261108` رفت. اندازه‌ها: `fahares_prod` ۴٫۲۱ و `fahares_prod_20261108` ۳٫۹۲ گیگابایت.
-- **پاک‌سازی (به تصمیم کاربر):** پیش از بارگذاری، پس از وارسی این که پرس‌وجویی روی آن‌ها نیست، `DROP DATABASE` روی `fahares_prod_20261014`، `fahares_prod_20261029` و `fahares_prod_bak_13114` اجرا شد. پس از اجرا ۹٫۵ گیگابایت آزاد ماند.
-- **زمان‌بندی (به خواست کاربر):** تایمر systemd کاربر روی لپ‌تاپ، بیرون از git: `~/.config/systemd/user/fahares-prodcopy.{service,timer}`.
-  - `OnCalendar=Sat 10:00` با `Persistent=true`: اگر لپ‌تاپ آن ساعت خاموش باشد، اجرا پس از روشن شدن انجام می‌شود.
-  - فرمان: `refresh-prod-copy --yes` از checkout اصلی، با `TDL_PROXY=http://127.0.0.1:20171`. خروجی به `~/.fahares/prodcopy-run.log` می‌رود.
-  - اسکریپت پس از انتشار به checkout اصلی می‌رسد. اجرای پیش از انتشار شکست می‌خورد.
-  - وضع: `systemctl --user list-timers fahares-prodcopy.timer`. خاموش کردن: `systemctl --user disable --now fahares-prodcopy.timer`.
 
 ### گام ۱۴.۳۸۶: `SourceEntrySync::keepTheirs()`
 
@@ -14101,3 +14094,42 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خوانندگان تازه:** `authors()`، `scribes()` (شمارها `COUNT(DISTINCT manuscripts.id)`)، کاتبان و مؤلفان `places()`، `lifeCities()`، `origins()`، و `autographs()` (`EXISTS` روی `manuscript_people` به جای `manuscripts.scribe_id`).
 - **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
 - **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
+### گام ۱۴.۳۸۹: `SourceReference`، `CiteController` و `/cite`
+
+- **[SourceReference](../app/Support/SourceReference.php):** `(Source, ?SourceVolume, ?int $page, ?SourceItem)`، با `forPage(PrintedPage)` و `forItem(SourceItem)`.
+  - جزءها: `authors()`، `title()`، `edition()`، `place()`، `publisher()`، `year()`، `volumeLabel()`، `locator()` و `url()`. داده‌ای که جلد دارد بر داده‌ای که منبع دارد پیش است.
+  - `authors()`: اگر `sources.compiler` نباشد، فهرست‌نگاران جلد (`catalog_volume_cataloger`) خوانده می‌شوند و `supervisor` با «زیر نظر» در پایان می‌آید.
+  - `year()` برای `Source::UNPUBLISHED` تهی است. `unpublished()` آن را «چاپ‌نشده» می‌نویسد و از `missing()` بیرون است.
+  - قالب‌ها: `printed()`، `fahares(?$seen)` (تاریخ با `Jalali::format`، نشانی با رقم لاتین)، `inText()`، `apa()`، `chicago()`، `bibtex()` و `ris()` (رقم لاتین).
+  - `url()`: صفحۀ مدخل، یا صفحۀ متن اگر `PrintedPage::exists`، وگرنه صفحۀ منبع.
+- **[CiteController](../app/Http/Controllers/CiteController.php):** `GET /cite` (`cite.show`).
+  - پارامترها: `source`، `volume`، `page` یا `entry` (کلید نشانی مدخل)، یا `catalog` (همان `facsimile_code` نمایشگر) به‌جای `source`.
+  - `format=bib|ris` فایل را با `Content-Disposition: attachment` برمی‌گرداند.
+  - ۴۰۴ برای منبع، جلد یا مدخل ناموجود، و برای صفحه‌ای که نه متن دارد نه جلدش تصویر.
+- **نما:**
+  - [cite/show](../resources/views/cite/show.blade.php). نشانی درون جملۀ فارسی در `<bdi dir="ltr">` است.
+  - [x-source.cite-link](../resources/views/components/source/cite-link.blade.php) در `source-pages/show`، `source-items/show` و `sources/show`.
+  - نمایشگر: getter به نام `citeUrl` در [catalog-viewer.js](../resources/js/catalog-viewer.js) و پیوندی در سربرگ [x-catalog-viewer](../resources/views/components/catalog-viewer.blade.php).
+- **رونوشت با ارجاع:** [x-source.cite-quote](../resources/views/components/source/cite-quote.blade.php) و [cite-quote.js](../resources/js/cite-quote.js) (`Alpine.data('citeQuote')`).
+  - `selectionchange` روی document. با `within` فقط گزینشی درون `.book-sheet` حساب است.
+  - دکمه با `x-teleport` به body می‌رود، `fixed` روی گزینش. `mousedown.prevent` گزینش را نگه می‌دارد.
+  - نتیجه: `«…» (درون‌متنی)`. رونوشت خود مرورگر دست نخورده است.
+  - در صفحۀ متن، سازه گرد ستون برگه است، بیرون x-data `{ copied }`، تا `$refs.sheet` دکمۀ «رونوشت متن» در دامنۀ خودش بماند.
+- **داده:**
+  - migration `2026_11_25_100001_add_publication_place_to_sources`: `publication_place` (۱۰۰) در `sources` و `source_volumes`.
+  - `SuggestionRegistry::sourceFields` به `publication_place`.
+  - `Admin\SourceController::update` پنج ستون شناسنامه را فقط وقتی تغییر می‌دهد که فرم آن را فرستاده باشد.
+- **آزمون:** [CiteTest](../tests/Feature/CiteTest.php)، ۸ آزمون.
+
+### گام ۱۴.۳۹۰: برداشتن `citationModalOpen`
+
+- [works/show](../resources/views/works/show.blade.php) و [manuscripts/show](../resources/views/manuscripts/show.blade.php): متغیر `citationModalOpen`، دکمه و پنجرۀ «ACADEMIC CITATION MODAL» برداشته شد. `copyText` و `copiedKey` برای پیوند کوتاه و QR ماند.
+- حذف شد: `SourceEntry::referenceCitation()` و `RecordSources::citable()` (مورد ۱۴۷، گام ۱۴.۲۳۶)، که فقط پنجره به کارشان می‌برد.
+- آزمون: `CatalogReferencesTest` نبودن `citationModalOpen` را می‌سنجد. `CiteTest::test_the_work_page_has_no_citation_window_of_its_own`.
+- **نخستین اجرا (۴ آذر، پس از نصب `age`):** `refresh-prod-copy --yes` با فایل رمزدار مانده از آزمون. رمزگشایی ۱۱ ثانیه و بارگذاری در `fahares_prod_new` ۸ دقیقه طول کشید (۲٫۵ گیگابایت SQL). `row_counts` برابر بود: ۱۱۴ کاربر، ۶۰۵ پیشنهاد، ۹٬۷۵۹ نشانی برگشت، ۳۲۳٬۲۵۰ نسخه، ۷۱٬۶۸۶ اثر و ۶۶٬۳۰۳ شخص. رونوشت پیشین به `fahares_prod_20261108` رفت. اندازه‌ها: `fahares_prod` ۴٫۲۱ و `fahares_prod_20261108` ۳٫۹۲ گیگابایت.
+- **پاک‌سازی (به تصمیم کاربر):** پیش از بارگذاری، پس از وارسی این که پرس‌وجویی روی آن‌ها نیست، `DROP DATABASE` روی `fahares_prod_20261014`، `fahares_prod_20261029` و `fahares_prod_bak_13114` اجرا شد. پس از اجرا ۹٫۵ گیگابایت آزاد ماند.
+- **زمان‌بندی (به خواست کاربر):** تایمر systemd کاربر روی لپ‌تاپ، بیرون از git: `~/.config/systemd/user/fahares-prodcopy.{service,timer}`.
+  - `OnCalendar=Sat 10:00` با `Persistent=true`: اگر لپ‌تاپ آن ساعت خاموش باشد، اجرا پس از روشن شدن انجام می‌شود.
+  - فرمان: `refresh-prod-copy --yes` از checkout اصلی، با `TDL_PROXY=http://127.0.0.1:20171`. خروجی به `~/.fahares/prodcopy-run.log` می‌رود.
+  - اسکریپت پس از انتشار به checkout اصلی می‌رسد. اجرای پیش از انتشار شکست می‌خورد.
+  - وضع: `systemctl --user list-timers fahares-prodcopy.timer`. خاموش کردن: `systemctl --user disable --now fahares-prodcopy.timer`.
