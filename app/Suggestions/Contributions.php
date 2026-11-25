@@ -135,8 +135,9 @@ class Contributions
             'before' => null,
             'after' => null,
             'text' => null,
-            // What the researcher wrote for a field's reading, the same text its record page shows under the reading (step 14.409)
-            'evidence' => $s->kind === 'field' && ! $s->review_queue ? (trim((string) $s->rationale_citation) ?: null) : null,
+            // What the researcher wrote beside a field's reading, a note or a relation (steps 14.409 and 14.410); an answer of
+            // «تصحیح جمعی» and a general message keep theirs for the reviewer
+            'evidence' => in_array($s->kind, ['field', 'note', 'relation'], true) && ! $s->review_queue ? (trim((string) $s->rationale_citation) ?: null) : null,
             'standing' => $s->kind === 'field' ? $s->standing_label : null,
             'contributor' => self::contributor($s),
         ];
