@@ -14231,5 +14231,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۳۹۸: `insights/topic-icon.blade.php`
 - پارۀ قالب با `$slug` (کلید `insights.topics`) و `$class` اختیاری (پیش‌فرض `size-7`): یک `<svg data-insights-icon>` با `stroke="currentColor"`. در کارت‌های هاب (`insights/index.blade.php`) کنار `<h2>`. آزمون: `InsightsTopicPagesTest`.
 
+### گام ۱۴.۳۹۹: `fankhaEntry`، `citedEntry`، `EntryColumns`
+
+- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):**
+  - `fankhaEntry()` (MorphOne با `legacy_type` در `work`/`manuscript`) و `fankhaText()`.
+  - `scopeJoinFankha($alias)` و `scopeOrderByFankha()` با left join.
+  - `scopeOrderByFankhaColumn($column, $dir)` با زیرپرس‌وجو، برای پرس‌وجوهایی که ستون‌های بی‌پیشوند دارند (جدول نسخه‌های صفحۀ اثر).
+- **[Manuscript](../app/Models/Manuscript.php):**
+  - `citedEntry()` با `legacy_type = fankha_citation`. `catalog_citation` از آن خوانده می‌شود.
+  - `is_addendum_entry` از `fankhaEntry.source.code` خوانده می‌شود. رابطۀ `catalog()` حذف شد.
+  - `makeSearchableUsing` برای هر `searchable()` دسته‌ای `loadMissing('fankhaEntry')` می‌کند.
+  - کلیدهای `toSearchableArray` همان‌اند، با مقدار از مدخل؛ `config/scout.php` دست نخورد.
+- **[EntryColumns](../app/Support/EntryColumns.php):** `query($table, $columns)` و `join()`. مدخل فنخا با نام `fe` و (برای نسخه) استناد با نام `ce` و `legacy_index = 0` پیوسته می‌شوند، و مقادیر با نام‌های پیشین ستون‌ها برمی‌گردند.
+- **[DirectAnswer](../app/Support/DirectAnswer.php):** شناسه‌ها از `source_entries` با نمایۀ `source_entries_place` (`source_id`، `volume_number`، `page_start`) خوانده می‌شوند و رکوردها به همان ترتیب بار می‌شوند. `whereHas` روی همۀ نسخه‌ها روی رونوشت پروداکشن ۲۰٫۰ ثانیه طول می‌کشید؛ اکنون ۴۲ ms.
+- **دست‌نخورده، عمداً:**
+  - `RecordEntries`، hook ذخیره، `SourceEntrySync` (`syncRecord`، `primaryValues`، `syncCited`) و بخش `fankha` در `sources:backfill`.
+  - فرمان‌هایی که `syncCited` را تغذیه می‌کنند: `link-volumes`، `import-volume-parts`، `merge-duplicates`، `set-volumes`، `move-cited-part`، `sync-other-citations` و `import-fankha-references`.
+  - `ManuscriptCreator` هنوز شمارۀ ردیف نسخۀ تازۀ پنل را از ستون می‌گیرد.
+- **آزمون‌ها:**
+  - `SourcePagesTest::test_readers_take_the_fankha_place_and_citation_from_the_entries`.
+  - چهار آزمون فرمان که با `DB::table` درج می‌کنند، پس از درج `syncIds` را صدا می‌زنند.
+
 ### گام ۱۴.۴۰۰: `topic-icon` در زبانه‌ها و سربرگ
 - `insights/index.blade.php`: `@include('insights.topic-icon', ['slug' => $topic, 'class' => 'size-9'])` در `<header>` صفحۀ موضوع، و `['class' => 'size-4']` در هر پیوند `[data-insights-tabs]` (اکنون `inline-flex`). آزمون: `InsightsTopicPagesTest`.
