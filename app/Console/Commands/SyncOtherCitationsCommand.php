@@ -25,7 +25,7 @@ class SyncOtherCitationsCommand extends Command
         $copies = $places = 0;
         $shown = 0;
         $ids = [];
-        DB::table('manuscripts')->select(['id', 'metadata', 'raw_text'])->where('raw_text', 'like', '%]%')
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->where('fe.copy_text', 'like', '%]%')
             ->chunkById(5000, function ($rows) use (&$copies, &$places, &$shown, &$ids) {
                 foreach ($rows as $m) {
                     $others = CatalogCitations::others($m->metadata, $m->raw_text);
@@ -39,7 +39,7 @@ class SyncOtherCitationsCommand extends Command
                         $this->line("#{$m->id}: " . implode(' | ', array_column($others, 'text')));
                     }
                 }
-            });
+            }, 'manuscripts.id', 'id');
         $had = DB::table('source_entries')->where('legacy_type', 'fankha_citation_more')->count();
         $this->info("{$copies} copies cite {$places} further places ({$had} entries now)");
         if (! $this->option('apply')) {
@@ -51,7 +51,7 @@ class SyncOtherCitationsCommand extends Command
         $stale = DB::table('source_entries')->where('legacy_type', 'fankha_citation_more')->whereNotIn('legacy_id', $ids ?: [0])->delete();
         DB::transaction(function () use ($ids) {
             foreach (array_chunk($ids, 2000) as $part) {
-                SourceEntrySync::syncOtherCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text']));
+                SourceEntrySync::syncOtherCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->whereIn('manuscripts.id', $part)->get());
             }
         });
         $q = DB::table('source_entries')->where('legacy_type', 'fankha_citation_more');

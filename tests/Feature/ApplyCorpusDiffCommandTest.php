@@ -30,7 +30,7 @@ class ApplyCorpusDiffCommandTest extends TestCase
 
     private function work(int $number, array $attributes): int
     {
-        $id = $this->ids[] = DB::table('works')->insertGetId($attributes + [
+        $id = $this->ids[] = \Tests\Support\InsertRecords::work($attributes + [
             'primary_title' => "اثر آزمایشی مآخذ {$number}",
             'clean_title' => 'اثر آزمایشی مآخذ',
             'slug' => 'test-corpus-diff-' . uniqid() . "-v99-{$number}",
@@ -38,9 +38,13 @@ class ApplyCorpusDiffCommandTest extends TestCase
             'page_start' => 1,
         ]);
         // the command reads the volume, the text and the bibliography from the entries (step 14.399)
-        \App\Sources\SourceEntrySync::syncIds(Work::class, [$id]);
 
         return $id;
+    }
+
+    private function bibliography(int $id): array
+    {
+        return \App\Sources\RecordEntries::bibliographyOf((new Work)->forceFill(['id' => $id]));
     }
 
     private function diff(array $works): void
@@ -76,7 +80,7 @@ class ApplyCorpusDiffCommandTest extends TestCase
         ]);
 
         $this->artisan('fahares:apply-corpus-diff', ['--file' => $this->file])->assertSuccessful();
-        $this->assertSame(json_encode($old, JSON_UNESCAPED_UNICODE), DB::table('works')->where('id', $untouched)->value('bibliography'));
+        $this->assertSame($old, $this->bibliography($untouched));
 
         $this->artisan('fahares:apply-corpus-diff', ['--file' => $this->file, '--apply' => true])
             ->expectsOutputToContain('Updated 2 works.')
@@ -85,9 +89,9 @@ class ApplyCorpusDiffCommandTest extends TestCase
             ->expectsOutputToContain('0 matching works')
             ->assertSuccessful();
 
-        $this->assertSame($new, json_decode(DB::table('works')->where('id', $untouched)->value('bibliography'), true));
-        $this->assertSame(['مأخذ ویرایش‌شده'], json_decode(DB::table('works')->where('id', $edited)->value('bibliography'), true));
-        $this->assertSame($old, json_decode(DB::table('works')->where('id', $protected)->value('bibliography'), true));
+        $this->assertSame($new, $this->bibliography($untouched));
+        $this->assertSame(['مأخذ ویرایش‌شده'], $this->bibliography($edited));
+        $this->assertSame($old, $this->bibliography($protected));
         $this->assertSame('عنوان ویرایش‌شده. در الذریعه [17/16] معرفی شده است.', DB::table('works')->where('id', $text)->value('description'));
 
         // A second run finds everything in place

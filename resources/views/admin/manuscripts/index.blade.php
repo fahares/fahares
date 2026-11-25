@@ -38,7 +38,7 @@
                 <a href="{{ route('manuscripts.show', $m) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $fa(collect([$m->library ?: 'بی کتابخانه', $m->shelfmark])->filter()->implode('، ')) }}</a>
                 @if($m->rangeLabel())<span class="text-xs text-muted">{{ $fa($m->rangeLabel()) }}</span>@endif
                 <span class="text-xs text-muted tabular-nums">#{{ $fa($m->id) }}</span>
-                @if($m->catalog_id === null)<x-ui.chip>ساخته‌شده در پنل</x-ui.chip>@endif
+                @if($m->fankhaEntry === null)<x-ui.chip>ساخته‌شده در پنل</x-ui.chip>@endif
             </x-admin.cell>
             <x-admin.cell label="اثر">
                 @if($m->work)

@@ -45,16 +45,16 @@ class MoveCitedPartTest extends TestCase
         $one = $copy('10470', '[ف: 1 / 33 - 43]');
         $two = $copy('11250', '[ف: 33/2-150]');
         $none = $copy('1-طباطبائی', '[ف: 33-24]');
-        SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', [$one->id, $two->id, $none->id])->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$one->id, $two->id, $none->id])->get());
         $args = ['--library' => $library->slug, '--volume' => 33, '--part' => 1, '--from' => $part2->title, '--to' => $part1->title];
 
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('1 copies to move')->assertSuccessful();
-        $this->assertSame($part2->id, $one->fresh()->catalog_volume_id);
+        $this->assertSame($part2->id, $one->fresh()->citedEntry?->source_volume_id);
 
         $this->artisan('catalogs:move-cited-part', $args + ['--apply' => true])->expectsOutputToContain('Moved 1 copies.')->assertSuccessful();
-        $this->assertSame($part1->id, $one->fresh()->catalog_volume_id);
-        $this->assertSame($part2->id, $two->fresh()->catalog_volume_id);
-        $this->assertSame($part2->id, $none->fresh()->catalog_volume_id);
+        $this->assertSame($part1->id, $one->fresh()->citedEntry?->source_volume_id);
+        $this->assertSame($part2->id, $two->fresh()->citedEntry?->source_volume_id);
+        $this->assertSame($part2->id, $none->fresh()->citedEntry?->source_volume_id);
         $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $one->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->sole();
         $this->assertSame($part1->id, $entry->source_volume_id);
         $this->assertSame(43, $entry->page_start);
@@ -81,11 +81,11 @@ class MoveCitedPartTest extends TestCase
         $named = $copy('12', '[رشت و همدان: ف: - 1338]');
         $dash = $copy('13', '[رشت و همدان - ف: -1395]');
         $plain = $copy('14', '[ف: 1251]');
-        SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', [$named->id, $dash->id, $plain->id])->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$named->id, $dash->id, $plain->id])->get());
         $args = ['--library' => $library->slug, '--names' => 'رشت و همدان', '--from' => $own->title, '--to' => $book->title, '--apply' => true];
 
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 2 copies.')->assertSuccessful();
-        $this->assertSame([$book->id, $book->id, $own->id], [$named->fresh()->catalog_volume_id, $dash->fresh()->catalog_volume_id, $plain->fresh()->catalog_volume_id]);
+        $this->assertSame([$book->id, $book->id, $own->id], [$named->fresh()->citedEntry?->source_volume_id, $dash->fresh()->citedEntry?->source_volume_id, $plain->fresh()->citedEntry?->source_volume_id]);
         // the copy keeps its library; its cited page is now on the book's volume
         $this->assertSame($library->id, $named->fresh()->library_id);
         $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $named->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->sole();
@@ -111,11 +111,11 @@ class MoveCitedPartTest extends TestCase
         };
         $second = $copy('20', '[عکسی ف: 2 - 57]');
         $first = $copy('21', '[عکسی ف: 1-358]');
-        SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', [$second->id, $first->id])->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', [$second->id, $first->id])->get());
         $args = ['--library' => $library->slug, '--cited-volume' => 2, '--from' => $one->title, '--to' => $two->title, '--apply' => true];
 
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 1 copies.')->assertSuccessful();
-        $this->assertSame([$two->id, $one->id], [$second->fresh()->catalog_volume_id, $first->fresh()->catalog_volume_id]);
+        $this->assertSame([$two->id, $one->id], [$second->fresh()->citedEntry?->source_volume_id, $first->fresh()->citedEntry?->source_volume_id]);
         $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $second->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->sole();
         $this->assertSame([$two->id, 57], [$entry->source_volume_id, $entry->page_start]);
         $this->assertTrue(AuditLog::where('auditable_id', $second->id)->where('new_values->corpus_fix', 'move-cited-part --cited-volume (step 14.333)')->exists());

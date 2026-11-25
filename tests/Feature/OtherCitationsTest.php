@@ -93,7 +93,7 @@ class OtherCitationsTest extends TestCase
         file_put_contents($file, json_encode(['records' => [[
             'table' => 'manuscripts', 'id' => $wrong->id, 'shelfmark' => $wrong->shelfmark, 'category' => 'rebuild', 'v2' => 'v1-1#0',
             'changes' => [
-                'raw_text' => ['from' => $wrong->raw_text, 'to' => 'نسخه، 9گ [ف: 21-1200]'],
+                'raw_text' => ['from' => $wrong->fankhaText(), 'to' => 'نسخه، 9گ [ف: 21-1200]'],
                 'metadata' => ['from' => $meta ?: null, 'to' => ['catalog_citation' => '[ف: 21-1200]']],
             ],
         ]]], JSON_UNESCAPED_UNICODE));
@@ -103,7 +103,7 @@ class OtherCitationsTest extends TestCase
             ->assertSuccessful();
         @unlink($file);
 
-        $this->assertSame($this->own->id, (int) $wrong->fresh()->catalog_volume_id);
+        $this->assertSame($this->own->id, (int) $wrong->fresh()->citedEntry?->source_volume_id);
         $this->assertSame($this->own->id, SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $wrong->id)->value('source_volume_id'));
     }
 

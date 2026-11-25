@@ -148,10 +148,10 @@ class CatalogReferencesTest extends TestCase
         $bare = $this->manuscript(['catalog_volume_id' => null, 'metadata' => []]);
 
         $cited = fn (Manuscript $m) => SourceEntry::where('citable_id', $m->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION);
-        // saving the copy wrote it already; the command does every copy, as after a relink written with DB::table
-        $cited($ms)->delete();
+        // saving the copy wrote it already; the command reads every copy's citation again (the volume is the entry's own, step 14.407)
+        $cited($ms)->update(['citation_text' => null, 'volume_number' => null, 'page_start' => null]);
         $this->artisan('catalogs:import-fankha-references', ['--dry-run' => true])->assertSuccessful();
-        $this->assertSame(0, $cited($ms)->count());
+        $this->assertNull($cited($ms)->value('citation_text'));
 
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
@@ -161,10 +161,10 @@ class CatalogReferencesTest extends TestCase
             [$rows[0]->citation_text, $rows[0]->volume_number, $rows[0]->page_start, $rows[0]->source_volume_id]);
         $this->assertSame(0, $cited($bare)->count());
 
-        // a later relink of the copy is followed on save, and by the command after a relink written with DB::table
+        // a later relink of the copy is followed on save, and by the command after a relink through SourceEntrySync::setCatalogue
         $ms->update(['catalog_volume_id' => $this->edition->id]);
         $this->assertSame([$this->edition->id], $cited($ms)->pluck('source_volume_id')->all());
-        DB::table('manuscripts')->where('id', $ms->id)->update(['catalog_volume_id' => $this->fankhaVolume->id]);
+        \App\Sources\SourceEntrySync::setCatalogue([$ms->id], ['catalog_volume_id' => $this->fankhaVolume->id]);
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->assertSame([$this->fankhaVolume->id], $cited($ms)->pluck('source_volume_id')->all());
     }
@@ -799,7 +799,7 @@ class CatalogReferencesTest extends TestCase
         $ref->refresh();
         $this->assertSame([416, SourceEntry::ORIGIN_MANUAL, SourceEntry::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->origin, $ref->status, $ref->reviewed_by]);
         $this->assertNull($ref->entry_number, 'an address on another page without a number leaves the old page\'s number behind');
-        $this->assertSame([1, 1, 1], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number], 'the Fankha columns are untouched');
+        $this->assertSame([1, 1, 1], $this->fankhaOf($ms, 'volume_number', 'page_start', 'entry_number'), 'the Fankha columns are untouched');
         $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
 
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
@@ -843,7 +843,7 @@ class CatalogReferencesTest extends TestCase
         $this->suggestAddress($ms, 'fankha_page', 'ج ۳، ص ۱۲، ردیف ۴')->assertOk();
         $this->assertSame('ج ۱، ص ۱، ردیف ۱', FieldSuggestion::latest('id')->first()->current_value);
         $this->approveLatest($ms)->assertSessionHasNoErrors();
-        $this->assertSame([3, 12, 4], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number]);
+        $this->assertSame([3, 12, 4], $this->fankhaOf($ms, 'volume_number', 'page_start', 'entry_number'));
     }
 
     public function test_bibliography_citations_are_rewritten_in_their_own_form()
@@ -879,14 +879,14 @@ class CatalogReferencesTest extends TestCase
         $suggest('bibliography_page_dharia_25_101', 'ج ۲۵، ص ۱۰۲')->assertOk();
         $this->assertSame(['ج ۲۵، ص ۱۰۱', 'ج ۲۵، ص ۱۰۲'], [FieldSuggestion::latest('id')->first()->current_value, FieldSuggestion::latest('id')->first()->suggested_value]);
         $approve()->assertSessionHasNoErrors();
-        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $work->fresh()->bibliography);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->bibliographyOf($work));
 
         $suggest('fankha_page', 'ج ۴، ص ۲۰')->assertOk();
         $approve()->assertSessionHasNoErrors();
-        $this->assertSame([4, 20, 21], [$work->fresh()->volume_number, $work->fresh()->page_start, $work->fresh()->page_end]);
+        $this->assertSame([4, 20, 21], $this->fankhaOf($work, 'volume_number', 'page_start', 'page_end'));
 
         // the rollback restores the bibliography text
         $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->where('auditable_id', $work->id)->orderBy('id')->value('id') . '/rollback')->assertSessionHas('success');
-        $this->assertSame(['منزوی 977/2', 'الذریعه 101/25'], $work->fresh()->bibliography);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 101/25'], $this->bibliographyOf($work));
     }
 }

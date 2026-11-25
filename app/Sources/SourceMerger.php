@@ -140,7 +140,7 @@ class SourceMerger
         // the copies of a duplicate volume take a part of the volume kept, and the counts follow
         $keptVolumes = array_unique(array_map(fn ($d) => $d[1]->volume->id, $plan['drops']));
         if ($keptVolumes) {
-            CatalogVolumePart::assign(DB::table('manuscripts')->whereIn('catalog_volume_id', $keptVolumes)->pluck('id'));
+            CatalogVolumePart::assign(\App\Support\EntryColumns::cited()->whereIn('ce.source_volume_id', $keptVolumes)->pluck('manuscripts.id'));
             foreach ($keptVolumes as $id) {
                 DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
             }
@@ -174,7 +174,7 @@ class SourceMerger
         foreach (['source_volumes', 'catalog_volumes'] as $table) {
             DB::table($table)->where('edition_of_id', $drop)->update(['edition_of_id' => $keep]);
         }
-        DB::table('manuscripts')->where('catalog_volume_id', $drop)->update(['catalog_volume_id' => $keep]);
+        // the copies' citation entries moved with the other entries above (step 14.407)
         $has = DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $keep)->pluck('cataloger_id')->all();
         DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $drop)->whereNotIn('cataloger_id', $has)
             ->update(['catalog_volume_id' => $keep]);
@@ -304,7 +304,8 @@ class SourceMerger
             'source_item_refs' => $all('source_item_refs', 'source_item_id', $dropItems),
             'source_item_targets' => $cols(DB::table('source_item_refs')->whereIn('target_item_id', $dropItems), ['id', 'target_item_id']),
             'source_pages' => $all('source_pages', 'source_volume_id', $drops),
-            'manuscripts' => $cols(DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes), ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
+            'manuscripts' => \App\Support\EntryColumns::cited()->whereIn('ce.source_volume_id', $volumes)->orderBy('manuscripts.id')
+                ->get(['manuscripts.id', 'ce.source_volume_id as catalog_volume_id', 'ce.catalog_volume_part_id', 'ce.cataloger_id'])->map(fn ($r) => (array) $r)->all(),
             'source_citation_forms' => CitationForms::ready() ? DB::table('source_citation_forms')->where(fn ($q) => $q->whereIn('cited_source_id', $ids)
                 ->orWhereIn('citing_source_id', $ids))->orderBy('id')->get()->map(fn ($r) => (array) $r)->all() : [],
         ];
@@ -341,7 +342,6 @@ class SourceMerger
         $insert('source_pages', $snapshot['source_pages']);
         self::restoreColumns('source_entries', $snapshot['source_entries']);
         self::restoreColumns('manuscripts', $snapshot['manuscripts']);
-        SourceEntrySync::syncCatalogueOfVolumes(array_column($snapshot['manuscripts'], 'catalog_volume_id'));
         $insert('source_citation_forms', $snapshot['source_citation_forms'] ?? []);
 
         foreach ($snapshot['volume_ids'] as $id) {
@@ -372,10 +372,43 @@ class SourceMerger
     /** Writes back the columns of each row, grouping the rows that take the same values. */
     public static function restoreColumns(string $table, array $rows): void
     {
+        if ($table === 'manuscripts') {
+            self::restoreCopies($rows);
+
+            return;
+        }
         foreach (collect($rows)->groupBy(fn ($r) => json_encode(collect($r)->except('id')->all())) as $group) {
             $values = collect($group->first())->except('id')->all();
             foreach ($group->pluck('id')->chunk(1000) as $ids) {
                 DB::table($table)->whereIn('id', $ids->all())->update($values);
+            }
+        }
+    }
+
+    /**
+     * Puts back a copy's catalogue volume, part and cataloger (rows with id, catalog_volume_id, catalog_volume_part_id,
+     * cataloger_id, as the backups made before step 14.407 hold them from the manuscripts columns) on its citation
+     * entry. Keys the entry has no column for are dropped.
+     */
+    public static function restoreCopies(array $rows): void
+    {
+        $known = ['catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id'];
+        foreach (collect($rows)->groupBy(fn ($r) => json_encode(collect($r)->only($known)->all())) as $group) {
+            $given = collect($group->first())->only($known)->all();
+            $values = [];
+            if (array_key_exists('catalog_volume_id', $given)) {
+                $volume = $given['catalog_volume_id'];
+                $values['source_volume_id'] = $volume;
+                $values['source_id'] = $volume ? DB::table('source_volumes')->where('id', $volume)->value('source_id') : null;
+            }
+            foreach (['catalog_volume_part_id', 'cataloger_id'] as $column) {
+                array_key_exists($column, $given) && $values[$column] = $given[$column];
+            }
+            if (! $values) {
+                continue;
+            }
+            foreach ($group->pluck('id')->chunk(1000) as $ids) {
+                DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->whereIn('legacy_id', $ids->all())->update($values);
             }
         }
     }

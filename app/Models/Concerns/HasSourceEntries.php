@@ -26,8 +26,26 @@ trait HasSourceEntries
     public const SOURCE_ATTRIBUTES = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', 'sequence_number',
         'bibliography', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id'];
 
-    /** @var \WeakMap<object, array<string, mixed>>|null the source values a record was given, until it is saved */
+    /** @var \WeakMap<object, array{0: array<string, mixed>, 1: bool}>|null the source values a record was given and whether it is being made, until it is saved */
     private static ?\WeakMap $pendingSources = null;
+
+    /**
+     * The old names are no columns, so the guard (guarded = id) would drop them from fill(): a work or a copy takes
+     * them as fillable, for its entries to hold (step 14.407).
+     */
+    public function isFillable($key): bool
+    {
+        return (($this instanceof \App\Models\Work || $this instanceof \App\Models\Manuscript) && in_array($key, self::SOURCE_ATTRIBUTES, true))
+            || parent::isFillable($key);
+    }
+
+    /** The source values the record was given on this save, before the entries take them (for a saving hook that reads them). */
+    public function givenSources(): array
+    {
+        $pending = self::$pendingSources ??= new \WeakMap;
+
+        return isset($pending[$this]) ? $pending[$this][0] : [];
+    }
 
     public static function bootHasSourceEntries(): void
     {
@@ -46,16 +64,17 @@ trait HasSourceEntries
                 }
             }
             self::$pendingSources ??= new \WeakMap;
-            self::$pendingSources[$record] = $given;
+            // a record saved again after it was made is not made again: wasRecentlyCreated stays true on the instance
+            self::$pendingSources[$record] = [$given, ! $record->exists];
         });
 
         static::saved(function ($record) use ($holds) {
             if (! $holds($record)) {
                 return;
             }
-            $given = self::$pendingSources[$record] ?? [];
+            [$given, $creating] = isset(self::$pendingSources[$record]) ? self::$pendingSources[$record] : [[], false];
             unset(self::$pendingSources[$record]);
-            RecordEntries::take($record, $given, $record->wasRecentlyCreated);
+            RecordEntries::take($record, $given, $creating);
             $record->unsetRelation('sourceEntries')->unsetRelation('fankhaEntry');
             $record instanceof \App\Models\Manuscript && $record->unsetRelation('citedEntry');
         });

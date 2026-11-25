@@ -41,8 +41,7 @@ class ImportFankhaCatalogReferencesCommand extends Command
         $stats = array_fill_keys(['manuscripts', 'no citation or volume', 'volume and page', 'page only', 'volume only', 'not parsed', 'written', 'removed'], 0);
         $series = [];
 
-        DB::table('manuscripts')->select('id', 'catalog_volume_id', 'metadata', 'raw_text')
-            ->orderBy('id')
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_volume_id', 'metadata', 'raw_text'])
             ->chunkById((int) $this->option('chunk'), function ($rows) use (&$stats, &$series, $dry) {
                 foreach ($rows as $row) {
                     $stats['manuscripts']++;
@@ -67,7 +66,7 @@ class ImportFankhaCatalogReferencesCommand extends Command
                     $stats['written'] += $written;
                     $stats['removed'] += $removed;
                 }
-            });
+            }, 'manuscripts.id', 'id');
 
         $this->table(['', 'count'], collect($stats)->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
         arsort($series);
@@ -88,8 +87,8 @@ class ImportFankhaCatalogReferencesCommand extends Command
     {
         $updates = [];
         $kinds = ['a lone number is the page' => 0, 'another citation is the tied volume\'s' => 0, 'volume and page swapped' => 0];
-        DB::table('manuscripts')->whereNotNull('catalog_volume_id')->select('id', 'catalog_volume_id', 'metadata', 'raw_text')
-            ->orderBy('id')->chunkById(5000, function ($rows) use (&$updates, &$kinds) {
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_volume_id', 'metadata', 'raw_text'])->whereNotNull('ce.source_volume_id')
+            ->chunkById(5000, function ($rows) use (&$updates, &$kinds) {
                 $sources = DB::table('source_volumes')->whereIn('id', $rows->pluck('catalog_volume_id')->unique())->pluck('source_id', 'id')->all();
                 $entries = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $rows->pluck('id'))
                     ->get(['id', 'legacy_id', 'volume_number', 'page_start'])->keyBy('legacy_id');
@@ -112,7 +111,7 @@ class ImportFankhaCatalogReferencesCommand extends Command
                         default => 'another citation is the tied volume\'s',
                     }]++;
                 }
-            });
+            }, 'manuscripts.id', 'id');
         $this->table(['', 'entries'], collect($kinds)->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
         if ($dry) {
             $this->info('Would write the volume and page of ' . count($updates) . ' entries.');

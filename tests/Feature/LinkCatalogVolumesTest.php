@@ -102,16 +102,16 @@ class LinkCatalogVolumesTest extends TestCase
             ],
         ]]);
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath, '--dry-run' => true])->assertSuccessful();
-        $this->assertSame($wrong->id, $vol10->fresh()->catalog_volume_id);
+        $this->assertSame($wrong->id, $vol10->fresh()->citedEntry?->source_volume_id);
 
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
 
         $one = CatalogVolume::where('title', 'ج ۲ بخش ۱')->sole();
         $two = CatalogVolume::where('title', 'ج ۲ بخش ۲')->sole();
-        $this->assertSame([$one->id, $first->id], [$partOne->fresh()->catalog_volume_id, $partOne->fresh()->cataloger_id]);
-        $this->assertSame([$two->id, Cataloger::where('slug', $newSlug)->value('id')], [$partTwo->fresh()->catalog_volume_id, $partTwo->fresh()->cataloger_id]);
-        $this->assertSame([null, null], [$vol10->fresh()->catalog_volume_id, $vol10->fresh()->cataloger_id]);
+        $this->assertSame([$one->id, $first->id], [$partOne->fresh()->citedEntry?->source_volume_id, $partOne->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame([$two->id, Cataloger::where('slug', $newSlug)->value('id')], [$partTwo->fresh()->citedEntry?->source_volume_id, $partTwo->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame([null, null], [$vol10->fresh()->citedEntry?->source_volume_id, $vol10->fresh()->citedEntry?->cataloger_id]);
         $this->assertNull(CatalogVolume::find($wrong->id));
         $this->assertNull(CatalogVolume::find($duplicate->id));
         $this->assertSame('حسین قاسمی', $surname->fresh()->name);
@@ -147,17 +147,17 @@ class LinkCatalogVolumesTest extends TestCase
         ]]);
 
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath, '--dry-run' => true])->assertSuccessful();
-        $this->assertNull($v1->fresh()->cataloger_id);
+        $this->assertNull($v1->fresh()->citedEntry?->cataloger_id);
         $this->assertNull(Cataloger::where('mtif_entry_id', 990002)->first());
 
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
         $vol1 = CatalogVolume::where('mtif_entry_id', 880001)->firstOrFail();
         $vol2 = CatalogVolume::where('mtif_entry_id', 880002)->firstOrFail();
         $new = Cataloger::where('mtif_entry_id', 990002)->firstOrFail();
-        $this->assertSame([$vol1->id, $existing->id], [$v1->fresh()->catalog_volume_id, $v1->fresh()->cataloger_id]);
-        $this->assertSame($vol2->id, $v2->fresh()->catalog_volume_id);
-        $this->assertNull($v9->fresh()->catalog_volume_id);
-        $this->assertNull($other->fresh()->catalog_volume_id);
+        $this->assertSame([$vol1->id, $existing->id], [$v1->fresh()->citedEntry?->source_volume_id, $v1->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame($vol2->id, $v2->fresh()->citedEntry?->source_volume_id);
+        $this->assertNull($v9->fresh()->citedEntry?->source_volume_id);
+        $this->assertNull($other->fresh()->citedEntry?->source_volume_id);
         $this->assertEqualsCanonicalizing([$existing->id, $new->id], $vol1->catalogers()->pluck('catalogers.id')->all());
         $this->assertSame(1, $vol1->fresh()->manuscripts_count);
         $this->assertSame(2, $existing->fresh()->manuscripts_count);
@@ -197,10 +197,10 @@ class LinkCatalogVolumesTest extends TestCase
             ->assertSuccessful();
         $volume = CatalogVolume::where('title', 'فهرست ماندگار - 1')->firstOrFail();
         $this->assertSame($library->id, $volume->library_id);
-        $this->assertSame($volume->id, $copy->fresh()->catalog_volume_id);
+        $this->assertSame($volume->id, $copy->fresh()->citedEntry?->source_volume_id);
         $this->assertFalse(CatalogVolume::where('title', 'فهرست گمشده - 1')->exists());
         $this->assertFalse(CatalogVolume::where('title', 'فهرست دیگر - 1')->exists());
-        $this->assertNull($otherCopy->fresh()->catalog_volume_id);
+        $this->assertNull($otherCopy->fresh()->citedEntry?->source_volume_id);
     }
 
     public function test_an_authoritative_link_moves_copies_to_the_volume_their_citation_names()
@@ -233,11 +233,11 @@ class LinkCatalogVolumesTest extends TestCase
 
         $one = CatalogVolume::where('title', 'مجلس - جلد ۱/۲۴')->sole();
         $two = CatalogVolume::where('title', 'مجلس - جلد ۲/۲۴')->sole();
-        $this->assertSame([$vol2->id, $old->id], [$right->fresh()->catalog_volume_id, $right->fresh()->cataloger_id]);
-        $this->assertSame([$two->id, $nazari->id], [$partTwo->fresh()->catalog_volume_id, $partTwo->fresh()->cataloger_id]);
-        $this->assertSame([$one->id, $mansur->id], [$noPart->fresh()->catalog_volume_id, $noPart->fresh()->cataloger_id]);
-        $this->assertSame([null, null], [$unlisted->fresh()->catalog_volume_id, $unlisted->fresh()->cataloger_id]);
-        $this->assertSame($vol2->id, $noPage->fresh()->catalog_volume_id);
+        $this->assertSame([$vol2->id, $old->id], [$right->fresh()->citedEntry?->source_volume_id, $right->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame([$two->id, $nazari->id], [$partTwo->fresh()->citedEntry?->source_volume_id, $partTwo->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame([$one->id, $mansur->id], [$noPart->fresh()->citedEntry?->source_volume_id, $noPart->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame([null, null], [$unlisted->fresh()->citedEntry?->source_volume_id, $unlisted->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame($vol2->id, $noPage->fresh()->citedEntry?->source_volume_id);
     }
 
     public function test_volumes_without_mtif_are_keyed_by_title_and_a_shared_catalogue_stays_under_one_library()
@@ -266,8 +266,8 @@ class LinkCatalogVolumesTest extends TestCase
         $volume = CatalogVolume::where('title', 'فهرست مخطوط آزمایشی')->sole();
         $this->assertSame($main->id, $volume->library_id);
         $this->assertNotSame($unrelated->id, $volume->id);
-        $this->assertSame([$volume->id, $known->id], [$inMain->fresh()->catalog_volume_id, $inMain->fresh()->cataloger_id]);
-        $this->assertSame($volume->id, $inSecond->fresh()->catalog_volume_id);
+        $this->assertSame([$volume->id, $known->id], [$inMain->fresh()->citedEntry?->source_volume_id, $inMain->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame($volume->id, $inSecond->fresh()->citedEntry?->source_volume_id);
         $this->assertSame(990011, (int) $known->fresh()->mtif_entry_id);
         $this->assertSame(1, Cataloger::where('name', 'نگارندۀ بی‌شناسه')->count());
         $this->assertSame(0, $unrelated->fresh()->manuscripts_count);
@@ -292,8 +292,8 @@ class LinkCatalogVolumesTest extends TestCase
         ]]);
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
 
-        $this->assertSame([$volume->id, $first->id], [$copy->fresh()->catalog_volume_id, $copy->fresh()->cataloger_id]);
-        $this->assertNull($other->fresh()->catalog_volume_id);
+        $this->assertSame([$volume->id, $first->id], [$copy->fresh()->citedEntry?->source_volume_id, $copy->fresh()->citedEntry?->cataloger_id]);
+        $this->assertNull($other->fresh()->citedEntry?->source_volume_id);
         $this->assertSame(1, $volume->catalogers()->count() - 1);
     }
 
@@ -312,7 +312,7 @@ class LinkCatalogVolumesTest extends TestCase
             $this->fail('Expected the run to stop');
         } catch (\RuntimeException) {
         }
-        $this->assertNull($ms->fresh()->catalog_volume_id);
+        $this->assertNull($ms->fresh()->citedEntry?->source_volume_id);
     }
 
     public function test_razavi_copies_on_malek_volumes_go_to_the_cited_razavi_volume()
@@ -333,8 +333,8 @@ class LinkCatalogVolumesTest extends TestCase
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
 
         $this->assertSame($malek->id, $malekVol->fresh()->library_id);
-        $this->assertSame([$razaviVol->id, $oktayi->id], [$cited->fresh()->catalog_volume_id, $cited->fresh()->cataloger_id]);
-        $this->assertNull($donated->fresh()->catalog_volume_id);
+        $this->assertSame([$razaviVol->id, $oktayi->id], [$cited->fresh()->citedEntry?->source_volume_id, $cited->fresh()->citedEntry?->cataloger_id]);
+        $this->assertNull($donated->fresh()->citedEntry?->source_volume_id);
     }
 
     private function manuscript(Library $library, ?string $citation, ?string $raw = null, ?int $volumeId = null): Manuscript

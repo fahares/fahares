@@ -54,7 +54,6 @@ class CitationFormsTest extends TestCase
     {
         $work = Work::create(['primary_title' => 'اثر آزمون', 'clean_title' => 'اثر آزمون', 'slug' => 'forms-work-' . uniqid(), 'volume_number' => 1,
             'page_start' => 1, 'bibliography' => $bibliography]);
-        SourceEntrySync::syncBibliography($work);
 
         return $work;
     }
@@ -70,7 +69,7 @@ class CitationFormsTest extends TestCase
         $this->source('kashf', 'کشف الظنون', 2);
         // «مؤلفین مشار» is not in this registry, as it was not in production's: it has no form and is read from config
         $work = $this->work(['الذریعة 90/25 و 107/8', 'کشف الظنون 1266', 'دنا 2/207', 'مؤلفین مشار 89/1']);
-        $before = array_map(fn ($e) => BibliographyLinks::segments($e), $work->bibliography);
+        $before = array_map(fn ($e) => BibliographyLinks::segments($e), \App\Sources\RecordEntries::bibliographyOf($work));
         $config = config('bibliography.sources');
         $this->assertSame($config, CitationForms::sources(), 'with no form, config is read as it is');
 
@@ -86,7 +85,7 @@ class CitationFormsTest extends TestCase
             $this->assertEquals($entry, $read[$code], $code);
         }
         $this->assertSame('mushar-authors', collect(BibliographyLinks::segments('مؤلفین مشار 89/1'))->pluck('cite.source')->filter()->first());
-        $this->assertSame($before, array_map(fn ($e) => BibliographyLinks::segments($e), $work->bibliography));
+        $this->assertSame($before, array_map(fn ($e) => BibliographyLinks::segments($e), \App\Sources\RecordEntries::bibliographyOf($work)));
         $this->artisan('sources:import-citation-forms', ['--check' => true])->assertSuccessful()->expectsOutputToContain('0 differ');
 
         $this->artisan('sources:import-citation-forms')->assertSuccessful()->expectsOutputToContain('Made 0 forms');

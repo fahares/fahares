@@ -108,14 +108,14 @@ class SourceCatalogerSuggestionTest extends TestCase
 
         $this->assertSame([['cataloger_id' => $this->right->id, 'role' => 'cataloger']], VolumeCatalogers::people($this->volumes[0]));
         $this->assertSame([['cataloger_id' => $this->wrong->id, 'role' => 'cataloger']], VolumeCatalogers::people($this->volumes[1]), 'the other volume is left as it was');
-        $this->assertSame($this->right->id, (int) $this->copy->fresh()->cataloger_id, 'the volume\'s copy follows its cataloger');
+        $this->assertSame($this->right->id, (int) $this->copy->fresh()->citedEntry?->cataloger_id, 'the volume\'s copy follows its cataloger');
         $this->assertSame(1, (int) $this->right->fresh()->volumes_count);
         $this->assertSame('approved', $s->fresh()->status);
         $this->get(route('sources.show', $this->source->code))->assertSee($this->right->name);
 
         $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/reopen")->assertSessionHas('success');
         $this->assertSame([['cataloger_id' => $this->wrong->id, 'role' => 'cataloger']], VolumeCatalogers::people($this->volumes[0]));
-        $this->assertSame($this->wrong->id, (int) $this->copy->fresh()->cataloger_id);
+        $this->assertSame($this->wrong->id, (int) $this->copy->fresh()->citedEntry?->cataloger_id);
         $this->assertSame('pending', $s->fresh()->status);
     }
 

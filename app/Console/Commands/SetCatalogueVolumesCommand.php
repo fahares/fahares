@@ -141,9 +141,9 @@ class SetCatalogueVolumesCommand extends Command
         $byNumber = $have->groupBy('volume_number');
         $moves = [];
         $counts = [];
-        DB::table('manuscripts as m')->join('source_entries as e', fn ($j) => $j->on('e.legacy_id', '=', 'm.id')->where('e.legacy_type', 'fankha_citation'))
-            ->whereIn('m.catalog_volume_id', $have->pluck('id')->all() ?: [0])->whereIn('e.volume_number', $numbers)
-            ->orderBy('m.id')->get(['m.id', 'm.catalog_volume_id', 'e.volume_number'])
+        DB::table('source_entries as e')->where('e.legacy_type', 'fankha_citation')->where('e.legacy_index', 0)
+            ->whereIn('e.source_volume_id', $have->pluck('id')->all() ?: [0])->whereIn('e.volume_number', $numbers)
+            ->orderBy('e.legacy_id')->get(['e.legacy_id as id', 'e.source_volume_id as catalog_volume_id', 'e.volume_number'])
             ->each(function ($m) use (&$moves, &$counts, $spec, $have) {
                 $target = $this->target($spec, $have, (int) $m->volume_number);
                 if ($target === null || $target !== (int) $m->catalog_volume_id) {
@@ -199,8 +199,7 @@ class SetCatalogueVolumesCommand extends Command
         foreach (collect($plan['moves'])->groupBy(1) as $number => $group) {
             $to = $ids[$number];
             foreach ($group->pluck(0)->chunk(1000) as $chunk) {
-                $old = DB::table('manuscripts')->whereIn('id', $chunk->all())->pluck('catalog_volume_id')->unique()->all();
-                DB::table('manuscripts')->whereIn('id', $chunk->all())->update(['catalog_volume_id' => $to, 'cataloger_id' => $catalogers[$to] ?? null]);
+                SourceEntrySync::setCatalogue($chunk->all(), ['catalog_volume_id' => $to, 'cataloger_id' => $catalogers[$to] ?? null]);
                 $copies = array_merge($copies, $chunk->all());
             }
         }
@@ -209,20 +208,17 @@ class SetCatalogueVolumesCommand extends Command
         foreach ($plan['volumes'] as [, $number, , $people]) {
             $id = $ids[$number];
             if (isset($catalogers[$id])) {
-                DB::table('manuscripts')->where('catalog_volume_id', $id)->whereNull('catalog_volume_part_id')
+                DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->where('source_volume_id', $id)
+                    ->whereNull('catalog_volume_part_id')
                     ->where(fn ($q) => $q->whereNull('cataloger_id')->orWhereNotIn('cataloger_id', array_column($people, 0)))
                     ->update(['cataloger_id' => $catalogers[$id]]);
             }
-        }
-        foreach (array_chunk($copies, 1000) as $chunk) {
-            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $chunk)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
         }
         $all = $volumes->pluck('id')->all();
         foreach ($all as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
         }
         DB::table('sources')->where('id', $source->id)->update(['volumes_count' => count($all), 'updated_at' => now()]);
-        \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($all);
         CatalogVolumePart::recount(DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $all)->pluck('id')->all());
         Cataloger::recount($before->merge(DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $all)->pluck('cataloger_id'))->unique());
         $this->info(sprintf('«%s»: %d volumes set, %d copies moved.', $source->title, count($plan['volumes']), count($copies)));
@@ -233,7 +229,7 @@ class SetCatalogueVolumesCommand extends Command
     {
         $sources = array_map(fn ($p) => $p['source']->id, $plans);
         $volumes = DB::table('source_volumes')->whereIn('source_id', $sources)->pluck('id')->all();
-        $copies = DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes)->pluck('id')->all();
+        $copies = \App\Support\EntryColumns::cited()->whereIn('ce.source_volume_id', $volumes)->pluck('manuscripts.id')->all();
         $chunked = fn ($table, $column, $ids, $columns) => collect(array_chunk($ids, 1000))->flatMap(fn ($c) => DB::table($table)->whereIn($column, $c)->get($columns))->all();
         $people = DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id')
             ->merge(collect($plans)->flatMap(fn ($p) => collect($p['volumes'])->flatMap(fn ($v) => array_column($v[3], 0))))
@@ -247,7 +243,8 @@ class SetCatalogueVolumesCommand extends Command
             'catalog_volumes' => DB::table('catalog_volumes')->whereIn('id', $volumes)->get(),
             'catalog_volume_cataloger' => DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->get(),
             'catalog_volume_parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(['id', 'manuscripts_count']),
-            'manuscripts' => $chunked('manuscripts', 'id', $copies, ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
+            'manuscripts' => collect(array_chunk($copies, 1000))->flatMap(fn ($c) => \App\Support\EntryColumns::cited()->whereIn('manuscripts.id', $c)
+                ->get(['manuscripts.id', 'ce.source_volume_id as catalog_volume_id', 'ce.catalog_volume_part_id', 'ce.cataloger_id']))->all(),
             'source_entries' => array_values(array_filter($chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'source_id', 'source_volume_id']),
                 fn ($e) => $e->legacy_type === 'fankha_citation')),
             'catalogers' => DB::table('catalogers')->whereIn('id', $people)->get(['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
@@ -288,7 +285,6 @@ class SetCatalogueVolumesCommand extends Command
             foreach (['sources', 'catalog_volume_parts', 'catalogers'] as $table) {
                 \App\Sources\SourceMerger::restoreColumns($table, $backup[$table]);
             }
-            \App\Sources\SourceEntrySync::syncCatalogueAll();
         });
         foreach ($sources as $id) {
             self::forget((int) $id);

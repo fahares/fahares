@@ -206,13 +206,12 @@ class LinkCatalogVolumesCommand extends Command
         $matched = [];
         $unlinked = [];
         $skipped = 0;
-        $query = DB::table('manuscripts')->where('library_id', $library->id);
+        $query = EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id', 'cataloger_id'])->where('manuscripts.library_id', $library->id);
         if (! $authoritative) {
-            $query->where(fn ($q) => $q->whereNull('cataloger_id')->orWhereIn('id', $released));
+            $query->where(fn ($q) => $q->whereNull('ce.cataloger_id')->orWhereIn('manuscripts.id', $released));
         }
         $freedIds = array_flip($released);
-        $query->select(['id', 'metadata', 'raw_text', 'catalog_volume_id', 'cataloger_id'])
-            ->chunkById(2000, function ($chunk) use ($link, $volumes, $single, $parts, $authoritative, $ownVolumeIds, $freedIds, &$matched, &$unlinked, &$skipped) {
+        $query->chunkById(2000, function ($chunk) use ($link, $volumes, $single, $parts, $authoritative, $ownVolumeIds, $freedIds, &$matched, &$unlinked, &$skipped) {
                 foreach ($chunk as $ms) {
                     $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), $link['series'], $parts);
                     if (! $parsed) {
@@ -234,12 +233,11 @@ class LinkCatalogVolumesCommand extends Command
                         }
                     }
                 }
-            });
+            }, 'manuscripts.id', 'id');
         if (! $this->dry) {
             foreach (array_chunk($unlinked, 1000) as $part) {
-                DB::table('manuscripts')->whereIn('id', $part)->update(['catalog_volume_id' => null, 'cataloger_id' => null]);
                 // the page Fankha cites goes with the volume (step 13.4)
-                SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+                SourceEntrySync::setCatalogue($part, ['catalog_volume_id' => null, 'cataloger_id' => null]);
             }
         }
 
@@ -248,11 +246,7 @@ class LinkCatalogVolumesCommand extends Command
             $total += count($ids);
             if (! $this->dry) {
                 foreach (array_chunk($ids, 1000) as $part) {
-                    DB::table('manuscripts')->whereIn('id', $part)->update([
-                        'catalog_volume_id' => $volumes[$index]['id'],
-                        'cataloger_id' => $volumes[$index]['cataloger_id'],
-                    ]);
-                    SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+                    SourceEntrySync::setCatalogue($part, ['catalog_volume_id' => $volumes[$index]['id'], 'cataloger_id' => $volumes[$index]['cataloger_id']]);
                 }
             }
         }
@@ -309,13 +303,12 @@ class LinkCatalogVolumesCommand extends Command
             return [];
         }
         $volumeIds = CatalogVolume::where('library_id', $volumeLibrary->id)->whereIn('title', $link['release_volumes'])->pluck('id');
-        $ids = DB::table('manuscripts')->where('library_id', $library->id)->whereIn('catalog_volume_id', $volumeIds)->pluck('id')->all();
+        $ids = EntryColumns::cited()->where('manuscripts.library_id', $library->id)->whereIn('ce.source_volume_id', $volumeIds)->pluck('manuscripts.id')->all();
         $this->line(sprintf('  released %d copies from %d wrong volume records', count($ids), $volumeIds->count()));
         if (! $this->dry) {
             foreach (array_chunk($ids, 1000) as $part) {
-                DB::table('manuscripts')->whereIn('id', $part)->update(['catalog_volume_id' => null, 'cataloger_id' => null]);
                 // the page Fankha cites goes with the volume (step 13.4)
-                SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+                SourceEntrySync::setCatalogue($part, ['catalog_volume_id' => null, 'cataloger_id' => null]);
             }
         }
 
@@ -329,7 +322,7 @@ class LinkCatalogVolumesCommand extends Command
             return;
         }
         $empty = CatalogVolume::where('library_id', $volumeLibrary->id)->whereIn('title', $link['release_volumes'])
-            ->whereNotExists(fn ($q) => $q->from('manuscripts')->whereColumn('manuscripts.catalog_volume_id', 'catalog_volumes.id'))
+            ->whereNotExists(fn ($q) => $q->from('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->whereColumn('source_entries.source_volume_id', 'catalog_volumes.id'))
             ->get();
         foreach ($empty as $volume) {
             $volume->catalogers()->detach();
@@ -428,8 +421,8 @@ class LinkCatalogVolumesCommand extends Command
             ->whereIn('mtif_entry_id', array_values($spec['razavi_volumes']))->get()->keyBy('mtif_entry_id');
 
         $moves = [];
-        DB::table('manuscripts')->whereIn('catalog_volume_id', $malekVolumes->pluck('id'))
-            ->where('library_id', $razavi->id)->select(['id', 'metadata', 'raw_text'])->orderBy('id')
+        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->whereIn('ce.source_volume_id', $malekVolumes->pluck('id'))
+            ->where('manuscripts.library_id', $razavi->id)->orderBy('manuscripts.id')
             ->each(function ($ms) use ($spec, $razaviVolumes, &$moves) {
                 $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), 'ف');
                 $mtif = $parsed && $parsed['volume'] ? ($spec['razavi_volumes'][(string) $parsed['volume']] ?? null) : null;
@@ -444,7 +437,7 @@ class LinkCatalogVolumesCommand extends Command
                 $relinked += count($ids);
             }
             if (! $this->dry) {
-                DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $volume?->id, 'cataloger_id' => $catalogerId]);
+                SourceEntrySync::setCatalogue($ids, ['catalog_volume_id' => $volume?->id, 'cataloger_id' => $catalogerId]);
             }
         }
         $total = array_sum(array_map('count', $moves));
@@ -457,14 +450,14 @@ class LinkCatalogVolumesCommand extends Command
     protected function markNonCatalogSources(): void
     {
         $marked = [self::SOURCE_LIBRARY_DATABASE => [], self::SOURCE_REGISTER => []];
-        DB::table('manuscripts')->whereNull('cataloger_id')->select(['id', 'metadata', 'raw_text'])
+        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text'])->whereNull('ce.cataloger_id')
             ->chunkById(5000, function ($chunk) use (&$marked) {
                 foreach ($chunk as $ms) {
                     if ($source = self::nonCatalogSource(self::citationOf($ms->metadata, $ms->raw_text))) {
                         $marked[$source][] = $ms->id;
                     }
                 }
-            });
+            }, 'manuscripts.id', 'id');
         foreach ($marked as $source => $ids) {
             $this->line(sprintf('Marked catalog_source=%s: %d', $source, count($ids)));
             if (! $this->dry) {
@@ -485,8 +478,6 @@ class LinkCatalogVolumesCommand extends Command
     /** Same rule as the remediation command: direct links plus the copies of the cataloger's volumes. */
     public static function recountVolumesAndCatalogers(): void
     {
-        // the citation entries hold the copies' parts and catalogers (step 14.401)
-        \App\Sources\SourceEntrySync::syncCatalogueAll();
         $counts = EntryColumns::cited()->whereNotNull('ce.source_volume_id')
             ->groupBy('ce.source_volume_id')->selectRaw('ce.source_volume_id, count(*) as n')->pluck('n', 'source_volume_id');
         CatalogVolume::query()->each(fn ($v) => $v->update(['manuscripts_count' => (int) ($counts[$v->id] ?? 0)]));

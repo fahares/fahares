@@ -80,13 +80,9 @@ class Work extends Model
     {
         return [
             'alternative_titles' => 'array',
-            'bibliography' => 'array',
             'composition_year_hijri' => 'integer',
             'composition_date_from' => 'integer',
             'composition_date_to' => 'integer',
-            'volume_number' => 'integer',
-            'page_start' => 'integer',
-            'page_end' => 'integer',
             'manuscripts_count' => 'integer',
             'has_other_authors' => 'boolean',
         ];

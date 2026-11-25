@@ -35,12 +35,12 @@ class RebuildCopiesCommandTest extends TestCase
 
     private function copy(?string $shelfmark, string $raw, ?string $date, array $metadata): int
     {
-        $work = $this->works[] = DB::table('works')->insertGetId([
+        $work = $this->works[] = \Tests\Support\InsertRecords::work([
             'primary_title' => 'اثر آزمایشی بازسازی', 'clean_title' => 'اثر آزمایشی بازسازی',
             'slug' => 'test-rebuild-' . uniqid(), 'volume_number' => 99, 'page_start' => 1,
         ]);
 
-        $id = $this->manuscripts[] = DB::table('manuscripts')->insertGetId([
+        $id = $this->manuscripts[] = \Tests\Support\InsertRecords::copy([
             'work_id' => $work, 'sequence_number' => 2, 'volume_number' => 99, 'page_start' => 1, 'page_end' => 1,
             'city' => 'تهران', 'library' => 'دانشگاه', 'shelfmark' => $shelfmark, 'raw_text' => $raw,
             'copy_date_raw' => $date, 'is_bita' => 0, 'scribe_name' => 'کاتب دیگر', 'script_names' => 'نستعلیق',
@@ -80,7 +80,7 @@ class RebuildCopiesCommandTest extends TestCase
             ->assertSuccessful();
         $this->artisan('fahares:rebuild-copies', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
 
-        $row = DB::table('manuscripts')->where('id', $wrong)->first();
+        $row = \App\Support\EntryColumns::query('manuscripts', ['*', 'raw_text'])->where('manuscripts.id', $wrong)->first();
         $this->assertStringStartsWith('تهران؛ دانشگاه؛ شماره نسخه: 6030/8-ف', $row->raw_text);
         $this->assertNull($row->copy_date_raw);
         $this->assertNull($row->scribe_name);
@@ -89,7 +89,7 @@ class RebuildCopiesCommandTest extends TestCase
         // the copy's own text has no «خط:» line, so the other copy's script goes too
         $this->assertNull($row->script_names);
         $this->assertSame('corpus_update', AuditLog::where('auditable_id', $wrong)->where('auditable_type', Manuscript::class)->sole()->action);
-        $this->assertSame('متن ویرایش‌شده', DB::table('manuscripts')->where('id', $edited)->value('raw_text'));
+        $this->assertSame('متن ویرایش‌شده', $this->fankhaOf(Manuscript::find($edited), 'text')[0]);
 
         $this->artisan('fahares:rebuild-copies', ['--file' => $this->file])
             ->expectsOutputToContain('Would rebuild 0 copies.')

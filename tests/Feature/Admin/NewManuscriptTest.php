@@ -60,7 +60,7 @@ class NewManuscriptTest extends TestCase
 
     private function created(): Manuscript
     {
-        return Manuscript::whereNull('catalog_id')->latest('id')->firstOrFail();
+        return Manuscript::doesntHave('fankhaEntry')->latest('id')->firstOrFail();
     }
 
     public function test_only_a_role_with_the_permission_reaches_the_form()
@@ -86,10 +86,11 @@ class NewManuscriptTest extends TestCase
         ])->assertRedirect()->assertSessionHasNoErrors()->assertSessionMissing('error');
 
         $copy = $this->created();
-        $this->assertSame([$work->id, null, null, null, 2], [$copy->work_id, $copy->catalog_id, $copy->volume_number, $copy->page_start, $copy->sequence_number]);
+        // a copy made in the panel has no Fankha entry, so no place and no row of Fankha's (step 14.407)
+        $this->assertSame([$work->id, null], [$copy->work_id, $copy->fankhaEntry]);
         $this->assertSame(['3522/1 مکرر', '3522', '16ر', '16پ', 16, 1], [$copy->shelfmark, $copy->collection_key, $copy->range_from, $copy->range_to, $copy->range_from_number, $copy->folios]);
         $this->assertSame(['ملی آزمون', 'تهران', 'کاتب آزمون', 1084], [$copy->library, $copy->city, $copy->scribe_name, $copy->copy_date_from]);
-        $this->assertNull($copy->raw_text);
+        $this->assertNull($copy->fankhaText());
         // the counts of its work, library and scribe
         $this->assertSame(2, $work->fresh()->manuscripts_count);
         $this->assertSame(Manuscript::where('library_id', $this->library->id)->count(), (int) $this->library->fresh()->manuscripts_count);
@@ -117,7 +118,7 @@ class NewManuscriptTest extends TestCase
         $this->store(['shelfmark' => '2897/3', 'work_mode' => 'new', 'work_title' => 'رساله در خط', 'author_id' => $author->id, 'range' => '7پ-12پ'])->assertRedirect()->assertSessionMissing('error');
         $copy = $this->created();
         $work = $copy->work;
-        $this->assertSame(['رساله در خط', $author->id, 'مؤلف آزمون', null, null, 1], [$work->primary_title, $work->author_id, $work->author_name, $work->catalog_id, $work->volume_number, $work->manuscripts_count]);
+        $this->assertSame(['رساله در خط', $author->id, 'مؤلف آزمون', null, 1], [$work->primary_title, $work->author_id, $work->author_name, $work->fankhaEntry, $work->manuscripts_count]);
         $this->assertSame(1, $author->fresh()->works_count);
         $this->assertSame('2897', $copy->collection_key);
         $this->get(route('works.show', $work))->assertOk()->assertSee('رساله در خط');
@@ -225,8 +226,8 @@ class NewManuscriptTest extends TestCase
         $this->store(['from_id' => $sibling->id, 'shelfmark' => '12422', 'collection_key' => '12422', 'confirm_duplicate' => 1, 'work_mode' => 'existing', 'work_id' => $work->id,
             'range' => '16ر تا 16پ', 'folios' => 1, 'copy_date_raw' => 'قرن 12', 'incipit_text' => 'بدان که'])->assertRedirect()->assertSessionMissing('error');
         $copy = $this->created();
-        $columns = ['work_id', 'catalog_id', 'volume_number', 'page_start', 'sequence_number', 'shelfmark', 'collection_key', 'folios', 'pages', 'extent_raw',
-            'range_from', 'range_to', 'range_from_number', 'range_to_number', 'copy_date_raw', 'copy_date_from', 'copy_date_to', 'incipit_text', 'raw_text', 'metadata'];
+        $columns = ['work_id', 'shelfmark', 'collection_key', 'folios', 'pages', 'extent_raw',
+            'range_from', 'range_to', 'range_from_number', 'range_to_number', 'copy_date_raw', 'copy_date_from', 'copy_date_to', 'incipit_text', 'metadata'];
         $before = (array) DB::table('manuscripts')->where('id', $copy->id)->first($columns);
 
         // the derived columns: nothing of it differs from what its own columns give

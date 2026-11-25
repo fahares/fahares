@@ -172,7 +172,6 @@ class AddCorpusWorksCommand extends Command
             });
         });
 
-        SourceEntrySync::syncIds(Work::class, $touchedWorks);
         // a copy made in a library outside catalogs:link-volumes' links file goes to the volume its library's other copies citing the same place are on
         $relinked = SourceEntrySync::relinkVolumes($touchedCopies);
         SourceEntrySync::syncIds(Manuscript::class, $touchedCopies);
@@ -266,7 +265,6 @@ class AddCorpusWorksCommand extends Command
         WorkCatalogueEntries::sync($work, $texts[0], is_array($texts[1]) ? $texts[1] : (json_decode((string) $texts[1], true) ?: []));
         $this->log(Work::class, $work->id, 'create', [], ['slug' => $work->slug, 'author_id' => $author?->id, 'corpus_fix' => $note, 'v2' => $w['v2']]);
 
-        SourceEntrySync::syncRecord($work);
         $entry = SourceEntry::where('citable_type', Work::class)->where('citable_id', $work->id)
             ->where('origin', SourceEntry::ORIGIN_FANKHA)->orderByDesc('is_primary')->orderBy('id')->value('id');
         foreach ($w['roles'] ?? [] as $r) {

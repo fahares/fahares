@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\AuditLog;
 use App\Models\Manuscript;
 use App\Models\ManuscriptPerson;
+use App\Sources\RecordEntries;
 use App\Sources\SourceEntrySync;
 use App\Suggestions\ProtectedColumns;
 use App\Support\DerivedData;
@@ -119,7 +120,15 @@ class RebuildCopiesCommand extends Command
                 if (array_key_exists('shelfmark', $new)) {
                     $extra['shelfmark_key'] = $new['shelfmark'] === null ? null : mb_substr($new['shelfmark'], 0, 100);
                 }
-                DB::table('manuscripts')->where('id', $rec['id'])->update($new + $extra + ['updated_at' => now()]);
+                // the text, the row and the catalogue volume are held by the copy's entries, not its columns (step 14.407)
+                $held = ['raw_text' => 'text', 'sequence_number' => 'entry_number'];
+                DB::table('manuscripts')->where('id', $rec['id'])->update(array_diff_key($new + $extra, $held, ['catalog_volume_id' => 1, 'cataloger_id' => 1]) + ['updated_at' => now()]);
+                $entry = [];
+                foreach ($held as $column => $key) {
+                    array_key_exists($column, $new) && $entry[$key] = $new[$column];
+                }
+                $entry && RecordEntries::fankha((new Manuscript)->forceFill(['id' => $rec['id']]), $entry);
+                array_key_exists('catalog_volume_id', $extra) && SourceEntrySync::setCatalogue([$rec['id']], ['catalog_volume_id' => null, 'cataloger_id' => null]);
                 AuditLog::create([
                     'user_id' => null,
                     'auditable_type' => Manuscript::class,

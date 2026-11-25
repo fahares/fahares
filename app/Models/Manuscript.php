@@ -231,9 +231,10 @@ class Manuscript extends Model
                 $manuscript->shelfmark_key = $manuscript->shelfmark === null ? null : mb_substr($manuscript->shelfmark, 0, 100);
             }
             // ...and so is the bound volume it names (backlog item 97), which the catalogue it cites can change
-            if ($manuscript->isDirty(['shelfmark', 'raw_text']) && ! $manuscript->isDirty('collection_key')) {
-                // a writer that sets the text brings the new one in its column, the entry still has the old (step 14.399, backlog item 170)
-                $text = $manuscript->isDirty('raw_text') || ! $manuscript->exists ? $manuscript->raw_text : $manuscript->fankhaText();
+            $given = $manuscript->givenSources();
+            if (($manuscript->isDirty('shelfmark') || array_key_exists('raw_text', $given)) && ! $manuscript->isDirty('collection_key')) {
+                // a writer that sets the text gives it under its old name, which the entry takes after the save (step 14.407)
+                $text = array_key_exists('raw_text', $given) ? $given['raw_text'] : ($manuscript->exists ? $manuscript->fankhaText() : null);
                 $manuscript->collection_key = self::resolvedCollectionKey($manuscript->shelfmark, $text, $manuscript->getOriginal('collection_key'));
             }
         });
@@ -310,10 +311,6 @@ class Manuscript extends Model
     protected function casts(): array
     {
         return [
-            'sequence_number' => 'integer',
-            'volume_number' => 'integer',
-            'page_start' => 'integer',
-            'page_end' => 'integer',
             'is_bika' => 'boolean',
             'is_bita' => 'boolean',
             'is_autograph' => 'boolean',
@@ -760,16 +757,7 @@ class Manuscript extends Model
         return $this->morphMany(SourceEntry::class, 'citable')->whereNotNull('source_volume_id')->where('status', '!=', SourceEntry::STATUS_REJECTED);
     }
 
-    public function catalogVolume(): BelongsTo
-    {
-        return $this->belongsTo(CatalogVolume::class);
-    }
-
-    /** The part of its volume this copy is of (step 13.150). */
-    public function catalogVolumePart(): BelongsTo
-    {
-        return $this->belongsTo(CatalogVolumePart::class);
-    }
+    // the copy's catalogue volume and part are its citation entry's (citedEntry->sourceVolume, ->catalogVolumePart; step 14.407)
 
     /** The copy this one is a photograph or film of, when that is linked (facsimile_of, step 14.16) */
     public function facsimileOf(): ?self

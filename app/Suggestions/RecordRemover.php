@@ -101,7 +101,7 @@ class RecordRemover
                 throw new InvalidArgumentException("{$label} این رکورد (شخص #{$attributes[$column]}) دیگر وجود ندارد. نخست آن را بازگردانید.");
             }
         }
-        DB::table((new $class)->getTable())->insert(array_map(fn ($v) => is_array($v) ? json_encode($v, JSON_UNESCAPED_UNICODE) : $v, $attributes));
+        \App\Sources\RecordEntries::insertRow($class, $attributes);
         foreach ($old['snapshot']['pivots'] ?? [] as $table => $rows) {
             // A removal before step 13.151 kept the scribes and authors under their old tables
             if (isset(ContributorRelations::LEGACY_TABLES[$table])) {

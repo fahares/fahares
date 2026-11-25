@@ -49,7 +49,7 @@ class NewManuscriptCollectionTest extends TestCase
 
     private function created(): Manuscript
     {
-        return Manuscript::whereNull('catalog_id')->latest('id')->firstOrFail();
+        return Manuscript::doesntHave('fankhaEntry')->latest('id')->firstOrFail();
     }
 
     private function undo(Manuscript $copy): void

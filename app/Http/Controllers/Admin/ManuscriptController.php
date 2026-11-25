@@ -29,8 +29,8 @@ class ManuscriptController extends Controller
         $search = trim((string) $request->query('q', ''));
         $libraryId = $request->integer('library_id') ?: null;
         $filter = $request->query('filter');
-        $query = Manuscript::query()->select(['id', 'work_id', 'library_id', 'library', 'city', 'shelfmark', 'range_from', 'range_to', 'scribe_name', 'copy_date_raw', 'catalog_id'])
-            ->with('work:id,primary_title,author_name,slug');
+        $query = Manuscript::query()->select(['id', 'work_id', 'library_id', 'library', 'city', 'shelfmark', 'range_from', 'range_to', 'scribe_name', 'copy_date_raw'])
+            ->with(['work:id,primary_title,author_name,slug', 'fankhaEntry:id,citable_type,citable_id,legacy_type']);
 
         if ($libraryId) {
             $query->where('library_id', $libraryId);
@@ -46,7 +46,7 @@ class ManuscriptController extends Controller
                 ->when($works, fn ($q) => $q->orWhereIn('work_id', $works)));
         }
         if ($filter === 'panel') {
-            $query->whereNull('catalog_id');
+            $query->whereDoesntHave('fankhaEntry');
         }
         $manuscripts = $query->orderByDesc('id')->paginate(25)->withQueryString();
         $library = $libraryId ? Library::find($libraryId) : null;

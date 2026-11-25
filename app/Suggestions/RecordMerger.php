@@ -414,7 +414,7 @@ class RecordMerger
         if ($class::find($attributes['id'])) {
             throw new InvalidArgumentException("رکوردی با شناسۀ #{$attributes['id']} هم‌اکنون وجود دارد.");
         }
-        DB::table($table)->insert(array_map(fn ($v) => is_array($v) ? json_encode($v, JSON_UNESCAPED_UNICODE) : $v, $attributes));
+        \App\Sources\RecordEntries::insertRow($class, $attributes);
 
         return $class::findOrFail($attributes['id']);
     }

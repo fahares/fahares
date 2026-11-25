@@ -26,7 +26,7 @@ class CatalogVolumePart extends Model
     public static function ready(): bool
     {
         return self::$ready ??= \Illuminate\Support\Facades\Schema::hasTable('catalog_volume_parts')
-            && \Illuminate\Support\Facades\Schema::hasColumn('manuscripts', 'catalog_volume_part_id');
+            && \Illuminate\Support\Facades\Schema::hasColumn('source_entries', 'catalog_volume_part_id');
     }
 
     protected function casts(): array

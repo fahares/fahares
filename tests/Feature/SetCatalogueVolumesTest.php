@@ -40,7 +40,7 @@ class SetCatalogueVolumesTest extends TestCase
     {
         $copy = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => (string) random_int(1, 99999), 'catalog_volume_id' => $volume->id,
             'cataloger_id' => $cataloger, 'volume_number' => 1, 'page_start' => 1, 'metadata' => ['catalog_citation' => $citation]]);
-        SourceEntrySync::syncCited(DB::table('manuscripts')->where('id', $copy->id)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $copy->id)->get());
 
         return $copy;
     }
@@ -54,7 +54,7 @@ class SetCatalogueVolumesTest extends TestCase
             'source_volumes' => $rows('source_volumes'),
             'catalog_volumes' => $rows('catalog_volumes'),
             'pivot' => DB::table('catalog_volume_cataloger')->orderBy('catalog_volume_id')->orderBy('cataloger_id')->get(['catalog_volume_id', 'cataloger_id', 'role'])->map(fn ($r) => (array) $r)->all(),
-            'copies' => $rows('manuscripts', ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
+            'copies' => \App\Support\EntryColumns::cited()->orderBy('manuscripts.id')->get(['manuscripts.id', 'ce.source_volume_id as catalog_volume_id', 'ce.catalog_volume_part_id', 'ce.cataloger_id'])->map(fn ($r) => (array) $r)->all(),
             'entries' => $rows('source_entries', ['id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
             'catalogers' => $rows('catalogers', ['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
@@ -94,7 +94,7 @@ class SetCatalogueVolumesTest extends TestCase
         $this->assertSame([$held->id, 'فهرست عکسی مرعشی - جلد 1', 21357], [(int) $volumes[1]->id, $volumes[1]->title, (int) $volumes[1]->mtif_entry_id]);
         $this->assertSame($library->id, (int) DB::table('catalog_volumes')->where('id', $volumes[3]->id)->value('library_id'));
         $this->assertSame([[$held->id, $haeri->id], [(int) $volumes[3]->id, $hafezian->id], [$held->id, $haeri->id]],
-            collect([$first, $third, $none])->map(fn ($c) => [(int) $c->fresh()->catalog_volume_id, (int) $c->fresh()->cataloger_id])->all(),
+            collect([$first, $third, $none])->map(fn ($c) => [(int) $c->fresh()->citedEntry?->source_volume_id, (int) $c->fresh()->citedEntry?->cataloger_id])->all(),
             'a copy goes to the volume it cites with its cataloger; one citing a volume the file has not stays, with its volume\'s cataloger');
         $this->assertSame((int) $volumes[3]->id, (int) DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $third->id)->value('source_volume_id'));
         $this->assertSame([2, 1], [(int) DB::table('catalog_volumes')->where('id', $held->id)->value('manuscripts_count'), (int) DB::table('catalog_volumes')->where('id', $volumes[3]->id)->value('manuscripts_count')]);

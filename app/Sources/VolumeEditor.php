@@ -37,10 +37,10 @@ class VolumeEditor
             if (! DB::table('catalog_volume_parts')->where('catalog_volume_id', $volume->id)->exists()) {
                 $now = CatalogVolumePart::primaryCatalogers([$volume->id])[$volume->id] ?? null;
                 if ($now !== $primary) {
-                    DB::table('manuscripts')->where('catalog_volume_id', $volume->id)->whereNull('catalog_volume_part_id')
+                    DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->where('source_volume_id', $volume->id)
+                        ->whereNull('catalog_volume_part_id')
                         ->where(fn ($q) => $q->whereNull('cataloger_id')->when($primary, fn ($q) => $q->orWhere('cataloger_id', $primary)))
                         ->update(['cataloger_id' => $now]);
-                    SourceEntrySync::syncCatalogueOfVolumes([$volume->id]);
                 }
             }
             $stats = CatalogVolumePart::assign(array_keys($before));

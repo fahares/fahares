@@ -129,6 +129,35 @@ class RecordEntries
         }
     }
 
+    /**
+     * Inserts a record's row back under its id, from the attributes an audit log kept (a removal or a merge). A log
+     * from before step 14.407 holds the source values under their old names; they are no columns, and the record's
+     * entries outlive its deletion, so they are taken in only where the record has none.
+     */
+    public static function insertRow(string $class, array $attributes): void
+    {
+        $source = defined($class . '::SOURCE_ATTRIBUTES') && $class !== \App\Models\Library::class ? array_intersect_key($attributes, array_flip($class::SOURCE_ATTRIBUTES)) : [];
+        $row = array_diff_key($attributes, $source);
+        $table = (new $class)->getTable();
+        DB::table($table)->insert(array_map(fn ($v) => is_array($v) ? json_encode($v, JSON_UNESCAPED_UNICODE) : $v, $row));
+        $record = (new $class)->forceFill(['id' => $attributes['id']]);
+        if ($source && ! self::primary($record)) {
+            self::take($record, $source, false);
+        }
+    }
+
+    /**
+     * Writes a payload with the query builder, as the commands that skip the model hooks do: the columns on the record's
+     * row, the source values under their old names (HasSourceEntries::SOURCE_ATTRIBUTES) into its entries (step 14.407).
+     */
+    public static function write(Model $record, array $payload): void
+    {
+        $source = array_intersect_key($payload, array_flip($record::SOURCE_ATTRIBUTES));
+        $columns = array_diff_key($payload, $source);
+        $columns && DB::table($record->getTable())->where('id', $record->getKey())->update($columns);
+        $source && self::take($record, $source, false);
+    }
+
     /** Fankha's source (catalogs.id = sources.id), the one a record is made in when none is named. */
     public static function fankhaSourceId(): ?int
     {
@@ -157,6 +186,8 @@ class RecordEntries
         if ($catalogue) {
             DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->getKey())->where('legacy_index', 0)
                 ->update($catalogue);
+            // as the columns held them before the citation was read: the copy's part, if its volume has parts, has the last word
+            \App\Models\CatalogVolumePart::assign([$copy->getKey()]);
         }
     }
 

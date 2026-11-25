@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * A change to how a source is cited (step 14.57, docs/plans/source-name-patterns.md), and what it does to the
  * citations: the strings read before and after the change (with $dry, inside a transaction taken back), and for the
- * works' bibliographies their entries made again by SourceEntrySync::syncBibliography, a large change in the queue.
+ * works' bibliographies their entries made again by SyncWorkBibliographies, a large change in the queue.
  * Only the strings a form's old or new pattern finds can read otherwise, so only they are read.
  */
 class CitationFormEditor

@@ -345,7 +345,7 @@ class SourceController extends Controller
         abort_unless($part->catalog_volume_id === $catalogVolume->id, 404);
         $old = $this->partState($part) + ['id' => $part->id, 'metadata' => $part->metadata];
         $change = function () use ($part) {
-            DB::table('manuscripts')->where('catalog_volume_part_id', $part->id)->update(['catalog_volume_part_id' => null]);
+            DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->where('catalog_volume_part_id', $part->id)->update(['catalog_volume_part_id' => null]);
             $part->delete();
         };
 

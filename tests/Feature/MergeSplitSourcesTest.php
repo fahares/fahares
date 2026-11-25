@@ -118,7 +118,7 @@ class MergeSplitSourcesTest extends TestCase
         $this->assertNull(SourceVolume::find($dup2->id));
         $this->assertNull(CatalogVolume::find($dup2->id));
         $this->assertSame([$marashi->id, $kept2->id, 2], [$onDuplicate->fresh()->source_id, $onDuplicate->fresh()->source_volume_id, $onDuplicate->fresh()->volume_number]);
-        $this->assertSame($kept2->id, $copy->fresh()->catalog_volume_id);
+        $this->assertSame($kept2->id, $copy->fresh()->citedEntry?->source_volume_id);
         $this->assertEqualsCanonicalizing([$cataloger->id, $supervisor->id], $kept2->catalogers()->pluck('catalogers.id')->all());
         $this->assertSame('۱۳۵۵', $kept2->fresh()->publication_year);
         $this->assertSame(0, DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $dup2->id)->count());

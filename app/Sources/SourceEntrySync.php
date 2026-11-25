@@ -7,22 +7,17 @@ use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\Work;
 use App\Support\BibliographyLinks;
+use App\Support\EntryColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 /**
  * The entries a work or manuscript carries in its own columns (step 13.3): its Fankha entry (catalog_id,
  * volume_number, page_start, page_end, raw_text) and a work's bibliography. Since step 14.396 (backlog item 170) the
- * entries are the record of truth and RecordEntries writes them; syncRecord() and syncIds() take in what a writer
- * that used the query builder put in the columns.
+ * entries are the record of truth and RecordEntries writes them; since step 14.407 the columns are gone.
  */
 class SourceEntrySync
 {
-    /** The columns of a record its entries follow; a manuscript's also give the library catalogue page Fankha cites. */
-    public const RECORD_COLUMNS = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text'];
-
-    public const MANUSCRIPT_COLUMNS = ['metadata', 'catalog_volume_id', 'sequence_number'];
-
     /** Every column of source_entries but the keys, so the rows of one upsert have the same keys. */
     public static function row(array $values, $created = null, $updated = null): array
     {
@@ -123,27 +118,13 @@ class SourceEntrySync
     }
 
     /**
-     * Brings one record's entries in line with its columns, after a writer that used the query builder (step 14.396:
-     * through RecordEntries, so what else the entries hold, a review, a text, a tie, stays).
+     * Reads a copy's citation entry again after a writer changed its metadata with the query builder (a work has
+     * nothing to take in: its entries are written as entries, step 14.407).
      */
     public static function syncRecord(Model $record): void
     {
-        $row = (array) DB::table($record->getTable())->where('id', $record->getKey())->first();
-        if (! $row) {
-            return;
-        }
-        $fankha = [];
-        foreach (RecordEntries::COLUMNS as $column => $key) {
-            if (array_key_exists($column, $row)) {
-                $fankha[$key] = $row[$column];
-            }
-        }
-        RecordEntries::fankha($record, $fankha);
-        if ($record instanceof Work) {
-            RecordEntries::bibliography($record, self::bibliographyStrings($row['bibliography'] ?? null));
-        }
         if ($record instanceof Manuscript) {
-            self::syncCited([(object) array_intersect_key($row, array_flip(['id', 'metadata', 'raw_text', 'catalog_volume_id']))]);
+            self::syncCited(EntryColumns::query('manuscripts', ['id', 'library_id', 'metadata', 'raw_text', 'catalog_volume_id'])->where('manuscripts.id', $record->getKey())->get());
         }
     }
 
@@ -503,21 +484,8 @@ class SourceEntrySync
         return count($holding) === 1 ? (int) $holding[0] : null;
     }
 
-    public static function syncBibliography(Work $work): void
-    {
-        $strings = self::bibliographyStrings($work->getAttributes()['bibliography'] ?? null);
-        $configSources = self::configSources();
-        $rows = array_map(fn ($v) => self::row($v, $work->created_at),
-            self::bibliographyValues($work->id, $strings, $configSources, self::volumeIds(array_values(array_filter($configSources)))));
-        self::upsert($rows);
-        // strings past the new end are gone
-        DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('legacy_id', $work->id)
-            ->where('legacy_index', '>=', count($strings))->delete();
-    }
-
     /**
-     * Brings the entries of records written with DB::table in line (a command's bulk update skips the save hook),
-     * a thousand records at a time.
+     * Reads the citation entries of copies again (syncRecord), a thousand at a time.
      *
      * @param  class-string<Work|Manuscript>  $class
      */
@@ -787,8 +755,7 @@ class SourceEntrySync
      */
     public static function relinkVolumes(array $ids): int
     {
-        $rows = DB::table('manuscripts')->whereIn('id', $ids)->whereNull('catalog_volume_id')
-            ->get(['id', 'library_id', 'metadata']);
+        $rows = EntryColumns::query('manuscripts', ['id', 'library_id', 'metadata'])->whereIn('manuscripts.id', $ids)->whereNull('ce.source_volume_id')->get();
         $volumes = self::seriesVolumes($rows->pluck('library_id')->filter()->unique()->values()->all());
         $done = 0;
         foreach ($rows as $row) {
@@ -802,13 +769,38 @@ class SourceEntrySync
             if (! $volume) {
                 continue;
             }
-            $cataloger = DB::table('manuscripts')->where('catalog_volume_id', $volume)->whereNotNull('cataloger_id')
-                ->groupBy('cataloger_id')->orderByRaw('count(*) desc')->value('cataloger_id');
-            DB::table('manuscripts')->where('id', $row->id)->update(['catalog_volume_id' => $volume, 'cataloger_id' => $cataloger]);
+            $cataloger = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->where('source_volume_id', $volume)
+                ->whereNotNull('cataloger_id')->groupBy('cataloger_id')->orderByRaw('count(*) desc')->value('cataloger_id');
+            self::setCatalogue([$row->id], ['catalog_volume_id' => $volume, 'cataloger_id' => $cataloger]);
             $done++;
         }
-        self::syncCatalogue($ids);
 
         return $done;
+    }
+
+    /**
+     * Sets the catalogue volume, part and cataloger of copies in their citation entries (step 14.407; the manuscripts
+     * columns are gone). A new volume is read with the copy's citation again (syncCited, which assigns the part); a
+     * cataloger or part given is written on the entry then. A copy with neither a citation nor a volume has no entry
+     * to hold them.
+     *
+     * @param  array{catalog_volume_id?: ?int, catalog_volume_part_id?: ?int, cataloger_id?: ?int}  $values
+     */
+    public static function setCatalogue(iterable $ids, array $values): void
+    {
+        foreach (collect($ids)->unique()->chunk(1000) as $chunk) {
+            $chunk = $chunk->values()->all();
+            if (array_key_exists('catalog_volume_id', $values)) {
+                $rows = EntryColumns::query('manuscripts', ['id', 'library_id', 'metadata', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', $chunk)->get()
+                    ->each(fn ($m) => $m->catalog_volume_id = $values['catalog_volume_id']);
+                self::syncCited($rows);
+            }
+            $entry = array_intersect_key($values, array_flip(['catalog_volume_part_id', 'cataloger_id']));
+            if ($entry) {
+                DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->whereIn('legacy_id', $chunk)->update($entry);
+                // a cataloger given beside a new volume is the volume's own; the copy's part may name another
+                array_key_exists('catalog_volume_id', $values) && \App\Models\CatalogVolumePart::assign($chunk);
+            }
+        }
     }
 }

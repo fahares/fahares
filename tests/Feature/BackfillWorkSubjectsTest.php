@@ -40,7 +40,7 @@ class BackfillWorkSubjectsTest extends TestCase
 
     private function work(string $title): int
     {
-        return $this->works[] = DB::table('works')->insertGetId(['primary_title' => $title, 'clean_title' => $title,
+        return $this->works[] = \Tests\Support\InsertRecords::work(['primary_title' => $title, 'clean_title' => $title,
             'slug' => 'test-subject-' . uniqid(), 'volume_number' => 99, 'page_start' => 1]);
     }
 

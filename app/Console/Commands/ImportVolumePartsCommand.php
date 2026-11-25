@@ -6,6 +6,7 @@ use App\Console\Commands\ImportFankhaCatalogReferencesCommand as References;
 use App\Models\Cataloger;
 use App\Models\CatalogVolumePart;
 use App\Sources\SourceEntrySync;
+use App\Support\EntryColumns;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -127,21 +128,18 @@ class ImportVolumePartsCommand extends Command
             $moves = $this->moves($source->id, $this->folds($source->id), false);
             foreach (collect($moves)->groupBy(fn ($m) => $m[1]) as $number => $group) {
                 foreach ($group->pluck(0)->chunk(1000) as $ids) {
-                    DB::table('manuscripts')->whereIn('id', $ids->all())->update(['catalog_volume_id' => $volumes[$number]]);
+                    SourceEntrySync::setCatalogue($ids->all(), ['catalog_volume_id' => $volumes[$number]]);
                 }
-            }
-            foreach (array_chunk(array_column($moves, 0), 1000) as $ids) {
-                SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $ids)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
             }
             $this->dropFolded($source->id, $folds);
             $this->writeEditors(array_values($volumes), $catalogers);
             $this->writeParts($volumes, $libraries, $catalogers);
-            CatalogVolumePart::assign(DB::table('manuscripts')->whereIn('catalog_volume_id', array_values($volumes))->pluck('id'));
+            CatalogVolumePart::assign(EntryColumns::cited()->whereIn('ce.source_volume_id', array_values($volumes))->pluck('manuscripts.id'));
             // a copy moved to a volume without parts is of the volume's cataloger
             $plain = array_values(array_diff(array_values($volumes), DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', array_values($volumes))->pluck('catalog_volume_id')->all()));
             foreach (CatalogVolumePart::primaryCatalogers($plain) as $volume => $cataloger) {
                 foreach (array_chunk(array_column($moves, 0), 1000) as $ids) {
-                    DB::table('manuscripts')->whereIn('id', $ids)->where('catalog_volume_id', $volume)->update(['cataloger_id' => $cataloger]);
+                    DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->whereIn('legacy_id', $ids)->where('source_volume_id', $volume)->update(['cataloger_id' => $cataloger]);
                 }
             }
             $this->recount($source->id, array_values($volumes), $folds['kept']);
@@ -309,16 +307,16 @@ class ImportVolumePartsCommand extends Command
         $slugs = DB::table('libraries')->whereIn('slug', array_column($this->data['copies'] ?? [], 'library') ?: [''])->pluck('id', 'slug');
         $named = collect($this->data['copies'] ?? [])->mapWithKeys(fn ($c) => [($slugs[$c['library']] ?? 0) . '|' . $c['shelfmark'] . '|' . $c['page'] => (int) $c['volume']])->all();
         $found = [];
-        DB::table('manuscripts')->select('id', 'metadata', 'raw_text', 'catalog_volume_id', 'library_id', 'shelfmark')
-            ->where(fn ($q) => $q->whereNull('catalog_volume_id')->orWhereIn('catalog_volume_id', $on ?: [0]))
+        EntryColumns::query('manuscripts', ['id', 'metadata', 'raw_text', 'catalog_volume_id', 'library_id', 'shelfmark'])
+            ->where(fn ($q) => $q->whereNull('ce.source_volume_id')->orWhereIn('ce.source_volume_id', $on ?: [0]))
             // a series many catalogues share («ف مخ», «ف»): only the copies of the book's own libraries
-            ->when($this->data['only_libraries'] ?? false, fn ($q) => $q->whereIn('library_id', $this->ownLibraries() ?: [0]))
+            ->when($this->data['only_libraries'] ?? false, fn ($q) => $q->whereIn('manuscripts.library_id', $this->ownLibraries() ?: [0]))
             ->where(function ($q) use ($likes) {
                 foreach ($likes as $like) {
-                    $q->orWhere('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like);
+                    $q->orWhere('manuscripts.metadata->catalog_citation', 'like', $like)->orWhere(EntryColumns::column('manuscripts', 'raw_text'), 'like', $like);
                 }
             })
-            ->orderBy('id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, &$found, $have, $numbers, $folds, $named) {
+            ->orderBy('manuscripts.id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, &$found, $have, $numbers, $folds, $named) {
                 foreach ($rows as $m) {
                     $raw = References::rawCitation($m->metadata, $m->raw_text);
                     // a citation that lost its opening bracket («بی‌کا تا قرن 10 نشریه: 7 - 537]»)
@@ -526,10 +524,9 @@ class ImportVolumePartsCommand extends Command
     {
         $drop = array_diff($folds['all'], array_values($folds['volumes']), $folds['kept']);
         // what is left on them is of another source, tied to it by mistake: it is untied
-        $left = DB::table('manuscripts')->whereIn('catalog_volume_id', $drop ?: [0])->pluck('id')->all();
+        $left = EntryColumns::cited()->whereIn('ce.source_volume_id', $drop ?: [0])->pluck('manuscripts.id')->all();
         if ($left) {
-            DB::table('manuscripts')->whereIn('id', $left)->update(['catalog_volume_id' => null]);
-            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $left)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+            SourceEntrySync::setCatalogue($left, ['catalog_volume_id' => null]);
             $this->line(sprintf('  untied, of another source on a folded volume: %d copies', count($left)));
         }
         foreach ($drop as $id) {
@@ -584,7 +581,6 @@ class ImportVolumePartsCommand extends Command
 
     private function recount(int $sourceId, array $volumes, array $kept = []): void
     {
-        \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($volumes);
         foreach (array_merge($volumes, $kept) as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
         }
@@ -601,7 +597,7 @@ class ImportVolumePartsCommand extends Command
         $sources = array_merge([$sourceId], array_keys($folds['sources']));
         // a kept source's volumes too: their counts are taken again
         $volumes = array_merge(DB::table('source_volumes')->whereIn('source_id', $sources)->pluck('id')->all(), $folds['kept']);
-        $copies = array_values(array_unique(array_merge(array_column($moves, 0), DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes)->pluck('id')->all())));
+        $copies = array_values(array_unique(array_merge(array_column($moves, 0), EntryColumns::cited()->whereIn('ce.source_volume_id', $volumes)->pluck('manuscripts.id')->all())));
         $chunked = fn ($table, $column, $ids, $columns) => collect(array_chunk($ids, 1000))->flatMap(fn ($c) => DB::table($table)->whereIn($column, $c)->get($columns))->all();
         $people = DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id')
             ->merge(DB::table('catalog_volume_part_cataloger')->whereIn('catalog_volume_part_id', DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->select('id'))->pluck('cataloger_id'))
@@ -621,7 +617,8 @@ class ImportVolumePartsCommand extends Command
             'part_ids' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->pluck('id'),
             // their place, which a part put in between moves (step 14.53)
             'parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(['id', 'sort']),
-            'manuscripts' => $chunked('manuscripts', 'id', $copies, ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
+            'manuscripts' => collect(array_chunk($copies, 1000))->flatMap(fn ($c) => EntryColumns::cited()->whereIn('manuscripts.id', $c)
+                ->get(['manuscripts.id', 'ce.source_volume_id as catalog_volume_id', 'ce.catalog_volume_part_id', 'ce.cataloger_id']))->all(),
             'source_entries' => $chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'legacy_id', 'source_id', 'source_volume_id', 'volume_number', 'page_start', 'updated_at']),
             'catalogers' => DB::table('catalogers')->whereIn('id', $people)->get(['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
@@ -677,7 +674,6 @@ class ImportVolumePartsCommand extends Command
             $kept = array_column($backup['catalogers'], 'id');
             DB::table('catalogers')->where('metadata->made_by', $backup['marker'])->whereNotIn('id', $kept)->delete();
             \App\Sources\SourceMerger::restoreColumns('catalogers', $backup['catalogers']);
-            \App\Sources\SourceEntrySync::syncCatalogueAll();
         });
         foreach ($backup['source_ids'] as $id) {
             self::forget($id);
