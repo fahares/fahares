@@ -1,0 +1,484 @@
+{
+ "step": "14.394",
+ "backlog": 171,
+ "note": "Reviewed with the user before the production run; each «evidence» names where the value was read.",
+ "sources": {
+  "dharia": {
+   "evidence": "برگ عنوان ج ۱ در dharia/01_text.pdf («دار الأضواء، بيروت، الطبعة الثالثة ۱۴۰۳هـ ـ ۱۹۸۳م»)؛ نور ۰۳۲۶۴ (همۀ جلدها ۱۴۰۳ ق، چاپ ۳)؛ ج ۱۳ «الطبعة الثانية» بی سال، پس چاپ در سطح منبع ثبت نمی‌شود",
+   "set": {
+    "compiler": "آقابزرگ تهرانی",
+    "publication_place": "بیروت",
+    "publisher": "دار الأضواء",
+    "publication_year": "۱۴۰۳ ق"
+   },
+   "volumes": [
+    {
+     "volume": 26,
+     "evidence": "گام ۱۰ (PROCESS_DOCUMENTATION سطر ۱۰۰۱): ج ۲۶ «مستدرکات المؤلف»، به کوشش سید احمد حسینی، دار الأضواء، چاپ دوم ۱۴۰۶؛ برگ عنوان ج ۲۶ در 26_text.pdf",
+     "set": {
+      "edition_label": "دوم",
+      "publication_year": "۱۴۰۶ ق"
+     }
+    }
+   ]
+  },
+  "rayhana": {
+   "evidence": "شناسنامۀ اسکن archive.org/details/rayhana_201410 (TECHNICAL_APPENDIX سطر ۲۶۲۴): «انتشارات خیام، چاپ چهارم، ۱۳۷۴»، افست چاپ‌های پیشین خیام",
+   "set": {
+    "compiler": "محمدعلی مدرس تبریزی",
+    "edition_label": "چهارم",
+    "publication_place": "تهران",
+    "publisher": "خیام",
+    "publication_year": "۱۳۷۴"
+   }
+  },
+  "kashf": {
+   "evidence": "برگ عنوان kashf/v1_text.pdf: «دار إحياء التراث العربي، بيروت ـ لبنان»، بی سال؛ افست چاپ استانبول (وکالة المعارف، ۱۹۴۱–۱۹۴۳) با همان ستون‌ها؛ نور ۰۳۲۹۸ هم بی سال",
+   "set": {
+    "compiler": "حاجی خلیفه",
+    "edition_label": "افست چاپ استانبول ۱۹۴۱–۱۹۴۳ م",
+    "publication_place": "بیروت",
+    "publisher": "دار إحیاء التراث العربی"
+   }
+  },
+  "idah": {
+   "evidence": "PDF برگ عنوان ندارد؛ نور ۰۳۲۸۹: بیروت، دار إحیاء التراث العربی، بی سال؛ سرصفحه‌ها چاپ استانبول ۱۹۴۵–۱۹۴۷ (README منابع خام)",
+   "set": {
+    "compiler": "اسماعیل پاشا بغدادی",
+    "edition_label": "افست چاپ استانبول ۱۹۴۵–۱۹۴۷ م",
+    "publication_place": "بیروت",
+    "publisher": "دار إحیاء التراث العربی"
+   }
+  },
+  "hadiyya": {
+   "evidence": "PDF برگ عنوان ندارد؛ نور ۰۳۳۰۹: بیروت، دار إحیاء التراث العربی، سال ۱۹۵۱ م (سال چاپ استانبول)؛ README منابع خام: چاپ استانبول ۱۹۵۱–۱۹۵۵",
+   "set": {
+    "compiler": "اسماعیل پاشا بغدادی",
+    "edition_label": "افست چاپ استانبول ۱۹۵۱–۱۹۵۵ م",
+    "publication_place": "بیروت",
+    "publisher": "دار إحیاء التراث العربی"
+   }
+  },
+  "kahhala": {
+   "evidence": "برگ عنوان kahhala/v01_text.pdf: «الناشر مكتبة المثنى ـ بيروت، دار احياء التراث العربي ـ بيروت»؛ مقدمه «دمشق ۱۳۷۶ / ۱۹۵۷»؛ نور ۰۳۳۰۴ و تراجم۳: ۱۳۷۶ ق، چاپ اول",
+   "set": {
+    "compiler": "عمر رضا کحاله",
+    "publication_place": "بیروت",
+    "publisher": "مکتبة المثنی؛ دار إحیاء التراث العربی",
+    "publication_year": "۱۳۷۶ ق"
+   }
+  },
+  "zirikli": {
+   "evidence": "برگ پشت عنوان zirikli/v01.pdf: «دار العلم للملايين … الطبعة الخامسة عشرة، أيار/مايو ۲۰۰۲»",
+   "set": {
+    "compiler": "خیرالدین زرکلی",
+    "edition_label": "پانزدهم",
+    "publication_place": "بیروت",
+    "publisher": "دار العلم للملایین",
+    "publication_year": "۲۰۰۲ م"
+   }
+  },
+  "monzavi": {
+   "evidence": "نور: کتب مرجع ۲، ۱۱۵۷۸ (همۀ ۱۰ جلد): تهران، مرکز دائرة المعارف بزرگ اسلامی، ۱۳۸۲، چاپ ۲",
+   "set": {
+    "edition_label": "دوم",
+    "publication_place": "تهران",
+    "publication_year": "۱۳۸۲"
+   }
+  },
+  "mushar-fa": {
+   "evidence": "نور: ۰۳۲۹۲: تهران، ناشر «خانبابا مشار (مؤلف)»، ۱۳۵۰؛ چاپ پیشین در edition_label: «تهران، ۱۳۵۰–۱۳۵۵ش»",
+   "set": {
+    "edition_label": null,
+    "publication_place": "تهران",
+    "publisher": "مؤلف",
+    "publication_year": "۱۳۵۰–۱۳۵۵"
+   }
+  },
+  "mushar-ar": {
+   "evidence": "نور: ۰۳۲۹۱: تهران، چاپخانه رنگین، ۱۳۴۴",
+   "set": {
+    "edition_label": null,
+    "publication_place": "تهران",
+    "publisher": "چاپخانه رنگین",
+    "publication_year": "۱۳۴۴"
+   }
+  },
+  "mushar-authors": {
+   "evidence": "نور: ۰۳۲۹۹: تهران، چاپخانه رنگین، ۱۳۴۰؛ edition_label پیشین: «تهران، ۱۳۴۰–۱۳۴۴ش»",
+   "set": {
+    "edition_label": null,
+    "publication_place": "تهران",
+    "publisher": "چاپخانه رنگین",
+    "publication_year": "۱۳۴۰–۱۳۴۴"
+   }
+  },
+  "sarkis": {
+   "evidence": "نور: ۰۳۳۰۷: قم، کتابخانه عمومی آیت‌الله مرعشی نجفی، ۱۴۱۰ ق / ۱۳۶۸ ش (افست)",
+   "set": {
+    "edition_label": "افست",
+    "publication_place": "قم",
+    "publisher": "کتابخانه آیت‌الله مرعشی نجفی",
+    "publication_year": "۱۴۱۰ ق"
+   }
+  },
+  "ayan": {
+   "evidence": "نور: ۰۳۲۶۵: بیروت، دار التعارف للمطبوعات، ۱۴۰۳ ق؛ تحقیق حسن امین",
+   "set": {
+    "edition_label": null,
+    "publication_place": "بیروت",
+    "publisher": "دار التعارف للمطبوعات",
+    "publication_year": "۱۴۰۳ ق"
+   }
+  },
+  "rawdat": {
+   "evidence": "نور: ۱۱۴۵۳: قم، دهاقانی (اسماعیلیان)، ۱۳۹۰ ق",
+   "set": {
+    "edition_label": null,
+    "publication_place": "قم",
+    "publisher": "اسماعیلیان",
+    "publication_year": "۱۳۹۰ ق"
+   }
+  },
+  "kalam-turath": {
+   "evidence": "نور: ۲۳۹۸۶: قم، مؤسسه امام صادق (ع)، ۱۴۲۳ ق / ۱۳۸۱ ش",
+   "set": {
+    "edition_label": null,
+    "publication_place": "قم",
+    "publisher": "مؤسسه امام صادق (ع)",
+    "publication_year": "۱۴۲۳ ق"
+   }
+  },
+  "fuqaha": {
+   "evidence": "نور: ۰۳۲۶۷: قم، مؤسسه امام صادق (ع)، ۱۴۱۸ ق",
+   "set": {
+    "edition_label": null,
+    "publication_place": "قم",
+    "publisher": "مؤسسه امام صادق (ع)",
+    "publication_year": "۱۴۱۸ ق"
+   }
+  },
+  "kashf-hujub": {
+   "evidence": "تراجم۳، کتاب ۲۱۳: قم، کتابخانه عمومی آیت‌الله مرعشی نجفی، چاپ دوم، ۱۴۰۹ ق",
+   "set": {
+    "edition_label": "دوم",
+    "publication_place": "قم",
+    "publisher": "کتابخانه آیت‌الله مرعشی نجفی",
+    "publication_year": "۱۴۰۹ ق"
+   }
+  },
+  "zaydiyya": {
+   "evidence": "تراجم۳، کتاب ۲۹۴: قم، مکتبة آیة الله العظمی المرعشی النجفی، چاپ اول، ۱۴۱۳ ق",
+   "set": {
+    "edition_label": null,
+    "publication_place": "قم",
+    "publisher": "کتابخانه آیت‌الله مرعشی نجفی",
+    "publication_year": "۱۴۱۳ ق"
+   }
+  },
+  "tazkira": {
+   "evidence": "نور (تاریخ)، ۱۱۵۹۵: تهران، کتابخانه سنایی، چاپ ۲، ۱۳۶۳",
+   "set": {
+    "edition_label": "دوم",
+    "publication_place": "تهران",
+    "publisher": "کتابخانه سنایی",
+    "publication_year": "۱۳۶۳"
+   }
+  },
+  "mosaffa": {
+   "evidence": "نور (آقابزرگ)، ۱۱۹۸۰: تهران، نشر عترت، ۱۳۳۷ ش / ۱۳۷۸ ق؛ تصحیح احمد منزوی",
+   "set": {
+    "edition_label": null,
+    "publication_place": "تهران",
+    "publisher": "نشر عترت",
+    "publication_year": "۱۳۳۷"
+   }
+  },
+  "tabaqat": {
+   "evidence": "نور (آقابزرگ)، ۱۴۹۲۳ (۱۷ جلد): بیروت، دار إحیاء التراث العربی، چاپ ۱، ۱۴۳۰ ق / ۲۰۰۹ م",
+   "set": {
+    "edition_label": "اول",
+    "publication_place": "بیروت",
+    "publisher": "دار إحیاء التراث العربی",
+    "publication_year": "۱۴۳۰ ق"
+   }
+  },
+  "hadith-mss": {
+   "evidence": "نور (دار الحدیث)، ۳۶۲۴۲ (۱۲ جلد): قم، دار الحدیث، ۱۳۸۲",
+   "set": {
+    "edition_label": null,
+    "publication_place": "قم",
+    "publication_year": "۱۳۸۲"
+   }
+  },
+  "catalogue-d0b9646d3e36": {
+   "evidence": "شناسنامه و برگ عنوان golpaygani/d1199476.pdf (ج ۱–۲): «چاپ اول: بهار ۱۳۸۸»، «کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی؛ مؤسسۀ فرهنگی ـ پژوهشی الجواد (مشهد)؛ تهران ـ ۱۳۸۸»؛ فیپا: «تهران: کتابخانه…، مشهد: الجواد، ۱۳۸۸»، ۹ ج؛ چهار فایل جلدها همه «۱۳۸۸». «مخطوط» جلدها نادرست بود",
+   "set": {
+    "edition_label": "اول",
+    "publication_place": "تهران",
+    "publisher": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی؛ مؤسسه فرهنگی ـ پژوهشی الجواد",
+    "publication_year": "۱۳۸۸"
+   },
+   "volumes": [
+    {
+     "volume": 1,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 2,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 3,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 4,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 5,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 6,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 7,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 8,
+     "evidence": "سال و ناشر جلد بر منبع پیش است: «مخطوط» و «مؤسسه الجواد» پاک می‌شود",
+     "set": {
+      "publisher": null,
+      "publication_year": null
+     }
+    }
+   ]
+  },
+  "catalogue-4ae9dc5de46a": {
+   "evidence": "شناسنامۀ marvi/v01.pdf برگ ۳: «مؤلف: رضا استادی؛ ناشر: کتابخانه مدرسه مروی؛ چاپ: چاپخانه خیام ـ قم؛ نوبت چاپ: اول؛ تاریخ چاپ: ۱۳۷۱ هـ ش». محل نشر چاپ نشده؛ کتابخانه در تهران است",
+   "set": {
+    "compiler": "رضا استادی",
+    "edition_label": "اول",
+    "publication_place": "تهران",
+    "publisher": "کتابخانه مدرسه مروی",
+    "publication_year": "۱۳۷۱"
+   }
+  },
+  "catalogue-7ac531af190e": {
+   "evidence": "ناشر جلدها «دانشگاه تهران» و «کتابخانه ملی ملک»، هر دو در تهران",
+   "set": {
+    "publication_place": "تهران"
+   }
+  },
+  "fankha": {
+   "evidence": "fankha-labeled.pdf برگ ۴ (شناسنامۀ ج ۱): «چاپ اول: ۱۳۹۰، ناشر: سازمان اسناد و کتابخانه ملی جمهوری اسلامی ایران»؛ فیپا برگ ۲: «تهران: …، ۱۳۹۰–»؛ برگ ۳۳۱۹۷ (ج ۳۴): «چاپ اول: ۱۳۹۲»",
+   "set": {
+    "edition_label": "اول",
+    "publication_place": "تهران",
+    "publication_year": "۱۳۹۰–۱۳۹۲"
+   }
+  },
+  "catalogue-b6b3ae39f183": {
+   "evidence": "شناسنامۀ moayyed/v01–v03.pdf (برگ ۳، ۴، ۵): «الطبعة الأولى ١٤٢٠ هـ ١٩٩٩م … مؤسسة الهادي للتحقيق والنشر، بيروت – لبنان»؛ فهرست‌نگار چاپ نشده",
+   "set": {
+    "edition_label": "اول",
+    "publication_place": "بیروت",
+    "publisher": "مؤسسة الهادی للتحقیق والنشر",
+    "publication_year": "۱۴۲۰ ق"
+   },
+   "volumes": [
+    {
+     "volume": 1,
+     "evidence": "سال یکسان جلدها («1420») به منبع رفت",
+     "set": {
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 2,
+     "evidence": "سال یکسان جلدها («1420») به منبع رفت",
+     "set": {
+      "publication_year": null
+     }
+    },
+    {
+     "volume": 3,
+     "evidence": "سال یکسان جلدها («1420») به منبع رفت",
+     "set": {
+      "publication_year": null
+     }
+    }
+   ]
+  },
+  "masjid-azam-ostadi": {
+   "evidence": "masjid-azam_v01.pdf برگ ۴: «به کوشش حاج شیخ رضا استادی، ناشر: کتابخانه مسجد اعظم قم، نوبت چاپ: اول، چاپ قم، تاریخ چاپ: ۱۳۸۸ ش»؛ v03 و v04 شناسنامه ندارند، پس سال در سطح جلد می‌ماند (ج ۱ و ۲: ۱۳۸۸)",
+   "set": {
+    "compiler": "رضا استادی",
+    "edition_label": null,
+    "publication_place": "قم",
+    "publisher": "کتابخانه مسجد اعظم قم"
+   },
+   "volumes": [
+    {
+     "volume": 1,
+     "evidence": "شناسنامۀ ج ۱",
+     "set": {
+      "edition_label": "اول"
+     }
+    },
+    {
+     "volume": 2,
+     "evidence": "برچسب پیشین «۱۳۸۸، به کوشش رضا استادی»؛ اسکن ج ۲ در دست نیست",
+     "set": {
+      "edition_label": null
+     }
+    },
+    {
+     "volume": 3,
+     "evidence": "برچسب پیشین «کتابخانه مسجد اعظم، به کوشش رضا استادی» به منبع رفت",
+     "set": {
+      "edition_label": null
+     }
+    },
+    {
+     "volume": 4,
+     "evidence": "همان",
+     "set": {
+      "edition_label": null
+     }
+    }
+   ]
+  },
+  "sepahsalar-motahhari": {
+   "evidence": "sepahsalar-motahhari g620340 برگ ۳: «ویرایش دوم بر مبنای تألیف ابن یوسف شیرازی، محمّد تقی دانش پژوه، علی نقی منزوی / به تصحیح و تکمیل و تحریر دکتر ابوالقاسم نقیبی، عبدالله غفرانی»؛ ناشر، محل و سال ویرایش دوم در اسکن‌ها نیست",
+   "set": {
+    "compiler": "ابوالقاسم نقیبی و عبدالله غفرانی",
+    "edition_label": "دوم، بر مبنای تألیف ابن یوسف شیرازی، محمدتقی دانش‌پژوه و علینقی منزوی"
+   },
+   "volumes": [
+    {
+     "volume": 1,
+     "evidence": "برچسب جلد همان برچسب منبع بود",
+     "set": {
+      "edition_label": null
+     }
+    },
+    {
+     "volume": 2,
+     "evidence": "برچسب جلد همان برچسب منبع بود",
+     "set": {
+      "edition_label": null
+     }
+    },
+    {
+     "volume": 3,
+     "evidence": "برچسب جلد همان برچسب منبع بود",
+     "set": {
+      "edition_label": null
+     }
+    },
+    {
+     "volume": 4,
+     "evidence": "برچسب جلد همان برچسب منبع بود",
+     "set": {
+      "edition_label": null
+     }
+    },
+    {
+     "volume": 5,
+     "evidence": "برچسب جلد همان برچسب منبع بود",
+     "set": {
+      "edition_label": null
+     }
+    }
+   ]
+  },
+  "catalogue-af2952129bfd": {
+   "evidence": "همۀ جلدها در تهران (ناشران مطبعه/چاپخانه مجلس، کتابخانه و موزۀ مجلس)؛ ج ۳۵–۳۸ دفتر تبلیغات (قم) سطح جلد",
+   "set": {
+    "publication_place": "تهران"
+   },
+   "volumes": [
+    {
+     "volume": 1,
+     "facsimile_code": "majlis",
+     "evidence": "majlis/v01.pdf برگ ۱: «مطبعۀ مجلس»، بازۀ «۱۳۰۵–۱۳۴۴» دستی؛ برچسب پیشین «۱۳۰۵ (مطبعهٔ مجلس)»",
+     "set": {
+      "edition_label": null,
+      "publisher": "مطبعه مجلس",
+      "publication_year": "۱۳۰۵"
+     }
+    },
+    {
+     "volume": 24,
+     "facsimile_code": "majlis-p1",
+     "evidence": "majlis/v24-1.pdf برگ ۶–۷: «تهران ۱۳۸۱»، «چاپ اول: بهار ۱۳۸۱»، ناشر در فیپا",
+     "set": {
+      "edition_label": "اول",
+      "publisher": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی",
+      "publication_year": "۱۳۸۱"
+     }
+    },
+    {
+     "volume": 24,
+     "facsimile_code": "majlis-p2",
+     "evidence": "majlis/v24-2.pdf برگ ۳: «کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی / تهران، پاییز ۱۳۸۸»",
+     "set": {
+      "publisher": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی",
+      "publication_year": "۱۳۸۸"
+     }
+    },
+    {
+     "volume": 39,
+     "evidence": "majlis/v39.pdf برگ ۳–۵: «تهران – ۱۳۹۱»، «چاپ اول: ۱۳۹۱»",
+     "set": {
+      "edition_label": "اول",
+      "publisher": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی",
+      "publication_year": "۱۳۹۱"
+     }
+    },
+    {
+     "volume": 35,
+     "evidence": "majlis-p2/v27.pdf (در واقع ج ۳۵) برگ ۳: «مرکز انتشارات دفتر تبلیغات اسلامی»، قم، «نوبت چاپ: اول / پاییز ۱۳۷۶»",
+     "set": {
+      "publication_place": "قم",
+      "publisher": "مرکز انتشارات دفتر تبلیغات اسلامی",
+      "publication_year": "۱۳۷۶"
+     }
+    }
+   ]
+  }
+ }
+}
