@@ -62,6 +62,8 @@ Route::post('/search/click', [SearchController::class, 'click'])->middleware('th
 // Statistical insights: figures built nightly by fahares:build-insights
 Route::get('/insights', [InsightsController::class, 'index'])->name('insights');
 Route::get('/insights/lookup', [InsightsController::class, 'lookup'])->middleware('throttle:120,1')->name('insights.lookup');
+// The cities of the map, asked for by its script (step 14.377)
+Route::get('/insights/map-data', [InsightsController::class, 'map'])->middleware('throttle:120,1')->name('insights.map');
 // The topic pages (backlog item 153); /insights itself is their hub
 Route::get('/insights/{topic}', [InsightsController::class, 'index'])
     ->whereIn('topic', array_keys(config('insights.topics')))->name('insights.topic');

@@ -52,6 +52,14 @@ export default (config) => {
             return Number(n).toLocaleString('fa-IR', { useGrouping: grouping });
         },
 
+        /** The map of the places at the decade of the middle of the rule, on the dynasty's seat (step 14.377) */
+        mapLink(row) {
+            const [first, last] = config.mapYears;
+            const year = Math.min(last, Math.max(first, Math.ceil((row.f + row.t) / 2 / 10) * 10));
+
+            return `${config.map}${config.map.includes('?') ? '&' : '?'}map_year=${year}&map_at=${encodeURIComponent(row.n)}#places`;
+        },
+
         years(row) {
             return `${this.fa(row.f, false)} – ${this.fa(row.t, false)} ق`;
         },

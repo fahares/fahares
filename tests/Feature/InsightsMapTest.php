@@ -121,6 +121,40 @@ class InsightsMapTest extends TestCase
             ->assertSee('data-insights-table="copy-places"', false);
     }
 
+    public function test_the_counts_of_the_cities_come_apart_from_the_page_in_its_scope()
+    {
+        $work = $this->work();
+        foreach (range(1, 12) as $i) {
+            $this->copy($work, ['copy_date_raw' => (1040 + $i) . 'ق', 'copy_place' => 'اصفهان']);
+        }
+        $scope = ['library' => $this->library->id];
+
+        // The page names where the data is, and has the cities of the first layer as a list, but not their decades
+        $page = $this->get(route('insights.topic', ['topic' => 'places'] + $scope))->assertOk()
+            ->assertSee('map-data?library', false)
+            ->assertSee('data-insights-still-cities', false)
+            ->assertSee('data-insights-map-focus', false)
+            ->getContent();
+        $this->assertMatchesRegularExpression('/map-data\?library\D{1,7}' . $this->library->id . '\D/', $page);
+        $this->assertStringNotContainsString('[1050,', $page);
+
+        $cities = collect($this->getJson(route('insights.map', $scope))->assertOk()->assertHeader('Cache-Control', 'max-age=600, private')->json('cities'))->keyBy('n');
+        $this->assertSame(['n', 'lat', 'lon', 't', 'd', 'w', 'wd', 's', 'sd', 'a', 'ad', 'o', 'od', 'b', 'bd', 'x', 'xd', 'r', 'rd'], array_keys($cities['اصفهان']));
+        // Ten copies of 1041–1050 and two of 1051–1060, by the year their decade ends in
+        $this->assertSame([12, [[1050, 10], [1060, 2]]], [$cities['اصفهان']['t'], $cities['اصفهان']['d']]);
+        // Another scope has other counts
+        $this->assertSame(0, collect($this->getJson(route('insights.map', ['library' => Library::create(['name' => 'کتابخانۀ دیگر نقشه', 'city' => 'قم', 'slug' => 'insights-map-' . uniqid()])->id]))->json('cities'))->sum('t'));
+    }
+
+    public function test_the_map_opens_at_the_decade_of_the_middle_of_a_rule()
+    {
+        // The decade is named by the year it ends in, inside the years of the slider
+        $this->assertSame([300, 1030, Insights::mapYears()[1]], [Insights::mapYearOf(41, 132), Insights::mapYearOf(907, 1135), Insights::mapYearOf(1400, 1600)]);
+        $script = file_get_contents(resource_path('js/insights-map.js'));
+        $this->assertStringContainsString("asked.get('map_year')", $script);
+        $this->assertStringContainsString("asked.get('map_at')", $script);
+    }
+
     public function test_the_base_map_and_a_territory_file_of_every_decade_of_the_slider_are_published()
     {
         $base = json_decode(file_get_contents(public_path('data/insights/basemap.json')), true);

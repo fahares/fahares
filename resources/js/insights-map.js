@@ -2,8 +2,12 @@
  * The map of the statistics (backlog item 137, step 14.275), after the map of dawawin.ir's statistics: the cities of
  * copying and of composition on a real base map that is zoomed and dragged, in four layers (copies, works, scribes,
  * authors), with a slider of years, the territories of the states of the chosen decade under the cities, and a panel
- * for the city that is clicked. ECharts and the base map are fetched when the map comes into view; until then, and
- * without script, the page shows the still map it was sent with.
+ * for the city that is clicked. ECharts, the base map and the counts of the cities (config.data, step 14.377) are
+ * fetched when the map comes into view; until then, and without script, the page shows the still map and the list of
+ * cities it was sent with.
+ *
+ * A link may open the map at a decade and on a dynasty (`?map_year=1035&map_at=صفویان`, from the chart of the
+ * dynasties): the slider goes to that decade and the map to the dynasty's seat of then.
  *
  * A city is {n: name, lat, lon, t, d, w, wd, s, sd, a, ad, o, od, b, bd, x, xd, r, rd}: for each layer its whole count and its counts by decade,
  * [[the year the decade ends in, count], …]. A copy is «by a year» once the whole range of its date has passed.
@@ -26,8 +30,8 @@ const CENTER = [59, 27.5];
 
 export default (config) => {
     // Kept out of Alpine's reactive data: the chart, the cities and the territories are large and are not watched
-    const cities = config.cities, territories = {};
-    let chart = null, lands = [], timer = null, ticket = 0;
+    const territories = {};
+    let cities = [], chart = null, lands = [], timer = null, ticket = 0;
 
     return {
     layer: config.layer,
@@ -37,12 +41,23 @@ export default (config) => {
     selected: null,
     ready: false,
     failed: false,
+    // The counts of the cities have come: until then the page's own list of cities stands
+    loaded: false,
+    // The dynasty a link opened the map on
+    focus: null,
     // Raised by every drawing, so what reads the territories (the ruler of the chosen city) is worked out again
     drawn: 0,
     years: config.years,
     regions: config.regions,
 
     init() {
+        const asked = new URLSearchParams(location.search);
+        const year = Number(asked.get('map_year'));
+        if (year >= this.years[0] && year <= this.years[1]) {
+            this.year = Math.ceil(year / 10) * 10;
+            this.mode = 'until';
+            this.focus = asked.get('map_at') || null;
+        }
         const start = () => this.load().catch(() => { this.failed = true; });
         if ('IntersectionObserver' in window) {
             const seen = new IntersectionObserver((entries) => {
@@ -57,15 +72,26 @@ export default (config) => {
         }
         this.$watch('layer', () => this.draw());
         this.$watch('mode', () => { if (this.mode === 'all') { this.stop(); } this.draw(); });
-        this.$watch('year', () => this.draw());
+        // Another year is no longer the decade the link asked for
+        this.$watch('year', () => { this.focus = null; this.draw(); });
     },
 
     async load() {
-        const [{ default: echarts }, basemap] = await Promise.all([
+        const json = (response) => {
+            if (! response.ok) {
+                throw new Error(`${response.status}`);
+            }
+
+            return response.json();
+        };
+        const [{ default: echarts }, basemap, data] = await Promise.all([
             import('./echarts-map'),
-            fetch(config.basemap).then((response) => response.json()),
+            fetch(config.basemap).then(json),
+            fetch(config.data, { headers: { Accept: 'application/json' } }).then(json),
         ]);
         echarts.registerMap('fahares', basemap);
+        cities = data.cities;
+        this.loaded = true;
         // The still map gives its place to the box of the chart, which must be on the page to be measured
         this.ready = true;
         await this.$nextTick();
@@ -86,6 +112,12 @@ export default (config) => {
         // The colours of the page are read anew when the reader turns the dark theme on or off
         new MutationObserver(() => { this.base(); this.draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         this.base();
+        // A link of a dynasty: the map goes to its seat in the decade asked for (else the first one it had)
+        const seats = this.focus ? config.capitals.filter((capital) => capital.d === this.focus) : [];
+        const seat = seats.find((capital) => capital.f <= this.year - 5 && this.year - 5 <= capital.t) ?? seats[0];
+        if (seat) {
+            chart.setOption({ geo: { center: [seat.lon, seat.lat], zoom: 2.2 } });
+        }
         await this.draw();
     },
 
@@ -113,10 +145,18 @@ export default (config) => {
     },
 
     get ranked() {
+        if (! this.loaded) {
+            return [];
+        }
+
         return cities.map((city) => ({ city, n: this.value(city) })).filter((row) => row.n > 0).sort((a, b) => b.n - a.n).slice(0, 15);
     },
 
     get total() {
+        if (! this.loaded) {
+            return 0;
+        }
+
         return cities.reduce((sum, city) => sum + this.value(city), 0);
     },
 
@@ -183,20 +223,25 @@ export default (config) => {
                 itemStyle: { areaColor: surface, borderColor: line, borderWidth: 0.6 },
                 regions: [{ name: 'lake', itemStyle: { areaColor: paper, borderColor: line } }],
             },
+            // The box of figures, as the one the marks of the other charts share (chart-tip.js and the page's
+            // [data-chart-tip], step 14.377): the same colours, size, corners and shadow, «name: figure» first and
+            // every other part on a line of its own, and no slide from one mark to the next
             tooltip: {
-                trigger: 'item', confine: true, backgroundColor: ink, borderWidth: 0, padding: [6, 10],
+                trigger: 'item', confine: true, backgroundColor: ink, borderWidth: 0, padding: [6, 10], transitionDuration: 0,
                 textStyle: { color: paper, fontFamily: font, fontSize: 12 },
+                extraCssText: 'border-radius: 4px; line-height: 1.625; font-variant-numeric: tabular-nums; white-space: pre-line; '
+                    + 'max-width: min(20rem, calc(100vw - 1rem)); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);',
                 formatter: (point) => {
                     if (point.seriesId === 'lands') {
                         const land = lands[point.value]?.properties;
 
-                        return land ? `<b>${esc(land.name)}</b><br>${esc(land.span)}<br>${esc(land.region)}` : '';
+                        return land ? `${esc(land.name)}: ${esc(land.span)}\n${esc(land.region)}` : '';
                     }
                     if (point.seriesId === 'capitals') {
-                        return `<b>${esc(point.name)}</b><br>پایتخت ${esc(point.data.capital.d)}<br>${this.fa(point.data.capital.f, false)} – ${this.fa(point.data.capital.t, false)} ق`;
+                        return `${esc(point.name)}: پایتخت ${esc(point.data.capital.d)}\n${this.fa(point.data.capital.f, false)} – ${this.fa(point.data.capital.t, false)} ق`;
                     }
                     if (point.seriesId === 'cities') {
-                        return `<b>${esc(point.name)}</b><br>${this.fa(point.value[2])} ${this.unit}<br>${this.span}`;
+                        return `${esc(point.name)}: ${this.fa(point.value[2])} ${this.unit}\n${this.span}`;
                     }
 
                     return '';

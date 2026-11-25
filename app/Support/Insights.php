@@ -67,6 +67,35 @@ class Insights
         });
     }
 
+    /**
+     * The cities of the map as its script reads them (resources/js/insights-map.js, step 14.377): for each layer the
+     * whole count and the counts by decade, [[the year the decade ends in, count], …]. Sent apart from the page.
+     */
+    public static function mapCities(array $cities): array
+    {
+        $pairs = fn (array $decades) => array_map(null, array_keys($decades), array_values($decades));
+
+        return array_map(fn ($c) => ['n' => $c['name'], 'lat' => $c['lat'], 'lon' => $c['lon'],
+            't' => $c['count'], 'd' => $pairs($c['decades']), 'w' => $c['works'], 'wd' => $pairs($c['work_decades']),
+            's' => $c['scribes'], 'sd' => $pairs($c['scribe_decades']), 'a' => $c['authors'], 'ad' => $pairs($c['author_decades']),
+            'o' => $c['origins'], 'od' => $pairs($c['origin_decades']), 'b' => $c['births'], 'bd' => $pairs($c['birth_decades']),
+            'x' => $c['deaths'], 'xd' => $pairs($c['death_decades']), 'r' => $c['residences'], 'rd' => $pairs($c['residence_decades'])], $cities);
+    }
+
+    /** The years of the map's slider: the decades by the year they end in */
+    public static function mapYears(): array
+    {
+        return [300, config('insights.centuries')[1] * 100 - 50];
+    }
+
+    /** The decade of the slider that holds the middle of a rule: where the link of a dynasty opens the map */
+    public static function mapYearOf(int $from, int $to): int
+    {
+        [$first, $last] = self::mapYears();
+
+        return (int) min($last, max($first, ceil(($from + $to) / 2 / 10) * 10));
+    }
+
     public static function isCached(InsightsScope $scope): bool
     {
         return Cache::has(self::cacheKey($scope));

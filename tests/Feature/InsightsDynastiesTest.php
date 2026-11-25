@@ -168,6 +168,7 @@ class InsightsDynastiesTest extends TestCase
         $this->assertNotEmpty(array_intersect(array_column($capitals, 'dynasty'), $names));
         $this->assertContains('ایران', Dynasties::regions());
 
+        $safavids = collect(Dynasties::all())->firstWhere('name', 'صفویان');
         $this->get(route('insights.topic', ['topic' => 'time', 'library' => $this->library->id]))->assertOk()
             ->assertSee('data-insights-dynasty-rows', false)
             ->assertSee('x-data="insightsDynasties(', false)
@@ -176,7 +177,11 @@ class InsightsDynastiesTest extends TestCase
             ->assertSee('data-insights-dynasties="count"', false)
             ->assertSee('data-insights-dynasties="share"', false)
             ->assertSee('۰٫۵ در هر ده سال')
-            ->assertSee('۹۲٫۳٪ نسخه‌های همان سال‌ها');
+            ->assertSee('۹۲٫۳٪ نسخه‌های همان سال‌ها')
+            // A dynasty leads to the map at the decade of the middle of its rule, in the scope of the page (step 14.377)
+            ->assertSee('data-insights-dynasty-map', false)
+            ->assertSee(e(route('insights.topic', ['topic' => 'places', 'library' => $this->library->id,
+                'map_year' => Insights::mapYearOf($safavids['from'], $safavids['to']), 'map_at' => 'صفویان']) . '#places'), false);
         $this->get(route('insights.topic', ['topic' => 'places', 'library' => $this->library->id]))->assertOk()
             ->assertSee('capitals', false)
             ->assertSee('پایتخت');

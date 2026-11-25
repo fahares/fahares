@@ -24,6 +24,28 @@ class InsightsController extends Controller
     /** The hub of the statistics, or one of its topic pages (config insights.topics, backlog item 153) */
     public function index(Request $request, ?string $topic = null)
     {
+        $scope = $this->scope($request);
+
+        // How far the copies stand on their libraries' own catalogues (step 14.256): a measure of the whole site, so
+        // only on the page that is not narrowed to a scope
+        $coverage = $scope->isEmpty() ? FirsthandCoverage::summary() : null;
+
+        return view('insights.index', ['data' => Insights::get($scope), 'map' => Insights::MAP, 'scope' => $scope, 'coverage' => $coverage,
+            'topic' => $topic, 'topics' => config('insights.topics')]);
+    }
+
+    /**
+     * The cities of the map with their counts by decade in every layer (step 14.377): the script of the map asks for
+     * them when the map comes into view, so the page of the places is not sent with them. The same scope as the page.
+     */
+    public function map(Request $request)
+    {
+        return response()->json(['cities' => Insights::mapCities(Insights::get($this->scope($request))['places']['cities'])])
+            ->header('Cache-Control', 'private, max-age=600');
+    }
+
+    private function scope(Request $request): InsightsScope
+    {
         $scope = InsightsScope::fromRequest($request);
         // A scope not yet in the cache is built now, which reads much of the data: a few per visitor and hour
         if (! $scope->isEmpty() && ! Insights::isCached($scope)) {
@@ -32,12 +54,7 @@ class InsightsController extends Controller
             RateLimiter::hit($key, 3600);
         }
 
-        // How far the copies stand on their libraries' own catalogues (step 14.256): a measure of the whole site, so
-        // only on the page that is not narrowed to a scope
-        $coverage = $scope->isEmpty() ? FirsthandCoverage::summary() : null;
-
-        return view('insights.index', ['data' => Insights::get($scope), 'map' => Insights::MAP, 'scope' => $scope, 'coverage' => $coverage,
-            'topic' => $topic, 'topics' => config('insights.topics')]);
+        return $scope;
     }
 
     /**

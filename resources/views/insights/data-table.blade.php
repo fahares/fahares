@@ -33,12 +33,8 @@
                 </thead>
                 <tbody>
                     @foreach($table['rows'] as $row)
-                        <tr class="border-t border-line">
-                            @foreach($row as $i => $value)
-                                @php $type = $table['columns'][$i][1]; @endphp
-                                <td data-v="{{ $value }}" class="px-2.5 py-1 {{ $type === 'text' ? 'text-right text-ink' : 'text-left text-ink whitespace-nowrap' }}">{{ $show($value, $type) }}</td>
-                            @endforeach
-                        </tr>
+{{-- A row on one line, without the indent of the template: the tables are most of a page's bytes (step 14.377) --}}
+<tr class="border-t border-line">@foreach($row as $i => $value)<td data-v="{{ $value }}" class="px-2.5 py-1 {{ $table['columns'][$i][1] === 'text' ? 'text-right text-ink' : 'text-left text-ink whitespace-nowrap' }}">{{ $show($value, $table['columns'][$i][1]) }}</td>@endforeach</tr>
                     @endforeach
                 </tbody>
             </table>

@@ -5,7 +5,8 @@
 {{--
     2. Centres of copying and of composition: the map (backlog item 137, step 14.275). The page is sent with a still
     map of the copies; resources/js/insights-map.js puts the map that is zoomed and dragged in its place when it comes
-    into view, with the layers, the slider of years, the territories and the panel of the chosen city.
+    into view, with the layers, the slider of years, the territories and the panel of the chosen city. The counts of
+    the cities by decade are not in the page: the script asks for them then (insights.map, step 14.377).
 --}}
 <x-ui.section title="کانون‌های تاریخی استنساخ و تألیف" id="places">
     <x-ui.card>
@@ -13,16 +14,12 @@
             @include('insights.thin', ['n' => max($p['mapped'], $cp['mapped']), 'what' => 'نسخه یا اثر با محل شناخته'])
         @else
         @php
-            $pairs = fn (array $decades) => array_map(null, array_keys($decades), array_values($decades));
             $mapData = [
                 'layer' => $p['mapped'] >= $min ? 'copy' : 'composition',
                 // The decades of the slider, by the year they end in
-                'years' => [300, config('insights.centuries')[1] * 100 - 50],
-                'cities' => array_map(fn ($c) => ['n' => $c['name'], 'lat' => $c['lat'], 'lon' => $c['lon'],
-                    't' => $c['count'], 'd' => $pairs($c['decades']), 'w' => $c['works'], 'wd' => $pairs($c['work_decades']),
-                    's' => $c['scribes'], 'sd' => $pairs($c['scribe_decades']), 'a' => $c['authors'], 'ad' => $pairs($c['author_decades']),
-                    'o' => $c['origins'], 'od' => $pairs($c['origin_decades']), 'b' => $c['births'], 'bd' => $pairs($c['birth_decades']),
-                    'x' => $c['deaths'], 'xd' => $pairs($c['death_decades']), 'r' => $c['residences'], 'rd' => $pairs($c['residence_decades'])], $p['cities']),
+                'years' => \App\Support\Insights::mapYears(),
+                // The cities and their counts by decade, in the scope of the page
+                'data' => route('insights.map', $scope->query()),
                 'frame' => \Illuminate\Support\Arr::only($map, ['lon0', 'lon1', 'lat0', 'lat1']),
                 'basemap' => asset('data/insights/basemap.json'),
                 'territories' => asset('data/insights/territories/__YEAR__.json'),
@@ -34,6 +31,9 @@
             ];
             $layerNames = ['copy' => 'نسخه‌ها (محل کتابت)', 'composition' => 'آثار (محل تألیف)', 'scribes' => 'کاتبان', 'authors' => 'مؤلفان',
                 'origin' => 'خاستگاه (از نسبت)', 'birth' => 'زادگاه', 'death' => 'محل وفات', 'residence' => 'اقامت'];
+            // The cities of the first layer as they stand, until the script has the data of the map and without script
+            $stillField = $mapData['layer'] === 'copy' ? 'count' : 'works';
+            $stillCities = collect($p['cities'])->filter(fn ($c) => $c[$stillField] > 0)->sortByDesc($stillField)->take(15)->values()->all();
             $chip = fn (string $on) => "{$on} ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'";
         @endphp
         <div x-data="insightsMap(@js($mapData))" data-insights-map>
@@ -90,6 +90,10 @@
                                 class="size-8 bg-surface border border-line-strong text-ink hover:border-cinnabar hover:text-cinnabar transition cursor-pointer shadow-sm">{{ $sign }}</button>
                     @endforeach
                 </div>
+                <p x-show="ready && focus" x-cloak class="mt-2 text-xs text-ink" data-insights-map-focus>
+                    نقشه روی دهۀ میانۀ حکومت <strong x-text="focus"></strong> باز شده است؛ قلمرو آن در همین دهه کشیده شده است.
+                    <button type="button" @click="focus = null; mode = 'all'; reset()" class="text-cinnabar hover:underline cursor-pointer">همۀ سال‌ها</button>
+                </p>
                 <p x-show="failed" x-cloak class="mt-2 text-xs text-muted">نقشۀ تعاملی بار نشد؛ نقشۀ ثابتِ محل کتابت نسخه‌ها نشان داده شده است.</p>
                 <ul x-show="ready && mode !== 'all'" x-cloak class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted" aria-label="رنگ قلمروها به تفکیک منطقه">
                     <template x-for="region in regions" :key="region">
@@ -124,7 +128,7 @@
                 </div>
 
                 <p class="text-xs text-muted mb-2">
-                    <span x-text="{ copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف', origin: 'شهرهای نسبت', birth: 'زادگاه‌ها', death: 'شهرهای وفات', residence: 'شهرهای اقامت' }[layer] + (mode === 'all' ? '' : '، ' + span)">پرکارترین شهرهای کتابت</span>
+                    <span x-text="! loaded ? $el.textContent : { copy: 'پرکارترین شهرهای کتابت', composition: 'شهرهای تألیف', scribes: 'شهرهای پرکاتب', authors: 'شهرهای پرمؤلف', origin: 'شهرهای نسبت', birth: 'زادگاه‌ها', death: 'شهرهای وفات', residence: 'شهرهای اقامت' }[layer] + (mode === 'all' ? '' : '، ' + span)">{{ $mapData['layer'] === 'copy' ? 'پرکارترین شهرهای کتابت' : 'شهرهای تألیف' }}</span>
                 </p>
                 <ol class="text-sm">
                     <template x-for="row in ranked" :key="row.city.n">
@@ -137,19 +141,21 @@
                         </li>
                     </template>
                 </ol>
-                {{-- Without script: the cities of copying as they stand --}}
-                <noscript>
-                    <ol class="text-sm">
-                        @foreach(array_slice($p['cities'], 0, 15) as $city)
-                            <li class="border-b border-line flex items-baseline gap-2 py-1.5">
+                {{-- Until the data of the map has come, and without script: the cities of the first layer as they stand --}}
+                <ol class="text-sm" x-show="! loaded" data-insights-still-cities>
+                    @foreach($stillCities as $city)
+                        <li class="border-b border-line flex items-baseline gap-2 py-1.5">
+                            @if($stillField === 'count')
                                 <a href="{{ $search('manuscripts', ['copy_city' => $city['name']]) }}" class="text-ink hover:text-cinnabar">{{ $city['name'] }}</a>
-                                <span class="leader" aria-hidden="true"></span>
-                                <span class="text-xs text-muted tabular-nums">{{ Fa::num($city['count']) }}</span>
-                            </li>
-                        @endforeach
-                    </ol>
-                </noscript>
-                <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این لایه و این سال‌ها محلی ثبت نشده است.</p>
+                            @else
+                                <span class="text-ink">{{ $city['name'] }}</span>
+                            @endif
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums">{{ Fa::num($city[$stillField]) }}</span>
+                        </li>
+                    @endforeach
+                </ol>
+                <p x-show="loaded && ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این لایه و این سال‌ها محلی ثبت نشده است.</p>
                 <p x-show="ranked.length" x-cloak class="mt-2 text-[11px] text-muted">روی هم <span class="tabular-nums" x-text="fa(total)"></span> <span x-text="unit"></span> در شهرهای نقشه<span x-show="layer === 'scribes' || layer === 'authors'">؛ کسی که در دو شهر کار کرده در هر دو شمرده شده است</span><span x-show="layer === 'origin'" x-cloak>؛ کسی که دو نسبت دارد در هر دو شهر شمرده شده است</span>.</p>
             </div>
         </div>

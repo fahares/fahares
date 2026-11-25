@@ -32,12 +32,18 @@
                     $kinds['works'] = ['آثار (تألیف)', 'اثر', $readingsOf($dy['works']['items'])];
                 }
                 $byName = array_column($dy['items'], null, 'name');
+                // The map at the decade of the middle of a rule, on the dynasty's seat (step 14.377)
+                $mapLink = fn (array $row) => route('insights.topic', ['topic' => 'places'] + $scope->query()
+                    + ['map_year' => \App\Support\Insights::mapYearOf((int) $row['rule_from'], (int) $row['rule_to']), 'map_at' => $row['name']]) . '#places';
                 $rowsData = [
                     'regions' => \App\Support\Dynasties::regions(),
                     'dynasties' => array_map(fn ($d) => ['n' => $d['name'], 'r' => $d['region'], 'f' => $d['from'], 't' => $d['to'],
                         'c' => $byName[$d['name']]['count'] ?? 0, 'd' => $byName[$d['name']]['density'] ?? 0, 's' => $byName[$d['name']]['share'] ?? 0,
                         'cities' => array_map(fn ($c) => [$c['name'], $c['count']], $byName[$d['name']]['cities'] ?? [])], \App\Support\Dynasties::all()),
                     'span' => [0, 1450],
+                    // The page of the map, in the scope of this page, and the years of its slider (step 14.377)
+                    'map' => route('insights.topic', ['topic' => 'places'] + $scope->query()),
+                    'mapYears' => \App\Support\Insights::mapYears(),
                     // The years most of the copies are from; a phone shows the last three centuries of them
                     'window' => [1000, 1350],
                 ];
@@ -60,6 +66,7 @@
                         <span>
                             <strong x-text="selected.n"></strong> <span class="text-muted" x-text="years(selected) + ' · ' + selected.r"></span>:
                             <span x-text="figures(selected)"></span><span x-show="selected.cities.length" x-text="'؛ بیشتر در ' + selected.cities.map(([name, n]) => name + ' (' + fa(n) + ')').join('، ')"></span>.
+                            <a :href="mapLink(selected)" class="text-cinnabar hover:underline whitespace-nowrap" data-insights-dynasty-map>روی نقشه ←</a>
                         </span>
                     </template>
                     <span x-show="! selected" class="text-muted text-[11px]">هر نوار یک سلسله است، از آغاز تا پایان حکومتش، در ردیف‌های منطقۀ خود؛ هر چه پررنگ‌تر، نسخۀ بیشتری در هر ده سالِ آن کتابت شده است. قاب نوار بالا یا خود ردیف‌ها را بکشید تا سال‌ها جابه‌جا شود (بزرگ‌نمایی: دو انگشت، یا Ctrl و چرخ موس) و روی هر سلسله بزنید.</span>
@@ -118,6 +125,8 @@
                                         <span class="tabular-nums">{{ Fa::num($city['count']) }}</span>{{ $loop->last ? '' : '،' }}
                                     @endforeach
                                     @if($row['city_kinds'] > count($row['cities'])) و {{ Fa::num($row['city_kinds'] - count($row['cities'])) }} شهر دیگر @endif
+                                    @if($row['cities']) · @endif
+                                    <a href="{{ $mapLink($row) }}" class="text-cinnabar hover:underline whitespace-nowrap">روی نقشه</a>
                                 </span>
                             </li>
                         @endforeach
