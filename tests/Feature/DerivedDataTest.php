@@ -49,18 +49,25 @@ class DerivedDataTest extends TestCase
 
     private function work(array $columns = []): int
     {
-        return $this->works[] = DB::table('works')->insertGetId($columns + [
+        $id = $this->works[] = DB::table('works')->insertGetId($columns + [
             'primary_title' => 'اثر آزمایشی مشتق', 'clean_title' => 'اثر آزمایشی مشتق',
             'slug' => 'test-derived-' . uniqid(), 'volume_number' => 99, 'page_start' => 1,
         ]);
+        \App\Sources\SourceEntrySync::syncIds(Work::class, [$id]);
+
+        return $id;
     }
 
     private function copy(int $work, array $columns = []): int
     {
-        return $this->manuscripts[] = DB::table('manuscripts')->insertGetId($columns + [
+        $id = $this->manuscripts[] = DB::table('manuscripts')->insertGetId($columns + [
             'work_id' => $work, 'sequence_number' => 1, 'volume_number' => 99, 'page_start' => 1, 'page_end' => 1,
             'city' => 'تهران', 'library' => 'دانشگاه', 'shelfmark' => 'آز-' . uniqid(), 'raw_text' => 'تهران؛ دانشگاه',
         ]);
+        // the derived data reads the text from the copy's entry (step 14.399)
+        \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$id]);
+
+        return $id;
     }
 
     public function test_a_copy_date_naming_the_authors_time_is_ranged_from_the_authors_death()
@@ -256,6 +263,7 @@ class DerivedDataTest extends TestCase
         $other = $part('9101/5-طباطبائی', ['1', '9', 1, 9]);
         $senate = $part('9101/6', ['70', '80', 70, 80], ['raw_text' => 'تهران؛ مجلس؛ شماره نسخه: 9101/6 [سنا: ف: 2-61]']);
         DB::table('manuscripts')->where('id', $three)->update(['raw_text' => "تهران؛ مجلس؛ شماره نسخه: 9101/3\nنستعلیق، بی‌کا؛ در هامش؛ 6گ (55ر-60پ)"]);
+        \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$three]);
 
         // Not keyed yet (the time between a deploy and the filler): the volume is found by the shelfmark's number
         $this->assertSame([$one, $two, $four, $three], Manuscript::find($four)->collectionSiblings()->pluck('id')->all());
@@ -399,6 +407,7 @@ class DerivedDataTest extends TestCase
 
         // A run whose volume no longer passes loses its keys on the next run
         DB::table('manuscripts')->where('id', $r3)->update(['raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: 7204\nخط: نسخ، اندازه: 17×22سم"]);
+        \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$r3]);
         $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
         $this->assertSame([null, null, null], [$key($r1), $key($r3), $key($r5)]);
     }

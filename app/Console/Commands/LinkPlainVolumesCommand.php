@@ -52,8 +52,8 @@ class LinkPlainVolumesCommand extends Command
         // every copy with a plain shelfmark, and the ranges of the copies already keyed by a «n/m» shelfmark
         $plain = [];
         $keyed = [];
-        DB::table('manuscripts')->select(['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key', 'work_id', 'range_from_number', 'range_to_number', 'dimensions'])
-            ->orderBy('id')->chunkById(5000, function ($rows) use (&$plain, &$keyed) {
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key', 'work_id', 'range_from_number', 'range_to_number', 'dimensions'])
+            ->orderBy('manuscripts.id')->chunkById(5000, function ($rows) use (&$plain, &$keyed) {
                 foreach ($rows as $row) {
                     $lib = $row->library_id ?? (trim((string) $row->library) !== '' ? 'n:' . trim($row->library) : null);
                     if ($lib === null) {
@@ -75,7 +75,7 @@ class LinkPlainVolumesCommand extends Command
                         'number' => Manuscript::citesOnlySenate($row->raw_text) ? null : Manuscript::plainNumber($row->shelfmark),
                         'size' => self::size($row->raw_text), 'shelfmark' => $row->shelfmark, 'stored' => $row->collection_key];
                 }
-            });
+            }, 'manuscripts.id', 'id');
 
         $desired = array_fill_keys(array_keys($plain), null);
         $groups = [];
@@ -90,7 +90,7 @@ class LinkPlainVolumesCommand extends Command
         $features = [];
         $blocks = function (array $a, array $b) use (&$features): bool {
             if ($need = array_diff([$a['id'], $b['id']], array_keys($features))) {
-                foreach (DB::table('manuscripts')->whereIn('id', $need)->get(MergeCatalogueTwinsCommand::COLUMNS) as $row) {
+                foreach (\App\Support\EntryColumns::query('manuscripts', MergeCatalogueTwinsCommand::COLUMNS)->whereIn('manuscripts.id', $need)->get() as $row) {
                     $features[$row->id] = MergeCatalogueTwinsCommand::features($row);
                 }
             }

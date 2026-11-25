@@ -90,7 +90,7 @@ class RefreshDerivedCommand extends Command
         }
 
         $guard = ProtectedColumns::for(Manuscript::class);
-        DB::table('manuscripts')->select(DerivedData::COPY_COLUMNS)->orderBy('id')->chunkById(2000, function ($rows) use ($guard) {
+        \App\Support\EntryColumns::query('manuscripts', DerivedData::COPY_COLUMNS)->orderBy('manuscripts.id')->chunkById(2000, function ($rows) use ($guard) {
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             $floors = Manuscript::copyFloors($rows->pluck('work_id'));
             $shared = Manuscript::sharedVolumeDates($rows);
@@ -112,7 +112,7 @@ class RefreshDerivedCommand extends Command
                     $this->add('collection_key', $row->id, "#{$row->id} «{$row->shelfmark}»: " . ($row->collection_key ?? '—') . ' → ' . ($collection['collection_key'] ?? '—'));
                 }
             }
-        });
+        }, 'manuscripts.id', 'id');
         DB::table('works')->select(DerivedData::WORK_COLUMNS)->orderBy('id')->chunkById(5000, function ($rows) {
             foreach ($rows as $row) {
                 if ($cols = DerivedData::workChanges($row)) {

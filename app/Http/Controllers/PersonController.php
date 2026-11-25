@@ -35,7 +35,7 @@ class PersonController extends Controller
         }
 
         $authoredWorks = $person->works()
-            ->with(['subjects', 'languages', 'catalog'])
+            ->with(['subjects', 'languages'])
             ->withCount('manuscripts')
             ->orderByDesc('manuscripts_count')
             // Ties keep the catalogue's order of the rows, so the pages do not change with the query plan
@@ -43,7 +43,7 @@ class PersonController extends Controller
             ->paginate(20, ['*'], 'works_page');
 
         $scribedManuscripts = $person->scribedManuscripts()
-            ->with(['work.author', 'libraryRecord', 'scripts', 'catalog'])
+            ->with(['work.author', 'libraryRecord', 'scripts'])
             ->paginate(20, ['*'], 'manuscripts_page');
 
         return view('people.show', compact('person', 'authoredWorks', 'scribedManuscripts'));

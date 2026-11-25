@@ -40,16 +40,18 @@ class RecordSplitter
             'person' => ($p = Person::find($new['author_id'] ?? 0)) ? [$p->id, $p->name] : throw new InvalidArgumentException('شخصی با این شناسه پیدا نشد.'),
             default => [null, null],
         };
+        // the new work stands where the old one does: its entry's place (step 14.399, backlog item 170)
+        $place = \App\Sources\RecordEntries::fankhaOf($work);
         $created = Work::create([
             'primary_title' => $title,
             'clean_title' => $title,
             'slug' => 'work-' . Str::random(12),
             'author_id' => $authorId,
             'author_name' => $authorName,
-            'catalog_id' => $work->catalog_id,
-            'volume_number' => $work->volume_number,
-            'page_start' => $work->page_start,
-            'page_end' => $work->page_end,
+            'catalog_id' => $place['source_id'],
+            'volume_number' => $place['volume_number'],
+            'page_start' => $place['page_start'],
+            'page_end' => $place['page_end'],
         ]);
         $created->update(['slug' => mb_substr(Str::slug($title, '-', null) ?: 'work', 0, 180) . '-' . $created->id]);
         if (! empty($new['copy_subjects'])) {

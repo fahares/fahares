@@ -44,9 +44,11 @@ class ApplyCorpusDiffCommand extends Command
 
         foreach ($diff['works'] as $w) {
             $label = "v{$w['volume']}-{$w['number']} «{$w['title']}»";
-            $rows = DB::table('works')->where('volume_number', $w['volume'])
-                ->where('slug', 'like', "%-v{$w['volume']}-{$w['number']}")
-                ->get(['id', 'slug', ...self::FIELDS])
+            // the volume, the text and the bibliography are those of the work's entries (step 14.399, backlog item 170)
+            $rows = \App\Support\EntryColumns::query('works', ['id', 'slug', 'description', 'raw_text'])->where('fe.volume_number', $w['volume'])
+                ->where('works.slug', 'like', "%-v{$w['volume']}-{$w['number']}")
+                ->get()
+                ->each(fn ($r) => $r->bibliography = json_encode(\App\Sources\RecordEntries::bibliographyOf((new Work)->forceFill(['id' => $r->id])), JSON_UNESCAPED_UNICODE))
                 ->filter(fn ($r) => str_ends_with($r->slug, "-v{$w['volume']}-{$w['number']}"));
             if ($rows->count() !== 1) {
                 $problems[] = "{$label}: {$rows->count()} matching works (merged or deleted?)";

@@ -22,6 +22,7 @@ class ApplyCorpusDiffCommandTest extends TestCase
     protected function tearDown(): void
     {
         AuditLog::where('auditable_type', Work::class)->whereIn('auditable_id', $this->ids)->delete();
+        DB::table('source_entries')->where('citable_type', Work::class)->whereIn('citable_id', $this->ids)->delete();
         DB::table('works')->whereIn('id', $this->ids)->delete();
         @unlink($this->file);
         parent::tearDown();
@@ -29,13 +30,17 @@ class ApplyCorpusDiffCommandTest extends TestCase
 
     private function work(int $number, array $attributes): int
     {
-        return $this->ids[] = DB::table('works')->insertGetId($attributes + [
+        $id = $this->ids[] = DB::table('works')->insertGetId($attributes + [
             'primary_title' => "اثر آزمایشی مآخذ {$number}",
             'clean_title' => 'اثر آزمایشی مآخذ',
             'slug' => 'test-corpus-diff-' . uniqid() . "-v99-{$number}",
             'volume_number' => 99,
             'page_start' => 1,
         ]);
+        // the command reads the volume, the text and the bibliography from the entries (step 14.399)
+        \App\Sources\SourceEntrySync::syncIds(Work::class, [$id]);
+
+        return $id;
     }
 
     private function diff(array $works): void

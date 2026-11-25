@@ -63,7 +63,7 @@ class BackfillWorkDedicationsCommand extends Command
         $this->counts = [];
         $this->examples = [];
 
-        $query = Work::whereNotNull('dedication')->where('dedication', '<>', '')->select(['id', 'slug', 'volume_number', 'composition_year_hijri', 'dedication', 'author_id']);
+        $query = Work::whereNotNull('dedication')->where('dedication', '<>', '')->select(['id', 'slug', 'composition_year_hijri', 'dedication', 'author_id']);
         if ($only) {
             $query->whereIn('id', $only);
         }

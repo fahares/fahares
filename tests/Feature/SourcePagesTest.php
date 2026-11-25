@@ -48,6 +48,21 @@ class SourcePagesTest extends TestCase
         return $entry;
     }
 
+    /** Step 14.399 (backlog item 170): the search document, the work page's copies and the citation read the entries. */
+    public function test_readers_take_the_fankha_place_and_citation_from_the_entries()
+    {
+        $second = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $this->manuscript->library_id, 'shelfmark' => '2000',
+            'volume_number' => 15, 'page_start' => 120, 'sequence_number' => 4, 'metadata' => ['catalog_citation' => '[ف: 3-30]']]);
+        // the columns say otherwise: only a reader of the entries sees the entries' place and order
+        $this->fankha($this->manuscript, ['volume_number' => 16, 'entry_number' => 9]);
+        \Illuminate\Support\Facades\DB::table('manuscripts')->whereIn('id', [$this->manuscript->id, $second->id])->update(['volume_number' => 1, 'sequence_number' => 1]);
+
+        $document = $this->manuscript->fresh()->toSearchableArray();
+        $this->assertSame([16, 9], [$document['volume_number'], $document['sequence_number']]);
+        $this->assertSame('[ف: 3-30]', $second->fresh()->catalog_citation);
+        $this->get(route('works.show', $this->work))->assertOk()->assertSeeInOrder(['2000', '1939']);
+    }
+
     public function test_the_manuscript_page_shows_the_library_catalogue_before_fankha()
     {
         $this->fankha($this->manuscript, ['copy_text' => "متن فنخای نسخه <!-- page: 121 -->\nادامه"]);

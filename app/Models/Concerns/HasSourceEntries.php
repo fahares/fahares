@@ -6,7 +6,9 @@ use App\Models\SourceEntry;
 use App\Sources\RecordEntries;
 use App\Sources\SourceEntrySync;
 use App\Support\RecordSources;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  * Where a record stands in the sources (step 13.2): its Fankha entry, the library catalogue pages, the addenda and
@@ -61,5 +63,57 @@ trait HasSourceEntries
     public function sources(): RecordSources
     {
         return new RecordSources($this->sourceEntries);
+    }
+
+    /**
+     * The record's own entry in Fankha (backlog item 170, step 14.399): its place (source_id, volume_number,
+     * page_start, page_end, a copy's row as entry_number) and its text. The record's columns of the same names are a
+     * copy that goes in phase 5; read this instead. Eager load it for a list.
+     */
+    public function fankhaEntry(): MorphOne
+    {
+        return $this->morphOne(SourceEntry::class, 'citable')->whereIn('legacy_type', ['work', 'manuscript']);
+    }
+
+    /** The text of the record's Fankha entry: a copy's own line, or a work's entry. */
+    public function fankhaText(): ?string
+    {
+        $entry = $this->fankhaEntry;
+
+        return $entry ? ($this instanceof \App\Models\Manuscript ? $entry->copy_text : $entry->entry_text) : null;
+    }
+
+    /**
+     * Joins each record's Fankha entry as «fe» (a record of no Fankha place keeps its row), for a query that filters,
+     * orders or selects by the Fankha place or text: fe.volume_number, fe.page_start, fe.entry_number, fe.copy_text …
+     */
+    public function scopeJoinFankha(Builder $query, string $alias = 'fe'): Builder
+    {
+        $table = $this->getTable();
+        $legacy = $this instanceof \App\Models\Manuscript ? 'manuscript' : 'work';
+        if (! $query->getQuery()->columns) {
+            $query->select("{$table}.*");
+        }
+
+        return $query->leftJoin("source_entries as {$alias}", fn ($j) => $j->on("{$alias}.legacy_id", '=', "{$table}.id")->where("{$alias}.legacy_type", $legacy));
+    }
+
+    /**
+     * Orders by a column of the record's Fankha entry through a subquery, for a query that cannot take a join
+     * (unqualified columns, a relation's own constraints); a record with no entry sorts as null.
+     */
+    public function scopeOrderByFankhaColumn(Builder $query, string $column, string $direction = 'asc'): Builder
+    {
+        $legacy = $this instanceof \App\Models\Manuscript ? 'manuscript' : 'work';
+
+        return $query->orderBy(\Illuminate\Support\Facades\DB::table('source_entries')->select($column)
+            ->whereColumn('legacy_id', $this->getTable() . '.id')->where('legacy_type', $legacy)->limit(1), $direction);
+    }
+
+    /** Fankha's order: volume, page, and a copy's row in the work's entry. */
+    public function scopeOrderByFankha(Builder $query, string $direction = 'asc', string $alias = 'fe'): Builder
+    {
+        return $query->joinFankha($alias)->orderBy("{$alias}.volume_number", $direction)->orderBy("{$alias}.page_start", $direction)
+            ->orderBy("{$alias}.entry_number", $direction);
     }
 }

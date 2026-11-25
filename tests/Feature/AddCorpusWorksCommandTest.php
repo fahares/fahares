@@ -36,18 +36,25 @@ class AddCorpusWorksCommandTest extends TestCase
 
     private function work(string $title, string $slug, ?string $author = null): int
     {
-        return $this->works[] = DB::table('works')->insertGetId([
+        $id = $this->works[] = DB::table('works')->insertGetId([
             'primary_title' => $title, 'clean_title' => $title, 'slug' => $slug, 'author_name' => $author,
             'volume_number' => 99, 'page_start' => 10, 'page_end' => 10,
         ]);
+        // the command reads the place and the text from the entries (step 14.399)
+        \App\Sources\SourceEntrySync::syncIds(Work::class, [$id]);
+
+        return $id;
     }
 
     private function copy(int $work, string $raw, string $city, string $library, string $shelfmark): int
     {
-        return $this->manuscripts[] = DB::table('manuscripts')->insertGetId([
+        $id = $this->manuscripts[] = DB::table('manuscripts')->insertGetId([
             'work_id' => $work, 'volume_number' => 99, 'page_start' => 10, 'page_end' => 10,
             'city' => $city, 'library' => $library, 'shelfmark' => $shelfmark, 'raw_text' => $raw,
         ]);
+        \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$id]);
+
+        return $id;
     }
 
     private function make(string $shelfmark, int $seq): array
@@ -128,6 +135,7 @@ class AddCorpusWorksCommandTest extends TestCase
         // a head the OCR lost (step 14.19): a user's suggestion already gave the author and linked the person
         $id = $this->work('اثر آزمایشی ج', 'test-jim-v99-9002', 'مؤلف آزمایشی');
         DB::table('works')->where('id', $id)->update(['author_id' => null, 'raw_text' => "● اثر آزمایشی ج\nasar"]);
+        \App\Sources\SourceEntrySync::syncIds(Work::class, [$id]);
         AuditLog::create(['auditable_type' => Work::class, 'auditable_id' => $id, 'action' => 'verify',
             'old_values' => ['author_name' => null], 'new_values' => ['author_name' => 'مؤلف آزمایشی']]);
         $update = ['v2' => 'v99-2', 'work_slug' => 'test-jim-v99-9002', 'author' => ['name' => 'مؤلف آزمایشی', 'century' => 9],
@@ -236,6 +244,7 @@ class AddCorpusWorksCommandTest extends TestCase
         $second = $this->copy($a, "10. مشهد؛ رضوی؛ شماره نسخه: 7141", 'مشهد', 'رضوی', '7141');
         DB::table('manuscripts')->where('id', $first)->update(['sequence_number' => 4]);
         DB::table('manuscripts')->where('id', $second)->update(['sequence_number' => 10]);
+        \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$first, $second]);
         $columns = ['primary_title' => 'اثر آزمایشی ه', 'clean_title' => 'اثر آزمایشی ه', 'alternative_titles' => null,
             'transliteration' => 'asar', 'author_name' => 'مؤلف آزمایشی', 'composition_date_raw' => null,
             'composition_place' => null, 'work_form' => null, 'subject_summary' => 'فقه', 'language_summary' => 'عربی',

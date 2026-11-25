@@ -28,7 +28,7 @@ class FankhaWorkLocator
         foreach ($v2Works as $w) {
             $this->v2[$w['key']['vol'] . '|' . self::title($w['title'] ?? '')][] = ['ordinal' => (int) $w['key']['ordinal'], 'page' => (int) ($w['provenance']['page_start'] ?? 0)];
         }
-        DB::table('works')->select(['id', 'slug', 'primary_title', 'volume_number', 'page_start'])->orderBy('id')->chunk(10000, function ($works) {
+        EntryColumns::query('works', ['id', 'slug', 'primary_title', 'volume_number', 'page_start'])->orderBy('works.id')->chunk(10000, function ($works) {
             foreach ($works as $w) {
                 $w->ordinal = preg_match('/-v\d+-(\d+)$/', (string) $w->slug, $m) ? (int) $m[1] : PHP_INT_MAX;
                 $this->site[$w->volume_number . '|' . self::title($w->primary_title)][] = $w;

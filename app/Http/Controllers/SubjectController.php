@@ -88,7 +88,7 @@ class SubjectController extends Controller
 
         $worksQuery = Work::query()
             ->whereHas('subjects', fn($q) => $q->whereIn('subjects.id', $subjectIds))
-            ->with(['catalog', 'author', 'subjects', 'languages']);
+            ->with(['author', 'subjects', 'languages']);
 
         if ($search !== '') {
             $worksQuery->where(function ($q) use ($search) {

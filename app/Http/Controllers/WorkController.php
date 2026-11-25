@@ -14,7 +14,6 @@ class WorkController extends Controller
         $numericId = (int) $id;
 
         $work = Work::with([
-            'catalog',
             'author',
             'authorEntries.person',
             'subjects',
@@ -49,7 +48,7 @@ class WorkController extends Controller
 
         // Photographs and repeated descriptions of a copy stand under it, not in the list (step 14.16)
         $copyLinks = new \App\Support\CopyLinks($work);
-        $query = $work->manuscripts()->with(['catalog', 'libraryRecord', 'scripts', 'scribe'])->whereNotIn('id', $copyLinks->linkedIds());
+        $query = $work->manuscripts()->with(['fankhaEntry.source:id,code', 'citedEntry', 'libraryRecord', 'scripts', 'scribe'])->whereNotIn('id', $copyLinks->linkedIds());
 
         // Filters of the list, from the address (backlog item 79, step 14.99)
         $copyFilters = \App\Support\WorkCopyFilters::fromRequest($request, $work->id, $copyLinks->linkedIds());
@@ -66,31 +65,31 @@ class WorkController extends Controller
                 break;
             case 'shelfmark':
                 $query->orderByRaw("ISNULL(shelfmark) ASC, shelfmark_key {$direction}")
-                      ->orderBy('sequence_number');
+                      ->orderByFankhaColumn('entry_number');
                 break;
             case 'scribe':
                 $query->orderByRaw("ISNULL(scribe_name) ASC, scribe_name = '' ASC, scribe_name {$direction}")
-                      ->orderBy('sequence_number');
+                      ->orderByFankhaColumn('entry_number');
                 break;
             case 'date':
                 $query->orderByRaw("ISNULL(copy_date_hijri_year) ASC, copy_date_hijri_year {$direction}")
-                      ->orderBy('sequence_number');
+                      ->orderByFankhaColumn('entry_number');
                 break;
             case 'script':
                 $query->orderByRaw("ISNULL(script_names) ASC, script_names {$direction}")
-                      ->orderBy('sequence_number');
+                      ->orderByFankhaColumn('entry_number');
                 break;
             case 'folios':
                 $query->orderByRaw("ISNULL(folios) ASC, folios {$direction}")
-                      ->orderBy('sequence_number');
+                      ->orderByFankhaColumn('entry_number');
                 break;
             case 'sequence':
             default:
                 $sort = 'sequence';
                 // Catalog print order: addenda printed in later volumes follow the main entry's copies
-                $query->orderBy('volume_number', $direction)
-                      ->orderBy('page_start', $direction)
-                      ->orderBy('sequence_number', $direction);
+                $query->orderByFankhaColumn('volume_number', $direction)
+                      ->orderByFankhaColumn('page_start', $direction)
+                      ->orderByFankhaColumn('entry_number', $direction);
                 break;
         }
 

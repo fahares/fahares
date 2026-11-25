@@ -99,7 +99,7 @@ class RemoveCatalogueCommand extends Command
      */
     private function moves(array $named, array $volumes): ?array
     {
-        $on = DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes ?: [0])->get(['id', 'library_id', 'shelfmark', 'page_start'])->keyBy('id');
+        $on = DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes ?: [0])->get(['id', 'library_id', 'shelfmark'])->keyBy('id');
         $moves = [];
         foreach ($named as $copy) {
             $library = DB::table('libraries')->where('slug', $copy['library'])->value('id');

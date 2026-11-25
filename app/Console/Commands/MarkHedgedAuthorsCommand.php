@@ -34,9 +34,11 @@ class MarkHedgedAuthorsCommand extends Command
         $examples = [];
 
         DB::table('works as w')->join('work_people as p', fn ($j) => $j->on('p.work_id', '=', 'w.id')->on('p.person_id', '=', 'w.author_id'))
+            // the work's text is its Fankha entry's (step 14.399, backlog item 170)
+            ->join('source_entries as fe', fn ($j) => $j->on('fe.legacy_id', '=', 'w.id')->where('fe.legacy_type', 'work'))
             ->where('p.role', WorkPerson::AUTHOR)->whereNull('p.certainty')
-            ->whereRaw("w.raw_text regexp '\\n[[:space:]]*(؟|محتملا|ظاهرا|گویا|شاید|احتمالا)'")
-            ->select(['w.id', 'w.raw_text', 'p.id as row_id', 'p.suggestion_id', 'w.author_name'])->orderBy('w.id')
+            ->whereRaw("fe.entry_text regexp '\\n[[:space:]]*(؟|محتملا|ظاهرا|گویا|شاید|احتمالا)'")
+            ->select(['w.id', 'fe.entry_text as raw_text', 'p.id as row_id', 'p.suggestion_id', 'w.author_name'])->orderBy('w.id')
             ->chunk(1000, function ($rows) use ($apply, &$counts, &$examples) {
                 foreach ($rows as $r) {
                     $hedge = self::hedgeOf($r->raw_text);

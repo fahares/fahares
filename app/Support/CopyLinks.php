@@ -57,7 +57,7 @@ class CopyLinks
             return collect();
         }
 
-        return \App\Models\Manuscript::with('libraryRecord')->whereIn('id', $ids)->orderBy('id')->get()
+        return \App\Models\Manuscript::with(['libraryRecord', 'citedEntry'])->whereIn('id', $ids)->orderBy('id')->get()
             ->groupBy(fn ($m) => $this->roots[$m->id]);
     }
 

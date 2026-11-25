@@ -94,7 +94,8 @@ class DerivedData
         $counts = ['copies' => count($ids), 'dates' => 0, 'extents' => 0, 'collections' => 0, 'lines' => 0, 'pointers_linked' => 0, 'pointers_removed' => 0];
         $workIds = [];
         foreach (array_chunk($ids, 500) as $chunk) {
-            $rows = DB::table('manuscripts')->whereIn('id', $chunk)->get(self::COPY_COLUMNS);
+            // the copy's text is its Fankha entry's (step 14.399, backlog item 170)
+            $rows = EntryColumns::query('manuscripts', self::COPY_COLUMNS)->whereIn('manuscripts.id', $chunk)->get();
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             $floors = Manuscript::copyFloors($rows->pluck('work_id'));
             $shared = Manuscript::sharedVolumeDates($rows);

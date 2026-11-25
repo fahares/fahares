@@ -76,21 +76,22 @@ class SyncWorkDetailsCommand extends Command
             }
 
             $jsonWorks = $data['works'];
-            $dbWorks = DB::table('works')
-                ->where('volume_number', $volNum)
-                ->orderBy('id')
-                ->get(['id', 'slug', 'primary_title', 'page_start', 'page_end'])
+            // the volume and pages are those of the records' Fankha entries (step 14.399, backlog item 170)
+            $dbWorks = \App\Support\EntryColumns::query('works', ['id', 'slug', 'primary_title', 'page_start', 'page_end'])
+                ->where('fe.volume_number', $volNum)
+                ->orderBy('works.id')
+                ->get()
                 ->keyBy(function ($item, $key) {
                     return $key;
                 });
 
             $dbMssByWork = [];
             if (!$skipManuscripts) {
-                $allMss = DB::table('manuscripts')
-                    ->where('volume_number', $volNum)
-                    ->orderBy('sequence_number')
-                    ->orderBy('id')
-                    ->get(['id', 'work_id', 'sequence_number', 'page_start', 'page_end']);
+                $allMss = \App\Support\EntryColumns::query('manuscripts', ['id', 'work_id', 'sequence_number', 'page_start', 'page_end'])
+                    ->where('fe.volume_number', $volNum)
+                    ->orderBy('fe.entry_number')
+                    ->orderBy('manuscripts.id')
+                    ->get();
                 foreach ($allMss as $m) {
                     $dbMssByWork[$m->work_id][] = $m;
                 }
@@ -107,10 +108,10 @@ class SyncWorkDetailsCommand extends Command
 
                 $expectedSuffix = "-v{$volNum}-" . ($idx + 1);
                 if (!str_ends_with($dbWork->slug, $expectedSuffix)) {
-                    $fallback = DB::table('works')
-                        ->where('volume_number', $volNum)
-                        ->where('slug', 'like', "%{$expectedSuffix}")
-                        ->first(['id', 'page_start', 'page_end']);
+                    $fallback = \App\Support\EntryColumns::query('works', ['id', 'page_start', 'page_end'])
+                        ->where('fe.volume_number', $volNum)
+                        ->where('works.slug', 'like', "%{$expectedSuffix}")
+                        ->first();
                     $targetWorkId = $fallback ? $fallback->id : $dbWork->id;
                     $dbPageStart = $fallback ? $fallback->page_start : $dbWork->page_start;
                     $dbPageEnd = $fallback ? $fallback->page_end : $dbWork->page_end;

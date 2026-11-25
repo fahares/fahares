@@ -46,7 +46,7 @@ class MergeCatalogueTwinsCommand extends Command
 
     /** The columns features() reads */
     public const COLUMNS = ['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'work_id', 'range_from_number', 'range_to_number', 'folios', 'lines', 'dimensions',
-        'scribe_name', 'copy_date_from', 'copy_date_to', 'explicit_text', 'is_facsimile', 'metadata'];
+        'scribe_name', 'copy_date_from', 'copy_date_to', 'explicit_text', 'is_facsimile', 'catalog_citation'];
 
     /** The most leaves two descriptions of one copy may differ by */
     public const MAX_FOLIO_GAP = 2;
@@ -85,10 +85,10 @@ class MergeCatalogueTwinsCommand extends Command
         // copies with a plain shelfmark, by library, shelfmark and work
         $groups = [];
         $library = $this->option('library');
-        DB::table('manuscripts')->whereNotNull('work_id')->whereNotNull('shelfmark')
-            ->when($library !== null, fn ($q) => ctype_digit((string) $library) ? $q->where('library_id', (int) $library) : $q->where('library', $library))
-            ->select(self::COLUMNS)
-            ->orderBy('id')->chunkById(5000, function ($rows) use (&$groups) {
+        // the copy's text and citation are its entries' (step 14.399, backlog item 170)
+        \App\Support\EntryColumns::query('manuscripts', self::COLUMNS)->whereNotNull('manuscripts.work_id')->whereNotNull('manuscripts.shelfmark')
+            ->when($library !== null, fn ($q) => ctype_digit((string) $library) ? $q->where('manuscripts.library_id', (int) $library) : $q->where('manuscripts.library', $library))
+            ->orderBy('manuscripts.id')->chunkById(5000, function ($rows) use (&$groups) {
                 foreach ($rows as $row) {
                     $lib = $row->library_id ?? (trim((string) $row->library) !== '' ? 'n:' . trim($row->library) : null);
                     $key = $lib === null || Manuscript::collectionKeyOf($row->shelfmark, $row->raw_text) !== null ? null : Manuscript::plainVolumeKeyOf($row->shelfmark, $row->raw_text);
@@ -99,7 +99,7 @@ class MergeCatalogueTwinsCommand extends Command
                     }
                     $groups["{$lib}|{$key}|{$row->work_id}"][] = self::features($row);
                 }
-            });
+            }, 'manuscripts.id', 'id');
         $groups = array_filter($groups, fn ($g) => count($g) > 1);
 
         $decisions = [];
@@ -176,7 +176,7 @@ class MergeCatalogueTwinsCommand extends Command
     {
         return [
             'id' => (int) $row->id, 'shelfmark' => $row->shelfmark,
-            'citation' => (string) (json_decode((string) $row->metadata, true)['catalog_citation'] ?? ''),
+            'citation' => (string) ($row->catalog_citation ?? ''),
             'range' => $row->range_from_number !== null ? [(int) $row->range_from_number, (int) ($row->range_to_number ?? $row->range_from_number)] : null,
             'folios' => $row->folios !== null ? (int) $row->folios : null,
             'lines' => $row->lines !== null ? (int) $row->lines : null,

@@ -64,7 +64,7 @@ class SuggestionApplier
                 }
                 if (isset($field['bibliography'])) {
                     // a page the bibliography cites: the citation is rewritten where it stands in the entries
-                    $entries = \App\Support\BibliographyLinks::rewriteCitation((array) ($record->bibliography ?? []), $field['bibliography'], $page['volume'], $page['page']);
+                    $entries = \App\Support\BibliographyLinks::rewriteCitation(\App\Sources\RecordEntries::bibliographyOf($record), $field['bibliography'], $page['volume'], $page['page']);
                     if ($entries === null) {
                         throw new InvalidArgumentException('این ارجاع در متن مآخذ خودکار بازنویسی نشد. آن را در فیلد «مآخذ کتاب‌شناسی» دستی اصلاح کنید.');
                     }

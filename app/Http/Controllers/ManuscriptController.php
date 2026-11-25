@@ -14,7 +14,8 @@ class ManuscriptController extends Controller
         $numericId = (int) $id;
 
         $manuscript = Manuscript::with([
-            'catalog',
+            'fankhaEntry.source:id,code',
+            'citedEntry',
             'work.author',
             'scribe',
             'scribeEntries.person',

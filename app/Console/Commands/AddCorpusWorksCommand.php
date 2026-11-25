@@ -109,7 +109,7 @@ class AddCorpusWorksCommand extends Command
                 $this->problems[] = "{$f['v2']}: work {$f['work_slug']} not found";
                 continue;
             }
-            $copies = $this->resolveCopies($f['copies'], $f['v2'], (int) $work->volume_number, $work);
+            $copies = $this->resolveCopies($f['copies'], $f['v2'], (int) $work->fankhaEntry?->volume_number, $work);
             if ($copies === []) {
                 $this->line("already filled: {$f['work_slug']}");
             } elseif ($copies !== null) {
@@ -122,7 +122,7 @@ class AddCorpusWorksCommand extends Command
             $outcome = $this->checkUpdate($u, $guard);
             if ($outcome instanceof Work) {
                 // a column the site already holds at its new value is left alone (an author already linked keeps its person)
-                $u['changes'] = array_filter($u['changes'], fn ($c, $field) => ! $this->same($outcome->{$field}, $c['to']), ARRAY_FILTER_USE_BOTH);
+                $u['changes'] = array_filter($u['changes'], fn ($c, $field) => ! $this->same($this->held($outcome, $field), $c['to']), ARRAY_FILTER_USE_BOTH);
                 $updates[] = [$outcome, $u];
             } elseif ($outcome !== 'already') {
                 $this->problems[] = "{$u['work_slug']}: {$outcome}";
@@ -195,7 +195,7 @@ class AddCorpusWorksCommand extends Command
         $rows = Manuscript::fromFankha()->whereHas('work', fn ($q) => $q->where('slug', $m['from_slug']))
             ->where('city', $m['city'])->where('library', $m['library'])->where('shelfmark', $m['shelfmark'])
             // a shelfmark the work holds twice (two volumes of one copy) is told by its sequence (step 14.23)
-            ->when(isset($m['from_sequence']), fn ($q) => $q->where('sequence_number', $m['from_sequence']))->get();
+            ->when(isset($m['from_sequence']), fn ($q) => $q->whereHas('fankhaEntry', fn ($e) => $e->where('entry_number', $m['from_sequence'])))->get();
 
         return $rows->count() === 1 ? $rows->first() : null;
     }
@@ -211,7 +211,7 @@ class AddCorpusWorksCommand extends Command
             $shelfmark = $c['move']['shelfmark'] ?? $c['make']['shelfmark'];
             $page = isset($c['move']) ? null : $c['make']['page_start'];
             if ($target && $target->manuscripts()->where('shelfmark', $shelfmark)
-                ->when($page, fn ($q) => $q->where('page_start', $page))
+                ->when($page, fn ($q) => $q->whereHas('fankhaEntry', fn ($e) => $e->where('page_start', $page)))
                 ->when(isset($c['move']), fn ($q) => $q->where('city', $c['move']['city'])->where('library', $c['move']['library']))->exists()) {
                 continue;
             }
@@ -239,8 +239,10 @@ class AddCorpusWorksCommand extends Command
     private function library(string $city, string $library): ?array
     {
         $prefix = preg_quote("{$city}؛ {$library}؛", '/');
-        $row = DB::table('manuscripts')->whereRaw('raw_text REGEXP ?', ["^([0-9]+\\. )?{$prefix}"])
-            ->selectRaw('city, library, library_id, count(*) n')->groupBy('city', 'library', 'library_id')->orderByDesc('n')->first();
+        // the copy's own text is its Fankha entry's (step 14.399, backlog item 170)
+        $row = DB::table('manuscripts')->join('source_entries as fe', fn ($j) => $j->on('fe.legacy_id', '=', 'manuscripts.id')->where('fe.legacy_type', 'manuscript'))
+            ->whereRaw('fe.copy_text REGEXP ?', ["^([0-9]+\\. )?{$prefix}"])
+            ->selectRaw('manuscripts.city, manuscripts.library, manuscripts.library_id, count(*) n')->groupBy('manuscripts.city', 'manuscripts.library', 'manuscripts.library_id')->orderByDesc('n')->first();
         if ($row) {
             return [$row->city, $row->library, $row->library_id];
         }
@@ -307,7 +309,7 @@ class AddCorpusWorksCommand extends Command
         foreach ($copies as $c) {
             if (isset($c['manuscript'])) {
                 $m = $c['manuscript'];
-                $old = ['work_id' => $m->work_id, 'sequence_number' => $m->sequence_number];
+                $old = ['work_id' => $m->work_id, 'sequence_number' => $m->fankhaEntry?->entry_number];
                 $touchedWorks[] = $m->work_id;
                 $merger->moveManuscript($m, $work);
                 $m->update(['sequence_number' => $c['sequence_number']]);
@@ -336,6 +338,17 @@ class AddCorpusWorksCommand extends Command
         return $ids;
     }
 
+    /** What the work holds in a column an update names; the Fankha place, text and bibliography are its entries' (step 14.399, backlog item 170). */
+    private function held(Work $work, string $field): mixed
+    {
+        return match ($field) {
+            'raw_text' => $work->fankhaText(),
+            'bibliography' => \App\Sources\RecordEntries::bibliographyOf($work),
+            'volume_number', 'page_start', 'page_end' => $work->fankhaEntry?->{$field},
+            default => $work->{$field},
+        };
+    }
+
     private function checkUpdate(array $u, ProtectedColumns $guard): Work|string
     {
         $work = Work::where('slug', $u['work_slug'])->first();
@@ -348,7 +361,7 @@ class AddCorpusWorksCommand extends Command
                 return "field {$field} not allowed";
             }
             // «وابسته به» is the work's rows of the catalogue, compared as the entries the text gives (step 14.285)
-            $is = fn ($text) => $field === 'related_work' ? WorkCatalogueEntries::relatedIs($work, $text) : $this->same($work->{$field}, $text);
+            $is = fn ($text) => $field === 'related_work' ? WorkCatalogueEntries::relatedIs($work, $text) : $this->same($this->held($work, $field), $text);
             if ($is($change['to'])) {
                 continue;
             }

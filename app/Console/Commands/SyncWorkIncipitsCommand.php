@@ -64,10 +64,11 @@ class SyncWorkIncipitsCommand extends Command
             }
 
             $jsonWorks = $data['works'];
-            $dbWorks = DB::table('works')
-                ->where('volume_number', $volNum)
-                ->orderBy('id')
-                ->get(['id', 'slug', 'primary_title'])
+            // the volume is the work's Fankha entry's (step 14.399, backlog item 170)
+            $dbWorks = \App\Support\EntryColumns::query('works', ['id', 'slug', 'primary_title'])
+                ->where('fe.volume_number', $volNum)
+                ->orderBy('works.id')
+                ->get()
                 ->keyBy(function ($item, $key) {
                     return $key;
                 });
@@ -91,10 +92,10 @@ class SyncWorkIncipitsCommand extends Command
                 $expectedSuffix = "-v{$volNum}-" . ($idx + 1);
                 if (!str_ends_with($dbWork->slug, $expectedSuffix)) {
                     // Try slug lookup as fallback
-                    $fallback = DB::table('works')
-                        ->where('volume_number', $volNum)
-                        ->where('slug', 'like', "%{$expectedSuffix}")
-                        ->first(['id']);
+                    $fallback = \App\Support\EntryColumns::query('works', ['id'])
+                        ->where('fe.volume_number', $volNum)
+                        ->where('works.slug', 'like', "%{$expectedSuffix}")
+                        ->first();
                     if ($fallback) {
                         $targetId = $fallback->id;
                     } else {

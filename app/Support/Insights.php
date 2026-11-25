@@ -1919,7 +1919,10 @@ class Insights
             ->selectRaw('manuscripts.work_id, COUNT(*) AS n')->groupBy('manuscripts.work_id')->orderByDesc('n')->orderBy('manuscripts.work_id')
             ->limit($limit * 4)->pluck('n', 'work_id');
         $mentioned = DB::table('works')->whereIn('id', $counts->keys())
-            ->where(fn ($q) => $q->where('raw_text', 'like', '%چاپ%')->orWhere('description', 'like', '%چاپ%')->orWhere('bibliography', 'like', '%چاپ%'))
+            // the entry's text and the bibliography's entries (step 14.399, backlog item 170)
+            ->where(fn ($q) => $q->whereExists(fn ($e) => $e->from('source_entries as fe')->whereColumn('fe.legacy_id', 'works.id')->where('fe.legacy_type', 'work')->where('fe.entry_text', 'like', '%چاپ%'))
+                ->orWhere('description', 'like', '%چاپ%')
+                ->orWhereExists(fn ($e) => $e->from('source_entries as be')->whereColumn('be.legacy_id', 'works.id')->where('be.legacy_type', 'work_bibliography')->where('be.citation_text', 'like', '%چاپ%')))
             ->pluck('id')->flip();
         $works = self::worksById($counts->keys());
 

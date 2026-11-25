@@ -129,16 +129,23 @@ class DirectAnswer
     {
         $fankha = (bool) array_intersect(explode(' ', $rest), self::FANKHA);
         if ($fankha) {
-            // The union catalogue's volume and page are the record's own (volume_number, page_start…page_end)
+            // The union catalogue's volume and page are those of the record's Fankha entry (step 14.399, backlog item 170)
             if (! $volume) {
                 return null;
             }
-            $onPage = fn ($q) => $q->where('volume_number', $volume)->where('page_start', '<=', $page)
-                ->where(fn ($q) => $q->where('page_end', '>=', $page)->orWhere(fn ($q) => $q->whereNull('page_end')->where('page_start', $page)));
+            // found by the entries' place index (source, volume, page): a whereHas over every record took seconds
+            $fankhaId = \Illuminate\Support\Facades\DB::table('catalogs')->where('code', 'fankha')->value('id');
+            $onPage = fn (string $legacy) => \Illuminate\Support\Facades\DB::table('source_entries')->where('source_id', $fankhaId)
+                ->where('volume_number', $volume)->where('page_start', '<=', $page)->where('legacy_type', $legacy)
+                ->where(fn ($e) => $e->where('page_end', '>=', $page)->orWhere(fn ($e) => $e->whereNull('page_end')->where('page_start', $page)))
+                ->orderBy('page_start')->orderBy('entry_number')->limit(self::LIMIT)->pluck('legacy_id')->all();
+            $inOrder = fn (array $ids, $records) => collect($ids)->map(fn ($id) => $records->get($id))->filter()->values();
+            $copies = $onPage('manuscript');
+            $works = $onPage('work');
 
             return new self(self::CITATION, (string) $page,
-                manuscripts: $onPage(Manuscript::query())->with(['work.author', 'libraryRecord'])->orderBy('page_start')->orderBy('sequence_number')->limit(self::LIMIT)->get(),
-                works: $onPage(Work::query())->with('author')->orderBy('page_start')->limit(self::LIMIT)->get(),
+                manuscripts: $inOrder($copies, Manuscript::with(['work.author', 'libraryRecord'])->whereIn('id', $copies)->get()->keyBy('id')),
+                works: $inOrder($works, Work::with('author')->whereIn('id', $works)->get()->keyBy('id')),
                 volume: $volume, page: $page, fankha: true);
         }
 

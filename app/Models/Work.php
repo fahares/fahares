@@ -97,19 +97,6 @@ class Work extends Model
         return $this->primary_title ?? '';
     }
 
-    public function getCleanRawTextAttribute(): ?string
-    {
-        if (empty($this->raw_text)) {
-            return null;
-        }
-        $cleaned = preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->raw_text);
-        $cleaned = str_replace(["\r\n", "\r"], "\n", $cleaned);
-        $cleaned = preg_replace('/^[ \t]+$/m', '', $cleaned);
-        $cleaned = preg_replace('/[ \t]{2,}/u', ' ', $cleaned);
-        $cleaned = preg_replace("/\n{3,}/u", "\n\n", $cleaned);
-        return trim($cleaned);
-    }
-
     public function getPersianSlugAttribute(): string
     {
         $title = $this->clean_title ?: $this->primary_title;
@@ -158,13 +145,20 @@ class Work extends Model
         return $this->attributes['estimate_from'] === null ? null : [(int) $this->attributes['estimate_from'], (int) $this->attributes['estimate_to']];
     }
 
+    /** A batch given to the engine reads its Fankha entries in one query (step 14.399, backlog item 170). */
+    public function makeSearchableUsing(\Illuminate\Support\Collection $models): \Illuminate\Support\Collection
+    {
+        return $models instanceof \Illuminate\Database\Eloquent\Collection ? $models->loadMissing('fankhaEntry') : $models;
+    }
+
     public function makeAllSearchableUsing($query)
     {
         $estimate = fn (string $column) => \App\Support\DateEstimates\EstimateText::placedCompositions(\Illuminate\Support\Facades\DB::query())
             ->whereColumn('date_estimates.subject_id', 'works.id')->select("date_estimates.{$column}");
 
         return $query->select('works.*')->selectSub($estimate('year_from'), 'estimate_from')->selectSub($estimate('year_to'), 'estimate_to')->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,wrong_names,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title', 'workPeople.person:id,name,aliases',
-            'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
+            'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status'),
+            'fankhaEntry' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'legacy_type', 'volume_number', 'page_start', 'page_end')]);
     }
 
     /**
@@ -308,6 +302,7 @@ class Work extends Model
 
     public function toSearchableArray(): array
     {
+        $fankha = $this->fankhaEntry;
         $alts = [];
         if (!empty($this->alternative_titles)) {
             foreach ($this->alternative_titles as $item) {
@@ -367,9 +362,10 @@ class Work extends Model
             'author_id' => $from->author_id ? (int) $from->author_id : null,
             // a part's year is its own, or that of the whole it reads its date from (step 14.315)
             'composition_year_hijri' => ($composed = $this->effective_composition_year) ? (int) $composed : null,
-            'volume_number' => (int) $this->volume_number,
-            'page_start' => (int) $this->page_start,
-            'page_end' => $this->page_end ? (int) $this->page_end : null,
+            // the document keeps these keys; the values are the Fankha entry's (step 14.399, backlog item 170)
+            'volume_number' => (int) $fankha?->volume_number,
+            'page_start' => (int) $fankha?->page_start,
+            'page_end' => $fankha?->page_end ? (int) $fankha->page_end : null,
             'work_form' => $this->work_form,
             'subject_summary' => $subjectFrom->subject_summary,
             'language_summary' => $languageFrom->language_summary,
@@ -396,11 +392,6 @@ class Work extends Model
             'subjects' => $subjectFrom->is($this) ? ($this->relationLoaded('subjects') ? $this->subjects->pluck('name')->all() : []) : $subjectFrom->subjects->pluck('name')->all(),
             'languages' => $languageFrom->is($this) ? ($this->relationLoaded('languages') ? $this->languages->pluck('name')->all() : []) : $languageFrom->languages->pluck('name')->all(),
         ];
-    }
-
-    public function catalog(): BelongsTo
-    {
-        return $this->belongsTo(Catalog::class);
     }
 
     /**
@@ -626,7 +617,7 @@ class Work extends Model
             ->whereNotNull('copy_date_hijri_year')
             ->whereBetween('copy_date_hijri_year', [$this->plausibleCopyYearFloor(), 1500])
             ->orderBy('copy_date_hijri_year')
-            ->orderBy('sequence_number')
+            ->orderByFankhaColumn('entry_number')
             ->first();
     }
 

@@ -481,7 +481,7 @@ class SourceEntry extends Model
      */
     public function cardLabel(?Model $record = null): string
     {
-        $row = $this->is_primary && $record instanceof Manuscript && $record->sequence_number ? 'ردیف ' . $record->sequence_number : null;
+        $row = $this->is_primary && $record instanceof Manuscript && $this->entry_number ? 'ردیف ' . $this->entry_number : null;
 
         return Fa::digits(implode('، ', array_filter([
             $this->sourceLabel(),

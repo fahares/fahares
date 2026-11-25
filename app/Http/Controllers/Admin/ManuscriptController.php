@@ -22,12 +22,12 @@ class ManuscriptController extends Controller
 {
     public function create(Request $request)
     {
-        $from = $request->filled('from') ? Manuscript::with('libraryRecord')->find((int) $request->query('from')) : null;
+        $from = $request->filled('from') ? Manuscript::with(['libraryRecord', 'fankhaEntry'])->find((int) $request->query('from')) : null;
         $defaults = [];
         if ($from) {
             // the «مجموعه» record it is of comes first (backlog item 163): an editor may have placed it in a collection its
             // shelfmark does not name (collection_pinned, step 14.330)
-            $key = $from->collection?->key ?? $from->collection_key ?? Manuscript::collectionKeyOf($from->shelfmark, $from->raw_text) ?? Manuscript::plainVolumeKeyOf($from->shelfmark, $from->raw_text);
+            $key = $from->collection?->key ?? $from->collection_key ?? Manuscript::collectionKeyOf($from->shelfmark, $from->fankhaText()) ?? Manuscript::plainVolumeKeyOf($from->shelfmark, $from->fankhaText());
             $defaults = ['from_id' => $from->id, 'library_id' => $from->library_id, 'collection_key' => $key,
                 // the volume's plain number is a shelfmark of its own; a numbered part is the reviewer's to write, and
                 // so is the number of a treatise placed by hand

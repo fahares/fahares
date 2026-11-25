@@ -523,7 +523,7 @@
                                 <td class="py-2.5 px-3 font-semibold">
                                     @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif
                                     @if($ms->is_addendum_entry)
-                                        <span class="block text-[10px] font-semibold text-muted" title="معرفی‌شده در بخش استدراک، ج {{ $ms->volume_number }} ص {{ $ms->page_start }}">استدراک</span>
+                                        <span class="block text-[10px] font-semibold text-muted" title="معرفی‌شده در بخش استدراک، ج {{ $ms->fankhaEntry?->volume_number }} ص {{ $ms->fankhaEntry?->page_start }}">استدراک</span>
                                     @endif
                                     @if($ms->is_distinct_work)
                                         <span class="block text-[10px] font-semibold text-sky-700 dark:text-sky-300" title="متنی جدا با همان عنوان (مدخل غیر همانند)">اثر متمایز</span>

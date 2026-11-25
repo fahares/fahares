@@ -52,8 +52,9 @@ class RebuildCopiesCommand extends Command
         }
         $apply = (bool) $this->option('apply');
         $guard = ProtectedColumns::for(Manuscript::class);
-        $rows = DB::table('manuscripts')->whereIn('id', array_column($plan['records'], 'id'))
-            ->get(['id', 'catalog_id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::EXTENT, ...self::COLUMNS])->keyBy('id');
+        // the text, the row and the source are the copy's Fankha entry's (step 14.399, backlog item 170)
+        $rows = \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::EXTENT, ...self::COLUMNS])
+            ->whereIn('manuscripts.id', array_column($plan['records'], 'id'))->get()->keyBy('id');
         $counts = [];
         $problems = [];
         $writes = [];

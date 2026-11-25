@@ -39,8 +39,8 @@ class FillExtentsCommand extends Command
             }
         };
 
-        DB::table('manuscripts')->select(['id', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number', 'raw_text'])
-            ->orderBy('id')->chunkById(2000, function ($rows) use ($apply, $guard, $count) {
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number', 'raw_text'])
+            ->orderBy('manuscripts.id')->chunkById(2000, function ($rows) use ($apply, $guard, $count) {
                 $writes = [];
                 $logs = [];
                 foreach ($rows as $row) {
@@ -84,7 +84,7 @@ class FillExtentsCommand extends Command
                     Manuscript::whereIn('id', $ids)->get()->searchable();
                     gc_collect_cycles();
                 }
-            });
+            }, 'manuscripts.id', 'id');
 
         $this->info($apply ? 'Written.' : 'Dry run: nothing written.');
         ksort($counts);

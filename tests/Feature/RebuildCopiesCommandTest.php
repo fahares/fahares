@@ -40,12 +40,16 @@ class RebuildCopiesCommandTest extends TestCase
             'slug' => 'test-rebuild-' . uniqid(), 'volume_number' => 99, 'page_start' => 1,
         ]);
 
-        return $this->manuscripts[] = DB::table('manuscripts')->insertGetId([
+        $id = $this->manuscripts[] = DB::table('manuscripts')->insertGetId([
             'work_id' => $work, 'sequence_number' => 2, 'volume_number' => 99, 'page_start' => 1, 'page_end' => 1,
             'city' => 'تهران', 'library' => 'دانشگاه', 'shelfmark' => $shelfmark, 'raw_text' => $raw,
             'copy_date_raw' => $date, 'is_bita' => 0, 'scribe_name' => 'کاتب دیگر', 'script_names' => 'نستعلیق',
             'metadata' => json_encode($metadata, JSON_UNESCAPED_UNICODE),
         ]);
+        // the command reads the text, the row and the source from the copy's entry (step 14.399)
+        \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$id]);
+
+        return $id;
     }
 
     private function record(int $id, ?string $shelfmark, array $changes): array

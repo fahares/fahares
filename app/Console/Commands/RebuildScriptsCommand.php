@@ -44,7 +44,7 @@ class RebuildScriptsCommand extends Command
         $plans = [];
         $transitions = [];
         $emptied = 0;
-        DB::table('manuscripts')->where('raw_text', 'like', '%خط:%')->select(['id', 'raw_text'])
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'raw_text'])->where('fe.copy_text', 'like', '%خط:%')
             ->chunkById(5000, function ($rows) use ($names, $edited, &$plans, &$transitions, &$emptied, $examples) {
                 $current = DB::table('manuscript_script')->whereIn('manuscript_id', $rows->pluck('id'))
                     ->orderByDesc('is_primary')->orderBy('script_id')->get()->groupBy('manuscript_id');
@@ -74,7 +74,7 @@ class RebuildScriptsCommand extends Command
                         $transitions[$key]['ids'][] = "{$m->id} «{$clean['wording']}»";
                     }
                 }
-            });
+            }, 'manuscripts.id', 'id');
 
         uasort($transitions, fn ($x, $y) => $y['n'] <=> $x['n']);
         $this->line('Step 1: ' . count($plans) . ' copies whose scripts differ from their «خط:» line; before → after');

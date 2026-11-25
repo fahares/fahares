@@ -15,7 +15,7 @@
     $long = ! $workText && mb_strlen((string) $entryText . $copyText) > 700;
     $field = $entry->suggestionField();
     // the copy's row in the Fankha entry its record was made from
-    $address = $entry->placeLabel() . ($entry->is_primary && $record instanceof \App\Models\Manuscript && $record->sequence_number ? Fa::digits('، ردیف ' . $record->sequence_number) : '')
+    $address = $entry->placeLabel() . ($entry->is_primary && $record instanceof \App\Models\Manuscript && $entry->entry_number ? Fa::digits('، ردیف ' . $entry->entry_number) : '')
         . ($entry->itemLabel() ? '، ' . $entry->itemLabel() : '');
     // a printed catalogue's or bibliography's text in Persian digits; Fankha's as the corpus has it
     $digits = fn (?string $t) => in_array($entry->source?->kind, [\App\Models\Source::KIND_LIBRARY_CATALOGUE, \App\Models\Source::KIND_BIBLIOGRAPHY], true) ? Fa::digits($t) : $t;
@@ -39,7 +39,7 @@
                 <button type="button" @click="more = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن کتاب‌شناسی</button>
             </div>
         </div>
-        @if(($record->sequence_number ?? 1) > 1)
+        @if(($entry->entry_number ?? 1) > 1)
             <div class="my-2 text-center text-muted tracking-widest" data-copy>...</div>
         @else
             <div class="my-3 border-t border-dashed border-line"></div>

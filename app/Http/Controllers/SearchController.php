@@ -560,8 +560,8 @@ class SearchController extends Controller
 
     /** The relations each tab's results show */
     public const WITH = [
-        'works' => ['catalog', 'author', 'subjects', 'languages'],
-        'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts', 'notes'],
+        'works' => ['author', 'subjects', 'languages'],
+        'manuscripts' => ['citedEntry', 'work.author', 'scribe', 'libraryRecord', 'scripts', 'notes'],
         'authors' => [],
         'scribes' => [],
         'sources' => ['source'],

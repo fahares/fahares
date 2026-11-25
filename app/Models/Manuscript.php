@@ -29,7 +29,8 @@ class Manuscript extends Model
     /** The copies Fankha lists; one made in the panel has no catalog (backlog item 149). The corpus commands look among these. */
     public function scopeFromFankha($query)
     {
-        return $query->whereNotNull($query->qualifyColumn('catalog_id'));
+        // the copy's Fankha entry names its source (step 14.399, backlog item 170)
+        return $query->whereHas('fankhaEntry', fn ($q) => $q->whereNotNull('source_id'));
     }
 
     /**
@@ -221,7 +222,9 @@ class Manuscript extends Model
             }
             // ...and so is the bound volume it names (backlog item 97), which the catalogue it cites can change
             if ($manuscript->isDirty(['shelfmark', 'raw_text']) && ! $manuscript->isDirty('collection_key')) {
-                $manuscript->collection_key = self::resolvedCollectionKey($manuscript->shelfmark, $manuscript->raw_text, $manuscript->getOriginal('collection_key'));
+                // a writer that sets the text brings the new one in its column, the entry still has the old (step 14.399, backlog item 170)
+                $text = $manuscript->isDirty('raw_text') || ! $manuscript->exists ? $manuscript->raw_text : $manuscript->fankhaText();
+                $manuscript->collection_key = self::resolvedCollectionKey($manuscript->shelfmark, $text, $manuscript->getOriginal('collection_key'));
             }
         });
 
@@ -378,9 +381,16 @@ class Manuscript extends Model
         return 'نامشخص';
     }
 
+    /** The library catalogue place Fankha cites for the copy, «[ف: 2-414]», as its own entry (backlog item 51). */
+    public function citedEntry(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(\App\Models\SourceEntry::class, 'citable')->where('legacy_type', 'fankha_citation');
+    }
+
+    /** Fankha's citation of the copy's catalogue place, from its entry (step 14.399); eager load citedEntry for a list. */
     public function getCatalogCitationAttribute(): ?string
     {
-        return $this->metadata['catalog_citation'] ?? null;
+        return $this->citedEntry?->citation_text;
     }
 
     public function getCenturyTextAttribute(): ?string
@@ -403,8 +413,8 @@ class Manuscript extends Model
         if (!empty($this->incipit_text) && in_array(trim($this->incipit_text), ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
             return true;
         }
-        if (!empty($this->raw_text)) {
-            return (bool) preg_match('/(?:^|[؛\n])\s*آغاز(?:\s*و\s*انجام)?[:\s]\s*برابر/u', $this->raw_text);
+        if (!empty($text = $this->fankhaText())) {
+            return (bool) preg_match('/(?:^|[؛\n])\s*آغاز(?:\s*و\s*انجام)?[:\s]\s*برابر/u', $text);
         }
         return false;
     }
@@ -417,10 +427,10 @@ class Manuscript extends Model
         if (!empty($this->explicit_text) && in_array(trim($this->explicit_text), ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
             return true;
         }
-        if (!empty($this->raw_text)) {
+        if (!empty($text = $this->fankhaText())) {
             return (bool) (
-                preg_match('/(?:^|[؛\n])\s*آغاز\s*و\s*انجام[:\s]\s*برابر/u', $this->raw_text) ||
-                preg_match('/(?:^|[؛\n])\s*انجام[:\s]\s*برابر/u', $this->raw_text)
+                preg_match('/(?:^|[؛\n])\s*آغاز\s*و\s*انجام[:\s]\s*برابر/u', $text) ||
+                preg_match('/(?:^|[؛\n])\s*انجام[:\s]\s*برابر/u', $text)
             );
         }
         return false;
@@ -601,28 +611,22 @@ class Manuscript extends Model
         return (bool) ($this->metadata['is_distinct_work'] ?? false);
     }
 
-    public function getCleanRawTextAttribute(): ?string
-    {
-        if (empty($this->raw_text)) {
-            return null;
-        }
-        $cleaned = preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->raw_text);
-        $cleaned = str_replace(["\r\n", "\r"], "\n", $cleaned);
-        $cleaned = preg_replace('/^[ \t]+$/m', '', $cleaned);
-        $cleaned = preg_replace('/[ \t]{2,}/u', ' ', $cleaned);
-        $cleaned = preg_replace("/\n{3,}/u", "\n\n", $cleaned);
-        return trim($cleaned);
-    }
-
     public function searchableAs(): string
     {
         return 'manuscripts_index';
     }
 
+    /** A batch given to the engine reads its Fankha entries in one query (step 14.399, backlog item 170). */
+    public function makeSearchableUsing(\Illuminate\Support\Collection $models): \Illuminate\Support\Collection
+    {
+        return $models instanceof \Illuminate\Database\Eloquent\Collection ? $models->loadMissing('fankhaEntry') : $models;
+    }
+
     public function makeAllSearchableUsing($query)
     {
         return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'work.authors:people.id', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name', 'notes:id,manuscript_id,type,also',
-            'catalogueEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_volume_id')]);
+            'catalogueEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_volume_id'),
+            'fankhaEntry' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'legacy_type', 'volume_number', 'entry_number')]);
     }
 
     public function toSearchableArray(): array
@@ -673,8 +677,9 @@ class Manuscript extends Model
             'binding' => $this->binding,
             'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
             'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
-            'volume_number' => (int) $this->volume_number,
-            'sequence_number' => (int) $this->sequence_number,
+            // the document keeps these keys; the values are the Fankha entry's (step 14.399, backlog item 170)
+            'volume_number' => (int) $this->fankhaEntry?->volume_number,
+            'sequence_number' => (int) $this->fankhaEntry?->entry_number,
             'is_corrected' => (bool) $this->is_corrected,
             'has_marginal_notes' => (bool) $this->has_marginal_notes,
             'is_ruled' => (bool) $this->is_ruled,
@@ -733,10 +738,6 @@ class Manuscript extends Model
             ->when($to !== null, fn ($q) => $q->where("{$table}.copy_date_to", '<=', $to));
     }
 
-    public function catalog(): BelongsTo
-    {
-        return $this->belongsTo(Catalog::class);
-    }
 
     public function cataloger(): BelongsTo
     {
@@ -791,7 +792,7 @@ class Manuscript extends Model
     /** What the catalogue says of a photograph's mother («نسخه اصل: …»), up to the first «؛»; not «همان نسخه بالا» */
     public function getOriginalNoteAttribute(): ?string
     {
-        if (! preg_match('/(?:نسخه\s+اصل|اصل\s+نسخه)\s*:\s*([^؛\[\n]+)/u', (string) $this->raw_text, $m)) {
+        if (! preg_match('/(?:نسخه\s+اصل|اصل\s+نسخه)\s*:\s*([^؛\[\n]+)/u', (string) $this->fankhaText(), $m)) {
             return null;
         }
         $note = preg_replace('/^[\s.،]+|[\s.،]+$/u', '', $m[1]);
@@ -813,9 +814,11 @@ class Manuscript extends Model
     /** Whether the copy's own Fankha entry sits in a catalogue's addenda section (see config/catalogs.php). */
     public function getIsAddendumEntryAttribute(): bool
     {
-        $code = $this->catalog?->code ?? 'fankha';
+        // from the copy's entry and its source; a list eager loads fankhaEntry.source:id,code (step 14.399, backlog item 170)
+        $entry = $this->fankhaEntry;
+        $code = $entry?->source?->code ?? 'fankha';
         foreach (config("catalogs.addenda.{$code}", []) as $range) {
-            if ((int) $this->volume_number === $range['volume'] && $this->page_start >= $range['from'] && $this->page_start <= $range['to']) {
+            if ((int) $entry?->volume_number === $range['volume'] && $entry->page_start >= $range['from'] && $entry->page_start <= $range['to']) {
                 return true;
             }
         }
@@ -1094,7 +1097,7 @@ class Manuscript extends Model
         if (preg_match('~/\s*[\d۰-۹]+\s*حاشیه~u', (string) $this->shelfmark)) {
             return true;
         }
-        foreach (preg_split('/\s*[؛،\n]\s*/u', (string) $this->raw_text) as $clause) {
+        foreach (preg_split('/\s*[؛،\n]\s*/u', (string) $this->fankhaText()) as $clause) {
             if (preg_match('/^(?:نوشته\s*شده\s+)?در\s+(?:هامش|حاشیه)(?:\s+(?:نوشته|نگاشته)\s*شده(?:\s+است)?)?\.?$/u', trim($clause))) {
                 return true;
             }
@@ -1186,7 +1189,7 @@ class Manuscript extends Model
 
     private function findCollectionSiblings(): \Illuminate\Support\Collection
     {
-        $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark, $this->raw_text);
+        $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark, $this->fankhaText());
         // the copies of its «مجموعه» record (step 14.322); a copy with none yet, or of no library, is found by its key
         $linked = $this->collection_id !== null;
         if ($key === null && ! $linked) {
@@ -1199,10 +1202,10 @@ class Manuscript extends Model
                 ->when($this->collection_key !== null || $base === null,
                     fn ($q) => $q->where('collection_key', $key),
                     fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%')))
-            ->with(['work.author', 'scribe'])
+            ->with(['work.author', 'scribe', 'fankhaEntry'])
             ->limit(400)
             ->get()
-            ->filter(fn (self $m) => $linked || ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
+            ->filter(fn (self $m) => $linked || ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->fankhaText())) === $key)
             // a run of separately numbered treatises («38131–38137») is in the order of its numbers; in a volume
             // whose copies share one plain number, the copies with no range follow the ranged ones
             ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? (self::isRunKey($key) ? self::plainNumber($m->shelfmark) : 0)),

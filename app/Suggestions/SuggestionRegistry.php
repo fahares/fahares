@@ -760,7 +760,13 @@ class SuggestionRegistry
             'catalog_page' => match (true) {
                 isset($field['entry_id']) => (fn ($e) => $e ? self::formatCatalogPage($e->volumeNumber(), $e->page_start) : null)(SourceEntry::find($field['entry_id'])),
                 isset($field['bibliography']) => self::formatCatalogPage($field['bibliography']['volume'], $field['bibliography']['page'], null, $field['unit']),
-                default => self::formatCatalogPage($record->{$field['columns'][0]}, $record->{$field['columns'][1]}, isset($field['columns'][2]) ? $record->{$field['columns'][2]} : null),
+                // the place is the record's Fankha entry's (step 14.399, backlog item 170); a copy's row is its entry_number
+                default => (function () use ($record, $field) {
+                    $held = \App\Sources\RecordEntries::fankhaOf($record);
+                    $of = fn (string $column) => $held[$column === 'sequence_number' ? 'entry_number' : $column] ?? null;
+
+                    return self::formatCatalogPage($of($field['columns'][0]), $of($field['columns'][1]), isset($field['columns'][2]) ? $of($field['columns'][2]) : null);
+                })(),
             },
             // a copy whose scribe is only linked has no name text of its own: the linked person's name stands
             'person' => $record->{$name} ?: Person::find($record->{$field['id_column']})?->name,
@@ -783,7 +789,9 @@ class SuggestionRegistry
     /** @return string[] */
     public static function listItems(Model $record, array $field): array
     {
-        $items = isset($field['meta_key']) ? self::metaList($record, $field['meta_key']) : (array) ($record->{$field['name']} ?? []);
+        // a work's bibliography is its entries' (step 14.399, backlog item 170)
+        $items = isset($field['meta_key']) ? self::metaList($record, $field['meta_key'])
+            : ($record instanceof \App\Models\Work && $field['name'] === 'bibliography' ? \App\Sources\RecordEntries::bibliographyOf($record) : (array) ($record->{$field['name']} ?? []));
         if (isset($field['item_key'])) {
             $items = array_map(fn ($item) => is_array($item) ? ($item[$field['item_key']] ?? '') : (string) $item, $items);
         }

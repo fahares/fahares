@@ -32,7 +32,7 @@ class FillCollectionKeysCommand extends Command
         $examples = [];
         $volumes = [];
 
-        DB::table('manuscripts')->select(['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key'])->orderBy('id')
+        \App\Support\EntryColumns::query('manuscripts', ['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key'])->orderBy('manuscripts.id')
             ->chunkById(5000, function ($rows) use ($apply, $guard, &$counts, &$examples, &$volumes) {
                 $writes = [];
                 foreach ($rows as $row) {
@@ -65,7 +65,7 @@ class FillCollectionKeysCommand extends Command
                         DB::table('manuscripts')->where('id', $id)->update(['collection_key' => $key]);
                     }
                 });
-            });
+            }, 'manuscripts.id', 'id');
 
         if ($apply) {
             // the «مجموعه» records follow the keys (step 14.322)

@@ -106,6 +106,7 @@ class ManuscriptCreator
                 'volume_number' => null,
                 'page_start' => null,
                 // after the work's copies of the catalogues, in the order they were added
+                // a copy made in the panel has no Fankha entry: its row after the work's others is its own (decided in phase 5)
                 'sequence_number' => (int) Manuscript::where('work_id', $work->id)->max('sequence_number') + 1,
                 'library_id' => $library->id,
                 'library' => $library->name,
@@ -313,7 +314,7 @@ class ManuscriptCreator
     {
         $from = $manuscript->collection_key !== null && filled($fromId) ? Manuscript::find($fromId) : null;
         if (! $from || $from->collection_key !== null || (int) $from->library_id !== (int) $manuscript->library_id
-            || Manuscript::plainVolumeKeyOf($from->shelfmark, $from->raw_text) !== $manuscript->collection_key) {
+            || Manuscript::plainVolumeKeyOf($from->shelfmark, $from->fankhaText()) !== $manuscript->collection_key) {
             return [];
         }
         $from->update(['collection_key' => $manuscript->collection_key]);

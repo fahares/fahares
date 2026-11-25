@@ -5,7 +5,7 @@
     @php
         // In some libraries the part number is a volume of one multi-volume work («13/1» to «13/5»: وسائل الشیعة)
         $volumes = $siblings->pluck('work_id')->unique()->count() === 1;
-        $number = $manuscript->collection_key ?? \App\Models\Manuscript::collectionKeyOf($manuscript->shelfmark, $manuscript->raw_text);
+        $number = $manuscript->collection_key ?? \App\Models\Manuscript::collectionKeyOf($manuscript->shelfmark, $manuscript->fankhaText());
     @endphp
     @php
         // What is the volume's own (backlog item 163, step 14.324): its record's values, worked out from the entries of
