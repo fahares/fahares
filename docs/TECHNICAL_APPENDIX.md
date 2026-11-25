@@ -14089,11 +14089,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اثر انگشت ردیف‌ها:** `md5(group_concat(concat_ws('|', id, person_id, kind, city) order by id))` برای `id > 6911` باید `9f3e58def6b07d687d6b798ab485eee4` باشد؛ پیش‌شرطش این است که هشت دورۀ «مصر» دوباره `city = قاهره` داشته باشند.
 - کدی عوض نشد.
 
-### گام ۱۴.۳۹۱: `Insights::scribeLinks()`، `authorLinks()`، `scopePeople()`
-- **[Insights](../app/Support/Insights.php):** کلید `insights.v25`. `scribeLinks($scope)`: `manuscript_people` (نقش کاتب، با شخص) پیوسته به جدول نسخه‌های دامنه؛ `authorLinks($scope)`: `work_people` (نقش پدیدآور) پیوسته به آثار دامنه؛ `scopePeople($scope)`: اجتماع شناسۀ اشخاص این دو.
-- **خوانندگان تازه:** `authors()`، `scribes()` (شمارها `COUNT(DISTINCT manuscripts.id)`)، کاتبان و مؤلفان `places()`، `lifeCities()`، `origins()`، و `autographs()` (`EXISTS` روی `manuscript_people` به جای `manuscripts.scribe_id`).
-- **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
-- **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
 ### گام ۱۴.۳۸۹: `SourceReference`، `CiteController` و `/cite`
 
 - **[SourceReference](../app/Support/SourceReference.php):** `(Source, ?SourceVolume, ?int $page, ?SourceItem)`، با `forPage(PrintedPage)` و `forItem(SourceItem)`.
@@ -14133,3 +14128,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فرمان: `refresh-prod-copy --yes` از checkout اصلی، با `TDL_PROXY=http://127.0.0.1:20171`. خروجی به `~/.fahares/prodcopy-run.log` می‌رود.
   - اسکریپت پس از انتشار به checkout اصلی می‌رسد. اجرای پیش از انتشار شکست می‌خورد.
   - وضع: `systemctl --user list-timers fahares-prodcopy.timer`. خاموش کردن: `systemctl --user disable --now fahares-prodcopy.timer`.
+
+### گام ۱۴.۳۹۱: `Insights::scribeLinks()`، `authorLinks()`، `scopePeople()`
+- **[Insights](../app/Support/Insights.php):** کلید `insights.v25`. `scribeLinks($scope)`: `manuscript_people` (نقش کاتب، با شخص) پیوسته به جدول نسخه‌های دامنه؛ `authorLinks($scope)`: `work_people` (نقش پدیدآور) پیوسته به آثار دامنه؛ `scopePeople($scope)`: اجتماع شناسۀ اشخاص این دو.
+- **خوانندگان تازه:** `authors()`، `scribes()` (شمارها `COUNT(DISTINCT manuscripts.id)`)، کاتبان و مؤلفان `places()`، `lifeCities()`، `origins()`، و `autographs()` (`EXISTS` روی `manuscript_people` به جای `manuscripts.scribe_id`).
+- **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
+- **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
