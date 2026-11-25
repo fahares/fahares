@@ -4,11 +4,12 @@
     use App\Support\Fa;
     $source = $reference->source;
     $sourceName = $source->short_name ?: $source->title;
+    $journal = $source->isPeriodical();
     $what = match (true) {
         $reference->item !== null => 'این مدخل',
         $reference->page !== null => 'این صفحه',
-        $reference->volume !== null => 'این جلد',
-        default => 'این کتاب',
+        $reference->volume !== null => $journal ? 'این شماره' : 'این جلد',
+        default => $journal ? 'این نشریه' : 'این کتاب',
     };
     $missing = $reference->missing();
     $query = array_filter(['source' => $source->code, 'volume' => $reference->volume?->volume_number,
@@ -52,8 +53,8 @@
 
     {{-- the printed book: what to cite in research --}}
     <section class="border border-line-strong bg-surface p-4 sm:p-5 space-y-3" data-cite-form="printed">
-        <h2 class="text-sm font-bold text-ink">ارجاع به چاپ منبع</h2>
-        <p class="text-xs text-muted leading-6">در پژوهش، به کتاب چاپی که متن از آن است ارجاع دهید.</p>
+        <h2 class="text-sm font-bold text-ink">{{ $journal ? 'ارجاع به مقالۀ نشریه' : 'ارجاع به چاپ منبع' }}</h2>
+        <p class="text-xs text-muted leading-6">{{ $journal ? 'در پژوهش، به مقاله‌ای از نشریۀ چاپی که متن از آن است ارجاع دهید.' : 'در پژوهش، به کتاب چاپی که متن از آن است ارجاع دهید.' }}</p>
         <p class="font-lotus text-[1.1rem] leading-9 text-ink select-all" data-cite-text>{{ $reference->printed() }}</p>
         @if($missing)
             <p class="text-xs text-muted leading-6" data-cite-missing>
@@ -79,14 +80,34 @@
         </section>
     @endforeach
 
-    <section class="border border-line bg-paper p-4 sm:p-5 space-y-3" data-cite-form="permalink">
-        <h2 class="text-sm font-bold text-ink">نشانی پایدار</h2>
-        <p class="text-xs text-muted leading-6">این نشانی همیشه به همین {{ $reference->item ? 'مدخل' : ($reference->page && $reference->url() !== route('sources.show', $source->code) ? 'صفحه' : 'منبع') }} در فهارس می‌رسد.</p>
-        <p class="text-sm text-ink [overflow-wrap:anywhere]" dir="ltr" data-cite-text>{{ $reference->url() }}</p>
-        <x-ui.btn size="sm" x-on:click="copy('permalink', {{ \Illuminate\Support\Js::from($reference->url()) }})">
-            <span x-show="copied !== 'permalink'">رونوشت</span>
-            <span x-show="copied === 'permalink'" x-cloak class="text-emerald-600">رونوشت شد</span>
-        </x-ui.btn>
+    {{-- the permanent address, and its QR code for a printed page (a thesis, a slide), drawn in the browser by the
+         site's own qrcode library: nothing is sent elsewhere. PNG for Word and slides, SVG for print. --}}
+    <section class="border border-line bg-paper p-4 sm:p-5" data-cite-form="permalink"
+        x-data="{
+            url: {{ \Illuminate\Support\Js::from($reference->url()) }},
+            name: {{ \Illuminate\Support\Js::from('qr-' . $reference->key()) }},
+            colors: { dark: '#241F1A', light: '#FFFFFF' },
+            draw() { if (window.QRCode) window.QRCode.toCanvas(this.$refs.qr, this.url, { width: 132, margin: 1, color: this.colors }) },
+            save(href, ext) { const a = document.createElement('a'); a.download = this.name + '.' + ext; a.href = href; a.click() },
+            png() { const c = document.createElement('canvas'); window.QRCode.toCanvas(c, this.url, { width: 600, margin: 2, color: this.colors }, () => this.save(c.toDataURL('image/png'), 'png')) },
+            svg() { window.QRCode.toString(this.url, { type: 'svg', margin: 2, color: this.colors }, (e, text) => { if (! e) this.save(URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' })), 'svg') }) },
+        }" x-init="draw()">
+        <div class="flex flex-col-reverse sm:flex-row sm:items-start gap-4">
+            <div class="flex-1 min-w-0 space-y-3">
+                <h2 class="text-sm font-bold text-ink">نشانی پایدار</h2>
+                <p class="text-xs text-muted leading-6">این نشانی همیشه به همین {{ $reference->item ? 'مدخل' : ($reference->page && $reference->url() !== route('sources.show', $source->code) ? 'صفحه' : 'منبع') }} در فهارس می‌رسد. رمزینۀ QR آن را در نسخۀ چاپی بگذارید تا خواننده با تلفن همراه به همین‌جا برسد.</p>
+                <p class="text-sm text-ink [overflow-wrap:anywhere]" dir="ltr" data-cite-text>{{ $reference->url() }}</p>
+                <div class="flex flex-wrap gap-2">
+                    <x-ui.btn size="sm" x-on:click="copy('permalink', {{ \Illuminate\Support\Js::from($reference->url()) }})">
+                        <span x-show="copied !== 'permalink'">رونوشت</span>
+                        <span x-show="copied === 'permalink'" x-cloak class="text-emerald-600">رونوشت شد</span>
+                    </x-ui.btn>
+                    <x-ui.btn size="sm" x-on:click="png()" data-cite-qr-png>دریافت QR (PNG)</x-ui.btn>
+                    <x-ui.btn size="sm" x-on:click="svg()" data-cite-qr-svg>دریافت QR (SVG، برای چاپ)</x-ui.btn>
+                </div>
+            </div>
+            <canvas x-ref="qr" width="132" height="132" class="self-center sm:self-start border border-line bg-white shrink-0" role="img" aria-label="رمزینۀ QR نشانی پایدار" data-cite-qr></canvas>
+        </div>
     </section>
 
     <p class="flex flex-wrap items-center gap-2 text-sm text-muted" data-cite-downloads>
@@ -97,7 +118,7 @@
 
     @if($reference->volume)
         <p class="text-xs text-muted">
-            ارجاع به <a href="{{ route('cite.show', ['source' => $source->code]) }}" class="text-cinnabar hover:underline">کل کتاب</a>
+            ارجاع به <a href="{{ route('cite.show', ['source' => $source->code]) }}" class="text-cinnabar hover:underline">{{ $journal ? 'کل نشریه' : 'کل کتاب' }}</a>
             @if($reference->item && $reference->item->page_start)
                 · <a href="{{ route('cite.show', ['source' => $source->code, 'volume' => $reference->volume->volume_number, 'page' => $reference->item->page_start]) }}" class="text-cinnabar hover:underline">صفحۀ این مدخل</a>
             @endif

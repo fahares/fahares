@@ -33,8 +33,8 @@
                     <ul class="mt-1 space-y-0.5">
                         @foreach($duplicates as $w)
                             <li data-duplicate-work="{{ $w->id }}">
-                                <a href="{{ route('works.show', $w) }}" target="_blank" class="font-bold hover:text-cinnabar">{{ $w->primary_title }}</a>
-                                <span class="text-muted">— {{ $w->author_name ?: 'بی پدیدآور' }}، {{ $fa($w->manuscripts_count ?: 0) }} نسخه (#{{ $fa($w->id) }})</span>
+                                <a href="{{ route('works.show', $w) }}" target="_blank" class="font-bold hover:text-cinnabar">{{ $fa($w->primary_title) }}</a>
+                                <span class="text-muted">— {{ $w->author_name ? $fa($w->author_name) : 'بی پدیدآور' }}، {{ $fa($w->manuscripts_count ?: 0) }} نسخه (#{{ $fa($w->id) }})</span>
                             </li>
                         @endforeach
                     </ul>

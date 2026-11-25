@@ -56,6 +56,15 @@ class Source extends Model
         ];
     }
 
+    /**
+     * A journal (step 14.394, «تراثنا»): each volume is an issue, its pages belong to articles, and it is cited as a
+     * journal article, not as a book. Set by `metadata.periodical`.
+     */
+    public function isPeriodical(): bool
+    {
+        return ($this->metadata['periodical'] ?? false) === true;
+    }
+
     /** Whether the site has the source's page images; a source it has as text only («فهرستواره منزوی») has none. */
     public function hasPageImages(): bool
     {

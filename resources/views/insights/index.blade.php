@@ -62,6 +62,10 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
     <header class="text-center grid justify-items-center gap-2">
+        {{-- The sign of the topic, as on its card of the hub (step 14.400) --}}
+        @if($topic)
+            <span class="text-cinnabar/80">@include('insights.topic-icon', ['slug' => $topic, 'class' => 'size-9'])</span>
+        @endif
         <p class="text-xs font-bold text-cinnabar">آمار</p>
         @if($scope->isEmpty())
             <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">{{ $page ? $page['title'] : 'نسخه‌ها در گذر سده‌ها' }}</h1>
@@ -94,7 +98,7 @@
         @foreach([null => ['name' => 'همه']] + $topics as $slug => $tab)
             @php $slug = $slug === '' ? null : $slug; @endphp
             <a href="{{ $pageUrl($slug, $scope->query()) }}" @if($slug === $topic) aria-current="page" @endif
-               class="px-3 py-1 rounded-full border transition {{ $slug === $topic ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar' }}">{{ $tab['name'] }}</a>
+               class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border transition {{ $slug === $topic ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar' }}">@if($slug)<span class="{{ $slug === $topic ? '' : 'text-cinnabar/80' }}">@include('insights.topic-icon', ['slug' => $slug, 'class' => 'size-4'])</span>@endif{{ $tab['name'] }}</a>
         @endforeach
     </nav>
 
@@ -141,7 +145,10 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-insights-cards>
         @foreach($topics as $slug => $card)
             <a href="{{ $pageUrl($slug, $scope->query()) }}" class="group bg-surface border border-line hover:border-cinnabar transition p-5 grid gap-2 content-start">
-                <h2 class="font-naskh text-xl font-bold text-ink group-hover:text-cinnabar transition">{{ $card['name'] }}</h2>
+                <span class="flex items-center gap-2.5">
+                    <span class="shrink-0 text-cinnabar/80 group-hover:text-cinnabar transition">@include('insights.topic-icon', ['slug' => $slug])</span>
+                    <h2 class="font-naskh text-xl font-bold text-ink group-hover:text-cinnabar transition">{{ $card['name'] }}</h2>
+                </span>
                 <p class="text-sm text-muted leading-relaxed">{{ $card['lead'] }}</p>
                 <p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink tabular-nums">
                     @foreach(array_filter($figures[$slug]) as $figure)

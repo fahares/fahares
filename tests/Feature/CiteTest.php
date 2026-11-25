@@ -167,6 +167,55 @@ class CiteTest extends TestCase
             ->assertSee('تهران', false);
     }
 
+    public function test_a_journal_page_is_cited_as_the_article_that_holds_it()
+    {
+        $journal = Source::create(['code' => 'turathuna-test', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 30, 'title' => 'تراثنا',
+            'publication_place' => 'قم', 'publisher' => 'مؤسسة آل البیت', 'unit' => 'صفحه', 'metadata' => ['periodical' => true]]);
+        $issue = SourceVolume::create(['source_id' => $journal->id, 'volume_number' => 7, 'title' => 'تراثنا - السنة 2، العدد 2 و 3 (7 و 8)',
+            'publication_year' => '1407 ق', 'page_last' => 400, 'metadata' => ['articles' => [
+                ['page' => 7, 'title' => 'نظرات سريعة في فن التحقيق', 'author' => 'أسد مولوي'],
+                ['page' => 150, 'title' => 'دليل المخطوطات (4): مكتبة العلامة الطباطبائي', 'author' => 'أحمد الحسيني'],
+                ['page' => 164, 'title' => 'معجم الرموز والإشارات', 'author' => 'محمد رضا المامقاني'],
+                ['page' => 331, 'title' => 'رسالة عدم مضايقة الفوائت', 'author' => 'محمد علي الطباطبائي المراغي', 'role' => 'تحقيق'],
+            ]]]);
+        DB::table('source_pages')->insert(['source_volume_id' => $issue->id, 'page' => 150, 'text' => 'دليل المخطوطات']);
+
+        $ref = new SourceReference($journal, $issue, 150);
+        $this->assertSame(['title' => 'دليل المخطوطات (4): مكتبة العلامة الطباطبائي', 'author' => 'أحمد الحسيني', 'role' => null, 'from' => 150, 'to' => 163], $ref->article());
+        $this->assertSame('أحمد الحسيني، «دليل المخطوطات (۴): مكتبة العلامة الطباطبائي»، تراثنا، السنة ۲، العدد ۲ و ۳ (۷ و ۸)، ۱۴۰۷ ق، ص ۱۵۰.', $ref->printed());
+        // place and publisher are not asked of a journal
+        $this->assertSame([], $ref->missing());
+        $this->assertSame('(أحمد الحسيني، ۱۴۰۷ ق، ص ۱۵۰)', $ref->inText());
+        $this->assertSame('أحمد الحسيني. (۱۴۰۷ ق). دليل المخطوطات (۴): مكتبة العلامة الطباطبائي. تراثنا، السنة ۲، العدد ۲ و ۳ (۷ و ۸)، ص ۱۵۰–۱۶۳.', $ref->apa());
+        $this->assertSame('أحمد الحسيني. «دليل المخطوطات (۴): مكتبة العلامة الطباطبائي». تراثنا السنة ۲، العدد ۲ و ۳ (۷ و ۸) (۱۴۰۷ ق): ص ۱۵۰–۱۶۳.', $ref->chicago());
+        $bib = $ref->bibtex(Carbon::parse('2026-11-25'));
+        $this->assertStringStartsWith('@article{fahares-turathuna-test-7-150,', $bib);
+        foreach (['journal = {تراثنا}', 'volume = {2}', 'number = {2 و 3}', 'year = {1407 ق}', 'pages = {150--163}'] as $field) {
+            $this->assertStringContainsString($field, $bib);
+        }
+        $ris = $ref->ris(Carbon::parse('2026-11-25'));
+        foreach (["TY  - JOUR", "AU  - أحمد الحسيني", "T2  - تراثنا", "IS  - 2 و 3", "SP  - 150", "EP  - 163"] as $tag) {
+            $this->assertStringContainsString($tag, $ris);
+        }
+
+        // an edited text: its editor follows the title; the last article runs to the issue's last page
+        $edited = new SourceReference($journal, $issue, 340);
+        $this->assertNull($edited->authors());
+        $this->assertSame('«رسالة عدم مضايقة الفوائت»، تحقيق محمد علي الطباطبائي المراغي، تراثنا، السنة ۲، العدد ۲ و ۳ (۷ و ۸)، ۱۴۰۷ ق، ص ۳۴۰.', $edited->printed());
+        $this->assertSame(400, $edited->article()['to']);
+        // a page before the first article is the issue's own
+        $contents = new SourceReference($journal, $issue, 2);
+        $this->assertNull($contents->article());
+        $this->assertSame('تراثنا، السنة ۲، العدد ۲ و ۳ (۷ و ۸)، ۱۴۰۷ ق، ص ۲.', $contents->printed());
+        $this->assertStringStartsWith('@periodical{', $contents->bibtex());
+
+        $this->get(route('cite.show', ['source' => 'turathuna-test', 'volume' => 7, 'page' => 150]))->assertOk()
+            ->assertSee('ارجاع به مقالۀ نشریه')->assertSee('ارجاع به این صفحه')->assertDontSee('data-cite-missing', false)
+            // the permanent address comes with its QR code, drawn in the browser, and its downloads
+            ->assertSee('data-cite-qr', false)->assertSee('دریافت QR (PNG)')->assertSee('دریافت QR (SVG، برای چاپ)')
+            ->assertSee('qr-fahares-turathuna-test-7-150', false);
+    }
+
     public function test_the_work_page_has_no_citation_window_of_its_own()
     {
         $work = Work::create(['primary_title' => 'الکافی', 'clean_title' => 'الکافی', 'slug' => 'kafi-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);

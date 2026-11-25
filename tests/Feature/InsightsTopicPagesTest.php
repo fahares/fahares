@@ -43,6 +43,8 @@ class InsightsTopicPagesTest extends TestCase
         Insights::refresh();
         $hub = $this->get(route('insights'))->assertOk()
             ->assertSee('data-insights-cards', false)
+            // Each topic's card has its own sign (step 14.398)
+            ->assertSeeInOrder(array_map(fn ($slug) => 'data-insights-icon="' . $slug . '"', array_keys(config('insights.topics'))), false)
             ->assertDontSee('data-insights-note', false)
             ->assertDontSee('id="timeline"', false)
             // The page of each chart by its id, for a link that came with the chart's anchor
@@ -62,6 +64,10 @@ class InsightsTopicPagesTest extends TestCase
             ->assertSee('id="copy-gap"', false)
             ->assertDontSee('id="places"', false)
             ->assertDontSee('data-insights-cards', false);
+        // The sign of the topic over its heading, and a sign on each of the six tabs (step 14.400)
+        $page = $this->get(route('insights.topic', 'time'))->getContent();
+        $this->assertSame(2, substr_count($page, 'data-insights-icon="time"'));
+        $this->assertSame(7, substr_count($page, 'data-insights-icon="'));
         $this->get(route('insights.topic', 'places'))->assertOk()
             ->assertSee('id="places"', false)
             ->assertSee('id="movement"', false)

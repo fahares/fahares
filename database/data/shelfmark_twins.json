@@ -3,28 +3,57 @@
     "merges": [
         {
             "library": "thran-mlk-15",
-            "removed": {"shelfmark": "972/4", "work": "s-u-qasidat-il-gamamat-wa-l-basat-v20-727"},
-            "kept": {"shelfmark": "792/4", "work": "s-e-hadis-e-qamama-va-basat-v19-1035"},
+            "removed": {
+                "shelfmark": "972/4",
+                "work": "s-u-qasidat-il-gamamat-wa-l-basat-v20-727"
+            },
+            "kept": {
+                "shelfmark": "792/4",
+                "work": "s-e-hadis-e-qamama-va-basat-v19-1035"
+            },
             "why": "Malek vol. 5 p. 177–178: collection 792, part 4 «شرح حدیث غمامه وبساط از منهج‌التحقیق حیدر خوانساری», the very words of the removed record. Malek 972 is منتخب اللغات شاهجهانی (vol. 4 p. 788), a single work."
         },
         {
             "library": "thran-mgls-4",
-            "removed": {"shelfmark": "8915/16", "work": "asar-v3-1470"},
-            "kept": {"shelfmark": "8919/16", "work": "ashaaar-v3-1473"},
-            "fields": {"scribe_name": "target", "copy_date_raw": "target"},
+            "removed": {
+                "shelfmark": "8915/16",
+                "work": "asar-v3-1470"
+            },
+            "kept": {
+                "shelfmark": "8919/16",
+                "work": "ashaaar-v3-1473"
+            },
+            "fields": {
+                "scribe_name": "target",
+                "copy_date_raw": "target"
+            },
             "why": "Majlis vol. 29/1 p. 331: 8919 (جنگ قلندرشاه) part 16 «اشعار، ۴۹پ ـ ۵۰ر، از امیرالمؤمنین(ع) و مولوی», the removed record's leaves and words. 8915/16 is اسکندریه (pp. 257–293), which keeps its own record. The print names the collection's scribe (محمود بن جلال‌الدین قلندرشاه خویی) and dates, so the removed record's «بی‌کا، بی‌تا» does not become an alternative reading."
         },
         {
             "library": "thran-mroy-7",
-            "removed": {"shelfmark": "7988/3", "work": "sawahid-ul-bahja-til-mariyya-v21-477"},
-            "kept": {"shelfmark": "798/3", "work": "s-u-sawahid-il-bahjat-il-mariyya-v20-12"},
+            "removed": {
+                "shelfmark": "7988/3",
+                "work": "sawahid-ul-bahja-til-mariyya-v21-477"
+            },
+            "kept": {
+                "shelfmark": "798/3",
+                "work": "s-u-sawahid-il-bahjat-il-mariyya-v20-12"
+            },
             "why": "Marvi p. 307: «(ش ۷۹۸ ـ خشتی) ۳ ـ شواهد سیوطی تحریر ۱۲۳۵», the removed record's date and format. Marvi has no number 7988."
         },
         {
             "library": "thran-mroy-7",
-            "removed": {"shelfmark": "512/2", "work": "saifat-ur-ria-v21-849"},
-            "kept": {"shelfmark": "521/2", "work": "saifat-ur-ria-v21-849"},
-            "fields": {"copy_date_raw": "source"},
+            "removed": {
+                "shelfmark": "512/2",
+                "work": "saifat-ur-ria-v21-849"
+            },
+            "kept": {
+                "shelfmark": "521/2",
+                "work": "saifat-ur-ria-v21-849"
+            },
+            "fields": {
+                "copy_date_raw": "source"
+            },
             "why": "Marvi p. 284: «(ش ۵۲۱ - خشتی) ۲ - صحیفه الرضا. تحریر اسماعیل بن محمد صالح الحسینی در ۱۰۷۱». Marvi 512 is شرح الفوائد الصمدية (p. 161), a single work. The print's date is the removed record's 1071, not the kept record's 1074."
         }
     ],
@@ -42,6 +71,62 @@
             "work": "al-eteqadat-v4-879",
             "to": "10055/21",
             "why": "Majlis vol. 32 p. 69: collection 10055, «۲۱. الاعتقادات (ص ۲۴۲ ـ ۲۴۸) از شاه قاسم انوار», the removed record's pages and words. 10055/1 is حدیث المعراج (pp. 1–11), and 10055/21 had no record."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/1",
+            "work": "al-fawaid-ul-airiyya-tul-usuliya-tul-qadima-v24-890",
+            "to": "1733/1",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/2",
+            "work": "al-fawaid-ul-airiyya-tul-usuliya-tul-jadida-v24-889",
+            "to": "1733/2",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/3",
+            "work": "al-istisab-v3-669",
+            "to": "1733/3",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/4",
+            "work": "asalat-ul-baraa-v4-6",
+            "to": "1733/4",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/5",
+            "work": "al-ijmaiyya-v1-1982",
+            "to": "1733/5",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/6",
+            "work": "al-jam-bayn-al-axbar-il-mutaaria-v10-623",
+            "to": "1733/6",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/7",
+            "work": "al-ijtihad-wa-l-axbar-v1-1901",
+            "to": "1733/7",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
+        },
+        {
+            "library": "thran-mlk-15",
+            "shelfmark": "1723/8",
+            "work": "al-fawaid-ul-usuliya-fi-tasjil-i-masail-il-fiqhiya-v24-847",
+            "to": "1733/8",
+            "why": "Malek vol. 5 p. 351 (entry ۴۰۳): collection «۱۷۳۳», parts 1–7 Behbahani's treatises (4پ–120پ) and part 8 (121ر–155ر), the leaves of these records; parts 9 and 10 already stand as 1733/9 and 1733/10 (step 14.266, whose Fankha text says 1723/9 and 1723/10). Malek 1723 is بدائع الحکم (vol. 2 p. 54). Approved by the user, 25 Nov 2026."
         }
     ]
 }
