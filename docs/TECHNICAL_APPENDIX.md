@@ -14175,3 +14175,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[SyncWorkBibliographies](../app/Jobs/SyncWorkBibliographies.php):** `RecordEntries::bibliography($work, bibliographyOf($work))`.
 - **migration:** `2026_11_25_200001_fill_entry_number_of_copies_fankha_entries`.
 - **آزمون‌ها:** `SourceCorrectionsTest::test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns` و `test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds`. همۀ ۱۰۶۲ آزمون سبز.
+
+### گام ۱۴.۳۹۸: `insights/topic-icon.blade.php`
+- پارۀ قالب با `$slug` (کلید `insights.topics`) و `$class` اختیاری (پیش‌فرض `size-7`): یک `<svg data-insights-icon>` با `stroke="currentColor"`. در کارت‌های هاب (`insights/index.blade.php`) کنار `<h2>`. آزمون: `InsightsTopicPagesTest`.

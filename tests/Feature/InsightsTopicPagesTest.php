@@ -43,6 +43,8 @@ class InsightsTopicPagesTest extends TestCase
         Insights::refresh();
         $hub = $this->get(route('insights'))->assertOk()
             ->assertSee('data-insights-cards', false)
+            // Each topic's card has its own sign (step 14.398)
+            ->assertSeeInOrder(array_map(fn ($slug) => 'data-insights-icon="' . $slug . '"', array_keys(config('insights.topics'))), false)
             ->assertDontSee('data-insights-note', false)
             ->assertDontSee('id="timeline"', false)
             // The page of each chart by its id, for a link that came with the chart's anchor
