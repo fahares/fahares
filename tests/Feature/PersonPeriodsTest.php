@@ -208,6 +208,48 @@ class PersonPeriodsTest extends TestCase
         $this->actingAs($this->member)->get(route('people.show', $person))->assertOk()->assertSee('تولد')->assertSee('بغداد')->assertDontSee('دمشق');
     }
 
+    public function test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named()
+    {
+        $code = 'period-test-' . uniqid();
+        $source = \App\Models\Source::create(['code' => $code, 'kind' => \App\Models\Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'معجم آزمایشی ناحیه', 'short_name' => 'معجم آزمایشی ناحیه']);
+        $volume = \App\Models\SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => $code]);
+        $life = function (Person $person, int $page, string $text) use ($source, $volume) {
+            $item = \App\Models\SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 1, 'item_key' => $page . '#1', 'position' => $page,
+                'kind' => 'entry', 'page_start' => $page, 'page_end' => $page, 'title' => $person->name, 'title_normalized' => $person->name, 'text_status' => 'auto', 'text' => $text])->id;
+            DB::table('source_entries')->insert(['citable_type' => Person::class, 'citable_id' => $person->id, 'source_id' => $source->id, 'source_item_id' => $item,
+                'volume_number' => 1, 'page_start' => $page, 'role' => 'entry', 'origin' => 'match', 'status' => 'unverified', 'created_at' => now(), 'updated_at' => now()]);
+        };
+        $rows = fn (Person $person) => PersonPeriod::where('person_id', $person->id)->orderBy('kind')->get()->map(fn ($p) => [$p->kind, $p->city, $p->region, $p->place_name])->all();
+
+        // A region of origin, a country of birth, and «مصر», which in a life is the country and not Cairo
+        $person = $this->person('شخص آزمایشی ناحیه');
+        $life($person, 5, 'عالم بالحديث، من أهل خوارزم. ولد بالهند سنة 1200. و توفي بمصر.');
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true])->assertSuccessful();
+        $this->assertSame([['birth', null, 'هند', 'هند'], ['death', null, 'مصر', 'مصر'], ['origin', null, 'خوارزم', 'خوارزم']], $rows($person));
+        $this->assertSame(['proposed', 'machine'], [PersonPeriod::where('person_id', $person->id)->value('status'), PersonPeriod::where('person_id', $person->id)->value('origin')]);
+        // Read again, nothing is proposed twice; and --prune keeps what the biography still says
+        $this->artisan('fahares:propose-life-periods', ['--person' => $person->id, '--apply' => true, '--prune' => true])->assertSuccessful();
+        $this->assertCount(3, $rows($person));
+
+        // A city of the same kind says more: in the same entry, and when the person has one already
+        $other = $this->person('شخص آزمایشی ناحیه و شهر');
+        PersonPeriod::create(['person_id' => $other->id, 'kind' => 'death', 'place' => 'دهلی']);
+        $life($other, 6, 'فقيه. ولد في النجف، و قيل ولد بايران. و توفي بالهند.');
+        $this->artisan('fahares:propose-life-periods', ['--person' => $other->id, '--apply' => true])->assertSuccessful();
+        $this->assertSame([['birth', 'نجف', null, 'نجف'], ['death', 'دهلی', null, 'دهلی']], $rows($other));
+
+        // The words between the verb and a country are of one clause: «و» begins another, but for a second verb of the same place
+        $read = fn (string $text) => array_map(fn ($h) => [$h['kind'], $h['city']], \App\Support\PersonOrigins::fromBiography($text, true));
+        $this->assertSame([], $read('ولد باسفرايين و تنقل في ايران مدة.'));
+        $this->assertSame([['birth', 'خوارزم']], $read('ولد و نشأ في خوارزم و رحل في صباه.'));
+        $this->assertSame([['birth', 'مصر'], ['death', 'مصر']], $read('مولده و وفاته بمصر.'));
+
+        // The readers of the map ask for cities only
+        $this->assertSame([], \App\Support\PersonOrigins::fromBiography('من أهل خوارزم. ولد بالهند.'));
+        $this->assertSame([['birth', 'هند', true], ['origin', 'خوارزم', true]],
+            array_map(fn ($h) => [$h['kind'], $h['city'], $h['region']], \App\Support\PersonOrigins::fromBiography('من أهل خوارزم. ولد بالهند.', true)));
+    }
+
     public function test_reviewed_decisions_on_the_places_of_a_life_are_applied_by_a_command()
     {
         $person = $this->person('شخص آزمایشی داوری محل‌ها');
