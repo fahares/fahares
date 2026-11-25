@@ -14000,3 +14000,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جای دیسک (۴ آذر):** ۷٫۵ گیگابایت آزاد. `fahares_prod` ۳٫۹۲، بایگانی‌های `fahares_prod_20261014` ۱٫۰۲ و `fahares_prod_20261029` ۳٫۲۱، و `fahares_prod_bak_13114` ۲٫۳۱ گیگابایت.
 - **نخستین اجرا (۴ آذر، پس از نصب `age`):** `refresh-prod-copy --yes` با فایل رمزدار مانده از آزمون. رمزگشایی ۱۱ ثانیه و بارگذاری در `fahares_prod_new` ۸ دقیقه طول کشید (۲٫۵ گیگابایت SQL). `row_counts` برابر بود: ۱۱۴ کاربر، ۶۰۵ پیشنهاد، ۹٬۷۵۹ نشانی برگشت، ۳۲۳٬۲۵۰ نسخه، ۷۱٬۶۸۶ اثر و ۶۶٬۳۰۳ شخص. رونوشت پیشین به `fahares_prod_20261108` رفت. اندازه‌ها: `fahares_prod` ۴٫۲۱ و `fahares_prod_20261108` ۳٫۹۲ گیگابایت.
 - **پاک‌سازی (به تصمیم کاربر):** پیش از بارگذاری، پس از وارسی این که پرس‌وجویی روی آن‌ها نیست، `DROP DATABASE` روی `fahares_prod_20261014`، `fahares_prod_20261029` و `fahares_prod_bak_13114` اجرا شد. پس از اجرا ۹٫۵ گیگابایت آزاد ماند.
+- **زمان‌بندی (به خواست کاربر):** تایمر systemd کاربر روی لپ‌تاپ، بیرون از git: `~/.config/systemd/user/fahares-prodcopy.{service,timer}`.
+  - `OnCalendar=Sat 10:00` با `Persistent=true`: اگر لپ‌تاپ آن ساعت خاموش باشد، اجرا پس از روشن شدن انجام می‌شود.
+  - فرمان: `refresh-prod-copy --yes` از checkout اصلی، با `TDL_PROXY=http://127.0.0.1:20171`. خروجی به `~/.fahares/prodcopy-run.log` می‌رود.
+  - اسکریپت پس از انتشار به checkout اصلی می‌رسد. اجرای پیش از انتشار شکست می‌خورد.
+  - وضع: `systemctl --user list-timers fahares-prodcopy.timer`. خاموش کردن: `systemctl --user disable --now fahares-prodcopy.timer`.
