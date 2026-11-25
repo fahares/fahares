@@ -14075,3 +14075,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - [works/show](../resources/views/works/show.blade.php) و [manuscripts/show](../resources/views/manuscripts/show.blade.php): متغیر `citationModalOpen`، دکمه و پنجرۀ «ACADEMIC CITATION MODAL» برداشته شد. `copyText` و `copiedKey` برای پیوند کوتاه و QR ماند.
 - حذف شد: `SourceEntry::referenceCitation()` و `RecordSources::citable()` (مورد ۱۴۷، گام ۱۴.۲۳۶)، که فقط پنجره به کارشان می‌برد.
 - آزمون: `CatalogReferencesTest` نبودن `citationModalOpen` را می‌سنجد. `CiteTest::test_the_work_page_has_no_citation_window_of_its_own`.
+- **نخستین اجرا (۴ آذر، پس از نصب `age`):** `refresh-prod-copy --yes` با فایل رمزدار مانده از آزمون. رمزگشایی ۱۱ ثانیه و بارگذاری در `fahares_prod_new` ۸ دقیقه طول کشید (۲٫۵ گیگابایت SQL). `row_counts` برابر بود: ۱۱۴ کاربر، ۶۰۵ پیشنهاد، ۹٬۷۵۹ نشانی برگشت، ۳۲۳٬۲۵۰ نسخه، ۷۱٬۶۸۶ اثر و ۶۶٬۳۰۳ شخص. رونوشت پیشین به `fahares_prod_20261108` رفت. اندازه‌ها: `fahares_prod` ۴٫۲۱ و `fahares_prod_20261108` ۳٫۹۲ گیگابایت.
+- **پاک‌سازی (به تصمیم کاربر):** پیش از بارگذاری، پس از وارسی این که پرس‌وجویی روی آن‌ها نیست، `DROP DATABASE` روی `fahares_prod_20261014`، `fahares_prod_20261029` و `fahares_prod_bak_13114` اجرا شد. پس از اجرا ۹٫۵ گیگابایت آزاد ماند.
+- **زمان‌بندی (به خواست کاربر):** تایمر systemd کاربر روی لپ‌تاپ، بیرون از git: `~/.config/systemd/user/fahares-prodcopy.{service,timer}`.
+  - `OnCalendar=Sat 10:00` با `Persistent=true`: اگر لپ‌تاپ آن ساعت خاموش باشد، اجرا پس از روشن شدن انجام می‌شود.
+  - فرمان: `refresh-prod-copy --yes` از checkout اصلی، با `TDL_PROXY=http://127.0.0.1:20171`. خروجی به `~/.fahares/prodcopy-run.log` می‌رود.
+  - اسکریپت پس از انتشار به checkout اصلی می‌رسد. اجرای پیش از انتشار شکست می‌خورد.
+  - وضع: `systemctl --user list-timers fahares-prodcopy.timer`. خاموش کردن: `systemctl --user disable --now fahares-prodcopy.timer`.
+
+### گام ۱۴.۳۸۶: `SourceEntrySync::keepTheirs()`
+
+- **[SourceEntrySync](../app/Sources/SourceEntrySync.php):** `syncCited()` و `syncOtherCited()` ردیف‌ها را پیش از `upsert()` از `keepTheirs()` می‌گذرانند. مدخل موجود (همان `legacy_type`، `legacy_id`، `legacy_index`) همۀ ستون‌هایش را نگه می‌دارد جز `CITED_COLUMNS`: `citable_type`، `citable_id`، `source_id`، `source_volume_id`، `citation_text`، `sort_order`، `updated_at`. `origin` هم نگه داشته می‌شود، پس نشانی‌ای که داور نوشته (`manual`) می‌ماند.
+- **جلد و صفحه:** `$readingsBefore` جفت‌های [جلد، صفحه] را می‌دهد که ارجاع پیش از این می‌داد.
+  - `fankha_citation`: خواندن `citation_text` موجود، تنها و با `fitToVolume()` روی جلد موجود.
+  - `fankha_citation_more`: مدخلی که تطبیق یا داوری بر آن ننوشته (`matched()`: متن، شمارۀ مدخل، صفحۀ شماره، داور یا `origin = manual`) جلد و صفحۀ خودش را؛ مدخل تطبیق‌شده با همان متن ارجاع، خواندن تازه را؛ و با متن دیگر هیچ.
+  - جلد و صفحۀ تازه نوشته می‌شوند اگر مدخل یکی از آن جفت‌ها را دارد، یا خواندن تازه هیچ‌کدام نیست، یا منبع یا جلد وصل‌شده عوض شده است. `page_end` تهی می‌شود مگر صفحۀ تازه در همان جلد و درون مدخل باشد.
+  - متنی که جایش دیگر نشانی مدخل نیست، یا از جلد دیگری است، `text_status = stale` می‌گیرد.
+- **آزمون:** `CitedEntryKeepsMatchTest`، چهار آزمون: ذخیرۀ نسخه همۀ ستون‌های تطبیق و صفحۀ ۱۹۶ را نگه می‌دارد؛ مدخل اصلاح‌نشده با ارجاع تازه به ص ۳۰۰ می‌رود و متنش کهنه می‌شود؛ مدخل اصلاح‌شده با ارجاعی که جای دیگری را نام می‌برد می‌رود، و با ارجاعی که همان‌گونه خوانده می‌شود («5 - 197») می‌ماند؛ و جای دیگر ارجاع آنچه تطبیق نوشته را نگه می‌دارد.
+- **سنجش و ترمیم روی `fahares_prod`:** `sources:take-texts <id> --dry-run` برای پنج فهرست دارای خواننده با مدخل ارجاع فنخا: ۱۰۰۰۲۰ (`numbered_copies`) ۶۱، ۱۰۰۰۳۰ (`shelfmark_headings`) ۲۳، ۱۰۰۰۳۹ (`serial_shelfmarks`) ۱۳، ۱۰۰۰۹۳ (`listed_shelfmarks`) ۱۲، ۱۰۰۱۳۸ (`moayyed`) ۳؛ روی هم ۱۱۲. اجرای واقعی همان ۱۱۲ را نوشت و اجرای آزمایشی دوم صفر. نشانی این مدخل‌ها با `updated_at` آن‌ها با چند ثانیه فاصله پس از `updated_at` نسخه است (ذخیره‌های گروهی ۲۹ آبان ۲۱:۳۳ و ۳۰ آبان ۰۵:۳۱ و ۰۶:۴۰). در پروداکشن شناسۀ منبع‌ها را با `code` بجویید.
+
+### گام ۱۴.۳۸۸: `person_period_decisions_step14_388.json`
+- **پرونده:** ۹۲ تصمیم برای ردیف‌های ۶۹۱۲ تا ۷۰۰۴ `person_periods` (۷ تأیید، یکی با `year: 1255, year_is: from`؛ ۸۵ رد با `reason`). ردیف ۶۹۵۷ در پرونده نیست.
+- **اثر انگشت ردیف‌ها:** `md5(group_concat(concat_ws('|', id, person_id, kind, city) order by id))` برای `id > 6911` باید `9f3e58def6b07d687d6b798ab485eee4` باشد؛ پیش‌شرطش این است که هشت دورۀ «مصر» دوباره `city = قاهره` داشته باشند.
+- کدی عوض نشد.
