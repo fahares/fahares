@@ -14174,12 +14174,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - مقدار `null` فیلد را پاک می‌کند، مثلاً «مخطوط» جلدهای گلپایگانی که سال منبع را می‌پوشاند. فیلدی که همان مقدار را دارد دست نمی‌خورد، پس اجرای دوباره هیچ ردیفی را تغییر نمی‌دهد.
   - جلد با شمارۀ جلد پیدا می‌شود. اگر چند جلد یک شماره دارند (مثل ج ۲۴ مجلس، `majlis-p1` و `majlis-p2`)، با `facsimile_code` جدا می‌شوند. ردیفی که هیچ جلد یا بیش از یک جلد بیابد، کنار می‌رود و نامش چاپ می‌شود. کلیدی بیرون از فهرست فیلدها پذیرفته نمی‌شود (`compiler` در سطح جلد ستونی ندارد).
   - هر تغییر یک `AuditLog` (`corpus_update`) با مقدار پیشین و تازه دارد.
+  - کلید `metadata` کلید به کلید ادغام می‌شود و `null` کلید را برمی‌دارد. با آن `periodical` منبع و `articles` هر شماره نوشته می‌شود.
+- **نشریه:** [Source::isPeriodical()](../app/Models/Source.php) (`metadata.periodical`).
+  - [SourceReference](../app/Support/SourceReference.php):
+    - `article()` مقاله‌ای را برمی‌گرداند که صفحه در آن است. داده از `source_volumes.metadata.articles` می‌آید (`page`، `title`، `author`، `role`). مقاله تا صفحۀ پیش از مقالۀ بعدی، یا تا `page_last`، ادامه دارد.
+    - `issueLabel()` بخشِ پس از « - » در عنوان جلد است، مثل «السنة 2، العدد 2 و 3 (7 و 8)». `volumeLabel()` نشریه همین را برمی‌گرداند.
+  - قالب‌های نشریه:
+    - `printed()`: نویسنده، «عنوان»، تحقیق، نشریه، شماره، سال، صفحه.
+    - `inText()`: (نویسنده، سال، صفحه).
+    - `apa()` و `chicago()`: بازۀ صفحه‌های مقاله.
+    - `bibtex()`: `@article`، یا `@periodical` برای صفحه‌ای بیرون از هر مقاله. `issueParts()` مقدار `volume` («السنة») و `number` را می‌دهد. `bib()` برای هر دو نوع مشترک است.
+    - `ris()`: `TY JOUR`، `T2`، `IS` و `ED`.
+  - `missing()` برای نشریه فقط سال را می‌خواهد. `authors()` نویسندۀ مقاله است. اگر `role` داشته باشد («تحقيق»)، تهی است و محقق پس از عنوان می‌آید.
+  - [cite/show](../resources/views/cite/show.blade.php): «ارجاع به مقالۀ نشریه»، «این شماره» و «کل نشریه».
+- **رمزینۀ QR:** بخش `permalink` در [cite/show](../resources/views/cite/show.blade.php)، با `x-data` خودش.
+  - `draw()`: `window.QRCode.toCanvas` روی `x-ref="qr"`، ۱۳۲ پیکسل (`data-cite-qr`، `role="img"`).
+  - `png()`: بوم ۶۰۰ پیکسلی جدا.
+  - `svg()`: `QRCode.toString({type: 'svg'})` و `Blob`.
+  - نام فایل `qr-{SourceReference::key()}` است، و رنگ‌ها همان رنگ‌های رمزینۀ صفحۀ اثر (`#241F1A` روی سفید).
+  - رمزینه نشانی `url()` را دارد، نه نشانی خود `/cite`. بستۀ تازه‌ای لازم نشد: `qrcode` پیش‌تر در `app.js` بود.
 - **داده:** [source_imprints_step14_394.json](../database/data/source_imprints_step14_394.json): ۳۱ منبع. منبع‌های رقم‌ها:
   - شناسنامۀ XML نور (`library_volumes.info` و `lib_Document.info`، `<publish-date>`، `<publish-place>`، `<publisher>`، `<edition>`) در پایگاه‌های کتب مرجع ۲، آقابزرگ، دار الحدیث و تاریخ، و `books.citation_fa` در تراجم۳؛
   - برگۀ عنوان اسکن‌ها؛
   - CiNii (`BB1751539X`، `BA73760701`، `BA73763823`، `BA67261059`، `AA12312152`، `BA41342723`).
-- **تمرین:** migration `2026_11_25_100001` روی `fahares_prod` اجرا شد. اجرای آزمایشی: ۳۱ منبع، ۴۷ جلد، ۱۷۷ فیلد، و هیچ ردیف نیافته‌ای.
-- **آزمون:** [FillSourceImprintsTest](../tests/Feature/FillSourceImprintsTest.php)، ۳ آزمون.
+- **تمرین:** migration `2026_11_25_100001` روی `fahares_prod` اجرا شد. اجرای آزمایشی: ۳۱ منبع، ۴۷ جلد، ۱۸۹ فیلد، و هیچ ردیف نیافته‌ای.
+- **آزمون:** [FillSourceImprintsTest](../tests/Feature/FillSourceImprintsTest.php)، ۳ آزمون؛ `CiteTest::test_a_journal_page_is_cited_as_the_article_that_holds_it` (با رمزینه و دکمه‌های دریافت).
+- **تمرین روی `fahares_prod`:** `--apply` ۱۸۹ فیلد را نوشت و اجرای دوم چیزی ننوشت (`unchanged 78`).
 
 ### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
 - `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
