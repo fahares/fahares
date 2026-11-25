@@ -409,13 +409,13 @@
                                  srcset="{{ \App\Support\VersionedAsset::url('images/partners/mtif-320.png') }} 2x"
                                  alt="بنیاد محقق طباطبائی" width="68" height="120" loading="lazy" class="h-[120px] w-auto">
                         </a>
-                        {{-- mb-[6px]: the last line's baseline sits on the bottom of the logo's square, 14px above the image's foot --}}
-                        <div class="mb-[6px] text-[13px] leading-6 text-stone-400">
+                        {{-- mb-[8px]: the last line's baseline sits on the bottom of the logo's square, 14px above the image's foot --}}
+                        <div class="mb-[8px] text-[13px] leading-5 text-stone-400">
+                            <p>مدیر و مجری پروژه: سید محسن حائری</p>
                             <p>
                                 با حمایت علمی
                                 <a href="https://mtif.org" target="_blank" rel="noopener" class="hover:text-amber-300 transition">بنیاد محقق طباطبائی</a>
                             </p>
-                            <p>مدیر و مجری پروژه: سید محسن حائری</p>
                         </div>
                     </div>
                 </div>
