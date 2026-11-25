@@ -193,7 +193,8 @@ class BackfillSourcesCommand extends Command
     {
         $codes = DB::table('catalogs')->pluck('code', 'id')->all();
         $count = 0;
-        DB::table($table)->whereNotNull('catalog_id')->select(['id', 'catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', 'created_at'])
+        DB::table($table)->whereNotNull('catalog_id')->select(['id', 'catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', 'created_at',
+            ...($class === Manuscript::class ? ['sequence_number'] : [])])
             ->chunkById(self::CHUNK, function ($records) use ($class, $codes, &$count) {
                 $rows = [];
                 foreach ($records as $r) {

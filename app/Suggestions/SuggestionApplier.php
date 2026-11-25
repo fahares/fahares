@@ -8,6 +8,7 @@ use App\Models\ManuscriptNote;
 use App\Models\SourceEntry;
 use App\Models\Person;
 use App\Support\HijriYear;
+use App\Sources\RecordEntries;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -70,18 +71,7 @@ class SuggestionApplier
                     $record->bibliography = $entries;
                     break;
                 }
-                [$volumeColumn, $pageColumn] = $field['columns'];
-                $rowColumn = $field['columns'][2] ?? null;
-                // the entry keeps its length: its last page moves with its first
-                if (($endColumn = $field['end_column'] ?? null) && $record->{$endColumn} && $record->{$pageColumn}) {
-                    $record->{$endColumn} = $page['page'] + max(0, $record->{$endColumn} - $record->{$pageColumn});
-                }
-                $record->{$volumeColumn} = $page['volume'];
-                $record->{$pageColumn} = $page['page'];
-                if ($rowColumn && $page['row'] !== null) {
-                    $record->{$rowColumn} = $page['row'];
-                }
-                break;
+                return $this->applyFankhaPlace($record, $field, $page);
 
             case 'integer':
                 if ($value !== null && ! ctype_digit($value = $this->latinDigits($value))) {
@@ -207,6 +197,34 @@ class SuggestionApplier
         }
 
         return ['old' => $old, 'new' => $new, 'resolution' => $resolution];
+    }
+
+    /**
+     * The corrected place of the record in Fankha (step 14.396): written in its Fankha entry, which the record's
+     * columns follow. The entry keeps its length, its last page moving with its first; a copy's row is taken when
+     * the address gives one. The log keeps the columns' names, so a rollback of before and after this step reads the same.
+     */
+    private function applyFankhaPlace(Model $record, array $field, array $page): array
+    {
+        $now = RecordEntries::fankhaOf($record);
+        $values = ['volume_number' => $page['volume'], 'page_start' => $page['page']];
+        if (isset($field['end_column']) && $now['page_end'] && $now['page_start']) {
+            $values['page_end'] = $page['page'] + max(0, $now['page_end'] - $now['page_start']);
+        }
+        if (isset($field['columns'][2]) && $page['row'] !== null) {
+            $values['entry_number'] = $page['row'];
+        }
+        $columns = ['volume_number' => 'volume_number', 'page_start' => 'page_start', 'page_end' => 'page_end', 'entry_number' => 'sequence_number'];
+        $old = $new = [];
+        foreach ($values as $key => $value) {
+            if ($now[$key] !== $value) {
+                $old[$columns[$key]] = $now[$key];
+                $new[$columns[$key]] = $value;
+            }
+        }
+        $old && RecordEntries::fankha($record, $values);
+
+        return ['old' => $old, 'new' => $new, 'resolution' => []];
     }
 
     /**

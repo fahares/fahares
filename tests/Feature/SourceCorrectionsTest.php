@@ -104,6 +104,25 @@ class SourceCorrectionsTest extends TestCase
         $this->assertSame([15, 121], [$this->primary($this->manuscript)->volume_number, $this->primary($this->manuscript)->page_start]);
     }
 
+    /** Step 14.393: the Fankha entry is the record of truth; the place is written there and the columns follow. */
+    public function test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds()
+    {
+        $entry = $this->primary($this->manuscript);
+        $entry->forceFill(['notes' => 'یادداشت بازبین', 'reviewed_by' => $this->admin()->id])->save();
+        $this->suggestAndApprove($this->manuscript, 'fankha_page', 'ج ۱۶، ص ۳۰، ردیف ۴')->assertSessionHasNoErrors();
+
+        $entry->refresh();
+        $this->assertSame([16, 30, 4, 'یادداشت بازبین'], [$entry->volume_number, $entry->page_start, $entry->entry_number, $entry->notes]);
+        $this->assertNotNull($entry->reviewed_by, 'a writer of the place keeps what a reviewer wrote on the entry');
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $this->manuscript->id)->latest('id')->first();
+        $this->assertSame(['volume_number' => 16, 'page_start' => 30, 'sequence_number' => 4], array_diff_key($log->new_values, ['suggestion_id' => 0]));
+
+        // a copy made with no Fankha place has no entry, and its columns say so
+        \App\Sources\RecordEntries::fankha($this->manuscript, ['source_id' => null]);
+        $this->assertSame(0, SourceEntry::where('legacy_type', 'manuscript')->where('legacy_id', $this->manuscript->id)->count());
+        $this->assertSame([null, null, null], [$this->manuscript->fresh()->catalog_id, $this->manuscript->fresh()->page_start, $this->manuscript->fresh()->raw_text]);
+    }
+
     public function test_a_bibliography_page_is_corrected_in_the_entry_and_the_column()
     {
         $this->get(route('works.show', $this->work))->assertSee("field: 'bibliography_page_dharia_25_101'", false);

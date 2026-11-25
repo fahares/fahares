@@ -21,7 +21,7 @@ class SourceEntrySync
     /** The columns of a record its entries follow; a manuscript's also give the library catalogue page Fankha cites. */
     public const RECORD_COLUMNS = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text'];
 
-    public const MANUSCRIPT_COLUMNS = ['metadata', 'catalog_volume_id'];
+    public const MANUSCRIPT_COLUMNS = ['metadata', 'catalog_volume_id', 'sequence_number'];
 
     /** Every column of source_entries but the keys, so the rows of one upsert have the same keys. */
     public static function row(array $values, $created = null, $updated = null): array
@@ -62,6 +62,8 @@ class SourceEntrySync
             'page_start' => $page,
             'page_end' => $r->page_end,
             'role' => self::inRanges($addenda, $volume, $page) ? SourceEntry::ROLE_ADDENDUM : SourceEntry::ROLE_ENTRY,
+            // a copy's row in the work's entry (step 14.396)
+            'entry_number' => $class === Manuscript::class && isset($r->sequence_number) ? (int) $r->sequence_number : null,
             'is_primary' => true,
             ($class === Manuscript::class ? 'copy_text' : 'entry_text') => $hasText ? $r->raw_text : null,
             'text_volume_number' => $hasText ? $volume : null,
