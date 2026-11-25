@@ -21,7 +21,7 @@ crons = ["* * * * *"]
 [vars]
 ZONE_NAME = "fahares.net"
 # The Zone ID from the zone's Overview page in the Cloudflare dashboard (not a secret)
-ZONE_ID = "ZONE_ID_HERE"
+ZONE_ID = "6821f6e269383f469e2a9975f6795a0a"
 DNS_TTL = "60"
 # The API token is a secret, set with: npx wrangler secret put CF_API_TOKEN
 
