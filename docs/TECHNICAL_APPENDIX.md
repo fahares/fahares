@@ -13923,13 +13923,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `prod-run … sources:import-pages` برای هر ۱۱ جلد، با همان شمار صفحه‌های تمرین. روی هم ۳٬۲۶۱ ردیف `source_pages` برای جلدهای ۷۱۸ تا ۷۲۸.
   - سنجش: نسخه‌های ۱۱۲۲۲ (ش ۵۰–۵۱ ص ۳۲۹)، ۱۸۱۳۶ (ش ۲۲ ص ۱۲۰) و ۲۷۳۲۳ (ش ۷–۸ ص ۱۵۰) برگه و نشانی متن صفحه را دارند و هر دو ۲۰۰ برمی‌گردانند. متن ص ۱۵۰ «مكتبة العلامة الطباطبائي» را دارد. در `/tmp` کانتینر پرونده‌ای نماند.
 
-### گام ۱۴.۳۷۷: `insights.map`، `map_year` و `map_at`
-- **مسیر:** `GET /insights/map-data` (`insights.map`، `InsightsController::map`، `throttle:120,1`): `{cities: [...]}` از `Insights::mapCities($data['places']['cities'])`، با همان پارامترهای دامنۀ صفحه و همان محدودیت ساخت دامنۀ تازه (`InsightsController::scope`). `Cache-Control: private, max-age=600`.
-- **[Insights](../app/Support/Insights.php):** `mapCities` (قالب شهر برای اسکریپت، پیش‌تر در `places.blade.php`)، `mapYears` (بازۀ لغزنده)، `mapYearOf($from, $to)` (دهۀ میانۀ یک حکومت به سال پایان دهه، درون بازۀ لغزنده).
-- **[insights-map.js](../resources/js/insights-map.js):** `config.data` به جای `config.cities`؛ `loaded` (تا پیش از آن `ranked` و `total` تهی‌اند و فهرست `[data-insights-still-cities]` دیده می‌شود). `map_year` و `map_at` از نشانی خوانده می‌شود: `mode = 'until'`، `year`، `focus`، و `geo.center` روی پایتخت آن سلسله در آن دهه (`config.capitals`). با تغییر سال `focus` پاک می‌شود. `tooltip`: `extraCssText` و `transitionDuration: 0`.
-- **[insights-dynasties.js](../resources/js/insights-dynasties.js):** `mapLink(row)` از `config.map` و `config.mapYears`؛ در قالب، `$mapLink($row)` برای فهرست.
-- **[data-table.blade.php](../resources/views/insights/data-table.blade.php):** ردیف جدول در یک سطر.
-- **آزمون:** `InsightsMapTest` (دو آزمون تازه)، `InsightsDynastiesTest`.
 ### گام ۱۴.۳۷۶: `RecordSources::seesFirstHand()` و `<x-source.secondary :suggest-only>`
 
 - **[RecordSources](../app/Support/RecordSources.php):** `seesFirstHand()` درست است وقتی دست‌کم یکی از `cards()` چنین باشد: نه `isSecondHand()`، نه `isMention()`، و یکی از `viewer()`، `hasText()`، `pageTextUrl()` یا `textPageUrl()` پر باشد.
@@ -13941,3 +13934,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌های محلی ۱۸۱۳۶ (تراثنا) و ۱۱۱۰۹ (مرعشی ج ۲۹): سه `data-suggest-only`، یعنی کارت، بخش متن و متن.
   - نسخۀ ۱۰۱۱۳ (فقط فنخا): صفر.
   - اثر ۴ (برگۀ کتاب‌شناسی): دو. اثر ۱۲۳ (فقط فنخا): صفر.
+
+### گام ۱۴.۳۷۷: `insights.map`، `map_year` و `map_at`
+- **مسیر:** `GET /insights/map-data` (`insights.map`، `InsightsController::map`، `throttle:120,1`): `{cities: [...]}` از `Insights::mapCities($data['places']['cities'])`، با همان پارامترهای دامنۀ صفحه و همان محدودیت ساخت دامنۀ تازه (`InsightsController::scope`). `Cache-Control: private, max-age=600`.
+- **[Insights](../app/Support/Insights.php):** `mapCities` (قالب شهر برای اسکریپت، پیش‌تر در `places.blade.php`)، `mapYears` (بازۀ لغزنده)، `mapYearOf($from, $to)` (دهۀ میانۀ یک حکومت به سال پایان دهه، درون بازۀ لغزنده).
+- **[insights-map.js](../resources/js/insights-map.js):** `config.data` به جای `config.cities`؛ `loaded` (تا پیش از آن `ranked` و `total` تهی‌اند و فهرست `[data-insights-still-cities]` دیده می‌شود). `map_year` و `map_at` از نشانی خوانده می‌شود: `mode = 'until'`، `year`، `focus`، و `geo.center` روی پایتخت آن سلسله در آن دهه (`config.capitals`). با تغییر سال `focus` پاک می‌شود. `tooltip`: `extraCssText` و `transitionDuration: 0`.
+- **[insights-dynasties.js](../resources/js/insights-dynasties.js):** `mapLink(row)` از `config.map` و `config.mapYears`؛ در قالب، `$mapLink($row)` برای فهرست.
+- **[data-table.blade.php](../resources/views/insights/data-table.blade.php):** ردیف جدول در یک سطر.
+- **آزمون:** `InsightsMapTest` (دو آزمون تازه)، `InsightsDynastiesTest`.
