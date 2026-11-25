@@ -101,6 +101,8 @@ class InsightsLibrarySubjectsTest extends TestCase
         $note = InsightsNotes::for($figures)['librarySubjects'];
         $this->assertStringContainsString('در کتابخانۀ فقهی آزمایشی، ۸۰٪ نسخه‌ها از «فقه آزمایشی تخصص» است (۸ نسخه)', $note['examples'][0]);
         $this->assertSame(['library-subjects', 'subject-libraries'], array_column(InsightsTables::for($figures)['librarySubjects'], 'file'));
+        // The largest libraries are ranked by their catalogued copies, and the note says so (step 14.404)
+        $this->assertStringContainsString('شمار نسخه‌های فهرست‌شده‌شان می‌آورد، نه شمار همۀ نسخه‌هایی که دارند', InsightsNotes::for($figures)['libraries']['reading'][0]);
 
         $this->get(route('insights.topic', ['topic' => 'libraries', 'author' => $author->id]))->assertOk()
             ->assertSee('id="library-subjects"', false)
