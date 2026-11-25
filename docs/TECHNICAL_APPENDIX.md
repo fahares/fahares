@@ -13922,3 +13922,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `prod-run … catalogs:set-facsimiles`: «0 created, 11 updated, 251 unchanged». اجرای خشک بعدی «262 unchanged» داد.
   - `prod-run … sources:import-pages` برای هر ۱۱ جلد، با همان شمار صفحه‌های تمرین. روی هم ۳٬۲۶۱ ردیف `source_pages` برای جلدهای ۷۱۸ تا ۷۲۸.
   - سنجش: نسخه‌های ۱۱۲۲۲ (ش ۵۰–۵۱ ص ۳۲۹)، ۱۸۱۳۶ (ش ۲۲ ص ۱۲۰) و ۲۷۳۲۳ (ش ۷–۸ ص ۱۵۰) برگه و نشانی متن صفحه را دارند و هر دو ۲۰۰ برمی‌گردانند. متن ص ۱۵۰ «مكتبة العلامة الطباطبائي» را دارد. در `/tmp` کانتینر پرونده‌ای نماند.
+
+### گام ۱۴.۳۷۶: `RecordSources::seesFirstHand()` و `<x-source.secondary :suggest-only>`
+
+- **[RecordSources](../app/Support/RecordSources.php):** `seesFirstHand()` درست است وقتی دست‌کم یکی از `cards()` چنین باشد: نه `isSecondHand()`، نه `isMention()`، و یکی از `viewer()`، `hasText()`، `pageTextUrl()` یا `textPageUrl()` پر باشد.
+- **[secondary.blade.php](../resources/views/components/source/secondary.blade.php):** prop تازۀ `suggestOnly`. با آن، `<details>` نشان `data-suggest-only` و `style="display: none"` و `x-show="$store.suggest?.on"` می‌گیرد. HTML در صفحه می‌ماند.
+- **[manuscripts/show](../resources/views/manuscripts/show.blade.php):** `$seesFirstHand` در کارت «در مآخذ نسخه‌شناسی» حساب می‌شود و به هر دو `<x-source.secondary>` داده می‌شود. اگر `$firstHandTexts` تهی باشد، بخش «متن مأخذ» در `<div data-suggest-only x-data x-show=…>` پیچیده می‌شود.
+- **[works/show](../resources/views/works/show.blade.php):** همان کار. `$seesFirstHand = $viewerPages->isNotEmpty() || $sources->seesFirstHand()`؛ `$viewerPages` همان `BibliographyLinks::viewerPages($bibliography)->reject($covered)` است که کارت‌های برگه را می‌سازد.
+- **آزمون:** `CatalogReferencesTest::test_the_manuscript_page_links_the_entry_page_with_the_review_badge`. با برگۀ مسجد اعظم `data-suggest-only` هست. با مدخل بی صفحه و با مدخل ردشده نیست.
+- **سنجش روی `fahares_prod`** (رندر با kernel و manifest ساختگی Vite، پس از آن پاک شد):
+  - نسخه‌های محلی ۱۸۱۳۶ (تراثنا) و ۱۱۱۰۹ (مرعشی ج ۲۹): سه `data-suggest-only`، یعنی کارت، بخش متن و متن.
+  - نسخۀ ۱۰۱۱۳ (فقط فنخا): صفر.
+  - اثر ۴ (برگۀ کتاب‌شناسی): دو. اثر ۱۲۳ (فقط فنخا): صفر.
