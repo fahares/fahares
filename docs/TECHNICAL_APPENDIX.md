@@ -14178,3 +14178,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۳۹۸: `insights/topic-icon.blade.php`
 - پارۀ قالب با `$slug` (کلید `insights.topics`) و `$class` اختیاری (پیش‌فرض `size-7`): یک `<svg data-insights-icon>` با `stroke="currentColor"`. در کارت‌های هاب (`insights/index.blade.php`) کنار `<h2>`. آزمون: `InsightsTopicPagesTest`.
+
+### گام ۱۴.۴۰۰: `topic-icon` در زبانه‌ها و سربرگ
+- `insights/index.blade.php`: `@include('insights.topic-icon', ['slug' => $topic, 'class' => 'size-9'])` در `<header>` صفحۀ موضوع، و `['class' => 'size-4']` در هر پیوند `[data-insights-tabs]` (اکنون `inline-flex`). آزمون: `InsightsTopicPagesTest`.
