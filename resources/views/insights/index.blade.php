@@ -62,6 +62,10 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
     <header class="text-center grid justify-items-center gap-2">
+        {{-- The sign of the topic, as on its card of the hub (step 14.400) --}}
+        @if($topic)
+            <span class="text-cinnabar/80">@include('insights.topic-icon', ['slug' => $topic, 'class' => 'size-9'])</span>
+        @endif
         <p class="text-xs font-bold text-cinnabar">آمار</p>
         @if($scope->isEmpty())
             <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">{{ $page ? $page['title'] : 'نسخه‌ها در گذر سده‌ها' }}</h1>
@@ -94,7 +98,7 @@
         @foreach([null => ['name' => 'همه']] + $topics as $slug => $tab)
             @php $slug = $slug === '' ? null : $slug; @endphp
             <a href="{{ $pageUrl($slug, $scope->query()) }}" @if($slug === $topic) aria-current="page" @endif
-               class="px-3 py-1 rounded-full border transition {{ $slug === $topic ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar' }}">{{ $tab['name'] }}</a>
+               class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border transition {{ $slug === $topic ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar' }}">@if($slug)<span class="{{ $slug === $topic ? '' : 'text-cinnabar/80' }}">@include('insights.topic-icon', ['slug' => $slug, 'class' => 'size-4'])</span>@endif{{ $tab['name'] }}</a>
         @endforeach
     </nav>
 
