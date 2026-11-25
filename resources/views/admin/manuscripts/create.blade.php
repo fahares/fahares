@@ -67,6 +67,21 @@
             </x-admin.notice>
         @endif
 
+        {{-- the people of the name given for a new author or scribe (backlog item 161) --}}
+        @if($namesakes->isNotEmpty())
+            <x-admin.notice tone="warn" data-namesake-warning>
+                @foreach($namesakes as $role => $people)
+                    <p class="font-bold text-ink">{{ $role === 'author' ? 'شخص یا اشخاصی با نام پدیدآور در سایت هستند:' : 'شخص یا اشخاصی با نام کاتب در سایت هستند:' }}</p>
+                    @include('admin.people._namesakes', ['people' => $people])
+                @endforeach
+                <p class="mt-1 text-xs">اگر همان شخص است، او را در «{{ $namesakes->keys()->map(fn ($r) => $r === 'author' ? 'پدیدآور (شخص سایت)' : 'کاتب (شخص سایت)')->implode('» و «') }}» انتخاب کنید.</p>
+                <label class="mt-2 flex items-center gap-2 font-bold text-ink">
+                    <input type="checkbox" name="confirm_people" value="1" class="accent-cinnabar">
+                    شخص دیگری است؛ رکورد تازه ساخته شود.
+                </label>
+            </x-admin.notice>
+        @endif
+
         {{-- 1. Where the copy is --}}
         <fieldset class="space-y-4">
             <legend class="rubric text-base">۱. جای نسخه</legend>
@@ -115,8 +130,9 @@
                     <x-admin.field label="پدیدآور (شخص سایت)" error="author_id" hint="اگر شخص در سایت هست.">
                         <x-admin.record-picker name="author_id" :setup="$picker('author_id', 'person')" placeholder="نام شخص…" />
                     </x-admin.field>
-                    <x-admin.field label="نام پدیدآور" for="author_name" error="author_name" hint="اگر شخص در سایت نیست، یا نامش در نسخه صورت دیگری دارد. رکورد شخص ساخته نمی‌شود.">
+                    <x-admin.field label="نام پدیدآور" for="author_name" error="author_name" hint="اگر شخص در سایت نیست، یا نامش در نسخه صورت دیگری دارد.">
                         <input type="text" name="author_name" id="author_name" value="{{ $val('author_name') }}" maxlength="500" class="admin-field w-full">
+                        <label class="mt-1.5 flex items-center gap-2 text-xs"><input type="checkbox" name="author_new" value="1" @checked(old('author_new')) class="accent-cinnabar"> رکورد شخص تازه با این نام ساخته شود</label>
                     </x-admin.field>
                 </div>
             </div>
@@ -134,6 +150,7 @@
                 </x-admin.field>
                 <x-admin.field label="نام کاتب" for="scribe_name" error="scribe_name" hint="چنان‌که در نسخه آمده است.">
                     <input type="text" name="scribe_name" id="scribe_name" value="{{ $val('scribe_name') }}" maxlength="600" class="admin-field w-full">
+                    <label class="mt-1.5 flex items-center gap-2 text-xs"><input type="checkbox" name="scribe_new" value="1" @checked(old('scribe_new')) class="accent-cinnabar"> رکورد شخص تازه با این نام ساخته شود</label>
                 </x-admin.field>
             </div>
             <x-admin.field label="تاریخ کتابت" for="copy_date_raw" error="copy_date_raw" hint="«۱۰۸۴ق»، «قرن ۱۲»، «محتملاً قرن ۱۲»">

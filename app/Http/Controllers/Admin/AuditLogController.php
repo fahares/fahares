@@ -86,7 +86,7 @@ class AuditLogController extends Controller
             'split' => $this->rollbackSplit($log, $request),
             'remove' => $this->rollbackRemove($log, $request),
             'update' => $this->rollbackUpdate($log, $request),
-            // a copy made in the panel (backlog item 149): the record goes, with the work made for it
+            // a copy, work or person made in the panel (backlog items 149 and 161): the record goes, with what was made for it
             'create' => $this->rollbackCreate($log, $request),
             // the people of a source's volumes, set by an approved suggestion (step 14.58)
             'volume_people' => app(\App\Suggestions\VolumeCatalogers::class)->undo($log),
@@ -682,10 +682,12 @@ class AuditLogController extends Controller
         ]);
     }
 
-    /** A copy made in the panel (ManuscriptCreator) is removed, with what was made for it. */
+    /** A copy, work or person made in the panel (ManuscriptCreator, RecordCreator) is removed, with what was made for it. */
     protected function rollbackCreate(AuditLog $log, Request $request): void
     {
-        app(\App\Suggestions\ManuscriptCreator::class)->undo($log);
+        $log->auditable_type === \App\Models\Manuscript::class
+            ? app(\App\Suggestions\ManuscriptCreator::class)->undo($log)
+            : app(\App\Suggestions\RecordCreator::class)->undo($log);
 
         AuditLog::create([
             'user_id' => auth()->id(),

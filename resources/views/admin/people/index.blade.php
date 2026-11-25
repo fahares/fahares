@@ -5,11 +5,13 @@
 @section('title', 'اشخاص')
 @section('page_title', 'اشخاص')
 
-@can('people.merge')
-    @section('page_actions')
+@section('page_actions')
+    {{-- a person the site lacks (backlog item 161) --}}
+    <x-ui.btn :href="route('admin.people.create')" variant="primary">شخص تازه</x-ui.btn>
+    @can('people.merge')
         <x-ui.btn :href="route('admin.people.merge')">ادغام اشخاص تکراری</x-ui.btn>
-    @endsection
-@endcan
+    @endcan
+@endsection
 
 @section('content')
 <x-admin.filters :action="route('admin.people.index')" :reset="($search || $role || $century) ? route('admin.people.index') : null" :total="$people->total()" noun="شخص">
