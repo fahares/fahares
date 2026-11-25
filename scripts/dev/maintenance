@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# Planned maintenance of the production host (backlog item 136, step 14.406).
+#
+#   scripts/dev/maintenance on [--minutes N] [--no-lock] ["note for the visitors"]
+#       Before a host restart or upgrade: writes the TXT record _maintenance.fahares.net, switches the site's DNS
+#       records to proxied (orange), and holds the shared prod-run lock (as ~/.fahares/task-mgmt/upgrade-hold.sh did)
+#       so no production run or release starts. Visitors then reach Cloudflare: the fahares-failover Worker passes
+#       their requests to the host while it answers and shows the maintenance page (503, with the note and the
+#       expected return time in Tehran time) while it does not. Run it a few minutes before the restart: resolvers
+#       that still hold the grey address (TTL 60 s, some keep it longer) need that time to move.
+#   scripts/dev/maintenance off
+#       Removes the TXT record and frees the lock. The Worker's cron switches the records back to grey (DNS-only)
+#       within about a minute, once the host answers twice in a row.
+#   scripts/dev/maintenance status
+#       The site's records (proxied or not) and the TXT record.
+#
+# The Cloudflare API token (Zone > DNS > Edit, for fahares.net only) is the user's: they keep it in
+# ~/.fahares/cloudflare-dns-token (mode 600); this script reads it and never prints it. The zone id is read from
+# docker/down/cloudflare/wrangler.toml, or ~/.fahares/cloudflare-zone-id.
+# Unplanned outages need no command: the Worker's cron switches by itself (docker/down/cloudflare/README.md).
+set -euo pipefail
+
+DIR="${FAHARES_STATE_DIR:-$HOME/.fahares}"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+TOKEN_FILE="${FAHARES_CF_TOKEN_FILE:-$DIR/cloudflare-dns-token}"
+ZONE_NAME="fahares.net"
+HOSTS=("fahares.net" "www.fahares.net")
+TXT_NAME="_maintenance.$ZONE_NAME"
+HOLD_PID="$DIR/maintenance-hold.pid"
+API="${FAHARES_CF_API:-https://api.cloudflare.com/client/v4}"
+
+die() { echo "maintenance: $*" >&2; exit 1; }
+
+zone_id() {
+    if [[ -s "$DIR/cloudflare-zone-id" ]]; then tr -d '[:space:]' < "$DIR/cloudflare-zone-id"; return; fi
+    local id
+    id="$(sed -n 's/^ZONE_ID *= *"\([0-9a-f]\{32\}\)".*/\1/p' "$ROOT/docker/down/cloudflare/wrangler.toml")"
+    [[ -n "$id" ]] || die "no zone id: set ZONE_ID in docker/down/cloudflare/wrangler.toml or write $DIR/cloudflare-zone-id"
+    echo "$id"
+}
+
+[[ -r "$TOKEN_FILE" ]] || die "no token file $TOKEN_FILE (the user creates it; see docker/down/cloudflare/README.md)"
+ZONE="$(zone_id)"
+HEADERS="$(mktemp)"
+trap 'rm -f "$HEADERS"' EXIT
+chmod 600 "$HEADERS"
+printf 'Authorization: Bearer %s\nContent-Type: application/json\n' "$(tr -d '[:space:]' < "$TOKEN_FILE")" > "$HEADERS"
+
+api() { # method path [json]
+    local out
+    out="$(curl -sS -X "$1" -H @"$HEADERS" "$API/zones/$ZONE$2" ${3:+--data "$3"})"
+    if [[ "$(jq -r '.success' <<<"$out")" != "true" ]]; then
+        die "Cloudflare API $1 $2: $(jq -c '.errors' <<<"$out")"
+    fi
+    jq -c '.result' <<<"$out"
+}
+
+site_records() {
+    local names
+    names="$(printf '"%s",' "${HOSTS[@]}")"
+    api GET "/dns_records?per_page=100" | jq -c --argjson names "[${names%,}]" \
+        '[.[] | select((.name as $n | $names | index($n)) and (.type == "A" or .type == "AAAA" or .type == "CNAME"))]'
+}
+
+txt_record() {
+    api GET "/dns_records?type=TXT&name=$TXT_NAME" | jq -c '[.[] | select(.content | ltrimstr("\"") | startswith("fahares-maintenance"))][0] // empty'
+}
+
+set_proxied() { # true|false
+    local ttl=60
+    [[ "$1" == "true" ]] && ttl=1
+    site_records | jq -r --argjson p "$1" '.[] | select(.proxied != $p) | .id' | while read -r id; do
+        api PATCH "/dns_records/$id" "{\"proxied\":$1,\"ttl\":$ttl}" > /dev/null
+    done
+}
+
+hold_lock() {
+    if [[ -s "$HOLD_PID" ]] && kill -0 "$(cat "$HOLD_PID")" 2>/dev/null; then return; fi
+    # A detached holder, so the lock outlives this shell (as upgrade-hold.sh)
+    nohup setsid bash -c '
+        exec 9>>"$1/prod.lock"
+        flock -w 30 9 || { echo "lock busy" >&2; exit 1; }
+        printf "maintenance  %s  HOST MAINTENANCE (scripts/dev/maintenance): hold all prod runs and releases\n" "$(date "+%F %H:%M:%S")" > "$1/prod.holder"
+        echo $$ > "$2"
+        trap "kill \$s 2>/dev/null; : > \"$1/prod.holder\"; rm -f \"$2\"" EXIT; trap "exit 0" TERM INT
+        sleep 172800 & s=$!; wait $s
+    ' _ "$DIR" "$HOLD_PID" > /dev/null 2>&1 &
+    for _ in $(seq 1 35); do
+        [[ -s "$HOLD_PID" ]] && return
+        sleep 1
+    done
+    die "could not take the prod-run lock (scripts/dev/prod-run --status shows who holds it); --no-lock skips it"
+}
+
+case "${1:-}" in
+    on)
+        shift
+        minutes="" lock=1 note=""
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                --minutes) minutes="$2"; shift 2 ;;
+                --no-lock) lock=0; shift ;;
+                *) note="$1"; shift ;;
+            esac
+        done
+        content="fahares-maintenance"
+        [[ -n "$minutes" ]] && content+=" until=$(( $(date +%s) + minutes * 60 ))"
+        if [[ -n "$note" ]]; then
+            b64="$(printf '%s' "$note" | base64 -w0 | tr '+/' '-_' | tr -d '=')"
+            (( ${#b64} <= 200 )) || die "the note is too long for one TXT string; keep it under about 70 Persian letters"
+            content+=" msg=$b64"
+        fi
+        (( lock )) && hold_lock
+        body="$(jq -cn --arg n "$TXT_NAME" --arg c "\"$content\"" '{type:"TXT",name:$n,content:$c,ttl:60}')"
+        existing="$(txt_record)"
+        if [[ -n "$existing" ]]; then
+            api PUT "/dns_records/$(jq -r '.id' <<<"$existing")" "$body" > /dev/null
+        else
+            api POST "/dns_records" "$body" > /dev/null
+        fi
+        set_proxied true
+        echo "maintenance on: the records are proxied; the Worker shows the page whenever the host gives no answer."
+        (( lock )) && echo "The prod-run lock is held until: scripts/dev/maintenance off"
+        echo "Wait a few minutes (DNS TTL) before restarting the host."
+        ;;
+    off)
+        existing="$(txt_record)"
+        [[ -n "$existing" ]] && api DELETE "/dns_records/$(jq -r '.id' <<<"$existing")" > /dev/null
+        if [[ -s "$HOLD_PID" ]]; then kill "$(cat "$HOLD_PID")" 2>/dev/null || true; fi
+        echo "maintenance off: the Worker switches the records back to grey within a minute or two, once the host answers."
+        ;;
+    status)
+        site_records | jq -r '.[] | "\(.name)\t\(.type)\tproxied=\(.proxied)\tttl=\(.ttl)"'
+        existing="$(txt_record)"
+        if [[ -n "$existing" ]]; then echo "$TXT_NAME: $(jq -r '.content' <<<"$existing")"; else echo "$TXT_NAME: none"; fi
+        if [[ -s "$HOLD_PID" ]] && kill -0 "$(cat "$HOLD_PID")" 2>/dev/null; then echo "prod-run lock: held by maintenance"; fi
+        ;;
+    *)
+        sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+        exit 2
+        ;;
+esac

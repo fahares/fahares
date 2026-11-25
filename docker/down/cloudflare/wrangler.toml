@@ -1,0 +1,31 @@
+# The fahares-failover Worker (backlog item 136, step 14.406). See README.md.
+# Deploy from this folder: npx wrangler deploy
+name = "fahares-failover"
+main = "worker.js"
+compatibility_date = "2025-06-01"
+workers_dev = false
+
+# These routes run only while the records are proxied (orange); in normal times they are grey and the
+# Worker sees no visitor request.
+routes = [
+    { pattern = "fahares.net/*", zone_name = "fahares.net" },
+    { pattern = "www.fahares.net/*", zone_name = "fahares.net" },
+    # For the test of the page without touching the host: a proxied record failover-test.fahares.net to the
+    # unrouted 192.0.2.1 (README.md); harmless when that record does not exist
+    { pattern = "failover-test.fahares.net/*", zone_name = "fahares.net" },
+]
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+ZONE_NAME = "fahares.net"
+# The Zone ID from the zone's Overview page in the Cloudflare dashboard (not a secret)
+ZONE_ID = "ZONE_ID_HERE"
+DNS_TTL = "60"
+# The API token is a secret, set with: npx wrangler secret put CF_API_TOKEN
+
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true

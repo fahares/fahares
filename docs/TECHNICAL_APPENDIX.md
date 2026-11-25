@@ -14276,3 +14276,31 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۴۰۴: متن راهنمای `libraries`
 - `InsightsNotes::libraries()`: جملۀ نخست `reading[0]`. آزمون: `InsightsLibrarySubjectsTest`.
+
+### گام ۱۴.۴۰۶: Worker ‏`fahares-failover` و `scripts/dev/maintenance` (مورد ۱۳۶)
+- **[failover.js](../docker/down/cloudflare/failover.js)** (منطق)، **[worker.js](../docker/down/cloudflare/worker.js)** (`fetch` و `scheduled`)، **[wrangler.toml](../docker/down/cloudflare/wrangler.toml)**:
+  - routeهای `fahares.net/*`، `www.fahares.net/*` و `failover-test.fahares.net/*`؛ cron `* * * * *`.
+  - vars: `ZONE_NAME`، `ZONE_ID` و `DNS_TTL=60`. secret: `CF_API_TOKEN` (Zone → DNS → Edit، فقط این zone).
+  - صفحه همان [index.html](../docker/down/index.html) است که با قاعدۀ Text در bundle می‌آید.
+- **`runCheck`:** رکوردهای A، AAAA و CNAME همین دو نام را می‌خواند.
+  - اگر TXT ‏`_maintenance.fahares.net` با پیشوند `fahares-maintenance` باشد: همه proxied می‌شوند (`maintenance`).
+  - وگرنه `hostAnswers` به `/up?failover=<ts>` (۱۰ ثانیه، `redirect: manual`) درخواست می‌دهد. «پاسخ نداد» یعنی خطا، timeout، یا ۵۲۰ تا ۵۲۷ و ۵۳۰.
+  - رکورد خاکستری و دو بی‌پاسخی به فاصلۀ ۲۰ ثانیه: PATCH با `proxied: true, ttl: 1` (`switched`). یک بی‌پاسخی تنها: `blip`.
+  - رکورد نارنجی و دو پاسخ: `proxied: false, ttl: 60` (`restored`). وگرنه `still-down`.
+- **`handleFetch`:** `fetch(request)` با ۱۵ ثانیه مهلت برای سرآیندها؛ بدنه قطع نمی‌شود. پاسخ اگر ۵۲x/۵۳۰ نباشد، همان برگردانده می‌شود.
+  - وگرنه صفحه با `503`، `Retry-After: 120`، `Cache-Control: no-store` و `X-Robots-Tag: noindex` برمی‌گردد.
+  - عنوان و جملۀ نخست صفحه به «در حال ارتقا یا نگهداری» عوض می‌شوند. یادداشت و ساعت تهران به‌جای `<!--maintenance-note-->` می‌نشینند.
+  - یادداشت از TXT خوانده می‌شود و ۶۰ ثانیه در `caches.default` می‌ماند.
+- **قالب TXT:** `fahares-maintenance until=<unix> msg=<base64url UTF-8>`. msg حداکثر ۲۰۰ نویسه است، یعنی حدود ۷۰ حرف فارسی.
+- **[scripts/dev/maintenance](../scripts/dev/maintenance):**
+  - token از `~/.fahares/cloudflare-dns-token` (۶۰۰) خوانده می‌شود و در فایل سرآیند موقت `-H @file` می‌رود؛ در آرگومان‌ها نیست.
+  - zone id از `wrangler.toml` یا `~/.fahares/cloudflare-zone-id` خوانده می‌شود. `FAHARES_CF_API` برای آزمون است.
+  - `on [--minutes N] [--no-lock] ["یادداشت"]` TXT را می‌سازد یا PUT می‌کند و رکوردها را proxied می‌کند.
+  - قفل `prod.lock` را با نگه‌دارندۀ جدا (`setsid`، pid در `~/.fahares/maintenance-hold.pid`) می‌گیرد و holder را می‌نویسد.
+  - `off` TXT را پاک و قفل را رها می‌کند. برگشت به خاکستری با cron Worker است.
+- **[CloudflareClientIp](../app/Http/Middleware/CloudflareClientIp.php)** (global، پس از `trustProxies`): اگر `ip()` در بازه‌های [cloudflare.com/ips](https://www.cloudflare.com/ips/) باشد و `CF-Connecting-IP` نشانی معتبر باشد، `X-Forwarded-For` همان می‌شود.
+- **آزمون:**
+  - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
+  - `CloudflareClientIpTest`: ۳ آزمون.
+  - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
+
