@@ -16,41 +16,27 @@ use Tests\TestCase;
  */
 class AuthorLinkQueueTest extends TestCase
 {
-    private string $file;
-
     protected function setUp(): void
     {
         parent::setUp();
         Cache::flush();
         config(['scout.driver' => 'collection']);
-        $this->file = tempnam(sys_get_temp_dir(), 'links');
     }
 
-    protected function tearDown(): void
-    {
-        @unlink($this->file);
-        parent::tearDown();
-    }
-
+    /** A work with a text-only author and the review item the queue holds for it (as the one-off queueing wrote it) */
     private function candidate(): array
     {
         $person = Person::create(['name' => 'بزرگمهر', 'normalized_name' => 'بزرگمهر', 'slug' => 'bozorgmehr-' . uniqid(), 'death_year_hijri' => 550]);
         $work = Work::create(['primary_title' => 'پندنامه', 'clean_title' => 'پندنامه', 'slug' => 'pand-' . uniqid(), 'volume_number' => 99, 'page_start' => 1, 'author_name' => 'بزرگمهر']);
-        file_put_contents($this->file, json_encode(['items' => [[
-            'work_slug' => $work->slug, 'author_name' => 'بزرگمهر', 'person_slug' => $person->slug, 'person_name' => 'بزرگمهر',
-            'translit' => 'bozorgmehr', 'evidence' => 'نام و آوانویسی یکی است',
-        ]]], JSON_UNESCAPED_UNICODE));
+        $review = PersonReview::create(['type' => 'author_link', 'key' => 'author_link:work:' . $work->id, 'person_ids' => [$person->id], 'status' => 'open',
+            'reason' => 'نام و آوانویسی یکی است', 'suggestion' => ['work_id' => $work->id, 'translit' => 'bozorgmehr']]);
 
-        return [$work, $person];
+        return [$work, $person, $review];
     }
 
     public function test_a_candidate_is_queued_answered_and_linked_only_by_the_reviewer()
     {
-        [$work, $person] = $this->candidate();
-        $this->artisan('fahares:queue-author-links', ['--file' => $this->file])->expectsOutputToContain('would queue')->assertSuccessful();
-        $this->artisan('fahares:queue-author-links', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
-        $this->artisan('fahares:queue-author-links', ['--file' => $this->file, '--apply' => true])->expectsOutputToContain('already queued');
-        $review = PersonReview::where('type', 'author_link')->sole();
+        [$work, $person, $review] = $this->candidate();
 
         // the public card, then an answer that changes nothing
         $this->get(route('contribute.show', ['author', $review->id]))->assertOk()->assertSee('پندنامه')->assertSee('bozorgmehr');
@@ -72,9 +58,7 @@ class AuthorLinkQueueTest extends TestCase
 
     public function test_the_reviewer_may_keep_the_name()
     {
-        [$work] = $this->candidate();
-        $this->artisan('fahares:queue-author-links', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
-        $review = PersonReview::where('type', 'author_link')->sole();
+        [$work, , $review] = $this->candidate();
         $admin = User::create(['name' => 'داور', 'email' => uniqid('al-admin-') . '@example.test', 'password' => 'password123', 'role' => 'admin']);
 
         $this->actingAs($admin)->post(route('admin.author-links.reject', $review))->assertRedirect();

@@ -8,6 +8,7 @@ use App\Models\ManuscriptNote;
 use App\Models\SourceEntry;
 use App\Models\Person;
 use App\Support\HijriYear;
+use App\Sources\RecordEntries;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -67,21 +68,9 @@ class SuggestionApplier
                     if ($entries === null) {
                         throw new InvalidArgumentException('این ارجاع در متن مآخذ خودکار بازنویسی نشد. آن را در فیلد «مآخذ کتاب‌شناسی» دستی اصلاح کنید.');
                     }
-                    $record->bibliography = $entries;
-                    break;
+                    return $this->applyBibliography($record, $entries);
                 }
-                [$volumeColumn, $pageColumn] = $field['columns'];
-                $rowColumn = $field['columns'][2] ?? null;
-                // the entry keeps its length: its last page moves with its first
-                if (($endColumn = $field['end_column'] ?? null) && $record->{$endColumn} && $record->{$pageColumn}) {
-                    $record->{$endColumn} = $page['page'] + max(0, $record->{$endColumn} - $record->{$pageColumn});
-                }
-                $record->{$volumeColumn} = $page['volume'];
-                $record->{$pageColumn} = $page['page'];
-                if ($rowColumn && $page['row'] !== null) {
-                    $record->{$rowColumn} = $page['row'];
-                }
-                break;
+                return $this->applyFankhaPlace($record, $field, $page);
 
             case 'integer':
                 if ($value !== null && ! ctype_digit($value = $this->latinDigits($value))) {
@@ -139,6 +128,9 @@ class SuggestionApplier
 
             case 'list':
                 $items = $value === null ? [] : array_values(array_filter(array_map('trim', preg_split('/\R/u', $value)), 'strlen'));
+                if ($record instanceof \App\Models\Work && $name === 'bibliography') {
+                    return $this->applyBibliography($record, $items);
+                }
                 if (isset($field['meta_key'])) {
                     $meta = $record->metadata ?? [];
                     $meta[$field['meta_key']] = $items;
@@ -207,6 +199,51 @@ class SuggestionApplier
         }
 
         return ['old' => $old, 'new' => $new, 'resolution' => $resolution];
+    }
+
+    /**
+     * The corrected place of the record in Fankha (step 14.396): written in its Fankha entry, which the record's
+     * columns follow. The entry keeps its length, its last page moving with its first; a copy's row is taken when
+     * the address gives one. The log keeps the columns' names, so a rollback of before and after this step reads the same.
+     */
+    private function applyFankhaPlace(Model $record, array $field, array $page): array
+    {
+        $now = RecordEntries::fankhaOf($record);
+        $values = ['volume_number' => $page['volume'], 'page_start' => $page['page']];
+        if (isset($field['end_column']) && $now['page_end'] && $now['page_start']) {
+            $values['page_end'] = $page['page'] + max(0, $now['page_end'] - $now['page_start']);
+        }
+        if (isset($field['columns'][2]) && $page['row'] !== null) {
+            $values['entry_number'] = $page['row'];
+        }
+        $columns = ['volume_number' => 'volume_number', 'page_start' => 'page_start', 'page_end' => 'page_end', 'entry_number' => 'sequence_number'];
+        $old = $new = [];
+        foreach ($values as $key => $value) {
+            if ($now[$key] !== $value) {
+                $old[$columns[$key]] = $now[$key];
+                $new[$columns[$key]] = $value;
+            }
+        }
+        if ($old) {
+            RecordEntries::fankha($record, $values);
+            $record->searchable();
+        }
+
+        return ['old' => $old, 'new' => $new, 'resolution' => []];
+    }
+
+    /** A work's bibliography, written in its entries, which the column follows (step 14.396); the log keeps the lists. */
+    private function applyBibliography(\App\Models\Work $work, array $strings): array
+    {
+        $before = RecordEntries::bibliographyOf($work);
+        RecordEntries::bibliography($work, $strings);
+        $after = RecordEntries::bibliographyOf($work);
+        if ($before === $after) {
+            return ['old' => [], 'new' => [], 'resolution' => []];
+        }
+        $work->searchable();
+
+        return ['old' => ['bibliography' => $before ?: null], 'new' => ['bibliography' => $after ?: null], 'resolution' => []];
     }
 
     /**

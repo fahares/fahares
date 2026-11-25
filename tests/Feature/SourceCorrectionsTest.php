@@ -104,6 +104,46 @@ class SourceCorrectionsTest extends TestCase
         $this->assertSame([15, 121], [$this->primary($this->manuscript)->volume_number, $this->primary($this->manuscript)->page_start]);
     }
 
+    /** Step 14.396: saving a record writes only what changed into its entries; what a review or a match wrote stays. */
+    public function test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns()
+    {
+        $entry = $this->primary($this->work);
+        $entry->forceFill(['notes' => 'یادداشت بازبین', 'reviewed_by' => $this->admin()->id])->save();
+        $dharia = SourceEntry::where('legacy_type', 'work_bibliography')->where('legacy_id', $this->work->id)->where('legacy_index', 1)->sole();
+        $dharia->forceFill(['entry_text' => 'متن مدخل الذریعه', 'text_volume_number' => 25, 'text_page' => 101, 'text_status' => SourceEntry::TEXT_AUTO])->save();
+
+        $this->work->update(['raw_text' => 'متن تازه', 'bibliography' => ['منزوی 977/2', 'الذریعه 101/25', 'کشف 1/2']]);
+        $entry->refresh();
+        $this->assertSame(['متن تازه', 'یادداشت بازبین'], [$entry->entry_text, $entry->notes]);
+        $this->assertNotNull($entry->reviewed_by);
+        $this->assertSame(['متن مدخل الذریعه', SourceEntry::TEXT_AUTO], [$dharia->fresh()->entry_text, $dharia->fresh()->text_status], 'a string unchanged keeps its text');
+        $this->assertSame(3, SourceEntry::where('legacy_type', 'work_bibliography')->where('legacy_id', $this->work->id)->count());
+
+        // the string now cites another page: the text taken at the old one is marked
+        $this->work->update(['bibliography' => ['منزوی 977/2', 'الذریعه 102/25']]);
+        $this->assertSame(['الذریعه 102/25', 102, SourceEntry::TEXT_STALE], [$dharia->fresh()->citation_text, $dharia->fresh()->page_start, $dharia->fresh()->text_status]);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->work->fresh()->bibliography);
+    }
+
+    /** Step 14.396: the Fankha entry is the record of truth; the place is written there and the columns follow. */
+    public function test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds()
+    {
+        $entry = $this->primary($this->manuscript);
+        $entry->forceFill(['notes' => 'یادداشت بازبین', 'reviewed_by' => $this->admin()->id])->save();
+        $this->suggestAndApprove($this->manuscript, 'fankha_page', 'ج ۱۶، ص ۳۰، ردیف ۴')->assertSessionHasNoErrors();
+
+        $entry->refresh();
+        $this->assertSame([16, 30, 4, 'یادداشت بازبین'], [$entry->volume_number, $entry->page_start, $entry->entry_number, $entry->notes]);
+        $this->assertNotNull($entry->reviewed_by, 'a writer of the place keeps what a reviewer wrote on the entry');
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $this->manuscript->id)->latest('id')->first();
+        $this->assertSame(['volume_number' => 16, 'page_start' => 30, 'sequence_number' => 4], array_diff_key($log->new_values, ['suggestion_id' => 0]));
+
+        // a copy made with no Fankha place has no entry, and its columns say so
+        \App\Sources\RecordEntries::fankha($this->manuscript, ['source_id' => null]);
+        $this->assertSame(0, SourceEntry::where('legacy_type', 'manuscript')->where('legacy_id', $this->manuscript->id)->count());
+        $this->assertSame([null, null, null], [$this->manuscript->fresh()->catalog_id, $this->manuscript->fresh()->page_start, $this->manuscript->fresh()->raw_text]);
+    }
+
     public function test_a_bibliography_page_is_corrected_in_the_entry_and_the_column()
     {
         $this->get(route('works.show', $this->work))->assertSee("field: 'bibliography_page_dharia_25_101'", false);

@@ -275,8 +275,8 @@ class SetCatalogueVolumesCommand extends Command
         $kept = array_column($backup['source_volumes'], 'id');
         $this->info(sprintf('Restoring %d sources, %d volumes and %d copies from %s', count($sources), count($kept), count($backup['manuscripts']), $file));
         DB::transaction(function () use ($backup, $sources, $kept) {
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('manuscripts', $backup['manuscripts']);
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('source_entries', $backup['source_entries']);
+            \App\Sources\SourceMerger::restoreColumns('manuscripts', $backup['manuscripts']);
+            \App\Sources\SourceMerger::restoreColumns('source_entries', $backup['source_entries']);
             $made = DB::table('source_volumes')->whereIn('source_id', $sources)->whereNotIn('id', $kept)->pluck('id')->all();
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', array_merge($kept, $made))->delete();
             DB::table('source_volumes')->whereIn('id', $made ?: [0])->delete();
@@ -285,7 +285,7 @@ class SetCatalogueVolumesCommand extends Command
             DB::table('catalog_volumes')->upsert($backup['catalog_volumes'], ['id']);
             $backup['catalog_volume_cataloger'] && DB::table('catalog_volume_cataloger')->insert($backup['catalog_volume_cataloger']);
             foreach (['sources', 'catalog_volume_parts', 'catalogers'] as $table) {
-                FixMisnamedIsfahanCataloguesCommand::restoreColumns($table, $backup[$table]);
+                \App\Sources\SourceMerger::restoreColumns($table, $backup[$table]);
             }
         });
         foreach ($sources as $id) {

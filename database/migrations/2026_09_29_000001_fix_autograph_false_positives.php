@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,13 +9,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Data fix for imported records. The command now relies on tables created by later
-        // migrations (manuscript_scribe), so it cannot run on an empty database (fresh install, test suite).
-        if (! DB::table('manuscripts')->exists()) {
-            return;
-        }
-
-        Artisan::call('fahares:fix-autograph-manuscripts');
+        // A data fix for the imported records, made by fahares:fix-autograph-manuscripts when this migration ran.
+        // The command went with the other one-off fixes in step 14.392 (backlog item 170); a fresh database has
+        // nothing to fix.
     }
 
     /**

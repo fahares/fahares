@@ -534,6 +534,8 @@ class AuditLogController extends Controller
         $previousScribe = $target->scribe_id ?? null;
         $previousWork = $target instanceof Manuscript ? $target->work_id : null;
         $previousLibrary = $target instanceof Manuscript ? $target->library_id : null;
+        // the record's place in Fankha goes back in its Fankha entry, which its columns follow (step 14.396)
+        $old = \App\Sources\RecordEntries::restore($target, $old);
         if ($old) {
             $target->forceFill($old)->save();
         }
@@ -708,7 +710,7 @@ class AuditLogController extends Controller
             throw new \Exception("رکورد هدف جهت بازگردانی یافت نشد.");
         }
 
-        $target->forceFill($log->old_values)->save();
+        $target->forceFill(\App\Sources\RecordEntries::restore($target, $log->old_values ?? []))->save();
         if ($target instanceof \App\Models\Library) {
             $target->syncManuscriptCopies();
         }

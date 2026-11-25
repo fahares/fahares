@@ -96,6 +96,12 @@ class Source extends Model
         return $this->edition_of_id ? $this->editionOf?->coverUrl() : null;
     }
 
+    /** The source of a code, or the one a folded source's code now stands for. */
+    public static function byCode(string $code): ?self
+    {
+        return static::where('code', $code)->first() ?? static::mergedInto($code);
+    }
+
     /** The source a folded source's code now stands for (sources:merge-split keeps it in metadata.merged_codes). */
     public static function mergedInto(string $code): ?self
     {

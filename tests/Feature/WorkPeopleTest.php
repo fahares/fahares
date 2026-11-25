@@ -6,7 +6,6 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
 use App\Models\Person;
-use App\Models\SourceEntry;
 use App\Models\User;
 use App\Models\Work;
 use App\Models\WorkPerson;
@@ -15,15 +14,12 @@ use App\Suggestions\RecordMerger;
 use App\Suggestions\RecordRemover;
 use App\Suggestions\RecordSplitter;
 use App\Suggestions\StructurePreview;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 /**
  * People connected with a work other than its authors (work_people, backlog item 35): the work and person
- * pages, suggestions to add or remove one, the structural tools that carry the rows along, and the backfill
- * from the parser v2 JSON.
+ * pages, suggestions to add or remove one, the structural tools that carry the rows along.
  */
 class WorkPeopleTest extends TestCase
 {
@@ -182,159 +178,6 @@ class WorkPeopleTest extends TestCase
         $this->assertIsArray($removed);
     }
 
-    public function test_backfill_from_the_parser_v2_json()
-    {
-        $qusta = $this->person('قسطا بن لوقا', ['century_hijri' => 3, 'death_year_hijri' => 250]);
-        $this->person('دمشقی، سعید بن یعقوب');
-        $this->person('دمشقی، سعید بن یعقوب');
-        $this->person('حکیم باشی، میرزا علی اکبر', ['century_hijri' => 13]);
-        $works = [];
-        foreach (range(1, 8) as $n) {
-            $works[$n] = $this->work(['slug' => "test-backfill-v1-{$n}"]);
-        }
-        // Saving a work records its Fankha entry
-        $talibov = $this->person('طالبوف، عبدالرحیم بن ابوطالب');
-        $works[10] = $this->work(['slug' => 'test-backfill-v1-10']);
-        $entry = SourceEntry::where('citable_type', Work::class)->where('citable_id', $works[1]->id)->where('origin', SourceEntry::ORIGIN_FANKHA)->firstOrFail();
-        // A reviewer already changed the people of work 8
-        AuditLog::create(['user_id' => $this->admin->id, 'auditable_type' => Work::class, 'auditable_id' => $works[8]->id, 'action' => 'verify', 'new_values' => ['added_person_role' => 1]]);
-
-        $person = fn ($name, $hedge = null, $century = null) => ['name' => $name, 'name_raw' => $name, 'hedge' => $hedge, 'death' => $century ? ['century' => $century] : null];
-        $json = ['works' => [
-            ['key' => ['vol' => 1, 'ordinal' => 1], 'translator' => $person('قسطا بن لوقا', null, 3)],
-            ['key' => ['vol' => 1, 'ordinal' => 2], 'translator' => $person('دمشقی، سعید بن یعقوب', '؟')],
-            ['key' => ['vol' => 1, 'ordinal' => 3], 'translator' => $person('برجیس انگلیسی، این کتاب حاوی نام شهرهای بزرگ عالم است. مطالب بر حسب')],
-            ['key' => ['vol' => 1, 'ordinal' => 4], 'translator' => $person('جان طیلر و ابوالقاسم')],
-            ['key' => ['vol' => 1, 'ordinal' => 5], 'translator' => $person('نامعلوم')],
-            ['key' => ['vol' => 1, 'ordinal' => 6], 'translator' => $person('حکیم باشی، میرزا علی اکبر', 'محتملا', 10)],
-            ['key' => ['vol' => 1, 'ordinal' => 7], 'original_author' => $person('ابوالقاسم')],
-            ['key' => ['vol' => 1, 'ordinal' => 8], 'translator' => $person('قسطا بن لوقا')],
-            ['key' => ['vol' => 1, 'ordinal' => 9], 'translator' => $person('قسطا بن لوقا')],
-            ['key' => ['vol' => 1, 'ordinal' => 10], 'translator' => $person('طالبوف ، عبدالرحیم بن ابوطالب (ظاهراً از روسی)')],
-        ]];
-        $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
-        File::ensureDirectoryExists($dir);
-        // Each v2 work carries the site work's title and page (FankhaWorkLocator); ordinal 9 has no work on the site
-        foreach ($json['works'] as &$jw) {
-            $jw += ['title' => ($works[$jw['key']['ordinal']] ?? null)?->primary_title ?? 'اثری که در سایت نیست', 'provenance' => ['page_start' => 1]];
-        }
-        unset($jw);
-        File::put("{$dir}/fankha_vol_01.json", json_encode($json, JSON_UNESCAPED_UNICODE));
-
-        $this->artisan('fahares:backfill-work-people', ['--dry-run' => true, '--source' => $dir, '--volume' => 1])->assertSuccessful();
-        $this->assertSame(0, WorkPerson::count());
-
-        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 1])->assertSuccessful();
-        $rows = WorkPerson::orderBy('work_id')->get()->keyBy('work_id');
-        // A unique name with an agreeing century links; the row cites the work's Fankha entry
-        $this->assertSame([$qusta->id, 'translator', $entry->id], [$rows[$works[1]->id]->person_id, $rows[$works[1]->id]->role, $rows[$works[1]->id]->source_entry_id]);
-        $this->assertTrue($qusta->fresh()->is_translator);
-        // Two people of that name: kept as text, with the hedge
-        $this->assertSame([null, 'دمشقی، سعید بن یعقوب', '؟', 'doubtful'], [$rows[$works[2]->id]->person_id, $rows[$works[2]->id]->name, $rows[$works[2]->id]->hedge_raw, $rows[$works[2]->id]->certainty]);
-        // Run into the description, or «نامعلوم»: left out
-        $this->assertFalse($rows->has($works[3]->id));
-        $this->assertFalse($rows->has($works[5]->id));
-        // Several people, a disagreeing century, one word: text only
-        $this->assertNull($rows[$works[4]->id]->person_id);
-        $this->assertSame([null, 'probable'], [$rows[$works[6]->id]->person_id, $rows[$works[6]->id]->certainty]);
-        $this->assertSame([null, 'original_author'], [$rows[$works[7]->id]->person_id, $rows[$works[7]->id]->role]);
-        // The reviewed work is left alone; ordinal 9 has no work
-        $this->assertFalse($rows->has($works[8]->id));
-        // The space before the comma does not hide the person; the parenthesis becomes the note
-        $this->assertSame([$talibov->id, 'ظاهراً از روسی'], [$rows[$works[10]->id]->person_id, $rows[$works[10]->id]->note]);
-        $this->assertSame(6, WorkPerson::count());
-
-        // A second run adds nothing
-        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 1])->assertSuccessful();
-        $this->assertSame(6, WorkPerson::count());
-        File::deleteDirectory($dir);
-    }
-
-    public function test_a_name_with_alef_madda_matches_and_an_earlier_text_row_is_linked()
-    {
-        // normalized_name keeps «آ» as written
-        $avanes = Person::create(['name' => 'آوانس ارمنی تبریزی', 'normalized_name' => 'آوانس ارمنی تبریزی', 'slug' => 'test-wp-' . uniqid()]);
-        $work = $this->work(['slug' => 'test-backfill-v2-1', 'volume_number' => 2]);
-        // An earlier run kept the name as text; a reviewer's text row of another work stays as it is
-        $old = WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی تبریزی', 'role' => 'translator']);
-        $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
-        File::ensureDirectoryExists($dir);
-        File::put("{$dir}/fankha_vol_02.json", json_encode(['works' => [
-            ['key' => ['vol' => 2, 'ordinal' => 1], 'title' => $work->primary_title, 'provenance' => ['page_start' => 1], 'translator' => ['name' => 'آوانس ارمنی تبریزی', 'hedge' => null, 'death' => null]],
-        ]], JSON_UNESCAPED_UNICODE));
-
-        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 2])->assertSuccessful();
-        $this->assertSame([[$old->id, $avanes->id, null]], WorkPerson::where('work_id', $work->id)->get()->map(fn ($r) => [$r->id, $r->person_id, $r->name])->all());
-        $this->assertTrue($avanes->fresh()->is_translator);
-        File::deleteDirectory($dir);
-    }
-
-    public function test_backfill_of_dedicatees_and_commissioners()
-    {
-        $naser = $this->person('ناصرالدین قاجار، شاه ایران', ['death_year_hijri' => 1313]);
-        // A scribe who only shares the name: no death year in the field confirms him
-        $this->person('شمس الدین محمد بن علی');
-        $dated = $this->person('رستم پاشا وزیر', ['death_year_hijri' => 968]);
-        $w1 = $this->work(['dedication' => 'ناصر الدین شاه (1264-1313ق) و وزیرش آقاخان نوری']);
-        $w2 = $this->work(['dedication' => 'به درخواست حاجی میرزا آقاسی']);
-        $w3 = $this->work(['dedication' => 'شاه عباس صفوی']);
-        $w4 = $this->work(['dedication' => 'شمس الدین محمد بن علی؛ رستم پاشا وزیر (-968ق)']);
-        $w5 = $this->work(['dedication' => 'ناصرالدین شاه (شاید)']);
-        $w6 = $this->work(['dedication' => 'شاه عباس صفوی', 'composition_year_hijri' => 1060]);
-        $reviewed = $this->work(['dedication' => 'ناصرالدین شاه']);
-        AuditLog::create(['user_id' => $this->admin->id, 'auditable_type' => Work::class, 'auditable_id' => $reviewed->id, 'action' => 'verify', 'new_values' => ['added_person_role' => 1]]);
-        $only = implode(',', [$w1->id, $w2->id, $w3->id, $w4->id, $w5->id, $w6->id, $reviewed->id]);
-
-        $this->artisan('fahares:backfill-work-dedications', ['--dry-run' => true, '--only' => $only])->assertSuccessful();
-        $this->assertSame(0, WorkPerson::count());
-        $this->assertFalse(Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->exists());
-
-        $this->artisan('fahares:backfill-work-dedications', ['--only' => $only])->assertSuccessful();
-        $rows = fn (Work $w) => WorkPerson::where('work_id', $w->id)->orderBy('id')->get()->map(fn ($r) => [$r->role, $r->person_id, $r->name, $r->note])->all();
-        // A ruler by any spelling links to the authority record; the dates go to the note
-        $this->assertSame([['dedicatee', $naser->id, null, '1264-1313ق'], ['dedicatee', null, 'وزیرش آقاخان نوری', null]], $rows($w1));
-        // A ruler with no record gets one, with the death year
-        $aqasi = Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->firstOrFail();
-        $this->assertSame([1265, 13], [$aqasi->death_year_hijri, $aqasi->century_hijri]);
-        $this->assertSame([['commissioner', $aqasi->id, null, null]], $rows($w2));
-        $this->assertSame('به درخواست', WorkPerson::where('work_id', $w2->id)->value('label_raw'));
-        $this->get(route('works.show', $w2))->assertOk()->assertSee('به درخواست');
-        // «شاه عباس صفوی» with no year: the first Abbas, probable, with the other possibility in the note
-        $abbas = Person::where('name', 'عباس صفوی، شاه ایران')->firstOrFail();
-        $this->assertSame([['dedicatee', $abbas->id, null, 'شاید شاه عباس دوم']], $rows($w3));
-        $this->assertSame('probable', WorkPerson::where('work_id', $w3->id)->value('certainty'));
-        // ...and with a year in the second Abbas's reign, the second one
-        $this->assertSame([['dedicatee', Person::where('name', 'عباس صفوی دوم، شاه ایران')->value('id'), null, null]], $rows($w6));
-        // A namesake links only when the field's dates confirm him
-        $this->assertSame([['dedicatee', null, 'شمس الدین محمد بن علی', null], ['dedicatee', $dated->id, null, '-968ق']], $rows($w4));
-        $this->assertSame(['شاید', 'doubtful'], [WorkPerson::where('work_id', $w5->id)->value('hedge_raw'), WorkPerson::where('work_id', $w5->id)->value('certainty')]);
-        $this->assertSame([], $rows($reviewed));
-        $this->get(route('people.show', $naser))->assertOk()->assertSee('آثار تقدیم‌شده به او');
-        $this->get(route('people.show', $aqasi))->assertOk()->assertSee('آثار به سفارش او');
-
-        // A row an earlier run linked to the first Abbas moves to the second when the field's dates name him
-        $abbas2 = Person::where('name', 'عباس صفوی دوم، شاه ایران')->value('id');
-        $w3->update(['dedication' => 'شاه عباس صفوی (1052-1077ق)']);
-        $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w3->id])->assertSuccessful();
-        $this->assertSame([['dedicatee', $abbas2, null, '1052-1077ق']], $rows($w3));
-        $this->assertNull(WorkPerson::where('work_id', $w3->id)->value('certainty'));
-
-        // A row an earlier run left probable is settled when a copy dated before the second Abbas's birth turns up
-        $w7 = $this->work(['dedication' => 'شاه عباس صفوی']);
-        $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w7->id])->assertSuccessful();
-        $this->assertSame('probable', WorkPerson::where('work_id', $w7->id)->value('certainty'));
-        DB::table('manuscripts')->insert(['work_id' => $w7->id, 'sequence_number' => 1, 'volume_number' => 98, 'page_start' => 1, 'page_end' => 1, 'copy_date_raw' => '1033ق', 'copy_date_from' => 1033, 'copy_date_to' => 1033]);
-        $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w7->id])->assertSuccessful();
-        $this->assertSame([['dedicatee', $abbas->id, null, null]], $rows($w7));
-        $this->assertNull(WorkPerson::where('work_id', $w7->id)->value('certainty'));
-
-        // A second run adds nothing, and makes no second record
-        $count = WorkPerson::count();
-        $this->artisan('fahares:backfill-work-dedications', ['--only' => $only])->assertSuccessful();
-        $this->assertSame($count, WorkPerson::count());
-        $this->assertSame(1, Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->count());
-    }
-
     public function test_the_people_of_a_work_are_in_its_search_document()
     {
         $naser = $this->person('ناصرالدین قاجار، شاه ایران', ['aliases' => ['ناصرالدین شاه']]);
@@ -360,44 +203,4 @@ class WorkPeopleTest extends TestCase
         WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی', 'role' => 'translator']);
         $this->artisan('fahares:reindex-work-people')->expectsOutput('Reindexed 1 of 1 works')->assertSuccessful();
     }
-
-    public function test_a_translator_the_slug_suffix_gave_a_neighbour_moves_to_its_work()
-    {
-        // v2 restored a work at ordinal 5, so «الف» is v2's 6 though its slug says 5, and «ب» is v2's 7
-        $a = $this->work(['primary_title' => 'الف آزمایشی', 'slug' => 'test-shift-v3-5', 'volume_number' => 3, 'page_start' => 10]);
-        $b = $this->work(['primary_title' => 'ب آزمایشی (ترجمه)', 'slug' => 'test-shift-v3-6', 'volume_number' => 3, 'page_start' => 11]);
-        // Step 13.68 read v2's 6 as the site's «-v3-6» and gave «ب» both of «الف»'s translators
-        $stray = WorkPerson::create(['work_id' => $b->id, 'name' => 'مترجم الف', 'role' => 'translator']);
-        $shared = WorkPerson::create(['work_id' => $b->id, 'name' => 'مترجم هر دو', 'role' => 'translator']);
-        $t = fn ($name) => ['name' => $name, 'hedge' => null, 'death' => null];
-        $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
-        File::ensureDirectoryExists($dir);
-        File::put("{$dir}/fankha_vol_03.json", json_encode(['works' => [
-            ['key' => ['vol' => 3, 'ordinal' => 5], 'title' => 'اثر بازگشته', 'provenance' => ['page_start' => 9]],
-            ['key' => ['vol' => 3, 'ordinal' => 6], 'title' => 'الف آزمایشی', 'provenance' => ['page_start' => 10], 'translator' => $t('مترجم الف')],
-            ['key' => ['vol' => 3, 'ordinal' => 7], 'title' => 'ب آزمایشی', 'provenance' => ['page_start' => 11], 'translator' => $t('مترجم هر دو')],
-        ]], JSON_UNESCAPED_UNICODE));
-        // «الف» has «مترجم هر دو» too in a second listing of its entry
-        $json = json_decode(File::get("{$dir}/fankha_vol_03.json"), true);
-        $json['works'][1]['original_author'] = $t('مترجم هر دو');
-        File::put("{$dir}/fankha_vol_03.json", json_encode($json, JSON_UNESCAPED_UNICODE));
-
-        $this->artisan('fahares:backfill-work-people', ['--dry-run' => true, '--source' => $dir, '--volume' => 3])->assertSuccessful();
-        $this->assertSame($b->id, $stray->fresh()->work_id);
-
-        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 3])->assertSuccessful();
-        // The stray row went to its work, with the work's Fankha entry; the neighbour's own translator stayed
-        $this->assertSame($a->id, $stray->fresh()->work_id);
-        $this->assertSame(SourceEntry::where('citable_type', Work::class)->where('citable_id', $a->id)->value('id'), $stray->fresh()->source_entry_id);
-        $this->assertSame($b->id, $shared->fresh()->work_id);
-        $rows = fn (Work $w) => WorkPerson::where('work_id', $w->id)->orderBy('role')->orderBy('name')->get()->map(fn ($r) => [$r->role, $r->name])->all();
-        $this->assertSame([['original_author', 'مترجم هر دو'], ['translator', 'مترجم الف']], $rows($a));
-        $this->assertSame([['translator', 'مترجم هر دو']], $rows($b));
-
-        // A second run changes nothing
-        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 3])->assertSuccessful();
-        $this->assertSame(3, WorkPerson::whereIn('work_id', [$a->id, $b->id])->count());
-        File::deleteDirectory($dir);
-    }
 }
-

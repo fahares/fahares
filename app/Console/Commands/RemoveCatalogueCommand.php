@@ -188,10 +188,10 @@ class RemoveCatalogueCommand extends Command
                 $backup[$table] && DB::table($table)->upsert($backup[$table], ['id']);
             }
             foreach (['manuscripts', 'source_entries', 'catalogers'] as $table) {
-                FixMisnamedIsfahanCataloguesCommand::restoreColumns($table, $backup[$table]);
+                \App\Sources\SourceMerger::restoreColumns($table, $backup[$table]);
             }
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalog_volumes', $backup['target_volumes']);
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalog_volume_parts', $backup['target_parts']);
+            \App\Sources\SourceMerger::restoreColumns('catalog_volumes', $backup['target_volumes']);
+            \App\Sources\SourceMerger::restoreColumns('catalog_volume_parts', $backup['target_parts']);
         });
         self::forget((int) $backup['source']['id']);
         foreach (array_column($backup['target_volumes'], 'id') as $id) {

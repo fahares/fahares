@@ -14053,7 +14053,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - متنی که جایش دیگر نشانی مدخل نیست، یا از جلد دیگری است، `text_status = stale` می‌گیرد.
 - **آزمون:** `CitedEntryKeepsMatchTest`، چهار آزمون: ذخیرۀ نسخه همۀ ستون‌های تطبیق و صفحۀ ۱۹۶ را نگه می‌دارد؛ مدخل اصلاح‌نشده با ارجاع تازه به ص ۳۰۰ می‌رود و متنش کهنه می‌شود؛ مدخل اصلاح‌شده با ارجاعی که جای دیگری را نام می‌برد می‌رود، و با ارجاعی که همان‌گونه خوانده می‌شود («5 - 197») می‌ماند؛ و جای دیگر ارجاع آنچه تطبیق نوشته را نگه می‌دارد.
 - **سنجش و ترمیم روی `fahares_prod`:** `sources:take-texts <id> --dry-run` برای پنج فهرست دارای خواننده با مدخل ارجاع فنخا: ۱۰۰۰۲۰ (`numbered_copies`) ۶۱، ۱۰۰۰۳۰ (`shelfmark_headings`) ۲۳، ۱۰۰۰۳۹ (`serial_shelfmarks`) ۱۳، ۱۰۰۰۹۳ (`listed_shelfmarks`) ۱۲، ۱۰۰۱۳۸ (`moayyed`) ۳؛ روی هم ۱۱۲. اجرای واقعی همان ۱۱۲ را نوشت و اجرای آزمایشی دوم صفر. نشانی این مدخل‌ها با `updated_at` آن‌ها با چند ثانیه فاصله پس از `updated_at` نسخه است (ذخیره‌های گروهی ۲۹ آبان ۲۱:۳۳ و ۳۰ آبان ۰۵:۳۱ و ۰۶:۴۰). در پروداکشن شناسۀ منبع‌ها را با `code` بجویید.
-- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
 
 ### گام ۱۴.۳۸۷: `fahares:merge-shelfmark-twins` و `database/data/shelfmark_twins.json`
 
@@ -14134,3 +14133,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خوانندگان تازه:** `authors()`، `scribes()` (شمارها `COUNT(DISTINCT manuscripts.id)`)، کاتبان و مؤلفان `places()`، `lifeCities()`، `origins()`، و `autographs()` (`EXISTS` روی `manuscript_people` به جای `manuscripts.scribe_id`).
 - **[AuthorInQuery](../app/Support/AuthorInQuery.php):** پالایۀ `author_ids IN […]` به جای `author_id IN […]`.
 - **آزمون:** `InsightsEveryPersonTest`؛ `AuthorInQueryTest` به‌روز شد.
+
+### گام ۱۴.۳۹۲: فرمان‌های یک‌باره
+
+- **دسته‌بندی:** جدول ۱۵۲ فرمان (حکم، شاهد، ستون‌های رکوردی که هر فرمان می‌نویسد، آزمون‌ها) را یک زیرعامل Sonnet ساخت و من بازبینی کردم. سنجه‌ها: `routes/console.php`، `Artisan::call` و `->call(` در `app`، اسکریپت‌های `scripts/`، ثبت اجرا در `PROCESS_DOCUMENTATION` و `TECHNICAL_APPENDIX`، و کار مانده در `BACKLOG`.
+- **سه فرمان شخص‌های تکراری:** `fahares:find-duplicate-people`، `merge-duplicate-people` و `queue-judged-people` رفتند، چون `fahares:refresh-person-reviews` (شبانه) خودش `DuplicatePeopleFinder` و `PersonReviewQueue` را صدا می‌زند و به گزارش آن فرمان‌ها نیازی ندارد.
+- **جابه‌جایی:** `LinkDhariaTitlesCommand::marksOf` به `App\Support\PageMarks::marksOf` رفت (خوانندۀ آن `SourceMentions`). `FixMisnamedIsfahanCataloguesCommand::restoreColumns` با `SourceMerger::restoreColumns` (همان کد) جایگزین شد، در `set-volumes`، `import-volume-parts` و `remove-catalogue`. `FillEmptyCataloguesCommand::source` به `Source::byCode` رفت.
+- **migration:** `2026_09_29_000001_fix_autograph_false_positives` حالا بدنه ندارد. پایگاه تازه چیزی برای اصلاح ندارد و پروداکشن آن را پیش‌تر اجرا کرده است.
+- **آزمون‌ها:** `AuthorLinkQueueTest` ردیف `PersonReview` از نوع `author_link` را مستقیم می‌سازد. `DuplicatePeopleTest` از `DuplicatePeopleFinder::key/groups/looseGroups` و `PersonMerger::merge(..., keepPrintedNames: true)` استفاده می‌کند. `PersonReviewTest` گروه‌های داوری‌شده را با `PersonReview::create` می‌سازد. در `CatalogVolumePartsTest` به جای `catalogs:assign-volume-parts`، `Cataloger::recount()` صدا زده می‌شود و بخش هر نسخه از قلاب ذخیره می‌آید.
+- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
+
+### گام ۱۴.۳۹۳: `insights/presets.blade.php`
+- `<nav data-insights-presets>` با یک `<a>` برای هر دامنه (`title` = شمار نسخه و جمله)، به جای `<section>` و فهرست کارت‌ها. `[scrollbar-width:none]` و `[&::-webkit-scrollbar]:hidden` برای ردیف موبایل. `InsightsPresets` و پیکربندی دست نخورد.
+
+### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
+- `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
+
+### گام ۱۴.۳۹۶: `RecordEntries`
+
+- **[RecordEntries](../app/Sources/RecordEntries.php):**
+  - `fankha($record, $values)` با کلیدهای `source_id`، `volume_number`، `page_start`، `page_end`، `entry_number` و `text`. مقادیر داده‌شده روی مقادیر مدخل می‌نشینند، یا اگر مدخلی نیست روی ستون‌های ذخیره‌شدۀ رکورد. منبع تهی مدخل را پاک می‌کند. از مدخل موجود فقط `PLACE_COLUMNS` و ستون متن نوشته می‌شود و بازبینی، یادداشت و پیوند می‌ماند. خروجی `[قبل، بعد]` است.
+  - `mirror()` ستون‌های `catalog_id`، `volume_number`، `page_start`، `page_end`، `raw_text` و (برای نسخه) `sequence_number` را با query builder می‌نویسد و `syncOriginalAttributes` می‌کند. hook ذخیره اجرا نمی‌شود و تغییرهای ذخیره‌نشدۀ دیگر مدل می‌ماند.
+  - `bibliography($work, $strings)`: رشتۀ بی‌تغییر دست نمی‌خورد. رشتۀ تغییرکرده فقط `CITATION_COLUMNS` را می‌نویسد. اگر مکان یا منبع عوض شود، متن برداشته‌شده `stale` می‌شود. رشته‌های پس از پایان پاک می‌شوند. سپس `mirrorBibliography()`.
+  - `restore($record, $old)` کلیدهای ستونی لاگ (`COLUMNS` و `bibliography`) را از راه مدخل برمی‌گرداند و بقیه را پس می‌دهد. آن را `rollbackVerify` و `rollbackUpdate` در `AuditLogController` صدا می‌زنند.
+- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):** hook `saved` فقط ستون‌های تغییرکرده (یا همه، هنگام ساخت) را به `RecordEntries` می‌دهد. `catalog_id` پیش‌فرض پایگاه هنگام ساخت از جدول خوانده می‌شود. استناد نسخه هنوز با `syncCited` نوشته می‌شود (مورد ۱۶۶).
+- **[SourceEntrySync::syncRecord](../app/Sources/SourceEntrySync.php):** ردیف ذخیره‌شده را می‌خواند و به `RecordEntries` می‌دهد. پس `syncIds` در `add-corpus-works`، `apply-corpus-diff`، `rebuild-copies` و `sync-work-details` دیگر مدخل را بازنویسی کامل نمی‌کند. `primaryValues` برای نسخه `entry_number = sequence_number` می‌دهد و `sources:backfill` آن را می‌خواند.
+- **[SuggestionApplier](../app/Suggestions/SuggestionApplier.php):** `applyFankhaPlace` (لاگ با نام ستون‌ها، `entry_number` با نام `sequence_number`)، `applyBibliography` (لاگ فهرست قبل و بعد). هر دو `searchable()` را صدا می‌زنند.
+- **[SyncWorkBibliographies](../app/Jobs/SyncWorkBibliographies.php):** `RecordEntries::bibliography($work, bibliographyOf($work))`.
+- **migration:** `2026_11_25_200001_fill_entry_number_of_copies_fankha_entries`.
+- **آزمون‌ها:** `SourceCorrectionsTest::test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns` و `test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds`. همۀ ۱۰۶۲ آزمون سبز.

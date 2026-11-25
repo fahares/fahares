@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Console\Commands\LinkDhariaTitlesCommand;
 use App\Models\SourceItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -47,7 +46,7 @@ class SourceMentions
 
         return $rows->map(function ($row) use ($entries, $bare) {
             // a mark, or words of no mark (a reference to the source itself, step 13.155) where they start
-            $mark = $row->ordinal !== null ? collect(LinkDhariaTitlesCommand::marksOf($row->text))->firstWhere('ordinal', $row->ordinal) : [
+            $mark = $row->ordinal !== null ? collect(PageMarks::marksOf($row->text))->firstWhere('ordinal', $row->ordinal) : [
                 'text' => $row->span,
                 'before' => mb_substr(PageMarks::strip(mb_substr($row->text, max(0, $row->offset - 200), min(200, $row->offset))), -120),
                 'after' => mb_substr(PageMarks::strip(mb_substr($row->text, $row->offset + mb_strlen((string) $row->span), 200)), 0, 80),
