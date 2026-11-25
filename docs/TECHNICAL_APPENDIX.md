@@ -14065,3 +14065,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پرونده:** ۹۲ تصمیم برای ردیف‌های ۶۹۱۲ تا ۷۰۰۴ `person_periods` (۷ تأیید، یکی با `year: 1255, year_is: from`؛ ۸۵ رد با `reason`). ردیف ۶۹۵۷ در پرونده نیست.
 - **اثر انگشت ردیف‌ها:** `md5(group_concat(concat_ws('|', id, person_id, kind, city) order by id))` برای `id > 6911` باید `9f3e58def6b07d687d6b798ab485eee4` باشد؛ پیش‌شرطش این است که هشت دورۀ «مصر» دوباره `city = قاهره` داشته باشند.
 - کدی عوض نشد.
+- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از ردیف‌های `text_status = none` با `citable_type` نسخه در این پنج منبع (۴۷٬۶۶۶ سطر JSON) یک‌راست به این ماشین آمد، بی پرونده‌ای در کانتینر. `sources:take-texts <code>` برای هر پنج: ۴۷ (یکی با شمارۀ غلط‌چاپی، ۳۰ با نشانی تازه)، ۲۲ (۱۰)، ۱۳ (۳)، ۱۲ (۲)، ۳؛ اجرای آزمایشی دوم صفر. هر تغییر یک «update» در `audit_logs` دارد.
