@@ -13965,6 +13965,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `CatalogReferencesTest::test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest`. چهار فهرست می‌سازد. فهرستی که دو نسخه دارد پیش از بقیه می‌آید. یک کارت جمع‌شده و چهار کارت روی هم.
 - **سنجش روی `fahares_prod`:** اثر ۵۰۹۳۳: ۳ پیدا (۵۲۷، ۲۸۸ و ۹۵ نسخه)، ۲۵ جمع‌شده. اثر ۴: ۳ پیدا، ۱ جمع‌شده.
 
+### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
+- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
+- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
+- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
+- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
+
 ### گام ۱۴.۳۸۶: `SourceEntrySync::keepTheirs()`
 
 - **[SourceEntrySync](../app/Sources/SourceEntrySync.php):** `syncCited()` و `syncOtherCited()` ردیف‌ها را پیش از `upsert()` از `keepTheirs()` می‌گذرانند. مدخل موجود (همان `legacy_type`، `legacy_id`، `legacy_index`) همۀ ستون‌هایش را نگه می‌دارد جز `CITED_COLUMNS`: `citable_type`، `citable_id`، `source_id`، `source_volume_id`، `citation_text`، `sort_order`، `updated_at`. `origin` هم نگه داشته می‌شود، پس نشانی‌ای که داور نوشته (`manual`) می‌ماند.
@@ -13975,8 +13981,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - متنی که جایش دیگر نشانی مدخل نیست، یا از منبع دیگری است، `text_status = stale` می‌گیرد.
 - **آزمون:** `CitedEntryKeepsMatchTest`، چهار آزمون: ذخیرۀ نسخه همۀ ستون‌های تطبیق و صفحۀ ۱۹۶ را نگه می‌دارد؛ مدخل اصلاح‌نشده با ارجاع تازه به ص ۳۰۰ می‌رود و متنش کهنه می‌شود؛ مدخل اصلاح‌شده با ارجاعی که جای دیگری را نام می‌برد می‌رود، و با ارجاعی که همان‌گونه خوانده می‌شود («5 - 197») می‌ماند؛ و جای دیگر ارجاع آنچه تطبیق نوشته را نگه می‌دارد.
 - **سنجش و ترمیم روی `fahares_prod`:** `sources:take-texts <id> --dry-run` برای پنج فهرست دارای خواننده با مدخل ارجاع فنخا: ۱۰۰۰۲۰ (`numbered_copies`) ۶۱، ۱۰۰۰۳۰ (`shelfmark_headings`) ۲۳، ۱۰۰۰۳۹ (`serial_shelfmarks`) ۱۳، ۱۰۰۰۹۳ (`listed_shelfmarks`) ۱۲، ۱۰۰۱۳۸ (`moayyed`) ۳؛ روی هم ۱۱۲. اجرای واقعی همان ۱۱۲ را نوشت و اجرای آزمایشی دوم صفر. نشانی این مدخل‌ها با `updated_at` آن‌ها با چند ثانیه فاصله پس از `updated_at` نسخه است (ذخیره‌های گروهی ۲۹ آبان ۲۱:۳۳ و ۳۰ آبان ۰۵:۳۱ و ۰۶:۴۰). در پروداکشن شناسۀ منبع‌ها را با `code` بجویید.
-### گام ۱۴.۳۸۰: `PersonOrigins::fromBiography($text, regions: true)`
-- **[PersonOrigins](../app/Support/PersonOrigins.php):** `fromBiography` با آرگومان دوم، پس از شهرها نام‌های `copy_regions` را هم با همان الگوها می‌خواند (`read`، `regionNames`؛ نامی که شهر نقشه هم هست، مانند «بحرین» و «کشمیر»، شهر می‌ماند). خوانش ناحیه `region => true` دارد و `city` آن نام ناحیه است؛ برای گونه‌ای که مدخل شهری برایش دارد نمی‌آید. برای ناحیه، فاصلۀ فعل تا نام «و» نمی‌پذیرد مگر «و وفاته / و نشا / و عاش». `isCountry($place)`: «مصر» و «شام».
-- **[PersonPeriod](../app/Models/PersonPeriod.php):** هنگام ذخیره، مکانی که `isCountry` است `city` نمی‌گیرد (تنها `region`).
-- **[ProposeLifePeriodsCommand](../app/Console/Commands/ProposeLifePeriodsCommand.php):** کلید «شخص|گونه|شهر یا ناحیه»؛ `$placed` (شخص|گونه‌ای که جایی دارد) جلوی پیشنهاد ناحیه را می‌گیرد. شمارهای تازه: `regions`، `beside_a_place`. `--prune` هم با همین کلید می‌خواند.
-- **آزمون:** `PersonPeriodsTest::test_a_country_or_region_of_birth_death_and_origin_is_proposed_where_no_city_is_named`.
