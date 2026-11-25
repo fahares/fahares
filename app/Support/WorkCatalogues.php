@@ -47,7 +47,8 @@ class WorkCatalogues
 
                 return ['entry' => $pages->first(), 'others' => $pages->slice(1)->values(), 'copies' => $group->pluck('citable_id')->unique()->count()];
             })
-            ->sortBy(fn (array $g) => [$g['entry']->source?->rank ?? Source::KIND_RANKS[Source::KIND_OTHER], $g['entry']->source_id])
+            // within a rank, the catalogue with more copies of the work first: the page shows the first few (step 14.379)
+            ->sortBy(fn (array $g) => [$g['entry']->source?->rank ?? Source::KIND_RANKS[Source::KIND_OTHER], -$g['copies'], $g['entry']->source_id])
             ->values();
     }
 }

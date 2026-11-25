@@ -547,6 +547,31 @@ class CatalogReferencesTest extends TestCase
         $this->get(route('works.show', $ms->work))->assertSee('۲ نسخه از این اثر در این فهرست')->assertDontSee('صفحه‌های دیگر:');
     }
 
+    public function test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest()
+    {
+        $ms = $this->manuscript(['shelfmark' => '1']);
+        $codes = [];
+        // four catalogues; the one with two copies of the work comes first (step 14.379)
+        foreach (['الف' => 1, 'ب' => 1, 'ج' => 2, 'د' => 1] as $name => $copies) {
+            $volume = CatalogVolume::create(['title' => "فهرست آزمایشی {$name}", 'volume_number' => 1, 'library_id' => $this->library->id,
+                'facsimile_code' => 'test-' . uniqid(), 'page_first' => 1, 'page_last' => 900]);
+            $codes[$name] = SourceVolume::findOrFail($volume->id)->source->code;
+            for ($i = 0; $i < $copies; $i++) {
+                $copy = $i === 0 && $name === 'الف' ? $ms : $this->manuscript(['shelfmark' => $name . $i, 'work_id' => $ms->work_id]);
+                $this->refEntry(['manuscript_id' => $copy->id, 'catalog_volume_id' => $volume->id, 'volume_number' => 1, 'page_start' => 10 + $i, 'source' => Ref::SOURCE_MANUAL]);
+            }
+        }
+        $this->assertCount(4, array_unique($codes));
+        config(['catalogs.describe_works' => array_values($codes)]);
+
+        $html = $this->get(route('works.show', $ms->work))->assertOk()
+            ->assertSeeInOrder(['data-work-catalogue="' . $codes['ج'] . '"', 'data-more-catalogues', 'فهرست‌های دیگر', '(۱ فهرست)'], false)
+            ->getContent();
+        $folded = substr($html, strpos($html, 'data-more-catalogues'));
+        $this->assertSame(1, substr_count($folded, 'data-work-catalogue='));
+        $this->assertSame(4, substr_count($html, 'data-work-catalogue='));
+    }
+
     public function test_the_queue_reviews_a_match_without_a_reload_and_can_put_it_back()
     {
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);

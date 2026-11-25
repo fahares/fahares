@@ -13957,3 +13957,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش روی `fahares_prod`:**
   - رندر: اثر ۵۰۹۳۳ (۲٬۵۹۰ نسخه) ۲۸ کارت در ۰٫۴۴ ثانیه. اثر ۴: ۴ کارت. اثر ۱۲۳: بی کارت و فنخا پیدا.
   - شمارش با همۀ ۷۱٬۶۸۵ اثر: پیش از این گام ۱۴٬۶۲۷، با کارت فهرست ۴۴٬۸۵۴، روی هم ۴۷٬۳۷۶ (۶۶٫۱٪).
+
+### گام ۱۴.۳۷۹: `data-more-catalogues`
+
+- **[works/show](../resources/views/works/show.blade.php):** `$workCatalogues->take(3)` پیدا. اگر بیش از سه باشد، بقیه (`slice(3)`) در `<details data-more-catalogues>` با «فهرست‌های دیگر (N فهرست)» می‌آیند، با همان ظاهر `x-source.secondary`.
+- **[WorkCatalogues](../app/Support/WorkCatalogues.php):** ترتیب `[rank, -copies, source_id]`.
+- **آزمون:** `CatalogReferencesTest::test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest`. چهار فهرست می‌سازد. فهرستی که دو نسخه دارد پیش از بقیه می‌آید. یک کارت جمع‌شده و چهار کارت روی هم.
+- **سنجش روی `fahares_prod`:** اثر ۵۰۹۳۳: ۳ پیدا (۵۲۷، ۲۸۸ و ۹۵ نسخه)، ۲۵ جمع‌شده. اثر ۴: ۳ پیدا، ۱ جمع‌شده.

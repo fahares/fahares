@@ -225,9 +225,24 @@
                 @foreach($firstHandCards as $entry)
                     <x-source.page-card :entry="$entry" :record="$work" />
                 @endforeach
-                @foreach($workCatalogues as $group)
+                @foreach($workCatalogues->take(3) as $group)
                     <x-source.work-catalogue :group="$group" />
                 @endforeach
+                @if($workCatalogues->count() > 3)
+                    {{-- the rest of a much-copied work's catalogues folded, so the column stays short (step 14.379) --}}
+                    <details class="group pb-4 border-b border-line" data-more-catalogues>
+                        <summary class="flex items-center gap-1 cursor-pointer select-none text-xs text-muted hover:text-cinnabar transition list-none [&::-webkit-details-marker]:hidden">
+                            <svg class="w-3 h-3 transition-transform group-open:rotate-90 rtl:-scale-x-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            <span class="font-semibold">فهرست‌های دیگر</span>
+                            <span class="text-[11px]">({{ Fa::num($workCatalogues->count() - 3) }} فهرست)</span>
+                        </summary>
+                        <div class="mt-3 space-y-4">
+                            @foreach($workCatalogues->slice(3) as $group)
+                                <x-source.work-catalogue :group="$group" />
+                            @endforeach
+                        </div>
+                    </details>
+                @endif
                 @if($secondHandCards->isNotEmpty())
                     {{-- Fankha's own card folded under the others (backlog item 147) --}}
                     <x-source.secondary :suggest-only="$seesFirstHand">
