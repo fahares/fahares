@@ -14310,23 +14310,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[orderByFankhaColumn](../app/Models/Concerns/HasSourceEntries.php):** با `(…) is null` پیش از مقدار، رکورد بی مدخل فنخا در آخر می‌آید. `WorkController` در پایان `manuscripts.id` را می‌افزاید.
 - **آزمون:** `CatalogReferencesTest::test_an_address_takes_the_entry_number_and_a_library_shows_its_places_in_the_sources`.
 
-### گام ۱۴.۴۰۷: حذف ستون‌های منبع
-
-- **migration `2026_11_26_100001`:** برای هر جدول، ستون‌های موجود، foreign keyهایشان و هر نمایه‌ای که یکی از آن‌ها را دارد (از جمله `manuscripts_work_id_sequence_number_index`) در یک `ALTER` حذف می‌شوند. اجرای دوباره بی‌خطر است. `down()` خطا می‌دهد. روی رونوشت جدول‌ها ۰٫۳ ثانیه و روی رونوشت کامل پایگاه ۴ ثانیه طول کشید.
-- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):**
-  - `SOURCE_ATTRIBUTES` نام‌های پیشین است. `isFillable` آن‌ها را برای اثر و نسخه می‌پذیرد.
-  - `saving` آن‌ها را از مدل برمی‌دارد و در `WeakMap` نگه می‌دارد، همراه با این‌که رکورد تازه است یا نه. `saved` آن‌ها را به `RecordEntries::take` می‌دهد. `givenSources()` برای hook خود نسخه است.
-- **[RecordEntries](../app/Sources/RecordEntries.php):**
-  - `take` (رکورد تازۀ بی منبع، منبعش فنخاست)، `citation`، `write` (نوشتن با query builder) و `insertRow` (بازگرداندن ردیف از لاگ قدیم).
-  - `mirror` و `columnsOf` حذف شدند.
-- **[SourceEntrySync](../app/Sources/SourceEntrySync.php):**
-  - `setCatalogue($ids, …)` جلد را از راه `syncCited` (و `assign`) و بخش و فهرست‌نگار را مستقیم روی مدخل استناد می‌نویسد.
-  - `syncCatalogue*`، `RECORD_COLUMNS`، `MANUSCRIPT_COLUMNS` و `syncBibliography` حذف شدند. `syncRecord` و `syncIds` فقط استناد را دوباره می‌خوانند.
-- **[CatalogVolumePart](../app/Models/CatalogVolumePart.php):** `assign` روی مدخل‌های استناد کار می‌کند. `ready()` ستون `source_entries.catalog_volume_part_id` را می‌سنجد.
-- **[SourceMerger](../app/Sources/SourceMerger.php):** snapshot از مدخل‌های استناد با کلیدهای پیشین (`id`، `catalog_volume_id`، `catalog_volume_part_id`، `cataloger_id`) ساخته می‌شود. `restoreCopies()` پشتیبان‌های پیشین و تازه را روی مدخل برمی‌گرداند.
-- **فرمان‌ها:** `set-volumes`، `remove-catalogue`، `import-volume-parts`، `link-volumes`، `merge-duplicates`، `move-cited-part`، `import-fankha-references`، `sync-other-citations`، `rebuild-copies`، `apply-corpus-diff`، `sync-work-details`، `add-corpus-works` و `seed` از `EntryColumns` می‌خوانند و از `setCatalogue` یا `RecordEntries` می‌نویسند. بخش `fankha` در `sources:backfill` و فرمان `sources:fill-catalogue-entries` (یک‌باره، اجراشده) حذف شدند.
-- **آزمون‌ها:** `tests/Support/InsertRecords.php` و `TestCase::fankhaOf`/`bibliographyOf`. حدود ۳۰ فایل از مدخل‌ها می‌خوانند. همۀ ۱۰۷۲ آزمون سبز.
-- **خروجی پروداکشن:** `step14_407_record_source_columns_before_drop.sql.gz` (۳۹۴٬۹۳۲ دستور `UPDATE`، ۶۱ MB). برای بازگشت، ستون‌ها باید با migrationهای پیشین بازساخته شوند و این دستورها اجرا شوند.
 ### گام ۱۴.۴۰۶: Worker ‏`fahares-failover` و `scripts/dev/maintenance` (مورد ۱۳۶)
 - **[failover.js](../docker/down/cloudflare/failover.js)** (منطق)، **[worker.js](../docker/down/cloudflare/worker.js)** (`fetch` و `scheduled`)، **[wrangler.toml](../docker/down/cloudflare/wrangler.toml)**:
   - routeهای `fahares.net/*`، `www.fahares.net/*` و `failover-test.fahares.net/*`؛ cron `* * * * *`.
@@ -14353,6 +14336,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
   - `CloudflareClientIpTest`: ۳ آزمون.
   - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
+
+### گام ۱۴.۴۰۷: حذف ستون‌های منبع
+
+- **migration `2026_11_26_100001`:** برای هر جدول، ستون‌های موجود، foreign keyهایشان و هر نمایه‌ای که یکی از آن‌ها را دارد (از جمله `manuscripts_work_id_sequence_number_index`) در یک `ALTER` حذف می‌شوند. اجرای دوباره بی‌خطر است. `down()` خطا می‌دهد. روی رونوشت جدول‌ها ۰٫۳ ثانیه و روی رونوشت کامل پایگاه ۴ ثانیه طول کشید.
+- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):**
+  - `SOURCE_ATTRIBUTES` نام‌های پیشین است. `isFillable` آن‌ها را برای اثر و نسخه می‌پذیرد.
+  - `saving` آن‌ها را از مدل برمی‌دارد و در `WeakMap` نگه می‌دارد، همراه با این‌که رکورد تازه است یا نه. `saved` آن‌ها را به `RecordEntries::take` می‌دهد. `givenSources()` برای hook خود نسخه است.
+- **[RecordEntries](../app/Sources/RecordEntries.php):**
+  - `take` (رکورد تازۀ بی منبع، منبعش فنخاست)، `citation`، `write` (نوشتن با query builder) و `insertRow` (بازگرداندن ردیف از لاگ قدیم).
+  - `mirror` و `columnsOf` حذف شدند.
+- **[SourceEntrySync](../app/Sources/SourceEntrySync.php):**
+  - `setCatalogue($ids, …)` جلد را از راه `syncCited` (و `assign`) و بخش و فهرست‌نگار را مستقیم روی مدخل استناد می‌نویسد.
+  - `syncCatalogue*`، `RECORD_COLUMNS`، `MANUSCRIPT_COLUMNS` و `syncBibliography` حذف شدند. `syncRecord` و `syncIds` فقط استناد را دوباره می‌خوانند.
+- **[CatalogVolumePart](../app/Models/CatalogVolumePart.php):** `assign` روی مدخل‌های استناد کار می‌کند. `ready()` ستون `source_entries.catalog_volume_part_id` را می‌سنجد.
+- **[SourceMerger](../app/Sources/SourceMerger.php):** snapshot از مدخل‌های استناد با کلیدهای پیشین (`id`، `catalog_volume_id`، `catalog_volume_part_id`، `cataloger_id`) ساخته می‌شود. `restoreCopies()` پشتیبان‌های پیشین و تازه را روی مدخل برمی‌گرداند.
+- **فرمان‌ها:** `set-volumes`، `remove-catalogue`، `import-volume-parts`، `link-volumes`، `merge-duplicates`، `move-cited-part`، `import-fankha-references`، `sync-other-citations`، `rebuild-copies`، `apply-corpus-diff`، `sync-work-details`، `add-corpus-works` و `seed` از `EntryColumns` می‌خوانند و از `setCatalogue` یا `RecordEntries` می‌نویسند. بخش `fankha` در `sources:backfill` و فرمان `sources:fill-catalogue-entries` (یک‌باره، اجراشده) حذف شدند.
+- **آزمون‌ها:** `tests/Support/InsertRecords.php` و `TestCase::fankhaOf`/`bibliographyOf`. حدود ۳۰ فایل از مدخل‌ها می‌خوانند. همۀ ۱۰۷۲ آزمون سبز.
+- **خروجی پروداکشن:** `step14_407_record_source_columns_before_drop.sql.gz` (۳۹۴٬۹۳۲ دستور `UPDATE`، ۶۱ MB). برای بازگشت، ستون‌ها باید با migrationهای پیشین بازساخته شوند و این دستورها اجرا شوند.
 
 ### گام ۱۴.۴۰۸: حامی علمی در فوتر
 - **تصویر:** [mtif-160.png](../public/images/partners/mtif-160.png) و [mtif-320.png](../public/images/partners/mtif-320.png) (srcset 2x). ساخته با Pillow از JPEG ‏CMYK ‏۷۹۹×۱۴۱۲: خاکستری، آلفا = وارونۀ روشنایی، رنگ `#FEF3C7` (`amber-100`).
