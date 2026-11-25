@@ -13964,3 +13964,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[WorkCatalogues](../app/Support/WorkCatalogues.php):** ترتیب `[rank, -copies, source_id]`.
 - **آزمون:** `CatalogReferencesTest::test_a_much_copied_work_shows_three_catalogues_and_folds_the_rest`. چهار فهرست می‌سازد. فهرستی که دو نسخه دارد پیش از بقیه می‌آید. یک کارت جمع‌شده و چهار کارت روی هم.
 - **سنجش روی `fahares_prod`:** اثر ۵۰۹۳۳: ۳ پیدا (۵۲۷، ۲۸۸ و ۹۵ نسخه)، ۲۵ جمع‌شده. اثر ۴: ۳ پیدا، ۱ جمع‌شده.
+
+### گام ۱۴.۳۸۴: وارسی تراکنش‌های بلند در `prod-run` (مورد ۱۶۵)
+- **[prod-run](../scripts/dev/prod-run):**
+  - **پرس‌وجو:** `db_long()` یک تکه PHP را از stdin به `ssh fahares-app 'cd /app && php -- <ثانیه>'` می‌دهد. تکه Laravel را بالا می‌آورد و با اتصال خود برنامه می‌خواند، پس رمز پایگاه داده از کانتینر بیرون نمی‌آید. کاربر برنامه اجازۀ PROCESS دارد.
+    - `information_schema.INNODB_TRX` با `PROCESSLIST` پیوند می‌خورد. تراکنشی که از `trx_started` بیش از آستانه گذشته، با `trx_state`، `trx_rows_locked`، `trx_rows_modified`، فرمان رشته (`Query`، `Execute` یا `Sleep`) و متن پرس‌وجو (`INFO` یا `trx_query`، ۱۱۰ نویسه).
+    - `PROCESSLIST` جدا: هر فرمانی جز `Sleep`، `Daemon` و `Binlog Dump`، جز `system user` و خود اتصال وارسی، که `TIME` آن از آستانه گذشته و تراکنش InnoDB ندارد. پس رشتۀ «Execute» هم دیده می‌شود. وارسی گام ۱۴.۳۲۷ فقط «Query» را نگاه می‌کرد و آن را ندید.
+    - سطر پایانی `#ok` است، یا `#error <پیام>` اگر خود وارسی شکست بخورد. شکست وارسی اجرا را نمی‌بندد و فقط هشدار می‌دهد.
+  - **متغیرها:** `PROD_RUN_DB_AGE` (پیش‌فرض ۳۰۰ ثانیه)؛ `PROD_RUN_DB_CHECK=refuse` (پیش‌فرض)، `warn` یا `off`.
+  - **`--status`:** سطر `database transactions and statements open over 300s: none`، یا فهرست رشته‌ها، میان «production artisan runs» و «last runs». کد خروج همان ۰ است.
+  - **پیش از اجرا:** پس از وارسی `artisan`. بی `--wait`، کد ۷۵ با فهرست و راهنمای `PROD_RUN_DB_CHECK=warn`. با `--wait`، هر ۱۵ ثانیه تا ۱۲۰ بار.
+- **آزمون:**
+  - روی پروداکشن `--status` در ۵ ثانیه `none` داد.
+  - پرس‌وجوها با root روی MariaDB محلی، با یک تراکنش `FOR UPDATE` و یک `sleep()` باز، سطرهای درست دادند، از جمله رشته‌ای در «LOCK WAIT». کاربر برنامۀ محلی اجازۀ PROCESS ندارد و همان مسیر `#error` را آزمود.
+  - رونوشتی از اسکریپت با `db_long` ساختگی: اجرای عادی، رد (۷۵)، `warn`، `off`، شکست وارسی و `--status`.
+- **[CLAUDE.md](../CLAUDE.md):** بند `prod-run` و بند وارسی پیش از انتشار به‌روز شدند. بند تازه: پرس‌وجوی سنگین فقط‌خواندنی روی `fahares_prod`.
