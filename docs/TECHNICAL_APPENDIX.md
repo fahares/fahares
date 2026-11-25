@@ -14200,6 +14200,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین:** migration `2026_11_25_100001` روی `fahares_prod` اجرا شد. اجرای آزمایشی: ۳۱ منبع، ۴۷ جلد، ۱۸۹ فیلد، و هیچ ردیف نیافته‌ای.
 - **آزمون:** [FillSourceImprintsTest](../tests/Feature/FillSourceImprintsTest.php)، ۳ آزمون؛ `CiteTest::test_a_journal_page_is_cited_as_the_article_that_holds_it` (با رمزینه و دکمه‌های دریافت).
 - **تمرین روی `fahares_prod`:** `--apply` ۱۸۹ فیلد را نوشت و اجرای دوم چیزی ننوشت (`unchanged 78`).
+- **پروداکشن (۴ آذر):** پشتیبان با `tinker --execute` از همۀ ستون‌های `sources` و `source_volumes`، مستقیم به لپ‌تاپ (بی فایل در کانتینر). `prod-run task-management -- 'php artisan fahares:fill-source-imprints'` سپس `--apply`: `sources_changed 31`، `volumes_changed 47`، `fields_changed 189`، `not_found 0`؛ اجرای دوم `unchanged 78`.
 
 ### گام ۱۴.۳۹۵: دامنه‌های آماده در `insights/filter-form.blade.php`
 - `@includeWhen($scope->isEmpty() && ! $topic, 'insights.presets')` درون `<details>` فرم فیلتر، پس از `</form>`؛ از `insights/index.blade.php` برداشته شد. `presets.blade.php`: `flex-wrap` در همۀ پهناها.
