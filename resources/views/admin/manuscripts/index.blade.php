@@ -42,8 +42,8 @@
             </x-admin.cell>
             <x-admin.cell label="اثر">
                 @if($m->work)
-                    <a href="{{ route('works.show', $m->work) }}" target="_blank" class="hover:text-cinnabar">{{ $m->work->primary_title }}</a>
-                    @if($m->work->author_name)<span class="block text-xs text-muted">{{ $m->work->author_name }}</span>@endif
+                    <a href="{{ route('works.show', $m->work) }}" target="_blank" class="hover:text-cinnabar">{{ $fa($m->work->primary_title) }}</a>
+                    @if($m->work->author_name)<span class="block text-xs text-muted">{{ $fa($m->work->author_name) }}</span>@endif
                 @else
                     —
                 @endif
