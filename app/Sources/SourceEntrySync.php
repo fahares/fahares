@@ -307,16 +307,27 @@ class SourceEntrySync
     }
 
     /** syncCatalogue() for every copy, after a command that rewrote the copies' volumes, parts or catalogers at large. */
-    public static function syncCatalogueAll(): void
+    public static function syncCatalogueAll(?callable $progress = null): int
     {
         if (! SourceEntry::holdsCatalogue()) {
-            return;
+            return 0;
         }
-        DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
-            ->where('e.legacy_type', 'fankha_citation')->where('e.legacy_index', 0)
-            ->where(fn ($q) => $q->whereRaw('NOT (e.catalog_volume_part_id <=> m.catalog_volume_part_id)')->orWhereRaw('NOT (e.cataloger_id <=> m.cataloger_id)'))
-            ->update(['e.catalog_volume_part_id' => DB::raw('m.catalog_volume_part_id'), 'e.cataloger_id' => DB::raw('m.cataloger_id')]);
+        // by ranges of copies, each a short statement: one over all 323k copies held the table too long (step 14.403)
+        $last = (int) DB::table('manuscripts')->max('id');
+        $written = 0;
+        for ($from = 0; $from <= $last; $from += self::CATALOGUE_BATCH) {
+            $written += DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
+                ->where('e.legacy_type', 'fankha_citation')->where('e.legacy_index', 0)
+                ->where('m.id', '>', $from)->where('m.id', '<=', $from + self::CATALOGUE_BATCH)
+                ->where(fn ($q) => $q->whereRaw('NOT (e.catalog_volume_part_id <=> m.catalog_volume_part_id)')->orWhereRaw('NOT (e.cataloger_id <=> m.cataloger_id)'))
+                ->update(['e.catalog_volume_part_id' => DB::raw('m.catalog_volume_part_id'), 'e.cataloger_id' => DB::raw('m.cataloger_id')]);
+            $progress && $progress(min($from + self::CATALOGUE_BATCH, $last), $last, $written);
+        }
+
+        return $written;
     }
+
+    private const CATALOGUE_BATCH = 5000;
 
     /** syncCatalogue() for every copy on some catalogue volumes, after a write by volume. */
     public static function syncCatalogueOfVolumes(iterable $volumeIds): void

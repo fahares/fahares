@@ -14265,3 +14265,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `syncCatalogue($ids)`، `syncCatalogueOfVolumes($volumes)` و `syncCatalogueAll()` (فقط ردیف‌های ناهمخوان؛ روی رونوشت پروداکشن ۵ ثانیه) با `UPDATE … JOIN`.
   - این‌ها را صدا می‌زنند: `syncCited` (پس از `assign`)، `CatalogVolumePart::assign`، `relinkVolumes`، `VolumeEditor`، `SourceMerger::undo`، `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` (که `merge-duplicates` هم صدا می‌زند)، `recount` و `revert` در `import-volume-parts`، `set-volumes` و `remove-catalogue`، و hook ذخیرۀ نسخه وقتی `catalog_volume_part_id` یا `cataloger_id` تغییر کند.
 - **آزمون:** `CatalogVolumePartsTest` بخش و فهرست‌نگار مدخل استناد را با نسخه می‌سنجد. `test_the_pages_and_a_save_before_the_deploy_has_migrated` هنوز سبز است.
+
+### گام ۱۴.۴۰۳: `sources:fill-catalogue-entries`
+
+- **migration `2026_11_25_300001`:** برای هر ستون، اگر `Schema::hasColumn` نادرست باشد ستون nullable را می‌افزاید. اگر foreign key در `information_schema.KEY_COLUMN_USAGE` نباشد، آن را با `nullOnDelete` می‌سازد. `UPDATE … JOIN` حذف شد. `down()` فقط ستون موجود را می‌اندازد.
+- **[SourceEntrySync::syncCatalogueAll($progress)](../app/Sources/SourceEntrySync.php):** بازه‌های `CATALOGUE_BATCH = 5000` از `manuscripts.id`، فقط ردیف‌های `NOT (e.x <=> m.x)`. خروجی شمار نوشته‌ها است.
+- **[FillCatalogueEntriesCommand](../app/Console/Commands/FillCatalogueEntriesCommand.php):** `sources:fill-catalogue-entries {--dry-run}`. اگر `SourceEntry::holdsCatalogue()` نادرست باشد خطا می‌دهد. پیش و پس از نوشتن، شمار ناهمخوان‌ها را چاپ می‌کند.
+- **تمرین:** وضع پروداکشن روی `fahares_prod` بازسازی شد: `UPDATE … SET NULL` (۹٫۲ ثانیه) و حذف ردیف `migrations`. سپس `migrate` در ۲٫۰۳ ms، و فرمان: ۲۹۲٬۳۲۰ نوشته در ۴۵ ثانیه، ۰ ناهمخوان.
+- **آزمون:** `FillCatalogueEntriesTest` (dry run، پر کردن، اجرای دوباره بی نوشتن).
