@@ -90,7 +90,7 @@ class SourceMerger
             'volumes' => count($volumes) - ($volumes === [0] ? 1 : 0),
             'drops' => count($plan['drops']),
             'entries' => DB::table('source_entries')->where(fn ($q) => $q->whereIn('source_id', $folded)->orWhereIn('source_volume_id', $volumes))->count(),
-            'copies' => DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes)->count(),
+            'copies' => \App\Support\EntryColumns::cited()->whereIn('ce.source_volume_id', $volumes)->count(),
             'parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->count(),
             'catalogers' => DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->distinct()->count('cataloger_id'),
             'items' => DB::table('source_items')->whereIn('source_volume_id', $volumes)->count(),
@@ -142,7 +142,7 @@ class SourceMerger
         if ($keptVolumes) {
             CatalogVolumePart::assign(DB::table('manuscripts')->whereIn('catalog_volume_id', $keptVolumes)->pluck('id'));
             foreach ($keptVolumes as $id) {
-                DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
+                DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
             }
             CatalogVolumePart::recount(DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $keptVolumes)->pluck('id')->all());
             Cataloger::recount(DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $keptVolumes)->pluck('cataloger_id')
@@ -345,7 +345,7 @@ class SourceMerger
         $insert('source_citation_forms', $snapshot['source_citation_forms'] ?? []);
 
         foreach ($snapshot['volume_ids'] as $id) {
-            DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
+            DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
         }
         CatalogVolumePart::recount($parts);
         Cataloger::recount(collect($snapshot['catalog_volume_cataloger'])->pluck('cataloger_id')

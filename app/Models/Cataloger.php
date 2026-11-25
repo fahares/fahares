@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -130,11 +129,6 @@ class Cataloger extends Model
             ->withTimestamps();
     }
 
-    public function manuscripts(): HasMany
-    {
-        return $this->hasMany(Manuscript::class);
-    }
-
     /**
      * The copies this cataloger catalogued: those that name them, those of their volumes without parts, and those of
      * the parts they wrote. A volume with parts reaches its copies through them: its own people are its editors
@@ -145,8 +139,9 @@ class Cataloger extends Model
         [$volumes, $parted] = $this->volumeIds();
         $parts = CatalogVolumePart::ready() ? $this->catalogVolumeParts()->pluck('catalog_volume_parts.id') : collect();
 
-        return Manuscript::where(fn ($q) => $q->where('cataloger_id', $this->id)
-            ->orWhereIn('catalog_volume_id', $volumes->diff($parted)->values())
+        // by the copies' citation entries (step 14.402)
+        return Manuscript::whereCitation(fn ($q) => $q->where('cataloger_id', $this->id)
+            ->orWhereIn('source_volume_id', $volumes->diff($parted)->values())
             ->orWhereIn('catalog_volume_part_id', $parts));
     }
 
@@ -155,7 +150,7 @@ class Cataloger extends Model
     {
         [$volumes, $parted] = $this->volumeIds();
 
-        return Manuscript::whereIn('catalog_volume_id', $volumes->intersect($parted)->values());
+        return Manuscript::whereCitation(fn ($q) => $q->whereIn('source_volume_id', $volumes->intersect($parted)->values()));
     }
 
     /** @return array{0: Collection<int, int>, 1: Collection<int, int>} this cataloger's volumes, and those of them with parts */

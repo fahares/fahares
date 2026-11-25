@@ -31,7 +31,9 @@ class InsightsCompletenessTest extends TestCase
         [$careful, $brief] = [$cataloger('فهرست‌نگار دقیق آزمایشی'), $cataloger('فهرست‌نگار مختصرنویس آزمایشی')];
         $volume = \App\Models\CatalogVolume::create(['title' => 'فهرست آزمایشی کتابخانۀ پرداده']);
         $copy = function (Library $in, Cataloger $by, array $fields) use ($work) {
-            $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
+            $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
+                // the citation gives the copy the entry that holds its cataloger and catalogue volume (step 14.402)
+                'metadata' => ['catalog_citation' => '[ف: 1 - 1]']]);
             $copy->forceFill(['library_id' => $in->id, 'cataloger_id' => $by->id] + $fields)->save();
         };
         $all = ['copy_date_from' => 1050, 'copy_date_to' => 1050, 'scribe_name' => 'کاتب آزمایشی', 'copy_place' => 'اصفهان', 'script_names' => 'نسخ',

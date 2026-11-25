@@ -134,7 +134,7 @@ class MergeCatalogDuplicatesCommand extends Command
                     }
                 });
         }
-        $copies = DB::table('manuscripts')->where('catalog_volume_id', $volume->id)->count();
+        $copies = \App\Support\EntryColumns::copiesOf('catalog_volume_id', $volume->id);
         $names = $catalogers ? ($catalogers->pluck('name')->implode('، ') ?: 'none') : 'unchanged';
         $this->line(sprintf('fix   #%d «%s» → «%s», catalogers: %s, %d copies%s', $volume->id, $volume->title, $set['title'] ?? $volume->title,
             $names, $copies, $moves ? ', split: ' . collect($moves)->map(fn ($ids, $n) => "ج {$n}: " . count($ids))->implode('، ') : ''));
@@ -198,11 +198,12 @@ class MergeCatalogDuplicatesCommand extends Command
         if ($drop->is($keep)) {
             return;
         }
-        $copies = DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->count();
+        $copies = \App\Support\EntryColumns::copiesOf('catalog_volume_id', $drop->id);
         $this->line(sprintf('volume #%d «%s» → #%d «%s» (%d copies; %s)', $drop->id, $drop->title, $keep->id, $keep->title, $copies, $merge['note'] ?? ''));
         if ($this->dry) {
             return;
         }
+        $moved = DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->pluck('id');
         if (! empty($merge['reassign'])) {
             // the duplicate's catalogers were wrong: its copies take the kept volume's cataloger
             $catalogerId = $keep->catalogers()->wherePivot('role', 'cataloger')->orderBy('catalog_volume_cataloger.id')->value('catalogers.id');
@@ -212,6 +213,10 @@ class MergeCatalogDuplicatesCommand extends Command
             $keep->catalogers()->syncWithoutDetaching(
                 $drop->catalogers()->get()->mapWithKeys(fn ($c) => [$c->id => ['role' => $c->pivot->role]])->all()
             );
+        }
+        // the citation entries follow the copies (their counts are read from them, step 14.402)
+        foreach ($moved->chunk(1000) as $ids) {
+            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $ids->all())->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
         }
         $mtif = $drop->mtif_entry_id;
         $drop->catalogers()->detach();

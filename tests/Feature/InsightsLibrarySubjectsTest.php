@@ -29,7 +29,9 @@ class InsightsLibrarySubjectsTest extends TestCase
         $cataloger = fn (string $name) => \App\Models\Cataloger::create(['name' => $name, 'slug' => 'insights-ls-' . uniqid()]);
         [$much, $little] = [$cataloger('فهرست‌نگار پرکار آزمایشی'), $cataloger('فهرست‌نگار کم‌کار آزمایشی')];
         $copy = function (?int $catalogerId, Library $in) use ($work) {
-            $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
+            $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
+                // the citation gives the copy the entry that holds its cataloger and catalogue volume (step 14.402)
+                'metadata' => ['catalog_citation' => '[ف: 1 - 1]']]);
             $copy->forceFill(['library_id' => $in->id, 'cataloger_id' => $catalogerId])->save();
         };
         foreach (range(1, 4) as $i) {
@@ -71,7 +73,9 @@ class InsightsLibrarySubjectsTest extends TestCase
         };
         $copies = function (Work $work, Library $library, int $n) {
             foreach (range(1, $n) as $i) {
-                $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
+                $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
+                // the citation gives the copy the entry that holds its cataloger and catalogue volume (step 14.402)
+                'metadata' => ['catalog_citation' => '[ف: 1 - 1]']]);
                 $copy->forceFill(['library_id' => $library->id])->save();
             }
         };

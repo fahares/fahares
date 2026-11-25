@@ -26,6 +26,16 @@ class Manuscript extends Model
 
     public const PROVENANCE_CATALOGUE = 'catalogue';
 
+    /**
+     * The copies whose citation entry (Fankha's place of the copy in its catalogue volume) meets the conditions: its
+     * source_volume_id (the catalogue volume), catalog_volume_part_id or cataloger_id (step 14.402, backlog item 170).
+     * A subquery on the entries' indexes, so the copy query keeps its own columns and orders.
+     */
+    public function scopeWhereCitation($query, \Closure $conditions)
+    {
+        return $query->whereIn('manuscripts.id', SourceEntry::citations()->where($conditions)->select('legacy_id'));
+    }
+
     /** The copies Fankha lists; one made in the panel has no catalog (backlog item 149). The corpus commands look among these. */
     public function scopeFromFankha($query)
     {

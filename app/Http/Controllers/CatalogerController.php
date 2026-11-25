@@ -43,7 +43,7 @@ class CatalogerController extends Controller
         $stats = [
             'total_catalogers' => Cataloger::count(),
             'total_volumes' => CatalogVolume::whereNull('edition_of_id')->count(),
-            'total_manuscripts' => Manuscript::whereNotNull('cataloger_id')->count(),
+            'total_manuscripts' => Manuscript::whereCitation(fn ($q) => $q->whereNotNull('cataloger_id'))->count(),
         ];
 
         return view('catalogers.index', compact('catalogers', 'stats', 'search', 'sort'));
@@ -105,7 +105,7 @@ class CatalogerController extends Controller
 
         // the copies they catalogued: named, of their volumes without parts, and of their parts (Cataloger::catalogedCopies)
         $manuscripts = $cataloger->catalogedCopies()
-            ->with(['work.author', 'libraryRecord', 'catalogVolume',
+            ->with(['work.author', 'libraryRecord', 'citedEntry',
                 // the copy's place in the printed catalogue, shown instead of Fankha's (backlog item 147)
                 'sourceEntries' => fn ($q) => $q->where('role', \App\Models\SourceEntry::ROLE_ENTRY)->where('origin', '!=', \App\Models\SourceEntry::ORIGIN_FANKHA)
                     ->where('status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)->whereNotNull('page_start'),

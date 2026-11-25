@@ -66,11 +66,6 @@ class CatalogVolume extends Model
         return $this->belongsTo(Catalog::class);
     }
 
-    public function manuscripts(): HasMany
-    {
-        return $this->hasMany(Manuscript::class);
-    }
-
     /** The catalogues of the libraries this volume holds, each with its catalogers (step 13.150). */
     public function parts(): HasMany
     {

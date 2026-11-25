@@ -33,6 +33,7 @@ class InsightsScope
     // The temporary tables of the scope's copies and works (open)
     private const COPIES = 'insights_scope_copies';
     private const WORKS = 'insights_scope_works';
+    private const CITED = 'insights_scope_cited';
 
     private bool $open = false;
 
@@ -159,8 +160,20 @@ class InsightsScope
         $sized = "dimensions REGEXP '^[0-9]+(/[0-9]+){0,1}×[0-9]+(/[0-9]+){0,1} {0,1}(سم){0,1}$'";
         $one = "CAST(REPLACE(SUBSTRING_INDEX(dimensions, '×', 1), '/', '.') AS DECIMAL(6,1))";
         $other = "CAST(REPLACE(TRIM(REPLACE(SUBSTRING_INDEX(dimensions, '×', -1), 'سم', '')), '/', '.') AS DECIMAL(6,1))";
-        $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, scribe_id, library_id, collection_key, catalog_volume_id, cataloger_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
+        // the catalogue volume and cataloger of each copy come from its citation entry (step 14.402). Of the select's
+        // unqualified names only id (and cataloger_id) is also a column of the entries. Read in order, the three columns
+        // of every entry take half the time of a lookup of each copy's entry in the large table, so for the whole data
+        // they are copied first into a narrow temporary table.
+        $query = $this->conditions(DB::table('manuscripts'));
+        if ($this->isEmpty()) {
+            DB::statement('CREATE TEMPORARY TABLE ' . self::CITED . ' (PRIMARY KEY (legacy_id)) '
+                . 'SELECT legacy_id, source_volume_id, cataloger_id FROM source_entries WHERE legacy_type = ? AND legacy_index = 0', ['fankha_citation']);
+            $query->leftJoin(self::CITED . ' as ce', 'ce.legacy_id', '=', 'manuscripts.id');
+        } else {
+            \App\Support\EntryColumns::citation($query);
+        }
+        $copies = $query->select(DB::raw(
+            "manuscripts.id, work_id, scribe_id, library_id, collection_key, ce.source_volume_id AS catalog_volume_id, ce.cataloger_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}, "
             . "CASE WHEN {$sized} THEN GREATEST({$one}, {$other}) END AS page_height, CASE WHEN {$sized} THEN LEAST({$one}, {$other}) END AS page_width, "
             // What the catalogue wrote of each copy (step 14.348): «بی‌تا» and «بی‌کا» are the print's own words
             . "is_bita, is_bika, COALESCE(scribe_name, '') != '' AS scribe_named, COALESCE(script_names, '') != '' AS scripted, "
@@ -181,7 +194,7 @@ class InsightsScope
 
     public function close(): void
     {
-        DB::statement('DROP TEMPORARY TABLE IF EXISTS ' . self::COPIES . ', ' . self::WORKS);
+        DB::statement('DROP TEMPORARY TABLE IF EXISTS ' . self::COPIES . ', ' . self::WORKS . ', ' . self::CITED);
         $this->open = false;
     }
 

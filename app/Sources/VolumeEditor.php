@@ -5,6 +5,7 @@ namespace App\Sources;
 use App\Models\Cataloger;
 use App\Models\CatalogVolume;
 use App\Models\CatalogVolumePart;
+use App\Support\EntryColumns;
 use Closure;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +26,7 @@ class VolumeEditor
         $result = null;
         $work = function () use ($volume, $change, &$result) {
             // the copies' parts as the rules give them now, so the comparison is of this change only
-            $was = CatalogVolumePart::assign(DB::table('manuscripts')->where('catalog_volume_id', $volume->id)->pluck('id'));
+            $was = CatalogVolumePart::assign(EntryColumns::cited()->where('ce.source_volume_id', $volume->id)->pluck('manuscripts.id'));
             $before = $this->state($volume->id);
             $people = $this->people($volume->id);
             $primary = CatalogVolumePart::primaryCatalogers([$volume->id])[$volume->id] ?? null;
@@ -69,7 +70,8 @@ class VolumeEditor
     /** @return array<int, array{0: ?int, 1: ?int}> copy id => [part, cataloger] */
     private function state(int $volumeId): array
     {
-        return DB::table('manuscripts')->where('catalog_volume_id', $volumeId)->get(['id', 'catalog_volume_part_id', 'cataloger_id'])
+        // from the copies' citation entries (step 14.402)
+        return EntryColumns::cited()->where('ce.source_volume_id', $volumeId)->get(['manuscripts.id', 'ce.catalog_volume_part_id', 'ce.cataloger_id'])
             ->mapWithKeys(fn ($r) => [$r->id => [$r->catalog_volume_part_id ? (int) $r->catalog_volume_part_id : null, $r->cataloger_id ? (int) $r->cataloger_id : null]])
             ->all();
     }

@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -57,11 +56,6 @@ class CatalogVolumePart extends Model
             ->withPivot('role')
             ->withTimestamps()
             ->orderBy('catalog_volume_part_cataloger.id');
-    }
-
-    public function manuscripts(): HasMany
-    {
-        return $this->hasMany(Manuscript::class);
     }
 
     /** «ص ۸–۱۰۷», «ص ۸», or null. */
@@ -155,9 +149,9 @@ class CatalogVolumePart extends Model
                 }
             }
         }
-        self::recount(array_filter($touched));
-        // the citation entries hold the part and the cataloger (step 14.401)
+        // the citation entries hold the part and the cataloger (step 14.401); the recount reads them (step 14.402)
         \App\Sources\SourceEntrySync::syncCatalogue($ids);
+        self::recount(array_filter($touched));
 
         return $stats;
     }
@@ -178,7 +172,7 @@ class CatalogVolumePart extends Model
     public static function recount(array $ids): void
     {
         foreach (array_unique($ids) as $id) {
-            DB::table('catalog_volume_parts')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_part_id', $id)->count()]);
+            DB::table('catalog_volume_parts')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::cited()->where('ce.catalog_volume_part_id', $id)->count()]);
         }
     }
 }

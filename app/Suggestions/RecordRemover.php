@@ -74,8 +74,10 @@ class RecordRemover
         }
         $referrals = $record instanceof Work ? DB::table('referrals')->where('target_work_id', $record->id)->pluck('id')->all() : [];
 
+        // the copy's catalogue volume and cataloger are its citation entry's (step 14.402); read before it goes
+        $cited = $this->cited($record);
         $record->delete();
-        $this->recount($record::class, $record->getAttributes(), $pivots);
+        $this->recount($record::class, $cited + $record->getAttributes(), $pivots);
         // the parts of a removed work no longer read its author, subject and language (step 14.308)
         if ($record instanceof Work) {
             RecordRelations::partsChanged(array_values(array_diff(array_column($relations['rows'] ?? [], 'work_id'), [$record->id])));
@@ -116,7 +118,7 @@ class RecordRemover
         DB::table('referrals')->whereIn('id', $old['referral_ids'] ?? [])->whereNull('target_work_id')->update(['target_work_id' => $attributes['id']]);
 
         $record = $class::findOrFail($attributes['id']);
-        $this->recount($class, $attributes, $old['snapshot']['pivots'] ?? []);
+        $this->recount($class, $this->cited($record) + $attributes, $old['snapshot']['pivots'] ?? []);
         $record->searchable();
 
         return $record;
@@ -164,6 +166,14 @@ class RecordRemover
         return array_column(array_merge($rows, $pivots[$legacy] ?? []), 'person_id');
     }
 
+    /** @return array{catalog_volume_id?: ?int, cataloger_id?: ?int} for a copy, what its citation entry holds; nothing for another record */
+    private function cited(Model $record): array
+    {
+        $entry = $record instanceof Manuscript ? $record->citedEntry : null;
+
+        return $record instanceof Manuscript ? ['catalog_volume_id' => $entry?->source_volume_id, 'cataloger_id' => $entry?->cataloger_id] : [];
+    }
+
     private function recount(string $class, array $attributes, array $pivots): void
     {
         if ($class === Manuscript::class) {
@@ -171,7 +181,7 @@ class RecordRemover
             Work::whereKey($attributes['work_id'])->searchable();
             foreach (['library_id' => 'libraries', 'catalog_volume_id' => 'catalog_volumes', 'cataloger_id' => 'catalogers'] as $column => $table) {
                 if ($id = $attributes[$column] ?? null) {
-                    DB::table($table)->where('id', $id)->update(['manuscripts_count' => Manuscript::where($column, $id)->count()]);
+                    DB::table($table)->where('id', $id)->update(['manuscripts_count' => $column === 'library_id' ? Manuscript::where($column, $id)->count() : \App\Support\EntryColumns::copiesOf($column, $id)]);
                 }
             }
             foreach (array_column($pivots['manuscript_script'] ?? [], 'script_id') as $id) {

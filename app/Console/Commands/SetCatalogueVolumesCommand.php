@@ -219,7 +219,7 @@ class SetCatalogueVolumesCommand extends Command
         }
         $all = $volumes->pluck('id')->all();
         foreach ($all as $id) {
-            DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
+            DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
         }
         DB::table('sources')->where('id', $source->id)->update(['volumes_count' => count($all), 'updated_at' => now()]);
         \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($all);
