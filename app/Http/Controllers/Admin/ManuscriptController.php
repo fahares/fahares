@@ -20,6 +20,43 @@ use InvalidArgumentException;
  */
 class ManuscriptController extends Controller
 {
+    /**
+     * The copies, for the panel (step 14.397): by library, by shelfmark or title, or by id or link, and the records made
+     * in the panel. «نسخۀ تازه» is a button of this page.
+     */
+    public function index(Request $request)
+    {
+        $search = trim((string) $request->query('q', ''));
+        $libraryId = $request->integer('library_id') ?: null;
+        $filter = $request->query('filter');
+        $query = Manuscript::query()->select(['id', 'work_id', 'library_id', 'library', 'city', 'shelfmark', 'range_from', 'range_to', 'scribe_name', 'copy_date_raw', 'catalog_id'])
+            ->with('work:id,primary_title,author_name,slug');
+
+        if ($libraryId) {
+            $query->where('library_id', $libraryId);
+        }
+        if ($search !== '') {
+            $digits = strtr($search, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+            // a bare number is a shelfmark here: the id goes with «#» or the copy's link
+            $id = preg_match('~/(?:m|manuscripts)/(\d+)~u', $digits, $m) || preg_match('/^#(\d+)$/u', $digits, $m) ? (int) $m[1] : null;
+            // a title is searched with a library chosen: the whole of the copies is too many for a title alone. The
+            // works are found first; as a subquery MariaDB scans the copies (4 s on the production copy)
+            $works = $libraryId ? Work::where('primary_title', 'like', "%{$search}%")->limit(5000)->pluck('id')->all() : [];
+            $id ? $query->whereKey($id) : $query->where(fn ($q) => $q->where('shelfmark_key', $digits)->orWhere('shelfmark_key', 'like', $digits . '/%')
+                ->when($works, fn ($q) => $q->orWhereIn('work_id', $works)));
+        }
+        if ($filter === 'panel') {
+            $query->whereNull('catalog_id');
+        }
+        $manuscripts = $query->orderByDesc('id')->paginate(25)->withQueryString();
+        $library = $libraryId ? Library::find($libraryId) : null;
+
+        return view('admin.manuscripts.index', [
+            'manuscripts' => $manuscripts, 'search' => $search, 'filter' => $filter,
+            'picked' => ['library_id' => $library ? SuggestionRegistry::describe($library) : null],
+        ]);
+    }
+
     public function create(Request $request)
     {
         $from = $request->filled('from') ? Manuscript::with('libraryRecord')->find((int) $request->query('from')) : null;

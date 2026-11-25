@@ -19,6 +19,31 @@ use InvalidArgumentException;
  */
 class WorkController extends Controller
 {
+    /**
+     * The works, for the panel (step 14.397): by title, other title, author or id, the records made in the panel (no
+     * volume of Fankha) and the works with no copy. «اثر تازه» is a button of this page.
+     */
+    public function index(Request $request)
+    {
+        $search = trim((string) $request->query('q', ''));
+        $filter = $request->query('filter');
+        $query = Work::query()->select(['id', 'primary_title', 'author_id', 'author_name', 'composition_date_raw', 'manuscripts_count', 'catalog_id', 'slug']);
+
+        if ($search !== '') {
+            $id = \App\Http\Controllers\Admin\SuggestionController::recordId('work', $search);
+            $id ? $query->whereKey($id) : $query->where(fn ($q) => $q->where('primary_title', 'like', "%{$search}%")
+                ->orWhere('clean_title', 'like', "%{$search}%")->orWhere('alternative_titles', 'like', "%{$search}%")->orWhere('author_name', 'like', "%{$search}%"));
+        }
+        match ($filter) {
+            'panel' => $query->whereNull('catalog_id'),
+            'no_copies' => $query->where('manuscripts_count', 0),
+            default => null,
+        };
+        $works = $query->orderByDesc('id')->paginate(25)->withQueryString();
+
+        return view('admin.works.index', compact('works', 'search', 'filter'));
+    }
+
     public function create(Request $request)
     {
         $picked = [];

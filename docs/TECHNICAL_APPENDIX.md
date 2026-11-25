@@ -14060,10 +14060,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - دو رکورد هر سطر `duplicate_candidates_step14_266.tsv` با کتابخانه و شماره، و متن سه صفحه (صفحه و صفحۀ پیش و پس) از `source_pages` جلدِ مدخل رکورد فنخا، خوانده شد. اسکریپت‌ها و خروجی در `storage/app/private/item159_*` این worktree بود.
   - رکوردهای دیگر همان شماره‌ها هم دیده شد، مثلاً ملک ۹۷۲ «منتخب اللغات» است و مروی ۵۱۲ «شرح الفوائد الصمدية».
   - داوری ۷۱ سطر: `../fahares-sources/ocr-claude/duplicate_candidates_step14_266_verdicts.tsv` (`merge` ۴، `correct` ۲، `unclear` ۱۰، `distinct` ۵۵). سطر ۴۶ تکرار سطر ۴۳ است.
+  - از ۱۰ `unclear`، هفت سطرِ ملک ۱۷۲۳ با تأیید کاربر اصلاح شد. ۱۷۲۳/۸ هم، که در فهرست نبود، با آن‌ها رفت. ۱۷۳۳/۹ و ۱۰ در متن فنخا «1723/9» و «1723/10» دارند و گام ۱۴.۲۶۶ آن‌ها را اصلاح کرده بود. ملک ۱۷۲۳ بی رساله، «بدائع الحکم» (ج ۲ ص ۵۴)، نسخۀ دیگری است.
 - **[`shelfmark_twins.json`](../database/data/shelfmark_twins.json):**
   - `merges`: `library` (slug)، `removed` و `kept` (هر کدام `shelfmark` و slug اثر)، و `fields` اختیاری (کلید ردیف `MergeComparison` ⇒ `source`، `target`، `both` یا `reading`)، با `why`.
   - `corrections`: `library`، `shelfmark`، `work` و `to`.
   - ۸۹۱۹/۱۶: `scribe_name` و `copy_date_raw` ⇒ `target`. ۵۲۱/۲: `copy_date_raw` ⇒ `source`.
+  - `corrections` ده ردیف دارد: ۱۲۳۰/۳۰، ۲۱۰۰۵۵/۱، و ۱۷۲۳/۱ تا ۸.
 - **[`MergeShelfmarkTwinsCommand`](../app/Console/Commands/MergeShelfmarkTwinsCommand.php):**
   - `find()` یک رکورد را با `library_id`، `work_id` و `shelfmark` برابر می‌جوید. اگر بیش از یکی باشد، چیزی برنمی‌گرداند.
   - **ادغام:** `RecordMerger::mergeManuscript($removed, $kept, $fields)` و `AuditLog` از نوع `merge`، با `new_values.corpus_fix = step 14.387 merge-shelfmark-twins` و `dropped_entries`.
@@ -14076,11 +14078,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. اجرای خشک: ۴ ادغام و ۲ اصلاح، شناسه‌ها ۱۹۱۳۳۰ ← ۱۸۲۶۹۸، ۳۶۳۳۲ ← ۳۷۲۳۷، ۱۹۹۲۶۵ ← ۱۸۷۵۴۶ و ۲۰۱۸۰۷ ← ۲۰۱۸۱۲، و ۱۴۲۵۹۸ و ۴۱۴۹۶.
   2. `--apply` پیش از ادغام `main`: چهار ارجاع و شش لاگ. ذخیرۀ metadata رکورد ماندنی، مدخل‌های ۵۶۷۹۵۸ و ۴۲۲۵۵۰ را به صفحۀ ارجاع و بی متن برد (`syncCited`؛ گام ۱۴.۳۸۶ همین را در `main` درست کرده بود). `--revert` همه را برگرداند، و آن دو ردیف از پروداکشن (فقط خواندنی) بازنشانده شد.
   3. پس از ادغام `main`: `--apply`، `--revert` و دوباره `--apply`. مدخل‌های چاپی رکورد ماندنی با `text_status = auto` و صفحۀ خودشان ماندند. دو «قول دیگر» ساخته شد: برگ ۸۹۱۹/۱۶ (۱) و تاریخ ۷۹۲/۴ («با تاریخ 1123ق»). اجرای بعدی: `done before 6`.
-  4. `sources:take-texts catalogue-7ac531af190e --show=0`: ۱۴ برداشت، از جمله ۱۴۲۵۹۸ (ص ۲۴۷، «۳۰ ـ شعر ابوتراب بیك و سعدالدین محمد مشهدی»). `sources:take-texts catalogue-af2952129bfd --show=0`: ۲۳ برداشت، از جمله ۴۱۴۹۶ (ص ۶۶، «۲۱. الاعتقادات»). بقیۀ برداشت‌ها مدخل‌های منتظر دیگری بودند.
+  4. پس از تأیید کاربر، هشت اصلاح ۱۷۲۳ ← ۱۷۳۳ (#۲۳۰۴۵۵، #۲۳۰۲۲۰، #۳۱۳۵۶، #۳۷۶۹۹، #۱۶۹۵۳، #۹۴۷۷۵، #۱۶۶۸۴ و #۲۲۹۹۶۲) با `done before 6`. هر ده رساله در یک مجموعه رفتند، و `sources:take-texts catalogue-7ac531af190e` متن ص ۳۵۱ را برای هر هشت برداشت.
+  5. `sources:take-texts catalogue-7ac531af190e --show=0` (پیش از گام ۴): ۱۴ برداشت، از جمله ۱۴۲۵۹۸ (ص ۲۴۷، «۳۰ ـ شعر ابوتراب بیك و سعدالدین محمد مشهدی»). `sources:take-texts catalogue-af2952129bfd --show=0`: ۲۳ برداشت، از جمله ۴۱۴۹۶ (ص ۶۶، «۲۱. الاعتقادات»). بقیۀ برداشت‌ها مدخل‌های منتظر دیگری بودند.
 - **آزمون:** `ShelfmarkTwinsTest::test_a_wrong_shelfmark_is_merged_or_corrected_from_the_data_file_and_a_run_reverts` (اجرای خشک، ادغام با انتخاب فیلد، ارجاع، مدخل تکراری، جای دوم فنخا، اصلاح، اجرای دوباره، بازگردانی با مجموعۀ از نو ساخته).
 - **اجرا در پروداکشن (پس از انتشار، با تأیید کاربر، با `prod-run`):**
-  1. پشتیبان JSON از `manuscripts`، `source_entries`، `manuscript_people` و `manuscript_script` ۱۲ رکورد (۴ جفت و ۲ اصلاح، با شناسه‌های بالا) به `../fahares-sources/backups/step13/`.
-  2. `fahares:merge-shelfmark-twins`: باید همان ۴ ادغام و ۲ اصلاح را نشان دهد. سپس `--apply`، و رونوشت پشتیبان فرمان از `storage/app/private/backups/` به همان پوشه.
+  1. پشتیبان JSON از `manuscripts`، `source_entries`، `manuscript_people` و `manuscript_script` ۱۸ رکورد (۴ جفت و ۱۰ اصلاح، با شناسه‌های بالا) به `../fahares-sources/backups/step13/`.
+  2. `fahares:merge-shelfmark-twins`: باید همان ۴ ادغام و ۱۰ اصلاح را نشان دهد. سپس `--apply`، و رونوشت پشتیبان فرمان از `storage/app/private/backups/` به همان پوشه.
   3. `sources:take-texts catalogue-7ac531af190e --show=0` و `sources:take-texts catalogue-af2952129bfd --show=0`.
 
 ### گام ۱۴.۳۸۸: `person_period_decisions_step14_388.json`
@@ -14195,6 +14198,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[SyncWorkBibliographies](../app/Jobs/SyncWorkBibliographies.php):** `RecordEntries::bibliography($work, bibliographyOf($work))`.
 - **migration:** `2026_11_25_200001_fill_entry_number_of_copies_fankha_entries`.
 - **آزمون‌ها:** `SourceCorrectionsTest::test_a_save_keeps_what_the_entries_hold_beside_the_changed_columns` و `test_the_fankha_place_is_written_in_the_entry_which_keeps_what_else_it_holds`. همۀ ۱۰۶۲ آزمون سبز.
+
+### گام ۱۴.۳۹۷: `AdminNav`، `ReviewQueues` و `admin.works.index` و `admin.manuscripts.index`
+
+- **[AdminNav](../app/Support/AdminNav.php):** گروه‌ها «کارتابل»، «داده‌ها»، «محتوای سایت» و «سامانه». ردیف می‌تواند `show` داشته باشد (کلوژری که پنهانش می‌کند): «صف‌های بررسی» برای کسی که هیچ صفی را نمی‌تواند باز کند دیده نمی‌شود. «اشخاص» در صفحه‌های ساختن و ادغام شخص هم فعال است.
+- **[ReviewQueues](../app/Support/ReviewQueues.php):** `all()` ده صف با `group`، `label`، `hint`، `route`، `active`، `can`، `query` (کلوژری که builder کار مانده را می‌دهد)، `soft` و `dated`. `count(user)` جمع صف‌های نا-`soft` برای منو؛ `isActive(user)` صفحۀ هر صف را ردیف منو می‌شمارد؛ `cards(user)` برای صفحه، با `min(created_at)` در صف‌هایی که جدولشان آن را دارد (`work_entry_links` و `date_conflicts` ندارند).
+- **[DashboardController::queues](../app/Http/Controllers/Admin/DashboardController.php):** `admin/review-queues`، نمای `admin/review-queues` (کارت با `data-queue`).
+- **[WorkController::index](../app/Http/Controllers/Admin/WorkController.php):** `admin/works`، با `q` (شناسه یا نشانی با `SuggestionController::recordId`، وگرنه `LIKE` در `primary_title`، `clean_title`، `alternative_titles` و `author_name`) و `filter` (`panel` = `catalog_id IS NULL`، `no_copies` = `manuscripts_count = 0`). `catalog_id` در جدول پیش‌فرض ۱ دارد؛ فقط سازنده‌های پنل آن را خالی می‌گذارند.
+- **[ManuscriptController::index](../app/Http/Controllers/Admin/ManuscriptController.php):** `admin/manuscripts`، با `library_id` (انتخابگر کتابخانه)، `q` (عدد ساده شمارۀ نسخه است: `shelfmark_key` برابر یا `LIKE '<q>/%'`، با رقم فارسی یا لاتین؛ شناسه فقط با «#» یا نشانی) و `filter=panel`. با کتابخانه، آثار هم‌عنوان (تا ۵٬۰۰۰) نخست جدا خوانده و با `whereIn` جست‌وجو می‌شوند: زیرپرسش `IN (SELECT …)` روی رونوشت تولید ۳٫۸ ثانیه بود و این راه زیر ۰٫۱ ثانیه است. `OR shelfmark = …` هم کنار گذاشته شد که جدول را کامل می‌خواند (۱٫۶ ثانیه).
+- **دسترسی:** دو فهرست زیر `panel.access`؛ دکمه‌های «اثر تازه»، «نسخۀ تازه» و «جزء دیگر» با `manuscripts.create` و «ابزارهای ساختاری» با `structure.direct`.
+- **آزمون:** [`AdminMenuAndListsTest`](../tests/Feature/Admin/AdminMenuAndListsTest.php) (منو، صفحۀ صف‌ها به تفکیک دسترسی و نشانۀ فعال، جست‌وجو و صافی دو فهرست). `AdminSourcesTest` پیوند ادغام منابع را حالا در صفحۀ منابع می‌جوید.
 
 ### گام ۱۴.۳۹۸: `insights/topic-icon.blade.php`
 - پارۀ قالب با `$slug` (کلید `insights.topics`) و `$class` اختیاری (پیش‌فرض `size-7`): یک `<svg data-insights-icon>` با `stroke="currentColor"`. در کارت‌های هاب (`insights/index.blade.php`) کنار `<h2>`. آزمون: `InsightsTopicPagesTest`.

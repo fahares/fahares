@@ -95,7 +95,9 @@ class AdminSourcesTest extends TestCase
         $this->actingAs($editor)->post("/admin/sources/{$source->id}/volumes/{$volume->id}/parts", ['title' => 'x'])->assertForbidden();
         $this->assertSame('فهرست آزمون دسترسی', $source->fresh()->title);
 
-        $this->actingAs($this->admin)->get('/admin')->assertSee(route('admin.sources.index'))->assertSee(route('admin.sources.merge'));
+        // the menu names the list, and the list its merge (step 14.397)
+        $this->actingAs($this->admin)->get('/admin')->assertSee(route('admin.sources.index'));
+        $this->actingAs($this->admin)->get('/admin/sources')->assertSee(route('admin.sources.merge'));
     }
 
     public function test_the_list_filters_and_counts_in_persian_digits()
