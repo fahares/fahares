@@ -128,9 +128,6 @@ class ImportVolumePartsCommand extends Command
             foreach (collect($moves)->groupBy(fn ($m) => $m[1]) as $number => $group) {
                 foreach ($group->pluck(0)->chunk(1000) as $ids) {
                     DB::table('manuscripts')->whereIn('id', $ids->all())->update(['catalog_volume_id' => $volumes[$number]]);
-                    // the legacy references of the folded volumes follow
-                    DB::table('manuscript_catalog_references')->whereIn('manuscript_id', $ids->all())->whereIn('catalog_volume_id', $folds['all'])
-                        ->update(['catalog_volume_id' => $volumes[$number]]);
                 }
             }
             foreach (array_chunk(array_column($moves, 0), 1000) as $ids) {
@@ -537,7 +534,6 @@ class ImportVolumePartsCommand extends Command
         }
         foreach ($drop as $id) {
             DB::table('source_entries')->where('source_volume_id', $id)->update(['source_volume_id' => null, 'source_id' => null]);
-            DB::table('manuscript_catalog_references')->where('catalog_volume_id', $id)->update(['catalog_volume_id' => null]);
             DB::table('source_volumes')->where('id', $id)->delete();
             DB::table('catalog_volumes')->where('id', $id)->delete();
         }
@@ -626,7 +622,6 @@ class ImportVolumePartsCommand extends Command
             'parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(['id', 'sort']),
             'manuscripts' => $chunked('manuscripts', 'id', $copies, ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
             'source_entries' => $chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'legacy_id', 'source_id', 'source_volume_id', 'volume_number', 'page_start', 'updated_at']),
-            'manuscript_catalog_references' => $chunked('manuscript_catalog_references', 'catalog_volume_id', $volumes, ['id', 'catalog_volume_id']),
             'catalogers' => DB::table('catalogers')->whereIn('id', $people)->get(['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
         $backup['source_entries'] = array_values(array_filter($backup['source_entries'], fn ($e) => $e->legacy_type === 'fankha_citation'));
@@ -666,7 +661,6 @@ class ImportVolumePartsCommand extends Command
             foreach (array_chunk($made, 1000) as $ids) {
                 DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $ids)->delete();
             }
-            FixMisnamedIsfahanCataloguesCommand::restoreColumns('manuscript_catalog_references', $backup['manuscript_catalog_references']);
             DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->whereNotIn('id', $backup['part_ids'])->delete();
             FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalog_volume_parts', $backup['parts'] ?? []);
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();

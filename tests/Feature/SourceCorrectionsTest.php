@@ -6,7 +6,6 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
-use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceVolume;
@@ -133,19 +132,19 @@ class SourceCorrectionsTest extends TestCase
         $this->assertSame([414, SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED, SourceEntry::TEXT_AUTO], [$entry->page_start, $entry->origin, $entry->status, $entry->text_status]);
     }
 
-    public function test_a_correction_logged_before_step_13_3_rolls_back_its_reference_and_entry()
+    /** The manuscript_catalog_references row of then went with its table in step 14.382; its entry carries its id. */
+    public function test_a_correction_logged_before_step_13_3_rolls_back_its_entry()
     {
-        $ref = Ref::create(['manuscript_id' => $this->manuscript->id, 'volume_number' => 2, 'page_start' => 416, 'source' => Ref::SOURCE_MANUAL, 'status' => Ref::STATUS_VERIFIED]);
+        $ref = 9901;
         $entry = $this->match($this->manuscript, ['page_start' => 416, 'origin' => SourceEntry::ORIGIN_MANUAL, 'status' => SourceEntry::STATUS_VERIFIED,
-            'legacy_type' => 'catalog_reference', 'legacy_id' => $ref->id]);
+            'legacy_type' => 'catalog_reference', 'legacy_id' => $ref]);
         $log = AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $this->manuscript->id, 'action' => 'verify',
-            'old_values' => ['catalog_reference' => ['id' => $ref->id, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'status' => Ref::STATUS_UNVERIFIED]],
-            'new_values' => ['catalog_reference' => ['id' => $ref->id, 'page_start' => 416, 'source' => Ref::SOURCE_MANUAL, 'status' => Ref::STATUS_VERIFIED]]]);
+            'old_values' => ['catalog_reference' => ['id' => $ref, 'page_start' => 414, 'source' => 'ai_match', 'status' => SourceEntry::STATUS_UNVERIFIED]],
+            'new_values' => ['catalog_reference' => ['id' => $ref, 'page_start' => 416, 'source' => 'manual', 'status' => SourceEntry::STATUS_VERIFIED]]]);
         $admin = $this->admin();
         $admin->save();
 
         $this->actingAs($admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
-        $this->assertSame([414, Ref::SOURCE_AI_MATCH], [$ref->fresh()->page_start, $ref->fresh()->source]);
         $this->assertSame([414, SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED], [$entry->fresh()->page_start, $entry->fresh()->origin, $entry->fresh()->status]);
     }
 
@@ -153,16 +152,16 @@ class SourceCorrectionsTest extends TestCase
     {
         $admin = $this->admin();
         $admin->save();
-        $ref = Ref::create(['manuscript_id' => $this->manuscript->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
-            'status' => Ref::STATUS_VERIFIED, 'reviewed_by' => $admin->id, 'reviewed_at' => '2026-10-21 10:00:00']);
+        // a batch of before step 13.3 names manuscript_catalog_references rows, a table gone since step 14.382
+        $ref = 9902;
         $entry = $this->match($this->manuscript, ['status' => SourceEntry::STATUS_VERIFIED, 'reviewed_by' => $admin->id, 'reviewed_at' => '2026-10-21 10:00:00',
-            'legacy_type' => 'catalog_reference', 'legacy_id' => $ref->id]);
-        $batch = AuditLog::create(['user_id' => $admin->id, 'auditable_type' => Ref::class, 'auditable_id' => 0, 'action' => Ref::ACTION_BULK_VERIFY,
-            'old_values' => ['status' => 'unverified', 'ids' => [$ref->id]], 'new_values' => ['status' => 'verified', 'count' => 1, 'filters' => [], 'reviewed_at' => '2026-10-21 10:00:00']]);
+            'legacy_type' => 'catalog_reference', 'legacy_id' => $ref]);
+        $batch = AuditLog::create(['user_id' => $admin->id, 'auditable_type' => SourceEntry::LEGACY_REFERENCE, 'auditable_id' => 0, 'action' => SourceEntry::ACTION_BULK_VERIFY,
+            'old_values' => ['status' => 'unverified', 'ids' => [$ref]], 'new_values' => ['status' => 'verified', 'count' => 1, 'filters' => [], 'reviewed_at' => '2026-10-21 10:00:00']]);
 
         $this->assertTrue(SourceEntry::lastBulkVerify()->is($batch));
         $this->assertSame([1, 0], SourceEntry::revertBulkVerify($batch, $admin));
-        $this->assertSame([SourceEntry::STATUS_UNVERIFIED, Ref::STATUS_UNVERIFIED], [$entry->fresh()->status, $ref->fresh()->status]);
+        $this->assertSame(SourceEntry::STATUS_UNVERIFIED, $entry->fresh()->status);
         $this->assertNull(SourceEntry::lastBulkVerify());
     }
 

@@ -7,7 +7,6 @@ use App\Models\Manuscript;
 use App\Models\ManuscriptNote;
 use App\Models\SourceEntry;
 use App\Models\Person;
-use App\Sources\LegacyMirror;
 use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -248,7 +247,6 @@ class SuggestionApplier
         $entry->save();
         $new = $entry->getChanges();
         unset($new['updated_at'], $new['reviewed_at']);
-        LegacyMirror::reference($entry);
 
         // The audit log entry is the manuscript's; the entry's before and after go with it
         return ['old' => ['source_entry' => ['id' => $entry->id] + $old], 'new' => ['source_entry' => ['id' => $entry->id] + $new], 'resolution' => ['entry_id' => $entry->id]];

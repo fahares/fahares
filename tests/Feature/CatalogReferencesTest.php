@@ -10,7 +10,6 @@ use App\Models\CatalogVolume;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
-use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\SourceEntry;
 use App\Models\SourceVolume;
 use App\Models\User;
@@ -49,7 +48,7 @@ class CatalogReferencesTest extends TestCase
     protected function refEntry(array $v): SourceEntry
     {
         $volume = SourceVolume::findOrFail($v['catalog_volume_id']);
-        $origins = [Ref::SOURCE_AI_MATCH => SourceEntry::ORIGIN_MATCH, Ref::SOURCE_MANUAL => SourceEntry::ORIGIN_MANUAL, Ref::SOURCE_FANKHA => SourceEntry::ORIGIN_FANKHA_CITATION];
+        $origins = ['ai_match' => SourceEntry::ORIGIN_MATCH, 'manual' => SourceEntry::ORIGIN_MANUAL, 'fankha' => SourceEntry::ORIGIN_FANKHA_CITATION];
         $hasText = filled($v['entry_text'] ?? null) || filled($v['copy_text'] ?? null);
 
         return SourceEntry::create([
@@ -90,7 +89,7 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript();
         $ref = $this->refEntry([
             'manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2,
-            'page_start' => 414, 'shelfmark_page' => 415, 'entry_number' => 606, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90,
+            'page_start' => 414, 'shelfmark_page' => 415, 'entry_number' => 606, 'source' => 'ai_match', 'confidence' => 90,
         ]);
 
         $this->assertTrue($ms->sources()->cards()->first()->is($ref));
@@ -105,7 +104,7 @@ class CatalogReferencesTest extends TestCase
     public function test_the_source_url_never_reaches_the_manuscript_page()
     {
         $ms = $this->manuscript();
-        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match', 'confidence' => 90]);
 
         $html = $this->get(route('manuscripts.show', $ms))->assertOk()->assertSee('ص ۴۱۴')->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
@@ -446,7 +445,7 @@ class CatalogReferencesTest extends TestCase
     {
         $this->edition->update(['edition_label' => '۱۳۸۸، به کوشش رضا استادی']);
         $ms = $this->manuscript(['raw_text' => 'متن فنخا برای این نسخه']);
-        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match',
             'confidence' => 90, 'entry_text' => "607- دیوان قدسی (فارسی)\nاز: قدسی", 'copy_text' => 'ش 1939، 207 برگ، نستعلیق. این نسخه جلد چهارم است.']);
         $note = 'این متن را هوشواره با تطبیق شمارۀ نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
 
@@ -466,11 +465,11 @@ class CatalogReferencesTest extends TestCase
         $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
         $this->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
 
-        $ref->update(['status' => Ref::STATUS_REJECTED]);
+        $ref->update(['status' => SourceEntry::STATUS_REJECTED]);
         $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('فهرست کتابخانه مسجد اعظم')->assertSeeInOrder(['متن مأخذ', 'متن فنخا برای این نسخه']);
 
         // without Fankha's text the heading still stands over the printed catalogue's
-        $ref->update(['status' => Ref::STATUS_VERIFIED]);
+        $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
         $ms->update(['raw_text' => null]);
         $this->get(route('manuscripts.show', $ms))->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم', '۶۰۷- دیوان قدسی'])->assertDontSee('متن فنخا');
     }
@@ -493,7 +492,7 @@ class CatalogReferencesTest extends TestCase
     public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()
     {
         $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);
-        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => 'ai_match', 'confidence' => 90]);
         $note = 'این نشانی را هوشواره با تطبیق شمارۀ نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
 
         $this->get(route('manuscripts.show', $ms))->assertOk()
@@ -526,9 +525,9 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript(['shelfmark' => '1939']);
         $twin = $this->manuscript(['shelfmark' => '1940', 'work_id' => $ms->work_id]);
         $third = $this->manuscript(['shelfmark' => '1941', 'work_id' => $ms->work_id]);
-        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 500, 'source' => Ref::SOURCE_MANUAL]);
-        $this->refEntry(['manuscript_id' => $twin->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_MANUAL]);
-        $this->refEntry(['manuscript_id' => $third->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_MANUAL]);
+        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 500, 'source' => 'manual']);
+        $this->refEntry(['manuscript_id' => $twin->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'manual']);
+        $this->refEntry(['manuscript_id' => $third->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'manual']);
         $code = SourceVolume::findOrFail($this->edition->id)->source->code;
 
         // not a catalogue that introduces works: nothing on the work page
@@ -558,7 +557,7 @@ class CatalogReferencesTest extends TestCase
             $codes[$name] = SourceVolume::findOrFail($volume->id)->source->code;
             for ($i = 0; $i < $copies; $i++) {
                 $copy = $i === 0 && $name === 'الف' ? $ms : $this->manuscript(['shelfmark' => $name . $i, 'work_id' => $ms->work_id]);
-                $this->refEntry(['manuscript_id' => $copy->id, 'catalog_volume_id' => $volume->id, 'volume_number' => 1, 'page_start' => 10 + $i, 'source' => Ref::SOURCE_MANUAL]);
+                $this->refEntry(['manuscript_id' => $copy->id, 'catalog_volume_id' => $volume->id, 'volume_number' => 1, 'page_start' => 10 + $i, 'source' => 'manual']);
             }
         }
         $this->assertCount(4, array_unique($codes));
@@ -576,7 +575,7 @@ class CatalogReferencesTest extends TestCase
     {
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
         $admin->forceFill(['role' => 'admin'])->save();
-        $ref = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '3003'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 9, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 90]);
+        $ref = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '3003'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 9, 'source' => 'ai_match', 'match_method' => 'shelfmark_title', 'confidence' => 90]);
 
         // Each row sends its form by fetch, and the status tabs carry counts the script keeps current
         $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()
@@ -597,8 +596,8 @@ class CatalogReferencesTest extends TestCase
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
         $admin->forceFill(['role' => 'admin'])->save();
         $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
-        $high = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '3002'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 7, 'shelfmark_page' => 8, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 95]);
-        $low = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '2000'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 50, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'ambiguous', 'confidence' => 10, 'notes' => 'جاهای دیگر: ص 60']);
+        $high = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '3002'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 7, 'shelfmark_page' => 8, 'source' => 'ai_match', 'match_method' => 'shelfmark_title', 'confidence' => 95]);
+        $low = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '2000'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 50, 'source' => 'ai_match', 'match_method' => 'ambiguous', 'confidence' => 10, 'notes' => 'جاهای دیگر: ص 60']);
 
         $this->actingAs($user)->get(route('admin.catalog-references.index'))->assertForbidden();
         $this->actingAs($user)->post(route('admin.catalog-references.verify', $high))->assertForbidden();
@@ -626,7 +625,7 @@ class CatalogReferencesTest extends TestCase
         $admin = $this->admin();
         $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
         $ms = $this->manuscript(['shelfmark' => '3010']);
-        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match',
             'confidence' => 90, 'entry_text' => '607- دیوان قدسی', 'copy_text' => 'ش 3010، 207 برگ']);
         $verify = route('admin.catalog-references.verify', $ref);
 
@@ -656,7 +655,7 @@ class CatalogReferencesTest extends TestCase
             'status' => SourceEntry::STATUS_VERIFIED, 'message' => 'نشانی نسخۀ «۳۰۱۰» تأیید شد.', 'undo' => route('admin.catalog-references.reopen', $ref),
         ]);
         $this->assertSame([SourceEntry::STATUS_VERIFIED, $admin->id], [$ref->fresh()->status, $ref->fresh()->reviewed_by]);
-        $review = AuditLog::where('auditable_type', SourceEntry::class)->where('auditable_id', $ref->id)->where('action', Ref::ACTION_REVIEW)->sole();
+        $review = AuditLog::where('auditable_type', SourceEntry::class)->where('auditable_id', $ref->id)->where('action', SourceEntry::ACTION_REVIEW)->sole();
         $this->assertSame([$admin->id, SourceEntry::STATUS_UNVERIFIED, SourceEntry::STATUS_VERIFIED], [$review->user_id, $review->old_values['status'], $review->new_values['status']]);
         $this->get(route('manuscripts.show', $ms))->assertDontSee('درست است')->assertSee('۶۰۷- دیوان قدسی');
 
@@ -665,7 +664,7 @@ class CatalogReferencesTest extends TestCase
         $this->actingAs($admin)->postJson(route('admin.catalog-references.reopen', $ref), ['status' => SourceEntry::STATUS_VERIFIED])->assertOk()
             ->assertJson(['status' => SourceEntry::STATUS_UNVERIFIED, 'undo' => null]);
         $this->assertSame([SourceEntry::STATUS_UNVERIFIED, null, null], [$ref->fresh()->status, $ref->fresh()->reviewed_by, $ref->fresh()->reviewed_at]);
-        $undo = AuditLog::where('auditable_id', $ref->id)->where('action', Ref::ACTION_REOPEN)->sole();
+        $undo = AuditLog::where('auditable_id', $ref->id)->where('action', SourceEntry::ACTION_REOPEN)->sole();
         $this->assertSame([$review->id, SourceEntry::STATUS_VERIFIED], [$undo->old_values['rolled_back_log_id'], $undo->old_values['status']]);
         $this->get(route('manuscripts.show', $ms))->assertSee('درست است');
 
@@ -689,7 +688,7 @@ class CatalogReferencesTest extends TestCase
         $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
         $ref = fn (string $shelfmark, string $method, int $confidence, array $extra = []) => $this->refEntry($extra + [
             'manuscript_id' => $this->manuscript(['shelfmark' => $shelfmark])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2,
-            'page_start' => (int) $shelfmark, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => $method, 'confidence' => $confidence]);
+            'page_start' => (int) $shelfmark, 'source' => 'ai_match', 'match_method' => $method, 'confidence' => $confidence]);
         $titles = collect(['4001', '4002', '4003'])->map(fn ($s) => $ref($s, 'shelfmark_title', 80));
         $single = $ref('4004', 'shelfmark_single_page', 59);
         $only = $ref('4005', 'shelfmark_only', 25);
@@ -717,7 +716,7 @@ class CatalogReferencesTest extends TestCase
         $this->assertSame(1, $titles->map(fn ($t) => $t->fresh()->reviewed_at->toDateTimeString())->unique()->count());
         $this->assertSame([SourceEntry::STATUS_UNVERIFIED, SourceEntry::STATUS_UNVERIFIED, SourceEntry::STATUS_REJECTED], [$single->fresh()->status, $only->fresh()->status, $done->fresh()->status]);
 
-        $batch = AuditLog::where('action', Ref::ACTION_BULK_VERIFY)->latest('id')->firstOrFail();
+        $batch = AuditLog::where('action', SourceEntry::ACTION_BULK_VERIFY)->latest('id')->firstOrFail();
         $this->assertSame($admin->id, $batch->user_id);
         $this->assertSame($entries->pluck('id')->all(), $batch->old_values['ids']);
         $this->assertSame(SourceEntry::class, $batch->auditable_type);
@@ -731,7 +730,7 @@ class CatalogReferencesTest extends TestCase
         $this->assertSame([SourceEntry::STATUS_UNVERIFIED, null, null], [$titles[0]->fresh()->status, $titles[0]->fresh()->reviewed_by, $titles[0]->fresh()->reviewed_at]);
         $this->assertSame(SourceEntry::STATUS_UNVERIFIED, $titles[1]->fresh()->status);
         $this->assertSame(SourceEntry::STATUS_REJECTED, $titles[2]->fresh()->status);
-        $this->assertSame(['reverted' => 2, 'kept' => 1], AuditLog::where('action', Ref::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->sole()->new_values);
+        $this->assertSame(['reverted' => 2, 'kept' => 1], AuditLog::where('action', SourceEntry::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->sole()->new_values);
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('error');
         $this->assertNull(SourceEntry::lastBulkVerify());
         $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('آخرین تأیید گروهی');
@@ -768,7 +767,7 @@ class CatalogReferencesTest extends TestCase
     public function test_address_pencils_appear_beside_each_source_in_suggestion_mode()
     {
         $ms = $this->manuscript();
-        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match', 'confidence' => 90]);
 
         $this->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSee("field: 'fankha_page'", false)
@@ -813,7 +812,7 @@ class CatalogReferencesTest extends TestCase
     public function test_a_copy_reported_absent_loses_the_link_and_fankha_addresses_are_applied_to_the_copy()
     {
         $ms = $this->manuscript();
-        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 30]);
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match', 'confidence' => 30]);
         $entry = $ref;
 
         $this->suggestAddress($ms, "source_entry_{$entry->id}", 'نیست')->assertOk();

@@ -114,8 +114,7 @@ class RepairTabrizVolumesCommand extends Command
 
             foreach (array_unique($touched) as $sourceId) {
                 $count = DB::table('source_volumes')->where('source_id', $sourceId)->count();
-                $used = $count || DB::table('source_entries')->where('source_id', $sourceId)->exists() || DB::table('source_items')->where('source_id', $sourceId)->exists()
-                    || DB::table('field_evidence')->where('source_id', $sourceId)->exists() || DB::table('sources')->where('edition_of_id', $sourceId)->exists();
+                $used = $count || DB::table('source_entries')->where('source_id', $sourceId)->exists() || DB::table('source_items')->where('source_id', $sourceId)->exists() || DB::table('sources')->where('edition_of_id', $sourceId)->exists();
                 $used ? DB::table('sources')->where('id', $sourceId)->update(['volumes_count' => $count, 'updated_at' => now()])
                     : DB::table('sources')->where('id', $sourceId)->delete();
                 $this->line("source #{$sourceId}: " . ($used ? "{$count} volumes" : 'removed, nothing left on it'));

@@ -460,7 +460,6 @@ class AuditLogController extends Controller
             unset($old['source_entry']);
             if ($restored = \App\Models\SourceEntry::find($entry['id'])) {
                 $restored->forceFill(array_diff_key($entry, ['id' => 0]))->save();
-                \App\Sources\LegacyMirror::reference($restored);
             }
         }
         // A copy's typed note is a row of its own too (steps 14.264, 14.318): an added one goes, a removed one comes
@@ -495,11 +494,11 @@ class AuditLogController extends Controller
                 \App\Support\Collections::reindex([$restored->id]);
             }
         }
-        // ...and before step 13.3, a catalogue reference (backlog item 51): it goes back with the entry copied from it
+        // ...and before step 13.3, a catalogue reference (backlog item 51): its entry, copied from it, goes back (the
+        // reference's own table went in step 14.382)
         if ($reference = $old['catalog_reference'] ?? null) {
             unset($old['catalog_reference']);
             $columns = array_diff_key($reference, ['id' => 0]);
-            \App\Models\ManuscriptCatalogReference::whereKey($reference['id'])->first()?->forceFill($columns)->save();
             if (array_key_exists('source', $columns)) {
                 $columns['origin'] = array_flip([\App\Models\SourceEntry::ORIGIN_MATCH => 'ai_match', \App\Models\SourceEntry::ORIGIN_MANUAL => 'manual', \App\Models\SourceEntry::ORIGIN_FANKHA_CITATION => 'fankha'])[$columns['source']] ?? \App\Models\SourceEntry::ORIGIN_MANUAL;
             }
