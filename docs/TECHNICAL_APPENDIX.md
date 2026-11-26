@@ -14398,14 +14398,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - آزمون: `tests/Feature/DatabaseUnavailableTest.php` با `QueryException` ساختگی برای ۲۰۰۲، ۱۰۵۳ و ۱۰۶۴. ۱۰۶۴ خطای نحوی است و باید ۵۰۰ بماند.
 - وارسی دستی در `fahares_app`: `php -S` از پوشۀ worktree، یک بار با `DB_HOST=127.0.0.1 DB_PORT=1` و یک بار با `DB_HOST=no-such-db-host`.
 
-### گام ۱۴.۴۱۴: `App\Support\MaintenanceNotice` و `fahares:maintenance-notice` (مورد ۱۳۶، بند ۴)
-- کش: کلید `maintenance.notice` = `{at, until, note, announcement_id}`، با انقضای `until`. `current()` پس از `until` ‏`null` برمی‌گرداند.
-- `parseStart()`: «1405/09/06 02:00» با ارقام فارسی یا لاتین، و «/» یا «-». تبدیل با `IntlCalendar` و `fa_IR@calendar=persian` در `Asia/Tehran` انجام می‌شود، و ماه در ICU از صفر شمرده می‌شود. «HH:MM» تنها یعنی نخستین آن ساعت پس از اکنون.
-- `set()`:
-  - مدت ۱ تا ۱۴۴۰ دقیقه است، و زمان آغاز باید پیش رو باشد.
-  - با `--telegram` یک `Announcement` با `on_site=false`، `telegram=true`، `audience=all` و `ends_at=until` ساخته یا به‌روز می‌شود. سپس فرمان `AnnouncementTelegram::sync()` را صدا می‌زند: نخستین بار `sendMessage`، و پس از آن `editMessageText`.
-- نوار: `resources/views/components/maintenance-notice.blade.php`، در `layouts/app.blade.php` پیش از header. با کلید `maintenance-notice-<at>` در localStorage بسته می‌ماند. قالب مدیریت آن را ندارد.
-- آزمون: `tests/Feature/MaintenanceNoticeTest.php`. سال آزمون تلگرام ۱۴۱۴ است، چون `ends_at` ستون TIMESTAMP است و به ۲۰۳۸ می‌رسد.
 ### گام ۱۴.۴۱۳: `metadata.catalog_citation` → `ce.citation_text`
 - **ورودی‌ها:** `ImportFankhaCatalogReferencesCommand::rawCitation(?string $citation, ?string $rawText)`، `CatalogCitations::others($citation, $rawText)` و `LinkCatalogVolumesCommand::citationOf($citation, $rawText)` به جای JSON کامل metadata، متن استناد را می‌گیرند و اگر نباشد، کروشۀ پایانی متن نسخه را برمی‌دارند.
 - **خواندن:** ردیف‌های `syncCited`/`syncOtherCited` کلید `catalog_citation` را دارند، نه `metadata`. هر `EntryColumns::query('manuscripts', [...])` که استناد را می‌خواهد، `catalog_citation` را برمی‌گزیند که همان `ce.citation_text` است. این شامل `relinkVolumes`، `setCatalogue`، `syncRecord` و فرمان‌های `sync-other-citations`، `move-cited-part`، `import-volume-parts`، `import-fankha-references`، `link-volumes`، `merge-duplicates` و `backfill` است.
@@ -14430,3 +14422,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `CitationEntryTest` تازه است. `tests/Support/InsertRecords` کلید را بالا می‌برد.
   - ۹ فایل آزمون به جای کلید از مدخل می‌خوانند.
 - **تمرین:** روی `fahares_rehearse411` (فقط `manuscripts(id, metadata)` و مدخل‌های `fankha_citation`، که پس از تمرین پاک شد). `--dry-run` ۵ ثانیه و اجرای واقعی ۹ ثانیه طول کشید. فایل پشتیبان ۱۷ MB بود و ۳۲۳٬۲۴۵ سطر داشت.
+
+### گام ۱۴.۴۱۴: `App\Support\MaintenanceNotice` و `fahares:maintenance-notice` (مورد ۱۳۶، بند ۴)
+- کش: کلید `maintenance.notice` = `{at, until, note, announcement_id}`، با انقضای `until`. `current()` پس از `until` ‏`null` برمی‌گرداند.
+- `parseStart()`: «1405/09/06 02:00» با ارقام فارسی یا لاتین، و «/» یا «-». تبدیل با `IntlCalendar` و `fa_IR@calendar=persian` در `Asia/Tehran` انجام می‌شود، و ماه در ICU از صفر شمرده می‌شود. «HH:MM» تنها یعنی نخستین آن ساعت پس از اکنون.
+- `set()`:
+  - مدت ۱ تا ۱۴۴۰ دقیقه است، و زمان آغاز باید پیش رو باشد.
+  - با `--telegram` یک `Announcement` با `on_site=false`، `telegram=true`، `audience=all` و `ends_at=until` ساخته یا به‌روز می‌شود. سپس فرمان `AnnouncementTelegram::sync()` را صدا می‌زند: نخستین بار `sendMessage`، و پس از آن `editMessageText`.
+- نوار: `resources/views/components/maintenance-notice.blade.php`، در `layouts/app.blade.php` پیش از header. با کلید `maintenance-notice-<at>` در localStorage بسته می‌ماند. قالب مدیریت آن را ندارد.
+- آزمون: `tests/Feature/MaintenanceNoticeTest.php`. سال آزمون تلگرام ۱۴۱۴ است، چون `ends_at` ستون TIMESTAMP است و به ۲۰۳۸ می‌رسد.
