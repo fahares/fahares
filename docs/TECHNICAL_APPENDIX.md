@@ -14441,6 +14441,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `SuggestionWorkflowTest::test_a_works_subject_and_language_are_corrected_with_their_links`.
 - **محدودیت:** لاگ `verify` اثر ۷۱۸۴۲ که پیش از انتشار نوشته شد `term_links` ندارد؛ بازگرداندن آن فقط متن موضوع را برمی‌دارد و پیوند «خط» می‌ماند.
 
+### گام ۱۴.۴۱۶: `App\Support\MelliSeries` و کلید «N-ع»
+- **`MelliSeries::catalogueVolume($rawText)`:** فقط برای متنی که سطر نخستش «تهران؛ ملی؛» یا «تهران؛ ملی ایران؛» است؛ ارجاع پایانی `[ف: V-P]` (نیز «[ملی ایران: ف: …]»، «[ملی ف: …]»، با `<!-- page -->` در میان و رقم فارسی). عدد نخست بالای ۳۰ صفحه است و جلد عدد دوم («[ف: 596-6]»، حدود ۶۰ مدخل). «[رایانه]» و «[نشریه: …]» → `null`.
+- **`MelliSeries::arabic()`:** جلد ۷ تا ۱۹. ثابت `ARABIC = 'ع'`.
+- **`Manuscript::collectionKeyOf`:** اگر شماره نشان مجموعه ندارد و مدخل از سری عربی است، نشان «ع» («2897-ع»). **`plainVolumeKeyOf`:** شمارۀ بی‌جزء سری عربی «2897-ع»، همان کلید اجزایش. **`keepsLinkedKey`** و `number` در `fahares:link-plain-volumes`: نسخۀ سری عربی در «دنبالۀ شماره‌ها» («N–M») نمی‌آید، مانند سنا.
+- **`Manuscript::seriesMark()`** و `components/series-mark.blade.php`: حرف «ع» پس از span شماره (`data-series-mark`) در `manuscripts/show`، `components/manuscript-collection`، `libraries/show` (با `fankhaEntry` در eager load) و جدول نسخه‌های `works/show`.
+- **داده:** `fahares:fill-collection-keys --apply` (۳٬۷۹۱ `changed` روی رونوشت محلی؛ `Collections::sync` در خودش) و سپس `fahares:link-plain-volumes --apply` (`cleared` ۴۵۱، `set` ۴۶). پس از آن `fahares:refresh-derived` برای `collection_key` صفر نشان می‌دهد.
+- **آزمون:** `MelliSeriesTest` (صورت‌های ارجاع؛ کلیدها؛ دو فرمان روی مجموعه‌های برخوردی، کلید بازبینی‌شده دست نمی‌خورد، اجرای دوباره بی‌تغییر، و صفحۀ نسخه).
+- **محدودیت:**
+  - نسخۀ دست‌ساز متن فنخا ندارد و کلید ساده (سری فارسی) می‌گیرد؛ برای سری عربی شماره را با نشان بنویسید («2897/5-ع») یا از فرم «نسخۀ تازه» به مجموعۀ «2897-ع» بدهید. شمارۀ بی‌جزء دست‌نوشتۀ «2897-ع» کلید «2897 ع» می‌گیرد (قاعدۀ پیشین `plainVolumeKeyOf` برای نشان‌ها) و به اجزا نمی‌پیوندد.
+  - ۱۸ نسخه با شمارۀ زیر ۴۷۰۰ جلد فهرست ندارند و در سری فارسی می‌مانند.
+  - رکورد مجموعه‌ای که همۀ رساله‌هایش به «N-ع» رفت برداشته و رکورد تازه ساخته می‌شود (شناسۀ تازه).
+
 ### گام ۱۴.۴۱۷: رأی‌های «تصحیح جمعی» بیرون از میز پیشنهادها
 - **`CollectiveReview`:**
   - `DESK_ANSWERS` الگوهای LIKE پاسخ‌هایی است که روی میز می‌مانند: `catalog` ← `page:%`، و `date` ← `a`، `b`، `tie`. بقیۀ پاسخ‌ها رأی‌اند.
@@ -14459,15 +14471,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نماها:** `catalog_references/index` (پالایه، خلاصۀ `data-collective-summary`، `data-collective-opinions` در هر ردیف)، `suggestions/index` (`data-collective-votes`)، `suggestions/show` (`$voteQueue`: جملۀ رأی، بی جدول مقدار)، `suggestions/partials/collective`.
 - **آزمون‌ها:** `CollectiveReviewTest::test_votes_wait_in_the_queue_not_on_the_desk`، `test_approving_another_page_on_the_desk_moves_the_match_and_settles_the_rest` و `test_matches_the_researchers_agree_on_are_verified_together`. `test_agreeing_opinions_lead_the_desk_…` حالا با `kind=collective` است.
 - **محدودیت:** `revertBulkVerify` رأی‌هایی را که با تأیید گروهی بسته شده‌اند باز نمی‌کند. این رفتار پیشین تأیید گروهی است. بازگرداندن دستۀ اجماع نشانی‌ها را به صف برمی‌گرداند، ولی رأی‌ها «تأییدشده» می‌مانند.
-### گام ۱۴.۴۱۶: `App\Support\MelliSeries` و کلید «N-ع»
-- **`MelliSeries::catalogueVolume($rawText)`:** فقط برای متنی که سطر نخستش «تهران؛ ملی؛» یا «تهران؛ ملی ایران؛» است؛ ارجاع پایانی `[ف: V-P]` (نیز «[ملی ایران: ف: …]»، «[ملی ف: …]»، با `<!-- page -->` در میان و رقم فارسی). عدد نخست بالای ۳۰ صفحه است و جلد عدد دوم («[ف: 596-6]»، حدود ۶۰ مدخل). «[رایانه]» و «[نشریه: …]» → `null`.
-- **`MelliSeries::arabic()`:** جلد ۷ تا ۱۹. ثابت `ARABIC = 'ع'`.
-- **`Manuscript::collectionKeyOf`:** اگر شماره نشان مجموعه ندارد و مدخل از سری عربی است، نشان «ع» («2897-ع»). **`plainVolumeKeyOf`:** شمارۀ بی‌جزء سری عربی «2897-ع»، همان کلید اجزایش. **`keepsLinkedKey`** و `number` در `fahares:link-plain-volumes`: نسخۀ سری عربی در «دنبالۀ شماره‌ها» («N–M») نمی‌آید، مانند سنا.
-- **`Manuscript::seriesMark()`** و `components/series-mark.blade.php`: حرف «ع» پس از span شماره (`data-series-mark`) در `manuscripts/show`، `components/manuscript-collection`، `libraries/show` (با `fankhaEntry` در eager load) و جدول نسخه‌های `works/show`.
-- **داده:** `fahares:fill-collection-keys --apply` (۳٬۷۹۱ `changed` روی رونوشت محلی؛ `Collections::sync` در خودش) و سپس `fahares:link-plain-volumes --apply` (`cleared` ۴۵۱، `set` ۴۶). پس از آن `fahares:refresh-derived` برای `collection_key` صفر نشان می‌دهد.
-- **آزمون:** `MelliSeriesTest` (صورت‌های ارجاع؛ کلیدها؛ دو فرمان روی مجموعه‌های برخوردی، کلید بازبینی‌شده دست نمی‌خورد، اجرای دوباره بی‌تغییر، و صفحۀ نسخه).
-- **محدودیت:**
-  - نسخۀ دست‌ساز متن فنخا ندارد و کلید ساده (سری فارسی) می‌گیرد؛ برای سری عربی شماره را با نشان بنویسید («2897/5-ع») یا از فرم «نسخۀ تازه» به مجموعۀ «2897-ع» بدهید. شمارۀ بی‌جزء دست‌نوشتۀ «2897-ع» کلید «2897 ع» می‌گیرد (قاعدۀ پیشین `plainVolumeKeyOf` برای نشان‌ها) و به اجزا نمی‌پیوندد.
-  - ۱۸ نسخه با شمارۀ زیر ۴۷۰۰ جلد فهرست ندارند و در سری فارسی می‌مانند.
-  - رکورد مجموعه‌ای که همۀ رساله‌هایش به «N-ع» رفت برداشته و رکورد تازه ساخته می‌شود (شناسۀ تازه).
 
