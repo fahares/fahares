@@ -5209,6 +5209,106 @@
      "step": "14.375"
     }
    }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 22,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد بیست و دوم: اهدایی سید محمدصادق طباطبائی",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 363,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fanuus/426.pdf"
+     ],
+     "leaf_maps": [
+      "_fanuus/426.map.json"
+     ],
+     "note": "اسکن فانوس (حائری، ۱۳۷۴)؛ برگ = صفحه + ۱۰؛ نمایه‌ها (ص ۳۶۴–۵۱۶) کنار ماند",
+     "step": "14.418"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 23,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد بیست و سوم بخش دوم: اهدایی طباطبائی",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 368,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fanuus/427.pdf"
+     ],
+     "leaf_maps": [
+      "_fanuus/427.map.json"
+     ],
+     "note": "اسکن فانوس (حائری، ۱۳۷۵)؛ تنها بخش اول جلد ۲۳ (ص ۱–۳۶۸، نمایه‌ها تا ص ۵۰۸)؛ ارجاع‌های ص ۵۰۹ به بعد از بخش دوم‌اند و برگه ندارند؛ برگ = صفحه + ۶",
+     "step": "14.418"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mossh-mtalaaat-aslamy-114",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه دکتر مهدی محقق موجود در مؤسسه مطالعات اسلامی دانشگاه تهران - دانشگاه مک گیل",
+   "facsimile_code": "mohaghegh",
+   "page_first": 1,
+   "page_last": 115,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fanuus/657.pdf"
+     ],
+     "leaf_maps": [
+      "_fanuus/657.map.json"
+     ],
+     "note": "اسکن فانوس (به اهتمام توفیق سبحانی، ۱۳۸۳)؛ برگ = صفحه + ۷؛ نمایه‌ها (ص ۱۱۶–۱۳۵) کنار ماند",
+     "step": "14.418"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 9,
+   "title": "میراث اسلامی ایران - دفتر 9",
+   "facsimile_code": "miras-eslami",
+   "page_first": 13,
+   "page_last": 684,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fanuus/707.pdf"
+     ],
+     "leaf_maps": [
+      "_fanuus/707.map.json"
+     ],
+     "note": "اسکن فانوس (جعفریان، کتابخانۀ مرعشی ۱۳۷۷)؛ برگ = صفحه + ۵",
+     "step": "14.418"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 10,
+   "title": "میراث اسلامی ایران - دفتر 10",
+   "facsimile_code": "miras-eslami",
+   "page_first": 10,
+   "page_last": 795,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fanuus/708.pdf"
+     ],
+     "leaf_maps": [
+      "_fanuus/708.map.json"
+     ],
+     "note": "اسکن فانوس (جعفریان، کتابخانۀ مرعشی ۱۳۷۸)؛ برگ = صفحه + ۵",
+     "step": "14.418"
+    }
+   }
   }
  ]
 }
