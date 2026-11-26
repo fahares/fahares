@@ -9305,6 +9305,7 @@ PHP 8.3 و Laravel 13، پایگاه داده‌ی MariaDB، موتور جستج
   - `php artisan sources:drop-citation-key --dry-run`
   - `php artisan sources:drop-citation-key --backup=storage/app/step14_413_catalog_citation_keys.jsonl`
   - فایل پشتیبان باید بی‌درنگ به `fahares-sources/backups/step13/` برده شود.
+- **اجرا در پروداکشن (۵ آذر ۱۴۰۵، پس از انتشار ۲۸۴، با تأیید کاربر «Yes, run it»):** dry-run گفت ۳۲۳٬۲۴۵ کلید. اجرای `prod-run` همین شمار را پاک کرد و هیچ نسخه‌ای کنار نماند. dry-run دوم گفت ۰ کلید. پشتیبان (۳۲۳٬۲۴۵ سطر) به `fahares-sources/backups/step13/step14_413_catalog_citation_keys.jsonl.gz` رفت و از کانتینر پاک شد. سایت ۲۰۰ می‌دهد. مورد ۱۷۰ بسته است.
 
 ## قالب ثبت گام‌های آینده
 
