@@ -14492,3 +14492,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `catalogs:set-facsimiles --data=<worktree>/database/data/catalog_facsimiles.json`: «0 created, 5 updated, 262 unchanged»؛ اجرای خشک دوم «0 updated, 267 unchanged». نسخه‌های ۱۰۶۵۴ (`majlis/v23/p0285`)، ۲۶۰۲۳۳ (`mohaghegh/v01/p0079`) و ۲۹۸۴۵۷ (`miras-eslami/v10/p0760`) برگه نشان می‌دهند و ۱۰۷۰۷ (بخش دوم، ص ۷۰۷) نه.
 - **برگۀ پیگیری:** `_bi-tasvir/overrides.tsv` برای ۴۲۶، ۴۲۷، ۶۵۷، ۷۰۷ و ۷۰۸ «have» و در `results.tsv` «mapped».
 - **پس از انتشار:** انتقال چهار پوشۀ برگه به سرور (روش `f58-work/send.sh`)، پشتیبان، و `scripts/dev/prod-run fanuus-facsimiles -- 'php artisan catalogs:set-facsimiles'`.
+### گام ۱۴.۴۱۹: فیلدهای `incipit_*` و `explicit_*`
+- **`SuggestionRegistry`:** `QUOTE_ITEMS` (ستون ← پیشوند، کلید `metadata`، واژه)؛ `quoteList()` فهرست خام نسخه (یا ستون به‌عنوان یک مورد)؛ `quoteItemName()` (ده رقم نخست md5 متن)، `quoteItemField()`، `quoteItem()`. `recordFields` نسخه برای فهرست بیش از یک مورد، هر مورد را فیلد می‌کند و برای فهرست ناتهی `incipit_new`/`explicit_new` می‌دهد. `fieldOf` و `currentValue` این فیلدها را می‌شناسند.
+- **`SuggestionApplier::quoteItem`:** افزودن، بازنویسی و حذف یک مورد؛ `metadata[incipits|explicits]` و ستون با هم نوشته می‌شوند؛ `resolution.field_name` مثل عنوان دیگر اثر.
+- **`manuscripts/show.blade.php`:** دکمۀ هر مورد از راه `x-ui.quote` و دکمۀ افزودن در `actions` بخش؛ دکمۀ کل فیلد فقط برای فهرست تک‌مورد.
+- **`suggest/desk.blade.php`:** `adds` برای `quote_item = new`.
+- **آزمون:** `SuggestionWorkflowTest::test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself`.
+

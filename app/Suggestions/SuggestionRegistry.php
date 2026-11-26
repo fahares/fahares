@@ -257,7 +257,7 @@ class SuggestionRegistry
             return null;
         }
         $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
-            'manuscript' => self::sourceEntryField($name) ?? self::noteField($name) ?? self::collectionField($name),
+            'manuscript' => self::sourceEntryField($name) ?? self::noteField($name) ?? self::collectionField($name) ?? self::quoteItemField($name),
             'work' => self::bibliographyPageField($name) ?? self::altTitleField($name),
             'person' => self::aliasField($name),
             default => null,
@@ -283,6 +283,8 @@ class SuggestionRegistry
             || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))
             // a note of this very copy, or a new one of a type the copy can take
             || ((isset($field['note_id']) || isset($field['new_note_type']) || isset($field['note_type_of'])) && ! array_key_exists($field['name'], self::recordFields($record)))
+            // one of the copy's incipits or explicits, or one more of them (step 14.419)
+            || (isset($field['quote_item']) && ! array_key_exists($field['name'], self::recordFields($record)))
             // a field of the copy's «مجموعه»: the copy is a treatise of one
             || (isset($field['collection']) && ! ($record instanceof Manuscript && $record->boundCollection()))) {
             return null;
@@ -428,6 +430,18 @@ class SuggestionRegistry
     {
         $fields = self::fields($record::class);
         if ($record instanceof Manuscript) {
+            // a copy of several incipits or explicits (two texts in one record, a text in parts): each is a field of
+            // its own, and one more can be added beside those the copy has (step 14.419)
+            foreach (self::QUOTE_ITEMS as $column => [$prefix, , $word]) {
+                $list = self::quoteList($record, $column);
+                foreach (count($list) > 1 ? $list : [] as $index => $item) {
+                    $name = self::quoteItemName($column, (string) ($item['text'] ?? ''));
+                    $fields[$name] = ['label' => trim((string) ($item['label'] ?? '')) ?: $word . ' ' . \App\Support\Fa::digits((string) ($index + 1))] + self::quoteItemField($name);
+                }
+                if ($list) {
+                    $fields[$prefix . 'new'] = self::quoteItemField($prefix . 'new');
+                }
+            }
             // the record's entries the page shows, each with its own address field (Fankha's own is fankha_page)
             foreach ($record->sources()->cards() as $entry) {
                 if ($field = self::sourceEntryField(self::SOURCE_ENTRY_PREFIX . $entry->id, $entry)) {
@@ -488,6 +502,53 @@ class SuggestionRegistry
         }
 
         return $fields;
+    }
+
+    /** column => [the prefix of its items' field names, the metadata list, the word for one] (step 14.419) */
+    public const QUOTE_ITEMS = ['incipit_text' => ['incipit_', 'incipits', 'آغاز'], 'explicit_text' => ['explicit_', 'explicits', 'انجام']];
+
+    /** The copy's incipits or explicits as it holds them: the metadata list, or the column alone as one item. */
+    public static function quoteList(Model $record, string $column): array
+    {
+        $list = array_values(array_filter(self::metaList($record, self::QUOTE_ITEMS[$column][1]), fn ($item) => is_array($item) && trim((string) ($item['text'] ?? '')) !== ''));
+
+        return $list ?: (trim((string) $record->{$column}) !== '' ? [['label' => null, 'text' => $record->{$column}]] : []);
+    }
+
+    /** «incipit_3f2a9c01de»: one incipit of a copy, named by its text (as altTitleName). */
+    public static function quoteItemName(string $column, string $text): string
+    {
+        return self::QUOTE_ITEMS[$column][0] . substr(md5(trim($text)), 0, 10);
+    }
+
+    /**
+     * The field of one incipit or explicit of a copy, or of one to add. Emptied, the item is removed. `quote_item` is
+     * the field's own name, or «new»; `quote_of` is the column the list belongs to.
+     */
+    public static function quoteItemField(string $name): ?array
+    {
+        foreach (self::QUOTE_ITEMS as $column => [$prefix, , $word]) {
+            if ($name === $prefix . 'new') {
+                return ['label' => "افزودن {$word} دیگر", 'input' => 'textarea', 'quote_item' => 'new', 'quote_of' => $column, 'required' => true];
+            }
+            if (preg_match('/^' . $prefix . '[0-9a-f]{10}$/', $name)) {
+                return ['label' => "یکی از {$word}های نسخه", 'input' => 'textarea', 'quote_item' => $name, 'quote_of' => $column];
+            }
+        }
+
+        return null;
+    }
+
+    /** The item a field names, with its place in the list; null for the adding field. */
+    public static function quoteItem(Model $record, array $field): ?array
+    {
+        foreach (self::quoteList($record, $field['quote_of']) as $index => $item) {
+            if (self::quoteItemName($field['quote_of'], (string) $item['text']) === ($field['quote_item'] ?? null)) {
+                return ['index' => $index] + $item;
+            }
+        }
+
+        return null;
     }
 
     public const ALIAS_PREFIX = 'alias_';
@@ -737,6 +798,9 @@ class SuggestionRegistry
         }
         if (isset($field['alias'])) {
             return self::aliasItem($record, $field)['name'] ?? null;
+        }
+        if (isset($field['quote_item'])) {
+            return self::quoteItem($record, $field)['text'] ?? null;
         }
         if (isset($field['note_type_of'])) {
             return ManuscriptNote::TYPES[ManuscriptNote::find($field['note_type_of'])?->type] ?? null;
