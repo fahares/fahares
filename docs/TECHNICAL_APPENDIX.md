@@ -14431,3 +14431,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - با `--telegram` یک `Announcement` با `on_site=false`، `telegram=true`، `audience=all` و `ends_at=until` ساخته یا به‌روز می‌شود. سپس فرمان `AnnouncementTelegram::sync()` را صدا می‌زند: نخستین بار `sendMessage`، و پس از آن `editMessageText`.
 - نوار: `resources/views/components/maintenance-notice.blade.php`، در `layouts/app.blade.php` پیش از header. با کلید `maintenance-notice-<at>` در localStorage بسته می‌ماند. قالب مدیریت آن را ندارد.
 - آزمون: `tests/Feature/MaintenanceNoticeTest.php`. سال آزمون تلگرام ۱۴۱۴ است، چون `ends_at` ستون TIMESTAMP است و به ۲۰۳۸ می‌رسد.
+
+### گام ۱۴.۴۱۵: `App\Support\WorkTerms` و فیلد `subject_summary`
+- **`WorkTerms`:** `FIELDS` (ستون ← جدول، جدول پیوند، ستون پیوند)؛ `ids()` نام‌های عبارت را به شناسه می‌برد (جداسازی با `RecordCreator::terms`، سپس « و ») و برای نام ناشناخته `InvalidArgumentException` می‌دهد؛ `sync()` پیوندها را برابر عبارت کنونی می‌کند؛ `restore()` پیوندهای لاگ را برمی‌گرداند. شمارها با `RecordCreator::recountTerms` (اکنون `public`).
+- **`SuggestionRegistry::workFields`:** `subject_summary` تازه؛ هر دو فیلد نشان `terms` دارند.
+- **`SuggestionApplier::apply`:** پیش از نوشتن ستون `WorkTerms::ids` (اعتبارسنجی)، پس از ذخیره `WorkTerms::sync`؛ اگر پیوندها عوض شد `old`/`new` کلید `term_links` می‌گیرند و اثر دوباره نمایه می‌شود.
+- **`AuditLogController::rollbackVerify`:** `term_links` از مقدارهای ستونی جدا و پس از بازگرداندن ستون با `WorkTerms::restore` اعمال می‌شود. `ProtectedColumns::META_KEYS` این کلید را می‌شناسد.
+- **`works/show.blade.php`:** سطر «رده‌های موضوعی» با `field="subject_summary"`؛ بی‌پیوند، متن ستون را نشان می‌دهد.
+- **آزمون:** `SuggestionWorkflowTest::test_a_works_subject_and_language_are_corrected_with_their_links`.
+- **محدودیت:** لاگ `verify` اثر ۷۱۸۴۲ که پیش از انتشار نوشته شد `term_links` ندارد؛ بازگرداندن آن فقط متن موضوع را برمی‌دارد و پیوند «خط» می‌ماند.
+

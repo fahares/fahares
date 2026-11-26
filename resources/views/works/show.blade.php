@@ -276,14 +276,19 @@
                     @endif
                     <x-ui.meta label="زبان" field="language_summary" :empty="! $languageFrom->language_summary">{{ $languageFrom->language_summary }}@if($work->inherits('language')) <x-work-inherited :from="$languageFrom" />@endif</x-ui.meta>
                     <x-ui.meta label="قالب" field="work_form" :empty="! $work->work_form">{{ $work->work_form }}</x-ui.meta>
-                    @if($subjectFrom->subjects && $subjectFrom->subjects->count())
-                        <x-ui.meta label="رده‌های موضوعی">
+                    {{-- The subject is corrected like any field, its links with its wording (step 14.415); a wording the
+                         site has no subject for is shown as it stands --}}
+                    @php $linkedSubjects = $subjectFrom->subjects && $subjectFrom->subjects->count(); @endphp
+                    <x-ui.meta label="رده‌های موضوعی" field="subject_summary" :empty="! $linkedSubjects && ! $subjectFrom->subject_summary">
+                        @if($linkedSubjects)
                             @foreach($subjectFrom->subjects as $subj)
                                 <a href="{{ route('subjects.show', $subj) }}" class="border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $subj->title }}</a>@unless($loop->last)، @endunless
                             @endforeach
-                            @if($work->inherits('subject')) <x-work-inherited :from="$subjectFrom" />@endif
-                        </x-ui.meta>
-                    @endif
+                        @else
+                            {{ $subjectFrom->subject_summary }}
+                        @endif
+                        @if($work->inherits('subject')) <x-work-inherited :from="$subjectFrom" />@endif
+                    </x-ui.meta>
                     {{-- Each other title has its own edit button; the row's own button adds a title (step 14.286) --}}
                     <x-ui.meta label="عناوین دیگر" :field="\App\Suggestions\SuggestionRegistry::ALT_TITLE_NEW" :empty="! $hasAltTitles">
                         @foreach($work->alternative_titles ?? [] as $alt)

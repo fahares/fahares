@@ -212,7 +212,7 @@ class RecordCreator
     }
 
     /** The works counts of these subjects or languages, and of the parent subjects, which count their children's works too. */
-    private static function recountTerms(string $table, string $pivot, string $column, array $ids): void
+    public static function recountTerms(string $table, string $pivot, string $column, array $ids): void
     {
         foreach (array_unique($ids) as $id) {
             DB::table($table)->where('id', $id)->update(['works_count' => DB::table($pivot)->where($column, $id)->count()]);

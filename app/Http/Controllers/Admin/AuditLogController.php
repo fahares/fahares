@@ -513,6 +513,9 @@ class AuditLogController extends Controller
             unset($old['removed_text_relation']);
             DB::table('work_text_relations')->insertOrIgnore($removedText);
         }
+        // a work's subjects or languages a reviewer wrote: the links go back with the wording (step 14.415)
+        $termLinks = $old['term_links'] ?? null;
+        unset($old['term_links']);
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
             $made = $relationRow['table'] === 'work_relations' ? DB::table('work_relations')->where('id', $relationRow['id'])->value('work_id') : null;
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
@@ -538,6 +541,10 @@ class AuditLogController extends Controller
         $old = \App\Sources\RecordEntries::restore($target, $old);
         if ($old) {
             $target->forceFill($old)->save();
+        }
+        if ($termLinks && $target instanceof Work) {
+            \App\Support\WorkTerms::restore($target, $termLinks);
+            $target->searchable();
         }
         // A manuscript moved between works: both works' counts change back
         if ($previousWork && array_key_exists('work_id', $old)) {

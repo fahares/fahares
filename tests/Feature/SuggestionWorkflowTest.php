@@ -784,6 +784,52 @@ class SuggestionWorkflowTest extends TestCase
         $this->post("/admin/suggestions/{$third->id}/discard-derived")->assertStatus(409);
     }
 
+    /** Step 14.415: a work's subject and language are fields, and their links follow the corrected wording. */
+    public function test_a_works_subject_and_language_are_corrected_with_their_links()
+    {
+        $tag = uniqid();
+        $script = \App\Models\Subject::create(['name' => "خط {$tag}", 'slug' => "wt-s-{$tag}"]);
+        $ethics = \App\Models\Subject::create(['name' => "اخلاق {$tag}", 'slug' => "wt-e-{$tag}"]);
+        $persian = \App\Models\Language::create(['name' => "فارسی {$tag}", 'slug' => "wt-p-{$tag}"]);
+        $arabic = \App\Models\Language::create(['name' => "عربی {$tag}", 'slug' => "wt-a-{$tag}"]);
+        $work = $this->work();
+        $edit = fn (string $field, string $value) => $this->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => $field, 'suggested_value' => $value]);
+
+        // both rows have their button, an empty one in suggestion mode
+        $this->actingAs($this->admin)->get(route('works.show', $work))->assertOk()
+            ->assertSee('data-suggest-field="subject_summary"', false)->assertSee('data-suggest-field="language_summary"', false);
+
+        // a name the site has is linked and counted; one it lacks is refused, so no second spelling of a subject is born
+        $edit('subject_summary', "خوشنویسی {$tag}")->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->assertNull($work->fresh()->subject_summary);
+        $edit('subject_summary', "خط {$tag}")->assertOk();
+        $edit('language_summary', "فارسی {$tag} و عربی {$tag}")->assertOk();
+        $work->refresh();
+        $this->assertSame(["خط {$tag}", [$script->id]], [$work->subject_summary, $work->subjects()->pluck('subjects.id')->all()]);
+        $this->assertEqualsCanonicalizing([$persian->id, $arabic->id], $work->languages()->pluck('languages.id')->all());
+        $this->assertSame([1, 1, 1], [$script->fresh()->works_count, $persian->fresh()->works_count, $arabic->fresh()->works_count]);
+        $this->get(route('works.show', $work))->assertOk()->assertSee(route('subjects.show', $script), false);
+
+        // a corrected wording takes the old link away, and the rollback brings both back
+        $edit('subject_summary', "اخلاق {$tag}")->assertOk();
+        $this->assertSame([[$ethics->id], 0, 1], [$work->subjects()->pluck('subjects.id')->all(), $script->fresh()->works_count, $ethics->fresh()->works_count]);
+        $log = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->where('action', 'verify')->latest('id')->first();
+        $this->assertSame(['subjects' => [$script->id]], $log->old_values['term_links']);
+        $this->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame(["خط {$tag}", [$script->id], 1, 0], [$work->fresh()->subject_summary, $work->subjects()->pluck('subjects.id')->all(), $script->fresh()->works_count, $ethics->fresh()->works_count]);
+
+        // a researcher's suggestion goes the same way, and the reviewer approves it with the site's name
+        $this->suggest($work, ['field_name' => 'language_summary', 'suggested_value' => 'پارسی', 'rationale_citation' => 'متن اثر'])->assertOk();
+        $s = $this->pendingFor($work);
+        $this->approve($s)->assertSessionHasErrors('applied_value');
+        $this->approve($s, ['applied_value' => "فارسی {$tag}"])->assertRedirect('/admin/suggestions');
+        $this->assertSame([[$persian->id], 0], [$work->languages()->pluck('languages.id')->all(), $arabic->fresh()->works_count]);
+
+        // emptied, the links go too
+        $edit('language_summary', '')->assertOk();
+        $this->assertSame([null, 0, 0], [$work->fresh()->language_summary, $work->languages()->count(), $persian->fresh()->works_count]);
+    }
+
     /** Step 14.244: the page count and the place in the volume are corrected like the leaf count, and a sync keeps them. */
     public function test_pages_and_the_place_in_the_volume_are_corrected_and_kept_by_the_extent_sync()
     {

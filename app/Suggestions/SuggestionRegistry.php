@@ -851,7 +851,9 @@ class SuggestionRegistry
             'author_name' => ['label' => 'پدیدآور', 'input' => 'person', 'id_column' => 'author_id', 'role' => 'author'],
             'composition_date_raw' => ['label' => 'تاریخ تألیف', 'input' => 'hijri_date', 'year_column' => 'composition_year_hijri'],
             'composition_place' => ['label' => 'محل تألیف', 'input' => 'text'],
-            'language_summary' => ['label' => 'زبان', 'input' => 'text'],
+            // the wording and the links to the site's subjects and languages change together (step 14.415, WorkTerms)
+            'subject_summary' => ['label' => 'موضوع', 'input' => 'text', 'terms' => true],
+            'language_summary' => ['label' => 'زبان', 'input' => 'text', 'terms' => true],
             'work_form' => ['label' => 'قالب (نثر، نظم و…)', 'input' => 'text'],
             'dedication' => ['label' => 'اهدا / به درخواست', 'input' => 'text'],
             'description' => ['label' => 'معرفی اثر', 'input' => 'textarea'],

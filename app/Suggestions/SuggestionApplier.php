@@ -178,6 +178,10 @@ class SuggestionApplier
                         $record->death_year_gregorian = null;
                     }
                 }
+                // a subject or a language is one the site has, so its links can follow the wording (step 14.415)
+                if (! empty($field['terms'])) {
+                    \App\Support\WorkTerms::ids($name, $value);
+                }
                 $record->{$name} = $value;
         }
 
@@ -193,6 +197,17 @@ class SuggestionApplier
         $record->save();
         $new = $record->getChanges();
         unset($new['updated_at']);
+
+        // ...and the links are written with it; the log keeps both sets of them for a rollback
+        if (! empty($field['terms'])) {
+            $links = \App\Support\WorkTerms::sync($record, $name);
+            if ($links['old'] !== $links['new']) {
+                $table = \App\Support\WorkTerms::FIELDS[$name][0];
+                $old['term_links'] = [$table => $links['old']];
+                $new['term_links'] = [$table => $links['new']];
+                $record->searchable();
+            }
+        }
 
         if ($field['input'] === 'person') {
             $this->recount($previousPersonId, $record->{$field['id_column']});
