@@ -14336,6 +14336,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `node --test docker/down/cloudflare/failover.test.mjs`: ۱۱ آزمون (بالا، قطعی اپ، blip، جابه‌جایی، بازگشت، نگهداری، عبور، سه گونه بی‌پاسخی، یادداشت).
   - `CloudflareClientIpTest`: ۳ آزمون.
   - `maintenance` با یک API ساختگی محلی آزموده شد: status، on با یادداشت، دوباره on با PUT، off، و گرفتن و رها کردن قفل.
+- **استقرار (۴ آذر ۱۴۰۵):**
+  - wrangler 4.168.0 از `docker/down/cloudflare`. نخستین `deploy` cron را با خطای 10063 ثبت نکرد، چون حساب زیردامنۀ `workers.dev` نداشت. با باز کردن Workers & Pages در داشبورد ساخته شد.
+  - `node_modules` محلی پوشه (در `.gitignore`) برای cache wrangler است، چون `node_modules` ریشۀ checkout اصلی مال root است.
+  - token با `wrangler secret put CF_API_TOKEN < ~/.fahares/cloudflare-dns-token` داده شد.
+- **آزمون زنده:**
+  - cron: پنج `failover check: up` پیاپی (wall حدود ۵۰۰ ms).
+  - `failover-test` (نارنجی، `192.0.2.1`): `503`، `retry-after: 120`، `x-robots-tag: noindex`، `server: cloudflare`، در ۱۵٫۶ ثانیه (`ORIGIN_TIMEOUT_MS`). رکورد پاک شد.
+  - `maintenance on --no-lock`: پاسخ نام‌سرور پس از چند ثانیه `172.67.149.123` و `104.21.47.175` شد. `/`، `/up` و `/search` ۲۰۰ دادند با `server: cloudflare`، بی ریدایرکت (Full strict).
+  - `off`: پس از ۴۰ ثانیه `proxied=false, ttl=60`. پاسخ‌های DNS از راه کش میانی تا ۳۰۰ ثانیه (TTL رکورد proxied) نارنجی ماندند.
 
 ### گام ۱۴.۴۰۷: حذف ستون‌های منبع
 
@@ -14401,3 +14410,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `CitationEntryTest` تازه است. `tests/Support/InsertRecords` کلید را بالا می‌برد.
   - ۹ فایل آزمون به جای کلید از مدخل می‌خوانند.
 - **تمرین:** روی `fahares_rehearse411` (فقط `manuscripts(id, metadata)` و مدخل‌های `fankha_citation`، که پس از تمرین پاک شد). `--dry-run` ۵ ثانیه و اجرای واقعی ۹ ثانیه طول کشید. فایل پشتیبان ۱۷ MB بود و ۳۲۳٬۲۴۵ سطر داشت.
+### گام ۱۴.۴۱۲: `App\Support\DatabaseUnavailable` (مورد ۱۳۶، بند ۳)
+- `bootstrap/app.php`: `$exceptions->render(fn (\Throwable $e, Request $request) => DatabaseUnavailable::render($e, $request))`. اگر خطا از اتصال نباشد، `null` برمی‌گردد و Laravel همان رفتار پیشین را دارد.
+- `causedBy()`: زنجیرۀ `getPrevious()` را می‌پیماید. یکی از این سه کافی است:
+  - `LostConnectionDetector::causedByLostConnection()`؛
+  - `PDOException::$errorInfo[1]` در فهرست کدها؛
+  - `SQLSTATE[..] [کد]` در پیام.
+- کدها: ۱۰۴۰ (Too many connections)، ۱۰۵۳ (Server shutdown in progress)، ۲۰۰۲ و ۲۰۰۳ (اتصال نشد)، ۲۰۰۵ (نام میزبان نامعلوم، وقتی کانتینر پایگاه داده نیست)، ۲۰۰۶ و ۲۰۱۳ (اتصال افتاد).
+- `page()`: `base_path('docker/down/index.html')` را می‌خواند و `var probe = '/up';` را با `var probe = location.href;` جابه‌جا می‌کند. اگر فایل نباشد، یک صفحۀ کوتاه فارسی برمی‌گرداند. این فایل در ایمیج پروداکشن هست (`/app/docker/down/index.html`).
+- Worker ‏`fahares-failover` همان فایل را می‌خواند. متغیر `probe` در آنجا `/up` می‌ماند.
+- آزمون: `tests/Feature/DatabaseUnavailableTest.php` با `QueryException` ساختگی برای ۲۰۰۲، ۱۰۵۳ و ۱۰۶۴. ۱۰۶۴ خطای نحوی است و باید ۵۰۰ بماند.
+- وارسی دستی در `fahares_app`: `php -S` از پوشۀ worktree، یک بار با `DB_HOST=127.0.0.1 DB_PORT=1` و یک بار با `DB_HOST=no-such-db-host`.
