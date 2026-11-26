@@ -14299,6 +14299,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۴.۴۰۴: متن راهنمای `libraries`
 - `InsightsNotes::libraries()`: جملۀ نخست `reading[0]`. آزمون: `InsightsLibrarySubjectsTest`.
 
+### گام ۱۴.۴۰۵: `entry_number` در نشانی هر منبع، کتابخانه با `HasSourceEntries`
+
+- **[SuggestionRegistry](../app/Suggestions/SuggestionRegistry.php):**
+  - `parseCatalogPage` شماره را با «ردیف»، «شمارۀ»، «شماره» یا «ش» می‌خواند.
+  - `formatCatalogPage($volume, $page, $row, $unit, $number)` شماره را به همان شکل می‌نویسد: فیلد `source_entry_{id}` با «ش»، و `fankha_page` با «ردیف».
+- **[SuggestionApplier::applySourceEntry](../app/Suggestions/SuggestionApplier.php):** شمارۀ داده‌شده در `entry_number` نوشته می‌شود. نشانی صفحۀ دیگر بی شماره، شمارۀ پیشین را پاک می‌کند.
+- **[SourceEntry::cardLabel](../app/Models/SourceEntry.php):** «ردیف N» برای مدخل فنخای نسخه. «ش N» برای مدخل دیگری که مدخل چاپی سایت (`source_item_id`) ندارد.
+- **[Library](../app/Models/Library.php):** از `HasSourceEntries` استفاده می‌کند. hook ذخیره برای کتابخانه کاری نمی‌کند. صفحۀ کتابخانه `sources()->cards()` را در `data-library-sources` نشان می‌دهد.
+- **[orderByFankhaColumn](../app/Models/Concerns/HasSourceEntries.php):** با `(…) is null` پیش از مقدار، رکورد بی مدخل فنخا در آخر می‌آید. `WorkController` در پایان `manuscripts.id` را می‌افزاید.
+- **آزمون:** `CatalogReferencesTest::test_an_address_takes_the_entry_number_and_a_library_shows_its_places_in_the_sources`.
+
 ### گام ۱۴.۴۰۶: Worker ‏`fahares-failover` و `scripts/dev/maintenance` (مورد ۱۳۶)
 - **[failover.js](../docker/down/cloudflare/failover.js)** (منطق)، **[worker.js](../docker/down/cloudflare/worker.js)** (`fetch` و `scheduled`)، **[wrangler.toml](../docker/down/cloudflare/wrangler.toml)**:
   - routeهای `fahares.net/*`، `www.fahares.net/*` و `failover-test.fahares.net/*`؛ cron `* * * * *`.
@@ -14334,6 +14345,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `failover-test` (نارنجی، `192.0.2.1`): `503`، `retry-after: 120`، `x-robots-tag: noindex`، `server: cloudflare`، در ۱۵٫۶ ثانیه (`ORIGIN_TIMEOUT_MS`). رکورد پاک شد.
   - `maintenance on --no-lock`: پاسخ نام‌سرور پس از چند ثانیه `172.67.149.123` و `104.21.47.175` شد. `/`، `/up` و `/search` ۲۰۰ دادند با `server: cloudflare`، بی ریدایرکت (Full strict).
   - `off`: پس از ۴۰ ثانیه `proxied=false, ttl=60`. پاسخ‌های DNS از راه کش میانی تا ۳۰۰ ثانیه (TTL رکورد proxied) نارنجی ماندند.
+
+### گام ۱۴.۴۰۷: حذف ستون‌های منبع
+
+- **migration `2026_11_26_100001`:** برای هر جدول، ستون‌های موجود، foreign keyهایشان و هر نمایه‌ای که یکی از آن‌ها را دارد (از جمله `manuscripts_work_id_sequence_number_index`) در یک `ALTER` حذف می‌شوند. اجرای دوباره بی‌خطر است. `down()` خطا می‌دهد. روی رونوشت جدول‌ها ۰٫۳ ثانیه و روی رونوشت کامل پایگاه ۴ ثانیه طول کشید.
+- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):**
+  - `SOURCE_ATTRIBUTES` نام‌های پیشین است. `isFillable` آن‌ها را برای اثر و نسخه می‌پذیرد.
+  - `saving` آن‌ها را از مدل برمی‌دارد و در `WeakMap` نگه می‌دارد، همراه با این‌که رکورد تازه است یا نه. `saved` آن‌ها را به `RecordEntries::take` می‌دهد. `givenSources()` برای hook خود نسخه است.
+- **[RecordEntries](../app/Sources/RecordEntries.php):**
+  - `take` (رکورد تازۀ بی منبع، منبعش فنخاست)، `citation`، `write` (نوشتن با query builder) و `insertRow` (بازگرداندن ردیف از لاگ قدیم).
+  - `mirror` و `columnsOf` حذف شدند.
+- **[SourceEntrySync](../app/Sources/SourceEntrySync.php):**
+  - `setCatalogue($ids, …)` جلد را از راه `syncCited` (و `assign`) و بخش و فهرست‌نگار را مستقیم روی مدخل استناد می‌نویسد.
+  - `syncCatalogue*`، `RECORD_COLUMNS`، `MANUSCRIPT_COLUMNS` و `syncBibliography` حذف شدند. `syncRecord` و `syncIds` فقط استناد را دوباره می‌خوانند.
+- **[CatalogVolumePart](../app/Models/CatalogVolumePart.php):** `assign` روی مدخل‌های استناد کار می‌کند. `ready()` ستون `source_entries.catalog_volume_part_id` را می‌سنجد.
+- **[SourceMerger](../app/Sources/SourceMerger.php):** snapshot از مدخل‌های استناد با کلیدهای پیشین (`id`، `catalog_volume_id`، `catalog_volume_part_id`، `cataloger_id`) ساخته می‌شود. `restoreCopies()` پشتیبان‌های پیشین و تازه را روی مدخل برمی‌گرداند.
+- **فرمان‌ها:** `set-volumes`، `remove-catalogue`، `import-volume-parts`، `link-volumes`، `merge-duplicates`، `move-cited-part`، `import-fankha-references`، `sync-other-citations`، `rebuild-copies`، `apply-corpus-diff`، `sync-work-details`، `add-corpus-works` و `seed` از `EntryColumns` می‌خوانند و از `setCatalogue` یا `RecordEntries` می‌نویسند. بخش `fankha` در `sources:backfill` و فرمان `sources:fill-catalogue-entries` (یک‌باره، اجراشده) حذف شدند.
+- **آزمون‌ها:** `tests/Support/InsertRecords.php` و `TestCase::fankhaOf`/`bibliographyOf`. حدود ۳۰ فایل از مدخل‌ها می‌خوانند. همۀ ۱۰۷۲ آزمون سبز.
+- **خروجی پروداکشن:** `step14_407_record_source_columns_before_drop.sql.gz` (۳۹۴٬۹۳۲ دستور `UPDATE`، ۶۱ MB). برای بازگشت، ستون‌ها باید با migrationهای پیشین بازساخته شوند و این دستورها اجرا شوند.
 
 ### گام ۱۴.۴۰۸: حامی علمی در فوتر
 - **تصویر:** [mtif-160.png](../public/images/partners/mtif-160.png) و [mtif-320.png](../public/images/partners/mtif-320.png) (srcset 2x). ساخته با Pillow از JPEG ‏CMYK ‏۷۹۹×۱۴۱۲: خاکستری، آلفا = وارونۀ روشنایی، رنگ `#FEF3C7` (`amber-100`).
@@ -14377,3 +14406,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - با `--telegram` یک `Announcement` با `on_site=false`، `telegram=true`، `audience=all` و `ends_at=until` ساخته یا به‌روز می‌شود. سپس فرمان `AnnouncementTelegram::sync()` را صدا می‌زند: نخستین بار `sendMessage`، و پس از آن `editMessageText`.
 - نوار: `resources/views/components/maintenance-notice.blade.php`، در `layouts/app.blade.php` پیش از header. با کلید `maintenance-notice-<at>` در localStorage بسته می‌ماند. قالب مدیریت آن را ندارد.
 - آزمون: `tests/Feature/MaintenanceNoticeTest.php`. سال آزمون تلگرام ۱۴۱۴ است، چون `ends_at` ستون TIMESTAMP است و به ۲۰۳۸ می‌رسد.
+### گام ۱۴.۴۱۳: `metadata.catalog_citation` → `ce.citation_text`
+- **ورودی‌ها:** `ImportFankhaCatalogReferencesCommand::rawCitation(?string $citation, ?string $rawText)`، `CatalogCitations::others($citation, $rawText)` و `LinkCatalogVolumesCommand::citationOf($citation, $rawText)` به جای JSON کامل metadata، متن استناد را می‌گیرند و اگر نباشد، کروشۀ پایانی متن نسخه را برمی‌دارند.
+- **خواندن:** ردیف‌های `syncCited`/`syncOtherCited` کلید `catalog_citation` را دارند، نه `metadata`. هر `EntryColumns::query('manuscripts', [...])` که استناد را می‌خواهد، `catalog_citation` را برمی‌گزیند که همان `ce.citation_text` است. این شامل `relinkVolumes`، `setCatalogue`، `syncRecord` و فرمان‌های `sync-other-citations`، `move-cited-part`، `import-volume-parts`، `import-fankha-references`، `link-volumes`، `merge-duplicates` و `backfill` است.
+- **[RecordEntries](../app/Sources/RecordEntries.php):**
+  - `liftCitation(array $values)` کلید را از `metadata` (آرایه یا رشتۀ JSON) برمی‌دارد و به `catalog_citation` می‌برد. metadataی خالی‌شده `null` می‌شود.
+  - `write` و `insertRow` برای نسخه آن را صدا می‌زنند.
+  - `citation()` استناد را از `$given['catalog_citation']` می‌گیرد، و اگر نباشد از `citation_text` مدخل موجود. دیگر به `wasChanged('metadata')` نگاه نمی‌کند.
+  - `take()` پیش از نوشتن متن تازه `$followsText` را می‌سنجد: `raw_text` داده شده، استناد داده نشده، و `citation_text` مدخل برابر `rawCitation(null, متن پیشین)` است. در این حالت استناد از کروشۀ پایانی متن تازه خوانده می‌شود (آزمون `CitedEntryKeepsMatchTest`).
+- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):**
+  - `catalog_citation` به `SOURCE_ATTRIBUTES` افزوده شد.
+  - `saving` برای نسخه‌ای که metadataاش dirty است کلید را بیرون می‌کشد. نام صریح روی مدل بر کلید metadata مقدم است.
+- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):**
+  - هنگام مقایسه با `from` خروجی پیکره، `ce.citation_text` جای کلید را در metadata می‌گیرد.
+  - هنگام نوشتن، metadata بی کلید نوشته می‌شود و استنادِ تغییرکرده با `RecordEntries::take` در مدخل می‌نشیند، پیش از `setCatalogue`.
+  - لاگ، `catalog_citation` کهنه و تازه را جدا نگه می‌دارد.
+- **[SeedFaharesDataCommand](../app/Console/Commands/SeedFaharesDataCommand.php):** کلید را در metadata نمی‌نویسد و مدخل استناد را با `take` می‌سازد.
+- **[DropCitationKeyCommand](../app/Console/Commands/DropCitationKeyCommand.php):**
+  - `sources:drop-citation-key {--dry-run} {--backup=}`
+  - در هر بازۀ ۵٬۰۰۰ شناسه، یک `SELECT` با join به مدخل اجرا می‌کند، و سپس یک `UPDATE … SET metadata = NULLIF(JSON_REMOVE(metadata, '$.catalog_citation'), '{}')`. `updated_at` دست نمی‌خورد.
+  - فایل پشتیبان JSON lines است (`id`، `catalog_citation`) و پیش از هر `UPDATE`، `fflush` می‌شود.
+- **آزمون‌ها:**
+  - `CitationEntryTest` تازه است. `tests/Support/InsertRecords` کلید را بالا می‌برد.
+  - ۹ فایل آزمون به جای کلید از مدخل می‌خوانند.
+- **تمرین:** روی `fahares_rehearse411` (فقط `manuscripts(id, metadata)` و مدخل‌های `fankha_citation`، که پس از تمرین پاک شد). `--dry-run` ۵ ثانیه و اجرای واقعی ۹ ثانیه طول کشید. فایل پشتیبان ۱۷ MB بود و ۳۲۳٬۲۴۵ سطر داشت.

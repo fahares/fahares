@@ -41,13 +41,13 @@ class CollectionsTest extends TestCase
 
     private function work(): int
     {
-        return $this->works[] = DB::table('works')->insertGetId(['primary_title' => 'رسالۀ آزمایشی مجموعه', 'clean_title' => 'رسالۀ آزمایشی مجموعه',
+        return $this->works[] = \Tests\Support\InsertRecords::work(['primary_title' => 'رسالۀ آزمایشی مجموعه', 'clean_title' => 'رسالۀ آزمایشی مجموعه',
             'slug' => 'test-collections-' . uniqid(), 'volume_number' => 99, 'page_start' => 1]);
     }
 
     private function copy(int $library, string $shelfmark, array $columns = []): int
     {
-        return $this->manuscripts[] = DB::table('manuscripts')->insertGetId($columns + [
+        return $this->manuscripts[] = \Tests\Support\InsertRecords::copy($columns + [
             'work_id' => $this->work(), 'sequence_number' => 1, 'volume_number' => 99, 'page_start' => 1, 'page_end' => 1, 'city' => 'تهران',
             'library' => 'کتابخانۀ آزمایشی', 'library_id' => $library, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark,
             'collection_key' => Manuscript::collectionKeyOf($shelfmark), 'raw_text' => 'تهران؛ کتابخانۀ آزمایشی',

@@ -205,7 +205,7 @@ class SyncWorkDetailsCommand extends Command
                                 array_key_exists('commentaries_and_glosses', $texts) ? (json_decode((string) $texts['commentaries_and_glosses'], true) ?: []) : false);
                         }
                         if ($payload) {
-                            DB::table('works')->where('id', $w['id'])->update($payload);
+                            \App\Sources\RecordEntries::write((new Work)->forceFill(['id' => $w['id']]), $payload);
                             $synced['works'][] = $w['id'];
                             if (array_key_exists('dedication', $payload) && $payload['dedication'] !== ($dedications[$w['id']] ?? null)) {
                                 $dedicationChanged[] = $w['id'];
@@ -221,14 +221,11 @@ class SyncWorkDetailsCommand extends Command
                             'page_end' => $m['page_end'],
                         ]);
                         if ($payload) {
-                            DB::table('manuscripts')->where('id', $m['id'])->update($payload);
+                            \App\Sources\RecordEntries::write((new Manuscript)->forceFill(['id' => $m['id']]), $payload);
                             $synced['manuscripts'][] = $m['id'];
                         }
                     }
                 }
-                // the Fankha entries and bibliographies of what changed (step 13.4)
-                SourceEntrySync::syncIds(Work::class, $synced['works']);
-                SourceEntrySync::syncIds(Manuscript::class, $synced['manuscripts']);
             });
 
             // DB::table runs no model hook (item 87): work_people and the search documents follow the dedications

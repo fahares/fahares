@@ -81,10 +81,9 @@ class ApplyCorpusDiffCommand extends Command
         if ($apply && $updates) {
             DB::transaction(function () use ($updates) {
                 foreach ($updates as $id => $payload) {
-                    DB::table('works')->where('id', $id)->update($payload);
+                    // the text and the bibliography are the work's entries' (step 14.407)
+                    \App\Sources\RecordEntries::write((new Work)->forceFill(['id' => $id]), $payload);
                 }
-                // their Fankha entries and bibliographies follow (step 13.4)
-                SourceEntrySync::syncIds(Work::class, array_keys($updates));
             });
             // The description and the bibliographies are in the search index; DB::table runs no model hook
             DerivedData::syncWorks(array_keys($updates), $this);

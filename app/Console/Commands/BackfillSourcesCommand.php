@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Manuscript;
 use App\Models\Source;
 use App\Models\SourceEntry;
-use App\Models\Work;
+use App\Support\EntryColumns;
 use App\Sources\SourceEntrySync as Sync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +15,11 @@ use Illuminate\Support\Facades\DB;
  * - registry: catalogs (same ids) and the reference works of config('bibliography.sources') become sources with
  *   their volumes; catalog_volumes become source_volumes (same ids) under one source per library and title, the
  *   volume's title without its last « - …» part (a later printing, edition_of_id, is a source of its own).
- * - fankha: the Fankha entry of every work and manuscript, its raw_text as the entry's text (a manuscript's
- *   is the copy's own line, so copy_text).
  * - references: the library catalogue page Fankha cites for each manuscript (SourceEntrySync::citedValues, from its
- *   own columns).
- * - bibliography: each string of works.bibliography, with the places it cites of the sources the site knows.
+ *   metadata and its Fankha entry's text).
+ * - bibliography: each work's bibliography entries read again, with the places they cite of the sources the site knows.
+ *
+ * The part «fankha» went in step 14.407: a record's Fankha entry and bibliography have no column to be copied from.
  *
  * Every row keeps the row it came from (legacy_type, legacy_id, legacy_index), so running it again updates what
  * changed and removes what is gone. The parts «addenda» (source_citations), «evidence» (field_evidence) and the
@@ -30,12 +29,12 @@ use Illuminate\Support\Facades\DB;
 class BackfillSourcesCommand extends Command
 {
     protected $signature = 'sources:backfill
-        {--only=* : registry, fankha, references, bibliography (default: all, in this order)}
+        {--only=* : registry, references, bibliography (default: all, in this order)}
         {--dry-run : Count what would be written without writing}';
 
-    protected $description = 'Copy catalogs, Fankha texts, Fankha\'s catalogue citations and bibliographies into sources and source_entries';
+    protected $description = 'Copy catalogs and Fankha\'s catalogue citations into sources and source_entries, and read the bibliographies again';
 
-    public const PARTS = ['registry', 'fankha', 'references', 'bibliography'];
+    public const PARTS = ['registry', 'references', 'bibliography'];
 
     /** The kind of each reference work of config('bibliography.sources'). */
     public const CONFIG_KINDS = [
@@ -180,81 +179,37 @@ class BackfillSourcesCommand extends Command
         return $stats;
     }
 
-    private function fankha(): array
-    {
-        return [
-            'works' => $this->copyRecords('works', Work::class, 'work'),
-            'manuscripts' => $this->copyRecords('manuscripts', Manuscript::class, 'manuscript'),
-        ];
-    }
-
-    /** The Fankha entry of each record of a table (SourceEntrySync::primaryValues). */
-    private function copyRecords(string $table, string $class, string $legacy): int
-    {
-        $codes = DB::table('catalogs')->pluck('code', 'id')->all();
-        $count = 0;
-        DB::table($table)->whereNotNull('catalog_id')->select(['id', 'catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', 'created_at',
-            ...($class === Manuscript::class ? ['sequence_number'] : [])])
-            ->chunkById(self::CHUNK, function ($records) use ($class, $codes, &$count) {
-                $rows = [];
-                foreach ($records as $r) {
-                    $rows[] = Sync::row(Sync::primaryValues($r, $class, $this->volumeIds, $codes), $r->created_at);
-                }
-                $count += count($rows);
-                $this->write($rows);
-            });
-        $this->prune($legacy, $table);
-
-        return $count;
-    }
-
     private function references(): array
     {
         $stats = [SourceEntry::ORIGIN_FANKHA_CITATION => 0];
         // Fankha's citation is the manuscript's own (one per copy)
-        DB::table('manuscripts')->select(['id', 'metadata', 'raw_text', 'catalog_volume_id'])->chunkById(self::CHUNK, function ($rows) use (&$stats) {
+        EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->chunkById(self::CHUNK, function ($rows) use (&$stats) {
             if ($this->dry) {
                 $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += $rows->filter(fn ($m) => Sync::citedValues($m, $this->volumeSources))->count();
 
                 return;
             }
             $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += Sync::syncCited($rows)[0];
-        });
+        }, 'manuscripts.id', 'id');
         $this->prune('fankha_citation', 'manuscripts');
         $this->prune('fankha_citation_more', 'manuscripts');
 
         return $stats;
     }
 
+    /** Each work's bibliography entries read again, so the places they cite follow the sources the site knows now. */
     private function bibliography(): array
     {
         $stats = ['works' => 0, 'citations' => 0, 'of a known source' => 0, 'places' => 0];
-        DB::table('works')->whereNotNull('bibliography')->select(['id', 'bibliography', 'created_at'])
-            ->chunkById(self::CHUNK, function ($works) use (&$stats) {
-                $rows = [];
-                foreach ($works as $w) {
-                    $values = Sync::bibliographyValues($w->id, Sync::bibliographyStrings($w->bibliography), $this->configSources, $this->volumeIds);
-                    if (! $values) {
-                        continue;
-                    }
-                    $stats['works']++;
-                    foreach ($values as $v) {
-                        $stats['citations']++;
-                        $v['source_id'] && $stats['of a known source']++;
-                        $stats['places'] += $v['locations'] ? count(json_decode($v['locations'])) : ($v['page_start'] ? 1 : 0);
-                        $rows[] = Sync::row($v, $w->created_at);
-                    }
-                }
-                $this->write($rows);
+        DB::table('source_entries')->where('legacy_type', 'work_bibliography')->distinct()->orderBy('legacy_id')->pluck('legacy_id')->chunk(self::CHUNK)
+            ->each(function ($ids) use (&$stats) {
+                $stats['works'] += $ids->count();
+                $this->dry || \App\Jobs\SyncWorkBibliographies::run($ids->all());
             });
-
-        // a work gone, or a bibliography that has fewer strings than before
-        if (! $this->dry) {
-            DB::table('source_entries')->where('legacy_type', 'work_bibliography')
-                ->whereNotExists(fn ($q) => $q->from('works')->whereColumn('works.id', 'source_entries.legacy_id')
-                    ->whereRaw('JSON_LENGTH(works.bibliography) > source_entries.legacy_index'))
-                ->delete();
-        }
+        $entries = DB::table('source_entries')->where('legacy_type', 'work_bibliography');
+        $stats['citations'] = (clone $entries)->count();
+        $stats['of a known source'] = (clone $entries)->whereNotNull('source_id')->count();
+        $stats['places'] = (clone $entries)->where(fn ($q) => $q->whereNotNull('locations')->orWhereNotNull('page_start'))->count();
 
         return $stats;
     }

@@ -91,6 +91,20 @@ abstract class TestCase extends BaseTestCase
         return $work;
     }
 
+    /** A record's Fankha entry values, in the order of the keys asked for (source_id, volume_number, page_start, page_end, entry_number, text). */
+    protected function fankhaOf(\Illuminate\Database\Eloquent\Model $record, string ...$keys): array
+    {
+        $held = \App\Sources\RecordEntries::fankhaOf($record);
+
+        return array_map(fn ($key) => $held[$key], $keys);
+    }
+
+    /** A work's bibliography as its entries hold it (step 14.407: the column is gone). */
+    protected function bibliographyOf(\App\Models\Work $work): array
+    {
+        return \App\Sources\RecordEntries::bibliographyOf($work);
+    }
+
     protected function beforeRefreshingDatabase()
     {
         $database = DB::connection()->getDatabaseName();

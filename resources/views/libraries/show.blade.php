@@ -96,6 +96,18 @@
             </x-ui.section>
         @endif
 
+        {{-- the library's places in the sources, as a copy's or a work's (backlog item 170, step 14.405) --}}
+        @php($libraryCards = $library->sources()->cards())
+        @if($libraryCards->isNotEmpty())
+            <x-ui.section title="در منابع" :count="$libraryCards->count()">
+                <div class="space-y-4" data-library-sources>
+                    @foreach($libraryCards as $entry)
+                        <x-source.page-card :entry="$entry" :record="$library" />
+                    @endforeach
+                </div>
+            </x-ui.section>
+        @endif
+
         <!-- MANUSCRIPTS TABLE -->
         <x-ui.section id="manuscripts" title="نسخه‌ها" :count="$library->manuscripts_count">
             <x-search.list-tools :params="['type' => 'manuscripts', 'library_id' => $library->id]" placeholder="عنوان، پدیدآور، کاتب یا شماره در این کتابخانه…" />

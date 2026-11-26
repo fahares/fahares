@@ -517,7 +517,14 @@ class SourceEntry extends Model
      */
     public function cardLabel(?Model $record = null): string
     {
-        $row = $this->is_primary && $record instanceof Manuscript && $this->entry_number ? 'ردیف ' . $this->entry_number : null;
+        // the number the source gives the entry there: a copy's row under its work in Fankha, an entry's own number in
+        // another source when no printed entry of the site's says it (step 14.405)
+        $row = match (true) {
+            ! $this->entry_number => null,
+            $this->is_primary && $record instanceof Manuscript => 'ردیف ' . $this->entry_number,
+            ! $this->is_primary && ! $this->source_item_id => 'ش ' . $this->entry_number,
+            default => null,
+        };
 
         return Fa::digits(implode('، ', array_filter([
             $this->sourceLabel(),

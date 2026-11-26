@@ -155,13 +155,13 @@ class MergeComparisonTest extends TestCase
         $kept->refresh();
         $this->assertSame("معرفی نخست\n\nمعرفی دوم", $kept->description);
         $this->assertSame('Kitab', $kept->transliteration, 'an empty field is filled by default');
-        $this->assertSame(['الذریعة ۱/۲', 'ریحانة ۳/۴'], $kept->bibliography);
+        $this->assertSame(['الذریعة ۱/۲', 'ریحانة ۳/۴'], $this->bibliographyOf($kept));
         $this->assertContains('اثر تکراری', array_column($kept->alternative_titles, 'title'));
 
         $log = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $kept->id)->where('action', 'merge')->latest('id')->firstOrFail();
         $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
         $kept->refresh();
-        $this->assertSame(['معرفی نخست', null, ['الذریعة ۱/۲'], null], [$kept->description, $kept->transliteration, $kept->bibliography, $kept->alternative_titles]);
+        $this->assertSame(['معرفی نخست', null, ['الذریعة ۱/۲'], null], [$kept->description, $kept->transliteration, $this->bibliographyOf($kept), $kept->alternative_titles]);
         $this->assertSame('معرفی دوم', Work::findOrFail($dup->id)->description);
     }
 

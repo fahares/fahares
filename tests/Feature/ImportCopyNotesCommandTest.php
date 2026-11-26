@@ -31,12 +31,12 @@ class ImportCopyNotesCommandTest extends TestCase
 
     private function copy(string $shelfmark): int
     {
-        $work = $this->works[] = DB::table('works')->insertGetId([
+        $work = $this->works[] = \Tests\Support\InsertRecords::work([
             'primary_title' => 'اثر آزمایشی یادداشت', 'clean_title' => 'اثر آزمایشی یادداشت',
             'slug' => 'test-notes-' . uniqid(), 'volume_number' => 99, 'page_start' => 1,
         ]);
 
-        return $this->manuscripts[] = DB::table('manuscripts')->insertGetId([
+        return $this->manuscripts[] = \Tests\Support\InsertRecords::copy([
             'work_id' => $work, 'volume_number' => 99, 'page_start' => 1, 'shelfmark' => $shelfmark,
         ]);
     }

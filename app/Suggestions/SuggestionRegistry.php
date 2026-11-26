@@ -310,7 +310,7 @@ class SuggestionRegistry
             throw \Illuminate\Validation\ValidationException::withMessages(['suggested_value' => 'شمارۀ جلد و صفحه را بنویسید.']);
         }
 
-        return self::formatCatalogPage($page['volume'], $page['page'], $page['row'], $field['unit'] ?? 'ص');
+        return self::formatCatalogPage($page['volume'], $page['page'], $page['row'], $field['unit'] ?? 'ص', isset($field['entry_id']) ? 'ش' : 'ردیف');
     }
 
     /** Accepts a short key ('manuscript') or a model class. */
@@ -711,18 +711,20 @@ class SuggestionRegistry
     {
         $value = strtr((string) $value, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
         $read = fn (string $key) => preg_match('/(?:' . $key . ')\s*\.?\s*:?\s*(\d+)/u', $value, $m) ? (int) $m[1] : null;
-        $parsed = ['volume' => $read('ج'), 'page' => $read('ص|ستون'), 'row' => $read('ردیف')];
+        // the number the source gives at that place: a copy's row under its work in Fankha («ردیف»), an entry's printed
+        // number in another source («ش»), step 14.405
+        $parsed = ['volume' => $read('ج'), 'page' => $read('ص|ستون'), 'row' => $read('ردیف|شمارۀ|شماره|ش')];
 
         return $parsed['volume'] && $parsed['page'] ? $parsed : null;
     }
 
-    public static function formatCatalogPage(?int $volume, ?int $page, ?int $row = null, string $unit = 'ص'): ?string
+    public static function formatCatalogPage(?int $volume, ?int $page, ?int $row = null, string $unit = 'ص', string $number = 'ردیف'): ?string
     {
         if (! $volume || ! $page) {
             return null;
         }
 
-        return \App\Support\Fa::digits("ج {$volume}، {$unit} {$page}" . ($row ? "، ردیف {$row}" : ''));
+        return \App\Support\Fa::digits("ج {$volume}، {$unit} {$page}" . ($row ? "، {$number} {$row}" : ''));
     }
 
     /** The field's current value as plain text, for the suggestion form and the reviewer's comparison. */
@@ -758,7 +760,7 @@ class SuggestionRegistry
             'quote' => implode("\n\n", array_column(self::metaList($record, $field['meta_key']), 'text')) ?: $record->{$name},
             'list' => implode("\n", self::listItems($record, $field)),
             'catalog_page' => match (true) {
-                isset($field['entry_id']) => (fn ($e) => $e ? self::formatCatalogPage($e->volumeNumber(), $e->page_start) : null)(SourceEntry::find($field['entry_id'])),
+                isset($field['entry_id']) => (fn ($e) => $e ? self::formatCatalogPage($e->volumeNumber(), $e->page_start, $e->entry_number, $field['unit'] ?? 'ص', 'ش') : null)(SourceEntry::find($field['entry_id'])),
                 isset($field['bibliography']) => self::formatCatalogPage($field['bibliography']['volume'], $field['bibliography']['page'], null, $field['unit']),
                 // the place is the record's Fankha entry's (step 14.399, backlog item 170); a copy's row is its entry_number
                 default => (function () use ($record, $field) {

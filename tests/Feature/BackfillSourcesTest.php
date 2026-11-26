@@ -120,12 +120,12 @@ class BackfillSourcesTest extends TestCase
         $this->assertSame(1, $entry->source_id);
         $this->assertSame(15, $entry->sourceVolume->volume_number);
         $this->assertSame([15, 120, 121], [$entry->volume_number, $entry->page_start, $entry->page_end]);
-        $this->assertSame($this->work->raw_text, $entry->entry_text);
+        $this->assertSame("● دیوان قدسی\nشعر فارسی", $entry->entry_text);
         $this->assertSame([15, 120, SourceEntry::TEXT_AUTO], [$entry->text_volume_number, $entry->text_page, $entry->text_status]);
         $this->assertFalse($entry->textIsOutOfPlace());
 
         $copy = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $this->manuscript->id)->where('origin', SourceEntry::ORIGIN_FANKHA)->sole();
-        $this->assertSame($this->manuscript->raw_text, $copy->copy_text, "a manuscript's Fankha text is its own line");
+        $this->assertSame('قم؛ مسجد اعظم؛ شماره نسخه: 1939 [ف: 2-414]', $copy->copy_text, "a manuscript's Fankha text is its own line");
         $this->assertNull($copy->entry_text);
 
         $copy->update(['page_start' => 122]);
@@ -144,8 +144,8 @@ class BackfillSourcesTest extends TestCase
             'legacy_type' => 'catalog_reference', 'legacy_id' => 991,
         ]);
         $computer = Manuscript::create(['work_id' => $this->work->id, 'shelfmark' => '7', 'volume_number' => 15, 'page_start' => 121, 'sequence_number' => 2, 'raw_text' => 'قم؛ مسجد اعظم؛ شماره نسخه: 7 [رایانه]']);
-        // the Fankha row only repeated the copy's own citation: the entry is made from the manuscript, and only once
-        DB::table('source_entries')->where('legacy_type', 'fankha_citation')->delete();
+        // the entry holds a reading the run corrects: it is read from the copy's text again, and only once
+        DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $this->manuscript->id)->update(['citation_text' => null, 'volume_number' => null, 'page_start' => null]);
 
         $this->backfill();
 
@@ -196,13 +196,13 @@ class BackfillSourcesTest extends TestCase
         $this->backfill();
         $this->assertSame([$count, $sources, $volumes], [SourceEntry::count(), Source::count(), SourceVolume::count()]);
 
-        DB::table('works')->where('id', $this->work->id)->update(['raw_text' => 'متن تازه', 'bibliography' => json_encode(['الذریعة 101/25'])]);
+        // the entries are the record's own (step 14.407): a deleted copy keeps its Fankha entry for a rollback, but not its citation
         DB::table('manuscripts')->where('id', $this->manuscript->id)->delete();
         $this->backfill();
 
-        $this->assertSame('متن تازه', SourceEntry::where('legacy_type', 'work')->where('legacy_id', $this->work->id)->value('entry_text'));
-        $this->assertSame(1, SourceEntry::where('legacy_type', 'work_bibliography')->where('legacy_id', $this->work->id)->count(), 'the dropped string is gone');
-        $this->assertSame(0, SourceEntry::where('legacy_type', 'manuscript')->where('legacy_id', $this->manuscript->id)->count(), 'the deleted record is gone');
+        $this->assertSame("● دیوان قدسی\nشعر فارسی", SourceEntry::where('legacy_type', 'work')->where('legacy_id', $this->work->id)->value('entry_text'));
+        $this->assertSame(2, SourceEntry::where('legacy_type', 'work_bibliography')->where('legacy_id', $this->work->id)->count());
+        $this->assertSame(0, SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $this->manuscript->id)->count(), 'the deleted record\'s citation is gone');
     }
 
     public function test_a_dry_run_writes_nothing()

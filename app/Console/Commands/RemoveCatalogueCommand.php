@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Cataloger;
 use App\Models\CatalogVolumePart;
 use App\Sources\SourceEntrySync;
+use App\Support\EntryColumns;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -68,10 +69,9 @@ class RemoveCatalogueCommand extends Command
         DB::transaction(function () use ($source, $volumes, $moves) {
             $people = DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id');
             foreach ($moves as [$copy, $target]) {
-                DB::table('manuscripts')->where('id', $copy)->update(['catalog_volume_id' => $target]);
+                SourceEntrySync::setCatalogue([$copy], ['catalog_volume_id' => $target]);
             }
             $copies = array_column($moves, 0);
-            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $copies)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
 
             DB::table('source_entries')->where('source_id', $source->id)->update(['source_id' => null, 'source_volume_id' => null]);
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();
@@ -81,7 +81,7 @@ class RemoveCatalogueCommand extends Command
             DB::table('sources')->where('id', $source->id)->delete();
 
             $targets = array_unique(array_column($moves, 1));
-            $this->recount($targets, $people->merge(DB::table('manuscripts')->whereIn('id', $copies)->pluck('cataloger_id'))->filter());
+            $this->recount($targets, $people->merge(\App\Support\EntryColumns::cited()->whereIn('manuscripts.id', $copies)->pluck('ce.cataloger_id'))->filter());
         });
         foreach (array_merge([$source->id], DB::table('source_volumes')->whereIn('id', array_column($moves, 1))->pluck('source_id')->all()) as $id) {
             self::forget((int) $id);
@@ -99,7 +99,7 @@ class RemoveCatalogueCommand extends Command
      */
     private function moves(array $named, array $volumes): ?array
     {
-        $on = DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes ?: [0])->get(['id', 'library_id', 'shelfmark'])->keyBy('id');
+        $on = \App\Support\EntryColumns::cited()->whereIn('ce.source_volume_id', $volumes ?: [0])->get(['manuscripts.id', 'manuscripts.library_id', 'manuscripts.shelfmark'])->keyBy('id');
         $moves = [];
         foreach ($named as $copy) {
             $library = DB::table('libraries')->where('slug', $copy['library'])->value('id');
@@ -128,7 +128,6 @@ class RemoveCatalogueCommand extends Command
     /** The copies of the volumes and parts the copies went to, and the catalogers of them. */
     private function recount(array $volumes, iterable $people): void
     {
-        \App\Sources\SourceEntrySync::syncCatalogueOfVolumes($volumes);
         foreach ($volumes as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => \App\Support\EntryColumns::copiesOf('catalog_volume_id', $id)]);
         }
@@ -146,7 +145,7 @@ class RemoveCatalogueCommand extends Command
         $parts = DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $targets ?: [0])->pluck('id')->all();
         $people = DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', array_merge($volumes, $targets))->pluck('cataloger_id')
             ->merge(DB::table('catalog_volume_part_cataloger')->whereIn('catalog_volume_part_id', $parts ?: [0])->pluck('cataloger_id'))
-            ->merge(DB::table('manuscripts')->whereIn('id', $copies ?: [0])->pluck('cataloger_id'))->filter()->unique()->values()->all();
+            ->merge(\App\Support\EntryColumns::cited()->whereIn('manuscripts.id', $copies ?: [0])->pluck('ce.cataloger_id'))->filter()->unique()->values()->all();
         $backup = [
             'command' => $this->getName(),
             'written_at' => now()->toIso8601String(),
@@ -157,7 +156,8 @@ class RemoveCatalogueCommand extends Command
             'catalog_volume_parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(),
             'target_volumes' => DB::table('catalog_volumes')->whereIn('id', $targets)->get(['id', 'manuscripts_count']),
             'target_parts' => DB::table('catalog_volume_parts')->whereIn('id', $parts)->get(['id', 'manuscripts_count']),
-            'manuscripts' => DB::table('manuscripts')->whereIn('id', $copies)->get(['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
+            'manuscripts' => \App\Support\EntryColumns::cited()->whereIn('manuscripts.id', $copies)
+                ->get(['manuscripts.id', 'ce.source_volume_id as catalog_volume_id', 'ce.catalog_volume_part_id', 'ce.cataloger_id']),
             'source_entries' => DB::table('source_entries')->where('source_id', $source->id)
                 ->orWhere(fn ($q) => $q->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $copies ?: [0]))
                 ->get(['id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
@@ -193,7 +193,6 @@ class RemoveCatalogueCommand extends Command
             }
             \App\Sources\SourceMerger::restoreColumns('catalog_volumes', $backup['target_volumes']);
             \App\Sources\SourceMerger::restoreColumns('catalog_volume_parts', $backup['target_parts']);
-            \App\Sources\SourceEntrySync::syncCatalogueAll();
         });
         self::forget((int) $backup['source']['id']);
         foreach (array_column($backup['target_volumes'], 'id') as $id) {

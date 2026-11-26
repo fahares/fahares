@@ -139,7 +139,7 @@ class CatalogReferencesTest extends TestCase
             $this->assertSame(['series' => $series, 'volume' => $volume, 'page' => $page], Import::parse($citation), $citation);
         }
         $this->assertSame('[ف مخ: 1]', Import::rawCitation(null, "متن نسخه [ف مخ: 1]"));
-        $this->assertNull(Import::rawCitation('{"catalog_citation": ""}', 'بی‌ارجاع'));
+        $this->assertNull(Import::rawCitation('', 'بی‌ارجاع'));
     }
 
     public function test_the_import_adds_one_fankha_row_per_copy_and_never_duplicates()
@@ -148,10 +148,12 @@ class CatalogReferencesTest extends TestCase
         $bare = $this->manuscript(['catalog_volume_id' => null, 'metadata' => []]);
 
         $cited = fn (Manuscript $m) => SourceEntry::where('citable_id', $m->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION);
-        // saving the copy wrote it already; the command does every copy, as after a relink written with DB::table
-        $cited($ms)->delete();
+        // saving the copy wrote it already; the command reads every entry's citation again (the volume is the entry's
+        // own, step 14.407; the citation the entry's own text, step 14.413), and a dry run writes nothing
+        $cited($ms)->update(['volume_number' => 5]);
         $this->artisan('catalogs:import-fankha-references', ['--dry-run' => true])->assertSuccessful();
-        $this->assertSame(0, $cited($ms)->count());
+        $this->assertSame(5, (int) $cited($ms)->value('volume_number'));
+        $cited($ms)->update(['volume_number' => 2]);
 
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
@@ -161,10 +163,10 @@ class CatalogReferencesTest extends TestCase
             [$rows[0]->citation_text, $rows[0]->volume_number, $rows[0]->page_start, $rows[0]->source_volume_id]);
         $this->assertSame(0, $cited($bare)->count());
 
-        // a later relink of the copy is followed on save, and by the command after a relink written with DB::table
+        // a later relink of the copy is followed on save, and by the command after a relink through SourceEntrySync::setCatalogue
         $ms->update(['catalog_volume_id' => $this->edition->id]);
         $this->assertSame([$this->edition->id], $cited($ms)->pluck('source_volume_id')->all());
-        DB::table('manuscripts')->where('id', $ms->id)->update(['catalog_volume_id' => $this->fankhaVolume->id]);
+        \App\Sources\SourceEntrySync::setCatalogue([$ms->id], ['catalog_volume_id' => $this->fankhaVolume->id]);
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->assertSame([$this->fankhaVolume->id], $cited($ms)->pluck('source_volume_id')->all());
     }
@@ -792,12 +794,14 @@ class CatalogReferencesTest extends TestCase
 
         $this->suggestAddress($ms, "source_entry_{$ref->id}", 'ج 2، ص 416')->assertOk();
         $this->assertSame('ج ۲، ص ۴۱۶', FieldSuggestion::latest('id')->first()->suggested_value);
-        $this->assertSame('ج ۲، ص ۴۱۴', FieldSuggestion::latest('id')->first()->current_value);
+        // the entry's number at its place is part of its address (step 14.405)
+        $this->assertSame('ج ۲، ص ۴۱۴، ش ۶۰۶', FieldSuggestion::latest('id')->first()->current_value);
         $this->approveLatest($ms)->assertSessionHasNoErrors();
 
         $ref->refresh();
         $this->assertSame([416, SourceEntry::ORIGIN_MANUAL, SourceEntry::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->origin, $ref->status, $ref->reviewed_by]);
-        $this->assertSame([1, 1, 1], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number], 'the Fankha columns are untouched');
+        $this->assertNull($ref->entry_number, 'an address on another page without a number leaves the old page\'s number behind');
+        $this->assertSame([1, 1, 1], $this->fankhaOf($ms, 'volume_number', 'page_start', 'entry_number'), 'the Fankha columns are untouched');
         $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
 
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
@@ -807,6 +811,23 @@ class CatalogReferencesTest extends TestCase
         $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->latest('id')->value('id') . '/rollback')->assertSessionHas('success');
         $this->assertSame([414, SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED], [$ref->fresh()->page_start, $ref->fresh()->origin, $ref->fresh()->status]);
         unlink($pages);
+    }
+
+    /** Step 14.405 (backlog item 170): any source's address takes the number the source gives the entry there. */
+    public function test_an_address_takes_the_entry_number_and_a_library_shows_its_places_in_the_sources()
+    {
+        $ms = $this->manuscript();
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match']);
+        $this->suggestAddress($ms, "source_entry_{$ref->id}", 'ج 2، ص 416، ش 12')->assertOk();
+        $this->assertSame('ج ۲، ص ۴۱۶، ش ۱۲', FieldSuggestion::latest('id')->first()->suggested_value);
+        $this->approveLatest($ms)->assertSessionHasNoErrors();
+        $this->assertSame([416, 12], [$ref->fresh()->page_start, $ref->fresh()->entry_number]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶، ش ۱۲');
+
+        $library = \App\Models\Library::findOrFail($ms->library_id);
+        SourceEntry::create(['citable_type' => \App\Models\Library::class, 'citable_id' => $library->id, 'source_id' => SourceVolume::findOrFail($this->edition->id)->source_id,
+            'source_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 3, 'origin' => SourceEntry::ORIGIN_MANUAL, 'status' => SourceEntry::STATUS_VERIFIED]);
+        $this->get(route('libraries.show', $library))->assertOk()->assertSee('data-library-sources', false)->assertSee('ج ۲، ص ۳');
     }
 
     public function test_a_copy_reported_absent_loses_the_link_and_fankha_addresses_are_applied_to_the_copy()
@@ -824,7 +845,7 @@ class CatalogReferencesTest extends TestCase
         $this->suggestAddress($ms, 'fankha_page', 'ج ۳، ص ۱۲، ردیف ۴')->assertOk();
         $this->assertSame('ج ۱، ص ۱، ردیف ۱', FieldSuggestion::latest('id')->first()->current_value);
         $this->approveLatest($ms)->assertSessionHasNoErrors();
-        $this->assertSame([3, 12, 4], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number]);
+        $this->assertSame([3, 12, 4], $this->fankhaOf($ms, 'volume_number', 'page_start', 'entry_number'));
     }
 
     public function test_bibliography_citations_are_rewritten_in_their_own_form()
@@ -860,14 +881,14 @@ class CatalogReferencesTest extends TestCase
         $suggest('bibliography_page_dharia_25_101', 'ج ۲۵، ص ۱۰۲')->assertOk();
         $this->assertSame(['ج ۲۵، ص ۱۰۱', 'ج ۲۵، ص ۱۰۲'], [FieldSuggestion::latest('id')->first()->current_value, FieldSuggestion::latest('id')->first()->suggested_value]);
         $approve()->assertSessionHasNoErrors();
-        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $work->fresh()->bibliography);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->bibliographyOf($work));
 
         $suggest('fankha_page', 'ج ۴، ص ۲۰')->assertOk();
         $approve()->assertSessionHasNoErrors();
-        $this->assertSame([4, 20, 21], [$work->fresh()->volume_number, $work->fresh()->page_start, $work->fresh()->page_end]);
+        $this->assertSame([4, 20, 21], $this->fankhaOf($work, 'volume_number', 'page_start', 'page_end'));
 
         // the rollback restores the bibliography text
         $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->where('auditable_id', $work->id)->orderBy('id')->value('id') . '/rollback')->assertSessionHas('success');
-        $this->assertSame(['منزوی 977/2', 'الذریعه 101/25'], $work->fresh()->bibliography);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 101/25'], $this->bibliographyOf($work));
     }
 }

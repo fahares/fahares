@@ -105,9 +105,7 @@ class ManuscriptCreator
                 'catalog_id' => null,
                 'volume_number' => null,
                 'page_start' => null,
-                // after the work's copies of the catalogues, in the order they were added
-                // a copy made in the panel has no Fankha entry: its row after the work's others is its own (decided in phase 5)
-                'sequence_number' => (int) Manuscript::where('work_id', $work->id)->max('sequence_number') + 1,
+                // a copy made in the panel has no Fankha entry: it comes after the work's others, in the order made (step 14.405)
                 'library_id' => $library->id,
                 'library' => $library->name,
                 'city' => $library->city,

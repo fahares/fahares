@@ -35,7 +35,7 @@
             <x-admin.cell main>
                 <a href="{{ route('works.show', $w) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $fa($w->primary_title) }}</a>
                 <span class="text-xs text-muted tabular-nums">#{{ $fa($w->id) }}</span>
-                @if($w->catalog_id === null)<x-ui.chip>ساخته‌شده در پنل</x-ui.chip>@endif
+                @if($w->fankhaEntry === null)<x-ui.chip>ساخته‌شده در پنل</x-ui.chip>@endif
             </x-admin.cell>
             <x-admin.cell label="پدیدآور">{{ $w->author_name ? $fa($w->author_name) : '—' }}</x-admin.cell>
             <x-admin.cell label="تاریخ تألیف">{{ $w->composition_date_raw ? $fa($w->composition_date_raw) : '—' }}</x-admin.cell>

@@ -260,9 +260,6 @@ class SeedFaharesDataCommand extends Command
                 'transliteration' => $w['transliteration'] ?? null,
                 'composition_date_raw' => $w['composition_date'] ?? null,
                 'composition_year_hijri' => $this->parseHijriYear($w['composition_date'] ?? null),
-                'volume_number' => $volNum,
-                'page_start' => $pageStart,
-                'page_end' => $pageEnd,
                 'work_form' => $w['work_form'] ?? null,
                 'subject_summary' => $w['subject'] ?? null,
                 'language_summary' => $w['language'] ?? null,
@@ -273,6 +270,9 @@ class SeedFaharesDataCommand extends Command
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
+            // the Fankha place is the work's entry, not a column (step 14.407)
+            \App\Sources\RecordEntries::fankha((new \App\Models\Work)->forceFill(['id' => $workId]),
+                ['source_id' => \App\Sources\RecordEntries::fankhaSourceId(), 'volume_number' => $volNum, 'page_start' => $pageStart, 'page_end' => $pageEnd]);
 
             $worksCount++;
 
@@ -353,7 +353,6 @@ class SeedFaharesDataCommand extends Command
                 'explicits' => $m['explicits'] ?? [],
                 'editorial_notes' => $m['editorial_notes'] ?? [],
                 'ownership_and_seals' => $m['ownership_and_seals'] ?? [],
-                'catalog_citation' => $m['catalog_citation'] ?? null,
                 'residual_notes' => $m['residual_notes'] ?? null,
             ];
 
@@ -366,10 +365,6 @@ class SeedFaharesDataCommand extends Command
                 'work_id' => $workId,
                 'library_id' => $libId,
                 'scribe_id' => $scribeId,
-                'sequence_number' => (int) ($m['sequence_number'] ?? ($idx + 1)),
-                'volume_number' => $volNum,
-                'page_start' => (int) ($m['page_start'] ?? 0),
-                'page_end' => (int) ($m['page_end'] ?? 0),
                 'city' => !empty($city) ? mb_substr($city, 0, 255) : null,
                 'library' => !empty($lib) ? mb_substr($lib, 0, 255) : null,
                 'shelfmark' => $m['shelfmark'] ?? null,
@@ -401,10 +396,14 @@ class SeedFaharesDataCommand extends Command
                 'is_illustrated' => (bool) ($m['is_illustrated'] ?? false),
                 'has_author_marginalia' => (bool) ($m['has_author_marginalia'] ?? false),
                 'metadata' => json_encode($metadata, JSON_UNESCAPED_UNICODE),
-                'raw_text' => $m['raw_text'] ?? null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
+            \App\Sources\RecordEntries::fankha((new \App\Models\Manuscript)->forceFill(['id' => $msId]), [
+                'source_id' => \App\Sources\RecordEntries::fankhaSourceId(), 'volume_number' => $volNum, 'page_start' => (int) ($m['page_start'] ?? 0),
+                'page_end' => (int) ($m['page_end'] ?? 0), 'entry_number' => (int) ($m['sequence_number'] ?? ($idx + 1)), 'text' => $m['raw_text'] ?? null]);
+            // the catalogue citation is the copy's citation entry's (step 14.413)
+            \App\Sources\RecordEntries::take((new \App\Models\Manuscript)->forceFill(['id' => $msId]), ['catalog_citation' => $m['catalog_citation'] ?? null], false);
 
             $msInsertedCount++;
 

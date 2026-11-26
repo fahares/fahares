@@ -264,13 +264,16 @@ class SuggestionApplier
         } else {
             $page = SuggestionRegistry::parseCatalogPage($value);
             if (! $page) {
-                throw new InvalidArgumentException('نشانی را به شکل «ج ۲، ص ۷» بنویسید، یا «نیست» اگر نسخه در این فهرست نیامده است.');
+                throw new InvalidArgumentException('نشانی را به شکل «ج ۲، ص ۷» یا «ج ۲، ص ۷، ش ۳» بنویسید، یا «نیست» اگر نسخه در این فهرست نیامده است.');
             }
             // a machine match confirmed at its own page stays a match, now verified (backlog item 80)
-            $same = $page['volume'] === $entry->volumeNumber() && $page['page'] === (int) $entry->page_start;
+            $same = $page['volume'] === $entry->volumeNumber() && $page['page'] === (int) $entry->page_start
+                && ($page['row'] === null || $page['row'] === $entry->entry_number);
             $entry->fill($same ? ['status' => SourceEntry::STATUS_VERIFIED] + $reviewer : [
                 'volume_number' => $page['volume'],
                 'page_start' => $page['page'],
+                // the number the source gives the entry there (step 14.405); an address without one keeps it on its page
+                'entry_number' => $page['row'] ?? ($page['volume'] === $entry->volumeNumber() && $page['page'] === (int) $entry->page_start ? $entry->entry_number : null),
                 // the entry still ends where it did when the new page falls inside it
                 'page_end' => $entry->page_end && $page['page'] <= $entry->page_end && $page['page'] >= (int) $entry->page_start ? $entry->page_end : null,
                 'origin' => SourceEntry::ORIGIN_MANUAL,

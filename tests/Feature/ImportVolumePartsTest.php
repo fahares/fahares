@@ -53,7 +53,7 @@ class ImportVolumePartsTest extends TestCase
             'pivot' => DB::table('catalog_volume_cataloger')->orderBy('catalog_volume_id')->orderBy('cataloger_id')->get(['catalog_volume_id', 'cataloger_id', 'role'])->map(fn ($r) => (array) $r)->all(),
             'parts' => $rows('catalog_volume_parts', ['id']),
             'entries' => $rows('source_entries', ['id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
-            'copies' => $rows('manuscripts', ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
+            'copies' => \App\Support\EntryColumns::cited()->orderBy('manuscripts.id')->get(['manuscripts.id', 'ce.source_volume_id as catalog_volume_id', 'ce.catalog_volume_part_id', 'ce.cataloger_id'])->map(fn ($r) => (array) $r)->all(),
             'catalogers' => $rows('catalogers', ['id', 'name', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
     }
@@ -143,12 +143,12 @@ class ImportVolumePartsTest extends TestCase
         }
         foreach ($copies as $label => [$copy, $number, $slug]) {
             $copy = $copy->fresh();
-            $this->assertSame($volumes[$number]->id, $copy->catalog_volume_id, $label);
-            $this->assertSame($slug, $copy->catalogVolumePart?->library?->slug, $label);
+            $this->assertSame($volumes[$number]->id, $copy->citedEntry?->source_volume_id, $label);
+            $this->assertSame($slug, $copy->citedEntry?->catalogVolumePart?->library?->slug, $label);
         }
-        $this->assertNull($stray->fresh()->catalog_volume_id, 'another source\'s copy on a folded volume is untied');
-        $this->assertNull($noVolume->fresh()->catalog_volume_id);
-        $this->assertSame([$zanjanVolume->id, 1], [$zanjanOwn->fresh()->catalog_volume_id, CatalogVolume::find($zanjanVolume->id)->manuscripts_count], 'a kept source keeps its own copies');
+        $this->assertNull($stray->fresh()->citedEntry?->source_volume_id, 'another source\'s copy on a folded volume is untied');
+        $this->assertNull($noVolume->fresh()->citedEntry?->source_volume_id);
+        $this->assertSame([$zanjanVolume->id, 1], [$zanjanOwn->fresh()->citedEntry?->source_volume_id, CatalogVolume::find($zanjanVolume->id)->manuscripts_count], 'a kept source keeps its own copies');
         $this->assertNotNull(Source::where('code', 'catalogue-zanjan')->first());
         $valaei = Cataloger::where('name', 'مهدی والئی')->firstOrFail();
         $this->assertSame([4, 0], [$valaei->manuscripts_count, $valaei->supervised_count]);
@@ -183,7 +183,7 @@ class ImportVolumePartsTest extends TestCase
         $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
         file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
         $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful();
-        $this->assertSame(['ص 388–426', 'ص 388–426'], [$early->fresh()->catalogVolumePart?->pages_text, $late->fresh()->catalogVolumePart?->pages_text],
+        $this->assertSame(['ص 388–426', 'ص 388–426'], [$early->fresh()->citedEntry?->catalogVolumePart?->pages_text, $late->fresh()->citedEntry?->catalogVolumePart?->pages_text],
             'a copy outside the pages of its library\'s one part is of that part');
 
         // Fankha's row gives the library a second run of pages, the part put before the others
@@ -200,8 +200,8 @@ class ImportVolumePartsTest extends TestCase
         $backup = storage_path('framework/testing/parts-backup-' . uniqid() . '.json');
         $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--backup' => $backup])->assertSuccessful();
         $this->assertSame([[1, 0], [100, 1], [388, 2]], $sorts());
-        $this->assertSame(['ص 1–59', 'ص 388–426', 'ص 100–104'], [$early->fresh()->catalogVolumePart?->pages_text, $late->fresh()->catalogVolumePart?->pages_text,
-            $own->fresh()->catalogVolumePart?->pages_text], 'each copy goes to the part its page is in');
+        $this->assertSame(['ص 1–59', 'ص 388–426', 'ص 100–104'], [$early->fresh()->citedEntry?->catalogVolumePart?->pages_text, $late->fresh()->citedEntry?->catalogVolumePart?->pages_text,
+            $own->fresh()->citedEntry?->catalogVolumePart?->pages_text], 'each copy goes to the part its page is in');
         $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');
 
         $this->artisan('catalogs:import-volume-parts', ['--revert' => $backup])->assertSuccessful();
@@ -244,9 +244,9 @@ class ImportVolumePartsTest extends TestCase
         $this->assertSame([1, 32537, 'چهار کتابخانه مشهد: 1'], [$volume->volume_number, $volume->mtif_entry_id, $volume->citation_pattern]);
         $this->assertSame($volume->id, CatalogVolume::findOrFail($volume->id)->id, 'a catalog volume under the same id');
         foreach ([$onMicrofilms, $untied] as $copy) {
-            $this->assertSame([$volume->id, 'mshhd-mdrsh-slymanyh-193'], [$copy->fresh()->catalog_volume_id, $copy->fresh()->catalogVolumePart?->library?->slug]);
+            $this->assertSame([$volume->id, 'mshhd-mdrsh-slymanyh-193'], [$copy->fresh()->citedEntry?->source_volume_id, $copy->fresh()->citedEntry?->catalogVolumePart?->library?->slug]);
         }
-        $this->assertSame($held->id, $own->fresh()->catalog_volume_id);
+        $this->assertSame($held->id, $own->fresh()->citedEntry?->source_volume_id);
         $this->get(route('sources.show', $made->code))->assertOk()->assertSee('data-volume-part>', false)->assertSee('کتابخانه مدرسه سلیمانیه');
         $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');
 
@@ -294,15 +294,15 @@ class ImportVolumePartsTest extends TestCase
 
         $dm = Source::where('code', 'catalogue-dm')->firstOrFail()->volumes()->first();
         $fb = Source::where('code', 'catalogue-fb')->firstOrFail();
-        $this->assertSame([$dm->id, $ashkevari->id], [(int) $dash->fresh()->catalog_volume_id, (int) $dash->fresh()->cataloger_id], '«ف مخ - 108» is page 108 of the one volume');
-        $this->assertSame($dm->id, (int) $bare->fresh()->catalog_volume_id, '«[ف مخ]» names the book alone');
-        $this->assertNull($stranger->fresh()->catalog_volume_id, 'another library\'s «ف مخ» is another book');
+        $this->assertSame([$dm->id, $ashkevari->id], [(int) $dash->fresh()->citedEntry?->source_volume_id, (int) $dash->fresh()->citedEntry?->cataloger_id], '«ف مخ - 108» is page 108 of the one volume');
+        $this->assertSame($dm->id, (int) $bare->fresh()->citedEntry?->source_volume_id, '«[ف مخ]» names the book alone');
+        $this->assertNull($stranger->fresh()->citedEntry?->source_volume_id, 'another library\'s «ف مخ» is another book');
         $this->assertSame([[$derayati->id, 'supervisor']], $dm->catalogers()->get()->map(fn ($c) => [$c->id, $c->pivot->role])->all());
         $this->assertSame($sadeqiyeh->id, (int) $fb->library_id);
         $volume = $fb->volumes()->first();
         $this->assertSame([$sadeqiyeh->id, 34208], [(int) CatalogVolume::find($volume->id)->library_id, (int) $volume->mtif_entry_id]);
         $this->assertSame([[$ashkevari->id, 'cataloger']], $volume->catalogers()->get()->map(fn ($c) => [$c->id, $c->pivot->role])->all());
-        $this->assertSame([$volume->id, $ashkevari->id], [(int) $printed->fresh()->catalog_volume_id, (int) $printed->fresh()->cataloger_id],
+        $this->assertSame([$volume->id, $ashkevari->id], [(int) $printed->fresh()->citedEntry?->source_volume_id, (int) $printed->fresh()->citedEntry?->cataloger_id],
             'a copy moved to a volume without parts takes its cataloger');
 
         $this->artisan('catalogs:import-volume-parts', ['--data' => $second])->assertSuccessful()->expectsOutput('Nothing to do.');
@@ -364,11 +364,11 @@ class ImportVolumePartsTest extends TestCase
         $this->assertSame(['تراثنا - السنة 6، العدد 2 (23)', 'تراثنا: س6ش2', 50695], array_values(SourceVolume::find($volumes[23])->only(['title', 'citation_pattern', 'mtif_entry_id'])));
         foreach ([[$first, 22, $fazel], [$second, 23, $fazel], [$bare, 22, $fazel], [$misprint, 52, $fazeli], [$double, 50, $fazeli], [$single, 50, $fazeli]] as [$copy, $number, $cataloger]) {
             $fresh = $copy->fresh();
-            $this->assertSame([$volumes[$number], $cataloger->id], [(int) $fresh->catalog_volume_id, (int) $fresh->cataloger_id], $copy->metadata['catalog_citation']);
-            $this->assertNotNull($fresh->catalog_volume_part_id);
+            $this->assertSame([$volumes[$number], $cataloger->id], [(int) $fresh->citedEntry?->source_volume_id, (int) $fresh->citedEntry?->cataloger_id], $copy->catalog_citation);
+            $this->assertNotNull($fresh->citedEntry?->catalog_volume_part_id);
         }
-        $this->assertNull($stray->fresh()->catalog_volume_id, 'another source\'s copy on a folded volume is untied');
-        $this->assertNull($unknown->fresh()->catalog_volume_id, 'an issue the data file has not is left');
+        $this->assertNull($stray->fresh()->citedEntry?->source_volume_id, 'another source\'s copy on a folded volume is untied');
+        $this->assertNull($unknown->fresh()->citedEntry?->source_volume_id, 'an issue the data file has not is left');
         $this->assertNull(Source::where('code', 'catalogue-baqer')->first());
         $this->get(route('sources.show', $made->code))->assertOk()->assertSee('data-volume="22"', false)->assertSee('data-volume-part>', false);
         $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');

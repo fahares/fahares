@@ -124,7 +124,7 @@ class NewPersonAndWorkTest extends TestCase
         $work = Work::latest('id')->firstOrFail();
         $this->assertSame(['الاثنا عشریة', $author->id, 'شیخ بهایی آزمون', 1012, 0], [$work->primary_title, $work->author_id, $work->author_name, $work->composition_year_hijri, (int) $work->manuscripts_count]);
         $this->assertSame([['title' => 'اثنا عشریه'], ['title' => 'رسالة الصلاة']], $work->alternative_titles);
-        $this->assertNull($work->catalog_id);
+        $this->assertNull($work->fankhaEntry);
         // the author's counts and row, the subject (and its parent) and the language
         $this->assertSame([1, true], [(int) $author->fresh()->works_count, (bool) $author->fresh()->is_author]);
         $this->assertSame([$child->id], $work->subjects()->pluck('subjects.id')->all());

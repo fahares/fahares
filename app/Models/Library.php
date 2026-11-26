@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Library extends Model
 {
+    /** A library is cited by the sources the way a copy, a work or a person is (backlog item 170, step 14.405). */
+    use Concerns\HasSourceEntries;
+
     protected $guarded = ['id'];
 
     protected static function booted(): void

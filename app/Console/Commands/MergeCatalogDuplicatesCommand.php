@@ -126,9 +126,9 @@ class MergeCatalogDuplicatesCommand extends Command
         }
         $moves = [];
         if ($splits) {
-            DB::table('manuscripts')->where('catalog_volume_id', $volume->id)->select(['id', 'metadata', 'raw_text'])->orderBy('id')
+            \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text'])->where('ce.source_volume_id', $volume->id)->orderBy('manuscripts.id')
                 ->each(function ($ms) use ($splits, &$moves) {
-                    $parsed = LinkCatalogVolumesCommand::parseCitation(LinkCatalogVolumesCommand::citationOf($ms->metadata, $ms->raw_text), 'ف');
+                    $parsed = LinkCatalogVolumesCommand::parseCitation(LinkCatalogVolumesCommand::citationOf($ms->catalog_citation, $ms->raw_text), 'ف');
                     if ($parsed && isset($splits[$parsed['volume']])) {
                         $moves[$parsed['volume']][] = $ms->id;
                     }
@@ -152,15 +152,15 @@ class MergeCatalogDuplicatesCommand extends Command
                     'catalog_id' => $volume->catalog_id, 'publication_year' => $spec['publication_year'] ?? null,
                     'metadata' => ['cataloger_note' => $fix['source']],
                 ]);
-            DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $split->id]);
             // the page Fankha cites goes with the volume (step 13.4)
-            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $ids)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+            SourceEntrySync::setCatalogue($ids, ['catalog_volume_id' => $split->id]);
             $targets[] = $split;
         }
         if ($catalogers !== null) {
             foreach ($targets as $target) {
                 $target->catalogers()->sync($catalogers->mapWithKeys(fn ($c) => [$c->id => ['role' => 'cataloger']])->all());
-                DB::table('manuscripts')->where('catalog_volume_id', $target->id)->update(['cataloger_id' => $catalogers->first()?->id]);
+                DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_index', 0)->where('source_volume_id', $target->id)
+                    ->update(['cataloger_id' => $catalogers->first()?->id]);
             }
         }
     }
@@ -203,20 +203,16 @@ class MergeCatalogDuplicatesCommand extends Command
         if ($this->dry) {
             return;
         }
-        $moved = DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->pluck('id');
+        $moved = \App\Support\EntryColumns::cited()->where('ce.source_volume_id', $drop->id)->pluck('manuscripts.id');
         if (! empty($merge['reassign'])) {
             // the duplicate's catalogers were wrong: its copies take the kept volume's cataloger
             $catalogerId = $keep->catalogers()->wherePivot('role', 'cataloger')->orderBy('catalog_volume_cataloger.id')->value('catalogers.id');
-            DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->update(['catalog_volume_id' => $keep->id, 'cataloger_id' => $catalogerId]);
+            SourceEntrySync::setCatalogue($moved, ['catalog_volume_id' => $keep->id, 'cataloger_id' => $catalogerId]);
         } else {
-            DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->update(['catalog_volume_id' => $keep->id]);
+            SourceEntrySync::setCatalogue($moved, ['catalog_volume_id' => $keep->id]);
             $keep->catalogers()->syncWithoutDetaching(
                 $drop->catalogers()->get()->mapWithKeys(fn ($c) => [$c->id => ['role' => $c->pivot->role]])->all()
             );
-        }
-        // the citation entries follow the copies (their counts are read from them, step 14.402)
-        foreach ($moved->chunk(1000) as $ids) {
-            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $ids->all())->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
         }
         $mtif = $drop->mtif_entry_id;
         $drop->catalogers()->detach();

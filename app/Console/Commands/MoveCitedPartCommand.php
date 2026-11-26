@@ -72,11 +72,11 @@ class MoveCitedPartCommand extends Command
         $volume = (int) $this->option('volume');
         $part = (int) $this->option('part');
 
-        $copies = DB::table('manuscripts')->where('catalog_volume_id', $from->id)->orderBy('id')->get(['id', 'shelfmark', 'metadata', 'raw_text']);
+        $copies = \App\Support\EntryColumns::query('manuscripts', ['id', 'shelfmark', 'catalog_citation', 'raw_text'])->where('ce.source_volume_id', $from->id)->orderBy('manuscripts.id')->get();
         $moves = [];
         $parts = [];
         foreach ($copies as $m) {
-            $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->metadata, $m->raw_text);
+            $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->catalog_citation, $m->raw_text);
             if (filled($names)) {
                 $cited = $raw !== null && str_contains(LinkCatalogVolumesCommand::normalize($raw), LinkCatalogVolumesCommand::normalize($names)) ? 'named' : null;
             } elseif (filled($citedVolume)) {
@@ -102,15 +102,15 @@ class MoveCitedPartCommand extends Command
 
         DB::transaction(function () use ($moves, $from, $to, $names, $citedVolume) {
             foreach (array_chunk($moves, 500) as $ids) {
-                DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $to->id]);
+                SourceEntrySync::setCatalogue($ids, ['catalog_volume_id' => $to->id]);
             }
             foreach ($moves as $id) {
                 AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $id, 'action' => 'corpus_update',
                     'old_values' => ['catalog_volume_id' => $from->id],
                     'new_values' => ['catalog_volume_id' => $to->id, 'corpus_fix' => filled($names) ? 'move-cited-part --names (step 14.326)' : (filled($citedVolume) ? 'move-cited-part --cited-volume (step 14.333)' : 'move-cited-part (step 14.152)')]]);
             }
-            DB::table('manuscripts')->whereIn('catalog_volume_id', [$from->id, $to->id])->select(['id', 'metadata', 'raw_text', 'catalog_volume_id'])
-                ->orderBy('id')->chunkById(1000, fn ($rows) => SourceEntrySync::syncCited($rows));
+            \App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('ce.source_volume_id', [$from->id, $to->id])
+                ->chunkById(1000, fn ($rows) => SourceEntrySync::syncCited($rows), 'manuscripts.id', 'id');
         });
 
         Cache::forget('sources:shelf');

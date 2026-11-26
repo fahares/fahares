@@ -143,7 +143,7 @@ class WorkCopyFiltersTest extends TestCase
         $this->get(route('works.show', $small))->assertOk()->assertDontSee('data-copy-filters', false);
 
         // a photograph shown under its copy (step 14.16) stays out of the list and its counts
-        $copies = Manuscript::where('work_id', $this->work->id)->orderBy('sequence_number')->pluck('id');
+        $copies = Manuscript::where('work_id', $this->work->id)->orderByFankha()->pluck('manuscripts.id');
         DB::table('manuscript_relations')->insert(['manuscript_id' => $copies[8], 'related_manuscript_id' => $copies[0], 'type' => 'facsimile_of',
             'created_at' => now(), 'updated_at' => now()]);
         $this->page(['library' => $this->malek->id])->assertOk()

@@ -75,8 +75,8 @@ class MergeCatalogDuplicatesTest extends TestCase
         $split = CatalogVolume::where('title', 'فهرست اردکان - دفتر دوم')->firstOrFail();
         $this->assertSame('فهرست اردکان - دفتر اول', $volume->title);
         $this->assertSame([$right->id], $volume->catalogers()->pluck('catalogers.id')->all());
-        $this->assertSame([$volume->id, $right->id], [$first->fresh()->catalog_volume_id, $first->fresh()->cataloger_id]);
-        $this->assertSame([$split->id, $right->id], [$second->fresh()->catalog_volume_id, $second->fresh()->cataloger_id]);
+        $this->assertSame([$volume->id, $right->id], [$first->fresh()->citedEntry?->source_volume_id, $first->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame([$split->id, $right->id], [$second->fresh()->citedEntry?->source_volume_id, $second->fresh()->citedEntry?->cataloger_id]);
         $this->assertSame('منبع آزمایشی', $volume->metadata['cataloger_note']);
 
         $this->artisan('catalogs:merge-duplicates', ['--data' => $this->dataPath])->assertSuccessful();
@@ -96,7 +96,7 @@ class MergeCatalogDuplicatesTest extends TestCase
         ]]]);
 
         $this->artisan('catalogs:merge-duplicates', ['--data' => $this->dataPath])->assertSuccessful();
-        $this->assertNull($copy->fresh()->cataloger_id);
+        $this->assertNull($copy->fresh()->citedEntry?->cataloger_id);
         $this->assertSame(0, $volume->catalogers()->count());
     }
 
@@ -114,8 +114,8 @@ class MergeCatalogDuplicatesTest extends TestCase
 
         $this->artisan('catalogs:merge-duplicates', ['--data' => $this->dataPath])->assertSuccessful();
         $this->assertNull(CatalogVolume::find($drop->id));
-        $this->assertSame($keep->id, $copy->fresh()->catalog_volume_id);
-        $this->assertSame($b->id, $copy->fresh()->cataloger_id);
+        $this->assertSame($keep->id, $copy->fresh()->citedEntry?->source_volume_id);
+        $this->assertSame($b->id, $copy->fresh()->citedEntry?->cataloger_id);
         $this->assertEqualsCanonicalizing([$a->id, $b->id], $keep->catalogers()->pluck('catalogers.id')->all());
         $this->assertSame(881446, $keep->fresh()->mtif_entry_id);
         $this->assertSame(1, $keep->fresh()->manuscripts_count);
@@ -123,7 +123,7 @@ class MergeCatalogDuplicatesTest extends TestCase
         // the kept volume now carries the MTIF id the duplicate was found by: a second run leaves it alone
         $this->artisan('catalogs:merge-duplicates', ['--data' => $this->dataPath])->assertSuccessful();
         $this->assertNotNull(CatalogVolume::find($keep->id));
-        $this->assertSame($keep->id, $copy->fresh()->catalog_volume_id);
+        $this->assertSame($keep->id, $copy->fresh()->citedEntry?->source_volume_id);
     }
 
     public function test_a_reassigning_merge_gives_the_copies_the_kept_volumes_cataloger()
@@ -139,7 +139,7 @@ class MergeCatalogDuplicatesTest extends TestCase
         $this->write(['volume_merges' => [['drop' => ['library' => $library->slug, 'title' => 'عمومی فاضل - جلد 1'], 'keep' => ['mtif' => 881384], 'reassign' => true]]]);
 
         $this->artisan('catalogs:merge-duplicates', ['--data' => $this->dataPath])->assertSuccessful();
-        $this->assertSame([$keep->id, $right->id], [$copy->fresh()->catalog_volume_id, $copy->fresh()->cataloger_id]);
+        $this->assertSame([$keep->id, $right->id], [$copy->fresh()->citedEntry?->source_volume_id, $copy->fresh()->citedEntry?->cataloger_id]);
         $this->assertSame([$right->id], $keep->catalogers()->pluck('catalogers.id')->all());
     }
 

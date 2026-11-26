@@ -92,9 +92,9 @@ class CatalogCitations
      *
      * @return list<array{text: string, series: ?string, volume: ?int, page: ?int}>
      */
-    public static function others(?string $metadata, ?string $rawText): array
+    public static function others(?string $citation, ?string $rawText): array
     {
-        $primary = Import::rawCitation($metadata, $rawText);
+        $primary = Import::rawCitation($citation, $rawText);
         $primary = $primary === null ? null : Link::normalize($primary);
         $places = [];
         $skipped = false;

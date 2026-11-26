@@ -103,12 +103,12 @@ class CatalogVolumePartsTest extends TestCase
         $onPlain = $this->copy($other, '[نشریه: 4 - 20]', $plain, $daneshPajouh);
 
         // made on a volume with parts: SourceEntrySync::syncCited gives each its part and the part's first cataloger
-        $this->assertSame([$molaviPart->id, $valaei->id], [$byLibrary->fresh()->catalog_volume_part_id, $byLibrary->fresh()->cataloger_id]);
-        $this->assertSame($molaviPart->id, $outside->fresh()->catalog_volume_part_id, 'its library\'s one part, though the page is outside it');
-        $this->assertSame([$rowzatiPart->id, $rowzati->id], [$rowzatiCopy->fresh()->catalog_volume_part_id, $rowzatiCopy->fresh()->cataloger_id]);
-        $this->assertNull($byPage->fresh()->catalog_volume_part_id, 'another library\'s copy is not given a part by its page');
-        $this->assertSame([null, $daneshPajouh->id], [$none->fresh()->catalog_volume_part_id, $none->fresh()->cataloger_id]);
-        $this->assertNull($onPlain->fresh()->catalog_volume_part_id);
+        $this->assertSame([$molaviPart->id, $valaei->id], [$byLibrary->fresh()->citedEntry?->catalog_volume_part_id, $byLibrary->fresh()->citedEntry?->cataloger_id]);
+        $this->assertSame($molaviPart->id, $outside->fresh()->citedEntry?->catalog_volume_part_id, 'its library\'s one part, though the page is outside it');
+        $this->assertSame([$rowzatiPart->id, $rowzati->id], [$rowzatiCopy->fresh()->citedEntry?->catalog_volume_part_id, $rowzatiCopy->fresh()->citedEntry?->cataloger_id]);
+        $this->assertNull($byPage->fresh()->citedEntry?->catalog_volume_part_id, 'another library\'s copy is not given a part by its page');
+        $this->assertSame([null, $daneshPajouh->id], [$none->fresh()->citedEntry?->catalog_volume_part_id, $none->fresh()->citedEntry?->cataloger_id]);
+        $this->assertNull($onPlain->fresh()->citedEntry?->catalog_volume_part_id);
 
         Cataloger::recount();
         $this->assertSame([2, 1], [$molaviPart->fresh()->manuscripts_count, $rowzatiPart->fresh()->manuscripts_count]);
@@ -123,11 +123,11 @@ class CatalogVolumePartsTest extends TestCase
 
         // a copy that leaves the volume leaves its part and gets its new volume's cataloger back
         $byLibrary->update(['catalog_volume_id' => $plain->id]);
-        $this->assertSame([null, $daneshPajouh->id], [$byLibrary->fresh()->catalog_volume_part_id, $byLibrary->fresh()->cataloger_id]);
+        $this->assertSame([null, $daneshPajouh->id], [$byLibrary->fresh()->citedEntry?->catalog_volume_part_id, $byLibrary->fresh()->citedEntry?->cataloger_id]);
         // the citation entries hold the part and the cataloger, as the copies do (step 14.401, backlog item 170)
         foreach ([$byLibrary, $rowzatiCopy, $none] as $copy) {
             $cited = \App\Models\SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->id)->sole();
-            $this->assertSame([$copy->fresh()->catalog_volume_part_id, $copy->fresh()->cataloger_id], [$cited->catalog_volume_part_id, $cited->cataloger_id]);
+            $this->assertSame([$copy->fresh()->citedEntry?->catalog_volume_part_id, $copy->fresh()->citedEntry?->cataloger_id], [$cited->catalog_volume_part_id, $cited->cataloger_id]);
         }
         $this->assertSame(1, $molaviPart->fresh()->manuscripts_count);
 

@@ -27,7 +27,7 @@ class WorkController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $filter = $request->query('filter');
-        $query = Work::query()->select(['id', 'primary_title', 'author_id', 'author_name', 'composition_date_raw', 'manuscripts_count', 'catalog_id', 'slug']);
+        $query = Work::query()->select(['id', 'primary_title', 'author_id', 'author_name', 'composition_date_raw', 'manuscripts_count', 'slug'])->with('fankhaEntry:id,citable_type,citable_id,legacy_type');
 
         if ($search !== '') {
             $id = \App\Http\Controllers\Admin\SuggestionController::recordId('work', $search);
@@ -35,7 +35,7 @@ class WorkController extends Controller
                 ->orWhere('clean_title', 'like', "%{$search}%")->orWhere('alternative_titles', 'like', "%{$search}%")->orWhere('author_name', 'like', "%{$search}%"));
         }
         match ($filter) {
-            'panel' => $query->whereNull('catalog_id'),
+            'panel' => $query->whereDoesntHave('fankhaEntry'),
             'no_copies' => $query->where('manuscripts_count', 0),
             default => null,
         };

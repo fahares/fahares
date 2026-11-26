@@ -98,7 +98,7 @@ class SourceCorrectionsTest extends TestCase
         $entry = $this->primary($this->manuscript);
         $this->assertSame([16, 30, 16, 30], [$entry->volume_number, $entry->page_start, $entry->text_volume_number, $entry->text_page]);
         $this->assertFalse($entry->textIsOutOfPlace(), "Fankha's text is the record's: it stands where the record does");
-        $this->assertSame([16, 30, 4], [$this->manuscript->fresh()->volume_number, $this->manuscript->fresh()->page_start, $this->manuscript->fresh()->sequence_number]);
+        $this->assertSame([16, 30, 4], $this->fankhaOf($this->manuscript, 'volume_number', 'page_start', 'entry_number'));
 
         $this->rollbackLatest();
         $this->assertSame([15, 121], [$this->primary($this->manuscript)->volume_number, $this->primary($this->manuscript)->page_start]);
@@ -122,7 +122,7 @@ class SourceCorrectionsTest extends TestCase
         // the string now cites another page: the text taken at the old one is marked
         $this->work->update(['bibliography' => ['منزوی 977/2', 'الذریعه 102/25']]);
         $this->assertSame(['الذریعه 102/25', 102, SourceEntry::TEXT_STALE], [$dharia->fresh()->citation_text, $dharia->fresh()->page_start, $dharia->fresh()->text_status]);
-        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->work->fresh()->bibliography);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->bibliographyOf($this->work));
     }
 
     /** Step 14.396: the Fankha entry is the record of truth; the place is written there and the columns follow. */
@@ -141,7 +141,7 @@ class SourceCorrectionsTest extends TestCase
         // a copy made with no Fankha place has no entry, and its columns say so
         \App\Sources\RecordEntries::fankha($this->manuscript, ['source_id' => null]);
         $this->assertSame(0, SourceEntry::where('legacy_type', 'manuscript')->where('legacy_id', $this->manuscript->id)->count());
-        $this->assertSame([null, null, null], [$this->manuscript->fresh()->catalog_id, $this->manuscript->fresh()->page_start, $this->manuscript->fresh()->raw_text]);
+        $this->assertSame([null, null, null], $this->fankhaOf($this->manuscript, 'source_id', 'page_start', 'text'));
     }
 
     public function test_a_bibliography_page_is_corrected_in_the_entry_and_the_column()
@@ -149,7 +149,7 @@ class SourceCorrectionsTest extends TestCase
         $this->get(route('works.show', $this->work))->assertSee("field: 'bibliography_page_dharia_25_101'", false);
         $this->suggestAndApprove($this->work, 'bibliography_page_dharia_25_101', 'ج ۲۵، ص ۱۰۲')->assertSessionHasNoErrors();
 
-        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->work->fresh()->bibliography);
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $this->bibliographyOf($this->work));
         $cited = $this->work->fresh()->sources()->bibliography()[1];
         $this->assertSame(['الذریعه 102/25', 25, 102], [$cited->citation_text, $cited->volume_number, $cited->page_start]);
 

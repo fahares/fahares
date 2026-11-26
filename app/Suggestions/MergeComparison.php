@@ -198,10 +198,10 @@ class MergeComparison
             }
             $values = $choice === self::BOTH
                 ? [$spec['columns'][0] => self::merged(self::value($target, $spec), self::value($source, $spec), $spec['kind'])]
-                : array_combine($spec['columns'], array_map(fn ($c) => $source->{$c}, $spec['columns']));
+                : array_combine($spec['columns'], array_map(fn ($c) => self::read($source, $c), $spec['columns']));
             foreach ($values as $column => $value) {
-                if (! self::same($target->{$column}, $value)) {
-                    $before[$column] = $target->{$column};
+                if (! self::same(self::read($target, $column), $value)) {
+                    $before[$column] = self::read($target, $column);
                     $target->{$column} = $after[$column] = $value;
                 }
             }
@@ -217,7 +217,7 @@ class MergeComparison
     private static function reading(Model $source, Model $target, string $key, array $spec): \App\Models\FieldSuggestion
     {
         // As a suggestion holds it; none (or «بی‌کاتب», «بی‌تاریخ») is «نامشخص», as the site shows it (step 14.13)
-        $stored = fn (Model $m) => trim((string) $m->{$spec['columns'][0]}) !== '' ? (string) $m->{$spec['columns'][0]} : 'نامشخص';
+        $stored = fn (Model $m) => trim((string) self::read($m, $spec['columns'][0])) !== '' ? (string) self::read($m, $spec['columns'][0]) : 'نامشخص';
         $citation = $source instanceof Manuscript ? trim((string) $source->catalog_citation, '[] ') : '';
         $label = SuggestionRegistry::describe($source)['label'];
 
@@ -243,17 +243,30 @@ class MergeComparison
     public static function undo(Model $target, array $applied): void
     {
         foreach ((array) ($applied['before'] ?? []) as $column => $value) {
-            if (self::same($target->{$column}, $applied['after'][$column] ?? null)) {
+            if (self::same(self::read($target, $column), $applied['after'][$column] ?? null)) {
                 $target->{$column} = $value;
             }
         }
         \App\Models\FieldSuggestion::whereIn('id', (array) ($applied['reading_ids'] ?? []))->delete();
     }
 
+    /** A column of the record; its source values (the bibliography, the Fankha text) are its entries' since step 14.407. */
+    private static function read(Model $record, string $column): mixed
+    {
+        if ($record instanceof \App\Models\Work && $column === 'bibliography') {
+            return \App\Sources\RecordEntries::bibliographyOf($record);
+        }
+        if (($record instanceof \App\Models\Work || $record instanceof Manuscript) && isset(\App\Sources\RecordEntries::COLUMNS[$column])) {
+            return \App\Sources\RecordEntries::fankhaOf($record)[\App\Sources\RecordEntries::COLUMNS[$column]];
+        }
+
+        return $record->{$column};
+    }
+
     /** The columns' values, the first one standing for the field. */
     private static function value(Model $record, array $spec): mixed
     {
-        $value = $record->{$spec['columns'][0]};
+        $value = self::read($record, $spec['columns'][0]);
         // «بی‌کاتب» / «بی‌تاریخ» is a value of its own
         if (self::blank($value) && isset($spec['bit_column']) && $record->{$spec['bit_column']}) {
             return $spec['bit_label'];

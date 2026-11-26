@@ -159,7 +159,7 @@ class AdminSourcesTest extends TestCase
         // the preview tells and saves nothing
         $this->actingAs($this->admin)->put($url, ['library_id' => $library->id, 'preview' => 1] + $people)->assertRedirect($url)
             ->assertSessionHas('preview', fn ($p) => $p['form'] === 'volume' && $p['effect']['cataloger'] === 2);
-        $this->assertSame($old->id, $copies[0]->fresh()->cataloger_id);
+        $this->assertSame($old->id, $copies[0]->fresh()->citedEntry?->cataloger_id);
         $this->assertSame([$old->id], CatalogVolume::find($volume->id)->catalogers()->pluck('catalogers.id')->all());
         $this->actingAs($this->admin)->get($url)->assertSee('پیش‌نمایش: هنوز چیزی ذخیره نشده است.')->assertSee('فهرست‌نگار ۲ نسخه عوض می‌شود');
 
@@ -168,7 +168,7 @@ class AdminSourcesTest extends TestCase
         $this->assertNull($volumeNow->library_id);
         $this->assertEqualsCanonicalizing([$new->id, $editor->id], $volumeNow->catalogers()->pluck('catalogers.id')->all());
         $this->assertSame('supervisor', $volumeNow->catalogers()->find($editor->id)->pivot->role);
-        $this->assertSame([$new->id, $new->id], $copies->map(fn ($c) => $c->fresh()->cataloger_id)->all());
+        $this->assertSame([$new->id, $new->id], $copies->map(fn ($c) => $c->fresh()->citedEntry?->cataloger_id)->all());
         $this->assertSame([0, 2], [$old->fresh()->manuscripts_count, $new->fresh()->manuscripts_count]);
         $this->assertSame(1, AuditLog::where('auditable_type', CatalogVolume::class)->where('auditable_id', $volume->id)->count());
     }
@@ -191,26 +191,26 @@ class AdminSourcesTest extends TestCase
         $this->actingAs($this->admin)->post("{$url}/parts", $part + ['preview' => 1])->assertRedirect("{$url}#new")
             ->assertSessionHas('preview', fn ($p) => $p['form'] === 'new' && $p['effect']['joined'] === 2 && $p['effect']['outside'] === 1 && $p['effect']['outside_before'] === 0);
         $this->assertSame(0, CatalogVolumePart::count());
-        $this->assertNull($early->fresh()->catalog_volume_part_id);
+        $this->assertNull($early->fresh()->citedEntry?->catalog_volume_part_id);
 
         $this->actingAs($this->admin)->post("{$url}/parts", $part)->assertRedirect("{$url}#new");
         $first = CatalogVolumePart::sole();
-        $this->assertSame([$first->id, $first->id, null], [$early->fresh()->catalog_volume_part_id, $late->fresh()->catalog_volume_part_id, $ofB->fresh()->catalog_volume_part_id]);
-        $this->assertSame([$valaei->id, 2], [$early->fresh()->cataloger_id, $first->fresh()->manuscripts_count]);
+        $this->assertSame([$first->id, $first->id, null], [$early->fresh()->citedEntry?->catalog_volume_part_id, $late->fresh()->citedEntry?->catalog_volume_part_id, $ofB->fresh()->citedEntry?->catalog_volume_part_id]);
+        $this->assertSame([$valaei->id, 2], [$early->fresh()->citedEntry?->cataloger_id, $first->fresh()->manuscripts_count]);
         $this->actingAs($this->admin)->get($url)->assertOk()->assertSee('کتابخانه الف')->assertSee('ص ۸–۱۰۷')->assertSee('۱ بیرون از بازه');
 
         // a second part of the same library: now the page decides
         $this->actingAs($this->admin)->post("{$url}/parts", ['title' => 'کتابخانه الف، دنباله', 'library_id' => $a->id, 'page_first' => 108, 'page_last' => 150, 'catalogers' => [$other->id]]);
         $second = CatalogVolumePart::where('title', 'کتابخانه الف، دنباله')->sole();
-        $this->assertSame([$first->id, $second->id], [$early->fresh()->catalog_volume_part_id, $late->fresh()->catalog_volume_part_id]);
-        $this->assertSame($other->id, $late->fresh()->cataloger_id);
+        $this->assertSame([$first->id, $second->id], [$early->fresh()->citedEntry?->catalog_volume_part_id, $late->fresh()->citedEntry?->catalog_volume_part_id]);
+        $this->assertSame($other->id, $late->fresh()->citedEntry?->cataloger_id);
 
         // the first part's pages grow over the second's: the late copy is of neither alone and leaves its part
         $this->actingAs($this->admin)->put("{$url}/parts/{$first->id}", ['title' => 'کتابخانه الف', 'library_id' => $a->id, 'page_first' => 8, 'page_last' => 130,
             'catalogers' => [$valaei->id], 'preview' => 1])->assertSessionHas('preview', fn ($p) => $p['effect']['left'] === 1);
         $this->assertSame(107, $first->fresh()->page_last);
         $this->actingAs($this->admin)->put("{$url}/parts/{$first->id}", ['title' => 'کتابخانه الف', 'library_id' => $a->id, 'page_first' => 8, 'page_last' => 130, 'catalogers' => [$valaei->id]]);
-        $this->assertSame([130, null], [$first->fresh()->page_last, $late->fresh()->catalog_volume_part_id]);
+        $this->assertSame([130, null], [$first->fresh()->page_last, $late->fresh()->citedEntry?->catalog_volume_part_id]);
 
         $this->actingAs($this->admin)->put("{$url}/parts/{$first->id}", ['title' => 'کتابخانه الف', 'page_first' => 50, 'page_last' => 10])
             ->assertSessionHasErrorsIn('part' . $first->id, ['page_last']);
@@ -218,7 +218,7 @@ class AdminSourcesTest extends TestCase
         // removing the second part gives the late copy back to the first, its library's one part
         $this->actingAs($this->admin)->delete("{$url}/parts/{$second->id}")->assertRedirect("{$url}#part{$second->id}");
         $this->assertNull(CatalogVolumePart::find($second->id));
-        $this->assertSame([$first->id, $valaei->id], [$late->fresh()->catalog_volume_part_id, $late->fresh()->cataloger_id]);
+        $this->assertSame([$first->id, $valaei->id], [$late->fresh()->citedEntry?->catalog_volume_part_id, $late->fresh()->citedEntry?->cataloger_id]);
         $this->assertSame([3, 'remove'], [AuditLog::where('auditable_type', CatalogVolumePart::class)->whereIn('action', ['create', 'update'])->count(),
             AuditLog::where('auditable_type', CatalogVolumePart::class)->latest('id')->value('action')]);
 
@@ -243,7 +243,7 @@ class AdminSourcesTest extends TestCase
         $onDuplicate = $this->copy($library, $f2, 40);
         $onFive = $this->copy($library, $f5, 9);
         CatalogVolumePart::assign([$onDuplicate->id]);
-        $this->assertSame($partOfDuplicate->id, $onDuplicate->fresh()->catalog_volume_part_id);
+        $this->assertSame($partOfDuplicate->id, $onDuplicate->fresh()->citedEntry?->catalog_volume_part_id);
         $before = [
             'sources' => DB::table('sources')->whereIn('id', [$kept->id, $folded->id])->orderBy('id')->get()->map(fn ($r) => collect((array) $r)->except('updated_at')->all())->all(),
             'entries' => DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', [$onDuplicate->id, $onFive->id])->orderBy('id')->get(['id', 'source_id', 'source_volume_id', 'volume_number'])->all(),
@@ -263,9 +263,9 @@ class AdminSourcesTest extends TestCase
         $kept->refresh();
         $this->assertSame(['فهرست مرعشی', 3, ['merge-fold']], [$kept->title, $kept->volumes_count, $kept->metadata['merged_codes']]);
         $this->assertSame([1, 2, 5], $kept->volumes()->orderBy('volume_number')->pluck('volume_number')->all());
-        $this->assertSame([$k2->id, $kept->id], [$onDuplicate->fresh()->catalog_volume_id, DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $onDuplicate->id)->value('source_id')]);
+        $this->assertSame([$k2->id, $kept->id], [$onDuplicate->fresh()->citedEntry?->source_volume_id, DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $onDuplicate->id)->value('source_id')]);
         $this->assertSame($k2->id, $partOfDuplicate->fresh()->catalog_volume_id, 'the duplicate volume\'s part moves with its copies');
-        $this->assertSame($partOfDuplicate->id, $onDuplicate->fresh()->catalog_volume_part_id);
+        $this->assertSame($partOfDuplicate->id, $onDuplicate->fresh()->citedEntry?->catalog_volume_part_id);
         $this->assertSame($kept->id, SourceVolume::find($f5->id)->source_id);
         $this->assertSame($kept->id, $citedAsFolded->fresh()->cited_source_id, 'how the folded source is cited is the kept one\'s');
         $this->get('/sources/merge-fold')->assertMovedPermanently()->assertRedirect(route('sources.show', 'merge-keep'));
@@ -278,8 +278,8 @@ class AdminSourcesTest extends TestCase
         $this->assertSame($before['sources'], DB::table('sources')->whereIn('id', [$kept->id, $folded->id])->orderBy('id')->get()->map(fn ($r) => collect((array) $r)->except('updated_at')->all())->all());
         $this->assertEquals($before['entries'], DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', [$onDuplicate->id, $onFive->id])->orderBy('id')->get(['id', 'source_id', 'source_volume_id', 'volume_number'])->all());
         $this->assertSame([$folded->id, 2], [SourceVolume::find($f2->id)->source_id, SourceVolume::find($f2->id)->volume_number]);
-        $this->assertSame($f2->id, $onDuplicate->fresh()->catalog_volume_id);
-        $this->assertSame([$f2->id, $partOfDuplicate->id], [$partOfDuplicate->fresh()->catalog_volume_id, $onDuplicate->fresh()->catalog_volume_part_id]);
+        $this->assertSame($f2->id, $onDuplicate->fresh()->citedEntry?->source_volume_id);
+        $this->assertSame([$f2->id, $partOfDuplicate->id], [$partOfDuplicate->fresh()->catalog_volume_id, $onDuplicate->fresh()->citedEntry?->catalog_volume_part_id]);
         $this->assertSame([$cataloger->id], CatalogVolume::find($f2->id)->catalogers()->pluck('catalogers.id')->all());
         $this->assertSame($folded->id, SourceVolume::find($f5->id)->source_id);
         $this->assertSame($folded->id, $citedAsFolded->fresh()->cited_source_id);

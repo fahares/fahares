@@ -49,18 +49,17 @@ class DerivedDataTest extends TestCase
 
     private function work(array $columns = []): int
     {
-        $id = $this->works[] = DB::table('works')->insertGetId($columns + [
+        $id = $this->works[] = \Tests\Support\InsertRecords::work($columns + [
             'primary_title' => 'اثر آزمایشی مشتق', 'clean_title' => 'اثر آزمایشی مشتق',
             'slug' => 'test-derived-' . uniqid(), 'volume_number' => 99, 'page_start' => 1,
         ]);
-        \App\Sources\SourceEntrySync::syncIds(Work::class, [$id]);
 
         return $id;
     }
 
     private function copy(int $work, array $columns = []): int
     {
-        $id = $this->manuscripts[] = DB::table('manuscripts')->insertGetId($columns + [
+        $id = $this->manuscripts[] = \Tests\Support\InsertRecords::copy($columns + [
             'work_id' => $work, 'sequence_number' => 1, 'volume_number' => 99, 'page_start' => 1, 'page_end' => 1,
             'city' => 'تهران', 'library' => 'دانشگاه', 'shelfmark' => 'آز-' . uniqid(), 'raw_text' => 'تهران؛ دانشگاه',
         ]);
@@ -172,7 +171,7 @@ class DerivedDataTest extends TestCase
             ['raw_text' => '● اثر آزمایشی مشتق', 'dedication' => 'به درخواست حاجی آزمایشی فرمایشگر', 'page_start' => 1],
         ]], JSON_UNESCAPED_UNICODE));
         // Only this work of the volume: other tests' works of volume 99 are gone by now
-        $this->assertSame([$work], DB::table('works')->where('volume_number', 99)->pluck('id')->all());
+        $this->assertSame([$work], \App\Support\EntryColumns::query('works', ['id'])->where('fe.volume_number', 99)->pluck('works.id')->all());
 
         $this->artisan('fahares:sync-work-details', ['--source' => $this->dir, '--volume' => 99, '--skip-manuscripts' => true])->assertSuccessful();
 
@@ -262,7 +261,7 @@ class DerivedDataTest extends TestCase
         $four = $part('9101/4', ['34پ', '43ر', 34, 43]);
         $other = $part('9101/5-طباطبائی', ['1', '9', 1, 9]);
         $senate = $part('9101/6', ['70', '80', 70, 80], ['raw_text' => 'تهران؛ مجلس؛ شماره نسخه: 9101/6 [سنا: ف: 2-61]']);
-        DB::table('manuscripts')->where('id', $three)->update(['raw_text' => "تهران؛ مجلس؛ شماره نسخه: 9101/3\nنستعلیق، بی‌کا؛ در هامش؛ 6گ (55ر-60پ)"]);
+        \Tests\Support\InsertRecords::updateCopy($three, ['raw_text' => "تهران؛ مجلس؛ شماره نسخه: 9101/3\nنستعلیق، بی‌کا؛ در هامش؛ 6گ (55ر-60پ)"]);
         \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$three]);
 
         // Not keyed yet (the time between a deploy and the filler): the volume is found by the shelfmark's number
@@ -406,7 +405,7 @@ class DerivedDataTest extends TestCase
         $this->assertNull($key($r2));
 
         // A run whose volume no longer passes loses its keys on the next run
-        DB::table('manuscripts')->where('id', $r3)->update(['raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: 7204\nخط: نسخ، اندازه: 17×22سم"]);
+        \Tests\Support\InsertRecords::updateCopy($r3, ['raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: 7204\nخط: نسخ، اندازه: 17×22سم"]);
         \App\Sources\SourceEntrySync::syncIds(Manuscript::class, [$r3]);
         $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
         $this->assertSame([null, null, null], [$key($r1), $key($r3), $key($r5)]);

@@ -53,9 +53,8 @@ class SourcePagesTest extends TestCase
     {
         $second = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $this->manuscript->library_id, 'shelfmark' => '2000',
             'volume_number' => 15, 'page_start' => 120, 'sequence_number' => 4, 'metadata' => ['catalog_citation' => '[ف: 3-30]']]);
-        // the columns say otherwise: only a reader of the entries sees the entries' place and order
+        // only a reader of the entries sees the entries' place and order
         $this->fankha($this->manuscript, ['volume_number' => 16, 'entry_number' => 9]);
-        \Illuminate\Support\Facades\DB::table('manuscripts')->whereIn('id', [$this->manuscript->id, $second->id])->update(['volume_number' => 1, 'sequence_number' => 1]);
 
         $document = $this->manuscript->fresh()->toSearchableArray();
         $this->assertSame([16, 9], [$document['volume_number'], $document['sequence_number']]);

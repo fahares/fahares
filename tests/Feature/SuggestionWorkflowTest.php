@@ -619,7 +619,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->approve($this->pendingFor($person))->assertRedirect('/admin/suggestions');
 
         // The column that held the old name follows; the catalogue's text, a work of several authors and a longer wording do not
-        $this->assertSame([$new, "● رسم الخط\n{$old}، - 940 ؟ ق"], [$work->fresh()->author_name, $work->fresh()->raw_text]);
+        $this->assertSame([$new, "● رسم الخط\n{$old}، - 940 ؟ ق"], [$work->fresh()->author_name, $work->fresh()->fankhaText()]);
         $this->assertSame(["{$old} و دیگری", "منسوب به {$old}", $new], [$shared->fresh()->author_name, $longer->fresh()->author_name, $copy->fresh()->scribe_name]);
         // ...and it is logged on the work, which keeps a corpus sync from writing the catalogue's name back
         $log = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->where('action', 'verify')->sole();
@@ -815,7 +815,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame('برگ‌های ۲ تا ۷', $m->rangeLabel());
 
         // fahares:fill-extents reads «12ص (1-12)» again from the text and leaves the reviewed columns alone
-        $row = \Illuminate\Support\Facades\DB::table('manuscripts')->where('id', $m->id)->first(['id', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number', 'raw_text']);
+        $row = \App\Support\EntryColumns::query('manuscripts', ['id', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number', 'raw_text'])->where('manuscripts.id', $m->id)->first();
         $columns = \App\Support\CopyExtent::columns($row, \App\Suggestions\ProtectedColumns::for(Manuscript::class))['columns'];
         $this->assertEquals(\App\Support\CopyExtent::stored($row), $columns);
 
