@@ -14366,3 +14366,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 ### گام ۱۴.۴۱۰: `evidence` برای `note` و `relation`
 - `Contributions::summary()`: `evidence` برای `kind` در `field`، `note`، `relation` بی `review_queue`. برچسب جعبه در `contributions/index.blade.php` برای `note` «توضیح پژوهشگر» است.
+
+### گام ۱۴.۴۱۳: `metadata.catalog_citation` → `ce.citation_text`
+- **ورودی‌ها:** `ImportFankhaCatalogReferencesCommand::rawCitation(?string $citation, ?string $rawText)`، `CatalogCitations::others($citation, $rawText)` و `LinkCatalogVolumesCommand::citationOf($citation, $rawText)` به جای JSON کامل metadata، متن استناد را می‌گیرند و اگر نباشد، کروشۀ پایانی متن نسخه را برمی‌دارند.
+- **خواندن:** ردیف‌های `syncCited`/`syncOtherCited` کلید `catalog_citation` را دارند، نه `metadata`. هر `EntryColumns::query('manuscripts', [...])` که استناد را می‌خواهد، `catalog_citation` را برمی‌گزیند که همان `ce.citation_text` است. این شامل `relinkVolumes`، `setCatalogue`، `syncRecord` و فرمان‌های `sync-other-citations`، `move-cited-part`، `import-volume-parts`، `import-fankha-references`، `link-volumes`، `merge-duplicates` و `backfill` است.
+- **[RecordEntries](../app/Sources/RecordEntries.php):**
+  - `liftCitation(array $values)` کلید را از `metadata` (آرایه یا رشتۀ JSON) برمی‌دارد و به `catalog_citation` می‌برد. metadataی خالی‌شده `null` می‌شود.
+  - `write` و `insertRow` برای نسخه آن را صدا می‌زنند.
+  - `citation()` استناد را از `$given['catalog_citation']` می‌گیرد، و اگر نباشد از `citation_text` مدخل موجود. دیگر به `wasChanged('metadata')` نگاه نمی‌کند.
+  - `take()` پیش از نوشتن متن تازه `$followsText` را می‌سنجد: `raw_text` داده شده، استناد داده نشده، و `citation_text` مدخل برابر `rawCitation(null, متن پیشین)` است. در این حالت استناد از کروشۀ پایانی متن تازه خوانده می‌شود (آزمون `CitedEntryKeepsMatchTest`).
+- **[HasSourceEntries](../app/Models/Concerns/HasSourceEntries.php):**
+  - `catalog_citation` به `SOURCE_ATTRIBUTES` افزوده شد.
+  - `saving` برای نسخه‌ای که metadataاش dirty است کلید را بیرون می‌کشد. نام صریح روی مدل بر کلید metadata مقدم است.
+- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):**
+  - هنگام مقایسه با `from` خروجی پیکره، `ce.citation_text` جای کلید را در metadata می‌گیرد.
+  - هنگام نوشتن، metadata بی کلید نوشته می‌شود و استنادِ تغییرکرده با `RecordEntries::take` در مدخل می‌نشیند، پیش از `setCatalogue`.
+  - لاگ، `catalog_citation` کهنه و تازه را جدا نگه می‌دارد.
+- **[SeedFaharesDataCommand](../app/Console/Commands/SeedFaharesDataCommand.php):** کلید را در metadata نمی‌نویسد و مدخل استناد را با `take` می‌سازد.
+- **[DropCitationKeyCommand](../app/Console/Commands/DropCitationKeyCommand.php):**
+  - `sources:drop-citation-key {--dry-run} {--backup=}`
+  - در هر بازۀ ۵٬۰۰۰ شناسه، یک `SELECT` با join به مدخل اجرا می‌کند، و سپس یک `UPDATE … SET metadata = NULLIF(JSON_REMOVE(metadata, '$.catalog_citation'), '{}')`. `updated_at` دست نمی‌خورد.
+  - فایل پشتیبان JSON lines است (`id`، `catalog_citation`) و پیش از هر `UPDATE`، `fflush` می‌شود.
+- **آزمون‌ها:**
+  - `CitationEntryTest` تازه است. `tests/Support/InsertRecords` کلید را بالا می‌برد.
+  - ۹ فایل آزمون به جای کلید از مدخل می‌خوانند.
+- **تمرین:** روی `fahares_rehearse411` (فقط `manuscripts(id, metadata)` و مدخل‌های `fankha_citation`، که پس از تمرین پاک شد). `--dry-run` ۵ ثانیه و اجرای واقعی ۹ ثانیه طول کشید. فایل پشتیبان ۱۷ MB بود و ۳۲۳٬۲۴۵ سطر داشت.

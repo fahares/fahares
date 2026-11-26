@@ -115,6 +115,12 @@ class RecordEntries
                 $fankha[$key] = $given[$column];
             }
         }
+        // a citation the entry took from the copy's text (its last bracket) follows the text; one given or read otherwise stays
+        $followsText = false;
+        if ($record instanceof Manuscript && ! $created && array_key_exists('raw_text', $given) && ! array_key_exists('catalog_citation', $given)) {
+            $held = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $record->getKey())->where('legacy_index', 0)->value('citation_text');
+            $followsText = $held !== null && trim($held) === \App\Console\Commands\ImportFankhaCatalogReferencesCommand::rawCitation(null, self::fankhaOf($record)['text']);
+        }
         if ($created && ! array_key_exists('source_id', $fankha)) {
             $fankha['source_id'] = self::fankhaSourceId();
         }
@@ -125,7 +131,7 @@ class RecordEntries
             self::bibliography($record, SourceEntrySync::bibliographyStrings($given['bibliography'] ?? null));
         }
         if ($record instanceof Manuscript) {
-            self::citation($record, $given, $created);
+            self::citation($record, $given, $created, $followsText);
         }
     }
 
@@ -190,14 +196,14 @@ class RecordEntries
 
     /**
      * A copy's citation entry: Fankha's citation of its catalogue place (the citation given, else the one the entry
-     * holds, else the last bracket of the copy's text) at the catalogue volume given or held, then the part and the
-     * cataloger given.
+     * holds, else the last bracket of the copy's text; $followsText: the one held was the old text's last bracket, so
+     * the new text's is read) at the catalogue volume given or held, then the part and the cataloger given.
      */
-    private static function citation(Manuscript $copy, array $given, bool $created): void
+    private static function citation(Manuscript $copy, array $given, bool $created, bool $followsText = false): void
     {
         $held = DB::table('source_entries')->where('legacy_type', 'fankha_citation')->where('legacy_id', $copy->getKey())->where('legacy_index', 0)->first();
         if ($created || array_key_exists('catalog_citation', $given) || array_key_exists('catalog_volume_id', $given) || array_key_exists('raw_text', $given)) {
-            $citation = array_key_exists('catalog_citation', $given) ? $given['catalog_citation'] : $held?->citation_text;
+            $citation = array_key_exists('catalog_citation', $given) ? $given['catalog_citation'] : ($followsText ? null : $held?->citation_text);
             SourceEntrySync::syncCited([(object) [
                 'id' => $copy->getKey(),
                 'library_id' => $copy->library_id,

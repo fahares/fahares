@@ -55,9 +55,13 @@ class CitationEntryTest extends TestCase
         $this->assertSame('[ف: 2-501]', $this->entry($copy)->citation_text);
         $this->assertSame(['residual_notes' => 'یادداشت'], $copy->fresh()->metadata);
 
-        // the text alone changes nothing: the entry keeps its citation
+        // the text alone changes nothing where the citation is not the text's last bracket
         $copy->fresh()->update(['raw_text' => 'متن تازه [ف: 2-9]']);
         $this->assertSame('[ف: 2-501]', $this->entry($copy)->citation_text);
+        // …and where it is, the citation follows the text
+        $copy->fresh()->update(['catalog_citation' => '[ف: 2-9]']);
+        $copy->fresh()->update(['raw_text' => 'متن تازه [ف: 2-10]']);
+        $this->assertSame('[ف: 2-10]', $this->entry($copy)->citation_text);
 
         // a metadata that held only the citation is none
         $only = $this->copy(['metadata' => ['catalog_citation' => '[ف: 2-7]'], 'shelfmark' => '2']);
