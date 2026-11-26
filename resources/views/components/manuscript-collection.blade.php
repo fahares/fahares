@@ -91,7 +91,7 @@
             @foreach($siblings as $i => $m)
                 @php $current = $m->is($manuscript); @endphp
                 <li @if($i >= 12) x-show="all" x-cloak @endif class="py-2 flex items-baseline gap-3 {{ $current ? 'font-bold' : '' }}">
-                    <span class="shrink-0 w-16 text-muted tabular-nums" dir="ltr">{{ \App\Support\Fa::digits($m->shelfmark) }}</span>
+                    <span class="shrink-0 w-16 text-muted tabular-nums"><span dir="ltr">{{ \App\Support\Fa::digits($m->shelfmark) }}</span><x-series-mark :manuscript="$m" /></span>
                     <span class="flex-1 min-w-0">
                         @if($current)
                             <span class="text-ink">{{ $m->work?->primary_title ?? 'نسخه' }}</span>

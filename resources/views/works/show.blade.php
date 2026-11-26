@@ -526,7 +526,7 @@
                                     @if($ms->is_facsimile)<span class="block text-[11px] text-amber-800 dark:text-amber-300">مادر: {{ $ms->original_note ? Fa::digits($ms->original_note) : 'نامعلوم' }}</span>@endif
                                 </td>
                                 <td class="py-2.5 px-3 font-semibold">
-                                    @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif
+                                    @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span><x-series-mark :manuscript="$ms" />@else بی‌شماره @endif
                                     @if($ms->is_addendum_entry)
                                         <span class="block text-[10px] font-semibold text-muted" title="معرفی‌شده در بخش استدراک، ج {{ $ms->fankhaEntry?->volume_number }} ص {{ $ms->fankhaEntry?->page_start }}">استدراک</span>
                                     @endif
