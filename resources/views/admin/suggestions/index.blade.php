@@ -42,6 +42,18 @@
     <span class="ms-auto text-xs text-muted"><b class="text-ink tabular-nums">{{ \App\Support\Fa::num($suggestions->total()) }}</b> پیشنهاد</span>
 </div>
 
+{{-- The votes of «تصحیح جمعی» wait beside their items in the panel's queues, not here (step 14.417) --}}
+@if($votes)
+    <x-admin.notice class="mb-4 text-[13px] leading-7" data-collective-votes>
+        رأی‌های «{{ config('contributions.review_title') }}» که چیزی را تغییر نمی‌دهند و فقط حدس هوشواره را تأیید یا رد می‌کنند، کنار همان مورد در صف بررسی‌اش منتظرند:
+        @foreach($votes as $queueKey => $n)
+            @php [$routeName, $params] = \App\Review\CollectiveReview::PANEL_ROUTES[$queueKey] ?? [null, []]; @endphp
+            {{ $loop->first ? '' : '؛ ' }}@if($routeName)<a href="{{ route($routeName, $params) }}" class="text-cinnabar font-bold hover:underline">{{ \App\Review\CollectiveReview::queue($queueKey)?->title() ?? $queueKey }}</a>@else{{ $queueKey }}@endif ({{ \App\Support\Fa::num($n) }} مورد){{ $loop->last ? '.' : '' }}
+        @endforeach
+        <a href="{{ route('admin.suggestions.index', ['status' => 'pending', 'kind' => 'collective']) }}" class="text-muted hover:text-cinnabar">همۀ پاسخ‌ها را اینجا ببینید</a>
+    </x-admin.notice>
+@endif
+
 <x-admin.table :paginator="$suggestions" :is-empty="$suggestions->isEmpty()" empty="پیشنهادی با این فیلترها یافت نشد.">
     <x-slot:head>
         <x-admin.th>رکورد</x-admin.th>

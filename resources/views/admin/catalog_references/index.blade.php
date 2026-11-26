@@ -10,7 +10,8 @@
     $methods = Queue::METHODS;
     // Blade directives do not run inside a component tag's attributes, so the token is prepared here
     $csrf = \Illuminate\Support\Js::from(csrf_token());
-    $filters = array_filter(['volume' => request()->integer('volume') ?: null, 'method' => request('method'), 'confidence' => request('confidence')]);
+    $filters = array_filter(['volume' => request()->integer('volume') ?: null, 'method' => request('method'), 'confidence' => request('confidence'), 'opinions' => request('opinions'), 'entry' => request()->integer('entry') ?: null]);
+    $reviewTitle = config('contributions.review_title');
     $tabs = [];
     foreach (Queue::STATUSES as $key => $label) {
         $tabs[] = ['label' => $label, 'url' => route('admin.catalog-references.index', ['status' => $key] + $filters), 'active' => $status === $key, 'count' => $counts[$key] ?? 0, 'key' => $key];
@@ -44,16 +45,48 @@
             <option value="{{ $key }}" @selected(request('confidence') === $key)>{{ $band['label'] }}</option>
         @endforeach
     </select>
+    <select name="opinions" aria-label="رأی پژوهشگران" class="admin-field">
+        <option value="">با رأی و بی‌رأی</option>
+        @foreach(Queue::OPINIONS as $key => $label)
+            <option value="{{ $key }}" @selected(request('opinions') === $key)>{{ $label }}</option>
+        @endforeach
+    </select>
+    @if(request()->integer('entry'))
+        <input type="hidden" name="entry" value="{{ request()->integer('entry') }}">
+    @endif
 </x-admin.filters>
 
 <div class="space-y-3 mb-4 text-[13px]">
+    {{-- The researchers' votes of «تصحیح جمعی» are decided here, not on the suggestions desk (step 14.417) --}}
+    @if($status === \App\Models\SourceEntry::STATUS_UNVERIFIED && $voted && request('opinions') !== 'consensus')
+        <x-admin.notice class="flex flex-wrap items-center gap-3" data-collective-summary>
+            <p class="flex-1 min-w-64">
+                پژوهشگران در «{{ $reviewTitle }}» دربارۀ {{ Fa::num($voted) }} نشانی رأی داده‌اند؛ این نشانی‌ها در بالای صف‌اند و رأی‌ها زیر هر کدام آمده است.
+                با تأیید یا رد نشانی، رأی‌های آن هم بسته می‌شوند.
+                @if($agreed)
+                    بر {{ Fa::num($agreed) }} نشانی اجماع است: رأی‌های «همین نسخه است» به وزن {{ Fa::num(\App\Review\CollectiveReview::ENOUGH) }} یا بیشتر رسیده و رأی مخالفی نیست.
+                @endif
+            </p>
+            @if(request('opinions') !== 'any')
+                <x-ui.btn :href="route('admin.catalog-references.index', ['opinions' => 'any'])">فقط نشانی‌های رأی‌دار</x-ui.btn>
+            @endif
+            @if($agreed)
+                <x-ui.btn :href="route('admin.catalog-references.index', ['opinions' => 'consensus'])">نشانی‌های با اجماع</x-ui.btn>
+            @endif
+        </x-admin.notice>
+    @endif
     {{-- Bulk verification (title matches only) and the revert of the last one --}}
     @if($status === \App\Models\SourceEntry::STATUS_UNVERIFIED && ! ($bulkAllowed && $references->total() === 0))
         <x-admin.notice :tone="$bulkAllowed ? 'good' : 'info'" class="flex flex-wrap items-center gap-3">
             @if($bulkAllowed)
                 <p class="flex-1 min-w-64 text-ink">
                     <b>تأیید گروهی:</b>
-                    شمارۀ نسخه و عنوان اثر هر دو با مدخل چاپ همخوان‌اند. نمونه‌ها را با برگه بسنجید و سپس همۀ نشانی‌های این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
+                    @if(request('opinions') === 'consensus')
+                        پژوهشگران بر این نشانی‌ها هم‌رأی‌اند که همین نسخه است و کسی مخالف نیست. نمونه‌ها را با برگه بسنجید و سپس همه را یک‌جا تأیید کنید؛ رأی‌هایشان هم پذیرفته می‌شود.
+                    @else
+                        شمارۀ نسخه و عنوان اثر هر دو با مدخل چاپ همخوان‌اند. نمونه‌ها را با برگه بسنجید و سپس همۀ نشانی‌های این پالایه را یک‌جا تأیید کنید.
+                    @endif
+                    آخرین تأیید گروهی برگشت‌پذیر است.
                 </p>
                 @php $count = Fa::num($references->total()); @endphp
                 <form method="POST" action="{{ route('admin.catalog-references.bulk-verify') }}" onsubmit="return confirm(@js($count . ' تطبیق تأیید شود؟'))">
@@ -61,12 +94,13 @@
                     <input type="hidden" name="volume" value="{{ request()->integer('volume') ?: '' }}">
                     <input type="hidden" name="method" value="{{ request('method') }}">
                     <input type="hidden" name="confidence" value="{{ request('confidence') }}">
+                    <input type="hidden" name="opinions" value="{{ request('opinions') }}">
                     <input type="hidden" name="expected" value="{{ $references->total() }}">
                     <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همۀ {{ $count }} نشانی این پالایه</button>
                 </form>
             @else
                 <p class="flex-1 min-w-64 text-muted">
-                    تأیید گروهی فقط برای روش «شماره و عنوان» است. در روش‌های «شماره، عنوان نزدیک»، «فقط شماره» و «مبهم» عنوان شماره را تأیید نمی‌کند و هر نشانی باید جداگانه با برگه سنجیده شود.
+                    تأیید گروهی فقط برای روش «شماره و عنوان» و برای نشانی‌های با اجماع پژوهشگران است. در روش‌های «شماره، عنوان نزدیک»، «فقط شماره» و «مبهم» عنوان شماره را تأیید نمی‌کند و هر نشانی باید جداگانه با برگه سنجیده شود.
                 </p>
                 <x-ui.btn :href="route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\SourceEntry::BULK_METHOD, 'confidence' => 'high']))">پالایۀ پیشنهادی: شماره و عنوان، اطمینان بالا</x-ui.btn>
             @endif
@@ -122,6 +156,24 @@
                 @endif
                 @if($ref->notes)
                     <span class="block mt-1 text-amber-800 dark:text-amber-300">{{ $ref->notes }}</span>
+                @endif
+                @if($item = $opinions['catalog:' . $ref->id] ?? null)
+                    {{-- The researchers' votes (backlog item 80); deciding the match settles them (step 14.417) --}}
+                    <span class="block mt-2 text-xs px-3 py-2 leading-6 bg-paper border border-s-4 border-gold" data-collective-opinions>
+                        <b>{{ $reviewTitle }}:</b>
+                        @foreach($item['answers'] as $a){{ $loop->first ? '' : '؛ ' }}{{ Fa::num($a['count']) }} نفر «{{ $a['label'] }}» (وزن {{ Fa::num($a['weight']) }})@endforeach
+                        @foreach($item['answers'] as $a)
+                            @foreach($a['opinions'] as $o)
+                                <span class="block text-muted">
+                                    {{ $o->user?->name ?? $o->guest_name }}: {{ $a['label'] }}@if($o->rationale_citation) — {{ \Illuminate\Support\Str::limit($o->rationale_citation, 200) }}@endif
+                                    {{-- another page is a change of its own: it is applied from its suggestion's page --}}
+                                    @if(str_starts_with($a['answer'], 'page:'))
+                                        <a href="{{ route('admin.suggestions.show', $o) }}" class="text-cinnabar font-bold hover:underline">بررسی جابه‌جایی</a>
+                                    @endif
+                                </span>
+                            @endforeach
+                        @endforeach
+                    </span>
                 @endif
             </x-admin.cell>
             <x-admin.cell label="روش" class="whitespace-nowrap">

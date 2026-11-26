@@ -162,7 +162,7 @@ class CollectiveReviewTest extends TestCase
 
         $admin = $this->admin();
         $admin->save();
-        $ids = $this->actingAs($admin)->get(route('admin.suggestions.index'))->assertOk()->viewData('suggestions')->pluck('review_item_id')->map(fn ($id) => (int) $id)->all();
+        $ids = $this->actingAs($admin)->get(route('admin.suggestions.index', ['kind' => 'collective']))->assertOk()->viewData('suggestions')->pluck('review_item_id')->map(fn ($id) => (int) $id)->all();
         $this->assertSame([$agreed->id, $agreed->id, $agreed->id, $lone->id], $ids, 'weight 3 for «yes» puts that item first');
 
         $opinion = FieldSuggestion::where('review_item_id', $agreed->id)->where('review_answer', 'no')->sole();
@@ -189,21 +189,88 @@ class CollectiveReviewTest extends TestCase
         $this->get(route('contribute.show', ['catalog', $entry->id]))->assertSee('داوری این مورد پایان یافته');
     }
 
-    public function test_approving_an_opinion_on_the_desk_verifies_the_match_and_settles_the_rest()
+    public function test_votes_wait_in_the_queue_not_on_the_desk()
     {
-        $entry = $this->match();
-        $this->answer($this->user('یک'), $entry, 'yes');
-        $this->answer($this->user('دو'), $entry, 'yes');
-        $this->answer($this->user('سه'), $entry, 'no');
-        $first = FieldSuggestion::where('review_answer', 'yes')->orderBy('id')->first();
+        $voted = $this->match('100', 20);
+        $quiet = $this->match('200', 10);
+        $this->answer($this->user('یک'), $voted, 'yes');
+        $this->answer($this->user('دو'), $voted, 'no');
+        $this->answer($this->user('چهار'), $voted, 'yes');
+        $this->answer($this->user('سه'), $quiet, 'page', ['page' => '۴۵']);
+        $plain = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $quiet->citable_id, 'kind' => 'general',
+            'suggested_value' => 'پیشنهاد معمولی', 'status' => 'pending', 'guest_name' => 'مهمان']);
+        $yes = FieldSuggestion::where('review_answer', 'yes')->orderBy('id')->first();
+        $page = FieldSuggestion::where('review_answer', 'like', 'page:%')->sole();
 
         $admin = $this->admin();
         $admin->save();
-        $this->actingAs($admin)->post(route('admin.suggestions.approve', $first), ['applied_value' => $first->suggested_value, 'outcome' => 'adopt'])->assertSessionHasNoErrors();
+        // The desk keeps ordinary suggestions and the answers that move a page; the votes are named in one line
+        $desk = $this->actingAs($admin)->get(route('admin.suggestions.index'))->assertOk()
+            ->assertSee('data-collective-votes', false)->assertSee(route('admin.catalog-references.index', ['opinions' => 'any']), false);
+        $this->assertEqualsCanonicalizing([$plain->id, $page->id], $desk->viewData('suggestions')->modelKeys());
+        $this->assertSame(['catalog' => 1], $desk->viewData('votes'));
+        $this->assertSame(2, FieldSuggestion::inQueue()->count());
 
-        $entry->refresh();
-        $this->assertSame([SourceEntry::STATUS_VERIFIED, SourceEntry::ORIGIN_MATCH, 5], [$entry->status, $entry->origin, $entry->page_start]);
-        $this->assertSame(['approved', 'approved', 'rejected'], FieldSuggestion::orderBy('id')->pluck('status')->all());
+        // A vote is said as one and decided in its queue
+        $this->actingAs($admin)->get(route('admin.suggestions.show', $yes))->assertOk()
+            ->assertSee('تأیید می‌کند که این نسخه همان است')->assertDontSee('پیشنهاد می‌کند')
+            ->assertSee('در صف بررسی آن تصمیم بگیرید');
+        $this->actingAs($admin)->post(route('admin.suggestions.approve', $yes), ['applied_value' => $yes->suggested_value, 'outcome' => 'adopt'])
+            ->assertSessionHasErrors('applied_value');
+        $this->assertSame('pending', $yes->fresh()->status);
+
+        // The queue puts the voted match first and shows its votes; the vote's link opens that match alone
+        $queue = $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()
+            ->assertSee('data-collective-opinions', false)->assertSee('data-collective-summary', false)->assertSee('بررسی جابه‌جایی');
+        $this->assertSame([$voted->id, $quiet->id], $queue->viewData('references')->modelKeys(), 'the heavier votes come first, before a lower confidence');
+        $this->assertSame(2, $queue->viewData('voted'));
+        $this->assertSame([$voted->id], $this->actingAs($admin)->get(app(CatalogMatchQueue::class)->reviewUrl($voted->id))->viewData('references')->modelKeys());
+        $this->assertSame([$voted->id, $quiet->id], $this->actingAs($admin)->get(route('admin.catalog-references.index', ['opinions' => 'any']))->viewData('references')->modelKeys());
+    }
+
+    public function test_approving_another_page_on_the_desk_moves_the_match_and_settles_the_rest()
+    {
+        $entry = $this->match();
+        $this->answer($this->user('یک'), $entry, 'page', ['page' => '۴۵']);
+        $this->answer($this->user('دو'), $entry, 'yes');
+        $page = FieldSuggestion::where('review_answer', 'like', 'page:%')->sole();
+
+        $admin = $this->admin();
+        $admin->save();
+        $this->actingAs($admin)->post(route('admin.suggestions.approve', $page), ['applied_value' => $page->suggested_value, 'outcome' => 'adopt'])->assertSessionHasNoErrors();
+
+        $this->assertSame(45, $entry->fresh()->page_start);
+        $this->assertSame(['approved', 'rejected'], FieldSuggestion::orderBy('id')->pluck('status')->all());
+    }
+
+    public function test_matches_the_researchers_agree_on_are_verified_together()
+    {
+        $agreed = $this->match('100');
+        $disputed = $this->match('200');
+        $thin = $this->match('300');
+        foreach (['یک', 'دو', 'سه'] as $name) {
+            $this->answer($this->user($name), $agreed, 'yes');
+        }
+        $this->answer($this->user('استاد', scholar: true), $disputed, 'yes');
+        $this->answer($this->user('چهار'), $disputed, 'yes');
+        $this->answer($this->user('پنج'), $disputed, 'no');
+        $this->answer($this->user('شش'), $thin, 'yes');
+
+        $admin = $this->admin();
+        $admin->save();
+        $page = $this->actingAs($admin)->get(route('admin.catalog-references.index', ['opinions' => 'consensus']))->assertOk()->assertSee('تأیید همۀ ۱ نشانی');
+        $this->assertSame([$agreed->id], $page->viewData('references')->modelKeys(), 'a vote against or too little weight keeps a match out');
+        $this->assertSame(1, $page->viewData('agreed'));
+
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['opinions' => 'consensus', 'expected' => 2])->assertSessionHas('error');
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['opinions' => 'consensus', 'expected' => 1])->assertSessionHas('success');
+        $this->assertSame([SourceEntry::STATUS_VERIFIED, SourceEntry::STATUS_UNVERIFIED, SourceEntry::STATUS_UNVERIFIED],
+            [$agreed->fresh()->status, $disputed->fresh()->status, $thin->fresh()->status]);
+        $this->assertSame(['approved'], FieldSuggestion::where('review_item_id', $agreed->id)->distinct()->pluck('status')->all());
+        $this->assertSame(['pending'], FieldSuggestion::where('review_item_id', $disputed->id)->distinct()->pluck('status')->all());
+
+        // Any other filter without the title method is still refused
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['opinions' => 'any', 'expected' => 2])->assertStatus(422);
     }
 
     public function test_only_reviewers_decide()

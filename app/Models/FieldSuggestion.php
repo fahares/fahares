@@ -71,10 +71,13 @@ class FieldSuggestion extends Model
         return $this->hasOne(MessageThread::class);
     }
 
-    /** Pending and in the reviewers' queue: not waiting for the submitter's answer to a question */
+    /**
+     * Pending and in the reviewers' queue: not waiting for the submitter's answer to a question, and not a vote of
+     * «تصحیح جمعی», which waits beside its item in the panel's queue (step 14.417)
+     */
     public function scopeInQueue($query)
     {
-        return $query->where('status', 'pending')->whereNull('awaiting_reply_since');
+        return \App\Review\CollectiveReview::onDesk($query->where('status', 'pending')->whereNull('awaiting_reply_since'));
     }
 
     public function supersededBy(): BelongsTo

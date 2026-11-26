@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Manuscript;
 use App\Models\SourceEntry as Entry;
 use App\Models\SourceVolume;
+use App\Review\CollectiveReview;
 use App\Support\Fa;
 use Illuminate\Http\Request;
 
@@ -37,6 +38,12 @@ class CatalogReferenceController extends Controller
         'llm_copy' => 'مدل زبانی: اثر و تاریخ',
     ];
 
+    /** The researchers' votes in «تصحیح جمعی» (step 14.417): any vote, or enough agreeing «همین نسخه است» and none against. */
+    public const OPINIONS = [
+        'any' => 'دارای رأی پژوهشگران',
+        'consensus' => 'اجماع پژوهشگران بر «همین نسخه است»',
+    ];
+
     public function index(Request $request)
     {
         $status = array_key_exists($request->query('status'), self::STATUSES) ? $request->query('status') : Entry::STATUS_UNVERIFIED;
@@ -46,15 +53,21 @@ class CatalogReferenceController extends Controller
         $counts = (clone $base)->when($request->integer('volume'), fn ($q, $v) => $q->where('source_volume_id', $v))
             ->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
 
+        // the matches researchers have voted on come first, the best supported on top (step 14.417)
         $references = $this->filtered($request)->with(['citable.work', 'source', 'sourceVolume', 'reviewer'])
-            ->where('status', $status)
+            ->where('source_entries.status', $status)
+            ->leftJoinSub(CollectiveReview::agreement('catalog'), 'agreement', 'agreement.review_item_id', '=', 'source_entries.id')
+            ->select('source_entries.*')->orderByRaw('COALESCE(agreement.agreement, 0) DESC')
             ->orderBy('confidence')->orderBy('source_volume_id')->orderBy('page_start')->orderBy('id')
             ->paginate(40)->withQueryString();
 
-        $bulkAllowed = $status === Entry::STATUS_UNVERIFIED && $request->query('method') === Entry::BULK_METHOD;
+        $bulkAllowed = $status === Entry::STATUS_UNVERIFIED && self::bulkAllowed($request);
         $lastBulk = Entry::lastBulkVerify()?->load('user');
+        $opinions = CollectiveReview::opinionsOn($references->getCollection()->map(fn ($r) => ['catalog', $r->id])->all(), true);
+        $voted = (clone $base)->awaitingReview()->whereIn('id', CollectiveReview::answered('catalog'))->count();
+        $agreed = (clone $base)->awaitingReview()->whereIn('id', CollectiveReview::consensus('catalog', 'yes'))->count();
 
-        return view('admin.catalog_references.index', compact('references', 'volumes', 'counts', 'status', 'bulkAllowed', 'lastBulk'));
+        return view('admin.catalog_references.index', compact('references', 'volumes', 'counts', 'status', 'bulkAllowed', 'lastBulk', 'opinions', 'voted', 'agreed'));
     }
 
     /**
@@ -63,7 +76,7 @@ class CatalogReferenceController extends Controller
      */
     public function bulkVerify(Request $request)
     {
-        abort_unless($request->input('method') === Entry::BULK_METHOD, 422, 'تأیید گروهی فقط برای روش «شماره و عنوان» است.');
+        abort_unless(self::bulkAllowed($request), 422, 'تأیید گروهی فقط برای روش «شماره و عنوان» یا اجماع پژوهشگران است.');
         $query = $this->filtered($request)->awaitingReview();
         $count = (clone $query)->count();
         if ($count === 0 || $count !== $request->integer('expected')) {
@@ -88,13 +101,23 @@ class CatalogReferenceController extends Controller
             . ($kept ? '؛ ' . Fa::num($kept) . ' نشانی که از آن پس جداگانه داوری شده بود دست نخورد.' : '.'));
     }
 
-    /** The queue's filters (volume, method, confidence band) that a bulk verification records. */
+    /**
+     * A bulk verification is for title matches, where shelfmark and title agree, or for the matches the researchers of
+     * «تصحیح جمعی» agree on (step 14.417); a reviewer still looks at the samples first.
+     */
+    private static function bulkAllowed(Request $request): bool
+    {
+        return $request->input('method') === Entry::BULK_METHOD || $request->input('opinions') === 'consensus';
+    }
+
+    /** The queue's filters (volume, method, confidence band, researchers' votes) that a bulk verification records. */
     private function filters(Request $request): array
     {
         return array_filter([
             'volume' => $request->integer('volume') ?: null,
             'method' => array_key_exists($request->input('method'), self::METHODS) ? $request->input('method') : null,
             'confidence' => array_key_exists($request->input('confidence'), self::CONFIDENCE_BANDS) ? $request->input('confidence') : null,
+            'opinions' => array_key_exists($request->input('opinions'), self::OPINIONS) ? $request->input('opinions') : null,
         ]);
     }
 
@@ -106,7 +129,11 @@ class CatalogReferenceController extends Controller
         return Entry::where('origin', Entry::ORIGIN_MATCH)->where('citable_type', Manuscript::class)
             ->when($filters['volume'] ?? null, fn ($q, $v) => $q->where('source_volume_id', $v))
             ->when($filters['method'] ?? null, fn ($q, $m) => $q->where('match_method', $m))
-            ->when($filters['confidence'] ?? null, fn ($q, $b) => $q->whereBetween('confidence', self::CONFIDENCE_BANDS[$b]['range']));
+            ->when($filters['confidence'] ?? null, fn ($q, $b) => $q->whereBetween('confidence', self::CONFIDENCE_BANDS[$b]['range']))
+            ->when(($filters['opinions'] ?? null) === 'any', fn ($q) => $q->whereIn('source_entries.id', CollectiveReview::answered('catalog')))
+            ->when(($filters['opinions'] ?? null) === 'consensus', fn ($q) => $q->whereIn('source_entries.id', CollectiveReview::consensus('catalog', 'yes')))
+            // one match, as a vote's page links it
+            ->when($request->integer('entry'), fn ($q, $id) => $q->where('source_entries.id', $id));
     }
 
     public function verify(Request $request, Entry $reference)

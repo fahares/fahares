@@ -14441,3 +14441,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `SuggestionWorkflowTest::test_a_works_subject_and_language_are_corrected_with_their_links`.
 - **محدودیت:** لاگ `verify` اثر ۷۱۸۴۲ که پیش از انتشار نوشته شد `term_links` ندارد؛ بازگرداندن آن فقط متن موضوع را برمی‌دارد و پیوند «خط» می‌ماند.
 
+### گام ۱۴.۴۱۷: رأی‌های «تصحیح جمعی» بیرون از میز پیشنهادها
+- **`CollectiveReview`:**
+  - `DESK_ANSWERS` الگوهای LIKE پاسخ‌هایی است که روی میز می‌مانند: `catalog` ← `page:%`، و `date` ← `a`، `b`، `tie`. بقیۀ پاسخ‌ها رأی‌اند.
+  - `onDesk(Builder)` و `isOnDesk(FieldSuggestion)` همین قاعده را در SQL و PHP اجرا می‌کنند. ستون‌ها نام جدول دارند، چون میز به `agreement` (که `review_queue` دارد) join می‌خورد.
+  - `consensus($queue, $answer)` شناسۀ موردهایی را می‌دهد که مجموع وزن رأی‌های در انتظار `$answer` دست‌کم `ENOUGH` باشد و رأی در انتظار دیگری نداشته باشند. `answered($queue)` موردهای دارای هر رأی در انتظار است.
+  - `PANEL_ROUTES` صف پنل هر کلید را برای خط بالای میز نگه می‌دارد.
+- **`FieldSuggestion::scopeInQueue`:** از `onDesk` می‌گذرد. پس منو، پیشخوان و `SendStaleSuggestionsReminderCommand` رأی‌ها را نمی‌شمارند.
+- **`SuggestionController`:**
+  - در `index`، با `kind=collective` حالت `pending` بدون `onDesk` است. `$votes` شمار موردهای رأی‌دار هر صف است (`COUNT(DISTINCT review_item_id)`).
+  - `approve` رأی (`! isOnDesk`) را مانند `DECIDED_IN_QUEUE` رد می‌کند.
+- **`CatalogReferenceController`:**
+  - `OPINIONS` (`any`، `consensus`) و پارامتر `entry` به `filtered()` افزوده شد. `filters()` گزینۀ `opinions` را در دستۀ تأیید گروهی ثبت می‌کند.
+  - `bulkAllowed()` یعنی `method=shelfmark_title` یا `opinions=consensus`.
+  - در `index`، join با `agreement('catalog')` ترتیب نزولی می‌دهد، و `opinionsOn(…, true)`، `$voted` و `$agreed` به نما فرستاده می‌شوند.
+- **`CatalogMatchQueue::reviewUrl`:** `?entry=<id>`، با `status` اگر نشانی داوری شده باشد.
+- **نماها:** `catalog_references/index` (پالایه، خلاصۀ `data-collective-summary`، `data-collective-opinions` در هر ردیف)، `suggestions/index` (`data-collective-votes`)، `suggestions/show` (`$voteQueue`: جملۀ رأی، بی جدول مقدار)، `suggestions/partials/collective`.
+- **آزمون‌ها:** `CollectiveReviewTest::test_votes_wait_in_the_queue_not_on_the_desk`، `test_approving_another_page_on_the_desk_moves_the_match_and_settles_the_rest` و `test_matches_the_researchers_agree_on_are_verified_together`. `test_agreeing_opinions_lead_the_desk_…` حالا با `kind=collective` است.
+- **محدودیت:** `revertBulkVerify` رأی‌هایی را که با تأیید گروهی بسته شده‌اند باز نمی‌کند. این رفتار پیشین تأیید گروهی است. بازگرداندن دستۀ اجماع نشانی‌ها را به صف برمی‌گرداند، ولی رأی‌ها «تأییدشده» می‌مانند.

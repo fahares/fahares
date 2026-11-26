@@ -48,6 +48,72 @@ class CollectiveReview
     /** Queues whose items are decided only in the panel's queue, never by approving an answer on the desk. */
     public const DECIDED_IN_QUEUE = ['namesake', 'mixed'];
 
+    /**
+     * The answers that propose a change of their own and wait on the suggestions desk (step 14.417): another page of the
+     * catalogue, a date said to be wrong. Every other answer is a vote on the machine's guess («همین نسخه است»), shown
+     * and settled beside its item in the panel's queue, and kept off the desk. Values are LIKE patterns.
+     */
+    public const DESK_ANSWERS = ['catalog' => ['page:%'], 'date' => ['a', 'b', 'tie']];
+
+    /** The panel's queue where each queue's votes are decided, with its items that have votes first: [route, parameters]. */
+    public const PANEL_ROUTES = [
+        'catalog' => ['admin.catalog-references.index', ['opinions' => 'any']],
+        'namesake' => ['admin.person-reviews.index', []],
+        'mixed' => ['admin.person-reviews.index', ['type' => 'mixed']],
+        'author' => ['admin.author-links.index', []],
+        'date' => ['admin.date-conflicts.index', []],
+    ];
+
+    /** Narrows suggestions to those of the desk: every ordinary suggestion, and the answers of DESK_ANSWERS. */
+    public static function onDesk(Builder $query): Builder
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('field_suggestions.review_queue');
+            foreach (self::DESK_ANSWERS as $queue => $patterns) {
+                $q->orWhere(function ($w) use ($queue, $patterns) {
+                    $w->where('field_suggestions.review_queue', $queue)->where(function ($a) use ($patterns) {
+                        foreach ($patterns as $pattern) {
+                            $a->orWhere('field_suggestions.review_answer', 'like', $pattern);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    /** Whether this answer waits on the desk rather than beside its item in the queue. */
+    public static function isOnDesk(FieldSuggestion $suggestion): bool
+    {
+        if (! $suggestion->review_queue) {
+            return true;
+        }
+        foreach (self::DESK_ANSWERS[$suggestion->review_queue] ?? [] as $pattern) {
+            if (\Illuminate\Support\Str::is(str_replace('%', '*', $pattern), (string) $suggestion->review_answer)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The items of a queue on which the researchers agree with one answer: its pending opinions weigh ENOUGH or more,
+     * and no pending opinion gives another answer. The catalogue queue verifies them together (step 14.417).
+     */
+    public static function consensus(string $queue, string $answer): QueryBuilder
+    {
+        return self::pendingOpinions($queue)->groupBy('fs.review_item_id')
+            ->havingRaw('SUM(CASE WHEN fs.review_answer = ? THEN ' . self::weightSql() . ' ELSE 0 END) >= ?', [$answer, self::ENOUGH])
+            ->havingRaw('SUM(fs.review_answer <> ?) = 0', [$answer])
+            ->select('fs.review_item_id');
+    }
+
+    /** The items of a queue with any pending opinion. */
+    public static function answered(string $queue): QueryBuilder
+    {
+        return self::pendingOpinions($queue)->distinct()->select('fs.review_item_id');
+    }
+
     public static function title(): string
     {
         return config('contributions.review_title');

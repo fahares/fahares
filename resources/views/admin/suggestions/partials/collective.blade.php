@@ -36,7 +36,12 @@
                 </div>
             @endforeach
         </div>
-        <p class="text-xs text-muted m-0">با تأیید این پیشنهاد، نظرهای هم‌سو با آن تأیید و بقیه رد می‌شوند. تصمیم در صف پنل هم همین کار را می‌کند.</p>
+        @if(\App\Review\CollectiveReview::isOnDesk($suggestion))
+            <p class="text-xs text-muted m-0">با تأیید این پیشنهاد، نظرهای هم‌سو با آن تأیید و بقیه رد می‌شوند. تصمیم در صف پنل هم همین کار را می‌کند.</p>
+        @else
+            {{-- a vote is decided in the panel's queue (step 14.417) --}}
+            <p class="text-xs text-muted m-0">دربارۀ این مورد در صف پنل تصمیم بگیرید؛ نظرهای هم‌سو با تصمیم تأیید و بقیه رد می‌شوند.</p>
+        @endif
     @else
         <p class="text-xs text-muted m-0">نظر در انتظاری بر این مورد نمانده است.</p>
     @endif

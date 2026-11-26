@@ -23,6 +23,8 @@
     };
 
     $kind = $suggestion->kind;
+    // A vote of «تصحیح جمعی» on a machine's guess changes nothing: it is said as a vote and decided in its queue (step 14.417)
+    $voteQueue = $suggestion->review_queue && ! \App\Review\CollectiveReview::isOnDesk($suggestion) ? \App\Review\CollectiveReview::queue($suggestion->review_queue) : null;
     $payload = $suggestion->payload ?? [];
     $typeLabel = SuggestionRegistry::typeLabel($suggestion->suggestable_type);
     $submitterName = $suggestion->guest_name ?: ($suggestion->user?->name ?: ($suggestion->machine_label ?? 'پژوهشگر مهمان'));
@@ -126,9 +128,19 @@
 
             {{-- The suggestion, said plainly --}}
             <x-ui.card class="space-y-3" data-claim-card>
-                <h3 class="text-xs font-bold text-muted">پیشنهاد</h3>
+                <h3 class="text-xs font-bold text-muted">{{ $voteQueue ? 'رأی در «' . config('contributions.review_title') . '»' : 'پیشنهاد' }}</h3>
                 <p class="text-[15px] leading-8 text-ink" data-claim>
                     «{{ $submitterName }}»
+                    @if($voteQueue)
+                        @if($suggestion->review_queue === 'catalog' && $suggestion->review_answer === 'yes')
+                            تأیید می‌کند که این نسخه همان است که در <b>{{ Str::after($suggestion->field_label, 'نشانی در ') }}</b>، <b>{{ $quote($current) }}</b>، وصف شده است.
+                        @elseif($suggestion->review_queue === 'catalog' && $suggestion->review_answer === 'no')
+                            می‌گوید این نسخه در <b>{{ $quote($current) }}</b> از <b>{{ Str::after($suggestion->field_label, 'نشانی در ') }}</b> نیامده است.
+                        @else
+                            رأی داده است: <b>{{ $voteQueue->describe($suggestion) }}</b>.
+                        @endif
+                        <span class="block text-sm text-muted">این رأی چیزی را تغییر نمی‌دهد و حدس هوشواره را می‌سنجد؛ دربارۀ آن در صف بررسی‌اش تصمیم گرفته می‌شود.</span>
+                    @else
                     @switch($kind)
                         @case('field')
                             @if($clearing)
@@ -154,6 +166,7 @@
                         @default
                             پیشنهادی کلی دربارۀ این {{ $typeLabel }} فرستاده است.
                     @endswitch
+                    @endif
                 </p>
 
                 @if($kind === 'field' && array_key_exists('pair', (array) $payload))
@@ -162,7 +175,9 @@
                         <span class="text-muted">(اکنون: <span dir="ltr">{{ ($payload['pair_current'] ?? '') !== '' ? $payload['pair_current'] : '—' }}</span>)</span></p>
                 @endif
 
-                @if($diff)
+                @if($voteQueue)
+                    {{-- a vote has no value of its own to compare: the sentence above says it all --}}
+                @elseif($diff)
                     <dl class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-2 items-baseline" data-diff-table>
                         <dt class="text-xs text-muted">مقدار کنونی</dt>
                         <dd class="font-naskh text-base leading-8 text-ink break-words">
@@ -385,10 +400,10 @@
                 @php $toolPermission = $relation ? (\App\Auth\Permissions::FOR_APPLY[$relation['apply'] ?? ''] ?? null) : null; @endphp
                 <x-admin.decision :suggestion="$suggestion">
                     <x-slot:approve>
-                        @if(in_array($suggestion->review_queue, \App\Review\CollectiveReview::DECIDED_IN_QUEUE, true))
-                            {{-- People are merged or kept apart in the panel's queue, which settles every answer on the item --}}
+                        @if($voteQueue || in_array($suggestion->review_queue, \App\Review\CollectiveReview::DECIDED_IN_QUEUE, true))
+                            {{-- A vote, or people merged or kept apart: decided in the panel's queue, which settles every answer on the item --}}
                             <x-admin.notice>
-                                این پاسخی در «{{ config('contributions.review_title') }}» است. دربارۀ این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ همۀ پاسخ‌های آن با همان تصمیم بسته می‌شوند.
+                                این پاسخی در «{{ config('contributions.review_title') }}» است. دربارۀ این مورد در صف بررسی آن تصمیم بگیرید؛ همۀ پاسخ‌های آن با همان تصمیم بسته می‌شوند.
                                 <a href="{{ \App\Review\CollectiveReview::queue($suggestion->review_queue)->reviewUrl((int) $suggestion->review_item_id) }}" class="text-cinnabar font-bold hover:underline">رفتن به مورد</a>
                             </x-admin.notice>
                         @elseif($toolPermission && ! auth()->user()->can($toolPermission))

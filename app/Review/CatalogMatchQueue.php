@@ -220,7 +220,12 @@ class CatalogMatchQueue extends ReviewQueue
     public function reviewUrl(int $itemId): ?string
     {
         $entry = SourceEntry::find($itemId);
+        if (! $entry) {
+            return null;
+        }
+        $status = $entry->status === SourceEntry::STATUS_UNVERIFIED ? [] : ['status' => $entry->status];
 
-        return $entry ? route('admin.catalog-references.index', ['volume' => $entry->source_volume_id]) : null;
+        // the match alone, with its votes beside it (step 14.417)
+        return route('admin.catalog-references.index', $status + ['entry' => $entry->id]);
     }
 }

@@ -34,10 +34,12 @@ class SuggestionController extends Controller
 
         $query = FieldSuggestion::with(['user', 'reviewer']);
 
-        // Pending ones asked about wait in their own tab until the submitter answers (backlog item 91)
+        // Pending ones asked about wait in their own tab until the submitter answers (backlog item 91). The votes of
+        // «تصحیح جمعی» wait beside their items in the panel's queues (step 14.417): only the filter of that kind lists them
+        $kind = $request->query('kind');
         match ($status) {
             'all' => null,
-            'pending' => $query->inQueue(),
+            'pending' => $kind === 'collective' ? $query->where('status', 'pending')->whereNull('awaiting_reply_since') : $query->inQueue(),
             'awaiting' => $query->where('status', 'pending')->whereNotNull('awaiting_reply_since'),
             default => $query->where('status', $status),
         };
@@ -49,7 +51,6 @@ class SuggestionController extends Controller
         }
 
         // From the dashboard's queue; field suggestions include the general ones
-        $kind = $request->query('kind');
         if (in_array($kind, ['field', 'relation', 'note', 'feedback'], true)) {
             $query->whereIn('kind', $kind === 'field' ? ['field', 'general'] : [$kind]);
         }
@@ -79,8 +80,12 @@ class SuggestionController extends Controller
             'rejected' => FieldSuggestion::where('status', 'rejected')->count(),
             'total' => FieldSuggestion::count(),
         ];
+        // The votes kept off the desk, per queue, for the line that sends the reviewer to them
+        $votes = $status === 'pending' && $kind !== 'collective' ? FieldSuggestion::where('status', 'pending')->whereNotNull('review_queue')
+            ->whereNotIn('id', CollectiveReview::onDesk(FieldSuggestion::query())->select('id'))
+            ->groupBy('review_queue')->selectRaw('review_queue, COUNT(DISTINCT review_item_id) n')->pluck('n', 'review_queue')->all() : [];
 
-        return view('admin.suggestions.index', compact('suggestions', 'stats', 'status', 'type', 'opinions'));
+        return view('admin.suggestions.index', compact('suggestions', 'stats', 'status', 'type', 'opinions', 'votes'));
     }
 
     public function show(FieldSuggestion $suggestion)
@@ -198,9 +203,11 @@ class SuggestionController extends Controller
         $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative';
         abort_unless($suggestion->status === 'pending' || $promoting, 409, 'این پیشنهاد پیش‌تر داوری شده است.');
 
-        // An answer of «تصحیح جمعی» on people is decided with its item in the panel's queue, which settles it
-        if (in_array($suggestion->review_queue, CollectiveReview::DECIDED_IN_QUEUE, true)) {
-            return back()->withErrors(['applied_value' => 'دربارۀ این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
+        // An answer of «تصحیح جمعی» on people, or a vote on a machine's guess (step 14.417), is decided with its item in
+        // the panel's queue, which settles it
+        if ($suggestion->status === 'pending' && $suggestion->review_queue
+            && (in_array($suggestion->review_queue, CollectiveReview::DECIDED_IN_QUEUE, true) || ! CollectiveReview::isOnDesk($suggestion))) {
+            return back()->withErrors(['applied_value' => 'دربارۀ این مورد در صف بررسی آن تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
         }
 
         if ($suggestion->kind === 'relation') {
