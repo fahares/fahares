@@ -992,7 +992,7 @@ class Manuscript extends Model
      * The stored form of a copy's volume (the collection_key column): «8740» for «8740/7-58/190», «1068-طباطبائی» for
      * «1068/2-طباطبائی». A Majlis copy the Fankha text describes only from the Senate library's catalogue («[سنا: ف:
      * 2-61]») has the Senate's own numbering, so «791/1» of the Senate is not the Majlis volume 791: its key is
-     * «791-سنا» (step 13.146).
+     * «791-سنا» (step 13.146). A copy of the National Library's Arabic series has «2897-ع» (App\Support\MelliSeries).
      */
     public static function collectionKeyOf(?string $shelfmark, ?string $rawText = null): ?string
     {
@@ -1001,6 +1001,10 @@ class Manuscript extends Model
             return null;
         }
         $collection = self::citesOnlySenate($rawText) ? 'سنا' . ($key['collection'] !== null ? '-' . $key['collection'] : '') : $key['collection'];
+        // the National Library's Arabic series: «2897/1» of it is not the Persian volume 2897 (step 14.416)
+        if ($collection === null && \App\Support\MelliSeries::arabic($rawText)) {
+            $collection = \App\Support\MelliSeries::ARABIC;
+        }
 
         return mb_substr($key['base'] . ($collection !== null ? '-' . $collection : ''), 0, 100);
     }
@@ -1020,7 +1024,24 @@ class Manuscript extends Model
             return null;
         }
 
+        // a plain number of the National Library's Arabic series: «2897-ع», the key its parts would have (step 14.416)
+        if (preg_match('/^\d+$/', $mark) && \App\Support\MelliSeries::arabic($rawText)) {
+            $mark .= '-' . \App\Support\MelliSeries::ARABIC;
+        }
+
         return mb_substr($mark . (self::citesOnlySenate($rawText) ? '-سنا' : ''), 0, 100);
+    }
+
+    /**
+     * The letter of a second number series the copy is of, shown beside its shelfmark where the shelfmark does not
+     * carry it: «ع» for the National Library's Arabic series (App\Support\MelliSeries, step 14.416).
+     *
+     * @return array{mark: string, title: string}|null
+     */
+    public function seriesMark(): ?array
+    {
+        return \App\Support\MelliSeries::arabic($this->fankhaText())
+            ? ['mark' => \App\Support\MelliSeries::ARABIC, 'title' => 'سری عربی شماره‌های کتابخانۀ ملی'] : null;
     }
 
     /** The number of a shelfmark that is only a number («38137», «۳۸۱۳۷»), else null. */
@@ -1045,7 +1066,8 @@ class Manuscript extends Model
         }
         $n = self::plainNumber($shelfmark);
 
-        return $n !== null && preg_match('/^(\d+)–(\d+)$/u', $stored, $m) && $n >= (int) $m[1] && $n <= (int) $m[2] && ! self::citesOnlySenate($rawText);
+        return $n !== null && preg_match('/^(\d+)–(\d+)$/u', $stored, $m) && $n >= (int) $m[1] && $n <= (int) $m[2] && ! self::citesOnlySenate($rawText)
+            && ! \App\Support\MelliSeries::arabic($rawText);
     }
 
     /** The collection_key a copy should hold: the volume its shelfmark names, else the linked key it has if that still fits, else null. */

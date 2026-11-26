@@ -72,7 +72,8 @@ class LinkPlainVolumesCommand extends Command
                         continue;
                     }
                     $plain[$row->id] = ['id' => $row->id, 'lib' => $lib, 'key' => $key, 'work' => $row->work_id, 'range' => $range, 'sides' => $sides, 'keyed' => false,
-                        'number' => Manuscript::citesOnlySenate($row->raw_text) ? null : Manuscript::plainNumber($row->shelfmark),
+                        // no run of numbers across two series of one library: the Senate's, the National Library's Arabic one
+                        'number' => Manuscript::citesOnlySenate($row->raw_text) || \App\Support\MelliSeries::arabic($row->raw_text) ? null : Manuscript::plainNumber($row->shelfmark),
                         'size' => self::size($row->raw_text), 'shelfmark' => $row->shelfmark, 'stored' => $row->collection_key];
                 }
             }, 'manuscripts.id', 'id');

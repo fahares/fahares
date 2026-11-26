@@ -103,7 +103,7 @@
             <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-cinnabar truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
             <span aria-hidden="true">/</span>
         @endif
-        <span class="text-ink font-semibold">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else شناسنامۀ نسخه @endif</span>
+        <span class="text-ink font-semibold">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span><x-series-mark :manuscript="$manuscript" />@else شناسنامۀ نسخه @endif</span>
     </nav>
 
     <!-- MANUSCRIPT HEADER -->
@@ -124,7 +124,7 @@
         <p class="mt-1 text-base sm:text-lg text-ink">
             <span class="font-bold">{{ $libraryName }}</span>@if($manuscript->city)<span class="text-muted">، {{ $manuscript->city }}</span>@endif
             <span class="text-muted">·</span>
-            <span class="font-bold text-cinnabar">شمارۀ @if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else — @endif</span>
+            <span class="font-bold text-cinnabar">شمارۀ @if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span><x-series-mark :manuscript="$manuscript" />@else — @endif</span>
         </p>
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">
             @if($manuscript->copy_date_raw)<x-ui.chip>کتابت {{ Fa::digits($manuscript->copy_date_raw) }}</x-ui.chip>@endif
@@ -220,7 +220,7 @@
                 </div>
                 <div>
                     <div class="text-xs text-muted">شمارۀ نسخه</div>
-                    <span class="font-naskh text-2xl font-bold text-cinnabar">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else بی‌شماره @endif</span>
+                    <span class="font-naskh text-2xl font-bold text-cinnabar">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span><x-series-mark :manuscript="$manuscript" />@else بی‌شماره @endif</span>
                     <x-suggest.field name="shelfmark" class="ms-1" />
                 </div>
                 @if($formerLocations)
