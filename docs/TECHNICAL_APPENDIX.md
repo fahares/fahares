@@ -14472,3 +14472,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:** `CollectiveReviewTest::test_votes_wait_in_the_queue_not_on_the_desk`، `test_approving_another_page_on_the_desk_moves_the_match_and_settles_the_rest` و `test_matches_the_researchers_agree_on_are_verified_together`. `test_agreeing_opinions_lead_the_desk_…` حالا با `kind=collective` است.
 - **محدودیت:** `revertBulkVerify` رأی‌هایی را که با تأیید گروهی بسته شده‌اند باز نمی‌کند. این رفتار پیشین تأیید گروهی است. بازگرداندن دستۀ اجماع نشانی‌ها را به صف برمی‌گرداند، ولی رأی‌ها «تأییدشده» می‌مانند.
 
+### گام ۱۴.۴۱۹: فیلدهای `incipit_*` و `explicit_*`
+- **`SuggestionRegistry`:** `QUOTE_ITEMS` (ستون ← پیشوند، کلید `metadata`، واژه)؛ `quoteList()` فهرست خام نسخه (یا ستون به‌عنوان یک مورد)؛ `quoteItemName()` (ده رقم نخست md5 متن)، `quoteItemField()`، `quoteItem()`. `recordFields` نسخه برای فهرست بیش از یک مورد، هر مورد را فیلد می‌کند و برای فهرست ناتهی `incipit_new`/`explicit_new` می‌دهد. `fieldOf` و `currentValue` این فیلدها را می‌شناسند.
+- **`SuggestionApplier::quoteItem`:** افزودن، بازنویسی و حذف یک مورد؛ `metadata[incipits|explicits]` و ستون با هم نوشته می‌شوند؛ `resolution.field_name` مثل عنوان دیگر اثر.
+- **`manuscripts/show.blade.php`:** دکمۀ هر مورد از راه `x-ui.quote` و دکمۀ افزودن در `actions` بخش؛ دکمۀ کل فیلد فقط برای فهرست تک‌مورد.
+- **`suggest/desk.blade.php`:** `adds` برای `quote_item = new`.
+- **آزمون:** `SuggestionWorkflowTest::test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself`.
+

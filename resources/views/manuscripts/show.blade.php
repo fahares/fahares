@@ -486,7 +486,16 @@
 
             @foreach(['incipit_text' => ['آغاز', $manuscript->incipits_list], 'explicit_text' => ['انجام', $manuscript->explicits_list]] as $field => [$kind, $list])
                 @if(count($list) > 0)
-                    <x-ui.section :title="$kind . ' نسخه'" :field="$field" :count="count($list) > 1 ? count($list) : null">
+                    {{-- A copy of several incipits or explicits: each has its own button and one more is added from the
+                         section's (step 14.419); a copy of one keeps the one button of the whole --}}
+                    @php
+                        $several = count(\App\Suggestions\SuggestionRegistry::quoteList($manuscript, $field)) > 1;
+                        $addName = \App\Suggestions\SuggestionRegistry::QUOTE_ITEMS[$field][0] . 'new';
+                    @endphp
+                    <x-ui.section :title="$kind . ' نسخه'" :field="$several ? null : $field" :count="count($list) > 1 ? count($list) : null">
+                        <x-slot:actions>
+                            <span x-show="$store.suggest.on" x-cloak class="inline-flex items-center gap-1.5 text-xs font-bold text-ink">افزودن {{ $kind }} دیگر <x-suggest.field :name="$addName" /></span>
+                        </x-slot:actions>
                         <div class="space-y-5">
                             @foreach($list as $idx => $item)
                                 @php
@@ -494,6 +503,9 @@
                                     if (! $itemLabel && count($list) > 1) {
                                         $itemLabel = $kind . ' ' . Fa::digits($idx + 1);
                                     }
+                                    // the item as the copy holds it; a pointer at the work's excerpt shows another text and has no button
+                                    $itemField = $several ? \App\Suggestions\SuggestionRegistry::quoteItemName($field, (string) ($item['text'] ?? '')) : null;
+                                    $itemField = $itemField && \App\Suggestions\SuggestionRegistry::quoteItem($manuscript, ['quote_of' => $field, 'quote_item' => $itemField]) ? $itemField : null;
                                 @endphp
                                 @if(! empty($item['is_placeholder']))
                                     <div>
@@ -501,7 +513,7 @@
                                         <p class="text-sm text-muted leading-relaxed whitespace-pre-line">{{ $item['text'] }}</p>
                                     </div>
                                 @else
-                                    <x-ui.quote :label="$itemLabel ?? $kind">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                                    <x-ui.quote :label="$itemLabel ?? $kind" :field="$itemField">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
                                     {{-- A pointer at one of the work's numbered or part incipits leads to it (backlog item 98) --}}
                                     @if(! empty($item['work_excerpt_id']) && $manuscript->work)
                                         <a href="{{ route('works.show', $manuscript->work) }}#excerpt-{{ $item['work_excerpt_id'] }}" class="inline-block mt-1 text-[11px] text-cinnabar hover:underline">در صفحۀ اثر ←</a>

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AuditLog;
+use App\Suggestions\SuggestionRegistry;
 use App\Models\EntityRedirect;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
@@ -782,6 +783,49 @@ class SuggestionWorkflowTest extends TestCase
         $third = FieldSuggestion::find($s->fresh()->resolution['converted_to'][0]);
         $this->approve($third)->assertRedirect('/admin/suggestions');
         $this->post("/admin/suggestions/{$third->id}/discard-derived")->assertStatus(409);
+    }
+
+    /** Step 14.419: each incipit and explicit of a copy that has several is a field of its own, and one more is added. */
+    public function test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself()
+    {
+        $first = 'ثنای بیحد و عد ایزدیراست';
+        $second = 'قال امیرالمؤمنین اعلم ان حسن الخط';
+        $m = $this->manuscript(['incipit_text' => "{$first}\n{$second}", 'explicit_text' => 'تمت الرساله',
+            'metadata' => ['incipits' => [['label' => null, 'text' => $first], ['label' => null, 'text' => $second]], 'explicits' => [['label' => null, 'text' => 'تمت الرساله']]]]);
+        $name = fn (string $text) => SuggestionRegistry::quoteItemName('incipit_text', $text);
+        $edit = fn (string $field, string $value) => $this->postJson('/admin/suggestions/direct-edit', ['type' => 'manuscript', 'id' => $m->id, 'field_name' => $field, 'suggested_value' => $value]);
+
+        // two incipits: a button each and one that adds; the one explicit keeps the button of the whole, and can take another
+        $this->actingAs($this->admin)->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('data-suggest-field="' . $name($first) . '"', false)->assertSee('data-suggest-field="' . $name($second) . '"', false)
+            ->assertSee('data-suggest-field="incipit_new"', false)->assertDontSee('data-suggest-field="incipit_text"', false)
+            ->assertSee('data-suggest-field="explicit_text"', false)->assertSee('data-suggest-field="explicit_new"', false);
+        $this->assertSame($second, SuggestionRegistry::currentValue($m, SuggestionRegistry::fieldOf($m, $name($second))));
+
+        // one corrected: the other stays, and the column follows the list
+        $edit($name($first), 'بسمله ثنای بیحد و عد ایزدیراست')->assertOk();
+        $m->refresh();
+        $this->assertSame(['بسمله ثنای بیحد و عد ایزدیراست', $second], array_column($m->metadata['incipits'], 'text'));
+        $this->assertSame("بسمله ثنای بیحد و عد ایزدیراست\n{$second}", $m->incipit_text);
+        $edit($name($first), 'دوباره')->assertStatus(422);
+
+        // the second belongs to another record now: emptied, it goes, and the rollback brings it back
+        $edit($name($second), '')->assertOk();
+        $m->refresh();
+        $this->assertSame([['بسمله ثنای بیحد و عد ایزدیراست'], 'بسمله ثنای بیحد و عد ایزدیراست'], [array_column($m->metadata['incipits'], 'text'), $m->incipit_text]);
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->latest('id')->first();
+        $this->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame(2, count($m->fresh()->metadata['incipits']));
+
+        // one more explicit added, none twice; a researcher's suggestion of one item is approved the same way
+        $edit('explicit_new', 'تمت الرساله')->assertStatus(422);
+        $edit('explicit_new', 'تم الکتاب')->assertOk();
+        $this->assertSame(['تمت الرساله', 'تم الکتاب'], array_column($m->fresh()->metadata['explicits'], 'text'));
+        $this->suggest($m, ['field_name' => SuggestionRegistry::quoteItemName('explicit_text', 'تم الکتاب'), 'suggested_value' => 'تم الکتاب بعون الله', 'rationale_citation' => 'خود نسخه'])->assertOk();
+        $s = $this->pendingFor($m);
+        $this->assertSame('تم الکتاب', $s->current_value);
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+        $this->assertSame(["تمت الرساله\nتم الکتاب بعون الله", SuggestionRegistry::quoteItemName('explicit_text', 'تم الکتاب بعون الله')], [$m->fresh()->explicit_text, $s->fresh()->field_name]);
     }
 
     /** Step 14.415: a work's subject and language are fields, and their links follow the corrected wording. */

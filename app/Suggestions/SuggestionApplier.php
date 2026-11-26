@@ -161,6 +161,10 @@ class SuggestionApplier
                     $resolution = $this->otherName($record, $field, $value, $input);
                     break;
                 }
+                if (isset($field['quote_item'])) {
+                    $resolution = $this->quoteItem($record, $field, $value);
+                    break;
+                }
                 if (! empty($field['leaf_range'])) {
                     $range = $value === null ? [null, null, null, null] : \App\Support\CopyExtent::parseRange($value);
                     if ($range === null) {
@@ -441,6 +445,43 @@ class SuggestionApplier
      * and emptied removes it. The transliteration is written when the form sent one. The resolution names the field
      * the title has afterwards, so the suggestion stays with its title.
      */
+    /**
+     * One incipit or explicit of a copy that has several, or one more of them (step 14.419): the list in the metadata is
+     * rewritten and the column follows it, an item to a line, as the corpus writes it.
+     */
+    private function quoteItem(Model $record, array $field, ?string $value): array
+    {
+        $column = $field['quote_of'];
+        [, $metaKey, $word] = SuggestionRegistry::QUOTE_ITEMS[$column];
+        $items = SuggestionRegistry::quoteList($record, $column);
+        $taken = fn (string $text, ?int $except = null) => (bool) array_filter($items, fn ($item, $index) => $index !== $except && trim((string) $item['text']) === $text, ARRAY_FILTER_USE_BOTH);
+
+        if ($field['quote_item'] === 'new') {
+            if ($taken((string) $value)) {
+                throw new InvalidArgumentException("این {$word} هم‌اکنون در رکورد هست.");
+            }
+            $items[] = ['label' => null, 'text' => $value];
+        } else {
+            $item = SuggestionRegistry::quoteItem($record, $field);
+            if (! $item) {
+                throw new InvalidArgumentException("این {$word} اکنون در رکورد نیست؛ شاید پیش‌تر ویرایش یا حذف شده است.");
+            }
+            if ($value === null) {
+                array_splice($items, $item['index'], 1);
+            } elseif ($taken($value, $item['index'])) {
+                throw new InvalidArgumentException("این {$word} هم‌اکنون در رکورد هست.");
+            } else {
+                $items[$item['index']]['text'] = $value;
+            }
+        }
+        $meta = $record->metadata ?? [];
+        $meta[$metaKey] = array_values($items);
+        $record->metadata = $meta;
+        $record->{$column} = $items ? implode("\n", array_column($items, 'text')) : null;
+
+        return $value !== null ? ['field_name' => SuggestionRegistry::quoteItemName($column, $value)] : [];
+    }
+
     private function altTitle(Model $record, array $field, ?string $value, array $input): array
     {
         $items = array_values((array) ($record->alternative_titles ?? []));

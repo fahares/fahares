@@ -35,6 +35,8 @@
                 ($def['alias'] ?? null) === 'new' => 'نام دیگر:',
                 // ...nor has a note to add to a copy (step 14.318)
                 isset($def['new_note_type']) => 'متن یادداشت:',
+                // ...nor one more incipit or explicit of a copy (step 14.419)
+                ($def['quote_item'] ?? null) === 'new' => 'متن:',
                 default => false,
             },
             'options' => $def['options'] ?? [],
