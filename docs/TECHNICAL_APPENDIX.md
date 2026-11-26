@@ -14359,6 +14359,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تصویر:** [mtif-160.png](../public/images/partners/mtif-160.png) و [mtif-320.png](../public/images/partners/mtif-320.png) (srcset 2x). ساخته با Pillow از JPEG ‏CMYK ‏۷۹۹×۱۴۱۲: خاکستری، آلفا = وارونۀ روشنایی، رنگ `#FEF3C7` (`amber-100`).
 - **[app.blade.php](../resources/views/layouts/app.blade.php):** بلوک `data-footer-sponsor` در پایان ستون نخست گرید فوتر (`md:col-span-2`)، لوگو و دو سطر کنار هم؛ تصویر با `VersionedAsset::url` و `loading="lazy"`، ارتفاع ۱۲۰ پیکسل.
 - **همان فایل:** پیوندهای `github.com/fahares/fahares` و `fahares-corpus`، نشان و جملۀ «آزمایشی» در فراخوان، و «Beta v1.0» در خط پایانی برداشته شد.
+- **پس از انتشار نخست:** دو سطر بلوک `text-stone-400`، بی `font-bold` و `text-amber-100` روی نام‌ها.
+- **تراز:** ضلع پایین مربع لوگو ۱۴ پیکسل بالای پای تصویر ۱۲۰ پیکسلی است (ردیف ۱۲۴۵ از ۱۴۱۲). دو سطر `text-[13px] leading-6`، `mb-[6px]` تا خط کرسی سطر دوم روی آن ضلع بنشیند؛ `gap-3`، بی `border-r`.
+- **ترتیب و فاصله:** سطر مدیر پروژه بالا و سطر حامی پایین؛ `leading-5` و `mb-[8px]` (دو پیکسل نیم‌فاصلۀ کمتر جبران شد تا خط کرسی سطر دوم همان‌جا بماند).
 
 ### گام ۱۴.۴۰۹: `<x-suggest.reading>` با مستند باز
 - `components/suggest/reading.blade.php`: `x-data="{ open: true }"`، `x-cloak` از بند مستند برداشته شد، متن آغازین دکمه «بستن مستند». آزمون: `ReadingEvidenceOpenTest`.
@@ -14391,3 +14394,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `CitationEntryTest` تازه است. `tests/Support/InsertRecords` کلید را بالا می‌برد.
   - ۹ فایل آزمون به جای کلید از مدخل می‌خوانند.
 - **تمرین:** روی `fahares_rehearse411` (فقط `manuscripts(id, metadata)` و مدخل‌های `fankha_citation`، که پس از تمرین پاک شد). `--dry-run` ۵ ثانیه و اجرای واقعی ۹ ثانیه طول کشید. فایل پشتیبان ۱۷ MB بود و ۳۲۳٬۲۴۵ سطر داشت.
+### گام ۱۴.۴۱۱: `app.posts_public`
+- `config/app.php`: `posts_public` از `POSTS_PUBLIC`، پیش‌فرض `false`.
+- `PostController::abortUnlessShown()`: در `index` و `show` ۴۰۴ مگر کلید روشن باشد یا کاربر `posts.manage` داشته باشد.
+- `layouts/app.blade.php`: سه پیوند `posts.index` (منوی بالا، منوی موبایل، فوتر) زیر `@if (config('app.posts_public'))`.
+- `SitemapController::getStaticUrls()`: `posts.index` و `posts.show` فقط با کلید روشن.
+- آزمون‌ها: `JaridehHiddenTest`؛ `PostTest` و `TelegramChannelLinkTest` در `setUp` کلید را روشن می‌کنند.
