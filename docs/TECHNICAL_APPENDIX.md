@@ -14368,3 +14368,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - Worker ‏`fahares-failover` همان فایل را می‌خواند. متغیر `probe` در آنجا `/up` می‌ماند.
 - آزمون: `tests/Feature/DatabaseUnavailableTest.php` با `QueryException` ساختگی برای ۲۰۰۲، ۱۰۵۳ و ۱۰۶۴. ۱۰۶۴ خطای نحوی است و باید ۵۰۰ بماند.
 - وارسی دستی در `fahares_app`: `php -S` از پوشۀ worktree، یک بار با `DB_HOST=127.0.0.1 DB_PORT=1` و یک بار با `DB_HOST=no-such-db-host`.
+
+### گام ۱۴.۴۱۴: `App\Support\MaintenanceNotice` و `fahares:maintenance-notice` (مورد ۱۳۶، بند ۴)
+- کش: کلید `maintenance.notice` = `{at, until, note, announcement_id}`، با انقضای `until`. `current()` پس از `until` ‏`null` برمی‌گرداند.
+- `parseStart()`: «1405/09/06 02:00» با ارقام فارسی یا لاتین، و «/» یا «-». تبدیل با `IntlCalendar` و `fa_IR@calendar=persian` در `Asia/Tehran` انجام می‌شود، و ماه در ICU از صفر شمرده می‌شود. «HH:MM» تنها یعنی نخستین آن ساعت پس از اکنون.
+- `set()`:
+  - مدت ۱ تا ۱۴۴۰ دقیقه است، و زمان آغاز باید پیش رو باشد.
+  - با `--telegram` یک `Announcement` با `on_site=false`، `telegram=true`، `audience=all` و `ends_at=until` ساخته یا به‌روز می‌شود. سپس فرمان `AnnouncementTelegram::sync()` را صدا می‌زند: نخستین بار `sendMessage`، و پس از آن `editMessageText`.
+- نوار: `resources/views/components/maintenance-notice.blade.php`، در `layouts/app.blade.php` پیش از header. با کلید `maintenance-notice-<at>` در localStorage بسته می‌ماند. قالب مدیریت آن را ندارد.
+- آزمون: `tests/Feature/MaintenanceNoticeTest.php`. سال آزمون تلگرام ۱۴۱۴ است، چون `ends_at` ستون TIMESTAMP است و به ۲۰۳۸ می‌رسد.

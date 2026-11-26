@@ -63,6 +63,9 @@
 </head>
 <body class="bg-parchment-pattern min-h-screen flex flex-col font-sans selection:bg-cinnabar/20 selection:text-cinnabar">
 
+    <!-- Advance notice of a planned maintenance (backlog item 136) -->
+    <x-maintenance-notice />
+
     <!-- Main Navigation Header (Glassmorphic) -->
     <header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-line transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
