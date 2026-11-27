@@ -14472,6 +14472,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:** `CollectiveReviewTest::test_votes_wait_in_the_queue_not_on_the_desk`، `test_approving_another_page_on_the_desk_moves_the_match_and_settles_the_rest` و `test_matches_the_researchers_agree_on_are_verified_together`. `test_agreeing_opinions_lead_the_desk_…` حالا با `kind=collective` است.
 - **محدودیت:** `revertBulkVerify` رأی‌هایی را که با تأیید گروهی بسته شده‌اند باز نمی‌کند. این رفتار پیشین تأیید گروهی است. بازگرداندن دستۀ اجماع نشانی‌ها را به صف برمی‌گرداند، ولی رأی‌ها «تأییدشده» می‌مانند.
 
+### گام ۱۴.۴۱۸: پنج جلد بی‌تصویر از fanuus.org
+- **یافتن:** جست‌وجوی `?s=<واژه>&post_type=product` سایت برای هر کتابخانۀ برگۀ «فایل نداریم»، «شاید» و «ناقص» (`_bi-tasvir`)، و جست‌وجوهای کلی. جست‌وجوی وردپرس OR است و بیشترِ نتیجه‌ها کتاب غیرفهرستی‌اند؛ عنوان‌ها با الگوی «فهرست|مخطوط|نسخه‌های|…» پالوده شدند. شناسنامۀ هر محصول (نویسنده، صفحه، حجم، سال) از جدول ویژگی‌های صفحۀ محصول.
+- **دریافت:** صفحۀ محصول فرم `somdn-download-single-form` (POST به نشانی خود صفحه، با `somdn_download_key`، `action=somdn_download_single`، `somdn_product`) دارد که تنها با نشست واردشده PDF می‌دهد. پنل مرورگر داخلی برنامه پرونده‌ای ذخیره نمی‌کند، پس دریافت در Chrome کاربر (Claude in Chrome) انجام شد: فرم هر صفحه در iframe پنهان فرستاده شد، با ۶ ثانیه فاصله. دو پاسخ صفحۀ HTML بود به‌جای PDF (صدرا، کیوتو)، و پس از حدود ۴۰ درخواست سایت به همه «418 reauthentication required» داد؛ پس از ورود دوباره، باقی‌مانده با `fetch` و `Blob` گرفته شد. «آرشیو ملی پاکستان» فرم ندارد و تنها «مطالعۀ آنلاین» با کسر امتیاز دارد.
+- **پوشه‌ها:** `../fahares-sources/fanuus/` با `fankha-bi-tasvir/` (۷ پرونده)، `item158/` (۳۱ پرونده)، `covers/` (۳۹ تصویر جلد، `og:image` هر محصول) و `manifest.tsv` (گروه، عنوان، پرونده، شمار صفحه، sha256، جلد، نشانی). کار در `../fahares-sources/_fanuus/`: `<vid>.pdf` (رونوشت)، `MD5SUMS`، `strips-<vid>/pages.tsv`، `build_map.py` (از `_ahamd`، با `RANGE` تازه و `FIX` تهی)، `<vid>.map.json`، `refs.tsv`، `check/`.
+
+| جلد | شناسه | کد | برگ | صفحه‌ها (`RANGE` برگ) | یادداشت |
+| :--- | ---: | :--- | ---: | :--- | :--- |
+| مجلس ۲۲ (حائری، ۱۳۷۴) | ۴۲۶ | `majlis` v22 | ۵۲۵ | ۱–۳۶۳ (۱۱–۳۷۳) | نمایه‌ها ص ۳۶۴–۵۱۶ کنار ماند |
+| مجلس ۲۳ بخش ۱ (حائری، ۱۳۷۵) | ۴۲۷ | `majlis` v23 | ۵۰۸ | ۱–۳۶۸ (۷–۳۷۴) | نمایه‌ها تا ص ۵۰۸؛ بخش دوم (ارجاع‌های ص ۵۰۹–۹۶۰) در پرونده نیست |
+| کتابخانۀ دکتر مهدی محقق (۱۳۸۳) | ۶۵۷ | `mohaghegh` v1 | ۱۴۵ | ۱–۱۱۵ (۸–۱۲۲) | نمایه‌ها ص ۱۱۶–۱۳۵ |
+| میراث اسلامی ایران ۹ (۱۳۷۷) | ۷۰۷ | `miras-eslami` v9 | ۶۸۹ | ۱۳–۶۸۴ (۱۸–۶۸۹) | کتابخانۀ نمازی خوی ص ۷۴–۱۰۶ |
+| میراث اسلامی ایران ۱۰ (۱۳۷۸) | ۷۰۸ | `miras-eslami` v10 | ۸۰۱ | ۱۰–۷۹۵ (۱۵–۸۰۰) | نمازی و رجائی زفره‌ای |
+
+- **تصویرها:** `extract_edition_pages.py --map … --width 1100 --mupdf --out <main>/storage/app/public/catalogs`: ۲٬۳۰۴ برگه (۴۰ + ۳۳ + ۷٫۷ + ۱۲۸ مگابایت).
+- **پوشش (`fahares_prod`):** ۲٬۷۲۴ ارجاع؛ روی برگه ۸۹۶ از ۸۹۶، ۷۴۵ از ۱٬۳۴۳، ۲۰۸ از ۲۰۹، ۱۵۶ از ۱۵۶ و ۱۲۰ از ۱۲۰ (۲٬۱۲۵). مجلس ۲۳: ۵۹۸ ارجاع بیرون از بازه‌اند، بیشترشان بخش دوم (ص ۵۰۹ به بعد) و چندتایی ص ۳۶۹–۳۸۵ (صفحه‌های نمایه)، و برگه ندارند (`SourceEntry::viewer`، گام ۱۴.۳۲۵). عنوان ردیف #۴۲۷ («جلد بیست و سوم بخش دوم») ارجاع‌های هر دو بخش را دارد و دست نخورد.
+- **سنجش کور** (seed 144180؛ `_fanuus/check`؛ از هر جلد ۴ ارجاع و ۱ فریب، بی متن ارجاع): ۵ از ۵ فریب «نه». از ۲۰ ارجاع ۱۷ «بله». سه «نه» با دیدن برگه درست‌اند: «دیوان فرخی» ص ۵۸ ج ۲۲ ردیف ۲ مجموعۀ پیش از ۱۶۹ است (فنخا 169/2)، «حرز الامانی» ص ۲۲۷ ج ۲۳ زیر ۹۱۴ است (فنخا 920/1)، و «مراثی» بی‌شمارۀ میراث ۱۰ ص ۷۵۱ همان «بیاض: چند مجلس روضه» است.
+- **تمرین (`fahares_prod`):** `catalogs:set-facsimiles --data=<worktree>/database/data/catalog_facsimiles.json`: «0 created, 5 updated, 262 unchanged»؛ اجرای خشک دوم «0 updated, 267 unchanged». نسخه‌های ۱۰۶۵۴ (`majlis/v23/p0285`)، ۲۶۰۲۳۳ (`mohaghegh/v01/p0079`) و ۲۹۸۴۵۷ (`miras-eslami/v10/p0760`) برگه نشان می‌دهند و ۱۰۷۰۷ (بخش دوم، ص ۷۰۷) نه.
+- **برگۀ پیگیری:** `_bi-tasvir/overrides.tsv` برای ۴۲۶، ۴۲۷، ۶۵۷، ۷۰۷ و ۷۰۸ «have» و در `results.tsv` «mapped».
+- **پس از انتشار:** انتقال چهار پوشۀ برگه به سرور (روش `f58-work/send.sh`)، پشتیبان، و `scripts/dev/prod-run fanuus-facsimiles -- 'php artisan catalogs:set-facsimiles'`.
+
 ### گام ۱۴.۴۱۹: فیلدهای `incipit_*` و `explicit_*`
 - **`SuggestionRegistry`:** `QUOTE_ITEMS` (ستون ← پیشوند، کلید `metadata`، واژه)؛ `quoteList()` فهرست خام نسخه (یا ستون به‌عنوان یک مورد)؛ `quoteItemName()` (ده رقم نخست md5 متن)، `quoteItemField()`، `quoteItem()`. `recordFields` نسخه برای فهرست بیش از یک مورد، هر مورد را فیلد می‌کند و برای فهرست ناتهی `incipit_new`/`explicit_new` می‌دهد. `fieldOf` و `currentValue` این فیلدها را می‌شناسند.
 - **`SuggestionApplier::quoteItem`:** افزودن، بازنویسی و حذف یک مورد؛ `metadata[incipits|explicits]` و ستون با هم نوشته می‌شوند؛ `resolution.field_name` مثل عنوان دیگر اثر.
