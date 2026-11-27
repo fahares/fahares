@@ -3336,6 +3336,26 @@
   },
   {
    "library_slug": "thran-norbkhsh-18",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد اول",
+   "facsimile_code": "nurbakhsh",
+   "page_first": 1,
+   "page_last": 235,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/1932 - فهرست نسخه هاي خطي كتابخانه نوربخش ج1.pdf"
+     ],
+     "leaf_maps": [
+      "nurbakhsh/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1932",
+     "step": "14.439"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-norbkhsh-18",
    "volume_number": 2,
    "title": "فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد دوم",
    "facsimile_code": "nurbakhsh",

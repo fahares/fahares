@@ -33,7 +33,11 @@ class RecordSources
      */
     public function cards(): Collection
     {
-        return $this->ranked($this->shown()->filter(fn (SourceEntry $e) => $e->source_id));
+        // one card for one printed entry, though two rows tie the record to it (step 14.438): a reviewed one if any
+        return $this->ranked($this->shown()->filter(fn (SourceEntry $e) => $e->source_id))
+            ->sortBy(fn (SourceEntry $e) => $e->status === SourceEntry::STATUS_UNVERIFIED)
+            ->unique(fn (SourceEntry $e) => $e->source_item_id ? $e->source_item_id . '|' . $e->role : 'e' . $e->id)
+            ->sortKeys()->values();
     }
 
     /**
