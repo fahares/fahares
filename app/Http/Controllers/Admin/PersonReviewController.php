@@ -48,6 +48,10 @@ class PersonReviewController extends Controller
             $query->leftJoinSub(CollectiveReview::agreement($queue), 'agreement', 'agreement.review_item_id', '=', 'person_reviews.id')
                 ->select('person_reviews.*')->orderByRaw('COALESCE(agreement.agreement, 0) DESC');
         }
+        // the widest sure gap between a record's copies first (step 14.430)
+        if ($type === 'mixed') {
+            $query->orderByRaw(MixedRecordQueue::GAP_SQL . ' DESC');
+        }
         $reviews = $query->orderByRaw("person_reviews.tier = 'likely' desc")->orderBy('person_reviews.id')->paginate(15)->withQueryString();
         $opinions = CollectiveReview::opinionsOn($reviews->getCollection()->map(fn ($r) => [$queue, $r->id])->all(), true);
 

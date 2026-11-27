@@ -220,6 +220,16 @@
                 </p>
             @endif
 
+            {{-- A record whose copies surely lie more than a lifetime apart (backlog item 125, step 14.430): its card in «تصحیح جمعی» --}}
+            @if($person->isMixedScribe())
+                @php $mixedReview = \App\Models\PersonReview::where('type', 'mixed')->where('key', 'person:' . $person->id)->whereIn('status', ['open', 'deferred'])->value('id'); @endphp
+                <p class="text-sm text-muted" data-person-mixed>
+                    <span class="text-xs font-bold text-amber-800 dark:text-amber-300">چند کاتب هم‌نام؟</span>
+                    <span>تاریخ نسخه‌هایی که به نام این شخص ثبت شده‌اند دست‌کم {{ Fa::num($person->scribed_gap) }} سال از هم دور است؛ بیش از عمر یک نفر. شاید چند کاتب هم‌نام در این رکورد آمده‌اند.</span>
+                    @if($mixedReview)<a href="{{ route('contribute.show', ['mixed', $mixedReview]) }}" class="text-cinnabar hover:underline">بگویید کدام نسخه‌ها از کس دیگری است</a>@endif
+                </p>
+            @endif
+
             {{-- Where the person was and when, read from their dated copies and works that name a place (item 139, step 14.207) --}}
             @php $places = \App\Support\PersonPlaces::for($person); @endphp
             @if($places)
