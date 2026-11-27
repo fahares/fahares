@@ -14749,3 +14749,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اندازه** (`dimensions` یا نخستین «a×b» متن؛ ناهمسانی بیش از ۱٫۳ برابر در هر بُعد): ۲۰ کلید، ۷۲ نسخه: `docs/plans/collection-overlaps/two-volumes-suspected.tsv` (کتابخانه، کلید، شناسۀ نسخه، شماره، اثر، برگ، اندازه، ارجاع). شناسه‌ها شناسۀ production‌اند.
 - **«مکرر»:** ۳۶ نسخه؛ با جزء: سپهسالار 569/1 و 569/2 (۱۵×۲۳ مانند 569)، علوم پزشکی 238/20 و 275/2، مجلس 4339/5، مروی 628/1، و مجلس 5187/1 و 5187/2 (`#245715`، `#15957`). فقط دو نسخۀ آخر مجلد دیگری‌اند. شمارۀ بی‌جزء «N مکرر» از پیش کلید جدای «N مکرر» می‌گیرد.
 - **اجرا در تولید (۶ آذر ۱۴۰۵):** همان کار `Admin\ManuscriptController::moveCollection` در tinker: `ManuscriptCollection::firstOrCreate([library_id, key => '5187-مکرر'])`، `collection_id` و `collection_pinned = true`، و لاگ `verify` با `direct_edit` (`user_id` تهی). `collection_key` همان «5187» می‌ماند، چون نسخۀ ثابت‌شده را `Collections::sync` جابه‌جا نمی‌کند (روی `fahares_prod` آزموده شد). پشتیبان ۱۵ نسخۀ کلید 5187 و رکورد مجموعه: `../fahares-sources/backups/step13/step14_442_before_5187_prod_20261127.json` (md5 `c445d429a7c04d50fa943646e34023c2`). نتیجه: مجموعۀ ۱۱۷۸۵ «5187» با ۱۳ رساله، و ۶۷۶۲۲ «5187-مکرر» با ۲.
+
+### گام ۱۴.۴۴۴: `fahares:fix-copy-side-findings`
+- **فایل تصمیم:** `database/data/step14_444_copy_side_fixes.json`.
+  - `dates` و `scribe_names`: هر نسخه با شهر، کتابخانه، شمارۀ نسخه و slug اثر شناخته می‌شود و فقط وقتی تغییر می‌کند که فیلدش هنوز `from` باشد.
+  - `photo_citations`: قاعده‌ای با `library`، `from` و `to` (کد منبع)، نه فهرست مدخل‌ها.
+- **تاریخ:** `copy_date_raw` تازه با `CopyDateRange::parse` و `HijriYear::parse` به بازه و سال مرتب‌سازی می‌رسد. «1313ش و 1314ش» بازۀ ۱۳۵۲ تا ۱۳۵۳ می‌دهد؛ شکل «1313-1314ش» را `CopyDateRange` قمری می‌خواند و به کار نرفت.
+- **کاتب:** `scribe_name` خالی می‌شود و ردیف نام‌دار بی‌شخص همان نام در `manuscript_people`، اگر باشد، حذف می‌شود. نسخۀ ۳۰۵۱۹۸ چنین ردیفی نداشت.
+- **ارجاع‌ها:**
+  - مدخل‌های `fankha_citation` منبع `from` که نسخه‌شان در کتابخانۀ قاعده است و `citation_text`شان با «[عکسی» آغاز می‌شود به جلدِ هم‌شمارۀ منبع `to` می‌روند.
+  - `cataloger_id` از بیشترِ مدخل‌های همان جلد گرفته می‌شود: جلد ۱ و ۲ ← ۵۸، جلد ۳ تا ۵ ← ۴.
+  - مدخل‌ها متن (`copy_text`) و `source_item_id` نداشتند (`text_status` = none)، پس چیز دیگری عوض نشد.
+  - نمونۀ وارسی: فهرست عکسی جلد ۵ ص ۳۹۵ تا ۳۹۹ شماره‌های ۱۹۷۷ تا ۱۹۸۵ را دارد، و ارجاع ۱۹۹۴/۲ به ص ۴۰۶ می‌رود.
+- **شمارش‌ها:** `FixScriptScribeLeftoversCommand`، `FixDescriptivePeopleCommand` و این فرمان شمارش‌ها و فهرست‌های درونی را در آغاز `handle()` صفر می‌کنند. کانتینر یک شیء فرمان را به چند فراخوانی در یک فرایند می‌دهد، و در آزمون اجرای دوم شمارش اجرای نخست را هم داشت.
+- **رونوشت پروداکشن:** dates ۴، scribe_names ۱، citations ۶۴. اجرای دوم: already ۵ و citations ۰.
+- **آزمون:** `DescriptiveLeftoversTest::test_side_findings_mend_dates_a_scribe_and_photo_citations_once`.
