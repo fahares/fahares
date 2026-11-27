@@ -26,6 +26,7 @@ fahares.code-workspace
 !/storage/framework/sessions/.gitignore
 /storage/framework/views/*
 !/storage/framework/views/.gitignore
+/storage/framework/testing-*.json
 .phpunit.result.cache
 .phpunit.cache
 
