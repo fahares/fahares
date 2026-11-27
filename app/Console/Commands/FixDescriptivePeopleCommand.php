@@ -48,6 +48,9 @@ class FixDescriptivePeopleCommand extends Command
 
     public function handle(): int
     {
+        // a fresh count each run: the container hands out the same command object to each call in one process
+        $this->counts = array_map(fn () => 0, $this->counts);
+        $this->people = $this->works = $this->copies = [];
         $this->apply = (bool) $this->option('apply');
         $data = json_decode((string) file_get_contents(base_path($this->option('file'))), true, flags: JSON_THROW_ON_ERROR);
 

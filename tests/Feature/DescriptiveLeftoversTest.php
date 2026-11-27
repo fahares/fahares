@@ -6,6 +6,9 @@ use App\Console\Commands\RebuildScriptsCommand;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Script;
+use App\Models\Source;
+use App\Models\SourceEntry;
+use App\Models\SourceVolume;
 use App\Models\Work;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -166,6 +169,44 @@ class DescriptiveLeftoversTest extends TestCase
 
         // a second run finds nothing left
         $this->artisan('fahares:fix-descriptive-people', ['--file' => $file])->expectsOutputToContain('already             5')->assertSuccessful();
+        @unlink(base_path($file));
+    }
+    /** Step 14.444: dates and a scribe name from the printed page, and photographic-copy citations moved to their catalogue. */
+    public function test_side_findings_mend_dates_a_scribe_and_photo_citations_once()
+    {
+        config(['scout.driver' => 'collection']);
+        $work = $this->work();
+        $typed = $this->copy($work, '130/1 سرود', ['city' => 'تهران', 'library' => 'مجلس', 'copy_date_raw' => '1314ق', 'copy_date_from' => 1314, 'copy_date_to' => 1314]);
+        $set = $this->copy($work, '11677', ['city' => 'تهران', 'library' => 'مجلس', 'scribe_name' => 'حروچینی']);
+        $photo = $this->copy($work, '1609 عکسی');
+        $main = Source::create(['code' => 'test-marashi-main', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'فهرست خطی مرعشی']);
+        $akasi = Source::create(['code' => 'test-marashi-akasi', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'فهرست عکسی مرعشی']);
+        $mainVolume = SourceVolume::create(['source_id' => $main->id, 'volume_number' => 5]);
+        $akasiVolume = SourceVolume::create(['source_id' => $akasi->id, 'volume_number' => 5]);
+        $cataloger = DB::table('catalogers')->insertGetId(['name' => 'فهرست‌نگار آزمایشی', 'slug' => 'cataloger-' . uniqid()]);
+        $other = $this->copy($work, '1602 عکسی');
+        $entry = fn (Manuscript $m, int $source, int $volume, string $text, ?int $by = null) => SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $m->id,
+            'source_id' => $source, 'source_volume_id' => $volume, 'volume_number' => 5, 'page_start' => 16, 'citation_text' => $text,
+            'legacy_type' => 'fankha_citation', 'cataloger_id' => $by, 'origin' => SourceEntry::ORIGIN_MANUAL]);
+        $entry($other, $akasi->id, $akasiVolume->id, '[عکسی: ف: 5-5]', $cataloger);
+        $wrong = $entry($photo, $main->id, $mainVolume->id, '[عکسی مرعشی: ف: 5-16]');
+        $mixed = $entry($this->copy($work, '10966/4'), $main->id, $mainVolume->id, '[ف: 5 - 377 و عکسی ف: 4 - 274]');
+
+        $file = $this->file([
+            'dates' => [['city' => 'تهران', 'library' => 'مجلس', 'shelfmark' => '130/1 سرود', 'work' => $work->slug, 'from' => '1314ق', 'copy_date_raw' => '1313ش و 1314ش', 'page' => 'test']],
+            'scribe_names' => [['city' => 'تهران', 'library' => 'مجلس', 'shelfmark' => '11677', 'work' => $work->slug, 'from' => 'حروچینی', 'page' => 'test']],
+            'photo_citations' => [['library' => 'مرعشی', 'from' => 'test-marashi-main', 'to' => 'test-marashi-akasi']],
+        ]);
+
+        $this->artisan('fahares:fix-copy-side-findings', ['--file' => $file])->expectsOutputToContain('Dry run')->assertSuccessful();
+        $this->artisan('fahares:fix-copy-side-findings', ['--file' => $file, '--apply' => true])->assertSuccessful();
+
+        $this->assertSame(['1313ش و 1314ش', 1352, 1353, 1352], [$typed->fresh()->copy_date_raw, $typed->fresh()->copy_date_from, $typed->fresh()->copy_date_to, $typed->fresh()->copy_date_hijri_year]);
+        $this->assertNull($set->fresh()->scribe_name);
+        $this->assertSame([$akasi->id, $akasiVolume->id, $cataloger], [$wrong->fresh()->source_id, $wrong->fresh()->source_volume_id, $wrong->fresh()->cataloger_id]);
+        $this->assertSame($main->id, $mixed->fresh()->source_id, 'a citation that names the main catalogue first stays');
+
+        $this->artisan('fahares:fix-copy-side-findings', ['--file' => $file])->expectsOutputToContain('citations         0')->assertSuccessful();
         @unlink(base_path($file));
     }
 }
