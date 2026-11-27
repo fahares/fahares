@@ -274,7 +274,7 @@
                             <li class="py-4 space-y-1.5" data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
                                 <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                                     <a href="{{ route('manuscripts.show', $ms) }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($ms->work?->primary_title ?? 'نسخۀ بی‌عنوان', $query)</a>
-                                    @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
+                                    @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">{{ $ms->autograph_label }}</x-ui.chip>@endif
                                     @if($ms->century_text)<span class="ms-auto text-xs text-muted whitespace-nowrap">{{ Fa::digits($ms->century_text) }}</span>@endif
                                 </div>
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
@@ -288,7 +288,7 @@
                                     @if($ms->scribe_name)
                                         <span>کاتب: @highlight($ms->scribe_name, $query) <x-ui.life :person="$ms->scribe" /></span>
                                     @elseif($ms->is_autograph)
-                                        <span>کاتب: <span class="text-emerald-700 dark:text-emerald-300">مؤلف</span></span>
+                                        <span>کاتب: <span class="text-emerald-700 dark:text-emerald-300">مؤلف{{ $ms->autograph_hedge ? " ({$ms->autograph_hedge})" : "" }}</span></span>
                                     @endif
                                     @if($ms->copy_date_raw)
                                         <span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>

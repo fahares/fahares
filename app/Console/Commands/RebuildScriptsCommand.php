@@ -26,9 +26,20 @@ class RebuildScriptsCommand extends Command
 
     protected $description = 'Recompute the scripts of every copy from its raw «خط:» line and relink the ones that differ';
 
-    /** The «خط:» value: up to the next field, the scribe, the date, the place or a codicological note. */
+    /**
+     * The «خط:» value: up to the next field, the scribe, the date, the place or a codicological note; and, since step
+     * 14.434 (backlog item 52), up to a full stop before words that name no script, or a «،» before five words or more that name no script:
+     * «خط: پهلوی، اشعار چهار ستونی فارسی ثبت شده …» is «پهلوی», «خط: نستعلیق خوش. دستورهای قرائت با جوهر قرمز» is
+     * «نستعلیق خوش», and «خط: نستعلیق. آیات نسخ معرب» stays whole.
+     */
     // Same stops as SCRIPT_STOP in the corpus parser
-    public const LINE = '/خط:\s*(.*?)(?=[؛\n\[]|،\s*(?:کا:|کاتب:|محرر:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d|مختلف[‌\s]السطو?ر)|$)/u';
+    public const LINE = '/خط:\s*(.*?)(?=[؛\n\[]|،\s*(?:کا:|کاتب:|محرر:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d|مختلف[‌\s]السطو?ر)'
+        . '|(?<!\d)\.\s+(?![^،؛\n\[]*(?:' . self::SCRIPT_WORDS . '))(?=\D)'
+        . '|،\s*(?![^،؛\n\[]*(?:' . self::SCRIPT_WORDS . '))(?=(?:[^\s،؛\n\[]+\s+){4}[^\s،؛\n\[]+)|$)/u';
+
+    /** Words that make a part of the «خط:» value a script, for the stop before a long phrase (also «نسخه»: kept, to be safe) */
+    public const SCRIPT_WORDS = 'نسخ|نستعلیق|شکسته|تعلیق|ثلث|رقاع|رقعه|رقعی|کوفی|ریحان|محقق|توقیع|غبار|دیوانی|سیاق|مغربی|بهار|تحریری|تایپی|لاتین'
+        . '|پهلوی|ارمنی|عبری|سریانی|گرجی|اویغوری|دیونا|اوستایی|سنسکریت|چاپی|سنگی|خط|کتابت|قلم';
 
     public function handle(): int
     {

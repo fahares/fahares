@@ -129,7 +129,7 @@
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">
             @if($manuscript->copy_date_raw)<x-ui.chip>کتابت {{ Fa::digits($manuscript->copy_date_raw) }}</x-ui.chip>@endif
             @if($manuscript->script_names)<x-ui.chip>{{ $manuscript->script_names }}</x-ui.chip>@endif
-            @if($manuscript->is_autograph)<x-ui.chip tone="good">دستخط مؤلف</x-ui.chip>@endif
+            @if($manuscript->is_autograph)<x-ui.chip tone="good">{{ $manuscript->autograph_label }}</x-ui.chip>@endif
             @if($manuscript->is_illuminated)<x-ui.chip tone="accent">مذهّب</x-ui.chip>@endif
             @if($manuscript->is_illustrated)<x-ui.chip tone="accent">مصوّر</x-ui.chip>@endif
             @if($manuscript->is_distinct_work)<x-ui.chip title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">اثر متمایز</x-ui.chip>@endif
@@ -340,7 +340,7 @@
                         @elseif($manuscript->is_autograph)
                             @php $autographPerson = $manuscript->work?->effective_author ?? $manuscript->scribe; @endphp
                             @if($autographPerson)
-                                <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }})</a>
+                                <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }}{{ $manuscript->autograph_hedge ? "، {$manuscript->autograph_hedge}" : "" }})</a>
                                 <x-ui.life :person="$autographPerson" />
                             @else
                                 <span class="font-semibold text-emerald-700 dark:text-emerald-400">مؤلف (نسخۀ اصل)</span>
