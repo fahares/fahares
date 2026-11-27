@@ -94,6 +94,48 @@ class MoveCitedPartTest extends TestCase
         $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('Moved 0 copies.')->assertSuccessful();
     }
 
+    public function test_a_name_ending_in_a_number_matches_that_number_only()
+    {
+        $this->assertTrue(MoveCitedPartCommand::names('[نشریه: 13-39]', 'نشریه: 13'));
+        $this->assertTrue(MoveCitedPartCommand::names('[نشریه: ۱۳ - 239]', 'نشریه: 13'));
+        $this->assertFalse(MoveCitedPartCommand::names('[نشریه: 130 - 5]', 'نشریه: 13'));
+        $this->assertFalse(MoveCitedPartCommand::names('[نشریه: 10 - 67]', 'نشریه: 13'));
+        $this->assertTrue(MoveCitedPartCommand::names('[رشت و همدان: ف: - 1338]', 'رشت و همدان'));
+        $this->assertFalse(MoveCitedPartCommand::names('[ف: 1-180]', 'نشریه: 13'));
+    }
+
+    /** Backlog item 151 (step 14.428): Nurbakhsh vol. 1 copies cited in issue 13 of the Tehran University journal. */
+    public function test_copies_cited_in_a_journal_issue_move_to_that_issue()
+    {
+        $library = Library::create(['name' => 'نوربخش', 'city' => 'تهران', 'slug' => 'nurbakhsh-mcp-' . uniqid()]);
+        $fankha = Catalog::firstOrCreate(['code' => 'fankha'], ['name' => 'فهرستگان نسخه‌های خطی ایران', 'short_name' => 'فنخا']);
+        $own = CatalogVolume::create(['title' => 'فهرست نوربخش آزمایشی - جلد اول ' . uniqid(), 'volume_number' => 1, 'library_id' => $library->id, 'catalog_id' => $fankha->id]);
+        $issue = CatalogVolume::create(['title' => 'نشریه آزمایشی - دفتر 13 ' . uniqid(), 'volume_number' => 13, 'library_id' => null, 'catalog_id' => $fankha->id]);
+        $work = Work::create(['primary_title' => 'رساله', 'clean_title' => 'رساله', 'slug' => 'work-mcp-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $copy = fn (string $shelf, string $citation) => Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelf,
+            'catalog_volume_id' => $own->id, 'volume_number' => 1, 'page_start' => 1, 'sequence_number' => 1, 'metadata' => ['catalog_citation' => $citation]]);
+        $tight = $copy('1', '[نشریه: 13-39]');
+        $spaced = $copy('2', '[نشریه: 13 - 239]');
+        $other = $copy('3', '[نشریه: 130 - 5]');
+        $own1 = $copy('4', '[ف: 1-180]');
+        $ids = [$tight->id, $spaced->id, $other->id, $own1->id];
+        SourceEntrySync::syncCited(\App\Support\EntryColumns::query('manuscripts', ['id', 'catalog_citation', 'raw_text', 'catalog_volume_id'])->whereIn('manuscripts.id', $ids)->get());
+        $args = ['--library' => $library->slug, '--names' => 'نشریه: 13', '--from' => $own->title, '--to' => $issue->title];
+
+        $this->artisan('catalogs:move-cited-part', $args)->expectsOutputToContain('2 copies to move')->expectsOutputToContain('Dry run')->assertSuccessful();
+        $this->assertSame($own->id, $tight->fresh()->citedEntry?->source_volume_id);
+
+        $this->artisan('catalogs:move-cited-part', $args + ['--apply' => true])->expectsOutputToContain('Moved 2 copies.')->assertSuccessful();
+        $this->assertSame([$issue->id, $issue->id, $own->id, $own->id],
+            array_map(fn ($id) => Manuscript::find($id)->citedEntry?->source_volume_id, $ids));
+        $this->assertSame($library->id, $tight->fresh()->library_id);
+        $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $spaced->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->sole();
+        $this->assertSame([$issue->id, 239], [$entry->source_volume_id, $entry->page_start]);
+        $this->assertSame(2, AuditLog::whereIn('auditable_id', $ids)->where('auditable_type', Manuscript::class)->where('new_values->catalog_volume_id', $issue->id)->count());
+
+        $this->artisan('catalogs:move-cited-part', $args + ['--apply' => true])->expectsOutputToContain('Moved 0 copies.')->assertSuccessful();
+    }
+
     public function test_copies_whose_citation_gives_another_volume_move_to_it()
     {
         $library = Library::create(['name' => 'دائرةالمعارف', 'city' => 'تهران', 'slug' => 'dia-mcp-' . uniqid()]);
