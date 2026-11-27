@@ -27,7 +27,7 @@
                     <p class="text-stone-500 leading-relaxed">نشانی همین صفحه همراه گزارش فرستاده می‌شود. برای اصلاح اطلاعات یک نسخه، اثر، شخص یا کتابخانه، دکمۀ «پیشنهاد اصلاح» در صفحۀ همان رکورد دقیق‌تر است.</p>
                     <div class="space-y-1.5">
                         <span class="block font-semibold text-ink">موضوع:</span>
-                        @foreach(\App\Suggestions\SuggestionRegistry::FEEDBACK_CATEGORIES as $key => $label)
+                        @foreach(\Illuminate\Support\Arr::except(\App\Suggestions\SuggestionRegistry::FEEDBACK_CATEGORIES, ['contact']) as $key => $label)
                             <label class="flex items-center gap-2"><input type="radio" value="{{ $key }}" x-model="category" class="text-cinnabar"> {{ $label }}</label>
                         @endforeach
                     </div>

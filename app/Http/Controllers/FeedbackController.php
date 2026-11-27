@@ -20,7 +20,7 @@ class FeedbackController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category' => ['required', Rule::in(array_keys(SuggestionRegistry::FEEDBACK_CATEGORIES))],
+            'category' => ['required', Rule::in(array_keys(\Illuminate\Support\Arr::except(SuggestionRegistry::FEEDBACK_CATEGORIES, ['contact'])))],
             'message' => 'required|string|min:5|max:5000',
             'page_url' => 'nullable|string|max:2000',
             'page_title' => 'nullable|string|max:300',
