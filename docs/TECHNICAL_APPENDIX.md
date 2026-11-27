@@ -14547,10 +14547,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **قالب‌ها:** `works/show` و `manuscripts/show` کارت‌ها، گروه کارت‌ها، `texts()` و فهرست `cards()` مآخذ کتاب‌شناسی را با `$visibility->filter` می‌گذرانند. توضیح JSON-LD اثر تنها وقتی از متن فنخا ساخته می‌شود که فنخا نمایش داده شود. پوشش `data-suggest-only` و ویژگی `suggestOnly` از `x-source.secondary` حذف شد.
 - **پنل:** `Admin\SourceController::update` وقتی `visibility` فرستاده شود، `audience_roles[]`، `audience_scholars` و `audience_users` (شناسه یا ایمیل، با رقم فارسی یا لاتین) را هم می‌پذیرد. کاربر ناشناخته رد می‌شود.
 - **آزمون:** `CatalogReferencesTest::test_a_sources_visibility_decides_who_gets_it_on_the_record_page` و `test_the_admin_sets_a_sources_visibility_and_audience`. شش آزمون پیشینِ دیدن فنخا کنار مأخذ دست اول (سه در `CatalogReferencesTest`، دو در `SourcePagesTest` و یکی در `SourceCorrectionsTest`) اکنون با کاربر ویراستار اجرا می‌شوند.
+
 ### گام ۱۴.۴۲۷: `insights/charts/places.blade.php`
 - هر `<circle>` نقشۀ ثابت (`x-show="! ready"`) `data-tip="<شهر>: <Fa::num(count)> نسخه"` گرفت و با `resources/js/chart-tip.js` همان کادر `[data-chart-tip]` نمودارهای دیگر را نشان می‌دهد. `<title>` SVG گذاشته نشد تا راهنمای مرورگر دوباره نیاید.
 - بازبینی: در هر صفحۀ موضوعی، شکل‌های SVG بی `data-tip` فقط نماد دکمۀ پوسته و نقشۀ پایه‌اند.
 - **آزمون:** `InsightsMapTest::test_the_places_page_carries_the_map_its_data_and_the_still_map`.
+
 ### گام ۱۴.۴۲۸: `MoveCitedPartCommand::names()` و نوربخش ج ۱ (مورد ۱۵۱)
 - **کد:** تطبیق `--names` از `str_contains` به `MoveCitedPartCommand::names($citation, $name)` رفت. هر دو با `LinkCatalogVolumesCommand::normalize` یکسان می‌شوند (رقم‌ها لاتین). اگر نام به رقم ختم شود، `(?!\d)` پس از آن می‌آید: «نشریه: 13» با «نشریه: 13-39» و «نشریه: ۱۳ - 239» جور است و با «نشریه: 130 - 5» نه. ارجاع از `ce.citation_text` خوانده می‌شود (`EntryColumns`)، پس پاک شدن `metadata.catalog_citation` (مورد ۱۷۰) اثری ندارد.
 - **آزمون:** `MoveCitedPartTest::test_a_name_ending_in_a_number_matches_that_number_only` و `test_copies_cited_in_a_journal_issue_move_to_that_issue`.
