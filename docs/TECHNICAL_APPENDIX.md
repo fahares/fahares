@@ -14538,3 +14538,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `conversation` فرم را همیشه (نه فقط با `$thread` یا پس از تصمیم) با `inConversation => true` می‌گذارد؛ متن «پرسش از پیشنهاددهنده در پنل تصمیم است» حذف شد.
 - `ask-form`: پارامتر `$inConversation`؛ شناسۀ فیلد بی‌نامه در جعبۀ گفت‌وگو `conversation-ask-body` است تا با `ask-body` پنل تصمیم یکی نشود، و عنوان «پرسش از پیشنهاددهنده» می‌گیرد.
 - **آزمون:** `MessagingTest::test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+
+### گام ۱۴.۴۳۱: `ContactController`، `pages/contact.blade.php` و `config/contact.php`
+- مسیرها: `GET /contact` (`contact`) و `POST /contact` (`contact.store`، `throttle:5,60`).
+- `config/contact.php`: `email` (`CONTACT_EMAIL`، پیش‌فرض info@fahares.net) و `phones`. پیوندها از شماره ساخته می‌شوند: `https://wa.me/<digits>` و `https://t.me/+<digits>`. ایتا پیوند با شماره ندارد و فقط با `eitaa` (نام کاربری) `https://eitaa.com/<username>` می‌گیرد.
+- `store`: یک `FieldSuggestion` با `kind = feedback` و `field_name = contact` می‌سازد و `payload` آن `url = /contact`، `title` و `subject` است. موضوع در آغاز `suggested_value` («موضوع: …») هم می‌آید تا پنل آن را نشان دهد. مهمان نام و ایمیل لازم دارد و `notify_submitter = true` می‌گیرد. کاربر واردشده با نام و ایمیل حسابش ثبت می‌شود. سپس `SuggestionNotifier::submitted` اجرا می‌شود.
+- هرزنامه: فیلد پنهان `website` (باید خالی باشد)، و `started` که `encrypt(timestamp)` هنگام ساخت صفحه است. ارسال زودتر از `ContactController::MIN_SECONDS` (۳ ثانیه) یا با مقدار جعلی پذیرفته نمی‌شود.
+- `SuggestionRegistry::FEEDBACK_CATEGORIES` دستۀ `contact` گرفت. پنجرۀ بازخورد (`components/feedback.blade.php`) و `FeedbackController` آن را با `Arr::except` کنار می‌گذارند.
+- پیوندها: پانویس «دسترسی سریع» و منوی تاشوی سربرگ. نوار پهن سربرگ جای پیوند تازه نداشت. `SitemapController` (اولویت ۰٫۴) و `VisitStatsController::PAGE_LABELS` هم به‌روز شدند.
+- **آزمون:** `ContactPageTest` (پنج آزمون).

@@ -31,6 +31,7 @@ class VisitStatsController extends Controller
     private const PAGE_LABELS = [
         'home' => 'صفحۀ خانه',
         'about' => 'درباره ما',
+        'contact' => 'تماس با ما',
         'insights' => 'بینش‌ها',
         'sources.index' => 'منابع و مراجع',
         'libraries.index' => 'کتابخانه‌ها',
