@@ -14610,6 +14610,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
   - `estimate-dates` (شمارش، بی `--apply`): ۲۷۶٬۲۹۵ ← ۲۷۶٬۲۸۵ تاریخ مستند. `composition > copy` مستقیم ۱٬۷۶۵ ← ۱٬۷۶۴. غیرمستقیم: `scribe copy > death` ۲٬۶۳۹ ← ۲٬۶۰۹، `scribe birth > copy` ۱٬۸۷۴ ← ۱٬۸۶۸، `life death > copy` ۹۷۸ ← ۹۷۲. تخمین کتابت ۵۳٬۴۹۳ ← ۵۳٬۵۱۰.
 - **برای پروداکشن:** با پشتیبان ستون‌های تاریخ این ده نسخه، `DerivedData::syncCopies([60017, 64592, 80209, 96987, 120795, 156824, 203305, 253849, 305895, 312851], null)` و سپس `fahares:estimate-dates --apply`. شناسه‌های `fahares_prod` همان شناسه‌های پروداکشن‌اند.
+- **اجرا در پروداکشن (۶ آذر ۱۴۰۵، پس از انتشار ۳۰۱ که `1a23318c` را داشت):**
+  1. پیش از اجرا، متن و بازۀ ده نسخه در پروداکشن با رونوشت یکی بود (فقط خواندن).
+  2. `prod-run dates-128-134`: `tinker /tmp/p14432.php`. این اسکریپت پشتیبان ستون‌های تاریخ و `collection_key` را می‌گیرد و سپس `DerivedData::syncCopies` را اجرا می‌کند. خروجی: `copies 10, dates 10, collections 0, pointers_linked 1`. بازه‌ها همان جدول تمرین است.
+  3. پشتیبان: `../fahares-sources/backups/step13/step14_432_copies_before.json` (md5 `b4e62d41…`). فایل‌های `/tmp` کانتینر پاک شد.
+  4. `fahares:estimate-dates --apply`: ۲۷۶٬۲۸۷ تاریخ مستند، ۲۲۵٬۱۲۶ تخمین و ۱۲٬۴۰۷ ناسازگاری.
+  5. وارسی: هیچ ناسازگاری مستقیم بازی روی این ده نسخه نیست. `/m/156824` یادداشت «سال کتابت نامعلوم گرفته شد» را نشان می‌دهد و `/m/120795` یادداشت «سال ۱۰۱ برای تاریخ کتابت بسیار کهن است…» را.
 - **آزمون‌ها:** `CopyDateRangeTest::test_a_date_whose_years_are_all_before_200_and_that_no_reading_fits_has_no_range`، موارد تازه در `test_a_three_digit_year_far_before_its_work_…`، و `DerivedDataTest::test_a_copy_year_before_200_is_read_again_without_a_works_date_or_left_without_a_range`.
 
 ### گام ۱۴.۴۳۳: سنجش نوع بازه‌ها (`kind`) برای بستن مورد ۱۳۴
