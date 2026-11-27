@@ -785,6 +785,22 @@ class SuggestionWorkflowTest extends TestCase
         $this->post("/admin/suggestions/{$third->id}/discard-derived")->assertStatus(409);
     }
 
+    /** Step 14.422: an approval as an edit shows the value it replaced, not the new value twice. */
+    public function test_an_edit_in_the_history_of_readings_shows_the_value_before_it()
+    {
+        $m = $this->manuscript(['copy_place' => 'هرات قدیم']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمۀ نسخه', 'credit' => 1, 'credit_name' => 'پژوهشگر آزمون'])->assertOk();
+        $s = $this->pendingFor($m);
+        $this->approve($s, ['outcome' => 'ocr_fix'])->assertRedirect('/admin/suggestions');
+        $s->refresh();
+        $this->assertSame(['edit', 'هرات قدیم', 'هرات'], [$s->standing, $s->current_value, $m->fresh()->copy_place]);
+        if ($s->credit_name) {
+            $this->get(route('manuscripts.show', $m))->assertOk()
+                ->assertSee('ضبط فعلی (پس از ویرایش)')->assertDontSee('ضبط فعلی (فهرست)')
+                ->assertSeeInOrder(['data-before-edit', 'پیش از ویرایش:', 'هرات قدیم'], false);
+        }
+    }
+
     /** Step 14.419: each incipit and explicit of a copy that has several is a field of its own, and one more is added. */
     public function test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself()
     {

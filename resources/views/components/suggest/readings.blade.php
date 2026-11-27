@@ -12,7 +12,7 @@
                     <x-suggest.reading :s="$r['adopted']" :value="$r['value'] ?? null" chosen />
                 @elseif($r['current'] !== null)
                     <div class="flex flex-wrap items-baseline gap-2">
-                        <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60">ضبط فعلی (فهرست)</span>
+                        <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60">{{ $r['history']->contains('standing', 'edit') ? 'ضبط فعلی (پس از ویرایش)' : 'ضبط فعلی (فهرست)' }}</span>
                         <span class="font-bold text-ink whitespace-pre-line">{{ $r['current'] }}</span>
                     </div>
                 @endif

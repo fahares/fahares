@@ -14503,3 +14503,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - شرط پرکردن `author_name`/`scribe_name`: ستون تهی باشد، یا برابر `name` شخصی که پیش‌تر پیوند داشت. عبارت دیگر (نام کوتاه‌تر انجامه، «منسوب به …») دست نمی‌خورد.
 - **آزمون:** `SuggestionWorkflowTest::test_adding_a_second_scribe_and_replacing_an_author`.
 
+### گام ۱۴.۴۲۲: `suggest/reading.blade.php` و `suggest/readings.blade.php`
+- سطر `data-before-edit` برای `standing = edit` وقتی `current_value` پر و جز `display_value` است.
+- برچسب مقدار کنونی از `$r['history']->contains('standing', 'edit')`.
+- **آزمون:** `SuggestionWorkflowTest::test_an_edit_in_the_history_of_readings_shows_the_value_before_it`.
+
