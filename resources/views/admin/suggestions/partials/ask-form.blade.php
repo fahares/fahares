@@ -1,9 +1,11 @@
 {{-- A question to the submitter (before the decision) or a letter (after it); backlog item 91, sent once (step 14.71).
-     $reply: the form under the letters, an answer in the same thread (step 14.96); the decision panel has the other one. --}}
+     $reply: the form under the letters, an answer in the same thread (step 14.96); the decision panel has the other one.
+     $inConversation: the copy in the conversation box, which before any letter asks the first question too (step 14.425). --}}
 @php
     $pending ??= $suggestion->status === 'pending';
     $reply ??= false;
-    $fieldId = $reply ? 'reply-body' : 'ask-body';
+    $inConversation ??= false;
+    $fieldId = $reply ? 'reply-body' : ($inConversation ? 'conversation-ask-body' : 'ask-body');
 @endphp
 @if($suggestion->user_id)
     <form action="{{ route('admin.suggestions.ask', $suggestion) }}" method="POST" class="space-y-2" data-send-once>
@@ -12,9 +14,13 @@
         <label for="{{ $fieldId }}" class="block text-xs text-muted">
             @if($reply)
                 <b class="block text-[13px] text-ink mb-0.5">پاسخ در همین گفت‌وگو</b>
+            @elseif($inConversation && $pending)
+                <b class="block text-[13px] text-ink mb-0.5">پرسش از پیشنهاددهنده</b>
             @endif
             @if($pending && $reply)
                 پیشنهاد تا پاسخ او در تب «منتظر پاسخ» می‌ماند؛ تصمیم را در پنل کناری بگیرید.
+            @elseif($pending && $inConversation)
+                پیشنهاد تا پاسخ او در تب «منتظر پاسخ» می‌ماند.
             @elseif($pending)
                 پرسش از پیشنهاددهنده. پیشنهاد تا پاسخ او در تب «منتظر پاسخ» می‌ماند.
             @else

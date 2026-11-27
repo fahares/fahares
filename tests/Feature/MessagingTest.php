@@ -164,9 +164,10 @@ class MessagingTest extends TestCase
         $submitter = $this->user();
         $s = $this->suggestion($submitter);
 
-        // No letters yet: the question is asked only from the decision panel
+        // No letters yet: the first question is asked from the decision panel or from the conversation box (step 14.425)
         $this->actingAs($editor)->get(route('admin.suggestions.show', $s))->assertOk()
-            ->assertDontSee('id="reply-body"', false)->assertSee('id="ask-body"', false);
+            ->assertDontSee('id="reply-body"', false)->assertSee('id="ask-body"', false)
+            ->assertSeeInOrder(['گفت‌وگو با پیشنهاددهنده', 'id="conversation-ask-body"', 'فرستادن پرسش'], false);
 
         $this->ask($editor, $s);
         $thread = MessageThread::sole();

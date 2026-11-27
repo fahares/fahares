@@ -14533,3 +14533,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `x-ui.quote` در صفحۀ نسخه `:label="$itemLabel"` می‌گیرد، نه `$itemLabel ?? $kind`. `$itemLabel` برای فهرست تک‌متنی بی‌برچسب `null` است.
 - `label` در `x-ui.quote` اختیاری شد و `figcaption` فقط وقتی برچسب یا دکمۀ پیشنهاد هست ساخته می‌شود.
 - **آزمون:** `TextExcerptsTest::test_a_lone_incipit_has_no_label_under_its_section`.
+
+### گام ۱۴.۴۲۵: `admin/suggestions/partials/conversation.blade.php` و `ask-form.blade.php`
+- `conversation` فرم را همیشه (نه فقط با `$thread` یا پس از تصمیم) با `inConversation => true` می‌گذارد؛ متن «پرسش از پیشنهاددهنده در پنل تصمیم است» حذف شد.
+- `ask-form`: پارامتر `$inConversation`؛ شناسۀ فیلد بی‌نامه در جعبۀ گفت‌وگو `conversation-ask-body` است تا با `ask-body` پنل تصمیم یکی نشود، و عنوان «پرسش از پیشنهاددهنده» می‌گیرد.
+- **آزمون:** `MessagingTest::test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.

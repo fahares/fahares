@@ -17,14 +17,12 @@
     @if($thread)
         @include('messages.partials.letters', ['thread' => $thread, 'staffView' => true])
     @elseif($pending)
-        <p class="text-xs text-muted">هنوز پیامی رد و بدل نشده است. پرسش از پیشنهاددهنده در پنل تصمیم است.</p>
+        <p class="text-xs text-muted">هنوز پیامی رد و بدل نشده است.</p>
     @endif
 
-    {{-- The first question is asked from the decision panel (step 14.72); once letters are here, the answer is
-         written right under them (step 14.96), and after the decision a letter --}}
-    @if($thread || ! $pending)
-        <div @class(['pt-3 border-t border-line' => $thread])>
-            @include('admin.suggestions.partials.ask-form', ['reply' => (bool) $thread])
-        </div>
-    @endif
+    {{-- Under the letters an answer in the same thread (step 14.96), after the decision a letter; before any letter
+         the first question can be asked here too, not only from the decision panel (step 14.425) --}}
+    <div @class(['pt-3 border-t border-line' => $thread])>
+        @include('admin.suggestions.partials.ask-form', ['reply' => (bool) $thread, 'inConversation' => true])
+    </div>
 </x-ui.card>
