@@ -14499,3 +14499,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`suggest/desk.blade.php`:** `adds` برای `quote_item = new`.
 - **آزمون:** `SuggestionWorkflowTest::test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself`.
 
+### گام ۱۴.۴۲۰: `ContributorRelations::set` و نام شخص قبلی
+- شرط پرکردن `author_name`/`scribe_name`: ستون تهی باشد، یا برابر `name` شخصی که پیش‌تر پیوند داشت. عبارت دیگر (نام کوتاه‌تر انجامه، «منسوب به …») دست نمی‌خورد.
+- **آزمون:** `SuggestionWorkflowTest::test_adding_a_second_scribe_and_replacing_an_author`.
+
