@@ -1145,7 +1145,7 @@ _مورد ۳۴ در فاز ۵ مورد ۸۳ انجام شد (گام ۱۳.۴۲) �
   - [repeated-parts.tsv](plans/collection-overlaps/repeated-parts.tsv): ۴٬۱۹۸ نسخه، با کتابخانه، شماره، جلد و صفحه‌ی فنخا، و ارجاع به فهرست مأخذ.
   - [repeated-parts-by-catalogue.tsv](plans/collection-overlaps/repeated-parts-by-catalogue.tsv): شمار نسخه‌ها به تفکیک کتابخانه و جلد فهرست.
   - گزارش: [collection-overlaps](plans/collection-overlaps.md).
-  - [two-volumes-suspected.tsv](plans/collection-overlaps/two-volumes-suspected.tsv) (گام ۱۴.۴۴۲): ۲۰ کلید مسجد اعظم، سپهسالار و مجلس که شمارۀ رسالۀ تکراری‌شان اندازۀ بسیار ناهمسان دارد و شاید دو مجلد باشند. نیز مجلس «5187/1 مکرر» و «5187/2 مکرر» (۱۰×۱۷، «[ف: 16-12]») مجلد جدای «5187-مکرر» است.
+  - [two-volumes-suspected.tsv](plans/collection-overlaps/two-volumes-suspected.tsv) (گام ۱۴.۴۴۲): ۲۰ کلید مسجد اعظم، سپهسالار و مجلس که شمارۀ رسالۀ تکراری‌شان اندازۀ بسیار ناهمسان دارد و شاید دو مجلد باشند. مجلس «5187/1 مکرر» و «5187/2 مکرر» (۱۰×۱۷) به مجموعۀ جدای «5187-مکرر» رفتند.
 - **نکته:** پس از هر اصلاح، این فهرست‌ها با همان روش از نو ساخته شوند، چون شمارها عوض می‌شوند.
 
 ### ۱۱۰. پیوندهای دقیق‌تر در متن صفحه: نسخه به‌جای کتابخانه، و ارجاع «(صفحه:جلد)» به مدخل `[fahares]`
