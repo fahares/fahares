@@ -188,6 +188,31 @@ class NewManuscriptTest extends TestCase
         $this->store(['shelfmark' => '78', 'source_kind' => 'catalogue', 'source_id' => $source->id])->assertSessionHasErrors('source_place');
     }
 
+    /** Step 14.445: the library's catalogue on the web is a source of its own, and the copy's page links the record there. */
+    public function test_a_copy_from_the_librarys_online_catalogue_links_its_record_there()
+    {
+        $url = 'https://opac.example.org/search/fullView.do?id=3000504&page=1';
+
+        // the address is the point of this kind: without one, or with one that is no web address, nothing is made
+        $this->store(['shelfmark' => '8872/1', 'source_kind' => 'online', 'source_text' => 'فهرست برخط کتابخانه'])->assertSessionHasErrors('source_url');
+        $this->store(['shelfmark' => '8872/1', 'source_kind' => 'online', 'source_url' => 'javascript:alert(1)'])->assertSessionHasErrors('source_url');
+
+        $this->store(['shelfmark' => '8872/2', 'source_kind' => 'online', 'source_text' => 'فهرست برخط کتابخانۀ ملی ایران، شمارۀ بازیابی ۵-۸۸۷۲', 'source_url' => $url])
+            ->assertRedirect()->assertSessionMissing('error');
+        $copy = $this->created();
+        $this->assertSame(['online', $url, 'افزوده از فهرست برخط'], [$copy->metadata['provenance']['kind'], $copy->provenance()['url'], $copy->provenance()['chip']]);
+        $this->get(route('manuscripts.show', $copy))->assertOk()
+            ->assertSee('data-provenance="online"', false)->assertSee('فهرست برخط کتابخانۀ ملی ایران')
+            ->assertSee('href="' . e($url) . '"', false)->assertSee('دیدن در فهرست برخط کتابخانه');
+
+        // the other kinds keep no address, and a stored one that is no web address is never a link
+        $this->store(['shelfmark' => '79', 'source_kind' => 'researcher', 'source_text' => 'پژوهشگر آزمون', 'source_url' => $url])->assertRedirect();
+        $this->assertNull($this->created()->provenance()['url']);
+        $copy->forceFill(['metadata' => ['provenance' => ['kind' => 'online', 'url' => 'javascript:alert(1)']] + (array) $copy->metadata])->save();
+        $this->assertNull($copy->fresh()->provenance()['url']);
+        $this->get(route('manuscripts.show', $copy))->assertOk()->assertDontSee('data-provenance-link', false);
+    }
+
     public function test_the_undo_removes_the_copy_and_the_work_made_for_it()
     {
         $this->store(['shelfmark' => '2897/3', 'work_mode' => 'new', 'work_title' => 'رساله در خط'])->assertRedirect();

@@ -26,6 +26,9 @@ class Manuscript extends Model
 
     public const PROVENANCE_CATALOGUE = 'catalogue';
 
+    /** The library's own catalogue on the web, with the address of the copy's record there (step 14.445) */
+    public const PROVENANCE_ONLINE = 'online';
+
     /**
      * The copies whose citation entry (Fankha's place of the copy in its catalogue volume) meets the conditions: its
      * source_volume_id (the catalogue volume), catalog_volume_part_id or cataloger_id (step 14.402, backlog item 170).
@@ -45,9 +48,10 @@ class Manuscript extends Model
 
     /**
      * Where the knowledge of a copy made in the panel came from (ManuscriptCreator, backlog item 149): a researcher
-     * who saw the copy, or a printed catalogue. Null for a copy of the catalogues' records.
+     * who saw the copy, a printed catalogue, or the library's catalogue on the web (with a link to the copy's record
+     * there). Null for a copy of the catalogues' records.
      *
-     * @return array{kind: string, text: ?string, suggestion_id: ?int, label: string, chip: string}|null
+     * @return array{kind: string, text: ?string, url: ?string, suggestion_id: ?int, label: string, chip: string}|null
      */
     public function provenance(): ?array
     {
@@ -56,11 +60,15 @@ class Manuscript extends Model
             return null;
         }
         $text = filled($p['text'] ?? null) ? trim($p['text']) : null;
-        [$label, $chip] = $p['kind'] === self::PROVENANCE_CATALOGUE
-            ? [$text ?? 'برگرفته از فهرست چاپی', 'افزوده از فهرست']
-            : [$text ? "به گزارش {$text}، که نسخه را دیده است" : 'بر پایۀ دیدن نسخه', 'افزودۀ پژوهشگر'];
+        [$label, $chip] = match ($p['kind']) {
+            self::PROVENANCE_CATALOGUE => [$text ?? 'برگرفته از فهرست چاپی', 'افزوده از فهرست'],
+            self::PROVENANCE_ONLINE => [$text ?? 'برگرفته از فهرست برخط کتابخانه', 'افزوده از فهرست برخط'],
+            default => [$text ? "به گزارش {$text}، که نسخه را دیده است" : 'بر پایۀ دیدن نسخه', 'افزودۀ پژوهشگر'],
+        };
+        // only a web address is ever a link
+        $url = $p['kind'] === self::PROVENANCE_ONLINE && preg_match('~^https?://~i', (string) ($p['url'] ?? '')) ? $p['url'] : null;
 
-        return ['kind' => $p['kind'], 'text' => $text, 'suggestion_id' => isset($p['suggestion_id']) ? (int) $p['suggestion_id'] : null, 'label' => $label, 'chip' => $chip];
+        return ['kind' => $p['kind'], 'text' => $text, 'url' => $url, 'suggestion_id' => isset($p['suggestion_id']) ? (int) $p['suggestion_id'] : null, 'label' => $label, 'chip' => $chip];
     }
 
     /**
