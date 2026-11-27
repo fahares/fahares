@@ -14627,6 +14627,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مانده:** چهار کلید آمیخته که شمارۀ نشان‌دار با ارجاع فهرست خطی دارند (مرعشی «1386-عکسی»، «442-عکسی»، «1382»؛ احیاء «2353-عکسی»). شکل پیشوندی «عکسی 1021/2» (یک نسخه) کلید «عکسی 1021» می‌گیرد. نسخۀ دست‌ساز متن فنخا ندارد و تنها با نشان («645/2 عکسی») به سری عکسی می‌رود.
 - **آزمون:** `PhotoSeriesTest` (صورت‌های ارجاع؛ کلیدها؛ دو فرمان روی مجموعه‌های برخوردی، کلید بازبینی‌شده دست نمی‌خورد، اجرای دوباره بی‌تغییر، و نشان سری در صفحۀ نسخه). `DerivedDataTest::…` برای «1004/7 عکسی» احیاء.
 
+### گام ۱۴.۴۳۷: فهرست‌نگاران جلدهای فهرست مجلس و جلد ۴۰/۱
+- **لاگ‌های production (`audit_logs`، `action = volume_people`، منبع ۱۰۰۰۳۰):** ۱۸۴۹۸۵ تا ۱۸۴۹۸۷ (جلدهای #۷۳۷، #۶۴۶، #۷۳۶)، ۱۸۴۹۸۸ تا ۱۸۴۹۹۳ (#۷۳۵، #۶۴۴، #۴۲۸، #۶۴۷، #۶۴۸، #۶۴۹) و ۱۸۴۹۹۴ (#۷۴۵، جلد ۴۰/۱). مبنای هر کدام در `new_values.basis`.
+- **جلد ۴۰/۱:** `CatalogVolume::create` با `citation_pattern = «ف: 40/1»`، `manuscripts_range = «۱-۴۰۰»` و `metadata.source`؛ `SourceEntrySync::syncVolume` ردیف `source_volumes` را ساخت.
+- **`catalog_volume_links.json`، پیوند `thran-mgls-4` سری «ف»:** `catalogers` برای ۲/۲۴ (منصور)، ۳۹، ۳/۴۰، ۵۰ و ۵۱، و جلد تازۀ ۱/۴۰ (`part: 1`) پیش از ۲/۴۰. ۳/۲۴ همچنان `existing_catalogers` است. اجرای آزمایشی روی رونوشت محلی: «new volume: … جلد ۱/۴۰».
+- **شمارها پس از اجرا:** محسن صادقی ۴۲۲ ← ۸۳۳ نسخه؛ محمود نظری ۲٬۲۳۳ ← ۲٬۷۹۰؛ یوسف بیگ باباپور ۷۲۲ ← ۹۷۵؛ سید محمد طباطبائی بهبهانی ۳٬۵۹۰ ← ۳٬۴۶۳.
+
 ### گام ۱۴.۴۳۸: `SourceEntry::tiedElsewhere` و `sources:dedupe-item-ties`
 - **`SourceEntry::tiedElsewhere($citableType, $citableId, $itemId, $role, ?$own)`:** ردیف دیگری رکورد را در همین نقش به همین `source_item_id` پیوند می‌دهد. با `$own`، تنها ردیفی با `id` کوچک‌تر یا ردیف بازبینی‌شده (`status != unverified`) به حساب می‌آید.
 - **`LinkSourceItemsCommand` و `LinkEarlierEditionCommand`:** پس از یافتن مدخل، اگر `tiedElsewhere`، ردیف خودش (اگر هست) پاک می‌شود (`removed`) وگرنه ساخته نمی‌شود (`duplicate`).
@@ -14634,9 +14640,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`sources:dedupe-item-ties [--dry-run]`:** گروه‌های `citable_type, citable_id, source_item_id, role` با بیش از یک ردیف. ردیف نگه‌داشته: نخستین بازبینی‌شده یا کوچک‌ترین `id`. ردیف‌های بازبینی‌نشدۀ دیگر پاک می‌شوند. `source_entry_id` در `work_people`، `person_periods` و `claims` (اگر ستون هست) به ردیف نگه‌داشته می‌رود.
 - **داده (رونوشت محلی، اجرای آزمایشی):** ۴۰۳ گروه، ۴۰۹ ردیف، ۰ ردیف ارجاع‌دهنده.
 - **آزمون:** `SourceItemsTest::test_two_places_or_citations_on_one_entry_tie_the_work_to_it_once` و `…dedupe_item_ties_keeps_the_reviewed_or_first_tie_and_the_page_shows_the_entry_once`.
-### گام ۱۴.۴۳۷: فهرست‌نگاران جلدهای فهرست مجلس و جلد ۴۰/۱
-- **لاگ‌های production (`audit_logs`، `action = volume_people`، منبع ۱۰۰۰۳۰):** ۱۸۴۹۸۵ تا ۱۸۴۹۸۷ (جلدهای #۷۳۷، #۶۴۶، #۷۳۶)، ۱۸۴۹۸۸ تا ۱۸۴۹۹۳ (#۷۳۵، #۶۴۴، #۴۲۸، #۶۴۷، #۶۴۸، #۶۴۹) و ۱۸۴۹۹۴ (#۷۴۵، جلد ۴۰/۱). مبنای هر کدام در `new_values.basis`.
-- **جلد ۴۰/۱:** `CatalogVolume::create` با `citation_pattern = «ف: 40/1»`، `manuscripts_range = «۱-۴۰۰»` و `metadata.source`؛ `SourceEntrySync::syncVolume` ردیف `source_volumes` را ساخت.
-- **`catalog_volume_links.json`، پیوند `thran-mgls-4` سری «ف»:** `catalogers` برای ۲/۲۴ (منصور)، ۳۹، ۳/۴۰، ۵۰ و ۵۱، و جلد تازۀ ۱/۴۰ (`part: 1`) پیش از ۲/۴۰. ۳/۲۴ همچنان `existing_catalogers` است. اجرای آزمایشی روی رونوشت محلی: «new volume: … جلد ۱/۴۰».
-- **شمارها پس از اجرا:** محسن صادقی ۴۲۲ ← ۸۳۳ نسخه؛ محمود نظری ۲٬۲۳۳ ← ۲٬۷۹۰؛ یوسف بیگ باباپور ۷۲۲ ← ۹۷۵؛ سید محمد طباطبائی بهبهانی ۳٬۵۹۰ ← ۳٬۴۶۳.
-
