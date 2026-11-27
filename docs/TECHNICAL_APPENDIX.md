@@ -14572,3 +14572,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`catalog_volume_links.json`، پیوند `thran-mgls-4` سری «ف»:** `catalogers` برای ۲/۲۴ (منصور)، ۳۹، ۳/۴۰، ۵۰ و ۵۱، و جلد تازۀ ۱/۴۰ (`part: 1`) پیش از ۲/۴۰. ۳/۲۴ همچنان `existing_catalogers` است. اجرای آزمایشی روی رونوشت محلی: «new volume: … جلد ۱/۴۰».
 - **شمارها پس از اجرا:** محسن صادقی ۴۲۲ ← ۸۳۳ نسخه؛ محمود نظری ۲٬۲۳۳ ← ۲٬۷۹۰؛ یوسف بیگ باباپور ۷۲۲ ← ۹۷۵؛ سید محمد طباطبائی بهبهانی ۳٬۵۹۰ ← ۳٬۴۶۳.
 
+### گام ۱۴.۴۴۰: `SourceVolume::partOrder()`
+- الگوها: `جلد N/M` (عددی که شمارۀ جلد نیست بخش است) و `بخش اول…ششم` یا `بخش N`؛ رقم فارسی و لاتین.
+- `SourceController::show` با `sortBy([volume_number, partOrder(), id])`؛ رابطۀ `Source::volumes` دست نخورد.
+
