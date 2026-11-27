@@ -14529,3 +14529,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`AuditLogController::rollbackVerify`:** `metadata` کنونی رکورد برداشته و فقط کلیدهای عوض‌شدۀ همان لاگ به مقدار پیشین برمی‌گردد.
 - **آزمون:** `SuggestionWorkflowTest::test_a_change_of_the_incipit_is_rolled_back_after_a_change_of_the_explicit`.
 
+### گام ۱۴.۴۲۴: `manuscripts/show.blade.php` و `components/ui/quote.blade.php`
+- `x-ui.quote` در صفحۀ نسخه `:label="$itemLabel"` می‌گیرد، نه `$itemLabel ?? $kind`. `$itemLabel` برای فهرست تک‌متنی بی‌برچسب `null` است.
+- `label` در `x-ui.quote` اختیاری شد و `figcaption` فقط وقتی برچسب یا دکمۀ پیشنهاد هست ساخته می‌شود.
+- **آزمون:** `TextExcerptsTest::test_a_lone_incipit_has_no_label_under_its_section`.

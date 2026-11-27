@@ -66,4 +66,14 @@ class TextExcerptsTest extends TestCase
         $this->assertSame(8, TextExcerpt::count());
         @unlink($file);
     }
+
+    public function test_a_lone_incipit_has_no_label_under_its_section()
+    {
+        $work = Work::create(['primary_title' => 'رسالۀ آزمایشی', 'clean_title' => 'رسالۀ آزمایشی', 'slug' => 'test-lone-incipit']);
+        $copy = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'incipit_text' => 'بسمله. الحمدلله رب العالمین', 'explicit_text' => 'والله اعلم بالصواب']);
+
+        // The section is titled «آغاز نسخه»: its one quote does not repeat «آغاز» (step 14.424)
+        $html = $this->get(route('manuscripts.show', $copy))->assertOk()->assertSee('آغاز نسخه')->assertSee('بسمله. الحمدلله')->getContent();
+        $this->assertStringNotContainsString('<figcaption', $html);
+    }
 }
