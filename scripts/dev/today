@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Print today's Jalali date in Tehran time, for the dates in docs/PROCESS_DOCUMENTATION.md, TECHNICAL_APPENDIX.md and
+BACKLOG.md. Sessions slipped by a day many times when they converted the date in their heads (e.g. 27 Nov 2026 written
+as 7 Azar instead of 6 Azar), so take the date from here and never compute it yourself.
+
+  scripts/dev/today                 ۶ آذر ۱۴۰۵
+  scripts/dev/today 2026-11-22      ۱ آذر ۱۴۰۵   (any Gregorian date, read as that day)
+  scripts/dev/today --latin         6 Azar 1405 (2026-11-27)
+
+The conversion is the standard jalaali algorithm (Borkowski's breaks), checked against 1 Farvardin 1405 = 21 Mar 2026
+and 1 Aban 1405 = 23 Oct 2026.
+"""
+import datetime as d
+import sys
+
+BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178]
+MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
+LATIN = ['Farvardin', 'Ordibehesht', 'Khordad', 'Tir', 'Mordad', 'Shahrivar', 'Mehr', 'Aban', 'Azar', 'Dey', 'Bahman',
+         'Esfand']
+
+
+def jal_cal(jy):
+    gy = jy + 621
+    leap_j = -14
+    jp = BREAKS[0]
+    jump = 0
+    for jm in BREAKS[1:]:
+        jump = jm - jp
+        if jy < jm:
+            break
+        leap_j += (jump // 33) * 8 + (jump % 33) // 4
+        jp = jm
+    n = jy - jp
+    leap_j += (n // 33) * 8 + ((n % 33) + 3) // 4
+    if jump % 33 == 4 and jump - n == 4:
+        leap_j += 1
+    leap_g = gy // 4 - ((gy // 100 + 1) * 3) // 4 - 150
+    march = 20 + leap_j - leap_g
+    return gy, march
+
+
+def to_jalali(g):
+    jy = g.year - 621
+    gy, march = jal_cal(jy)
+    start = d.date(gy, 3, march)
+    if g < start:
+        jy -= 1
+        gy, march = jal_cal(jy)
+        start = d.date(gy, 3, march)
+    k = (g - start).days
+    if k < 186:
+        return jy, k // 31 + 1, k % 31 + 1
+    k -= 186
+    return jy, 7 + k // 30, k % 30 + 1
+
+
+def fa(n):
+    return str(n).translate(str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹'))
+
+
+args = [a for a in sys.argv[1:] if not a.startswith('--')]
+if args:
+    day = d.date.fromisoformat(args[0])
+else:
+    day = d.datetime.now(d.timezone(d.timedelta(hours=3, minutes=30))).date()
+
+assert to_jalali(d.date(2026, 3, 21)) == (1405, 1, 1)
+assert to_jalali(d.date(2026, 10, 23)) == (1405, 8, 1)
+assert to_jalali(d.date(2026, 11, 27)) == (1405, 9, 6)
+
+y, m, dd = to_jalali(day)
+if '--latin' in sys.argv:
+    print(f'{dd} {LATIN[m - 1]} {y} ({day.isoformat()})')
+else:
+    print(f'{fa(dd)} {MONTHS[m - 1]} {fa(y)}')

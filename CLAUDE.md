@@ -12,6 +12,14 @@ numbers and deploys from colliding.
 - Code that reads source text or users' queries may still need to match «ه‌ی» as an input form: keep such patterns and
   lists, and add «ۀ» beside them.
 
+## Jalali dates
+
+- Take every Jalali date you write (step headings and run records in `docs/PROCESS_DOCUMENTATION.md` and
+  `docs/TECHNICAL_APPENDIX.md`, `docs/BACKLOG.md`, replies to the user) only from `scripts/dev/today`, which prints
+  today's date in Tehran time (e.g. «۶ آذر ۱۴۰۵»); `scripts/dev/today 2026-11-22` converts another day. Never convert the
+  Gregorian date yourself: sessions wrote dates a day ahead many times.
+- A step done before midnight keeps that day's date, even if its doc is written after it.
+
 ## Step numbers («گام»)
 
 - Take a step number only from `scripts/dev/reserve-step "short title" <session-name>`. It prints the next free number
