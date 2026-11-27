@@ -14765,3 +14765,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **شمارش‌ها:** `FixScriptScribeLeftoversCommand`، `FixDescriptivePeopleCommand` و این فرمان شمارش‌ها و فهرست‌های درونی را در آغاز `handle()` صفر می‌کنند. کانتینر یک شیء فرمان را به چند فراخوانی در یک فرایند می‌دهد، و در آزمون اجرای دوم شمارش اجرای نخست را هم داشت.
 - **رونوشت پروداکشن:** dates ۴، scribe_names ۱، citations ۶۴. اجرای دوم: already ۵ و citations ۰.
 - **آزمون:** `DescriptiveLeftoversTest::test_side_findings_mend_dates_a_scribe_and_photo_citations_once`.
+
+### گام ۱۴.۴۴۵: `Manuscript::PROVENANCE_ONLINE`
+- **`metadata.provenance`:** `kind = online`، `text` (نام فهرست و شمارۀ بازیابی)، `url`، `suggestion_id`.
+- **`Manuscript::provenance()`:** کلید `url` (فقط برای `online` و فقط `http(s)://`)، برچسب و نشان این گونه.
+- **`ManuscriptCreator`:** `SOURCE_KINDS` سه گونه؛ `provenance()` نشانی را می‌سنجد. **`Admin\ManuscriptController::rules`:** `source_url` با `required_if:source_kind,online|url:http,https`.
+- **قالب‌ها:** `admin/manuscripts/create.blade.php` (ورودی `source_url` هنگام `sourceKind === 'online'`)، `manuscripts/show.blade.php` (`data-provenance-link`).
+- **آزمون:** `NewManuscriptTest::test_a_copy_from_the_librarys_online_catalogue_links_its_record_there`.
+

@@ -242,6 +242,13 @@
                     <input type="number" name="suggestion_id" id="suggestion_id" value="{{ $val('suggestion_id') }}" min="1" class="admin-field w-full">
                 </x-admin.field>
             </div>
+            {{-- the library's catalogue on the web: the page of the copy links its record there (step 14.445) --}}
+            <div x-show="sourceKind === 'online'" x-cloak>
+                <x-admin.field label="نشانی رکورد نسخه در فهرست برخط کتابخانه" for="source_url" error="source_url"
+                    hint="در صفحۀ نسخه پیوند «دیدن در فهرست برخط کتابخانه» می‌شود. نام فهرست و شمارۀ بازیابی را در «ارجاع فهرست» بنویسید.">
+                    <input type="url" name="source_url" id="source_url" value="{{ $val('source_url') }}" maxlength="1000" dir="ltr" :disabled="sourceKind !== 'online'" class="admin-field w-full">
+                </x-admin.field>
+            </div>
             <div x-show="sourceKind === 'catalogue'" x-cloak class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <x-admin.field class="sm:col-span-2" label="فهرست (منبع سایت)" error="source_id" hint="اگر فهرست در منابع سایت هست، نسخه کارت همان فهرست را می‌گیرد.">
                     <x-admin.record-picker name="source_id" :setup="$picker('source_id', 'source')" placeholder="نام یا کد منبع…" />

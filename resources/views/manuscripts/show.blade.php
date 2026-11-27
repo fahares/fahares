@@ -278,6 +278,9 @@
                     <div class="space-y-1 pb-4 border-b border-line last:border-b-0 last:pb-0" data-provenance="{{ $provenance['kind'] }}">
                         <div class="text-xs text-muted">منبع اطلاع</div>
                         <p class="text-sm font-bold text-ink leading-6">{{ Fa::digits($provenance['label']) }}</p>
+                        @if($provenance['url'])
+                            <a href="{{ $provenance['url'] }}" target="_blank" rel="nofollow noopener" class="inline-block text-xs font-bold text-cinnabar hover:underline" data-provenance-link>دیدن در فهرست برخط کتابخانه ↗</a>
+                        @endif
                         @if($provenance['suggestion_id'])
                             @can('suggestions.review')
                                 <a href="{{ route('admin.suggestions.show', $provenance['suggestion_id']) }}" class="text-[11px] text-muted hover:text-cinnabar" data-provenance-suggestion>پیشنهاد #{{ Fa::digits($provenance['suggestion_id']) }}</a>
