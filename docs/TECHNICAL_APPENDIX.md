@@ -14499,3 +14499,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`suggest/desk.blade.php`:** `adds` برای `quote_item = new`.
 - **آزمون:** `SuggestionWorkflowTest::test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself`.
 
+
+### گام ۱۴.۴۲۱: جلد منبع از برگ نخست اسکن، و سیاهۀ بی‌جلدها
+- **جای جلد:** `Source::coverUrl()` تنها `public/images/sources/covers/{code}.webp` را می‌خواند، و برای چاپی که جلد ندارد جلد `edition_of` را. `catalog_volumes.cover_image_path` و `source_volumes.cover_image_path` در هیچ نمایی خوانده نمی‌شوند و همه تهی‌اند (۶۵۰ از ۶۵۰).
+- **سنجش (`fahares_prod`، همۀ `sources`):** ۱۷۶ منبع؛ ۱۴۸ جلد خود، ۱ جلد چاپ اصلی، ۲۷ بی‌جلد (۲۶ `library_catalogue` و `monzavi-nuskhe`). ۲۰ پروندۀ جلد کدی دارند که در `sources` نیست؛ همه در `metadata.merged_codes` منبعی‌اند که جلد خودش را دارد (`sources:merge-split`).
+- **فانوس:** سه منبعِ جلدهای گام ۱۴.۴۱۸ جلد درست از MTIF دارند (`catalogue-af2952129bfd`، `-a52de603bcba`، `-6501cdd24802`). تصویر فانوس همان جلد است، تنها محقق را کمی بزرگ‌تر دارد (۲۵۰ در ۳۵۰ به‌جای ۲۰۷ در ۳۰۰)؛ جایگزین نشد.
+- **از اسکن (`../fahares-sources/web-covers/scan_covers.py`):** برگ با PyMuPDF به اندازۀ تصویر خودش، در ۶۴۰ در ۹۶۰ بی بزرگ‌نمایی، WebP کیفیت ۸۲ (مانند گام ۱۴.۲۶). نشانی هر کدام در `web-covers/scan-covers.json`.
+
+| منبع | کد | اسکن | برگ | اندازه |
+| :--- | :--- | :--- | ---: | :--- |
+| مخطوطات مؤید | `catalogue-b6b3ae39f183` | `moayyed/v01.pdf` | ۱ | ۵۹۶ در ۷۹۴ |
+| خاتم الانبیاء بابل | `catalogue-7da93f513bb5` | `telegram-khazaneha/1358 …` | ۱ | ۶۴۰ در ۹۱۹ |
+| مرقعات سلطنتی | `catalogue-0050f7e2e051` | `telegram-khazaneha/1979 …` | ۳ (نیمۀ چپ جلد باز) | ۵۶۶ در ۸۵۰ |
+| یادبود سلطانی کاشان | `catalogue-342dec00e8d8` | `kashan-soltani/soltani-1350.pdf` | ۱ (حاشیۀ سفید بریده) | ۳۹۵ در ۶۱۱ |
+
+- **کنار مانده:** منزوی (برگ ۱ صفحۀ عنوان ساده است)، موزۀ ملی (اسکن docibox در برگ ۱ تنها عطف کتاب را دارد).
+- **جست‌وجوی دوباره:** فانوس (`?s=…&post_type=product`) و `ghaemiyeh.com/library/search/books?field=title&type=all` (که `image_path` جلد ۲۴۰ در ۳۲۰ را می‌دهد) برای ۲۶ عنوان. تنها مسجد اعظم (چاپ ۱۳۶۵، کتاب‌های ۵۰۴۱۳۳ تا ۵۰۴۱۵۶) و مؤید یافت شدند. منبع مسجد اعظم فهرست مخطوط است، پس جلد چاپ ۱۳۶۵ برایش گذاشته نشد. ۲۳ منبع مانده در مورد ۱۷۶.
