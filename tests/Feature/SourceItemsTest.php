@@ -166,4 +166,49 @@ class SourceItemsTest extends TestCase
         $this->assertNull($dropped->fresh());
         $this->assertSame($edited->id, SourceItem::where('item_key', '1446')->sole()->id);
     }
+
+    public function test_two_places_or_citations_on_one_entry_tie_the_work_to_it_once()
+    {
+        // step 14.438: «الذریعة 290/11 و 292», two pages of one entry, tied the work to it twice
+        $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();
+        $work = Work::create(['primary_title' => 'التحفة', 'clean_title' => 'التحفة', 'slug' => 'tuhfa-' . uniqid(), 'volume_number' => 1,
+            'page_start' => 1, 'author_name' => 'تفرشی، مراد بن علی خان']);
+        $cite = fn (array $extra) => SourceEntry::create($extra + ['citable_type' => Work::class, 'citable_id' => $work->id,
+            'source_id' => $this->volume->source_id, 'volume_number' => 3, 'page_start' => 402, 'role' => SourceEntry::ROLE_CITATION,
+            'origin' => SourceEntry::ORIGIN_BIBLIOGRAPHY, 'status' => SourceEntry::STATUS_VERIFIED]);
+        $place = ['source_id' => $this->volume->source_id, 'volume' => 3, 'page' => 402];
+        $cite(['citation_text' => 'الذریعة 402/3 و 402', 'locations' => [$place, $place]]);
+        $cite(['citation_text' => 'الذریعة 402/3']);
+
+        $this->artisan('sources:link-items', ['volume' => 'dharia-test'])->assertSuccessful();
+        $this->assertSame(1, SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->count());
+        // a second run neither adds nor removes the tie
+        $this->artisan('sources:link-items', ['volume' => 'dharia-test'])->assertSuccessful();
+        $this->assertSame(1, SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->count());
+    }
+
+    public function test_dedupe_item_ties_keeps_the_reviewed_or_first_tie_and_the_page_shows_the_entry_once()
+    {
+        $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();
+        $item = SourceItem::where('item_key', '1446')->sole();
+        $work = Work::create(['primary_title' => 'التحفة', 'clean_title' => 'التحفة', 'slug' => 'tuhfa-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $other = Work::create(['primary_title' => 'التحفة ۲', 'clean_title' => 'التحفة ۲', 'slug' => 'tuhfa2-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $tie = fn (Work $w, string $status = SourceEntry::STATUS_UNVERIFIED) => SourceEntry::create(['citable_type' => Work::class,
+            'citable_id' => $w->id, 'source_id' => $this->volume->source_id, 'source_volume_id' => $this->volume->id,
+            'source_item_id' => $item->id, 'volume_number' => 3, 'page_start' => 402, 'role' => SourceEntry::ROLE_ENTRY,
+            'origin' => SourceEntry::ORIGIN_MATCH, 'match_method' => 'title_author', 'status' => $status]);
+        [$first, $second] = [$tie($work), $tie($work)];
+        [$plain, $reviewed] = [$tie($other), $tie($other, SourceEntry::STATUS_VERIFIED)];
+
+        // the page shows one card before the rows are removed
+        $this->get(route('works.show', $work))->assertOk();
+        $this->assertSame(1, substr_count($this->get(route('works.show', $work))->getContent(), 'data-source-card'));
+
+        $this->artisan('sources:dedupe-item-ties', ['--dry-run' => true])->assertSuccessful();
+        $this->assertSame(4, SourceEntry::where('source_item_id', $item->id)->count());
+        $this->artisan('sources:dedupe-item-ties')->assertSuccessful();
+        $this->assertSame([$first->id, $reviewed->id], SourceEntry::where('source_item_id', $item->id)->orderBy('id')->pluck('id')->all());
+        $this->assertNull($second->fresh());
+        $this->assertNull($plain->fresh());
+    }
 }

@@ -14594,3 +14594,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **داده (رونوشت محلی):** `fill-collection-keys --apply`: `changed` ۳٬۸۵۱، `collections: made=643, linked=3561, unlinked=290, removed=217`. `link-plain-volumes --apply`: `cleared` ۳۳۴، `set` ۱۴. اجرای دوم: `changed` ۰ و بی `cleared`/`set`.
 - **مانده:** چهار کلید آمیخته که شمارۀ نشان‌دار با ارجاع فهرست خطی دارند (مرعشی «1386-عکسی»، «442-عکسی»، «1382»؛ احیاء «2353-عکسی»). شکل پیشوندی «عکسی 1021/2» (یک نسخه) کلید «عکسی 1021» می‌گیرد. نسخۀ دست‌ساز متن فنخا ندارد و تنها با نشان («645/2 عکسی») به سری عکسی می‌رود.
 - **آزمون:** `PhotoSeriesTest` (صورت‌های ارجاع؛ کلیدها؛ دو فرمان روی مجموعه‌های برخوردی، کلید بازبینی‌شده دست نمی‌خورد، اجرای دوباره بی‌تغییر، و نشان سری در صفحۀ نسخه). `DerivedDataTest::…` برای «1004/7 عکسی» احیاء.
+
+### گام ۱۴.۴۳۸: `SourceEntry::tiedElsewhere` و `sources:dedupe-item-ties`
+- **`SourceEntry::tiedElsewhere($citableType, $citableId, $itemId, $role, ?$own)`:** ردیف دیگری رکورد را در همین نقش به همین `source_item_id` پیوند می‌دهد. با `$own`، تنها ردیفی با `id` کوچک‌تر یا ردیف بازبینی‌شده (`status != unverified`) به حساب می‌آید.
+- **`LinkSourceItemsCommand` و `LinkEarlierEditionCommand`:** پس از یافتن مدخل، اگر `tiedElsewhere`، ردیف خودش (اگر هست) پاک می‌شود (`removed`) وگرنه ساخته نمی‌شود (`duplicate`).
+- **`RecordSources::cards()`:** پس از `ranked`، ردیف‌های بازبینی‌شده جلو و `unique` بر `source_item_id|role`، سپس ترتیب رتبه (`sortKeys`).
+- **`sources:dedupe-item-ties [--dry-run]`:** گروه‌های `citable_type, citable_id, source_item_id, role` با بیش از یک ردیف. ردیف نگه‌داشته: نخستین بازبینی‌شده یا کوچک‌ترین `id`. ردیف‌های بازبینی‌نشدۀ دیگر پاک می‌شوند. `source_entry_id` در `work_people`، `person_periods` و `claims` (اگر ستون هست) به ردیف نگه‌داشته می‌رود.
+- **داده (رونوشت محلی، اجرای آزمایشی):** ۴۰۳ گروه، ۴۰۹ ردیف، ۰ ردیف ارجاع‌دهنده.
+- **آزمون:** `SourceItemsTest::test_two_places_or_citations_on_one_entry_tie_the_work_to_it_once` و `…dedupe_item_ties_keeps_the_reviewed_or_first_tie_and_the_page_shows_the_entry_once`.
