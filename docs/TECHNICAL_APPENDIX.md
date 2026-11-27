@@ -14538,3 +14538,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `conversation` فرم را همیشه (نه فقط با `$thread` یا پس از تصمیم) با `inConversation => true` می‌گذارد؛ متن «پرسش از پیشنهاددهنده در پنل تصمیم است» حذف شد.
 - `ask-form`: پارامتر `$inConversation`؛ شناسۀ فیلد بی‌نامه در جعبۀ گفت‌وگو `conversation-ask-body` است تا با `ask-body` پنل تصمیم یکی نشود، و عنوان «پرسش از پیشنهاددهنده» می‌گیرد.
 - **آزمون:** `MessagingTest::test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+
+### گام ۱۴.۴۲۶: `App\Support\SourceVisibility`، ستون‌های `sources.visibility` و `sources.audience`
+- **migration `2026_11_27_100001_add_visibility_to_sources`:** `visibility` (`always` | `fallback` | `hidden`، پیش‌فرض `always`) و `audience` (JSON: `{"roles": [...], "scholars": bool, "users": [ids]}`). سطرهای `kind = union_catalogue` مقدار `fallback` و مخاطب `editor` و پژوهشگر تأییدشده گرفتند.
+- **`Source`:** `audience` به آرایه cast می‌شود. رویداد `creating` به فهرستگان تازه همان پیش‌فرض را می‌دهد. `defaultVisibility($kind)` همین مقادیر را برای درج مستقیم دارد، در `SourceEntrySync::ensureCatalogSource` و `BackfillSourcesCommand::upsertSource`.
+- **`SourceVisibility`:** `forViewer()` با کاربر جاری، و `mode()` و `isOpen()` برای منبع (`always`). `inAudience()` برای نقش `admin`، نقش‌های فهرست، `is_verified_scholar` و شناسۀ کاربر است. `shows($source, $seesFirstHand)` و `filter($entries, $seesFirstHand)` هم تعریف شدند.
+- **`RecordSources::seesFirstHand()`:** شرط `! isSecondHand()` به `SourceVisibility::isOpen($e->source)` تبدیل شد. `isSecondHand()` تنها برای جمع‌کردن کارت زیر «مأخذ دست دوم» می‌ماند.
+- **قالب‌ها:** `works/show` و `manuscripts/show` کارت‌ها، گروه کارت‌ها، `texts()` و فهرست `cards()` مآخذ کتاب‌شناسی را با `$visibility->filter` می‌گذرانند. توضیح JSON-LD اثر تنها وقتی از متن فنخا ساخته می‌شود که فنخا نمایش داده شود. پوشش `data-suggest-only` و ویژگی `suggestOnly` از `x-source.secondary` حذف شد.
+- **پنل:** `Admin\SourceController::update` وقتی `visibility` فرستاده شود، `audience_roles[]`، `audience_scholars` و `audience_users` (شناسه یا ایمیل، با رقم فارسی یا لاتین) را هم می‌پذیرد. کاربر ناشناخته رد می‌شود.
+- **آزمون:** `CatalogReferencesTest::test_a_sources_visibility_decides_who_gets_it_on_the_record_page` و `test_the_admin_sets_a_sources_visibility_and_audience`. سه آزمون پیشینِ دیدن فنخا کنار فهرست چاپی، اکنون با کاربر ویراستار اجرا می‌شوند.
