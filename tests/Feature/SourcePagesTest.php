@@ -71,7 +71,8 @@ class SourcePagesTest extends TestCase
         $this->entry($this->manuscript, ['source_id' => 1, 'volume_number' => 34, 'page_start' => 970, 'role' => SourceEntry::ROLE_ADDENDUM,
             'origin' => SourceEntry::ORIGIN_FANKHA, 'copy_text' => 'متن استدراک']);
 
-        $this->get(route('manuscripts.show', $this->manuscript))->assertOk()
+        // (Fankha beside the library catalogue is for its audience, step 14.426)
+        $this->actingAs(\App\Models\User::factory()->create(['role' => 'editor']))->get(route('manuscripts.show', $this->manuscript))->assertOk()
             // every source alike, in the order of its rank: no «متن مأخذ» above the others
             ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۸۸، به کوشش رضا استادی، ج ۲، ص ۴۱۴', 'فنخا، ج ۱۵، ص ۱۲۱، ردیف ۳', 'فنخا (استدراک)، ج ۳۴، ص ۹۷۰'])
             ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', 'متن مدخل فهرست', 'ش ۱۹۳۹، ۱۶۲ برگ', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'ج ۱۵، ص ۱۲۱، ردیف ۳', "متن فنخای نسخه \nادامه", 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن استدراک'])
@@ -109,7 +110,8 @@ class SourcePagesTest extends TestCase
         $this->entry($this->work, ['source_id' => null, 'role' => SourceEntry::ROLE_CITATION, 'citation_text' => 'دنا 2/207', 'sort_order' => 1]);
         $this->entry($this->work, ['source_id' => $dharia, 'role' => SourceEntry::ROLE_CITATION, 'citation_text' => 'الذریعة 101/25', 'sort_order' => 0]);
 
-        $this->get(route('works.show', $this->work))->assertOk()
+        // (the work's al-Dhari'a page makes it first-hand: Fankha beside it is for its audience, step 14.426)
+        $this->actingAs(\App\Models\User::factory()->create(['role' => 'editor']))->get(route('works.show', $this->work))->assertOk()
             // Fankha's own place only on its folded card and text, not in the list (backlog item 147)
             ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'متن مأخذ', 'مأخذ دست دوم', 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن فنخای اثر'])
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)

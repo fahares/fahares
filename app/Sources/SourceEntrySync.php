@@ -596,7 +596,8 @@ class SourceEntrySync
         if (! $c) {
             return null;
         }
-        DB::table('sources')->insert(['id' => $c->id] + self::catalogSourceValues($c) + ['created_at' => now(), 'updated_at' => now()]);
+        DB::table('sources')->insert(['id' => $c->id] + self::catalogSourceValues($c) + Source::defaultVisibility(Source::KIND_UNION_CATALOGUE)
+            + ['created_at' => now(), 'updated_at' => now()]);
         self::ensureVolumes($c->id, range(1, max(1, (int) $c->volumes_count)), $c->code === 'fankha' ? 'fankha' : null);
 
         return $catalogId;

@@ -47,12 +47,38 @@ class Source extends Model
 
     protected $guarded = ['id'];
 
+    /**
+     * A union catalogue, compiled from the printed catalogues, is shown only where the reader sees no first-hand source,
+     * and always to editors and verified scholars (steps 14.376 and 14.426), unless it is made with a visibility of its own.
+     */
+    public const UNION_CATALOGUE_AUDIENCE = ['roles' => ['editor'], 'scholars' => true, 'users' => []];
+
+    /** The visibility columns a new row of the kind is inserted with, for code that writes the table directly. */
+    public static function defaultVisibility(?string $kind): array
+    {
+        return $kind === self::KIND_UNION_CATALOGUE
+            ? ['visibility' => \App\Support\SourceVisibility::FALLBACK, 'audience' => json_encode(self::UNION_CATALOGUE_AUDIENCE)]
+            : [];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Source $source) {
+            if ($source->kind === self::KIND_UNION_CATALOGUE && ! $source->isDirty('visibility')) {
+                $source->visibility = \App\Support\SourceVisibility::FALLBACK;
+                $source->audience ??= self::UNION_CATALOGUE_AUDIENCE;
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [
             'rank' => 'integer',
             'volumes_count' => 'integer',
             'metadata' => 'array',
+            // who sees it always, whatever its visibility (step 14.426, App\Support\SourceVisibility)
+            'audience' => 'array',
         ];
     }
 
