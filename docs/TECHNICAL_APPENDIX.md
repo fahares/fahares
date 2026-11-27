@@ -14718,3 +14718,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`sources:dedupe-item-ties [--dry-run]`:** گروه‌های `citable_type, citable_id, source_item_id, role` با بیش از یک ردیف. ردیف نگه‌داشته: نخستین بازبینی‌شده یا کوچک‌ترین `id`. ردیف‌های بازبینی‌نشدۀ دیگر پاک می‌شوند. `source_entry_id` در `work_people`، `person_periods` و `claims` (اگر ستون هست) به ردیف نگه‌داشته می‌رود.
 - **داده (رونوشت محلی، اجرای آزمایشی):** ۴۰۳ گروه، ۴۰۹ ردیف، ۰ ردیف ارجاع‌دهنده.
 - **آزمون:** `SourceItemsTest::test_two_places_or_citations_on_one_entry_tie_the_work_to_it_once` و `…dedupe_item_ties_keeps_the_reviewed_or_first_tie_and_the_page_shows_the_entry_once`.
+### گام ۱۴.۴۴۰: `SourceVolume::partOrder()`
+- الگوها: `جلد N/M` (عددی که شمارۀ جلد نیست بخش است) و `بخش اول…ششم` یا `بخش N`؛ رقم فارسی و لاتین.
+- `SourceController::show` با `sortBy([volume_number, partOrder(), id])`؛ رابطۀ `Source::volumes` دست نخورد.
+

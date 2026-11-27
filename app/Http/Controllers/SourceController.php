@@ -57,7 +57,8 @@ class SourceController extends Controller
             ->groupBy('source_volume_id')->pluck('n', 'source_volume_id')->all());
 
         // each volume: its text's first page (the entries' first page when the volume is kept by entry) and its images
-        $volumes = $source->volumes->map(fn ($v) => [
+        // ...the parts of one volume in their order, not that of their rows (step 14.440)
+        $volumes = $source->volumes->sortBy(fn ($v) => [$v->volume_number, $v->partOrder(), $v->id])->values()->map(fn ($v) => [
             'volume' => $v,
             'pages' => (int) ($pages[$v->id]->n ?? 0),
             'items' => (int) ($items[$v->id]->n ?? 0),

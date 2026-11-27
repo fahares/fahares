@@ -26,6 +26,25 @@ class SourceVolume extends Model
         ];
     }
 
+    /**
+     * The place of this row among the rows of one printed volume, read from its title: 1 for «جلد ۱/۴۰» (the part
+     * before the slash, the volume after it, or the other way round) and for «جلد نهم - بخش اول», 0 when the title
+     * names no part. The rows are made as their scans or citations turn up, so their ids are in no order (step 14.440:
+     * the Majlis catalogue listed 40/2, 40/3, 40/1).
+     */
+    public function partOrder(): int
+    {
+        $title = strtr((string) $this->title, array_combine(['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'], range(0, 9)));
+        if (preg_match('~جلد\s*(\d+)\s*/\s*(\d+)~u', $title, $m)) {
+            return (int) $m[1] === (int) $this->volume_number ? (int) $m[2] : (int) $m[1];
+        }
+        if (preg_match('~بخش\s*(\d+|اول|نخست|دوم|سوم|چهارم|پنجم|ششم)~u', $title, $m)) {
+            return ['اول' => 1, 'نخست' => 1, 'دوم' => 2, 'سوم' => 3, 'چهارم' => 4, 'پنجم' => 5, 'ششم' => 6][$m[1]] ?? (int) $m[1];
+        }
+
+        return 0;
+    }
+
     public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class);
