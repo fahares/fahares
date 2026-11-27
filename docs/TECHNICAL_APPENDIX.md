@@ -14538,3 +14538,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `conversation` فرم را همیشه (نه فقط با `$thread` یا پس از تصمیم) با `inConversation => true` می‌گذارد؛ متن «پرسش از پیشنهاددهنده در پنل تصمیم است» حذف شد.
 - `ask-form`: پارامتر `$inConversation`؛ شناسۀ فیلد بی‌نامه در جعبۀ گفت‌وگو `conversation-ask-body` است تا با `ask-body` پنل تصمیم یکی نشود، و عنوان «پرسش از پیشنهاددهنده» می‌گیرد.
 - **آزمون:** `MessagingTest::test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+
+### گام ۱۴.۴۲۷: `insights/charts/places.blade.php`
+- هر `<circle>` نقشۀ ثابت (`x-show="! ready"`) `data-tip="<شهر>: <Fa::num(count)> نسخه"` گرفت و با `resources/js/chart-tip.js` همان کادر `[data-chart-tip]` نمودارهای دیگر را نشان می‌دهد. `<title>` SVG گذاشته نشد تا راهنمای مرورگر دوباره نیاید.
+- بازبینی: در هر صفحۀ موضوعی، شکل‌های SVG بی `data-tip` فقط نماد دکمۀ پوسته و نقشۀ پایه‌اند.
+- **آزمون:** `InsightsMapTest::test_the_places_page_carries_the_map_its_data_and_the_still_map`.

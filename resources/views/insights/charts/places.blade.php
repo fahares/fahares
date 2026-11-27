@@ -73,7 +73,9 @@
                     @include('insights.map-base')
                     @foreach($p['cities'] as $city)
                         @if($city['count'] > 0)
-                            <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}" r="{{ max(3, round(34 * sqrt($city['count'] / $maxPlace), 1)) }}" class="fill-cinnabar/55 stroke-surface" stroke-width="2"/>
+                            {{-- Its figure in the shared box (chart-tip.js, backlog item 156), as the marks of the other charts --}}
+                            <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}" r="{{ max(3, round(34 * sqrt($city['count'] / $maxPlace), 1)) }}" class="fill-cinnabar/55 stroke-surface" stroke-width="2"
+                                    data-tip="{{ $city['name'] }}: {{ Fa::num($city['count']) }} نسخه"/>
                         @endif
                     @endforeach
                     <g class="hidden sm:inline" font-size="19" font-weight="600">
