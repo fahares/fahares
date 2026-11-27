@@ -14626,6 +14626,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **داده (رونوشت محلی):** `fill-collection-keys --apply`: `changed` ۳٬۸۵۱، `collections: made=643, linked=3561, unlinked=290, removed=217`. `link-plain-volumes --apply`: `cleared` ۳۳۴، `set` ۱۴. اجرای دوم: `changed` ۰ و بی `cleared`/`set`.
 - **مانده:** چهار کلید آمیخته که شمارۀ نشان‌دار با ارجاع فهرست خطی دارند (مرعشی «1386-عکسی»، «442-عکسی»، «1382»؛ احیاء «2353-عکسی»). شکل پیشوندی «عکسی 1021/2» (یک نسخه) کلید «عکسی 1021» می‌گیرد. نسخۀ دست‌ساز متن فنخا ندارد و تنها با نشان («645/2 عکسی») به سری عکسی می‌رود.
 - **آزمون:** `PhotoSeriesTest` (صورت‌های ارجاع؛ کلیدها؛ دو فرمان روی مجموعه‌های برخوردی، کلید بازبینی‌شده دست نمی‌خورد، اجرای دوباره بی‌تغییر، و نشان سری در صفحۀ نسخه). `DerivedDataTest::…` برای «1004/7 عکسی» احیاء.
+
 ### گام ۱۴.۴۳۷: فهرست‌نگاران جلدهای فهرست مجلس و جلد ۴۰/۱
 - **لاگ‌های production (`audit_logs`، `action = volume_people`، منبع ۱۰۰۰۳۰):** ۱۸۴۹۸۵ تا ۱۸۴۹۸۷ (جلدهای #۷۳۷، #۶۴۶، #۷۳۶)، ۱۸۴۹۸۸ تا ۱۸۴۹۹۳ (#۷۳۵، #۶۴۴، #۴۲۸، #۶۴۷، #۶۴۸، #۶۴۹) و ۱۸۴۹۹۴ (#۷۴۵، جلد ۴۰/۱). مبنای هر کدام در `new_values.basis`.
 - **جلد ۴۰/۱:** `CatalogVolume::create` با `citation_pattern = «ف: 40/1»`، `manuscripts_range = «۱-۴۰۰»` و `metadata.source`؛ `SourceEntrySync::syncVolume` ردیف `source_volumes` را ساخت.
