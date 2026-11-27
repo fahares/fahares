@@ -14773,3 +14773,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **قالب‌ها:** `admin/manuscripts/create.blade.php` (ورودی `source_url` هنگام `sourceKind === 'online'`)، `manuscripts/show.blade.php` (`data-provenance-link`).
 - **آزمون:** `NewManuscriptTest::test_a_copy_from_the_librarys_online_catalogue_links_its_record_there`.
 
+### گام ۱۴.۴۴۶: `HijriYear::all()` و `HijriYear::otherCalendar()`، بازه با نشان پس از سال دوم
+- **ثابت `SPAN_TO`:** `\s*(?:[-–]|و|تا)\s*`.
+- **`all()`:** سالی که پس از آن `SPAN_TO`، یک سال سه یا چهاررقمی (با `/ماه/روز` یا بی آن) و `OTHER_MARK` بیاید کنار گذاشته می‌شود. در «1313-1314ش» هیچ سال قمری نمی‌ماند.
+- **`otherCalendar()`:**
+  - الگو یک سال آغاز اختیاری، با نشان یا بی آن، و پس از آن `SPAN_TO` می‌پذیرد.
+  - سال آغاز فقط وقتی به کار می‌رود که از سال پایان بزرگ‌تر نباشد و فاصله‌شان بیش از ۵۰ سال نباشد.
+  - برای خورشیدی: نوروز سال آغاز تا پیش از نوروزِ پس از سال پایان. برای میلادی: ۱ ژانویۀ سال آغاز تا ۳۱ دسامبر سال پایان.
+- **رونوشت پروداکشن:**
+  - نسخه‌ها: changed ۱۰، sort_year ۹. اثرها: changed ۴، sort_year ۳. اجرای دوم: ۰.
+  - نسخه‌ها: ۶۱۳۰۸ و ۹۳۲۳۷ («1324-1325ش»)، ۹۲۷۹۰، ۱۲۵۸۹۸، ۱۳۶۵۱۶ (فقط سال مرتب‌سازی؛ بازه «قرن 14» است)، ۱۵۸۷۸۳، ۱۷۱۰۴۶، و سه «سرود» گام ۱۴.۴۴۴.
+  - اثرها: ۱۱۶۵۱، ۱۶۹۳۶، ۱۸۷۴۵، ۶۳۲۸۱.
+- **آزمون:** `CopyDateRangeTest::test_a_span_marked_after_its_last_year_is_of_that_calendar`.

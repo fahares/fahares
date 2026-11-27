@@ -201,7 +201,7 @@ class DescriptiveLeftoversTest extends TestCase
         $this->artisan('fahares:fix-copy-side-findings', ['--file' => $file])->expectsOutputToContain('Dry run')->assertSuccessful();
         $this->artisan('fahares:fix-copy-side-findings', ['--file' => $file, '--apply' => true])->assertSuccessful();
 
-        $this->assertSame(['1313ش و 1314ش', 1352, 1353, 1352], [$typed->fresh()->copy_date_raw, $typed->fresh()->copy_date_from, $typed->fresh()->copy_date_to, $typed->fresh()->copy_date_hijri_year]);
+        $this->assertSame(['1313ش و 1314ش', 1352, 1354, 1352], [$typed->fresh()->copy_date_raw, $typed->fresh()->copy_date_from, $typed->fresh()->copy_date_to, $typed->fresh()->copy_date_hijri_year]);
         $this->assertNull($set->fresh()->scribe_name);
         $this->assertSame([$akasi->id, $akasiVolume->id, $cataloger], [$wrong->fresh()->source_id, $wrong->fresh()->source_volume_id, $wrong->fresh()->cataloger_id]);
         $this->assertSame($main->id, $mixed->fresh()->source_id, 'a citation that names the main catalogue first stays');
