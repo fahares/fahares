@@ -34,12 +34,24 @@ class DescriptiveLeftoversTest extends TestCase
         return Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'p-' . uniqid()]);
     }
 
+    /** @var string[] the decision files a test wrote, deleted after it whether it passed or failed */
+    private array $files = [];
+
     private function file(array $data): string
     {
         $file = 'storage/framework/testing-' . uniqid() . '.json';
         file_put_contents(base_path($file), json_encode($data, JSON_UNESCAPED_UNICODE));
+        $this->files[] = $file;
 
         return $file;
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->files as $file) {
+            @unlink(base_path($file));
+        }
+        parent::tearDown();
     }
 
     public function test_item_52_mends_scripts_and_author_scribes_once()
@@ -93,7 +105,6 @@ class DescriptiveLeftoversTest extends TestCase
 
         // a second run finds nothing left
         $this->artisan('fahares:fix-script-scribe-leftovers', ['--file' => $file])->expectsOutputToContain('already             5')->assertSuccessful();
-        @unlink(base_path($file));
     }
 
     public function test_the_script_line_stops_before_a_description()
@@ -169,7 +180,6 @@ class DescriptiveLeftoversTest extends TestCase
 
         // a second run finds nothing left
         $this->artisan('fahares:fix-descriptive-people', ['--file' => $file])->expectsOutputToContain('already             5')->assertSuccessful();
-        @unlink(base_path($file));
     }
     /** Step 14.444: dates and a scribe name from the printed page, and photographic-copy citations moved to their catalogue. */
     public function test_side_findings_mend_dates_a_scribe_and_photo_citations_once()
@@ -207,6 +217,5 @@ class DescriptiveLeftoversTest extends TestCase
         $this->assertSame($main->id, $mixed->fresh()->source_id, 'a citation that names the main catalogue first stays');
 
         $this->artisan('fahares:fix-copy-side-findings', ['--file' => $file])->expectsOutputToContain('citations         0')->assertSuccessful();
-        @unlink(base_path($file));
     }
 }
