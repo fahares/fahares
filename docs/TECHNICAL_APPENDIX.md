@@ -14792,3 +14792,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **جفت واژه:** واژه‌ای که تنها یک بار در صفحۀ متن آمده و در PDF نیست، با واژۀ PDF با فاصلۀ ویرایش ۱ (یا ۲ برای واژۀ پنج‌حرفی و بیشتر با دو همسایۀ مشترک) جفت می‌شود. پیشوند و پسوند هم (شکستن واژه در PDF) و جابه‌جایی حروف کنار گذاشته شد.
 - **اعمال:** `apply.py --corpus <text/fankha> --write`. شکل واژۀ تازه: «ي/ك» به «ی/ک» مگر واژۀ متن خود عربی‌نویس باشد؛ «ى» پایانی متن می‌ماند.
 - **پارسر:** `fankha_parser_v2.py` 2.9.0 روی متن پیشین و تازه؛ مقایسۀ اثربه‌اثر و نسخه‌به‌نسخه.
+- **متن صفحه‌ها:**
+  - `python3 -I scripts/sources/fankha_pages.py <پیکره>/text/fankha fahares-sources/fankha/pages-step14_449` (پیکره `e71cd0b`): ۳۴ فایل، ۳۳٬۵۱۸ صفحه.
+  - **پشتیبان تولید:** `fahares-sources/backups/step13/step14_449_fankha_pages_before.jsonl.gz` (`df7e96e6…`، ۳۳٬۵۱۸ ردیف `source_pages` منبع 1؛ md5 دو سو برابر). در برابر آن ۳٬۶۱۶ صفحه فرق داشت، صفحۀ تازه یا گم‌شده نبود.
+  - **تمرین روی fahares_prod:** `sources:import-pages fankha storage/app/fankha-pages-step14_449/NN.jsonl.gz --volume=N` برای ۳۴ جلد، سپس `differ 0`.
+  - **اجرای تولید:** فایل‌ها به `/tmp/step14_449_pages/` (`MD5SUMS` برابر)، یک `prod-run --wait fankha-pdf-ocr` با ۳۴ `sources:import-pages` (۲۰:۳۲ تا ۲۰:۳۳، exit 0).
+  - **وارسی:** صفحه‌های تولید دوباره بیرون آمد: ۳۳٬۵۱۸ صفحه، `differ 0`، `missing 0`. `/sources/fankha/34/page/710` پاسخ 200 و «لاتمییز» دارد. `/tmp` کانتینر پاک است.
