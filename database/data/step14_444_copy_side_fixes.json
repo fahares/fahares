@@ -1,0 +1,16 @@
+{
+    "generated_at": "2026-11-27",
+    "note": "Step 14.444: what checking backlog item 52 against the library catalogues' printed pages found besides the scripts. Copies are found by city, library, shelfmark and work slug, and changed only while the field still holds «from». «dates»: the copy date the printed page gives. «scribe_names»: a scribe name that is no name. «photo_citations»: Fankha citations «[عکسی …: ف: N-P]» of a library's copies that point to its main catalogue, moved to the same volume of its catalogue of photographic copies, with the cataloguer that volume's other entries have.",
+    "dates": [
+        {"city": "تهران", "library": "مجلس", "shelfmark": "130/1 سرود", "work": "tarix-e-ahd-e-bastan-v6-1730", "from": "1314ق", "copy_date_raw": "1313ش و 1314ش", "page": "tehran-univ-nashriyye 13:441 «در سالهای ۱۳۱۴ و ۱۳۱۳ هجری شمسی»"},
+        {"city": "تهران", "library": "مجلس", "shelfmark": "130/2 سرود", "work": "ruh-va-badan-v16-2199", "from": "1314ق", "copy_date_raw": "1313ش و 1314ش", "page": "tehran-univ-nashriyye 13:441 «در سالهای ۱۳۱۴ و ۱۳۱۳ هجری شمسی»"},
+        {"city": "تهران", "library": "مجلس", "shelfmark": "130/3 سرود", "work": "kalam-ol-moluk-v26-939", "from": "1314ق", "copy_date_raw": "1313ش و 1314ش", "page": "tehran-univ-nashriyye 13:441 «در سالهای ۱۳۱۴ و ۱۳۱۳ هجری شمسی»"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "14269/1", "work": "tazkerat-ol-arefin-v7-1762", "from": "1363ق", "copy_date_raw": "1263ق", "page": "marashi 36:96 «تاریخ کتابت: ۱۲۶۳هـ»; an ownership note of the copy is dated 1263"}
+    ],
+    "scribe_names": [
+        {"city": "تهران", "library": "مجلس", "shelfmark": "11677", "work": "monsaat-v31-2377", "from": "حروچینی", "page": "majlis-mokhtasar 1:824 «ش ۱۱۶۷۷، حروفچینی، ۱۳۳۷ق»: the word is in the script's place"}
+    ],
+    "photo_citations": [
+        {"library": "مرعشی", "from": "catalogue-4c7c0fc2e037", "to": "catalogue-56242973f0ee"}
+    ]
+}
