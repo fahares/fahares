@@ -14520,3 +14520,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **کنار مانده:** منزوی (برگ ۱ صفحۀ عنوان ساده است)، موزۀ ملی (اسکن docibox در برگ ۱ تنها عطف کتاب را دارد).
 - **جست‌وجوی دوباره:** فانوس (`?s=…&post_type=product`) و `ghaemiyeh.com/library/search/books?field=title&type=all` (که `image_path` جلد ۲۴۰ در ۳۲۰ را می‌دهد) برای ۲۶ عنوان. تنها مسجد اعظم (چاپ ۱۳۶۵، کتاب‌های ۵۰۴۱۳۳ تا ۵۰۴۱۵۶) و مؤید یافت شدند. منبع مسجد اعظم فهرست مخطوط است، پس جلد چاپ ۱۳۶۵ برایش گذاشته نشد. ۲۳ منبع مانده در مورد ۱۷۶.
+### گام ۱۴.۴۲۲: `suggest/reading.blade.php` و `suggest/readings.blade.php`
+- سطر `data-before-edit` برای `standing = edit` وقتی `current_value` پر و جز `display_value` است.
+- برچسب مقدار کنونی از `$r['history']->contains('standing', 'edit')`.
+- **آزمون:** `SuggestionWorkflowTest::test_an_edit_in_the_history_of_readings_shows_the_value_before_it`.
+

@@ -30,6 +30,10 @@
     @if($s->rationale_citation)
         <p x-show="open" class="p-3 rounded-xl bg-paper text-xs text-ink/80 leading-loose whitespace-pre-line break-words">{!! $linkify($s->rationale_citation) !!}</p>
     @endif
+    {{-- An edit is the value the record shows now, so its line in the history says what it replaced (step 14.422) --}}
+    @if($s->standing === 'edit' && filled($s->current_value) && trim((string) $s->current_value) !== trim((string) $s->display_value))
+        <p class="text-xs text-ink/80 leading-relaxed whitespace-pre-line break-words" data-before-edit><span class="font-bold text-muted">پیش از ویرایش:</span> {{ $s->current_value }}</p>
+    @endif
     @if($s->standing === 'superseded' && $s->supersededBy)
         <p class="text-[11px] text-muted">جای خود را به قول «{{ \Illuminate\Support\Str::limit($s->supersededBy->display_value, 80) }}» داد.</p>
     @endif
