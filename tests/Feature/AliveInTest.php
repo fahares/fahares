@@ -49,10 +49,12 @@ class AliveInTest extends TestCase
             'library' => $this->library->name, 'city' => 'قم', 'shelfmark' => "زندگی {$n}", 'raw_text' => "{$n}. قم"]);
         DB::table('manuscripts')->where('id', $copy->id)->update(['copy_date_from' => $from, 'copy_date_to' => $to]);
         DB::table('manuscript_people')->insert(['manuscript_id' => $copy->id, 'person_id' => $scribe->id, 'role' => 'scribe', 'position' => 0]);
-        // people.scribed_from and scribed_to are the years of the scribe's copies dated by a year, not by a century
+        // people.scribed_from and scribed_to are the years of the scribe's copies dated by a year, not by a century;
+        // scribed_gap the years they surely lie apart
         if ($from === $to) {
             DB::table('people')->where('id', $scribe->id)->update([
                 'scribed_from' => DB::raw("LEAST(COALESCE(scribed_from, {$from}), {$from})"), 'scribed_to' => DB::raw("GREATEST(COALESCE(scribed_to, {$to}), {$to})")]);
+            DB::table('people')->where('id', $scribe->id)->update(['scribed_gap' => DB::raw('scribed_to - scribed_from')]);
         }
 
         return $copy->id;

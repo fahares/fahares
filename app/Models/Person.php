@@ -414,6 +414,7 @@ class Person extends Model
             'manuscripts_count' => 'integer',
             'scribed_from' => 'integer',
             'scribed_to' => 'integer',
+            'scribed_gap' => 'integer',
         ];
     }
 
@@ -494,7 +495,7 @@ class Person extends Model
         return $models;
     }
 
-    private const NO_COPIES = ['from' => null, 'to' => null, 'centuries' => [], 'cities' => []];
+    private const NO_COPIES = ['from' => null, 'to' => null, 'gap' => null, 'centuries' => [], 'cities' => []];
 
     /** What lifePlaces gives for this person, set for a whole batch by makeSearchableUsing */
     public ?array $lifePlaces = null;
@@ -530,8 +531,10 @@ class Person extends Model
      * When and where each of the people copied (step 14.155), by person id: the first and last year of their dated
      * copies, the centuries a copy of theirs lies wholly in (Manuscript::copyBounds, as the copies' own century
      * filter), and the cities of their copies' places (CopyPlaces). A person without copies is not in the result.
+     * «gap» is the years the copies surely lie apart (step 14.430): the latest start less the earliest end among the
+     * copies with both bounds, 0 when they may all be of one time.
      *
-     * @return array<int, array{from: ?int, to: ?int, centuries: array<int, int>, cities: array<int, string>}>
+     * @return array<int, array{from: ?int, to: ?int, gap: ?int, centuries: array<int, int>, cities: array<int, string>}>
      */
     public static function scribeFacts(array $ids): array
     {
@@ -552,6 +555,10 @@ class Person extends Model
             if ($from !== null && $to !== null && intdiv($from - 1, 100) === intdiv($to - 1, 100)) {
                 $f['centuries'][intdiv($from - 1, 100) + 1] = true;
             }
+            if ($from !== null && $to !== null) {
+                $f['latest_start'] = max($f['latest_start'] ?? $from, $from);
+                $f['earliest_end'] = min($f['earliest_end'] ?? $to, $to);
+            }
             if ($city = \App\Support\CopyPlaces::cityOf($row->copy_place)) {
                 $f['cities'][$city] = true;
             }
@@ -560,9 +567,21 @@ class Person extends Model
 
         return array_map(function ($f) {
             ksort($f['centuries']);
+            $gap = isset($f['latest_start']) ? max(0, $f['latest_start'] - $f['earliest_end']) : null;
+            unset($f['latest_start'], $f['earliest_end']);
 
-            return ['centuries' => array_keys($f['centuries']), 'cities' => array_keys($f['cities'])] + $f;
+            return ['centuries' => array_keys($f['centuries']), 'cities' => array_keys($f['cities']), 'gap' => $gap] + $f;
         }, $facts);
+    }
+
+    /**
+     * Whether the record likely holds several namesake scribes (backlog item 125): its copies surely lie more than
+     * PersonReviewQueue::MIXED_SPAN years apart. The scribes' tab then shows no period, and no place or year of the
+     * copies is said of the person.
+     */
+    public function isMixedScribe(): bool
+    {
+        return $this->scribed_gap !== null && $this->scribed_gap > \App\Services\PersonReviewQueue::MIXED_SPAN;
     }
 
     /**
@@ -727,6 +746,7 @@ class Person extends Model
             'is_scribe' => $manuscripts > 0,
             'scribed_from' => $copies['from'],
             'scribed_to' => $copies['to'],
+            'scribed_gap' => $copies['gap'],
         ]);
     }
 
@@ -748,9 +768,12 @@ class Person extends Model
     public static function roleDrift(): \Illuminate\Support\Collection
     {
         $bound = fn (string $fn, string $column) => "{$fn}(CASE WHEN manuscripts.{$column} BETWEEN 1 AND 1500 THEN manuscripts.{$column} END)";
+        // the bound of a copy whose start and end are both kept, as scribeFacts' gap
+        $both = fn (string $fn, string $column) => "{$fn}(CASE WHEN manuscripts.copy_date_from BETWEEN 1 AND 1500 AND manuscripts.copy_date_to BETWEEN 1 AND 1500 THEN manuscripts.{$column} END)";
         $years = \Illuminate\Support\Facades\DB::table('manuscript_people')->join('manuscripts', 'manuscripts.id', '=', 'manuscript_people.manuscript_id')
             ->where('manuscript_people.role', ManuscriptPerson::SCRIBE)->whereNotNull('manuscript_people.person_id')->groupBy('manuscript_people.person_id')
-            ->selectRaw("manuscript_people.person_id, {$bound('MIN', 'copy_date_from')} AS f, {$bound('MAX', 'copy_date_to')} AS t");
+            ->selectRaw("manuscript_people.person_id, {$bound('MIN', 'copy_date_from')} AS f, {$bound('MAX', 'copy_date_to')} AS t,
+                GREATEST({$both('MAX', 'copy_date_from')} - {$both('MIN', 'copy_date_to')}, 0) AS g");
         $count = fn (string $table, string $role) => \Illuminate\Support\Facades\DB::table($table)->where('role', $role)->whereNotNull('person_id')
             ->groupBy('person_id')->selectRaw('person_id, COUNT(*) AS n');
 
@@ -760,11 +783,11 @@ class Person extends Model
             ->leftJoinSub($years, 'y', 'y.person_id', '=', 'people.id')
             ->whereRaw('(people.works_count <> COALESCE(w.n, 0) OR people.manuscripts_count <> COALESCE(m.n, 0)
                 OR people.is_author <> (COALESCE(w.n, 0) > 0) OR people.is_scribe <> (COALESCE(m.n, 0) > 0)
-                OR NOT (people.scribed_from <=> y.f) OR NOT (people.scribed_to <=> y.t))')
+                OR NOT (people.scribed_from <=> y.f) OR NOT (people.scribed_to <=> y.t) OR NOT (people.scribed_gap <=> y.g))')
             ->orderBy('people.id')
             ->selectRaw('people.id, people.name, people.works_count, people.manuscripts_count, people.is_author, people.is_scribe,
                 COALESCE(w.n, 0) AS works, COALESCE(m.n, 0) AS manuscripts,
-                (NOT (people.scribed_from <=> y.f) OR NOT (people.scribed_to <=> y.t)) AS years_differ')
+                (NOT (people.scribed_from <=> y.f) OR NOT (people.scribed_to <=> y.t) OR NOT (people.scribed_gap <=> y.g)) AS years_differ')
             ->get();
     }
 

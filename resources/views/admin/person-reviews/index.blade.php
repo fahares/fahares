@@ -112,6 +112,8 @@
                     // how many researchers of «تصحیح جمعی» marked each copy as another scribe's
                     $markedBy = collect($item['answers'] ?? [])->where('answer', 'split')->flatMap(fn ($a) => $a['opinions'])
                         ->flatMap(fn ($o) => $o->payload['manuscript_ids'] ?? [])->countBy();
+                    // the copies a machine would split off at the widest gap (step 14.430): only marked, never checked
+                    $machine = $m ? array_flip(\App\Review\MixedRecordQueue::suggestedSplit($m['copies'])) : [];
                 @endphp
                 @if($m)
                     <form method="POST" action="{{ route('admin.person-reviews.split', $review) }}" class="space-y-3">
@@ -130,8 +132,8 @@
                                     @foreach($m['copies'] as $copy)
                                         <tr class="hover:bg-paper">
                                             <td class="p-2"><input type="checkbox" name="manuscript_ids[]" value="{{ $copy->id }}" id="r{{ $review->id }}-m{{ $copy->id }}" class="size-4 accent-cinnabar" @checked(in_array($copy->id, old('manuscript_ids', [])))></td>
-                                            <td class="p-2 tabular-nums whitespace-nowrap"><label for="r{{ $review->id }}-m{{ $copy->id }}">{{ $copy->year ? $fa($copy->year) . ' ق' : '—' }}</label></td>
-                                            <td class="p-2"><a href="{{ route('manuscripts.permalink', $copy->id) }}" target="_blank" class="hover:text-cinnabar">{{ $copy->title }}</a>@if($markedBy[$copy->id] ?? 0) <span class="ms-1 px-1.5 rounded-full border border-amber-600/40 text-amber-800 dark:text-amber-300 text-[10px] whitespace-nowrap">کاتب دیگر به نظر {{ \App\Support\Fa::num($markedBy[$copy->id]) }} پژوهشگر</span>@endif</td>
+                                            <td class="p-2 tabular-nums whitespace-nowrap"><label for="r{{ $review->id }}-m{{ $copy->id }}">{{ \App\Services\PersonReviewQueue::copyWhen($copy) ?? '—' }}</label></td>
+                                            <td class="p-2"><a href="{{ route('manuscripts.permalink', $copy->id) }}" target="_blank" class="hover:text-cinnabar">{{ $copy->title }}</a>@if($markedBy[$copy->id] ?? 0) <span class="ms-1 px-1.5 rounded-full border border-amber-600/40 text-amber-800 dark:text-amber-300 text-[10px] whitespace-nowrap">کاتب دیگر به نظر {{ \App\Support\Fa::num($markedBy[$copy->id]) }} پژوهشگر</span>@endif @if(isset($machine[$copy->id])) <span class="ms-1 px-1.5 rounded-full border border-line-strong text-muted text-[10px] whitespace-nowrap">پیشنهاد ماشین</span>@endif</td>
                                             <td class="p-2 text-muted">{{ $copy->city }}، {{ $copy->library }} {{ $fa($copy->shelfmark) }}</td>
                                             <td class="p-2 text-muted">{{ $copy->scribe_name }}</td>
                                         </tr>

@@ -134,7 +134,7 @@ class PersonPlacesTest extends TestCase
         $work = $this->work('اثر آزمایشی قاطی مکان', $author);
         $this->copy($work, $mixed, ['copy_place' => 'هرات', 'copy_date_from' => 1000, 'copy_date_to' => 1000]);
         $this->copy($work, $mixed, ['copy_place' => 'لاهور', 'copy_date_from' => 1150, 'copy_date_to' => 1150]);
-        DB::table('people')->where('id', $mixed->id)->update(['scribed_from' => 1000, 'scribed_to' => 1150]);
+        DB::table('people')->where('id', $mixed->id)->update(['scribed_from' => 1000, 'scribed_to' => 1150, 'scribed_gap' => 150]);
 
         $this->assertSame([], PersonPlaces::for($mixed->fresh()));
 

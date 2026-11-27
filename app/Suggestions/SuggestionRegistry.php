@@ -65,6 +65,8 @@ class SuggestionRegistry
         'idea' => 'پیشنهاد برای سایت',
         'stats' => 'درخواست آمار یا نمودار تازه',
         'other' => 'موارد دیگر',
+        // From the «تماس با ما» page's form only (ContactController); the feedback dialog does not offer it
+        'contact' => 'پیام از صفحۀ تماس با ما',
     ];
 
     /**

@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\DB;
 /**
  * Builds the admin queue «بازبینی اشخاص» (backlog item 78) from the data:
  *   duplicate — groups DuplicatePeopleFinder puts in the likely or review tier (conflicts are left out);
- *   mixed     — people whose copies span more than a lifetime, likely several namesakes in one record.
+ *   mixed     — people whose copies surely lie more than MIXED_SPAN years apart (people.scribed_gap, step 14.430),
+ *               likely several namesakes in one record. A copy dated by its century alone counts by its bounds.
+ *               A scribe tied to a namesake author who died long before the copies stays in «تناقض تاریخ».
  * Namesake groups queued from a model review (key «judged:…», step 14.124) are kept until fewer than two of their
  * records are left.
  * Decisions stay with the key: a group judged «چند نفرند» is reopened only when a record it did not
@@ -41,12 +43,13 @@ class PersonReviewQueue
                 $group['tier'] === 'likely' ? ['merge_ids' => $ids, 'target_id' => $group['target_id'], 'source' => 'finder'] : null);
         }
 
+        // As Person::scribeFacts' gap: the earliest end and the latest start of the copies with both bounds
         $mixed = DB::table('manuscript_people as s')->where('s.role', ManuscriptPerson::SCRIBE)
             ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
-            ->whereNotNull('s.person_id')->whereNotNull('m.copy_date_hijri_year')
+            ->whereNotNull('s.person_id')->whereBetween('m.copy_date_from', [1, 1500])->whereBetween('m.copy_date_to', [1, 1500])
             ->groupBy('s.person_id')
-            ->havingRaw('MAX(m.copy_date_hijri_year) - MIN(m.copy_date_hijri_year) > ?', [self::MIXED_SPAN])
-            ->selectRaw('s.person_id, MIN(m.copy_date_hijri_year) lo, MAX(m.copy_date_hijri_year) hi, COUNT(*) n')
+            ->havingRaw('MAX(m.copy_date_from) - MIN(m.copy_date_to) > ?', [self::MIXED_SPAN])
+            ->selectRaw('s.person_id, MIN(m.copy_date_to) lo, MAX(m.copy_date_from) hi, COUNT(*) n')
             ->get();
         foreach ($mixed as $row) {
             $key = 'person:' . $row->person_id;
@@ -132,8 +135,10 @@ class PersonReviewQueue
             ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
             ->leftJoin('works as w', 'w.id', '=', 'm.work_id')
             ->whereIn('s.person_id', $ids)
-            ->orderBy('s.person_id')->orderByRaw('m.copy_date_hijri_year IS NULL, m.copy_date_hijri_year')
-            ->get(['s.person_id', 'm.id', 'm.city', 'm.library', 'm.shelfmark', 'm.copy_date_hijri_year as year', 'm.scribe_name', 'w.primary_title as title'])
+            // a copy dated by its century alone by the middle of its bounds, among the copies dated by a year
+            ->orderBy('s.person_id')->orderByRaw('COALESCE(m.copy_date_hijri_year, (m.copy_date_from + m.copy_date_to) / 2) IS NULL, COALESCE(m.copy_date_hijri_year, (m.copy_date_from + m.copy_date_to) / 2), m.id')
+            ->get(['s.person_id', 'm.id', 'm.city', 'm.library', 'm.shelfmark', 'm.copy_date_hijri_year as year', 'm.copy_date_from as date_from', 'm.copy_date_to as date_to',
+                'm.scribe_name', 'w.primary_title as title'])
             ->groupBy('person_id');
         $works = DB::table('work_people as a')->where('a.role', WorkPerson::AUTHOR)->join('works as w', 'w.id', '=', 'a.work_id')
             ->whereIn('a.person_id', $ids)->get(['a.person_id', 'w.id', 'w.primary_title as title'])->groupBy('person_id');
@@ -145,15 +150,37 @@ class PersonReviewQueue
                 continue;
             }
             $c = $copies[$id] ?? collect();
-            $years = $c->pluck('year')->filter();
+            $starts = $c->map(fn ($copy) => $copy->year ?: self::bound($copy->date_from))->filter();
+            $ends = $c->map(fn ($copy) => $copy->year ?: self::bound($copy->date_to))->filter();
             $out[$id] = [
                 'person' => $p,
-                'span' => $years->isNotEmpty() ? [$years->min(), $years->max()] : null,
+                'span' => $starts->isNotEmpty() && $ends->isNotEmpty() ? [$starts->min(), $ends->max()] : null,
                 'copies' => $allCopies ? $c->take(400)->values() : $c->take(4)->values(),
                 'works' => ($works[$id] ?? collect())->take($allCopies ? 20 : 3)->values(),
             ];
         }
 
         return $out;
+    }
+
+    /** When a copy of a profile was made: its year, else its century or the bounds of its date («سدۀ ۱۳», «۱۰۵۰–۱۱۲۰»). */
+    public static function copyWhen(object $copy): ?string
+    {
+        [$from, $to] = [self::bound($copy->date_from ?? null), self::bound($copy->date_to ?? null)];
+        $text = match (true) {
+            (bool) $copy->year => "{$copy->year} ق",
+            ! $from || ! $to => null,
+            $from === $to => "{$from} ق",
+            $from % 100 === 1 && $to === $from + 99 => 'سدۀ ' . intdiv($to, 100),
+            default => "{$from}–{$to}",
+        };
+
+        return $text === null ? null : \App\Support\Fa::digits($text);
+    }
+
+    /** A bound of a copy's date as Person::scribeFacts keeps it: a year from 1 to 1500. */
+    private static function bound(mixed $year): ?int
+    {
+        return $year !== null && $year >= 1 && $year <= 1500 ? (int) $year : null;
     }
 }

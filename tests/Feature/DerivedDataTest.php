@@ -104,6 +104,26 @@ class DerivedDataTest extends TestCase
         $this->get(route('manuscripts.show', Manuscript::find($copy->id)))->assertOk()->assertSee('با فرض افتادن یک رقم');
     }
 
+    public function test_a_copy_year_before_200_is_read_again_without_a_works_date_or_left_without_a_range()
+    {
+        // no date on the work: a year before 200 is read again from 200 (step 14.432)
+        $work = $this->work();
+        $copy = Manuscript::find($this->copy($work));
+        $copy->update(['copy_date_raw' => '101ق']);
+        $this->assertSame([1001, 1101, 'بازخوانی 101', null], [$copy->copy_date_from, $copy->copy_date_to, $copy->copy_date_hedge_raw, $copy->copy_date_hijri_year]);
+        $this->get(route('manuscripts.show', $copy))->assertOk()->assertSee('برای تاریخ کتابت بسیار کهن است');
+        // years before 200 that no reading fits: no range, and refresh-derived finds one written with DB::table
+        $late = $this->work(['composition_date_raw' => '1231ق', 'composition_date_from' => 1231, 'composition_date_to' => 1231]);
+        $unread = $this->copy($late, ['copy_date_raw' => 'سه‌شنبه 19 ربیع الاول 142', 'copy_date_from' => 142, 'copy_date_to' => 142, 'copy_date_hijri_year' => 142]);
+        $pair = $this->copy($work, ['copy_date_raw' => '91-119', 'copy_date_from' => 119, 'copy_date_to' => 119, 'copy_date_hijri_year' => 119]);
+        $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500])->assertSuccessful();
+        foreach ([$unread, $pair] as $id) {
+            $row = DB::table('manuscripts')->where('id', $id)->first();
+            $this->assertSame([null, null, null, \App\Support\CopyDateRange::UNREAD], [$row->copy_date_from, $row->copy_date_to, $row->copy_date_hijri_year, $row->copy_date_hedge_raw]);
+        }
+        $this->get(route('manuscripts.show', Manuscript::find($unread)))->assertOk()->assertSee('سال کتابت نامعلوم گرفته شد');
+    }
+
     public function test_rebuild_copies_brings_the_date_range_extent_and_excerpt_pointer_in_step()
     {
         $work = $this->work();
@@ -234,8 +254,8 @@ class DerivedDataTest extends TestCase
         $this->assertSame(['1/2591', '1/534', '4/120', '2267'], [Manuscript::collectionKeyOf('1/2591/104'), Manuscript::collectionKeyOf('1/534/9'),
             Manuscript::collectionKeyOf('4/120/1-5957'), Manuscript::collectionKeyOf('2267/6/10')]);
         $this->assertSame('104', Manuscript::collectionKey('1/2591/104')['part']);
-        // ...but in Ehya «عکسی» only says the treatise is a photocopy, one of its volume's
-        $this->assertSame('1004', Manuscript::collectionKeyOf('1004/7 عکسی', "قم؛ مرکز احیاء؛ شماره نسخه: 1004/7 عکسی\nنسخه اصل: همان نسخه بالا"));
+        // ...in Ehya as in Marashi: «عکسی» names the photocopy series, whose other treatises have the key from their citation (item 174)
+        $this->assertSame('1004-عکسی', Manuscript::collectionKeyOf('1004/7 عکسی', "قم؛ مرکز احیاء؛ شماره نسخه: 1004/7 عکسی\nنسخه اصل: همان نسخه بالا"));
         $this->assertSame('1390-عکسی', Manuscript::collectionKeyOf('1390/1عکسی', '1. قم؛ مرعشی؛ شماره نسخه: 1390/1عکسی'));
         // A Majlis copy described only from the Senate library's catalogue has the Senate's numbering
         $this->assertSame('791-سنا', Manuscript::collectionKeyOf('791/1', "تهران؛ مجلس؛ شماره نسخه: 791/1\n38ص (1-38) [سنا: ف: 2-61]"));
