@@ -227,6 +227,31 @@ class SourceController extends Controller
             $validated[$field] = filled($validated[$field] ?? null) ? trim(preg_replace('/\s+/u', ' ', $validated[$field])) : null;
         }
         $validated['library_id'] = $validated['library_id'] ?? null;
+        // who sees it on the record pages (step 14.426), as far as the form sent it
+        if ($request->has('visibility')) {
+            $v = $request->validate([
+                'visibility' => ['required', Rule::in(array_keys(\App\Support\SourceVisibility::MODES))],
+                'audience_roles' => 'nullable|array',
+                'audience_roles.*' => ['string', Rule::exists('roles', 'key')],
+                'audience_scholars' => 'nullable|boolean',
+                'audience_users' => 'nullable|string|max:2000',
+            ]);
+            // user ids or emails, one per line or separated by commas, in any digits
+            $typed = strtr((string) ($v['audience_users'] ?? ''), array_combine(
+                [...mb_str_split('۰۱۲۳۴۵۶۷۸۹'), ...mb_str_split('٠١٢٣٤٥٦٧٨٩')], [...range(0, 9), ...range(0, 9)]));
+            $users = collect(preg_split('/[\s,،]+/u', $typed, -1, PREG_SPLIT_NO_EMPTY))->unique()->values();
+            $ids = \App\Models\User::whereIn('id', $users->filter(fn ($u) => ctype_digit($u))->map(fn ($u) => (int) $u))
+                ->orWhereIn('email', $users->reject(fn ($u) => ctype_digit($u)))->orderBy('id')->pluck('id');
+            if ($ids->count() < $users->count()) {
+                return back()->withInput()->withErrors(['audience_users' => 'برای ' . \App\Support\Fa::num($users->count() - $ids->count()) . ' مورد کاربری با این شناسه یا ایمیل نیست.']);
+            }
+            $validated['visibility'] = $v['visibility'];
+            $audience = ['roles' => array_values(array_unique($v['audience_roles'] ?? [])), 'scholars' => (bool) ($v['audience_scholars'] ?? false), 'users' => $ids->all()];
+            // the cast compares the array as it is stored; an unchanged audience leaves the source clean
+            if ($audience != ($source->audience ?? ['roles' => [], 'scholars' => false, 'users' => []])) {
+                $validated['audience'] = $audience;
+            }
+        }
 
         $source->fill($validated);
         $changed = $source->getDirty();

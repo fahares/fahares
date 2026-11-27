@@ -50,15 +50,15 @@ class RecordSources
     }
 
     /**
-     * Whether the reader sees the record in a source other than Fankha (step 14.376): a card of another source with a
-     * page image, the text of its page, or its printed entry. Fankha's card and text, compiled from those sources, are
-     * then left out of the page (<x-source.secondary :suggest-only>), but in suggestion mode. A bare citation of a
-     * catalogue volume, with nothing to see, keeps Fankha in view; so does a mention («یاد شده ذیل»), which does not
-     * describe the record.
+     * Whether the reader sees the record in a source every reader sees (steps 14.376 and 14.426): a card of such a
+     * source with a page image, the text of its page, or its printed entry. A source shown only as a fallback (Fankha,
+     * compiled from those sources) is then left out of the page, but for its audience (SourceVisibility). A bare
+     * citation of a catalogue volume, with nothing to see, keeps Fankha in view; so does a mention («یاد شده ذیل»),
+     * which does not describe the record.
      */
     public function seesFirstHand(): bool
     {
-        return $this->cards()->contains(fn (SourceEntry $e) => ! $e->isSecondHand() && ! $e->isMention()
+        return $this->cards()->contains(fn (SourceEntry $e) => SourceVisibility::isOpen($e->source) && ! $e->isMention()
             && ($e->viewer() || $e->hasText() || $e->pageTextUrl() || $e->textPageUrl()));
     }
 
