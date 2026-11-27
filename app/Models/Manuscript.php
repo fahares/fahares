@@ -377,6 +377,12 @@ class Manuscript extends Model
         return $slug ? "{$this->id}-{$slug}" : (string) $this->id;
     }
 
+    /** «دستخط مؤلف», with the catalogue's doubt when it has one: «دستخط مؤلف (احتمالاً)» (step 14.434, backlog item 52). */
+    public function getAutographLabelAttribute(): string
+    {
+        return 'دستخط مؤلف' . ($this->autograph_hedge ? " ({$this->autograph_hedge})" : '');
+    }
+
     public function getScribeDisplayNameAttribute(): string
     {
         if (!empty($this->scribe_name)) {

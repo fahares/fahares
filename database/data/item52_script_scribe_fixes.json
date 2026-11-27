@@ -1,0 +1,31 @@
+{
+    "generated_at": "2026-11-27",
+    "note": "Backlog item 52, step 14.434. Copies are found by city, library, shelfmark and work slug. «scripts»: a copy whose «نوع خط» is still «from» gets «script_names» and is linked to «scripts» (the first is primary); the script was read from the library catalogue's printed page («page»). «autographs»: a copy whose scribe name is still «from» loses it and becomes an autograph, with «hedge» when the catalogue doubts it; «copy_date_raw» is the date Fankha glued to the scribe.",
+    "scripts": [
+        {"city": "تهران", "library": "دانشگاه", "shelfmark": "5513", "work": "adab-ol-masq-v1-387", "from": "تایپی", "script_names": "نستعلیق", "scripts": ["نستعلیق"], "page": "tehran-univ 16:26 «نستعلیق ۱۲۵۷»"},
+        {"city": "تهران", "library": "مجلس", "shelfmark": "227", "work": "tarix-e-bist-va-ses-sal-hokumat-e-aleksander-e-doyyom-t-v6-1373", "from": "تایپی", "script_names": "نستعلیق", "scripts": ["نستعلیق"], "page": "majlis 2:127 «خط نستعلیق»"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "11327/9", "work": "taxyir-ul-musalli-fi-l-axiratayn-bayn-al-fatia-wa-t-tasbi-v7-1412", "from": "تایپی", "script_names": "نستعلیق", "script_style": "تحریری", "scripts": ["نستعلیق"], "page": "marashi 28:524 «نوع خط: نستعلیق تحریری»"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "11158", "work": "d-e-dowlat-qajar-v15-525", "from": "تایپی", "script_names": "نستعلیق", "scripts": ["نستعلیق"], "page": "marashi 28:229 «نوع خط: نستعلیق»"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "11163", "work": "kifayat-ul-akam-v26-775", "from": "تایپی", "script_names": "نسخ", "scripts": ["نسخ"], "page": "marashi 28:233 «نوع خط: نسخ»"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "14269/1", "work": "tazkerat-ol-arefin-v7-1762", "from": "تایپی", "script_names": "نسخ", "scripts": ["نسخ"], "page": "marashi 36:96 «نوع خط: نسخ»"},
+        {"city": "تهران", "library": "ملی", "shelfmark": "3314", "work": "najat-ul-ibad-fi-yawm-il-maad-v33-200", "from": "تایپی", "script_names": "نسخ", "scripts": ["نسخ"], "page": "melli 15:126 «خط: نسخ»"},
+        {"city": "مشهد", "library": "شیخ علی حیدر", "shelfmark": "1462/6", "work": "d-e-hatef-e-esfahani-v15-2182", "from": "تایپی", "script_names": "نستعلیق", "scripts": ["نستعلیق"], "page": "moayyed 3:375 «کتاب دهم نسخ وبقیه نستعلیق»"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "6790", "work": "riyaz-or-reza-v17-334", "from": "تایپی", "script_names": "نستعلیق", "scripts": ["نستعلیق"], "page": "marashi 17:329 «نستعلیق»"},
+        {"city": "تهران", "library": "مجلس", "shelfmark": "9011/37", "work": "al-manafi-v31-1695", "from": "تایپی", "script_names": "نسخ", "scripts": ["نسخ"], "page": "majlis 29:610 page text «خط: نسخ»"},
+        {"city": "تهران", "library": "مجلس", "shelfmark": "16226", "work": "dinkard-v14-2564", "from": "پهلوی، اشعار چهار ستونی", "script_names": "پهلوی", "scripts": ["پهلوی"], "page": "Fankha; the rest of the field is the copy's note «contents»"},
+        {"city": "تهران", "library": "ملی", "shelfmark": "6210", "work": "avesta-v5-666", "from": "پهلوی، دین دبیره، فارسی. دستورهای", "script_names": "پهلوی", "scripts": ["پهلوی"], "page": "Fankha; the rest of the field is the copy's notes; «نسخ» came from the word «نسخه»"}
+    ],
+    "autographs": [
+        {"city": "تهران", "library": "مجلس", "shelfmark": "18341 ض", "work": "al-istisab-v3-688", "from": "کاتب = مؤلف", "hedge": null},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "11636", "work": "usul-ul-asliyya-fi-ax-il-akam-is-sariyya-v4-272", "from": "کاتب = مؤلف (احتمالاً)", "hedge": "احتمالاً"},
+        {"city": "تهران", "library": "مجلس", "shelfmark": "3089", "work": "anwar-ur-riya-fi-s-ir-riya-v5-287", "from": "= مؤلف (احتمالاً)", "hedge": "احتمالاً"},
+        {"city": "قم", "library": "مرکز احیاء", "shelfmark": "149/1", "work": "tohfe-ye-hakim-momen-mx-v7-574", "from": "کاتب = مؤلف", "hedge": null},
+        {"city": "قم", "library": "علامة طباطبائی قم (مکتبه)", "shelfmark": "بدون شماره", "work": "tahib-ul-akam-fi-marifat-il-alal-wa-l-aram-v9-1085", "from": "= مؤلف ؟", "hedge": "؟"},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "5695/5", "work": "all-u-muskilat-il-quran-v13-951", "from": "کاتب = مؤلف", "hedge": null},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "13750", "work": "s-u-sarayi-il-islam-v19-2061", "from": "= مؤلف (شاید)", "hedge": "شاید"},
+        {"city": "مشهد", "library": "رضوی", "shelfmark": "9345/2", "work": "ebrat-name-v22-1020", "from": "= مؤلف، 1312ش", "hedge": null, "copy_date_raw": "1312ش"},
+        {"city": "تهران", "library": "حقوق", "shelfmark": "369/2 - ج", "work": "ketabce-ye-madaxel-va-maxarej-v25-1873", "from": "کاتب = مؤلف", "hedge": null},
+        {"city": "قم", "library": "مرعشی", "shelfmark": "12423", "work": "kanz-ul-gabirin-v26-1464", "from": "= مؤلف تا پنجشنبه دهه سوم محرم 1293ق", "hedge": null, "copy_date_raw": "پنجشنبه دهه سوم محرم 1293ق"},
+        {"city": "تهران", "library": "دانشگاه", "shelfmark": "6963/1", "work": "al-mawtua-subha-v32-951", "from": "کاتب = مؤلف", "hedge": null}
+    ]
+}

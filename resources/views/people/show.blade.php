@@ -314,7 +314,7 @@
                             <li class="py-3">
                                 <a href="{{ route('manuscripts.show', $ms) }}" class="flex flex-wrap items-baseline gap-x-2 group">
                                     <span class="font-naskh text-base font-bold text-ink group-hover:text-cinnabar transition">{{ $ms->work?->primary_title ?? 'نسخۀ بی‌عنوان' }}</span>
-                                    @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px]">دستخط مؤلف</x-ui.chip>@endif
+                                    @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px]">{{ $ms->autograph_label }}</x-ui.chip>@endif
                                 </a>
                                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
                                     @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_label)<span>از {{ $ms->work->author_label }} <x-ui.life :person="$ms->work->effective_author" /></span>@endif
