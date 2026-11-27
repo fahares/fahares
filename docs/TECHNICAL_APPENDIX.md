@@ -14524,3 +14524,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - برچسب مقدار کنونی از `$r['history']->contains('standing', 'edit')`.
 - **آزمون:** `SuggestionWorkflowTest::test_an_edit_in_the_history_of_readings_shows_the_value_before_it`.
 
+### گام ۱۴.۴۲۳: `AuditLog::changedKeys()` و بازگرداندن فهرست‌به‌فهرست `metadata`
+- **`AuditLog`:** `changedMetadata($old, $new)` کلیدهای متفاوت دو حالت (آرایه یا JSON)؛ `changedKeys()` ستون‌های لاگ با `metadata.<کلید>`؛ `laterOverlappingChange()` با اشتراک همین کلیدها.
+- **`AuditLogController::rollbackVerify`:** `metadata` کنونی رکورد برداشته و فقط کلیدهای عوض‌شدۀ همان لاگ به مقدار پیشین برمی‌گردد.
+- **آزمون:** `SuggestionWorkflowTest::test_a_change_of_the_incipit_is_rolled_back_after_a_change_of_the_explicit`.
+

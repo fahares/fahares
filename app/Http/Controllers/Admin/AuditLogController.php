@@ -539,6 +539,20 @@ class AuditLogController extends Controller
         $previousLibrary = $target instanceof Manuscript ? $target->library_id : null;
         // the record's place in Fankha goes back in its Fankha entry, which its columns follow (step 14.396)
         $old = \App\Sources\RecordEntries::restore($target, $old);
+        // The metadata goes back list by list: only what this change wrote, so a later change of another list of the
+        // same column (the explicit after the incipit) stays (step 14.423)
+        if (array_key_exists('metadata', $old)) {
+            $before = is_string($old['metadata']) ? (json_decode($old['metadata'], true) ?: []) : (array) ($old['metadata'] ?? []);
+            $now = (array) ($target->metadata ?? []);
+            foreach (AuditLog::changedMetadata($log->old_values['metadata'] ?? null, $log->new_values['metadata'] ?? null) as $key) {
+                if (array_key_exists($key, $before)) {
+                    $now[$key] = $before[$key];
+                } else {
+                    unset($now[$key]);
+                }
+            }
+            $old['metadata'] = $now;
+        }
         if ($old) {
             $target->forceFill($old)->save();
         }

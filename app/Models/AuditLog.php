@@ -127,7 +127,36 @@ class AuditLog extends Model
             ->whereIn('action', ['verify', 'update'])
             ->orderBy('id')
             ->get()
-            ->first(fn (self $l) => array_intersect_key($l->old_values ?? [], $this->old_values) && ! $l->isRolledBack());
+            ->first(fn (self $l) => array_intersect($l->changedKeys(), $this->changedKeys()) && ! $l->isRolledBack());
+    }
+
+    /**
+     * What the change wrote: its columns, with `metadata` named by the lists in it that changed («metadata.incipits»).
+     * A copy's incipits, explicits and seals share that one column, and a later change of one list is no change of
+     * another (step 14.423): the incipit's approval could not be taken back after the explicit's.
+     *
+     * @return string[]
+     */
+    public function changedKeys(): array
+    {
+        $keys = array_keys(array_diff_key($this->old_values ?? [], ['metadata' => 0]));
+        foreach (self::changedMetadata($this->old_values['metadata'] ?? null, $this->new_values['metadata'] ?? null) as $key) {
+            $keys[] = 'metadata.' . $key;
+        }
+
+        return $keys;
+    }
+
+    /** The keys of the metadata that differ between the two states a log holds (an array, or its JSON). */
+    public static function changedMetadata(mixed $old, mixed $new): array
+    {
+        if ($old === null && $new === null) {
+            return [];
+        }
+        [$old, $new] = array_map(fn ($v) => is_string($v) ? (json_decode($v, true) ?: []) : (array) ($v ?? []), [$old, $new]);
+
+        return array_values(array_filter(array_unique(array_merge(array_keys($old), array_keys($new))),
+            fn ($key) => ($old[$key] ?? null) != ($new[$key] ?? null)));
     }
 
     /** The change an approved suggestion made, if it is still in force. */
