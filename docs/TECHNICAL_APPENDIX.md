@@ -14538,3 +14538,35 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `conversation` فرم را همیشه (نه فقط با `$thread` یا پس از تصمیم) با `inConversation => true` می‌گذارد؛ متن «پرسش از پیشنهاددهنده در پنل تصمیم است» حذف شد.
 - `ask-form`: پارامتر `$inConversation`؛ شناسۀ فیلد بی‌نامه در جعبۀ گفت‌وگو `conversation-ask-body` است تا با `ask-body` پنل تصمیم یکی نشود، و عنوان «پرسش از پیشنهاددهنده» می‌گیرد.
 - **آزمون:** `MessagingTest::test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+
+### گام ۱۴.۴۳۲: `CopyDateRange::EARLIEST`، `reread()` و `early()` (مورد ۱۲۸)
+- **`EARLIEST = 200`:** `reread()` سال تکیِ زیر آن را هر کفی که اثر داشته باشد بازمی‌خواند (کف = `max($floor ?? 0, 200)`). سال ۲۰۰ و بالاتر مثل گام ۱۴.۱۸۳ کف و فاصلۀ `REREAD_GAP` را می‌خواهد. `reread()` حالا `shortYear()` را خودش می‌خواند، چون دیگر کف شرط آن نیست. فراخواننده‌ها کف را مثل پیش‌تر فقط برای سال کوتاه حساب می‌کنند.
+- **`early()`:** تاریخی که `parse()` آن `to < 200` دارد و `CENTURY` («قرن»، «سده»، «ق ۲») در آن نیست. خروجی بازۀ تهی است، با `certainty` تهی، `kind` تهی و `hedge` برابر `UNREAD` («نخواند»). `Manuscript::copyDateColumns` آن را پس از `relative()` و `reread()` و پیش از `parse()` می‌خواند.
+- **`Manuscript::rereadSortYear`:** برای `UNREAD`، `copy_date_hijri_year` تهی است (پیش‌تر ۱۴۲ و ۱۱۹ و ۱۹۶ بود).
+- **صفحۀ نسخه:** سال بازخوانی‌شدۀ زیر ۲۰۰ «برای تاریخ کتابت بسیار کهن است» می‌گیرد، به‌جای «از زمان این اثر بسیار پیش‌تر است». `UNREAD` یادداشت «… سال کتابت نامعلوم گرفته شد» را می‌گیرد.
+- **تمرین (`fahares_prod`، رونوشت ۲۵ نوامبر):**
+  - `refresh-derived` آزمایشی دقیقاً همین ده نسخه را در `copy_date_range` نشان داد. #244034 و ۳٬۵۷۵ `collection_key` هم در گزارش بود، که کار نشست مورد ۱۷۴ روی همان رونوشت است و ربطی به این گام ندارد. پس فرمان عمومی اجرا نشد و فقط بخش `date` از `DerivedData::copyChanges` برای ده شناسه نوشته شد.
+  - نتیجه‌ها:
+
+    | نسخه | متن | بازه |
+    |---|---|---|
+    | #120795 | «101ق» | ۱۰۰۱–۱۱۰۱ |
+    | #80209 | «رجب 107ق» | ۱۰۰۷–۱۱۰۷ |
+    | #253849 | «شنبه سلخ ربیع اول 108ق» | ۱۰۰۸–۱۱۰۸ |
+    | #305895 | «129ق» | ۱۰۲۹–۱۲۹۰ |
+    | #312851 | «147» | ۱۰۴۷–۱۱۴۷ |
+    | #64592 | «183 ؟» | ۱۰۸۳–۱۱۸۳ |
+    | #203305 | «20 شعبان 188 (کذا)» | ۱۰۸۸–۱۱۸۸ |
+    | #156824 | «سه‌شنبه 19 ربیع الاول 142» | تهی (`نخواند`) |
+    | #60017 | «91-119» | تهی (`نخواند`) |
+    | #96987 | «رجب 73 و 196» | تهی (`نخواند`) |
+
+  - `estimate-dates` (شمارش، بی `--apply`): ۲۷۶٬۲۹۵ ← ۲۷۶٬۲۸۵ تاریخ مستند. `composition > copy` مستقیم ۱٬۷۶۵ ← ۱٬۷۶۴. غیرمستقیم: `scribe copy > death` ۲٬۶۳۹ ← ۲٬۶۰۹، `scribe birth > copy` ۱٬۸۷۴ ← ۱٬۸۶۸، `life death > copy` ۹۷۸ ← ۹۷۲. تخمین کتابت ۵۳٬۴۹۳ ← ۵۳٬۵۱۰.
+- **برای پروداکشن:** با پشتیبان ستون‌های تاریخ این ده نسخه، `DerivedData::syncCopies([60017, 64592, 80209, 96987, 120795, 156824, 203305, 253849, 305895, 312851], null)` و سپس `fahares:estimate-dates --apply`. شناسه‌های `fahares_prod` همان شناسه‌های پروداکشن‌اند.
+- **آزمون‌ها:** `CopyDateRangeTest::test_a_date_whose_years_are_all_before_200_and_that_no_reading_fits_has_no_range`، موارد تازه در `test_a_three_digit_year_far_before_its_work_…`، و `DerivedDataTest::test_a_copy_year_before_200_is_read_again_without_a_works_date_or_left_without_a_range`.
+
+### گام ۱۴.۴۳۳: سنجش نوع بازه‌ها (`kind`) برای بستن مورد ۱۳۴
+- `fahares_prod` (رونوشت ۲۵ نوامبر)، پیش از کد گام ۱۴.۴۳۲: `fahares:refresh-derived` آزمایشی ۰ در `copy_date_range`، `composition_date_range` و `death_range`.
+- `manuscripts.copy_date_kind` (برای `copy_date_from` پر): تهی ۱۵۱٬۱۵۸، `between` ۹۱٬۰۵۳، `span` ۱٬۰۵۵. بازۀ دوسالۀ بی نوع: ۱٬۵۱۸. یک‌سالۀ نوع‌دار: ۰. `copy_date_start_to` و `copy_date_end_from` پر: ۰.
+- `works.composition_date_kind`: تهی ۹٬۶۰۱، `between` ۲۶۹، `span` ۲۴۷. دوسالۀ بی نوع: ۶۲.
+- `people.death_kind`: `between` ۲۵۱، همه با `death_from ≠ death_to`. هر ۴٬۷۵۶ ردیف تهی یک‌ساله‌اند.

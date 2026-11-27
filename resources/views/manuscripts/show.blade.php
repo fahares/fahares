@@ -369,7 +369,10 @@
                             @if($manuscript->copy_date_note)<span class="block text-[12px] text-muted">{{ $manuscript->copy_date_note }}</span>@endif
                             {{-- A three-digit year far before the work, read again as a year that lost a digit (item 128) --}}
                             @if($rereadYear = \App\Support\CopyDateRange::rereadYear($manuscript->copy_date_hedge_raw))
-                                <span class="block text-[12px] text-muted">سال {{ Fa::digits($rereadYear) }} از زمان این اثر بسیار پیش‌تر است. با فرض افتادن یک رقم، {{ Fa::digits($manuscript->copy_date_from === $manuscript->copy_date_to ? $manuscript->copy_date_from : $manuscript->copy_date_from . ' تا ' . $manuscript->copy_date_to) }} ق خوانده شد.</span>
+                                <span class="block text-[12px] text-muted">سال {{ Fa::digits($rereadYear) }} {{ $rereadYear < \App\Support\CopyDateRange::EARLIEST ? 'برای تاریخ کتابت بسیار کهن است' : 'از زمان این اثر بسیار پیش‌تر است' }}. با فرض افتادن یک رقم، {{ Fa::digits($manuscript->copy_date_from === $manuscript->copy_date_to ? $manuscript->copy_date_from : $manuscript->copy_date_from . ' تا ' . $manuscript->copy_date_to) }} ق خوانده شد.</span>
+                            @elseif($manuscript->copy_date_hedge_raw === \App\Support\CopyDateRange::UNREAD)
+                                {{-- years before 200 that no reading fits: the date has no range (item 128, step 14.432) --}}
+                                <span class="block text-[12px] text-muted">سال این تاریخ برای کتابت بسیار کهن است و با فرض افتادن یک رقم هم با زمان اثر نمی‌خواند؛ سال کتابت نامعلوم گرفته شد.</span>
                             @endif
                         @elseif($inherited = $fromMother($mother?->copy_date_raw))
                             {!! $inherited !!}
