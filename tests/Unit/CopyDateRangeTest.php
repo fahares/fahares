@@ -221,7 +221,8 @@ class CopyDateRangeTest extends TestCase
         // a copy near its work or after it, a work with no floor, a four-digit year, a century, a span
         $this->assertNull($reread('محرم 279ق', 176));
         $this->assertNull($reread('396ق', 350));
-        $this->assertNull($reread('سال 125؟', null));
+        $this->assertNull($reread('سال 225؟', null));
+        $this->assertNull($reread('396ق', null));
         $this->assertNull($reread('1125ق', 1106));
         $this->assertNull($reread('قرن 3', 1106));
         $this->assertNull($reread('91-119', 1106));
@@ -235,9 +236,39 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame([1006, 1060, 'doubtful', 'بازخوانی 106'], $reread('جمعه 12 رمضان 106؟', 832));
         // no reading falls on the day: the weekday says nothing, and all of them stay
         $this->assertSame([1017, 1170, 'doubtful', 'بازخوانی 117'], $reread('یک‌شنبه 29 رمضان سال 31 جلوس (117)', 1000));
+        // a year before 200 is read again whatever the floor, and from 200 at least (step 14.432)
+        $this->assertSame([1001, 1101, 'doubtful', 'بازخوانی 101'], $reread('101ق', null));
+        $this->assertSame([1083, 1183, 'doubtful', 'بازخوانی 183'], $reread('183 ؟', null));
+        $this->assertSame([1007, 1107, 'doubtful', 'بازخوانی 107'], $reread('رجب 107ق', 201));
+        $this->assertSame([1088, 1188, 'doubtful', 'بازخوانی 188'], $reread('20 شعبان 188 (کذا)', 38));
+        $this->assertSame([1029, 1290, 'doubtful', 'بازخوانی 129'], $reread('129ق', null));
+        $this->assertNull($reread('سه‌شنبه 19 ربیع الاول 142', 1231));
         $this->assertSame(125, CopyDateRange::rereadYear('بازخوانی 125'));
         $this->assertNull(CopyDateRange::rereadYear('؟'));
         $this->assertNull(CopyDateRange::rereadYear('نزدیک عصر مؤلف'));
+    }
+
+    public function test_a_date_whose_years_are_all_before_200_and_that_no_reading_fits_has_no_range()
+    {
+        $none = ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => CopyDateRange::UNREAD, 'kind' => null];
+        $this->assertSame($none, CopyDateRange::early('سه‌شنبه 19 ربیع الاول 142'));
+        $this->assertSame($none, CopyDateRange::early('91-119'));
+        $this->assertSame($none, CopyDateRange::early('رجب 73 و 196'));
+        // a century, a year from 200, a later year, no year
+        $this->assertNull(CopyDateRange::early('اوایل قرن 2ق'));
+        $this->assertNull(CopyDateRange::early('قرن 1 و 2'));
+        $this->assertNull(CopyDateRange::early('258 ؟'));
+        $this->assertNull(CopyDateRange::early('1125ق'));
+        $this->assertNull(CopyDateRange::early('در حیات مؤلف'));
+        $this->assertNull(CopyDateRange::early(null));
+
+        // the columns: a re-read year first, then no range, and no sortable year
+        $cols = \App\Models\Manuscript::copyDateColumns('سه‌شنبه 19 ربیع الاول 142', null, 1231);
+        $this->assertSame([null, null, null, CopyDateRange::UNREAD], [$cols['copy_date_from'], $cols['copy_date_to'], $cols['copy_date_certainty'], $cols['copy_date_hedge_raw']]);
+        $this->assertSame(['copy_date_hijri_year' => null], \App\Models\Manuscript::rereadSortYear($cols));
+        $cols = \App\Models\Manuscript::copyDateColumns('101ق');
+        $this->assertSame([1001, 1101, 'بازخوانی 101'], [$cols['copy_date_from'], $cols['copy_date_to'], $cols['copy_date_hedge_raw']]);
+        $this->assertSame([], \App\Models\Manuscript::rereadSortYear(\App\Models\Manuscript::copyDateColumns('1125ق')));
     }
 
     public function test_the_weekday_of_a_hijri_date_and_the_date_a_text_states()

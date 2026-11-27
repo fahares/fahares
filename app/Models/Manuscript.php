@@ -108,7 +108,7 @@ class Manuscript extends Model
      */
     public static function copyDateColumns(?string $raw, ?int $authorDeath = null, ?int $floor = null, bool $sharedInVolume = false): array
     {
-        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::reread($raw, $floor) ?? CopyDateRange::parse($raw);
+        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::reread($raw, $floor) ?? CopyDateRange::early($raw) ?? CopyDateRange::parse($raw);
 
         return ['copy_date_from' => $range['from'], 'copy_date_to' => $range['to'], 'copy_date_certainty' => $range['certainty'],
             'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null,
@@ -177,7 +177,12 @@ class Manuscript extends Model
      */
     public static function rereadSortYear(array $columns): array
     {
-        return CopyDateRange::rereadYear($columns['copy_date_hedge_raw'] ?? null) === null ? []
+        $hedge = $columns['copy_date_hedge_raw'] ?? null;
+        if ($hedge === CopyDateRange::UNREAD) {
+            return ['copy_date_hijri_year' => null];
+        }
+
+        return CopyDateRange::rereadYear($hedge) === null ? []
             : ['copy_date_hijri_year' => $columns['copy_date_from'] === $columns['copy_date_to'] ? $columns['copy_date_from'] : null];
     }
 

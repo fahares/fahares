@@ -21,7 +21,8 @@ namespace App\Support;
  * «در حیات مؤلف» and «در عصر تألیف» D−50 to D, «در/از عصر مؤلف» D−50 to D+25, «نزدیک عصر مؤلف» D to D+75. It is an estimate, so its
  * certainty is at least probable, and the phrase is kept as the hedge.
  *
- * A date that is one three-digit year far before its work is read again as a year that lost a digit (reread()).
+ * A date that is one three-digit year far before its work, or before EARLIEST, is read again as a year that lost a
+ * digit (reread()); a date all of whose years are before EARLIEST and that no reading fits has no range (early()).
  *
  * What a range means is its kind (DateSpan, item 134, step 14.188). A century, «حدود», an open end, another
  * calendar's year, the author's time and a re-read year are one event at an unknown time: BETWEEN. Of two years:
@@ -128,20 +129,37 @@ class CopyDateRange
     private const REREAD_GAP = 100;
 
     /**
+     * No copy in these catalogues is dated by a year before this; the oldest copies are dated by their century
+     * («قرن 1 و 2»). A year before it is re-read whatever the work's floor, and from this floor at least (item 128,
+     * step 14.432).
+     */
+    public const EARLIEST = 200;
+
+    /** The hedge of a date whose years are all before EARLIEST and that no reading fits: it has no range (early()). */
+    public const UNREAD = 'نخواند';
+
+    /**
      * A date that is one three-digit year, far before the work it is a copy of, read again as a year that lost a
      * digit (item 128, step 14.183): «سال 125؟» for a work of 1106 is 1125, 1205 or 1250, so 1125-1250. The readings
      * are the year with a 1 before it and with a 0 put in after each digit; those from the floor (the work's
      * composition, or its author's birth) to REREAD_LAST are kept, and of those the ones that give the date its
      * weekday when it names one (HijriWeekday), if any does; the range runs from the first to the last. The
-     * date is a guess, so it is doubtful, and its hedge says what was done. Null when the date is anything else, when
-     * the year is not REREAD_GAP years before the floor, or when no reading fits: the date then stands as written.
+     * date is a guess, so it is doubtful, and its hedge says what was done. A year before EARLIEST is read again
+     * whatever the floor, and the floor is EARLIEST at least: «101ق» for a work with no date is 1001-1101 (step
+     * 14.432). Null when the date is anything else, when the year is not REREAD_GAP years before the floor, or when no
+     * reading fits: the date then stands as written, unless it is before EARLIEST (early()).
      *
      * @return array{from: int, to: int, certainty: string, hedge: string, kind: ?string}|null
      */
     public static function reread(?string $raw, ?int $floor): ?array
     {
-        $year = $floor ? self::shortYear($raw) : null;
-        if ($year === null || $floor - $year < self::REREAD_GAP) {
+        $year = self::shortYear($raw);
+        if ($year === null) {
+            return null;
+        }
+        if ($year < self::EARLIEST) {
+            $floor = max($floor ?? 0, self::EARLIEST);
+        } elseif (! $floor || $floor - $year < self::REREAD_GAP) {
             return null;
         }
         $digits = (string) $year;
@@ -178,6 +196,23 @@ class CopyDateRange
         $tie = '\s*(?:-|–|و|تا)\s*';
 
         return preg_match('/' . self::CENTURY . '\s*\d{1,2}(?!\d)/u', $text) || preg_match("/\d{$tie}{$year}(?!\d)|(?<!\d){$year}{$tie}\d/u", $text) ? null : $year;
+    }
+
+    /**
+     * A date that names no century and all of whose years are before EARLIEST, when reread() found no reading for it
+     * («سه‌شنبه 19 ربیع الاول 142» for a work of 1231, «91-119», «رجب 73 و 196»): no copy is that old, so the date
+     * has no range and the estimate of the date engine stands in for it (item 128, step 14.432). Else null.
+     *
+     * @return array{from: null, to: null, certainty: null, hedge: string, kind: null}|null
+     */
+    public static function early(?string $raw): ?array
+    {
+        $own = self::parse($raw);
+        if ($own['to'] === null || $own['to'] >= self::EARLIEST || preg_match('/' . self::CENTURY . '/u', strtr((string) $raw, self::DIGITS))) {
+            return null;
+        }
+
+        return ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => self::UNREAD, 'kind' => null];
     }
 
     /** Whether a stored hedge is that of a re-read date, and the year the catalogue wrote. */

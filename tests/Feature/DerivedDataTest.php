@@ -104,6 +104,26 @@ class DerivedDataTest extends TestCase
         $this->get(route('manuscripts.show', Manuscript::find($copy->id)))->assertOk()->assertSee('با فرض افتادن یک رقم');
     }
 
+    public function test_a_copy_year_before_200_is_read_again_without_a_works_date_or_left_without_a_range()
+    {
+        // no date on the work: a year before 200 is read again from 200 (step 14.432)
+        $work = $this->work();
+        $copy = Manuscript::find($this->copy($work));
+        $copy->update(['copy_date_raw' => '101ق']);
+        $this->assertSame([1001, 1101, 'بازخوانی 101', null], [$copy->copy_date_from, $copy->copy_date_to, $copy->copy_date_hedge_raw, $copy->copy_date_hijri_year]);
+        $this->get(route('manuscripts.show', $copy))->assertOk()->assertSee('برای تاریخ کتابت بسیار کهن است');
+        // years before 200 that no reading fits: no range, and refresh-derived finds one written with DB::table
+        $late = $this->work(['composition_date_raw' => '1231ق', 'composition_date_from' => 1231, 'composition_date_to' => 1231]);
+        $unread = $this->copy($late, ['copy_date_raw' => 'سه‌شنبه 19 ربیع الاول 142', 'copy_date_from' => 142, 'copy_date_to' => 142, 'copy_date_hijri_year' => 142]);
+        $pair = $this->copy($work, ['copy_date_raw' => '91-119', 'copy_date_from' => 119, 'copy_date_to' => 119, 'copy_date_hijri_year' => 119]);
+        $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500])->assertSuccessful();
+        foreach ([$unread, $pair] as $id) {
+            $row = DB::table('manuscripts')->where('id', $id)->first();
+            $this->assertSame([null, null, null, \App\Support\CopyDateRange::UNREAD], [$row->copy_date_from, $row->copy_date_to, $row->copy_date_hijri_year, $row->copy_date_hedge_raw]);
+        }
+        $this->get(route('manuscripts.show', Manuscript::find($unread)))->assertOk()->assertSee('سال کتابت نامعلوم گرفته شد');
+    }
+
     public function test_rebuild_copies_brings_the_date_range_extent_and_excerpt_pointer_in_step()
     {
         $work = $this->work();
