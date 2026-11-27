@@ -445,7 +445,8 @@
                     {{-- The size, the paper and the binding of a treatise in a «مجموعه» are the volume's: they stand in its
                          section below (x-manuscript-collection; backlog item 163, step 14.324) --}}
                     @unless($volume)
-                    <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions" :empty="! $manuscript->dimensions">
+                    {{-- a catalogue may give the book's format by name («وزیری»، «رحلی کوچک») instead of its measures (step 14.447) --}}
+                    <x-ui.meta :label="$manuscript->dimensions && ! preg_match('/[0-9۰-۹]/u', $manuscript->dimensions) ? 'قطع' : 'اندازه (سانتی‌متر)'" field="dimensions" :empty="! $manuscript->dimensions">
                         @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                     <x-ui.meta label="کاغذ" field="paper" :empty="! $manuscript->paper">
