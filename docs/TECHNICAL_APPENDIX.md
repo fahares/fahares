@@ -14566,3 +14566,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ج ۲ روی ج ۱:** پس از دو جابه‌جایی بالا، ۷۴۰ نسخۀ #۴۹۹: «ف: 1 - N» ۴۳۰ (شمارۀ ۱ تا ۲۵۰، ص ۱ تا ۲۲۳) و «ف: 2 - N» ۳۰۹ (شمارۀ ۲۵۱ تا ۶۱۰/۳، ص ۱ تا ۲۵۷)، و «نوربخش: 2 - 18» ۱. ج ۲ (#۵۰۰، `nurbakhsh`، ص ۲ تا ۲۹۶) ۲۸۵ نسخه با «ف: 2-N» (بی‌فاصله) داشت؛ هیچ شماره‌ای میان دو دسته مشترک نیست و شماره‌ها لابه‌لای هم‌اند، پس ج ۲ دو تکه شده بود. `--cited-volume=2` (`ImportFankhaCatalogReferencesCommand::parse`) هر ۳۱۰ را می‌گیرد. تمرین: «Moved 310 copies.» (۳۰ ثانیه)، سپس «0 copies to move». ج ۲ اکنون ۵۹۷ ارجاع دارد که ۵۹۵ تا در بازۀ اسکن است؛ ج ۱ ۴۳۰ نسخه.
 - **وارسی ج ۲ (برگه‌های `storage/catalogs/nurbakhsh/v02` در fahares.net):** ص ۷ با ۲۵۶ «فرهاد و شیرین» تمام می‌شود («ف: 2 - 7»)، ص ۱۸ بند ۲۷۵ «دیوان مغربی» را دارد («نوربخش: 2 - 18»)، ص ۲۵۵ مجموعۀ ۶۰۹ را («ف: 2 - 255»، 609/2).
 
+### گام ۱۴.۴۳۱: `ContactController`، `pages/contact.blade.php` و `config/contact.php`
+- مسیرها: `GET /contact` (`contact`) و `POST /contact` (`contact.store`، `throttle:5,60`).
+- `config/contact.php`: `email` (`CONTACT_EMAIL`، پیش‌فرض info@fahares.net) و `phones`. پیوندها از شماره ساخته می‌شوند: `https://wa.me/<digits>` و `https://t.me/+<digits>`. ایتا پیوند با شماره ندارد و فقط با `eitaa` (نام کاربری) `https://eitaa.com/<username>` می‌گیرد.
+- `store`: یک `FieldSuggestion` با `kind = feedback` و `field_name = contact` می‌سازد و `payload` آن `url = /contact`، `title` و `subject` است. موضوع در آغاز `suggested_value` («موضوع: …») هم می‌آید تا پنل آن را نشان دهد. مهمان نام و ایمیل لازم دارد و `notify_submitter = true` می‌گیرد. کاربر واردشده با نام و ایمیل حسابش ثبت می‌شود. سپس `SuggestionNotifier::submitted` اجرا می‌شود.
+- هرزنامه: فیلد پنهان `website` (باید خالی باشد)، و `started` که `encrypt(timestamp)` هنگام ساخت صفحه است. ارسال زودتر از `ContactController::MIN_SECONDS` (۳ ثانیه) یا با مقدار جعلی پذیرفته نمی‌شود.
+- `SuggestionRegistry::FEEDBACK_CATEGORIES` دستۀ `contact` گرفت. پنجرۀ بازخورد (`components/feedback.blade.php`) و `FeedbackController` آن را با `Arr::except` کنار می‌گذارند.
+- پیوندها: پانویس «دسترسی سریع» و منوی تاشوی سربرگ. نوار پهن سربرگ جای پیوند تازه نداشت. `SitemapController` (اولویت ۰٫۴) و `VisitStatsController::PAGE_LABELS` هم به‌روز شدند.
+- **آزمون:** `ContactPageTest` (پنج آزمون).

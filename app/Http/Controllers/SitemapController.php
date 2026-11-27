@@ -219,6 +219,12 @@ class SitemapController extends Controller
                 'priority' => '0.6',
             ],
             [
+                'loc' => route('contact'),
+                'lastmod' => $defaultDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.4',
+            ],
+            [
                 'loc' => route('search'),
                 'lastmod' => $defaultDate,
                 'changefreq' => 'weekly',
