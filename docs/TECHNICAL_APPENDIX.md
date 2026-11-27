@@ -14705,3 +14705,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`catalog_volume_links.json`، پیوند `thran-mgls-4` سری «ف»:** `catalogers` برای ۲/۲۴ (منصور)، ۳۹، ۳/۴۰، ۵۰ و ۵۱، و جلد تازۀ ۱/۴۰ (`part: 1`) پیش از ۲/۴۰. ۳/۲۴ همچنان `existing_catalogers` است. اجرای آزمایشی روی رونوشت محلی: «new volume: … جلد ۱/۴۰».
 - **شمارها پس از اجرا:** محسن صادقی ۴۲۲ ← ۸۳۳ نسخه؛ محمود نظری ۲٬۲۳۳ ← ۲٬۷۹۰؛ یوسف بیگ باباپور ۷۲۲ ← ۹۷۵؛ سید محمد طباطبائی بهبهانی ۳٬۵۹۰ ← ۳٬۴۶۳.
 
+### گام ۱۴.۴۳۸: `SourceEntry::tiedElsewhere` و `sources:dedupe-item-ties`
+- **`SourceEntry::tiedElsewhere($citableType, $citableId, $itemId, $role, ?$own)`:** ردیف دیگری رکورد را در همین نقش به همین `source_item_id` پیوند می‌دهد. با `$own`، تنها ردیفی با `id` کوچک‌تر یا ردیف بازبینی‌شده (`status != unverified`) به حساب می‌آید.
+- **`LinkSourceItemsCommand` و `LinkEarlierEditionCommand`:** پس از یافتن مدخل، اگر `tiedElsewhere`، ردیف خودش (اگر هست) پاک می‌شود (`removed`) وگرنه ساخته نمی‌شود (`duplicate`).
+- **`RecordSources::cards()`:** پس از `ranked`، ردیف‌های بازبینی‌شده جلو و `unique` بر `source_item_id|role`، سپس ترتیب رتبه (`sortKeys`).
+- **`sources:dedupe-item-ties [--dry-run]`:** گروه‌های `citable_type, citable_id, source_item_id, role` با بیش از یک ردیف. ردیف نگه‌داشته: نخستین بازبینی‌شده یا کوچک‌ترین `id`. ردیف‌های بازبینی‌نشدۀ دیگر پاک می‌شوند. `source_entry_id` در `work_people`، `person_periods` و `claims` (اگر ستون هست) به ردیف نگه‌داشته می‌رود.
+- **داده (رونوشت محلی، اجرای آزمایشی):** ۴۰۳ گروه، ۴۰۹ ردیف، ۰ ردیف ارجاع‌دهنده.
+- **آزمون:** `SourceItemsTest::test_two_places_or_citations_on_one_entry_tie_the_work_to_it_once` و `…dedupe_item_ties_keeps_the_reviewed_or_first_tie_and_the_page_shows_the_entry_once`.

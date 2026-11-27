@@ -166,6 +166,20 @@ class SourceEntry extends Model
         return $this->belongsTo(CatalogVolume::class, 'source_volume_id');
     }
 
+    /**
+     * Whether the record is already tied to this printed entry in this role by another row (step 14.438): two places of
+     * one citation on the pages of one entry («الذریعة 290/11 و 292»), or two citations of it, are one tie. A row
+     * someone has reviewed, or one made before $own, is the tie; $own is then the second and is not kept.
+     */
+    public static function tiedElsewhere(string $citableType, int $citableId, int $itemId, string $role, ?self $own = null): bool
+    {
+        return self::where('citable_type', $citableType)->where('citable_id', $citableId)
+            ->where('source_item_id', $itemId)->where('role', $role)
+            ->when($own, fn ($q) => $q->whereKeyNot($own->id)->where(fn ($q) => $q->where('id', '<', $own->id)
+                ->orWhere('status', '!=', self::STATUS_UNVERIFIED)))
+            ->exists();
+    }
+
     /** Machine matches nobody has reviewed yet: the review queue, and the ⓘ badge on the record page. */
     public function scopeAwaitingReview(Builder $query): Builder
     {
