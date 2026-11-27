@@ -138,6 +138,9 @@ class CopyDateRange
     /** The hedge of a date whose years are all before EARLIEST and that no reading fits: it has no range (early()). */
     public const UNREAD = 'نخواند';
 
+    /** The hedge of a year read again with its digits in another order, as another treatise of its volume has it. */
+    public const SWAP = 'جابه‌جایی';
+
     /**
      * A date that is one three-digit year, far before the work it is a copy of, read again as a year that lost a
      * digit (item 128, step 14.183): «سال 125؟» for a work of 1106 is 1125, 1205 or 1250, so 1125-1250. The readings
@@ -149,9 +152,14 @@ class CopyDateRange
      * 14.432). Null when the date is anything else, when the year is not REREAD_GAP years before the floor, or when no
      * reading fits: the date then stands as written, unless it is before EARLIEST (early()).
      *
+     * When no such reading fits, the year with its digits in another order is taken if it fits and another treatise
+     * of the copy's volume is dated in it ($volumeYears gives those treatises' years when asked): «17 شوال 697ق»
+     * beside «جمعه 17 شوال967ق» is 967 (step 14.443). Its hedge is SWAP and the year.
+     *
+     * @param  (callable(): int[])|null  $volumeYears
      * @return array{from: int, to: int, certainty: string, hedge: string, kind: ?string}|null
      */
-    public static function reread(?string $raw, ?int $floor): ?array
+    public static function reread(?string $raw, ?int $floor, ?callable $volumeYears = null): ?array
     {
         $year = self::shortYear($raw);
         if ($year === null) {
@@ -169,7 +177,7 @@ class CopyDateRange
         }
         $fit = array_values(array_filter($readings, fn (int $r) => $r >= $floor && $r <= self::REREAD_LAST));
         if (! $fit) {
-            return null;
+            return $volumeYears ? self::swapped($year, $floor, $volumeYears()) : null;
         }
         // «جمعه 18 ذیحجه 119؟»: of 1019, 1109, 1119 and 1190 that day is a Friday or a day from it in the first two (step 14.184)
         $stated = HijriWeekday::stated($raw);
@@ -215,10 +223,24 @@ class CopyDateRange
         return ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => self::UNREAD, 'kind' => null];
     }
 
-    /** Whether a stored hedge is that of a re-read date, and the year the catalogue wrote. */
+    /** The orders of a three-digit year's digits that fit from $floor to REREAD_LAST and date another treatise of its volume. */
+    private static function swapped(int $year, int $floor, array $volumeYears): ?array
+    {
+        [$a, $b, $c] = str_split((string) $year);
+        $orders = array_unique(array_map('intval', ["$a$c$b", "$b$a$c", "$b$c$a", "$c$a$b", "$c$b$a"]));
+        $fit = array_values(array_filter($orders, fn (int $r) => $r !== $year && $r >= $floor && $r <= self::REREAD_LAST && in_array($r, $volumeYears, true)));
+        if (! $fit) {
+            return null;
+        }
+
+        return ['from' => min($fit), 'to' => max($fit), 'certainty' => 'doubtful', 'hedge' => self::SWAP . ' ' . $year,
+            'kind' => min($fit) === max($fit) ? null : DateSpan::BETWEEN];
+    }
+
+    /** Whether a stored hedge is that of a re-read date (a lost digit or swapped digits), and the year the catalogue wrote. */
     public static function rereadYear(?string $hedge): ?int
     {
-        return $hedge !== null && preg_match('/^' . self::REREAD . ' (\d{3})$/u', $hedge, $m) ? (int) $m[1] : null;
+        return $hedge !== null && preg_match('/^(?:' . self::REREAD . '|' . self::SWAP . ') (\d{3})$/u', $hedge, $m) ? (int) $m[1] : null;
     }
 
     /** «حیات», «عصر», «نزدیک عصر»: the span around the author's death each takes, in years before and after it. */

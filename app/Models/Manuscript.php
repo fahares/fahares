@@ -106,9 +106,9 @@ class Manuscript extends Model
      * sharedVolumeDates) has no kind: the catalogue may mean the years the whole volume took, and then this treatise
      * was written at some time in them (step 14.188).
      */
-    public static function copyDateColumns(?string $raw, ?int $authorDeath = null, ?int $floor = null, bool $sharedInVolume = false): array
+    public static function copyDateColumns(?string $raw, ?int $authorDeath = null, ?int $floor = null, bool $sharedInVolume = false, ?callable $volumeYears = null): array
     {
-        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::reread($raw, $floor) ?? CopyDateRange::early($raw) ?? CopyDateRange::parse($raw);
+        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::reread($raw, $floor, $volumeYears) ?? CopyDateRange::early($raw) ?? CopyDateRange::parse($raw);
 
         return ['copy_date_from' => $range['from'], 'copy_date_to' => $range['to'], 'copy_date_certainty' => $range['certainty'],
             'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null,
@@ -144,6 +144,25 @@ class Manuscript extends Model
         }
 
         return $shared;
+    }
+
+    /**
+     * The Hijri years the other treatises of a copy's volume are dated in (CopyDateRange::reread, step 14.443), as a
+     * callable so that the one query runs only for a date that needs it. Empty without a volume.
+     *
+     * @return callable(): int[]
+     */
+    public static function volumeYears(?int $library, ?string $volume, ?int $except): callable
+    {
+        return function () use ($library, $volume, $except): array {
+            if ($volume === null || $volume === '') {
+                return [];
+            }
+            $texts = DB::table('manuscripts')->where('library_id', $library)->where('collection_key', $volume)
+                ->when($except, fn ($q) => $q->where('id', '<>', $except))->whereNotNull('copy_date_raw')->pluck('copy_date_raw');
+
+            return array_values(array_unique(array_merge([], ...$texts->map(fn ($t) => HijriYear::all($t))->all())));
+        };
     }
 
     public static function volumeDateKey(?int $library, ?string $volume, ?string $raw): string
@@ -223,7 +242,8 @@ class Manuscript extends Model
                 $shared = $manuscript->collection_key !== null && (string) $manuscript->copy_date_raw !== ''
                     && DB::table('manuscripts')->where('library_id', $manuscript->library_id)->where('collection_key', $manuscript->collection_key)
                         ->where('copy_date_raw', $manuscript->copy_date_raw)->when($manuscript->exists, fn ($q) => $q->where('id', '<>', $manuscript->id))->exists();
-                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death, $floor, $shared));
+                $years = self::volumeYears($manuscript->library_id, $manuscript->collection_key, $manuscript->id);
+                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death, $floor, $shared, $years));
                 $manuscript->forceFill(self::rereadSortYear($manuscript->only(['copy_date_from', 'copy_date_to', 'copy_date_hedge_raw'])));
             }
             // The city the place of copying names, beside its text (item 139, step 14.209)
