@@ -58,10 +58,14 @@ class PersonReviewTest extends TestCase
             'slug' => 'test-review-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1,
         ]);
 
-        return Manuscript::create([
+        $copy = Manuscript::create([
             'work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
             'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name, 'copy_date_hijri_year' => $year, 'raw_text' => 'نسخۀ آزمایشی',
         ]);
+        // the bounds of the date, which the queue of mixed records reads (step 14.430)
+        \Illuminate\Support\Facades\DB::table('manuscripts')->where('id', $copy->id)->update(['copy_date_from' => $year, 'copy_date_to' => $year]);
+
+        return $copy;
     }
 
     public function test_namesakes_are_queued_merged_from_the_panel_and_a_keep_apart_decision_sticks()
