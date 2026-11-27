@@ -513,7 +513,8 @@
                                         <p class="text-sm text-muted leading-relaxed whitespace-pre-line">{{ $item['text'] }}</p>
                                     </div>
                                 @else
-                                    <x-ui.quote :label="$itemLabel ?? $kind" :field="$itemField">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                                    {{-- a lone item under the section «آغاز نسخه» needs no label of its own (step 14.424) --}}
+                                    <x-ui.quote :label="$itemLabel" :field="$itemField">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
                                     {{-- A pointer at one of the work's numbered or part incipits leads to it (backlog item 98) --}}
                                     @if(! empty($item['work_excerpt_id']) && $manuscript->work)
                                         <a href="{{ route('works.show', $manuscript->work) }}#excerpt-{{ $item['work_excerpt_id'] }}" class="inline-block mt-1 text-[11px] text-cinnabar hover:underline">در صفحۀ اثر ←</a>

@@ -14524,3 +14524,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - برچسب مقدار کنونی از `$r['history']->contains('standing', 'edit')`.
 - **آزمون:** `SuggestionWorkflowTest::test_an_edit_in_the_history_of_readings_shows_the_value_before_it`.
 
+### گام ۱۴.۴۲۴: `manuscripts/show.blade.php` و `components/ui/quote.blade.php`
+- `x-ui.quote` در صفحۀ نسخه `:label="$itemLabel"` می‌گیرد، نه `$itemLabel ?? $kind`. `$itemLabel` برای فهرست تک‌متنی بی‌برچسب `null` است.
+- `label` در `x-ui.quote` اختیاری شد و `figcaption` فقط وقتی برچسب یا دکمۀ پیشنهاد هست ساخته می‌شود.
+- **آزمون:** `TextExcerptsTest::test_a_lone_incipit_has_no_label_under_its_section`.
