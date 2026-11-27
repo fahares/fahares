@@ -785,6 +785,33 @@ class SuggestionWorkflowTest extends TestCase
         $this->post("/admin/suggestions/{$third->id}/discard-derived")->assertStatus(409);
     }
 
+    /** Step 14.423: the incipit's change is taken back after the explicit's, and the explicit stays (suggestion 675). */
+    public function test_a_change_of_the_incipit_is_rolled_back_after_a_change_of_the_explicit()
+    {
+        $m = $this->manuscript(['incipit_text' => 'آغاز کهنه', 'explicit_text' => 'انجام کهنه',
+            'metadata' => ['incipits' => [['label' => null, 'text' => 'آغاز کهنه']], 'explicits' => [['label' => null, 'text' => 'انجام کهنه']]]]);
+        $this->suggest($m, ['field_name' => 'incipit_text', 'suggested_value' => 'آغاز تازه', 'rationale_citation' => 'خود نسخه'])->assertOk();
+        $incipit = $this->pendingFor($m);
+        $this->approve($incipit)->assertRedirect('/admin/suggestions');
+        $this->actingAs($this->admin)->postJson('/admin/suggestions/direct-edit', ['type' => 'manuscript', 'id' => $m->id, 'field_name' => 'explicit_text', 'suggested_value' => 'انجام تازه'])->assertOk();
+
+        // the two logs share the column and no list of it
+        $logs = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->orderBy('id')->get();
+        $this->assertSame([['incipit_text', 'metadata.incipits'], ['explicit_text', 'metadata.explicits']], [$logs[0]->changedKeys(), $logs[1]->changedKeys()]);
+        $this->assertNull($logs[0]->laterOverlappingChange());
+
+        $this->post("/admin/suggestions/{$incipit->id}/reopen")->assertSessionHas('success');
+        $m->refresh();
+        $this->assertSame(['pending', 'آغاز کهنه', 'انجام تازه'], [$incipit->fresh()->status, $m->incipit_text, $m->explicit_text]);
+        $this->assertSame([['آغاز کهنه'], ['انجام تازه']], [array_column($m->metadata['incipits'], 'text'), array_column($m->metadata['explicits'], 'text')]);
+
+        // a later change of the same list still stands in the way
+        $this->approve($incipit->fresh())->assertRedirect('/admin/suggestions');
+        $this->postJson('/admin/suggestions/direct-edit', ['type' => 'manuscript', 'id' => $m->id, 'field_name' => 'incipit_text', 'suggested_value' => 'آغاز سوم'])->assertOk();
+        $this->post("/admin/suggestions/{$incipit->id}/reopen")->assertSessionHas('error');
+        $this->assertSame('آغاز سوم', $m->fresh()->incipit_text);
+    }
+
     /** Step 14.422: an approval as an edit shows the value it replaced, not the new value twice. */
     public function test_an_edit_in_the_history_of_readings_shows_the_value_before_it()
     {
