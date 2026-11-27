@@ -14617,6 +14617,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `manuscripts.copy_date_kind` (برای `copy_date_from` پر): تهی ۱۵۱٬۱۵۸، `between` ۹۱٬۰۵۳، `span` ۱٬۰۵۵. بازۀ دوسالۀ بی نوع: ۱٬۵۱۸. یک‌سالۀ نوع‌دار: ۰. `copy_date_start_to` و `copy_date_end_from` پر: ۰.
 - `works.composition_date_kind`: تهی ۹٬۶۰۱، `between` ۲۶۹، `span` ۲۴۷. دوسالۀ بی نوع: ۶۲.
 - `people.death_kind`: `between` ۲۵۱، همه با `death_from ≠ death_to`. هر ۴٬۷۵۶ ردیف تهی یک‌ساله‌اند.
+
 ### گام ۱۴.۴۳۴: `fahares:fix-script-scribe-leftovers`، ستون `manuscripts.autograph_hedge` و مرز «خط:»
 - **migration** `2026_11_27_100001_add_autograph_hedge_to_manuscripts`: ستون `autograph_hedge` (varchar 60، nullable) در پایان جدول. روی رونوشت پروداکشن ۱۱ ثانیه طول کشید.
 - **نمایش:** `Manuscript::getAutographLabelAttribute()` مقدار «دستخط مؤلف» را با «(تردید)» می‌سازد. صفحه‌های نسخه، اثر، شخص و نتیجۀ جست‌وجو آن را نشان می‌دهند. `fahares:link-autograph-scribes` نسخه‌ای را که تردید دارد به پدیدآور پیوند نمی‌دهد.
