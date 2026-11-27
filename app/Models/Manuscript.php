@@ -947,8 +947,8 @@ class Manuscript extends Model
      * («622/1ط», «1359/9عکسی», «149/1 معزی») names a collection too, except words that do not: «بخش3» (a
      * section of the treatise), «و …» (a second shelfmark), «تا …», «مکرر», «حاشیه» (a treatise in the
      * margin) and a parenthesis («462/33(آ)»). In the Majlis «-ط» is «-طباطبائی»; the stuck «ط» is kept
-     * apart, as its copies are described in another volume of the library's catalogue (step 13.146). Where the
-     * copy's text names a library whose stuck marks only describe the copy (DESCRIPTIVE_MARKS), the mark is ignored.
+     * apart, as its copies are described in another volume of the library's catalogue (step 13.146). «عکسی» names the
+     * photocopy series in Ehya as in Mar'ashi (App\Support\PhotoSeries, backlog item 174).
      *
      * @return array{base: string, collection: ?string, part: string}|null
      */
@@ -974,8 +974,7 @@ class Manuscript extends Model
         $collection = $tail !== '' && preg_match('/\p{L}/u', $tail) ? ($tail === 'ط' ? 'طباطبائی' : $tail) : null;
         preg_match('/^(\d+)\s*(.*)$/su', trim($m[2]), $p);
         $stuck = $clean($p[2] ?? '');
-        if ($collection === null && $stuck !== '' && preg_match('/\p{L}/u', $stuck) && ! preg_match('/^(?:بخش|تا\b|و(?:\s|\d|$)|مکرر|حاشیه|\(|\d)/u', $stuck)
-            && ! self::describesCopy($stuck, $rawText)) {
+        if ($collection === null && $stuck !== '' && preg_match('/\p{L}/u', $stuck) && ! preg_match('/^(?:بخش|تا\b|و(?:\s|\d|$)|مکرر|حاشیه|\(|\d)/u', $stuck)) {
             $collection = $stuck;
         }
 
@@ -998,7 +997,8 @@ class Manuscript extends Model
      * The stored form of a copy's volume (the collection_key column): «8740» for «8740/7-58/190», «1068-طباطبائی» for
      * «1068/2-طباطبائی». A Majlis copy the Fankha text describes only from the Senate library's catalogue («[سنا: ف:
      * 2-61]») has the Senate's own numbering, so «791/1» of the Senate is not the Majlis volume 791: its key is
-     * «791-سنا» (step 13.146). A copy of the National Library's Arabic series has «2897-ع» (App\Support\MelliSeries).
+     * «791-سنا» (step 13.146). A copy of the National Library's Arabic series has «2897-ع» (App\Support\MelliSeries), and
+     * one of the photocopy series of Ehya or Mar'ashi «645-عکسی» (App\Support\PhotoSeries).
      */
     public static function collectionKeyOf(?string $shelfmark, ?string $rawText = null): ?string
     {
@@ -1010,6 +1010,10 @@ class Manuscript extends Model
         // the National Library's Arabic series: «2897/1» of it is not the Persian volume 2897 (step 14.416)
         if ($collection === null && \App\Support\MelliSeries::arabic($rawText)) {
             $collection = \App\Support\MelliSeries::ARABIC;
+        }
+        // the photocopy series of Ehya and Mar'ashi: «645» of it is not the volume of the manuscripts «645/1» (item 174)
+        if ($collection === null && \App\Support\PhotoSeries::photo($rawText, $shelfmark)) {
+            $collection = \App\Support\PhotoSeries::MARK;
         }
 
         return mb_substr($key['base'] . ($collection !== null ? '-' . $collection : ''), 0, 100);
@@ -1034,20 +1038,31 @@ class Manuscript extends Model
         if (preg_match('/^\d+$/', $mark) && \App\Support\MelliSeries::arabic($rawText)) {
             $mark .= '-' . \App\Support\MelliSeries::ARABIC;
         }
+        // a plain number of a photocopy series: «645-عکسی», the key its parts have, whether or not Fankha wrote the mark
+        // («1244عکسی» of Mar'ashi; backlog item 174)
+        if (preg_match('/^(\d+)(?: عکسی)?$/u', $mark, $n) && ($mark !== $n[1] ? \App\Support\PhotoSeries::library($rawText) : \App\Support\PhotoSeries::photo($rawText, $shelfmark))) {
+            $mark = $n[1] . '-' . \App\Support\PhotoSeries::MARK;
+        }
 
         return mb_substr($mark . (self::citesOnlySenate($rawText) ? '-سنا' : ''), 0, 100);
     }
 
     /**
      * The letter of a second number series the copy is of, shown beside its shelfmark where the shelfmark does not
-     * carry it: «ع» for the National Library's Arabic series (App\Support\MelliSeries, step 14.416).
+     * carry it: «ع» for the National Library's Arabic series (App\Support\MelliSeries, step 14.416), «عکسی» for the
+     * photocopy series of Ehya and Mar'ashi (App\Support\PhotoSeries, backlog item 174).
      *
      * @return array{mark: string, title: string}|null
      */
     public function seriesMark(): ?array
     {
-        return \App\Support\MelliSeries::arabic($this->fankhaText())
-            ? ['mark' => \App\Support\MelliSeries::ARABIC, 'title' => 'سری عربی شماره‌های کتابخانۀ ملی'] : null;
+        $text = $this->fankhaText();
+        if (\App\Support\MelliSeries::arabic($text)) {
+            return ['mark' => \App\Support\MelliSeries::ARABIC, 'title' => 'سری عربی شماره‌های کتابخانۀ ملی'];
+        }
+
+        return ! preg_match('/عک|عك/u', (string) $this->shelfmark) && \App\Support\PhotoSeries::photo($text, $this->shelfmark)
+            ? ['mark' => \App\Support\PhotoSeries::MARK, 'title' => 'سری شماره‌های نسخه‌های عکسی کتابخانه'] : null;
     }
 
     /** The number of a shelfmark that is only a number («38137», «۳۸۱۳۷»), else null. */
@@ -1073,7 +1088,7 @@ class Manuscript extends Model
         $n = self::plainNumber($shelfmark);
 
         return $n !== null && preg_match('/^(\d+)–(\d+)$/u', $stored, $m) && $n >= (int) $m[1] && $n <= (int) $m[2] && ! self::citesOnlySenate($rawText)
-            && ! \App\Support\MelliSeries::arabic($rawText);
+            && ! \App\Support\MelliSeries::arabic($rawText) && ! \App\Support\PhotoSeries::photo($rawText, $shelfmark);
     }
 
     /** The collection_key a copy should hold: the volume its shelfmark names, else the linked key it has if that still fits, else null. */
@@ -1089,23 +1104,6 @@ class Manuscript extends Model
     }
 
     private const DIGITS = ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9'];
-
-    /**
-     * Stuck marks that describe the copy in a library rather than name a collection of it, by the library as the
-     * Fankha text writes it: in Ehya «1004/7 عکسی» is one of volume 1004's photocopied treatises (1004/1 to 1004/10),
-     * while in Marashi «1390/1عکسی» is in the library's photocopy collection.
-     */
-    private const DESCRIPTIVE_MARKS = ['مرکز احیاء' => ['عکسی']];
-
-    private static function describesCopy(string $mark, ?string $rawText): bool
-    {
-        // «38. قم؛ مرکز احیاء؛ شماره نسخه: …»: the library is the second field of the first line
-        if ($rawText === null || ! preg_match('/^\s*(?:\d+\.\s*)?[^؛\n]+؛\s*([^؛\n]+?)\s*؛/u', $rawText, $m)) {
-            return false;
-        }
-
-        return in_array($mark, self::DESCRIPTIVE_MARKS[$m[1]] ?? [], true);
-    }
 
     /** Whether a copy's text cites the Senate library's catalogue («[سنا: …]», «[سنا - ف: …]», «[سنا – ف: …]», «[سنا ف: …]») and not the Majlis one («[ف: …]»). */
     public static function citesOnlySenate(?string $rawText): bool

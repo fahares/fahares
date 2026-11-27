@@ -194,9 +194,10 @@
                     $viewerPages = collect(\App\Support\BibliographyLinks::viewerPages($bibliography))->reject($covered);
                     // the printed catalogues of its copies that introduce the work (step 14.378)
                     $workCatalogues = \App\Support\WorkCatalogues::for($work);
-                    // Fankha's card and text left out, but in suggestion mode, when the reader sees the work in a bibliography
-                    // or a catalogue (steps 14.376 and 14.378)
+                    // Fankha's card and text left out, but for its audience, when the reader sees the work in a bibliography
+                    // or a catalogue (steps 14.376, 14.378 and 14.426)
                     $seesFirstHand = $viewerPages->isNotEmpty() || $workCatalogues->isNotEmpty() || $sources->seesFirstHand();
+                    $visibility = \App\Support\SourceVisibility::forViewer();
                 @endphp
                 @foreach($viewerPages as $vp)
                     @php
@@ -216,7 +217,7 @@
                         @endif
                     </div>
                 @endforeach
-                @php [$secondHandCards, $firstHandCards] = $entryCards->partition(fn ($e) => $e->isSecondHand()); @endphp
+                @php [$secondHandCards, $firstHandCards] = $visibility->filter($entryCards, $seesFirstHand)->partition(fn ($e) => $e->isSecondHand()); @endphp
                 @foreach($firstHandCards as $entry)
                     <x-source.page-card :entry="$entry" :record="$work" />
                 @endforeach
@@ -240,7 +241,7 @@
                 @endif
                 @if($secondHandCards->isNotEmpty())
                     {{-- Fankha's own card folded under the others (backlog item 147) --}}
-                    <x-source.secondary :suggest-only="$seesFirstHand">
+                    <x-source.secondary>
                         @foreach($secondHandCards as $entry)
                             <x-source.page-card :entry="$entry" :record="$work" />
                         @endforeach
@@ -370,7 +371,7 @@
                             <span class="{{ $bibCovered ? 'text-muted' : 'text-ink' }}">{{ \App\Support\BibliographyLinks::html($bib->citation_text) }}</span>
                         </li>
                     @endforeach
-                    @foreach($sources->cards() as $entry)
+                    @foreach($visibility->filter($sources->cards(), $seesFirstHand) as $entry)
                         {{-- Fankha's own place is on its folded card above, not in this list (backlog item 147) --}}
                         @continue($entry->isSecondHand())
                         @if($entry->isMention() && $entry->sourceItem)
@@ -404,19 +405,18 @@
 
             <!-- The text printed at each of those places, under one heading and in the same order -->
             @php
-                $texts = $sources->texts();
+                // what the reader may not see is left out, and the heading with it when nothing is left (steps 14.376 and 14.426)
+                $texts = $visibility->filter($sources->texts(), $seesFirstHand);
                 [$secondHandTexts, $firstHandTexts] = $texts->partition(fn ($e) => $e->isSecondHand());
             @endphp
             @if($texts->isNotEmpty())
-                {{-- Fankha's text alone, left out (step 14.376): the heading goes with it, but in suggestion mode --}}
-                <div @if($seesFirstHand && $firstHandTexts->isEmpty()) data-suggest-only style="display: none" x-data x-show="$store.suggest?.on" @endif>
                 <x-ui.section title="متن مأخذ">
                     <div class="space-y-6">
                         @foreach($firstHandTexts as $entry)
                             <x-source.text :entry="$entry" :record="$work" />
                         @endforeach
                         @if($secondHandTexts->isNotEmpty())
-                            <x-source.secondary :suggest-only="$seesFirstHand">
+                            <x-source.secondary>
                                 @foreach($secondHandTexts as $entry)
                                     <x-source.text :entry="$entry" :record="$work" />
                                 @endforeach
@@ -424,7 +424,6 @@
                         @endif
                     </div>
                 </x-ui.section>
-                </div>
             @endif
 
             <!-- Relations with other works (commentary on, translation of…) -->
@@ -676,7 +675,7 @@
   @if($work->effective_author)"author": { "@type": "Person", "name": "{{ addcslashes($work->effective_author->name, '"\\') }}" },@endif
  "inLanguage": "fa",
  "url": "{{ route('works.show', $work) }}",
- "description": "{{ addcslashes(str_replace(["\r", "\n"], ' ', Str::limit(strip_tags($work->description ?? $fankha?->cleanEntryText() ?? ''), 250)), '"\\') }}"
+ "description": "{{ addcslashes(str_replace(["\r", "\n"], ' ', Str::limit(strip_tags($work->description ?? ($fankha && $visibility->shows($fankha->source, $seesFirstHand) ? $fankha->cleanEntryText() : null) ?? ''), 250)), '"\\') }}"
 }
 </script>
 @endpush

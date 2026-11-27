@@ -342,7 +342,7 @@
                                     <span class="leader" aria-hidden="true"></span>
                                     {{-- An author by the works; a scribe by the copies and when they were made (step 14.155) --}}
                                     @if($type === 'scribes')
-                                        <span class="text-xs text-muted tabular-nums whitespace-nowrap">@if($person->scribed_span){{ $person->scribed_span }} · @endif{{ Fa::num($person->manuscripts_count) }} نسخه@if($person->is_author) · {{ Fa::num($person->works_count) }} اثر@endif</span>
+                                        <span class="text-xs text-muted tabular-nums whitespace-nowrap">@if($person->isMixedScribe())<span class="text-amber-800 dark:text-amber-300" title="تاریخ نسخه‌های این رکورد بیش از یک عمر از هم دور است؛ شاید چند کاتب هم‌نام در آن آمده‌اند.">چند کاتب هم‌نام؟</span> · @elseif($person->scribed_span){{ $person->scribed_span }} · @endif{{ Fa::num($person->manuscripts_count) }} نسخه@if($person->is_author) · {{ Fa::num($person->works_count) }} اثر@endif</span>
                                     @elseif($person->works_count || ! $person->manuscripts_count)
                                         <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($person->works_count) }} اثر</span>
                                     @endif
