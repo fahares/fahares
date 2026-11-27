@@ -14574,3 +14574,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `SuggestionRegistry::FEEDBACK_CATEGORIES` دستۀ `contact` گرفت. پنجرۀ بازخورد (`components/feedback.blade.php`) و `FeedbackController` آن را با `Arr::except` کنار می‌گذارند.
 - پیوندها: پانویس «دسترسی سریع» و منوی تاشوی سربرگ. نوار پهن سربرگ جای پیوند تازه نداشت. `SitemapController` (اولویت ۰٫۴) و `VisitStatsController::PAGE_LABELS` هم به‌روز شدند.
 - **آزمون:** `ContactPageTest` (پنج آزمون).
+### گام ۱۴.۴۳۶: `App\Support\PhotoSeries` و کلید «N-عکسی»
+- **`PhotoSeries::library($rawText)`:** کتابخانۀ سطر نخست («قم؛ مرکز احیاء؛»، «قم؛ مرعشی؛»، با «ي/ى/ك» عربی).
+- **`PhotoSeries::photo($rawText, $shelfmark)`:** نخستین جای ارجاع پایانی (`CatalogCitations::brackets` و `places`) سری‌ای دارد که پس از `LinkCatalogVolumesCommand::normalize` با `/عکا?س[یى]/` می‌خواند. شمارۀ دوگانه («… و …») که جایی «عک» دارد `false` است، چون نشان روی شمارۀ دیگر است و شمارۀ کلید شمارۀ خطی است. ثابت `MARK = 'عکسی'`.
+- **`Manuscript::collectionKeyOf`:** پس از سنا و `MelliSeries`، اگر نشان مجموعه نیست و `photo()`، نشان «عکسی». **`plainVolumeKeyOf`:** «N» با `photo()`، و «N عکسی» (پس از یکسان‌سازی «1244عکسی») در این دو کتابخانه، «N-عکسی». **`keepsLinkedKey`** و `number` در `fahares:link-plain-volumes`: سری عکسی دنبالۀ شماره ندارد. **`seriesMark()`:** «عکسی» برای سری عکسی وقتی شماره «عک» ندارد.
+- **برداشته:** `Manuscript::DESCRIPTIVE_MARKS` و `describesCopy()` (گام ۱۳.۱۲۲)؛ «1004/7 عکسی» احیاء اکنون «1004-عکسی» است، همان کلید ۱۰۰۴/۱ تا ۱۰۰۴/۱۰ عکسی.
+- **داده (رونوشت محلی):** `fill-collection-keys --apply`: `changed` ۳٬۸۵۱، `collections: made=643, linked=3561, unlinked=290, removed=217`. `link-plain-volumes --apply`: `cleared` ۳۳۴، `set` ۱۴. اجرای دوم: `changed` ۰ و بی `cleared`/`set`.
+- **مانده:** چهار کلید آمیخته که شمارۀ نشان‌دار با ارجاع فهرست خطی دارند (مرعشی «1386-عکسی»، «442-عکسی»، «1382»؛ احیاء «2353-عکسی»). شکل پیشوندی «عکسی 1021/2» (یک نسخه) کلید «عکسی 1021» می‌گیرد. نسخۀ دست‌ساز متن فنخا ندارد و تنها با نشان («645/2 عکسی») به سری عکسی می‌رود.
+- **آزمون:** `PhotoSeriesTest` (صورت‌های ارجاع؛ کلیدها؛ دو فرمان روی مجموعه‌های برخوردی، کلید بازبینی‌شده دست نمی‌خورد، اجرای دوباره بی‌تغییر، و نشان سری در صفحۀ نسخه). `DerivedDataTest::…` برای «1004/7 عکسی» احیاء.
