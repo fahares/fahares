@@ -69,7 +69,11 @@ class ContributorRelations
         }
         // Linked as a further contributor before: the saved hook moves that row to the front
         $record->{$column} = $person->id;
-        if (blank($record->{$nameColumn})) {
+        // The name written on the record stays when it is the record's own wording («کاتب: محمد صالح جهرمی» linked to
+        // the person the site knows by a fuller name). A name that was only the previous person's own goes with that
+        // person: «میرعماد» left beside a link to باباشاه would name the wrong man wherever the column is read (step 14.420)
+        $previousName = $previous ? Person::whereKey($previous)->value('name') : null;
+        if (blank($record->{$nameColumn}) || ($previousName !== null && trim((string) $record->{$nameColumn}) === trim($previousName))) {
             $record->{$nameColumn} = $person->name;
         }
         if ($record instanceof Manuscript) {

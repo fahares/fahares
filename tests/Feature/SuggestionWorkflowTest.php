@@ -1723,6 +1723,15 @@ class SuggestionWorkflowTest extends TestCase
         $this->approve($this->pendingFor($work))->assertRedirect('/admin/suggestions');
         $this->assertSame($real->id, $work->fresh()->author_id);
         $this->assertSame([0, 1], [$old->fresh()->works_count, $real->fresh()->works_count]);
+        // step 14.420: the name that was the old person's own follows; the rollback brings both back
+        $this->assertSame($real->name, $work->fresh()->author_name);
+        $this->rollbackLatest($work);
+        $this->assertSame([$old->id, $old->name], [$work->fresh()->author_id, $work->fresh()->author_name]);
+        // ...and a name of the record's own wording stays beside the new link
+        $worded = $this->work(['author_name' => 'منسوب به مؤلف', 'author_id' => $old->id]);
+        $this->relate($worded, 'author_is', $real)->assertOk();
+        $this->approve($this->pendingFor($worded))->assertRedirect('/admin/suggestions');
+        $this->assertSame([$real->id, 'منسوب به مؤلف'], [$worded->fresh()->author_id, $worded->fresh()->author_name]);
     }
 
     public function test_another_name_of_a_person()
