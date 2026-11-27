@@ -14538,3 +14538,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `conversation` فرم را همیشه (نه فقط با `$thread` یا پس از تصمیم) با `inConversation => true` می‌گذارد؛ متن «پرسش از پیشنهاددهنده در پنل تصمیم است» حذف شد.
 - `ask-form`: پارامتر `$inConversation`؛ شناسۀ فیلد بی‌نامه در جعبۀ گفت‌وگو `conversation-ask-body` است تا با `ask-body` پنل تصمیم یکی نشود، و عنوان «پرسش از پیشنهاددهنده» می‌گیرد.
 - **آزمون:** `MessagingTest::test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+
+### گام ۱۴.۴۲۸: `MoveCitedPartCommand::names()` و نوربخش ج ۱ (مورد ۱۵۱)
+- **کد:** تطبیق `--names` از `str_contains` به `MoveCitedPartCommand::names($citation, $name)` رفت. هر دو با `LinkCatalogVolumesCommand::normalize` یکسان می‌شوند (رقم‌ها لاتین). اگر نام به رقم ختم شود، `(?!\d)` پس از آن می‌آید: «نشریه: 13» با «نشریه: 13-39» و «نشریه: ۱۳ - 239» جور است و با «نشریه: 130 - 5» نه. ارجاع از `ce.citation_text` خوانده می‌شود (`EntryColumns`)، پس پاک شدن `metadata.catalog_citation` (مورد ۱۷۰) اثری ندارد.
+- **آزمون:** `MoveCitedPartTest::test_a_name_ending_in_a_number_matches_that_number_only` و `test_copies_cited_in_a_journal_issue_move_to_that_issue`.
+- **الگوهای ارجاع #۴۹۹ (`fahares_prod`، ۲۵ آبان):** ۱٬۲۲۳ نسخه. «نشریه: 13 - N» ۲۷۵، «نشریه: 13-N» ۲۰۱، «نشریه: 13- N» ۷ (روی هم ۴۸۲؛ بک‌لاگ ۴۸۴ گفته بود)، «نشریه: 10 - 67» ۱ (نسخۀ ۱۰۰۶۰۲ در رونوشت)، «ف: N - N» و «ف: N-N» ۷۳۷، «نوربخش: …» ۳. صفحه‌های دفتر ۱۳: ۹ تا ۲۷۲؛ ۴۸۱ در بازۀ اسکن (ص ۱۰ تا ۵۶۸).
+- **تمرین (`fahares_prod`):** اجرای خشک «named: 482, none: 741»، سپس «Moved 482 copies.» (۴۹ ثانیه، بیشترش `syncCited` نسخه‌های هر دو جلد)، و اجرای خشک دوم «0 copies to move». برای دفتر ۱۰: «Moved 1 copies.» و سپس صفر.
+- **وارسی:** نسخۀ 867/7 «احادیث» (`fankha_citation` اکنون #۵۱۵ ص ۲۳۹): ص ۲۳۹ چاپی دفتر ۱۳ (ص ۲۴۲ فایل `tehran-univ/nashriyye/n13.pdf`) سرصفحۀ «فهرست کتابهای خطی کتابخانۀ خانقاه نوربخش» دارد و بند ۷ آن «حدیث ملاقات ابلیس با پیامبر» است.
+- **اجرا در تولید، پس از انتشار:** پشتیبان `manuscripts.catalog_volume_id`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۹، سپس با `prod-run` و نخست بی `--apply`:
+  - `php -d memory_limit=1G artisan catalogs:move-cited-part --library=thran-norbkhsh-18 --names="نشریه: 13" --from="فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد اول" --to="نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 13"`
+  - همان با `--names="نشریه: 10"` و `--to="… - دفتر 10"`.
+
