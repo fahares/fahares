@@ -14500,6 +14500,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `SuggestionWorkflowTest::test_each_incipit_of_a_copy_is_corrected_removed_or_added_by_itself`.
 
 
+### گام ۱۴.۴۲۰: `ContributorRelations::set` و نام شخص قبلی
+- شرط پرکردن `author_name`/`scribe_name`: ستون تهی باشد، یا برابر `name` شخصی که پیش‌تر پیوند داشت. عبارت دیگر (نام کوتاه‌تر انجامه، «منسوب به …») دست نمی‌خورد.
+- **آزمون:** `SuggestionWorkflowTest::test_adding_a_second_scribe_and_replacing_an_author`.
+
+
 ### گام ۱۴.۴۲۱: جلد منبع از برگ نخست اسکن، و سیاهۀ بی‌جلدها
 - **جای جلد:** `Source::coverUrl()` تنها `public/images/sources/covers/{code}.webp` را می‌خواند، و برای چاپی که جلد ندارد جلد `edition_of` را. `catalog_volumes.cover_image_path` و `source_volumes.cover_image_path` در هیچ نمایی خوانده نمی‌شوند و همه تهی‌اند (۶۵۰ از ۶۵۰).
 - **سنجش (`fahares_prod`، همۀ `sources`):** ۱۷۶ منبع؛ ۱۴۸ جلد خود، ۱ جلد چاپ اصلی، ۲۷ بی‌جلد (۲۶ `library_catalogue` و `monzavi-nuskhe`). ۲۰ پروندۀ جلد کدی دارند که در `sources` نیست؛ همه در `metadata.merged_codes` منبعی‌اند که جلد خودش را دارد (`sources:merge-split`).
@@ -14515,7 +14520,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **کنار مانده:** منزوی (برگ ۱ صفحۀ عنوان ساده است)، موزۀ ملی (اسکن docibox در برگ ۱ تنها عطف کتاب را دارد).
 - **جست‌وجوی دوباره:** فانوس (`?s=…&post_type=product`) و `ghaemiyeh.com/library/search/books?field=title&type=all` (که `image_path` جلد ۲۴۰ در ۳۲۰ را می‌دهد) برای ۲۶ عنوان. تنها مسجد اعظم (چاپ ۱۳۶۵، کتاب‌های ۵۰۴۱۳۳ تا ۵۰۴۱۵۶) و مؤید یافت شدند. منبع مسجد اعظم فهرست مخطوط است، پس جلد چاپ ۱۳۶۵ برایش گذاشته نشد. ۲۳ منبع مانده در مورد ۱۷۶.
-### گام ۱۴.۴۲۰: `ContributorRelations::set` و نام شخص قبلی
-- شرط پرکردن `author_name`/`scribe_name`: ستون تهی باشد، یا برابر `name` شخصی که پیش‌تر پیوند داشت. عبارت دیگر (نام کوتاه‌تر انجامه، «منسوب به …») دست نمی‌خورد.
-- **آزمون:** `SuggestionWorkflowTest::test_adding_a_second_scribe_and_replacing_an_author`.
-
