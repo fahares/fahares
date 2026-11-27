@@ -14570,3 +14570,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `manuscripts.copy_date_kind` (برای `copy_date_from` پر): تهی ۱۵۱٬۱۵۸، `between` ۹۱٬۰۵۳، `span` ۱٬۰۵۵. بازۀ دوسالۀ بی نوع: ۱٬۵۱۸. یک‌سالۀ نوع‌دار: ۰. `copy_date_start_to` و `copy_date_end_from` پر: ۰.
 - `works.composition_date_kind`: تهی ۹٬۶۰۱، `between` ۲۶۹، `span` ۲۴۷. دوسالۀ بی نوع: ۶۲.
 - `people.death_kind`: `between` ۲۵۱، همه با `death_from ≠ death_to`. هر ۴٬۷۵۶ ردیف تهی یک‌ساله‌اند.
+### گام ۱۴.۴۲۶: `App\Support\SourceVisibility`، ستون‌های `sources.visibility` و `sources.audience`
+- **migration `2026_11_27_100001_add_visibility_to_sources`:** `visibility` (`always` | `fallback` | `hidden`، پیش‌فرض `always`) و `audience` (JSON: `{"roles": [...], "scholars": bool, "users": [ids]}`). سطرهای `kind = union_catalogue` مقدار `fallback` و مخاطب `editor` و پژوهشگر تأییدشده گرفتند.
+- **`Source`:** `audience` به آرایه cast می‌شود. رویداد `creating` به فهرستگان تازه همان پیش‌فرض را می‌دهد. `defaultVisibility($kind)` همین مقادیر را برای درج مستقیم دارد، در `SourceEntrySync::ensureCatalogSource` و `BackfillSourcesCommand::upsertSource`.
+- **`SourceVisibility`:** `forViewer()` با کاربر جاری، و `mode()` و `isOpen()` برای منبع (`always`). `inAudience()` برای نقش `admin`، نقش‌های فهرست، `is_verified_scholar` و شناسۀ کاربر است. `shows($source, $seesFirstHand)` و `filter($entries, $seesFirstHand)` هم تعریف شدند.
+- **`RecordSources::seesFirstHand()`:** شرط `! isSecondHand()` به `SourceVisibility::isOpen($e->source)` تبدیل شد. `isSecondHand()` تنها برای جمع‌کردن کارت زیر «مأخذ دست دوم» می‌ماند.
+- **قالب‌ها:** `works/show` و `manuscripts/show` کارت‌ها، گروه کارت‌ها، `texts()` و فهرست `cards()` مآخذ کتاب‌شناسی را با `$visibility->filter` می‌گذرانند. توضیح JSON-LD اثر تنها وقتی از متن فنخا ساخته می‌شود که فنخا نمایش داده شود. پوشش `data-suggest-only` و ویژگی `suggestOnly` از `x-source.secondary` حذف شد.
+- **پنل:** `Admin\SourceController::update` وقتی `visibility` فرستاده شود، `audience_roles[]`، `audience_scholars` و `audience_users` (شناسه یا ایمیل، با رقم فارسی یا لاتین) را هم می‌پذیرد. کاربر ناشناخته رد می‌شود.
+- **آزمون:** `CatalogReferencesTest::test_a_sources_visibility_decides_who_gets_it_on_the_record_page` و `test_the_admin_sets_a_sources_visibility_and_audience`. شش آزمون پیشینِ دیدن فنخا کنار مأخذ دست اول (سه در `CatalogReferencesTest`، دو در `SourcePagesTest` و یکی در `SourceCorrectionsTest`) اکنون با کاربر ویراستار اجرا می‌شوند.
+
+### گام ۱۴.۴۲۷: `insights/charts/places.blade.php`
+- هر `<circle>` نقشۀ ثابت (`x-show="! ready"`) `data-tip="<شهر>: <Fa::num(count)> نسخه"` گرفت و با `resources/js/chart-tip.js` همان کادر `[data-chart-tip]` نمودارهای دیگر را نشان می‌دهد. `<title>` SVG گذاشته نشد تا راهنمای مرورگر دوباره نیاید.
+- بازبینی: در هر صفحۀ موضوعی، شکل‌های SVG بی `data-tip` فقط نماد دکمۀ پوسته و نقشۀ پایه‌اند.
+- **آزمون:** `InsightsMapTest::test_the_places_page_carries_the_map_its_data_and_the_still_map`.
+
+### گام ۱۴.۴۲۸: `MoveCitedPartCommand::names()` و نوربخش ج ۱ (مورد ۱۵۱)
+- **کد:** تطبیق `--names` از `str_contains` به `MoveCitedPartCommand::names($citation, $name)` رفت. هر دو با `LinkCatalogVolumesCommand::normalize` یکسان می‌شوند (رقم‌ها لاتین). اگر نام به رقم ختم شود، `(?!\d)` پس از آن می‌آید: «نشریه: 13» با «نشریه: 13-39» و «نشریه: ۱۳ - 239» جور است و با «نشریه: 130 - 5» نه. ارجاع از `ce.citation_text` خوانده می‌شود (`EntryColumns`)، پس پاک شدن `metadata.catalog_citation` (مورد ۱۷۰) اثری ندارد.
+- **آزمون:** `MoveCitedPartTest::test_a_name_ending_in_a_number_matches_that_number_only` و `test_copies_cited_in_a_journal_issue_move_to_that_issue`.
+- **الگوهای ارجاع #۴۹۹ (`fahares_prod`، ۲۵ آبان):** ۱٬۲۲۳ نسخه. «نشریه: 13 - N» ۲۷۵، «نشریه: 13-N» ۲۰۱، «نشریه: 13- N» ۷ (روی هم ۴۸۲؛ بک‌لاگ ۴۸۴ گفته بود)، «نشریه: 10 - 67» ۱ (نسخۀ ۱۰۰۶۰۲ در رونوشت)، «ف: N - N» و «ف: N-N» ۷۳۷، «نوربخش: …» ۳. صفحه‌های دفتر ۱۳: ۹ تا ۲۷۲؛ ۴۸۱ در بازۀ اسکن (ص ۱۰ تا ۵۶۸).
+- **تمرین (`fahares_prod`):** اجرای خشک «named: 482, none: 741»، سپس «Moved 482 copies.» (۴۹ ثانیه، بیشترش `syncCited` نسخه‌های هر دو جلد)، و اجرای خشک دوم «0 copies to move». برای دفتر ۱۰: «Moved 1 copies.» و سپس صفر.
+- **وارسی:** نسخۀ 867/7 «احادیث» (`fankha_citation` اکنون #۵۱۵ ص ۲۳۹): ص ۲۳۹ چاپی دفتر ۱۳ (ص ۲۴۲ فایل `tehran-univ/nashriyye/n13.pdf`) سرصفحۀ «فهرست کتابهای خطی کتابخانۀ خانقاه نوربخش» دارد و بند ۷ آن «حدیث ملاقات ابلیس با پیامبر» است.
+- **اجرا در تولید، پس از انتشار:** پشتیبان `manuscripts.catalog_volume_id`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۹۹، سپس با `prod-run` و نخست بی `--apply`:
+  - `php -d memory_limit=1G artisan catalogs:move-cited-part --library=thran-norbkhsh-18 --names="نشریه: 13" --from="فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد اول" --to="نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 13"`
+  - همان با `--names="نشریه: 10"` و `--to="… - دفتر 10"`.
+  - `php -d memory_limit=1G artisan catalogs:move-cited-part --library=thran-norbkhsh-18 --cited-volume=2 --from="فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد اول" --to="فهرست نسخه‌های خطی کتابخانه نوربخش (خانقاه نعمت‌اللهی) - جلد دوم"`
+- **ج ۲ روی ج ۱:** پس از دو جابه‌جایی بالا، ۷۴۰ نسخۀ #۴۹۹: «ف: 1 - N» ۴۳۰ (شمارۀ ۱ تا ۲۵۰، ص ۱ تا ۲۲۳) و «ف: 2 - N» ۳۰۹ (شمارۀ ۲۵۱ تا ۶۱۰/۳، ص ۱ تا ۲۵۷)، و «نوربخش: 2 - 18» ۱. ج ۲ (#۵۰۰، `nurbakhsh`، ص ۲ تا ۲۹۶) ۲۸۵ نسخه با «ف: 2-N» (بی‌فاصله) داشت؛ هیچ شماره‌ای میان دو دسته مشترک نیست و شماره‌ها لابه‌لای هم‌اند، پس ج ۲ دو تکه شده بود. `--cited-volume=2` (`ImportFankhaCatalogReferencesCommand::parse`) هر ۳۱۰ را می‌گیرد. تمرین: «Moved 310 copies.» (۳۰ ثانیه)، سپس «0 copies to move». ج ۲ اکنون ۵۹۷ ارجاع دارد که ۵۹۵ تا در بازۀ اسکن است؛ ج ۱ ۴۳۰ نسخه.
+- **وارسی ج ۲ (برگه‌های `storage/catalogs/nurbakhsh/v02` در fahares.net):** ص ۷ با ۲۵۶ «فرهاد و شیرین» تمام می‌شود («ف: 2 - 7»)، ص ۱۸ بند ۲۷۵ «دیوان مغربی» را دارد («نوربخش: 2 - 18»)، ص ۲۵۵ مجموعۀ ۶۰۹ را («ف: 2 - 255»، 609/2).
+

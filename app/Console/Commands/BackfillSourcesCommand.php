@@ -243,7 +243,8 @@ class BackfillSourcesCommand extends Command
             return $existing;
         }
 
-        return DB::table('sources')->insertGetId($key + $values + ['created_at' => now(), 'updated_at' => now()]);
+        return DB::table('sources')->insertGetId($key + $values + \App\Models\Source::defaultVisibility($values['kind'] ?? null)
+            + ['created_at' => now(), 'updated_at' => now()]);
     }
 
     private function loadRegistry(): void

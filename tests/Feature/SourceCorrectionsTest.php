@@ -218,7 +218,8 @@ class SourceCorrectionsTest extends TestCase
             "the duplicate's Fankha entry stays citable on the kept copy");
         $this->assertSame($this->primary($this->manuscript)->id, $this->manuscript->fresh()->sources()->primary()->id);
         // the duplicate's texts stand with the kept copy's, all alike: the library catalogue first, then both Fankha entries
-        $this->get(route('manuscripts.show', $this->manuscript))
+        // (Fankha beside the library catalogue is for its audience, step 14.426)
+        $this->actingAs(User::factory()->create(['role' => 'editor']))->get(route('manuscripts.show', $this->manuscript))
             ->assertSeeInOrder(['متن مأخذ', 'متن مدخل فهرست', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'متن فنخای اثر', 'قم؛ مسجد اعظم؛ شماره نسخه: 1939', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'قم؛ مسجد اعظم؛ شماره نسخه: 1940'])
             ->assertDontSee('ارجاع‌های دیگر');
 

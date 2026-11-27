@@ -243,10 +243,13 @@
             <x-ui.card class="space-y-4">
                 <div class="text-xs text-muted">در مآخذ نسخه‌شناسی</div>
                 @php
-                    // Fankha's own card folded under the printed catalogues' (backlog item 147)
-                    [$secondHandGroups, $firstHandGroups] = $sources->cardGroups()->partition(fn ($g) => $g['entries'][0]->isSecondHand());
-                    // and left out, but in suggestion mode, when the reader sees the copy in its catalogue (step 14.376)
+                    // Fankha's own card folded under the printed catalogues' (backlog item 147), and left out, but for its
+                    // audience, when the reader sees the copy in its catalogue (steps 14.376 and 14.426)
                     $seesFirstHand = $sources->seesFirstHand();
+                    $visibility = \App\Support\SourceVisibility::forViewer();
+                    [$secondHandGroups, $firstHandGroups] = $sources->cardGroups()
+                        ->filter(fn ($g) => $visibility->shows($g['entries'][0]->source, $seesFirstHand))
+                        ->partition(fn ($g) => $g['entries'][0]->isSecondHand());
                 @endphp
                 @foreach($firstHandGroups as $group)
                     @if($group['label'])
@@ -262,7 +265,7 @@
                     @endif
                 @endforeach
                 @if($secondHandGroups->isNotEmpty())
-                    <x-source.secondary :suggest-only="$seesFirstHand">
+                    <x-source.secondary>
                         @foreach($secondHandGroups as $group)
                             @foreach($group['entries'] as $entry)
                                 <x-source.page-card :entry="$entry" :record="$manuscript" />
@@ -629,19 +632,18 @@
 
             <!-- The text printed at each of those places, under one heading and in the same order (backlog item 60, steps 12.68 and 13.4) -->
             @php
-                $texts = $sources->texts();
+                // what the reader may not see is left out, and the heading with it when nothing is left (steps 14.376 and 14.426)
+                $texts = $visibility->filter($sources->texts(), $seesFirstHand);
                 [$secondHandTexts, $firstHandTexts] = $texts->partition(fn ($e) => $e->isSecondHand());
             @endphp
             @if($texts->isNotEmpty())
-                {{-- Fankha's text alone, left out (step 14.376): the heading goes with it, but in suggestion mode --}}
-                <div @if($seesFirstHand && $firstHandTexts->isEmpty()) data-suggest-only style="display: none" x-data x-show="$store.suggest?.on" @endif>
                 <x-ui.section title="متن مأخذ">
                     <div class="space-y-6">
                         @foreach($firstHandTexts as $entry)
                             <x-source.text :entry="$entry" :record="$manuscript" />
                         @endforeach
                         @if($secondHandTexts->isNotEmpty())
-                            <x-source.secondary :suggest-only="$seesFirstHand">
+                            <x-source.secondary>
                                 @foreach($secondHandTexts as $entry)
                                     <x-source.text :entry="$entry" :record="$manuscript" />
                                 @endforeach
@@ -649,7 +651,6 @@
                         @endif
                     </div>
                 </x-ui.section>
-                </div>
             @endif
 
             <!-- MENTIONS: where the sources' texts cite this copy by its shelfmark, the reverse of their links to it (step 13.155) -->

@@ -451,7 +451,8 @@ class CatalogReferencesTest extends TestCase
             'confidence' => 90, 'entry_text' => "607- دیوان قدسی (فارسی)\nاز: قدسی", 'copy_text' => 'ش 1939، 207 برگ، نستعلیق. این نسخه جلد چهارم است.']);
         $note = 'این متن را هوشواره با تطبیق شمارۀ نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
 
-        $html = $this->get(route('manuscripts.show', $ms))->assertOk()
+        // Fankha beside the printed catalogue is for its audience (step 14.426)
+        $html = $this->actingAs(User::factory()->create(['role' => 'editor']))->get(route('manuscripts.show', $ms))->assertOk()
             // one «متن مأخذ» heading: the library's printed catalogue first, then Fankha
             // both alike: the address, «تصویر برگه» and «رونوشت متن»
             ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'تصویر برگه', 'رونوشت متن', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.',
@@ -497,7 +498,11 @@ class CatalogReferencesTest extends TestCase
         $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => 'ai_match', 'confidence' => 90]);
         $note = 'این نشانی را هوشواره با تطبیق شمارۀ نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
 
-        $this->get(route('manuscripts.show', $ms))->assertOk()
+        // the reader sees the printed catalogue's page, so Fankha's card is not sent to a guest (steps 14.376 and 14.426)
+        $this->get(route('manuscripts.show', $ms))->assertOk()->assertSee('چاپ ۱۳۶۵')
+            ->assertDontSee('مأخذ دست دوم')->assertDontSee('دیدن برگه در فنخا')->assertDontSee('data-secondary-sources', false);
+        $editor = User::factory()->create(['role' => 'editor']);
+        $this->actingAs($editor)->get(route('manuscripts.show', $ms))->assertOk()
             // the library catalogues first (the page seen before the one Fankha cites), Fankha last
             // Fankha's own card folded under them, «مأخذ دست دوم», and no «به نشانی فنخا» (backlog item 147)
             ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'چاپ ۱۳۶۵', $this->fankhaVolume->title, 'مأخذ دست دوم', 'دیدن برگه در فنخا'])
@@ -507,19 +512,91 @@ class CatalogReferencesTest extends TestCase
             ->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
             ->assertSee('masjid-azam-ostadi')
             ->assertSee($note)
-            ->assertSee('گزارش نشانی نادرست')
-            // the reader sees the printed catalogue's page, so Fankha's card shows in suggestion mode only (step 14.376)
-            ->assertSee('data-suggest-only', false);
+            ->assertSee('گزارش نشانی نادرست');
+        auth()->logout();
 
         $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
         $this->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
 
         // a citation of the volume with no page to see keeps Fankha in view
         $ref->update(['status' => SourceEntry::STATUS_UNVERIFIED, 'page_start' => null, 'shelfmark_page' => null]);
-        $this->get(route('manuscripts.show', $ms))->assertSee($this->fankhaVolume->title)->assertDontSee('data-suggest-only', false);
+        $this->get(route('manuscripts.show', $ms))->assertSee($this->fankhaVolume->title)->assertSee('data-secondary-sources', false);
 
         $ref->update(['status' => SourceEntry::STATUS_REJECTED, 'page_start' => 414]);
-        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title)->assertDontSee('data-suggest-only', false);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title)->assertSee('data-secondary-sources', false);
+    }
+
+    public function test_a_sources_visibility_decides_who_gets_it_on_the_record_page()
+    {
+        // step 14.426: Fankha is a fallback, seen always by editors, verified scholars, the admin and its listed users
+        $ms = $this->manuscript(['raw_text' => 'متن فنخا برای این نسخه']);
+        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'manual']);
+        $fankha = \App\Models\Source::where("code", "fankha")->firstOrFail();
+        $this->assertSame(\App\Support\SourceVisibility::FALLBACK, $fankha->visibility);
+        $sees = fn (?User $u) => str_contains(($u ? $this->actingAs($u) : $this)->get(route('manuscripts.show', $ms))->assertOk()->getContent(), 'متن فنخا برای این نسخه');
+
+        $user = User::factory()->create(['role' => 'user']);
+        $researcher = User::factory()->create(['role' => 'researcher']);
+        $scholar = User::factory()->create(['role' => 'user', 'is_verified_scholar' => true]);
+        $editor = User::factory()->create(['role' => 'editor']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->assertFalse($sees(null));
+        $this->assertFalse($sees($user));
+        $this->assertFalse($sees($researcher));
+        $this->assertTrue($sees($scholar));
+        $this->assertTrue($sees($editor));
+        $this->assertTrue($sees($admin));
+
+        // a role and a single user added to its audience
+        $fankha->update(['audience' => ['roles' => ['researcher'], 'scholars' => false, 'users' => [$user->id]]]);
+        $this->assertTrue($sees($user));
+        $this->assertTrue($sees($researcher));
+        $this->assertFalse($sees($scholar));
+        $this->assertFalse($sees($editor));
+        auth()->logout();
+        $this->assertFalse($sees(null));
+
+        // shown always: every reader gets it
+        $fankha->update(['visibility' => \App\Support\SourceVisibility::ALWAYS]);
+        $this->assertTrue($sees(null));
+
+        // hidden: not even where it is the only source, but for its audience
+        $fankha->update(['visibility' => \App\Support\SourceVisibility::HIDDEN]);
+        $this->assertFalse($sees(null));
+        $this->assertTrue($sees($user));
+
+        // a printed catalogue nobody but its audience sees does not make the page first-hand: Fankha comes back
+        $fankha->update(['visibility' => \App\Support\SourceVisibility::FALLBACK]);
+        $catalogue = \App\Models\Source::findOrFail(SourceVolume::findOrFail($this->edition->id)->source_id);
+        $catalogue->update(['visibility' => \App\Support\SourceVisibility::HIDDEN]);
+        auth()->logout();
+        $html = $this->get(route('manuscripts.show', $ms))->assertOk()->getContent();
+        $this->assertStringContainsString('متن فنخا برای این نسخه', $html);
+        $this->assertStringNotContainsString('catalogs/masjid-azam-ostadi/v02/p0414.webp', $html);
+    }
+
+    public function test_the_admin_sets_a_sources_visibility_and_audience()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $listed = User::factory()->create(['role' => 'user', 'email' => 'listed-' . uniqid() . '@example.test']);
+        $other = User::factory()->create(['role' => 'user']);
+        $source = \App\Models\Source::findOrFail(SourceVolume::findOrFail($this->edition->id)->source_id);
+        $this->assertSame(\App\Support\SourceVisibility::ALWAYS, \App\Support\SourceVisibility::mode($source));
+        $base = ['title' => $source->title, 'kind' => $source->kind, 'rank' => $source->rank];
+
+        $this->actingAs($admin)->get(route('admin.sources.show', $source))->assertOk()->assertSee('data-source-visibility', false);
+        $this->actingAs($admin)->put(route('admin.sources.update', $source), $base + ['visibility' => 'hidden', 'audience_roles' => ['researcher'],
+            'audience_scholars' => '1', 'audience_users' => $listed->email . '، ' . \App\Support\Fa::digits($other->id)])
+            ->assertRedirect(route('admin.sources.show', $source))->assertSessionHasNoErrors();
+        $source->refresh();
+        $this->assertSame('hidden', $source->visibility);
+        $this->assertSame(['roles' => ['researcher'], 'scholars' => true, 'users' => collect([$listed->id, $other->id])->sort()->values()->all()], $source->audience);
+        $this->assertTrue(AuditLog::where('auditable_type', \App\Models\Source::class)->where('auditable_id', $source->id)->latest('id')->first()->new_values['visibility'] === 'hidden');
+
+        // an unknown user is refused, and nothing changes
+        $this->actingAs($admin)->put(route('admin.sources.update', $source), $base + ['visibility' => 'always', 'audience_users' => 'nobody-' . uniqid() . '@example.test'])
+            ->assertSessionHasErrors('audience_users');
+        $this->assertSame('hidden', $source->fresh()->visibility);
     }
 
     public function test_a_catalogue_that_introduces_works_shows_on_the_work_page()
@@ -771,7 +848,7 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript();
         $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => 'ai_match', 'confidence' => 90]);
 
-        $this->get(route('manuscripts.show', $ms))->assertOk()
+        $this->actingAs(User::factory()->create(['role' => 'editor']))->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSee("field: 'fankha_page'", false)
             ->assertSee("field: 'source_entry_{$ref->id}'", false)
             ->assertSee('نشانی در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی')
@@ -874,7 +951,7 @@ class CatalogReferencesTest extends TestCase
             return $this->actingAs($this->admin())->post("/admin/suggestions/{$s->id}/approve", ['applied_value' => $s->suggested_value, 'outcome' => 'adopt']);
         };
 
-        $this->get(route('works.show', $work))->assertOk()
+        $this->actingAs(User::factory()->create(['role' => 'editor']))->get(route('works.show', $work))->assertOk()
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)->assertSee("field: 'fankha_page'", false);
 
         $suggest('bibliography_page_dharia_25_99', 'ج ۲۵، ص ۱۰۲')->assertStatus(422);

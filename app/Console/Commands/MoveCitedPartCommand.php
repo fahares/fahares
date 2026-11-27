@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\DB;
  * that book: Fankha cites «رشت و همدان: ف: - 1338» for copies of the Akhund school of Hamadan, which went to that
  * library's own catalogue, while the page is in «فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان». The --to volume may
  * then be one of no library, found by its exact title among those.
+ * The same moves the copies of the Nurbakhsh library's vol. 1 that Fankha cites «نشریه: 13-39» to issue 13 of the
+ * Tehran University journal (step 14.428, backlog item 151); a name ending in a digit matches only whole numbers.
  *
  * With --cited-volume instead (step 14.333, backlog item 112), a copy moves when its citation's volume
  * (ImportFankhaCatalogReferencesCommand::parse) is that number: Fankha cites «عکسی ف: 2 - 57» for copies of the second
@@ -78,7 +80,7 @@ class MoveCitedPartCommand extends Command
         foreach ($copies as $m) {
             $raw = ImportFankhaCatalogReferencesCommand::rawCitation($m->catalog_citation, $m->raw_text);
             if (filled($names)) {
-                $cited = $raw !== null && str_contains(LinkCatalogVolumesCommand::normalize($raw), LinkCatalogVolumesCommand::normalize($names)) ? 'named' : null;
+                $cited = $raw !== null && self::names($raw, $names) ? 'named' : null;
             } elseif (filled($citedVolume)) {
                 $cited = $raw === null ? null : ImportFankhaCatalogReferencesCommand::parse($raw)['volume'];
             } else {
@@ -120,6 +122,18 @@ class MoveCitedPartCommand extends Command
         $this->info(sprintf('Moved %d copies.', count($moves)));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Whether a citation names $name (both normalized). A name ending in a digit must not run on into another digit:
+     * «نشریه: 13» names «نشریه: 13-39» and «نشریه: 13 - 239», not «نشریه: 130 - 5» (step 14.428, backlog item 151).
+     */
+    public static function names(string $citation, string $name): bool
+    {
+        $name = LinkCatalogVolumesCommand::normalize($name);
+
+        return $name !== '' && preg_match('/'.preg_quote($name, '/').(preg_match('/\d$/u', $name) ? '(?!\d)' : '').'/u',
+            LinkCatalogVolumesCommand::normalize($citation)) === 1;
     }
 
     /** The part a citation names for $volume («33/1 - 172» and «1 / 33 - 43» are part 1), or null when it names none. */

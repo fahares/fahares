@@ -100,6 +100,40 @@
                     @endforeach
                 </select>
             </x-admin.field>
+            {{-- Who sees it on the record pages (step 14.426, App\Support\SourceVisibility) --}}
+            @php
+                $audience = (array) ($source->audience ?? []);
+                $audienceRoles = old('audience_roles', $audience['roles'] ?? []);
+                $audienceUsers = \App\Models\User::whereIn('id', $audience['users'] ?? [])->orderBy('id')->get(['id', 'name', 'email']);
+            @endphp
+            <p class="text-xs font-bold text-ink pt-2" id="visibility-heading">نمایش در صفحه‌های اثر و نسخه</p>
+            <div class="space-y-4" data-source-visibility>
+                <x-admin.field label="برای همۀ خوانندگان" for="visibility" error="visibility" hint="آنچه خواننده نباید ببیند، در خود صفحه نمی‌آید؛ در متن صفحه و برای موتورهای جست‌وجو هم نیست.">
+                    <select name="visibility" id="visibility" class="admin-field w-full">
+                        @foreach(\App\Support\SourceVisibility::MODES as $key => $label)
+                            <option value="{{ $key }}" @selected(old('visibility', \App\Support\SourceVisibility::mode($source)) === $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </x-admin.field>
+                <div>
+                    <p class="text-sm text-ink mb-1">همیشه نمایش داده شود برای</p>
+                    <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                        @foreach(\App\Models\Role::options() as $key => $label)
+                            @continue($key === \App\Auth\Permissions::SUPER_ROLE)
+                            <label class="inline-flex items-center gap-1.5"><input type="checkbox" name="audience_roles[]" value="{{ $key }}" @checked(in_array($key, $audienceRoles, true))> {{ $label }}</label>
+                        @endforeach
+                        <input type="hidden" name="audience_scholars" value="0">
+                        <label class="inline-flex items-center gap-1.5"><input type="checkbox" name="audience_scholars" value="1" @checked(old('audience_scholars', $audience['scholars'] ?? false))> پژوهشگر تأییدشده</label>
+                    </div>
+                    <p class="text-xs text-muted mt-1">مدیر کل همیشه همه را می‌بیند.</p>
+                </div>
+                <x-admin.field label="کاربران" for="audience_users" error="audience_users" hint="شناسه یا ایمیل هر کاربر، با ویرگول یا در سطرهای جدا.">
+                    <textarea name="audience_users" id="audience_users" rows="2" class="admin-field w-full" dir="ltr">{{ old('audience_users', $audienceUsers->pluck('id')->implode(', ')) }}</textarea>
+                    @if($audienceUsers->isNotEmpty())
+                        <p class="text-xs text-muted mt-1">{{ $audienceUsers->map(fn ($u) => \App\Support\Fa::digits($u->id) . ': ' . $u->name)->implode('، ') }}</p>
+                    @endif
+                </x-admin.field>
+            </div>
             <x-admin.form-actions :cancel="route('admin.sources.index')" />
         </form>
     </x-ui.card>

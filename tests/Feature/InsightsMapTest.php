@@ -118,6 +118,8 @@ class InsightsMapTest extends TestCase
             ->assertSee('تا این سال')
             // The still map, for the time before the script and for a reader without it
             ->assertSee('<circle cx="', false)
+            // Its dots carry their exact figure for the shared box, as the marks of the other charts (backlog item 156)
+            ->assertSee('data-tip="اصفهان: ۱۲ نسخه"', false)
             ->assertSee('data-insights-table="copy-places"', false);
     }
 
