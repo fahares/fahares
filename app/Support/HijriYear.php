@@ -19,6 +19,9 @@ class HijriYear
     private const MONTH = '(?:محرم|صفر|ربیع|ربيع|جمادی|جمادى|رجب|شعبان|رمضان|شوال|ذی\s*‌?\s*القعده|ذی\s*‌?\s*قعده|ذیقعده|ذوالقعده|ذی\s*‌?\s*الحجه|ذی\s*‌?\s*حجه|ذیحجه|ذوالحجه)';
     private const OTHER_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:م(?!\p{L})|میلادی|ش(?!\p{L})|خ(?!\p{L})|شمسی|خورشیدی|AD|CE)';
     // A year of another era, which the catalogue sets beside the Hijri one: «996 یزدجرد», «1250 یزدگردی», «1240 فصلی»
+    /** What joins the two years of a span: «1313-1314ش», «1883 و 1884م», «1347 تا 1354ش» */
+    private const SPAN_TO = '\s*(?:[-–]|و|تا)\s*';
+
     private const OTHER_ERA = '\s*(?:یزدجرد|یزدگرد|فصلی)';
     // The months of the solar year and the signs that stand for them: «12 تیر 1331 مطابق با 10 شوال 1371», «4 اسد 1318»
     private const SOLAR_MONTH = '(?<!\p{L})(?:فروردین|اردیبهشت|اردی‌بهشت|خرداد|تیر|مرداد|امرداد|شهریور|مهر|آبان|آذر|دی|بهمن|اسفند|حمل|ثور|جوزا|سرطان|اسد|سنبله|میزان|عقرب|قوس|جدی|دلو|حوت)(?:\s*ماه)?';
@@ -45,23 +48,25 @@ class HijriYear
     public static function otherCalendar(?string $raw): ?array
     {
         $text = strtr((string) $raw, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
-        if (! preg_match('#(?<![\d/])(\d{3,4})((?:/\d{1,2}){0,2})(' . self::SOLAR_MARK . '|' . self::GREGORIAN_MARK . ')#u', $text, $m)) {
+        // «1313-1314ش», «1883 و 1884م», «1313ش و 1314ش»: a span, whose mark may stand after its last year only (step 14.446)
+        if (! preg_match('#(?<![\d/])(?:(\d{3,4})(?:' . self::SOLAR_MARK . '|' . self::GREGORIAN_MARK . ')?' . self::SPAN_TO . ')?(\d{3,4})((?:/\d{1,2}){0,2})(' . self::SOLAR_MARK . '|' . self::GREGORIAN_MARK . ')#u', $text, $m)) {
             return null;
         }
-        $year = (int) $m[1];
-        if (preg_match('/^' . self::SOLAR_MARK . '$/u', $m[3])) {
+        $year = (int) $m[2];
+        $start = $m[1] !== '' && (int) $m[1] <= $year && $year - (int) $m[1] <= 50 ? (int) $m[1] : $year;
+        if (preg_match('/^' . self::SOLAR_MARK . '$/u', $m[4])) {
             // a catalogue's solar dates are of the last century; «317/11/7ش» is 1317 written short, not year 317
-            if ($year < 1200 || $year > 1500) {
+            if ($start < 1200 || $year > 1500) {
                 return null;
             }
             // Nowruz of solar year S falls on about 21 March of S + 621
-            return [self::hijriOf($year + 621, 3, 21), self::hijriOf($year + 622, 3, 20)];
+            return [self::hijriOf($start + 621, 3, 21), self::hijriOf($year + 622, 3, 20)];
         }
-        if ($year < 1000 || $year > 2100) {
+        if ($start < 1000 || $year > 2100) {
             return null;
         }
 
-        return [self::hijriOf($year, 1, 1), self::hijriOf($year, 12, 31)];
+        return [self::hijriOf($start, 1, 1), self::hijriOf($year, 12, 31)];
     }
 
     /** The Hijri year (tabular calendar) a Gregorian day falls in. */
@@ -116,6 +121,8 @@ class HijriYear
             $before = substr($text, 0, $offset);
             $after = substr($text, $offset + strlen($digits));
             if (preg_match('/^' . self::OTHER_MARK . '/u', $after) || preg_match('/' . self::FOLIO_WORD . '\s*$/u', $before)
+                // the first year of a span in another calendar, whose mark comes after the last: «1313-1314ش», «1883 و 1884م» (step 14.446)
+                || preg_match('#^' . self::SPAN_TO . '\d{3,4}(?:/\d{1,2}){0,2}' . self::OTHER_MARK . '#u', $after)
                 || preg_match('/\(\s*(?:ص|ش|ج)\.?\s*$/u', $before)
                 || preg_match('#^(?:/\d+)+' . self::OTHER_MARK . '#u', $after)
                 || (preg_match('#\([^)]*$#u', $before) && preg_match('#^\s*/\s*\d+\s*\)#u', $after))

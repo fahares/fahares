@@ -137,7 +137,7 @@ class LinkEarlierEditionCommand extends Command
             return self::SUCCESS;
         }
 
-        $saved = ['created' => 0, 'updated' => 0, 'unchanged' => 0, 'kept_reviewed' => 0, 'removed' => 0];
+        $saved = ['created' => 0, 'updated' => 0, 'unchanged' => 0, 'kept_reviewed' => 0, 'removed' => 0, 'duplicate' => 0];
         DB::transaction(function () use ($decisions, $source, $items, &$saved) {
             foreach ($decisions as $d) {
                 $key = ['legacy_type' => self::LEGACY_TYPE, 'legacy_id' => $d['citation_id'], 'legacy_index' => 0];
@@ -156,6 +156,13 @@ class LinkEarlierEditionCommand extends Command
                     continue;
                 }
                 $item = $items[$d['match']['id']];
+                // the record is tied to this entry already, by another place or citation: one tie (step 14.438)
+                if (SourceEntry::tiedElsewhere(Work::class, $d['work_id'], $item->id, $d['match']['role'], $row)) {
+                    $row?->delete();
+                    $saved[$row ? 'removed' : 'duplicate']++;
+
+                    continue;
+                }
                 $entry = $d['match']['role'] === SourceEntry::ROLE_ENTRY;
                 $values = [
                     'citable_type' => Work::class, 'citable_id' => $d['work_id'], 'source_id' => $source->id,

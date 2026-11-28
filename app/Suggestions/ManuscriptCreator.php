@@ -38,7 +38,8 @@ class ManuscriptCreator
     public const WORK_MODES = ['existing' => 'اثری که در سایت هست', 'new' => 'اثر تازه', 'untitled' => 'بی‌عنوان'];
 
     /** Where the knowledge of the copy came from */
-    public const SOURCE_KINDS = [Manuscript::PROVENANCE_RESEARCHER => 'پژوهشگری که نسخه را دیده است', Manuscript::PROVENANCE_CATALOGUE => 'فهرست چاپی'];
+    public const SOURCE_KINDS = [Manuscript::PROVENANCE_RESEARCHER => 'پژوهشگری که نسخه را دیده است', Manuscript::PROVENANCE_CATALOGUE => 'فهرست چاپی',
+        Manuscript::PROVENANCE_ONLINE => 'فهرست برخط کتابخانه'];
 
     /** The yes-or-no features of a copy, as its page names them */
     public const FLAGS = [
@@ -274,7 +275,16 @@ class ManuscriptCreator
             ? (FieldSuggestion::find($data['suggestion_id'])?->id ?? throw new InvalidArgumentException('پیشنهادی با این شماره پیدا نشد.'))
             : null;
 
-        return array_filter(['kind' => $kind, 'text' => self::text($data['source_text'] ?? null), 'suggestion_id' => $suggestion], fn ($v) => $v !== null);
+        // the library's catalogue on the web: the address of the copy's record there, which the page links (step 14.445)
+        $url = null;
+        if ($kind === Manuscript::PROVENANCE_ONLINE) {
+            $url = trim((string) ($data['source_url'] ?? ''));
+            if (! preg_match('~^https?://\S+$~i', $url)) {
+                throw new InvalidArgumentException('نشانی رکورد نسخه در فهرست برخط کتابخانه را بنویسید (با http یا https).');
+            }
+        }
+
+        return array_filter(['kind' => $kind, 'text' => self::text($data['source_text'] ?? null), 'url' => $url, 'suggestion_id' => $suggestion], fn ($v) => $v !== null);
     }
 
     /** The copy's place in a printed catalogue the site has, as a card of its page: a manual entry, verified by its maker. */

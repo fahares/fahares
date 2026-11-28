@@ -537,7 +537,7 @@
                                     @if($ms->scribe_name)
                                         {{ $ms->scribe_name }}
                                         <x-ui.life :person="$ms->scribe" />
-                                        @if($ms->is_autograph)<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 ms-1">(مؤلف)</span>@endif
+                                        @if($ms->is_autograph)<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 ms-1">(مؤلف{{ $ms->autograph_hedge ? "، {$ms->autograph_hedge}" : "" }})</span>@endif
                                     @elseif($ms->is_autograph)
                                         <span class="text-emerald-700 dark:text-emerald-400">{{ $work->effective_author?->name ?? $work->effective_author_name ?? '' }} <span class="text-xs font-semibold">(مؤلف)</span></span>
                                     @else

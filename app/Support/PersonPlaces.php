@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Models\Person;
-use App\Services\PersonReviewQueue;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -39,7 +38,7 @@ final class PersonPlaces
     public static function for(Person $person): array
     {
         $rows = [];
-        $mixed = $person->scribed_from && $person->scribed_to - $person->scribed_from > PersonReviewQueue::MIXED_SPAN;
+        $mixed = $person->isMixedScribe();
         if (! $mixed) {
             $copies = DB::table('manuscript_people as mp')->join('manuscripts as m', 'm.id', '=', 'mp.manuscript_id')
                 ->leftJoin('works as w', 'w.id', '=', 'm.work_id')

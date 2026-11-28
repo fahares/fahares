@@ -186,6 +186,7 @@ class ManuscriptController extends Controller
             'notes.*.text' => 'nullable|string|max:5000',
             'source_kind' => ['required', Rule::in(array_keys(ManuscriptCreator::SOURCE_KINDS))],
             'source_text' => 'nullable|string|max:300',
+            'source_url' => 'nullable|required_if:source_kind,online|url:http,https|max:1000',
             'suggestion_id' => 'nullable|integer|exists:field_suggestions,id',
             'source_id' => 'nullable|integer|exists:sources,id',
             'source_place' => 'nullable|required_with:source_id|string|max:60',

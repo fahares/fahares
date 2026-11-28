@@ -45,6 +45,9 @@
                         // the one treatise whose entry gives it, when only one does
                         $only = ($basis[$field] ?? null) === \App\Support\CollectionValues::SINGLE ? $siblings->first(fn ($m) => filled($m->{$field})) : null;
                         $differs = filled($value) && filled($mine) && ! str_contains((string) $folded($value), (string) $folded($mine));
+                        // a format by name («وزیری») is no measure in centimetres (step 14.447)
+                        $shown = $value ?? $mine;
+                        $label = $field === 'dimensions' && filled($shown) && ! preg_match('/[0-9۰-۹]/u', (string) $shown) ? 'قطع' : $label;
                     @endphp
                     {{-- the pencil corrects the collection's value, for all its treatises (step 14.330) --}}
                     <x-ui.meta :label="$label" :field="\App\Suggestions\SuggestionRegistry::COLLECTION_PREFIX . $field" :empty="blank($value) && blank($mine)">

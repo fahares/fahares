@@ -129,7 +129,7 @@
         <div class="flex flex-wrap justify-center gap-1.5 mt-2">
             @if($manuscript->copy_date_raw)<x-ui.chip>کتابت {{ Fa::digits($manuscript->copy_date_raw) }}</x-ui.chip>@endif
             @if($manuscript->script_names)<x-ui.chip>{{ $manuscript->script_names }}</x-ui.chip>@endif
-            @if($manuscript->is_autograph)<x-ui.chip tone="good">دستخط مؤلف</x-ui.chip>@endif
+            @if($manuscript->is_autograph)<x-ui.chip tone="good">{{ $manuscript->autograph_label }}</x-ui.chip>@endif
             @if($manuscript->is_illuminated)<x-ui.chip tone="accent">مذهّب</x-ui.chip>@endif
             @if($manuscript->is_illustrated)<x-ui.chip tone="accent">مصوّر</x-ui.chip>@endif
             @if($manuscript->is_distinct_work)<x-ui.chip title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">اثر متمایز</x-ui.chip>@endif
@@ -278,6 +278,9 @@
                     <div class="space-y-1 pb-4 border-b border-line last:border-b-0 last:pb-0" data-provenance="{{ $provenance['kind'] }}">
                         <div class="text-xs text-muted">منبع اطلاع</div>
                         <p class="text-sm font-bold text-ink leading-6">{{ Fa::digits($provenance['label']) }}</p>
+                        @if($provenance['url'])
+                            <a href="{{ $provenance['url'] }}" target="_blank" rel="nofollow noopener" class="inline-block text-xs font-bold text-cinnabar hover:underline" data-provenance-link>دیدن در فهرست برخط کتابخانه ↗</a>
+                        @endif
                         @if($provenance['suggestion_id'])
                             @can('suggestions.review')
                                 <a href="{{ route('admin.suggestions.show', $provenance['suggestion_id']) }}" class="text-[11px] text-muted hover:text-cinnabar" data-provenance-suggestion>پیشنهاد #{{ Fa::digits($provenance['suggestion_id']) }}</a>
@@ -340,7 +343,7 @@
                         @elseif($manuscript->is_autograph)
                             @php $autographPerson = $manuscript->work?->effective_author ?? $manuscript->scribe; @endphp
                             @if($autographPerson)
-                                <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }})</a>
+                                <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }}{{ $manuscript->autograph_hedge ? "، {$manuscript->autograph_hedge}" : "" }})</a>
                                 <x-ui.life :person="$autographPerson" />
                             @else
                                 <span class="font-semibold text-emerald-700 dark:text-emerald-400">مؤلف (نسخۀ اصل)</span>
@@ -442,7 +445,8 @@
                     {{-- The size, the paper and the binding of a treatise in a «مجموعه» are the volume's: they stand in its
                          section below (x-manuscript-collection; backlog item 163, step 14.324) --}}
                     @unless($volume)
-                    <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions" :empty="! $manuscript->dimensions">
+                    {{-- a catalogue may give the book's format by name («وزیری»، «رحلی کوچک») instead of its measures (step 14.447) --}}
+                    <x-ui.meta :label="$manuscript->dimensions && ! preg_match('/[0-9۰-۹]/u', $manuscript->dimensions) ? 'قطع' : 'اندازه (سانتی‌متر)'" field="dimensions" :empty="! $manuscript->dimensions">
                         @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                     <x-ui.meta label="کاغذ" field="paper" :empty="! $manuscript->paper">

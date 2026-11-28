@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\DB;
  * Ties the works Fankha cites in a bibliography («الذریعة 402/3») to the printed entry of that page that is the work
  * (plan docs/plans/dharia-text.md, link (a)). Each tie is its own source_entries row (origin match, role entry or
  * mention, unverified) next to Fankha's citation, which stays as it is; an entry tie carries the entry's text.
- * Running it again updates the ties it made and never one a person has reviewed.
+ * Running it again updates the ties it made and never one a person has reviewed. A work is tied to an entry once, however
+ * many of its cited places or citations fall on it (step 14.438).
  */
 class LinkSourceItemsCommand extends Command
 {
@@ -102,7 +103,7 @@ class LinkSourceItemsCommand extends Command
             return self::SUCCESS;
         }
 
-        $saved = ['created' => 0, 'updated' => 0, 'unchanged' => 0, 'kept_reviewed' => 0, 'removed' => 0];
+        $saved = ['created' => 0, 'updated' => 0, 'unchanged' => 0, 'kept_reviewed' => 0, 'removed' => 0, 'duplicate' => 0];
         DB::transaction(function () use ($decisions, $volume, $items, &$saved) {
             $texts = $items->keyBy('id');
             foreach ($decisions as $d) {
@@ -122,6 +123,13 @@ class LinkSourceItemsCommand extends Command
                     continue;
                 }
                 $item = $texts[$d['match']['id']];
+                // the record is tied to this entry already, by another place or citation: one tie (step 14.438)
+                if (SourceEntry::tiedElsewhere(Work::class, $d['work_id'], $item->id, $d['match']['role'], $row)) {
+                    $row?->delete();
+                    $saved[$row ? 'removed' : 'duplicate']++;
+
+                    continue;
+                }
                 $entry = $d['match']['role'] === SourceEntry::ROLE_ENTRY;
                 $values = [
                     'citable_type' => Work::class, 'citable_id' => $d['work_id'], 'source_id' => $volume->source_id,

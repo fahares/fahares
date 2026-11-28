@@ -134,6 +134,9 @@ Route::get('/posts/{id}', [PostController::class, 'show'])
 
 // Fixed pages whose text is edited in the admin panel
 Route::get('/about', [PageController::class, 'about'])->name('about');
+// The «تماس با ما» page and its form (backlog item 173)
+Route::get('/contact', [\App\Http\Controllers\ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'store'])->middleware('throttle:5,60')->name('contact.store');
 
 // Approved corrections, site-wide and per credited researcher (backlog item 63)
 Route::get('/contributions', [ContributionsController::class, 'index'])->name('contributions.index');

@@ -21,7 +21,7 @@ class LinkAutographScribesCommand extends Command
             UPDATE manuscripts m
             JOIN works w ON m.work_id = w.id
             SET m.scribe_id = w.author_id
-            WHERE m.is_autograph = 1
+            WHERE m.is_autograph = 1 AND m.autograph_hedge IS NULL
               AND m.scribe_id IS NULL
               AND w.author_id IS NOT NULL
         ");

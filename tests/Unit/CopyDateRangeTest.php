@@ -207,6 +207,22 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame(1304, \App\Support\HijriYear::parse('1886م؛ تاریخ ترجمه: 1304ق'));
     }
 
+    /** Step 14.446: a span whose calendar mark stands after its last year only is a span of that calendar. */
+    public function test_a_span_marked_after_its_last_year_is_of_that_calendar()
+    {
+        $this->assertSame([1352, 1354], $this->range('1313-1314ش'));
+        $this->assertSame([1352, 1354], $this->range('1313 و 1314ش'));
+        $this->assertSame([1352, 1354], $this->range('1313ش و 1314ش'));
+        $this->assertSame([1352, 1358], $this->range('1313-1317ش'));
+        $this->assertSame([1387, 1390], $this->range('1347-1348 شمسی'));
+        $this->assertSame([1249, 1254], $this->range('1834-1838م'));
+        $this->assertSame(1352, \App\Support\HijriYear::parse('1313-1314ش'));
+        $this->assertSame([], \App\Support\HijriYear::all('1313-1314ش'));
+        // a Hijri span stays one, and a Hijri year beside a solar span wins
+        $this->assertSame([1267, 1268], $this->range('1267-1268ق'));
+        $this->assertSame([1418, 1419], $this->range('1418-1419ق (1376-1377ش)'));
+    }
+
     public function test_a_three_digit_year_far_before_its_work_is_read_again_as_a_year_that_lost_a_digit()
     {
         $reread = fn (string $raw, ?int $floor) => ($r = CopyDateRange::reread($raw, $floor)) ? [$r['from'], $r['to'], $r['certainty'], $r['hedge']] : null;

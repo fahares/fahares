@@ -105,7 +105,7 @@ final class EstimateText
      */
     public const ALIVE_YEAR_SQL = "(SELECT e.year_from FROM date_estimates e WHERE e.subject_type = 'person' AND e.subject_id = people.id AND e.field = 'death'"
         . " AND e.year_from IS NOT NULL AND e.from_depth = 1 AND e.from_rule IN ('author', 'translator', 'dedicatee', 'scribe', 'autograph', 'patron')"
-        . " AND NOT (e.from_rule = 'scribe' AND people.scribed_from IS NOT NULL AND people.scribed_to - people.scribed_from > " . \App\Services\PersonReviewQueue::MIXED_SPAN . '))';
+        . " AND NOT (e.from_rule = 'scribe' AND COALESCE(people.scribed_gap, 0) > " . \App\Services\PersonReviewQueue::MIXED_SPAN . '))';
 
     /** The year a person with no death year was last seen alive, or null (ALIVE_YEAR_SQL for one person). */
     public static function aliveYear(int $personId): ?int
@@ -127,8 +127,8 @@ final class EstimateText
                 'text' => 'دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.', 'title' => null, 'url' => null]]];
         }
         if ($row->from_rule === Loader::RULE_SCRIBE) {
-            $span = DB::table('people')->where('id', $personId)->first(['scribed_from', 'scribed_to']);
-            if ($span && $span->scribed_from && $span->scribed_to - $span->scribed_from > \App\Services\PersonReviewQueue::MIXED_SPAN) {
+            $gap = DB::table('people')->where('id', $personId)->value('scribed_gap');
+            if ($gap !== null && $gap > \App\Services\PersonReviewQueue::MIXED_SPAN) {
                 return null;
             }
         }
