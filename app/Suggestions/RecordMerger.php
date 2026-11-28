@@ -10,6 +10,7 @@ use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Work;
 use App\Models\WorkPerson;
+use App\Sources\RepeatedCitations;
 use App\Support\EntryColumns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -362,6 +363,10 @@ class RecordMerger
      */
     private function moveAttachments($source, $target): array
     {
+        // A copy's Fankha citation of the catalogue page the kept copy's own citation already gives, word for word, is
+        // a repeat on the kept copy and goes (backlog item 178, step 14.455); undoAttachments() puts it back
+        $dropped = $source instanceof Manuscript ? self::repeatedCitations($source->id, $target->id) : [];
+        DB::table('source_entries')->whereIn('id', array_column($dropped, 'id'))->delete();
         $entries = SourceEntry::where('citable_type', $source::class)->where('citable_id', $source->id)
             ->where('role', '!=', SourceEntry::ROLE_CITATION)->get(['id', 'is_primary', 'legacy_type', 'legacy_id'])
             ->map(fn ($e) => $e->only(['id', 'is_primary', 'legacy_type', 'legacy_id']))->all();
@@ -375,7 +380,25 @@ class RecordMerger
             ->where('status', 'pending')->pluck('id')->all();
         FieldSuggestion::whereIn('id', $suggestions)->update(['suggestable_id' => $target->id]);
 
-        return ['moved_entries' => $entries, 'suggestion_ids' => $suggestions];
+        return ['moved_entries' => $entries, 'suggestion_ids' => $suggestions] + ($dropped ? ['dropped_source_entries' => $dropped] : []);
+    }
+
+    /**
+     * The rows of $sourceId's Fankha citations that one of $targetId's Fankha citations repeats: the same text (trimmed),
+     * at the same place, holding all the data the source's row holds (RepeatedCitations). A citation of another
+     * catalogue that happens to print the same text, such as «[ف: 1-128]», stays.
+     */
+    public static function repeatedCitations(int $sourceId, int $targetId): array
+    {
+        $entries = fn (int $id) => DB::table('source_entries')->where('citable_type', Manuscript::class)->where('citable_id', $id)
+            ->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->whereNotNull('citation_text');
+        $held = $entries($targetId)->get()->groupBy(fn ($row) => RepeatedCitations::key($row->citation_text));
+
+        return $entries($sourceId)->orderBy('id')->get()
+            ->filter(fn ($row) => RepeatedCitations::key($row->citation_text) !== ''
+                && collect($held->get(RepeatedCitations::key($row->citation_text), []))
+                    ->contains(fn ($kept) => RepeatedCitations::adds($row, $kept) === null && RepeatedCitations::otherPlace($row, $kept) === []))
+            ->map(fn ($row) => (array) $row)->values()->all();
     }
 
     private function undoAttachments($source, $target, array $old): void
@@ -385,9 +408,19 @@ class RecordMerger
         if ($entry = $old['cited_entry_id'] ?? null) {
             SourceEntry::where('legacy_type', 'source_citation')->where('legacy_id', $entry)->delete();
         }
+        // the repeats the merge removed come back as they were (step 14.455)
+        foreach ((array) ($old['dropped_source_entries'] ?? []) as $row) {
+            DB::table('source_entries')->insertOrIgnore($row);
+        }
         foreach ($old['moved_entries'] ?? [] as $e) {
-            SourceEntry::whereKey($e['id'])->where('citable_id', $target->id)
-                ->update(['citable_id' => $source->id] + array_intersect_key($e, array_flip(['is_primary', 'legacy_type', 'legacy_id'])));
+            $back = ['citable_id' => $source->id] + array_intersect_key($e, array_flip(['is_primary', 'legacy_type', 'legacy_id']));
+            // a moved repeat sources:drop-repeated-citations removed later comes back from its audit log
+            if (! SourceEntry::whereKey($e['id'])->exists() && ($row = \App\Console\Commands\DropRepeatedCitationsCommand::droppedRow((int) $e['id']))) {
+                DB::table('source_entries')->insertOrIgnore(array_merge($row, $back));
+
+                continue;
+            }
+            SourceEntry::whereKey($e['id'])->where('citable_id', $target->id)->update($back);
         }
         FieldSuggestion::where('suggestable_type', $source::class)->where('suggestable_id', $target->id)
             ->whereIn('id', $old['suggestion_ids'] ?? [])->update(['suggestable_id' => $source->id]);

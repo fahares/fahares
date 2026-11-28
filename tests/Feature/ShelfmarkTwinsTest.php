@@ -65,7 +65,8 @@ class ShelfmarkTwinsTest extends TestCase
         $this->assertSame($kept->id, (int) $place->fresh()->citable_id);
         $this->assertNull(SourceEntry::find($repeat->id));
         $log = AuditLog::where('auditable_id', $kept->id)->where('action', 'merge')->firstOrFail();
-        $this->assertSame($repeat->id, (int) $log->new_values['dropped_entries'][0]['id']);
+        // with the removed copy's own Fankha citation, which the merge drops as a repeat (step 14.455)
+        $this->assertContains($repeat->id, array_map('intval', array_column($log->new_values['dropped_entries'], 'id')));
         $this->assertSame('1232/30', $misnumbered->fresh()->shelfmark);
         $this->assertDatabaseHas('audit_logs', ['auditable_id' => $misnumbered->id, 'action' => 'update']);
 
