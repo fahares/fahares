@@ -48,6 +48,8 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#A23A26">
     @auth
+        {{-- The edit mode of the record pages (backlog item 67), see the «edit» store in app.js --}}
+        @can('suggestions.direct_edit')<meta name="edit-mode" content="1">@endcan
         @if(config('webpush.vapid.public_key'))
             <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
         @endif
@@ -226,6 +228,16 @@
                                             </svg>
                                             <span>پنل مدیریت و داوری</span>
                                         </a>
+                                        @can('suggestions.direct_edit')
+                                            <button type="button" @click="userMenuOpen = false; $store.edit.toggle()" data-edit-mode-toggle role="menuitemcheckbox" :aria-checked="$store.edit.on"
+                                                class="w-full text-right flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition cursor-pointer">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                                </svg>
+                                                <span>حالت ویرایش</span>
+                                                <span class="ms-auto px-1.5 rounded-full text-[10px] font-bold" :class="$store.edit.on ? 'bg-emerald-600 text-white' : 'bg-paper text-muted border border-line-strong'" x-text="$store.edit.on ? 'روشن' : 'خاموش'">خاموش</span>
+                                            </button>
+                                        @endcan
                                     </div>
                                 @endif
                                 <div class="py-1">

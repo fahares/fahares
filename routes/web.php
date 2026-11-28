@@ -311,6 +311,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/ask', [AdminSuggestionController::class, 'ask'])->middleware('throttle:30,60')->name('suggestions.ask');
     });
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit');
+    Route::post('/suggestions/direct-edit/{log}/undo', [AdminSuggestionController::class, 'undoDirectEdit'])->whereNumber('log')->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit.undo');
 
     // A copy's record made from the panel: a treatise the catalogues do not list (backlog item 149)
     // A treatise placed in another «مجموعه» by hand (backlog item 163, step 14.330)

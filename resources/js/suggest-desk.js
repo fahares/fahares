@@ -6,6 +6,10 @@
 // page with `?suggest=<key>`, which reopens the same form. What was typed is kept in sessionStorage meanwhile.
 // Templates read field.* before any field is chosen, so "no field" is a blank object, never null
 const BLANK_FIELD = { name: null, label: '', input: '', current: null, prefill: '', pending: 0 };
+// The inputs the edit mode edits in place (backlog item 67); the rest open the form, with its direct-edit button
+const INLINE_INPUTS = ['text', 'textarea', 'list', 'quote', 'integer', 'hijri_date', 'choice', 'boolean', 'person'];
+// How long «بازگردانی» stays after an edit in place
+const UNDO_SHOWN_MS = 20000;
 
 export default (config) => ({
     config,
@@ -61,6 +65,12 @@ export default (config) => ({
     signedUpHere: false,
     // The date conflict the form answers (step 14.169): a note beside a date opened it, here or from the other record's page
     conflictId: null,
+    // The edit mode's editor in place (backlog item 67): where it stands on the page, and the edit to take back
+    inline: false,
+    inlinePos: { top: 0, left: 0, width: 0 },
+    undo: null,
+    undoTimer: null,
+    undoBusy: false,
 
     init() {
         const params = new URLSearchParams(window.location.search);
@@ -188,7 +198,12 @@ export default (config) => ({
             this.field = { name: detail.field, ...this.config.fields[detail.field] };
             this.value = this.field.prefill;
             this.pairValue = this.field.pair?.current ?? '';
+            if (this.editsInPlace(detail)) {
+                this.openInline(detail.field);
+                return;
+            }
         }
+        this.inline = false;
         this.toggleCredit();
         this.restoreDraft();
         if (this.picking) this.chooseNewNote();
@@ -237,7 +252,92 @@ export default (config) => ({
         if (this.creditOn && !this.creditName.trim()) this.creditName = this.config.creditName || this.config.userName || '';
     },
 
+    // The edit mode edits a field in place, unless the ✎ asked for the form (detail.form) or the input needs it
+    editsInPlace(detail) {
+        return this.$store.edit.on && Boolean(this.config.directUrl) && !detail.form
+            && INLINE_INPUTS.includes(this.field.input) && !this.field.adds && !this.field.newNote;
+    },
+
+    openInline(name) {
+        const button = document.querySelector(`[data-suggest-field="${CSS.escape(name)}"]`);
+        // under the field's text: its block, as refreshField puts it back
+        const rect = (button?.closest('[data-edit-block]') ?? button?.parentElement)?.getBoundingClientRect();
+        const width = Math.min(['textarea', 'list', 'quote'].includes(this.field.input) ? 560 : 420, window.innerWidth - 16);
+        // its right edge on the block's (RTL), kept inside the page
+        const right = rect ? rect.right : window.innerWidth - 8;
+        this.inlinePos = {
+            top: (rect ? rect.bottom : 80) + window.scrollY + 6,
+            left: Math.max(8, Math.min(right - width, window.innerWidth - width - 8)) + window.scrollX,
+            width,
+        };
+        this.open = false;
+        this.inline = true;
+        this.$nextTick(() => this.$refs.inlineInput?.querySelector('input, textarea, select')?.focus());
+    },
+
+    // «فرم کامل»: the same field in the suggestion form, e.g. to file it as a documented suggestion
+    inlineToForm() {
+        const name = this.field.name;
+        this.inline = false;
+        // after this click is done, or the form's own «click outside» would close it at once
+        setTimeout(() => this.start({ field: name, form: true }));
+    },
+
+    // Puts the page's new text for a field in place: the block around each of its ✎, from the page as the server now renders it
+    async refreshField(name) {
+        const selector = `[data-suggest-field="${CSS.escape(name)}"]`;
+        try {
+            const res = await fetch(window.location.href, { headers: { Accept: 'text/html' }, cache: 'no-store' });
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            const now = [...document.querySelectorAll(selector)];
+            const fresh = [...doc.querySelectorAll(selector)];
+            if (!res.ok || !now.length || now.length !== fresh.length) throw new Error('layout changed');
+            now.forEach((button, i) => {
+                const block = button.closest('[data-edit-block]') ?? button.parentElement;
+                const next = fresh[i].closest('[data-edit-block]') ?? fresh[i].parentElement;
+                block.innerHTML = next.innerHTML;
+            });
+        } catch (e) {
+            window.location.reload();
+        }
+    },
+
+    showUndo(logId, name, before) {
+        clearTimeout(this.undoTimer);
+        this.undo = logId ? { id: logId, name, label: this.field.label, before } : { id: null, name, label: this.field.label };
+        this.undoTimer = setTimeout(() => { this.undo = null; }, UNDO_SHOWN_MS);
+    },
+
+    async takeBack() {
+        if (!this.undo?.id || this.undoBusy) return;
+        this.undoBusy = true;
+        clearTimeout(this.undoTimer);
+        const { id, name, before } = this.undo;
+        try {
+            const res = await fetch(this.config.undoUrl.replace('__LOG__', id), {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': this.config.csrf },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+                Object.assign(this.config.fields[name], before);
+                await this.refreshField(name);
+                this.undo = { id: null, name, label: this.undo.label, undone: true };
+            } else {
+                this.undo = { ...this.undo, error: data.message || 'بازگردانی انجام نشد.' };
+            }
+        } catch (e) {
+            this.undo = { ...this.undo, error: 'ارتباط با سرور برقرار نشد.' };
+        }
+        this.undoBusy = false;
+        this.undoTimer = setTimeout(() => { this.undo = null; }, UNDO_SHOWN_MS);
+    },
+
     close() {
+        if (this.inline) {
+            this.inline = false;
+            return;
+        }
         // The dialog closed without signing in: back to the form, with what was typed
         if (this.gate && this.pendingSend) {
             this.gate = false;
@@ -443,6 +543,22 @@ export default (config) => ({
                 body,
             });
             const data = await res.json().catch(() => ({}));
+            if (res.ok && this.inline) {
+                // In place: the new value goes where the old one was, and the edit can be taken back for a while
+                const name = this.field.name;
+                const def = this.config.fields[name];
+                const before = { current: def.current, prefill: def.prefill, pair: def.pair ? { ...def.pair } : null };
+                if (data.field) {
+                    def.current = data.field.current;
+                    def.prefill = data.field.prefill;
+                    if (def.pair) def.pair = { ...def.pair, current: data.field.pair };
+                }
+                await this.refreshField(name);
+                this.showUndo(data.log_id, name, before);
+                this.inline = false;
+                this.submitting = false;
+                return;
+            }
             if (res.ok) {
                 window.location.reload();
                 return;

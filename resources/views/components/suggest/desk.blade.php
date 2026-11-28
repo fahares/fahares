@@ -67,6 +67,8 @@
         'googleUrl' => route('auth.google'),
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
+        // ...and take it back for a while from the edit mode (backlog item 67)
+        'undoUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit.undo', ['log' => '__LOG__']) : null,
         // ...and run a structural tool at once, after its preview in the panel (backlog item 45)
         'structureUrl' => auth()->user()?->can('structure.direct') && in_array($type, SuggestionRegistry::STRUCTURE_TYPES, true) ? route('admin.structure.show', [$type, $record->id]) : null,
         // Research notes (see NoteTypes)
@@ -103,8 +105,90 @@
 
 <div x-data="suggestDesk(@js($config))" @suggest-field.window="start($event.detail)" @keydown.escape.window="close()">
 
+    <!-- Edit-mode banner (backlog item 67) -->
+    <div x-show="$store.edit.on" x-cloak x-transition data-edit-banner
+        class="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-40 max-w-xl mx-auto p-3 sm:px-4 rounded-sm bg-[#10241C] text-[#E3F2EA] border border-emerald-500/60 shadow-2xl flex items-center gap-3 text-[13px]">
+        <div class="flex-1 leading-relaxed">
+            <strong class="text-emerald-300">حالت ویرایش.</strong>
+            روی <span class="inline-flex w-5 h-5 items-center justify-center rounded-md bg-emerald-600 text-white align-middle">✎</span> کنار هر فیلد بزنید؛ ویرایش بی‌درنگ اعمال و در لاگ ممیزی ثبت می‌شود.
+        </div>
+        <button type="button" @click="$store.edit.toggle()" class="shrink-0 px-4 py-2 rounded-sm border border-emerald-100/40 hover:bg-white/10 font-bold cursor-pointer">پایان</button>
+    </div>
+
+    <!-- The edit mode's editor in place: under the ✎ of its field -->
+    <template x-teleport="body">
+        <div x-show="inline" x-cloak x-transition.opacity data-inline-editor role="dialog" :aria-label="'ویرایش ' + field.label"
+            @click.outside="if (!submitting && !$event.target.closest('[data-suggest-field]')) inline = false"
+            @keydown.ctrl.enter.prevent="submitDirect()" @keydown.meta.enter.prevent="submitDirect()"
+            :style="`position:absolute; top:${inlinePos.top}px; left:${inlinePos.left}px; width:${inlinePos.width}px`"
+            class="z-50 p-3 rounded-sm bg-surface border-2 border-emerald-600 shadow-2xl text-right text-sm space-y-2">
+            <div class="flex items-baseline justify-between gap-2">
+                <span class="font-bold text-ink" x-text="field.label"></span>
+                <span class="text-[11px] text-muted">ذخیره: <kbd dir="ltr">Ctrl+Enter</kbd> · انصراف: <kbd dir="ltr">Esc</kbd></span>
+            </div>
+            <div x-ref="inlineInput" class="space-y-2">
+                <template x-if="['textarea', 'quote', 'list'].includes(field.input)">
+                    <textarea x-model="value" rows="5" class="{{ $inputClass }}" :placeholder="field.input === 'list' ? 'هر مورد در یک سطر' : ''"></textarea>
+                </template>
+                <template x-if="['text', 'hijri_date'].includes(field.input)">
+                    <input type="text" x-model="value" @keydown.enter.prevent="submitDirect()" class="{{ $inputClass }}">
+                </template>
+                <template x-if="field.input === 'integer'">
+                    <input type="text" inputmode="numeric" x-model="value" @keydown.enter.prevent="submitDirect()" class="{{ $inputClass }} font-mono w-40">
+                </template>
+                <template x-if="field.input === 'choice'">
+                    <select x-model="value" class="{{ $inputClass }} w-56">
+                        <template x-for="option in field.options" :key="option">
+                            <option :value="option" x-text="option" :selected="option === value"></option>
+                        </template>
+                    </select>
+                </template>
+                <template x-if="field.input === 'boolean'">
+                    <div class="flex gap-5 pt-1">
+                        <label class="inline-flex items-center gap-1.5 font-bold"><input type="radio" value="بله" x-model="value" class="text-emerald-600"> بله</label>
+                        <label class="inline-flex items-center gap-1.5 font-bold"><input type="radio" value="خیر" x-model="value" class="text-emerald-600"> خیر</label>
+                    </div>
+                </template>
+                <template x-if="field.input === 'person'">
+                    <div class="relative">
+                        <input type="text" x-model="value" @input="searchPeople()" autocomplete="off" class="{{ $inputClass }}" placeholder="نام را بنویسید و از فهرست اشخاص انتخاب کنید">
+                        <ul x-show="personResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-white dark:bg-paper shadow-xl">
+                            <template x-for="p in personResults" :key="p.id">
+                                <li><button type="button" @click="pickPerson(p)" class="w-full text-right px-3 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex justify-between gap-2">
+                                    <span class="font-bold text-ink" x-text="p.name"></span>
+                                    <span class="text-muted shrink-0" x-text="[p.years, p.manuscripts_count + ' نسخه'].filter(Boolean).join(' · ')"></span>
+                                </button></li>
+                            </template>
+                        </ul>
+                        <p class="mt-1 text-xs" :class="personId ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted'" x-text="personId ? '✓ به شخص ثبت‌شده پیوند می‌خورد.' : 'بی انتخاب از فهرست، فقط متن نام عوض می‌شود و پیوند می‌ماند.'"></p>
+                    </div>
+                </template>
+                <template x-if="field.pair">
+                    <label class="grid gap-1"><span class="text-xs text-muted" x-text="field.pair.label"></span>
+                        <input type="text" x-model="pairValue" dir="ltr" data-pair-value class="{{ $inputClass }} text-left"></label>
+                </template>
+            </div>
+            <p x-show="errors.suggested_value || errors.form || errors.field_name" x-text="errors.suggested_value || errors.form || errors.field_name" class="text-xs text-red-600 dark:text-red-400 font-bold"></p>
+            <div class="flex items-center gap-2">
+                <button type="button" @click="submitDirect()" :disabled="submitting" data-inline-save
+                    class="px-4 py-1.5 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold cursor-pointer disabled:opacity-50"
+                    x-text="submitting ? 'در حال ذخیره…' : 'ذخیره'"></button>
+                <button type="button" @click="inline = false" class="px-3 py-1.5 rounded-sm border border-line-strong font-bold cursor-pointer">انصراف</button>
+                <button type="button" @click="inlineToForm()" class="ms-auto text-xs text-cinnabar hover:underline cursor-pointer" title="همین فیلد در فرم پیشنهاد، برای پیشنهاد مستند یا قرائت">فرم کامل</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- After an edit in place: what was saved, and «بازگردانی» for a while -->
+    <div x-show="undo" x-cloak x-transition.opacity data-edit-undo role="status"
+        class="fixed bottom-24 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-40 max-w-md mx-auto px-4 py-2.5 rounded-sm bg-surface border border-emerald-600 shadow-xl flex items-center gap-3 text-[13px]">
+        <span class="flex-1 text-ink" x-text="undo ? (undo.error || (undo.undone ? '«' + undo.label + '» بازگردانده شد.' : (undo.id ? '«' + undo.label + '» ذخیره شد.' : 'تغییری در «' + undo.label + '» نبود.'))) : ''"></span>
+        <button type="button" x-show="undo && undo.id && !undo.error" @click="takeBack()" :disabled="undoBusy" data-edit-undo-button
+            class="shrink-0 px-3 py-1 rounded-sm border border-line-strong font-bold text-cinnabar hover:border-cinnabar cursor-pointer disabled:opacity-50">بازگردانی</button>
+    </div>
+
     <!-- Suggestion-mode banner -->
-    <div x-show="$store.suggest.on" x-cloak x-transition
+    <div x-show="$store.suggest.on && !$store.edit.on" x-cloak x-transition
         class="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-40 max-w-xl mx-auto p-3 sm:px-4 rounded-sm bg-[#221C17] text-[#F3EAD6] border border-gold/50 shadow-2xl flex items-center gap-3 text-[13px]">
         <div class="flex-1 leading-relaxed">
             <strong class="text-amber-200">اصلاح فیلدها.</strong>

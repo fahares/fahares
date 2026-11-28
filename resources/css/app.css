@@ -90,6 +90,12 @@
     background-color: transparent;
     border-color: transparent;
 }
+/* The edit mode of reviewers (backlog item 67): its ✎ are green, apart from the suggestion mode's */
+html[data-edit-mode] .suggest-btn.is-on {
+    background-color: var(--color-emerald-600, #059669);
+    border-color: var(--color-emerald-700, #047857);
+    color: #fff;
+}
 .hover-only {
     display: none;
 }
