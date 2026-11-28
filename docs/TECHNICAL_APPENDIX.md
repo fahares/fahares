@@ -14888,3 +14888,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** «renamed 91»، «alias added 90»، «record patched 141»؛ اجرای دوم همه «already» و یک «rename conflict» (شخص ۱۰۵۵۱).
 - **وصله‌ها:** `fankha_ocr_patches_step14_449.json` پس از بیرون رفتن ۱۰ وصلۀ «قزنچائی/فرنچائی» ۹٬۴۴۷ فیلد دارد.
 - **اجرا در تولید (پس از انتشار و تأیید کاربر):** پشتیبان، سپس `fahares:patch-text-words` و `fahares:fix-person-names` (هر کدام اجرای آزمایشی و سپس `--apply`)، و وارد کردن دوبارۀ صفحه‌های ج ۱ ص ۵۱۱، ج ۸ ص ۳۴۶، ج ۱۲ ص ۸۱۲، ج ۱۹ ص ۵۲۰ و ج ۳۲ ص ۴۰۴.
+- **اجرای تولید (۷ آذر ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_451_before.json.gz` (`06391657…`، md5 دو سو برابر): مقدار ۶٬۱۱۸ فیلد وصله، و ۱۸۲ شخص، ۷۲ اثر، ۳۱۸ نسخه و ردیف‌های نام مؤلف و کاتبشان.
+  - **وصله‌ها:** پروندۀ بی `raw_text` در `/tmp/step14_451_patches.json` (`05eea738…`)، با `--file`. اجرای آزمایشی «patched 6118»؛ `--apply` «Updated 6101 records»؛ اجرای دوم «already 6118».
+  - **نام‌ها:** اجرای آزمایشی برابر تمرین؛ `--apply` «renamed 91، alias added 90، record patched 141»؛ اجرای دوم همه «already» و یک «rename conflict» (۱۰۵۵۱).
+  - **صفحه‌ها:** `pages-step14_451/` (ج ۱، ۸، ۱۲، ۱۹ و ۳۲؛ تنها پنج صفحه فرق داشت)، `sources:import-pages` برای همین پنج جلد. `/tmp` کانتینر پاک است.

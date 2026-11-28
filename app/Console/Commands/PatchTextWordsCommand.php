@@ -63,6 +63,12 @@ class PatchTextWordsCommand extends Command
 
                 continue;
             }
+            // a column that has left the table (works.raw_text and manuscripts.raw_text, phase 5 of item 170) is refused
+            if (! \Illuminate\Support\Facades\Schema::hasColumn(self::TABLES[$kind]['table'], $column)) {
+                $counts['refused']++;
+
+                continue;
+            }
             $row = DB::table(self::TABLES[$kind]['table'])->find($item['id']);
             if (! $row) {
                 $counts['missing']++;
