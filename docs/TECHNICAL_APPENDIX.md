@@ -14899,3 +14899,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **وصله‌ها:** پروندۀ بی `raw_text` در `/tmp/step14_451_patches.json` (`05eea738…`)، با `--file`. اجرای آزمایشی «patched 6118»؛ `--apply` «Updated 6101 records»؛ اجرای دوم «already 6118».
   - **نام‌ها:** اجرای آزمایشی برابر تمرین؛ `--apply` «renamed 91، alias added 90، record patched 141»؛ اجرای دوم همه «already» و یک «rename conflict» (۱۰۵۵۱).
   - **صفحه‌ها:** `pages-step14_451/` (ج ۱، ۸، ۱۲، ۱۹ و ۳۲؛ تنها پنج صفحه فرق داشت)، `sources:import-pages` برای همین پنج جلد. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۴۵۳: `ListStats` و خلاصۀ فهرست در صفحه‌های رکورد
+- **کد:** `App\Support\ListStats` (`total`، `shown`، `cached`، `for`، `build`، `percent`، `forget`)؛ کامپوننت‌های `x-list-stats.button` و `x-list-stats.summary`؛ نمای `list-stats/panel`؛ مسیر `list-stats` (`/list-stats/{param}/{id}`، `throttle:60,1`، `X-Robots-Tag: noindex`) در `ListStatsController`. `InsightsScope::copies()` شرط‌های دامنه را بر خود جدول `manuscripts` می‌دهد، بی جدول موقت.
+- **پیکربندی:** `insights.list_stats_min` (۳۰) و `insights.list_stats_ttl` (۸۶۴۰۰ ثانیه).
+- **cache:** `list-stats:v1:total:{param}:{id}` (شمار نسخه‌ها با `InsightsScope::count()`) و `list-stats:v1:summary:{param}:{id}`. ساختن خلاصه زیر قفل `….lock` است تا خوانندگان هم‌زمان یک فهرست را دو بار نخوانند.
+- **ساختن:** یک پرس‌وجو بر نسخه‌های دامنه، گروه‌بندی بر `NULLIF(copy_place, '')` و سدۀ کتابت (تنها وقتی `copy_date_from` و `copy_date_to` در یک سده‌اند، در بازۀ `insights.centuries`)، با `COUNT(*)`، `SUM(is_autograph)` و `SUM(is_illuminated)`. شهر هر متن محل با `CopyPlaces::cityOf` خوانده می‌شود، چنان‌که نقشۀ صفحۀ آمار می‌خواند.
+- **زمان روی fahares_prod محلی (buffer pool ۱۲۸ MB، اسکن کامل جدول):** مؤلف ۱۱۱۰، ۰٫۵ ثانیه؛ اثر ۵۰۹۳۳ (۲٬۵۹۸ نسخه)، ۰٫۳ ثانیه؛ موضوع ۲ (۲۹٬۶۷۶ نسخه)، ۴ ثانیه؛ کتابخانۀ ۴ (۴۴٬۷۳۹ نسخه)، ۱۳ ثانیه. از همین رو صفحه خلاصه را تنها از cache می‌کشد و در غیر آن، پس از نمایش، آن را از مسیر `list-stats` می‌گیرد.
+- **صفحۀ اثر:** ستون سده به `works.show?century=N#manuscripts` و «خط مؤلف» به `?autograph=1` می‌رود (`WorkCopyFilters`).
+- **آزمون:** `tests/Feature/ListStatsTest.php`.

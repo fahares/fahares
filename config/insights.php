@@ -91,6 +91,11 @@ return [
             'note' => 'گنجینۀ یک شهر: نسخه‌های این کتابخانه از چه سده‌هایی است، و مؤلفانشان در چه روزگاری زیسته‌اند.'],
     ],
 
+    // The pages of a person, work, library, subject and scribe show a summary of their copies and the way to their
+    // insights page from this many copies (backlog item 106); the summary is kept this many seconds
+    'list_stats_min' => 30,
+    'list_stats_ttl' => 86400,
+
     // A chart of a scope that rests on fewer records than this is not drawn; below small_sample it carries a warning
     'min_sample' => 10,
     'small_sample' => 50,

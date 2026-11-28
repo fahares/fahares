@@ -278,6 +278,9 @@
             <!-- TAB 1: AUTHORED WORKS -->
             @if($hasAuthored)
                 <x-ui.section title="آثار" :count="$authoredWorks->total()" x-show="activeTab === 'authored'" :style="$defaultTab !== 'authored' ? 'display: none' : null">
+                    {{-- The copies of the person's works, apart from those they wrote (backlog item 106) --}}
+                    <x-slot:actions><x-list-stats.button param="author" :id="$person->id" /></x-slot:actions>
+                    <x-list-stats.summary param="author" :id="$person->id" />
                     @if($authoredWorks->total() > 1)
                         <x-search.list-tools :params="['type' => 'works', 'author_id' => $person->id]" placeholder="عنوان در آثار این پدیدآور…" plural="آثار" />
                     @endif
@@ -316,6 +319,8 @@
             <!-- TAB 2: SCRIBED MANUSCRIPTS -->
             @if($hasScribed)
                 <x-ui.section title="نسخه‌های کتابت‌شده" :count="$scribedManuscripts->total()" x-show="activeTab === 'scribed'" :style="$defaultTab !== 'scribed' ? 'display: none' : null">
+                    <x-slot:actions><x-list-stats.button param="scribe" :id="$person->id" /></x-slot:actions>
+                    <x-list-stats.summary param="scribe" :id="$person->id" />
                     @if($scribedManuscripts->total() > 1)
                         <x-search.list-tools :params="['type' => 'manuscripts', 'scribe_id' => $person->id]" placeholder="عنوان یا کتابخانه در نسخه‌های این کاتب…" />
                     @endif

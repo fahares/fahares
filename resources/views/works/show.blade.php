@@ -447,8 +447,9 @@
         @if($work->manuscripts_count > 1)
             <x-search.list-tools :params="['type' => 'manuscripts', 'work_id' => $work->id]" placeholder="کتابخانه، کاتب یا شماره در نسخه‌های این اثر…" />
         @endif
+        <x-slot:actions>
+            <x-list-stats.button param="work" :id="$work->id" />
         @if(isset($sort) && $sort !== 'sequence')
-            <x-slot:actions>
                 <span class="text-muted">مرتب‌شده بر اساس:</span>
                 <span class="font-bold text-cinnabar">
                     @switch($sort)
@@ -463,8 +464,10 @@
                     ({{ $direction === 'asc' ? 'صعودی' : 'نزولی' }})
                 </span>
                 <a href="{{ route('works.show', array_merge(request()->except(['sort', 'direction', 'page']), ['id' => $work->getRouteKey()])) }}#manuscripts" class="text-muted hover:text-cinnabar underline">بازنشانی ترتیب</a>
-            </x-slot:actions>
         @endif
+        </x-slot:actions>
+        {{-- The summary of the work's copies (backlog item 106); a century or the autographs filter the list below --}}
+        <x-list-stats.summary param="work" :id="$work->id" />
 
         {{-- The handwritten copies apart from the photographs and the descriptions possibly of a copy already listed (step 14.16) --}}
         @if(($copyCounts['photos_linked'] ?? 0) + ($copyCounts['photos_other'] ?? 0) + ($copyCounts['possibly_same'] ?? 0) > 0)

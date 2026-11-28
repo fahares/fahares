@@ -132,7 +132,13 @@ class InsightsScope
     /** The copies of the scope, counted in the manuscripts table itself (no open() needed) */
     public function count(): int
     {
-        return $this->conditions(DB::table('manuscripts'))->count();
+        return $this->copies()->count();
+    }
+
+    /** The scope's copies as a query on the manuscripts table itself, for a light count that needs no open() */
+    public function copies(): Builder
+    {
+        return $this->conditions(DB::table('manuscripts'));
     }
 
     public function hasCopyFilter(): bool

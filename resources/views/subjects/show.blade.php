@@ -62,8 +62,11 @@
 
     <x-ui.section title="آثار" :count="$works->total()">
         <x-slot:actions>
+            <x-list-stats.button param="subject" :id="$subject->id" />
             <x-ui.btn size="sm" :href="route('search', ['type' => 'works', 'subject_id' => $subject->id])">جست‌وجوی پیشرفته در این موضوع</x-ui.btn>
         </x-slot:actions>
+        {{-- The copies of the subject's works and of its branches (backlog item 106) --}}
+        <x-list-stats.summary param="subject" :id="$subject->id" />
 
         <form action="{{ route('subjects.show', $subject) }}" method="GET" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 mb-4">
             @if($hasChildren)
