@@ -259,6 +259,16 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame([1088, 1188, 'doubtful', 'بازخوانی 188'], $reread('20 شعبان 188 (کذا)', 38));
         $this->assertSame([1029, 1290, 'doubtful', 'بازخوانی 129'], $reread('129ق', null));
         $this->assertNull($reread('سه‌شنبه 19 ربیع الاول 142', 1231));
+        // no lost digit fits: the digits in another order, when another treatise of the volume is dated in it (step 14.443)
+        $swap = fn (string $raw, int $floor, array $years) => ($r = CopyDateRange::reread($raw, $floor, fn () => $years)) ? [$r['from'], $r['to'], $r['hedge']] : null;
+        $this->assertSame([967, 967, 'جابه‌جایی 697'], $swap('17 شوال 697ق', 911, [967]));
+        $this->assertSame([907, 907, 'جابه‌جایی 709'], $swap('با تاریخ 709ق', 825, [907, 904]));
+        // no treatise of the volume has it, or it is before the floor, or a lost digit fits first
+        $this->assertNull($swap('669ق', 849, []));
+        $this->assertNull($swap('639 ق', 926, [1241, 1242]));
+        $this->assertNull($swap('709ق', 980, [907]));
+        $this->assertSame([1125, 1250, 'بازخوانی 125'], $swap('سال 125؟', 1106, [512]));
+        $this->assertSame(697, CopyDateRange::rereadYear('جابه‌جایی 697'));
         $this->assertSame(125, CopyDateRange::rereadYear('بازخوانی 125'));
         $this->assertNull(CopyDateRange::rereadYear('؟'));
         $this->assertNull(CopyDateRange::rereadYear('نزدیک عصر مؤلف'));

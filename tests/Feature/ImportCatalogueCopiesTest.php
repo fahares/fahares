@@ -103,10 +103,12 @@ class ImportCatalogueCopiesTest extends TestCase
         $this->assertSame(Manuscript::PROVENANCE_CATALOGUE, $two->metadata['provenance']['kind']);
         $this->assertSame(1, $this->riaz->fresh()->manuscripts_count);
 
-        // its place in the catalogue: machine data, ⓘ until reviewed, with the entry's text for the page's links
+        // its place in the catalogue: the catalogue's own entry, the page it was made from, so verified and without ⓘ;
+        // with the entry's text for the page's links
         $entry = SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $two->id)->firstOrFail();
-        $this->assertSame([SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED, 73, 74, SourceEntry::TEXT_AUTO],
+        $this->assertSame([SourceEntry::ORIGIN_CATALOGUE, SourceEntry::STATUS_VERIFIED, 73, 74, SourceEntry::TEXT_AUTO],
             [$entry->origin, $entry->status, $entry->page_start, $entry->page_end, $entry->text_status]);
+        $this->assertFalse($entry->isAwaitingReview());
         $this->assertSame($volume->id, $entry->source_volume_id);
         $this->assertStringStartsWith('* نسخ، محمّد رضا', $entry->copy_text);
 
@@ -123,6 +125,29 @@ class ImportCatalogueCopiesTest extends TestCase
         $this->artisan('catalogs:import-copies', ['file' => $this->file])->assertSuccessful()
             ->expectsOutputToContain('0 copies made (0 under new works), 3 unchanged.');
         $this->assertSame(3, Manuscript::where('library_id', $library->id)->count());
+    }
+
+    public function test_a_run_again_settles_the_entries_step_14_447_left_awaiting_review_but_not_a_reviewed_one()
+    {
+        $this->artisan('catalogs:import-copies', ['file' => $this->file])->assertSuccessful();
+        $ids = Manuscript::where('library_id', $this->library()->id)->pluck('id');
+        $entries = SourceEntry::where('citable_type', Manuscript::class)->whereIn('citable_id', $ids);
+        // as the first version wrote them; one of them since rejected by a reviewer
+        (clone $entries)->update(['origin' => SourceEntry::ORIGIN_MATCH, 'status' => SourceEntry::STATUS_UNVERIFIED]);
+        $rejected = (clone $entries)->orderBy('id')->first();
+        $rejected->update(['status' => SourceEntry::STATUS_REJECTED, 'reviewed_by' => null, 'reviewed_at' => now()]);
+
+        $this->artisan('catalogs:import-copies', ['file' => $this->file, '--dry-run' => true])->assertSuccessful()
+            ->expectsOutputToContain("3 unchanged, 2 entries settled as the catalogue's own (dry run).");
+        $this->assertSame(2, (clone $entries)->where('status', SourceEntry::STATUS_UNVERIFIED)->count());
+
+        $this->artisan('catalogs:import-copies', ['file' => $this->file])->assertSuccessful()
+            ->expectsOutputToContain("3 unchanged, 2 entries settled as the catalogue's own.");
+        $this->assertSame(2, (clone $entries)->where('origin', SourceEntry::ORIGIN_CATALOGUE)->where('status', SourceEntry::STATUS_VERIFIED)->count());
+        $this->assertSame(SourceEntry::STATUS_REJECTED, $rejected->fresh()->status);
+
+        $this->artisan('catalogs:import-copies', ['file' => $this->file])->assertSuccessful()
+            ->expectsOutputToContain('0 copies made (0 under new works), 3 unchanged.');
     }
 
     public function test_a_dry_run_makes_nothing()

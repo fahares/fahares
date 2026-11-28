@@ -14743,6 +14743,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - پشتیبان (ستون‌های تاریخ نسخه و سه ستون کتابت شخص ۳۵۵): `../fahares-sources/backups/step13/step14_441_before_ms78318_prod_20261127.json`. `/tmp` کانتینر پاک شد.
 - **تفکیک شخص ۳۱۶۴۳ («علی بن ابیطالب»):** دو نسخه داشت، 184992 (رضوی 11971، «شرح دیوان تمیم بن مقبل»، «380ق»، «نسخ کهن»، بی بازخوانی) و 129747 (دائرة المعارف 1649، «1253ق»). اسکریپت مسیر `PersonReviewController::split` را دنبال کرد: `RecordSplitter::splitPerson` با نسخۀ 184992 و نام «علی بن ابیطالب»، یک `AuditLog` با action `split` و `user_id` تهی، مورد ۱۲۲۱ صف با `status = split` و یادداشت، و `CollectiveReview::settle('mixed', 1221, 'split')` که هیچ نظری در انتظار نداشت. شخص تازه ۷۴۸۲۷ است (روی `fahares_prod` شناسۀ ۷۴۸۲۶ گرفت). فاصلۀ هر دو شخص صفر شد. پشتیبان: `step14_441_before_split_31643_prod_20261127.json`، شامل ردیف شخص، دو ردیف `manuscript_people`، `scribe_id` دو نسخه و ردیف صف. شخص ۵۷۲۲ («علی بن ابی طالب»، یک نسخه از ۱۰۴۸ و بقیه از ۱۲۵۹ تا ۱۲۶۱) در صف ماند.
 - **تفکیک شخص ۵۷۲۲ («علی بن ابی طالب»):** با همان اسکریپت و همان محافظ‌ها (پنج نسخه، و رضوی 14442 با تاریخ «جمعه شوال 1048ق»)، نسخۀ 28725 به شخص تازۀ ۷۴۸۲۸ رفت و مورد ۶۸۲ صف `split` شد. چهار نسخۀ 90070، 95326، 95327 و 95364 در ۵۷۲۲ ماندند، که اکنون `scribed_gap` آن ۲ است. پشتیبان: `step14_441_before_split_5722_prod_20261127.json`. نسخۀ ۱۲۵۳ شخص ۳۱۶۴۳ (نسخ خوش) به ۵۷۲۲ ادغام نشد، چون نشانه‌ای جز نام نبود.
+- **چهار تفکیک دیگر (۷ آذر ۱۴۰۵):** یک اسکریپت با محافظ برای هر شخص: نام، شمارۀ نسخه‌های کتابت، مورد باز صف، و `copy_date_raw` نسخه‌ای که جدا می‌شود. هر چهار محافظ پیش از هر نوشتنی سنجیده می‌شوند. هر تفکیک در تراکنش خودش است: `RecordSplitter::splitPerson` و `AuditLog` با action `split`.
+  - ۴۶۲۷۲ / نسخۀ 194696 ← ۷۴۸۲۹، و ۲۹۹۱۰ / 121600 ← ۷۴۸۳۰. مورد ۱۳۴۱ و ۱۱۹۲ صف `split` شدند و `CollectiveReview::settle` اجرا شد. فاصلۀ مانده ۰ و ۲ است.
+  - ۵۶۶۲ / 185121 ← ۷۴۸۳۱، با فاصلۀ مانده ۲۹۵. ۱۳۰۷۲ / 282841 ← ۷۴۸۳۲، با فاصلۀ مانده ۶۸۹ از نسخۀ 244445 («597ق»، تاریخ حاشیه). مورد ۶۷۵ و ۹۰۲ عمداً `open` ماندند.
+  - نخستین محافظ ۵۶۶۲ روی `fahares_prod` شکست: فهرست صف با `head -200` بریده شده بود و ۱۶ نسخه نشان داده بود، در حالی که ۱۹ نسخه است. محافظ اصلاح و باز آزموده شد.
+  - پشتیبان: `step14_441_before_split4_prod_20261128.json`، شامل شخص، `manuscript_people`، `scribe_id` نسخه‌ها، مورد صف و نظرها، برای هر چهار شخص. `/tmp` کانتینر پاک شد.
 
 ### گام ۱۴.۴۴۲: شمارۀ رسالۀ تکراری در مسجد اعظم (۲۱)، سپهسالار (۲۲) و مجلس (۴)
 - **روش (`fahares_prod`، شناسۀ کتابخانه‌ها همان‌جا):** گروه‌بندی بر پایۀ `collection_key` و `Manuscript::collectionKey()['part']`؛ شمارۀ تکراری یعنی دست‌کم دو `work_id`. نخستین جای ارجاع با `CatalogCitations::brackets/places`.
@@ -14750,6 +14755,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اندازه** (`dimensions` یا نخستین «a×b» متن؛ ناهمسانی بیش از ۱٫۳ برابر در هر بُعد): ۲۰ کلید، ۷۲ نسخه: `docs/plans/collection-overlaps/two-volumes-suspected.tsv` (کتابخانه، کلید، شناسۀ نسخه، شماره، اثر، برگ، اندازه، ارجاع). شناسه‌ها شناسۀ production‌اند.
 - **«مکرر»:** ۳۶ نسخه؛ با جزء: سپهسالار 569/1 و 569/2 (۱۵×۲۳ مانند 569)، علوم پزشکی 238/20 و 275/2، مجلس 4339/5، مروی 628/1، و مجلس 5187/1 و 5187/2 (`#245715`، `#15957`). فقط دو نسخۀ آخر مجلد دیگری‌اند. شمارۀ بی‌جزء «N مکرر» از پیش کلید جدای «N مکرر» می‌گیرد.
 - **اجرا در تولید (۶ آذر ۱۴۰۵):** همان کار `Admin\ManuscriptController::moveCollection` در tinker: `ManuscriptCollection::firstOrCreate([library_id, key => '5187-مکرر'])`، `collection_id` و `collection_pinned = true`، و لاگ `verify` با `direct_edit` (`user_id` تهی). `collection_key` همان «5187» می‌ماند، چون نسخۀ ثابت‌شده را `Collections::sync` جابه‌جا نمی‌کند (روی `fahares_prod` آزموده شد). پشتیبان ۱۵ نسخۀ کلید 5187 و رکورد مجموعه: `../fahares-sources/backups/step13/step14_442_before_5187_prod_20261127.json` (md5 `c445d429a7c04d50fa943646e34023c2`). نتیجه: مجموعۀ ۱۱۷۸۵ «5187» با ۱۳ رساله، و ۶۷۶۲۲ «5187-مکرر» با ۲.
+
+### گام ۱۴.۴۴۳: `CopyDateRange::SWAP`، ادغام سنایی و اصلاح‌های بازبینی (پیگیری مورد ۱۲۸)
+- **`reread($raw, $floor, ?callable $volumeYears)`:** وقتی هیچ خوانش رقم افتاده‌ای نمی‌خواند، `swapped()` جایگشت‌های سه رقم را می‌سنجد. جایگشت باید در بازۀ [کف، ۱۴۰۰] باشد و در سال‌های (`HijriYear::all`) رساله‌های دیگر همان مجلد بیاید. خروجی `hedge` «جابه‌جایی NNN» و `certainty` تردیدی است. `rereadYear()` هر دو پیشوند «بازخوانی» و «جابه‌جایی» را می‌شناسد.
+- **`Manuscript::volumeYears($library, $collectionKey, $except)`:** یک callable تنبل است که سال‌های رساله‌های دیگر مجلد را برمی‌گرداند. هوک ذخیرۀ نسخه، `DerivedData::copyChanges` و `fahares:fill-copy-date-ranges` آن را به `copyDateColumns` می‌دهند. پرس‌وجوی مجلد فقط وقتی اجرا می‌شود که سال کوتاه باشد و خوانش رقم افتاده نخواند.
+- **صفحۀ نسخه:** برای `SWAP` یادداشت «با فرض جابه‌جا شدن رقم‌ها، چنان‌که رسالۀ دیگری از همین مجلد دارد، …» نمایش داده می‌شود.
+- **تمرین `refresh-derived` (آزمایشی، `fahares_prod`):** در `copy_date_range` بیرون از کار نشست مورد ۱۷۴ (#۲۴۴۰۳۴)، فقط #۵۴۵۸۷ («17 شوال 697ق» ← ۹۶۷) و #۳۳۱۳۹۲ («با تاریخ 709ق» ← ۹۰۷) عوض شدند.
+- **سنایی:** `PersonMerger::merge(#9871, #13717, …, keepPrintedNames: true)` با `name` = WRONG، و KEEP برای `century_hijri`، `death_year_hijri`، `death_year_gregorian` و `life_dates_raw`، و `corpus_fix` «step 14.443: a duplicate whose Gregorian years were stored as Hijri». روی رونوشت لاگ ۱۸۵۷۴۷ ساخته شد، و `copyFloors([7875])` ۵۲۵ شد.
+- **اصلاح‌های بازبینی (`storage/app/step14_443_review.php`، `tinker … < /dev/null`، با `BACKUP=<path>` برای پشتیبان پیش از اجرا):** هر تغییر یک لاگ `verify` با `corpus_fix` «step 14.443: review of copy years far before their work» دارد. هر بخش وضع پیشین را می‌سنجد و اگر عوض شده باشد ردیف را رد می‌کند، پس اجرای دوم صفر است.
+  - `copy_date_raw` با پسوند «که صحیح آن 939ق است»، «… شاید 1068-1118ق باشد (زمان اورنگ زیب)»، «… شاید 1239-1242ق باشد (تاریخ رساله‌های دیگر مجلد)»، «… شاید 1338-1339ق باشد (…)» یا «که صحیح آن معلوم نیست». `HijriYear::all` سالِ پیش از «که صحیح آن» را کنار می‌گذارد (گام ۱۴.۱۸۶). اسکریپت بازۀ هر نسخه را با بازۀ مورد انتظار می‌سنجد.
+    - #۳۹۷۴۷، #۴۲۶۹۹، #۵۱۵۶۶، #۲۶۵۹۰۷ ← ۹۳۹
+    - #۲۱۴۹۰۸ ← ۱۰۶۸–۱۱۱۸
+    - #۱۳۲۰۰۵، #۳۱۲۰۹۷ ← ۱۲۳۹–۱۲۴۲
+    - #۱۷۰۱۶۴ ← ۱۳۳۸–۱۳۳۹
+    - #۱۵۱۰۵۶، #۳۰۹۸۲۷، #۱۶۲۱۵۳، #۲۵۱۲۸۰، #۲۴۱۷۹۴، #۱۶۴۷۱۵، #۵۷۲۱۲، #۱۷۸۶۲۸ ← بی‌بازه
+  - `work_id`: #۹۵۶۲۰ ۱۹۵۷۸ ← ۱۹۵۷۷، #۱۸۹۳۳۷ ۴۰۴۳۲ ← ۴۰۴۴۴، #۹۰۱۹۹ ۱۸۴۸۴ ← ۱۸۴۸۵، #۳۳۳۴۴۲ ۷۱۴۴۲ ← ۷۱۴۶۱ (یوسف و زلیخای فارسیِ بی‌مؤلف)، #۳۳۲۴۶۹ ۷۱۱۱۴ ← ۷۱۱۱۹. `manuscripts_count` هر دو اثر از نو شمرده می‌شود.
+  - `people`:
+    - #۱۶۳۵۳ «-984؟ قمری» ← «ق8 قمری»، با وفات و سال میلادی تهی و سدۀ ۸.
+    - #۹۲۳۲ «-1025 قمری» ← «ق9 قمری»، با وفات تهی و سدۀ ۹.
+    - #۱۶۳۲۲ «ق13» ← «ق11».
+    - #۴۶۱۲۲ و #۱۴۹۳۷ سده و `life_dates_raw` تهی.
+  - `works.author_id` تهی برای #۲۰۲۲۴، #۳۵۸۷۷، #۴۲۱۷۲ و #۷۰۴۹۲. ردیف مؤلف `work_people` حذف می‌شود و همۀ ردیف در `removed_person_role` لاگ می‌ماند. `recountContributions` شخص اجرا می‌شود.
+  - `composition_date_raw` «1053ق» (#۳۶۶۹۵) و «1396ق» (#۴۲۲۱۱) با پسوند «که صحیح آن معلوم نیست» بی‌بازه شدند.
+  - سپس `DerivedData::syncCopies` روی ۲۶۲ نسخۀ اثرهای این اشخاص و آثار اجرا شد. روی رونوشت `collections 2` گزارش شد، که رانش پیشین `collection_key` بود. در اجرای دوم صفر بود.
+- **تمرین (`fahares_prod`):** پشتیبان `step14_443_review_before_local.json`. شمارش: `dates 16, moves 5, people 5, unlinked 4, compositions 2`. اجرای دوم همه را رد کرد. «still far» تهی بود.
+- **برای پروداکشن، پس از انتشار:**
+  1. پشتیبان.
+  2. ادغام سنایی.
+  3. `DerivedData::syncCopies([54587, 331392])`.
+  4. `step14_443_review.php` با `BACKUP`.
+  5. `fahares:estimate-dates --apply`.
 
 ### گام ۱۴.۴۴۴: `fahares:fix-copy-side-findings`
 - **فایل تصمیم:** `database/data/step14_444_copy_side_fixes.json`.
@@ -14820,6 +14855,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین روی fahares_prod:** `sources:import-pages fankha storage/app/fankha-pages-step14_449/NN.jsonl.gz --volume=N` برای ۳۴ جلد، سپس `differ 0`.
   - **اجرای تولید:** فایل‌ها به `/tmp/step14_449_pages/` (`MD5SUMS` برابر)، یک `prod-run --wait fankha-pdf-ocr` با ۳۴ `sources:import-pages` (۲۰:۳۲ تا ۲۰:۳۳، exit 0).
   - **وارسی:** صفحه‌های تولید دوباره بیرون آمد: ۳۳٬۵۱۸ صفحه، `differ 0`، `missing 0`. `/sources/fankha/34/page/710` پاسخ 200 و «لاتمییز» دارد. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۴۵۰: `SourceEntry::ORIGIN_CATALOGUE`
+- **چرا:** `ORIGIN_MATCH` یعنی «یافته با تطبیق شمارۀ نسخه در چاپی دیگر» (`catalogs:match-edition`). مأخذ `match` و `unverified` در `isAwaitingReview()` نشان ⓘ می‌گیرد و در `CatalogMatchQueue` و `CatalogReferenceController` به صف داوری می‌رود. ۳۷۴ مأخذ گام ۱۴.۴۴۷ چنین بودند، در حالی که نسخه از همان مدخل ساخته شده است.
+- **کد:** ثابت `ORIGIN_CATALOGUE = 'catalogue'` (ستون `origin` از نوع `varchar(30)` است و migration لازم نیست). `ImportCatalogueCopiesCommand` مأخذ تازه را با `origin = catalogue`، `status = verified` و `reviewed_at` می‌نویسد. برای نسخه‌ای که از پیش هست، مأخذ همان جلد را که `match`، `unverified` و `reviewed_by` تهی است به `catalogue` و `verified` می‌برد و شمار آن را «N entries settled as the catalogue's own» گزارش می‌کند؛ مأخذ ردشده یا داوری‌شده دست نمی‌خورد. جاهای دیگری که `origin` را می‌سنجند (`SourceEntrySync::matched`، `CatalogerController`، `RecordSources`، `SuggestionRegistry`) با مقدار تازه رفتار پیشین را دارند.
+- **آزمون:** `test_a_run_again_settles_the_entries_step_14_447_left_awaiting_review_but_not_a_reviewed_one`؛ و در آزمون نخست، `origin` و `status` تازه و `isAwaitingReview()` نادرست.
+- **تمرین (`fahares_prod`):** خشک «374 unchanged, 374 entries settled as the catalogue's own (dry run)»، سپس همان بی خشک، و اجرای سوم «374 unchanged».
+- **اجرا در تولید، پس از انتشار:** با `prod-run`: `php artisan catalogs:import-copies database/data/catalogue_copies/eshkevari-v01.json --dry-run` و سپس بی آن. فقط ستون‌های `origin`، `status` و `updated_at` همین ۳۷۴ ردیف عوض می‌شوند.
+- **اجرا در تولید (۷ آذر ۱۴۰۵، پس از انتشار، به تأیید کاربر):** پشتیبان ۳۷۴ ردیف (`id`، `citable_id`، `origin`، `status`، `reviewed_by`، `reviewed_at`، `updated_at`؛ همه `match`، `unverified` و بی داور) در `../fahares-sources/backups/step13/before_step14_450_eshkevari_entries_prod_20261128.json` (md5 `4f41d02b276f7c2c019afc0a23f88e3d`). با `prod-run`: خشک «374 entries settled … (dry run)»، سپس «374 entries settled as the catalogue's own»، و خشک دوم «374 unchanged». صفحۀ نسخۀ #۳۳۴۹۰۴ در fahares.net ۲۰۰ می‌دهد، «دیدن برگه» دارد و «بازبینی نشده» ندارد.
 
 ### گام ۱۴.۴۵۱: `fahares:patch-text-words`
 - **پروندۀ تصمیم:** `database/data/fankha_ocr_patches_step14_449.json`، ساختۀ `scripts/fankha_pdf_ocr_step14_449/site_patches.py` پیکره (`7dca599`) از رونوشت fahares_prod (۶ آذر، ۱۶:۲۹). هر ردیف: `table` (`work`، `copy`، `note`، `entry`)، `id`، `column` و `patches` (`old`، `new`).
