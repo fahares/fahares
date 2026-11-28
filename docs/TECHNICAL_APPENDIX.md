@@ -14825,3 +14825,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین روی fahares_prod:** `sources:import-pages fankha storage/app/fankha-pages-step14_449/NN.jsonl.gz --volume=N` برای ۳۴ جلد، سپس `differ 0`.
   - **اجرای تولید:** فایل‌ها به `/tmp/step14_449_pages/` (`MD5SUMS` برابر)، یک `prod-run --wait fankha-pdf-ocr` با ۳۴ `sources:import-pages` (۲۰:۳۲ تا ۲۰:۳۳، exit 0).
   - **وارسی:** صفحه‌های تولید دوباره بیرون آمد: ۳۳٬۵۱۸ صفحه، `differ 0`، `missing 0`. `/sources/fankha/34/page/710` پاسخ 200 و «لاتمییز» دارد. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۴۵۱: `fahares:patch-text-words`
+- **پروندۀ تصمیم:** `database/data/fankha_ocr_patches_step14_449.json`، ساختۀ `scripts/fankha_pdf_ocr_step14_449/site_patches.py` پیکره (`7dca599`) از رونوشت fahares_prod (۶ آذر، ۱۶:۲۹). هر ردیف: `table` (`work`، `copy`، `note`، `entry`)، `id`، `column` و `patches` (`old`، `new`).
+- **ستون‌ها:** اثر: `description`، `incipit_text`، `explicit_text`، `print_info`، `dedication`، `composition_place`، `composition_date_raw`، `raw_text`. نسخه: `incipit_text`، `explicit_text`، `binding`، `paper`، `copy_place`، `copy_date_raw`، `copy_date_note`، `commissioned_by`، `raw_text`. یادداشت: `text`. مدخل: `entry_text`، `copy_text`.
+- **نگهبان‌ها:** `ProtectedColumns` اثر و نسخه (یادداشت با ستون `notes` نسخه)؛ مدخل با `text_status = edited` کنار می‌رود.
+- **پس از نوشتن:** لاگ `update` با `command` و `step`؛ `DerivedData::syncCopies` و `syncWorks`.
+- **تمرین روی fahares_prod:** ۴۶ ثانیه، patched ۹٬۴۵۷، «Updated 7293 records». اجرای دوم: already ۹٬۴۵۷. دو بار پیش از آن، «already» شمار یک‌بارۀ تکۀ تازه را می‌خواست و ۸۷ فیلد که واژۀ تازه‌شان جای دیگری از همان فیلد هم آمده بود («المعلول») ناسازگار دیده می‌شد. اکنون بودن تکۀ تازه بس است.
+- **اجرا در تولید (پس از انتشار و تأیید کاربر):** پشتیبان ستون‌های همین رکوردها، سپس `prod-run … php -d memory_limit=2G artisan fahares:patch-text-words` (اجرای آزمایشی)، و سپس با `--apply`.
