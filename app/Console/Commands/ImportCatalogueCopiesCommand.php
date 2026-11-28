@@ -23,10 +23,12 @@ use Illuminate\Support\Facades\File;
  *
  * Each copy goes through ManuscriptCreator, as one made in the panel: under a work the site has (by its slug, the same
  * on production) or under a new one with the catalogue's title, author, subject and language. Its place in the
- * catalogue is an entry of the volume's source, written as machine data (origin match, unverified): the copy shows ⓘ
- * until a reviewer checks it against the page. Its provenance says it comes from the printed catalogue.
+ * catalogue is the catalogue's own entry of it (origin catalogue), verified as made: the copy is made from that page,
+ * so the citation is not in doubt and takes no ⓘ (step 14.450). Its provenance says it comes from the printed catalogue.
  *
- * Safe to run again: a copy the library already has under the shelfmark is left alone and counted as unchanged.
+ * Safe to run again: a copy the library already has under the shelfmark is left alone and counted as unchanged. Its
+ * entry, if the first version of this command wrote it as a match awaiting review (step 14.447), is settled as the
+ * catalogue's own entry, unless a reviewer has since acted on it.
  */
 class ImportCatalogueCopiesCommand extends Command
 {
@@ -86,10 +88,17 @@ class ImportCatalogueCopiesCommand extends Command
                 throw new \RuntimeException("The volume #{$volume->id} has no row in source_volumes: the volume sync did not run.");
             }
 
-            $counts = ['create' => 0, 'unchanged' => 0, 'new_work' => 0];
+            $counts = ['create' => 0, 'unchanged' => 0, 'new_work' => 0, 'settled' => 0];
             foreach ($data['copies'] as $copy) {
-                if ($creator->duplicates($library->id, $copy['shelfmark'])->isNotEmpty()) {
+                $have = $creator->duplicates($library->id, $copy['shelfmark']);
+                if ($have->isNotEmpty()) {
                     $counts['unchanged']++;
+                    // step 14.447 wrote the entry as a match awaiting review; a reviewer's word, if any, stays
+                    $stale = SourceEntry::where('citable_type', Manuscript::class)->whereIn('citable_id', $have->pluck('id'))
+                        ->where('source_volume_id', $source->id)->where('origin', SourceEntry::ORIGIN_MATCH)
+                        ->where('status', SourceEntry::STATUS_UNVERIFIED)->whereNull('reviewed_by');
+                    $counts['settled'] += $dry ? $stale->count()
+                        : $stale->update(['origin' => SourceEntry::ORIGIN_CATALOGUE, 'status' => SourceEntry::STATUS_VERIFIED, 'updated_at' => now()]);
 
                     continue;
                 }
@@ -115,9 +124,10 @@ class ImportCatalogueCopiesCommand extends Command
                     'copy_text' => $copy['copy_text'] ?? null,
                     'text_status' => isset($copy['entry_text']) || isset($copy['copy_text']) ? SourceEntry::TEXT_AUTO : SourceEntry::TEXT_NONE,
                     'role' => SourceEntry::ROLE_ENTRY,
-                    // read by a program from the catalogue's text: ⓘ until a reviewer checks it on the page
-                    'origin' => SourceEntry::ORIGIN_MATCH,
-                    'status' => SourceEntry::STATUS_UNVERIFIED,
+                    // the copy is made from this very entry: its place in the catalogue is not in doubt (step 14.450)
+                    'origin' => SourceEntry::ORIGIN_CATALOGUE,
+                    'status' => SourceEntry::STATUS_VERIFIED,
+                    'reviewed_at' => now(),
                 ]);
             }
             if (! $dry) {
@@ -125,8 +135,8 @@ class ImportCatalogueCopiesCommand extends Command
                 // the «منابع» page lists the sources from a day's cache (sources:shelf)
                 Cache::forget('sources:shelf');
             }
-            $this->info(sprintf('%d copies made (%d under new works), %d unchanged%s.', $counts['create'], $counts['new_work'],
-                $counts['unchanged'], $dry ? ' (dry run)' : ''));
+            $this->info(sprintf('%d copies made (%d under new works), %d unchanged%s%s.', $counts['create'], $counts['new_work'],
+                $counts['unchanged'], $counts['settled'] ? ", {$counts['settled']} entries settled as the catalogue's own" : '', $dry ? ' (dry run)' : ''));
 
             return self::SUCCESS;
         });
