@@ -14862,6 +14862,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_a_run_again_settles_the_entries_step_14_447_left_awaiting_review_but_not_a_reviewed_one`؛ و در آزمون نخست، `origin` و `status` تازه و `isAwaitingReview()` نادرست.
 - **تمرین (`fahares_prod`):** خشک «374 unchanged, 374 entries settled as the catalogue's own (dry run)»، سپس همان بی خشک، و اجرای سوم «374 unchanged».
 - **اجرا در تولید، پس از انتشار:** با `prod-run`: `php artisan catalogs:import-copies database/data/catalogue_copies/eshkevari-v01.json --dry-run` و سپس بی آن. فقط ستون‌های `origin`، `status` و `updated_at` همین ۳۷۴ ردیف عوض می‌شوند.
+- **اجرا در تولید (۷ آذر ۱۴۰۵، پس از انتشار، به تأیید کاربر):** پشتیبان ۳۷۴ ردیف (`id`، `citable_id`، `origin`، `status`، `reviewed_by`، `reviewed_at`، `updated_at`؛ همه `match`، `unverified` و بی داور) در `../fahares-sources/backups/step13/before_step14_450_eshkevari_entries_prod_20261128.json` (md5 `4f41d02b276f7c2c019afc0a23f88e3d`). با `prod-run`: خشک «374 entries settled … (dry run)»، سپس «374 entries settled as the catalogue's own»، و خشک دوم «374 unchanged». صفحۀ نسخۀ #۳۳۴۹۰۴ در fahares.net ۲۰۰ می‌دهد، «دیدن برگه» دارد و «بازبینی نشده» ندارد.
 
 ### گام ۱۴.۴۵۱: `fahares:patch-text-words`
 - **پروندۀ تصمیم:** `database/data/fankha_ocr_patches_step14_449.json`، ساختۀ `scripts/fankha_pdf_ocr_step14_449/site_patches.py` پیکره (`7dca599`) از رونوشت fahares_prod (۶ آذر، ۱۶:۲۹). هر ردیف: `table` (`work`، `copy`، `note`، `entry`)، `id`، `column` و `patches` (`old`، `new`).
