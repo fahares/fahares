@@ -78,9 +78,13 @@ class MergeShelfmarkTwinsCommand extends Command
                 $repeats = $entries($removed)->whereIn('source_id', $entries($kept)->pluck('source_id'))->get();
                 $sourceId = $removed->id;
                 $result = $merger->mergeManuscript($removed, $kept, $pair['fields'] ?? []);
-                $dropped = [];
+                // since step 14.455 the merge itself drops a repeated Fankha citation of the same place
+                $dropped = $result['dropped_source_entries'] ?? [];
                 foreach ($repeats as $entry) {
-                    $dropped[] = (array) DB::table('source_entries')->where('id', $entry->id)->first();
+                    if (! $row = DB::table('source_entries')->where('id', $entry->id)->first()) {
+                        continue;
+                    }
+                    $dropped[] = (array) $row;
                     DB::table('source_entries')->where('id', $entry->id)->delete();
                 }
                 $log = AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $kept->id, 'action' => 'merge',
