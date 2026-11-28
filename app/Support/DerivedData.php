@@ -41,7 +41,8 @@ class DerivedData
      */
     public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null, ?int $floor = null, bool $sharedInVolume = false): array
     {
-        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath, $floor, $sharedInVolume);
+        $years = Manuscript::volumeYears($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, (int) $row->id);
+        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath, $floor, $sharedInVolume, $years);
         $extent = CopyExtent::columns($row, $guard)['columns'];
 
         return [

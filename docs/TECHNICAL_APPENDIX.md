@@ -14756,6 +14756,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **«مکرر»:** ۳۶ نسخه؛ با جزء: سپهسالار 569/1 و 569/2 (۱۵×۲۳ مانند 569)، علوم پزشکی 238/20 و 275/2، مجلس 4339/5، مروی 628/1، و مجلس 5187/1 و 5187/2 (`#245715`، `#15957`). فقط دو نسخۀ آخر مجلد دیگری‌اند. شمارۀ بی‌جزء «N مکرر» از پیش کلید جدای «N مکرر» می‌گیرد.
 - **اجرا در تولید (۶ آذر ۱۴۰۵):** همان کار `Admin\ManuscriptController::moveCollection` در tinker: `ManuscriptCollection::firstOrCreate([library_id, key => '5187-مکرر'])`، `collection_id` و `collection_pinned = true`، و لاگ `verify` با `direct_edit` (`user_id` تهی). `collection_key` همان «5187» می‌ماند، چون نسخۀ ثابت‌شده را `Collections::sync` جابه‌جا نمی‌کند (روی `fahares_prod` آزموده شد). پشتیبان ۱۵ نسخۀ کلید 5187 و رکورد مجموعه: `../fahares-sources/backups/step13/step14_442_before_5187_prod_20261127.json` (md5 `c445d429a7c04d50fa943646e34023c2`). نتیجه: مجموعۀ ۱۱۷۸۵ «5187» با ۱۳ رساله، و ۶۷۶۲۲ «5187-مکرر» با ۲.
 
+### گام ۱۴.۴۴۳: `CopyDateRange::SWAP`، ادغام سنایی و اصلاح‌های بازبینی (پیگیری مورد ۱۲۸)
+- **`reread($raw, $floor, ?callable $volumeYears)`:** وقتی هیچ خوانش رقم افتاده‌ای نمی‌خواند، `swapped()` جایگشت‌های سه رقم را می‌سنجد. جایگشت باید در بازۀ [کف، ۱۴۰۰] باشد و در سال‌های (`HijriYear::all`) رساله‌های دیگر همان مجلد بیاید. خروجی `hedge` «جابه‌جایی NNN» و `certainty` تردیدی است. `rereadYear()` هر دو پیشوند «بازخوانی» و «جابه‌جایی» را می‌شناسد.
+- **`Manuscript::volumeYears($library, $collectionKey, $except)`:** یک callable تنبل است که سال‌های رساله‌های دیگر مجلد را برمی‌گرداند. هوک ذخیرۀ نسخه، `DerivedData::copyChanges` و `fahares:fill-copy-date-ranges` آن را به `copyDateColumns` می‌دهند. پرس‌وجوی مجلد فقط وقتی اجرا می‌شود که سال کوتاه باشد و خوانش رقم افتاده نخواند.
+- **صفحۀ نسخه:** برای `SWAP` یادداشت «با فرض جابه‌جا شدن رقم‌ها، چنان‌که رسالۀ دیگری از همین مجلد دارد، …» نمایش داده می‌شود.
+- **تمرین `refresh-derived` (آزمایشی، `fahares_prod`):** در `copy_date_range` بیرون از کار نشست مورد ۱۷۴ (#۲۴۴۰۳۴)، فقط #۵۴۵۸۷ («17 شوال 697ق» ← ۹۶۷) و #۳۳۱۳۹۲ («با تاریخ 709ق» ← ۹۰۷) عوض شدند.
+- **سنایی:** `PersonMerger::merge(#9871, #13717, …, keepPrintedNames: true)` با `name` = WRONG، و KEEP برای `century_hijri`، `death_year_hijri`، `death_year_gregorian` و `life_dates_raw`، و `corpus_fix` «step 14.443: a duplicate whose Gregorian years were stored as Hijri». روی رونوشت لاگ ۱۸۵۷۴۷ ساخته شد، و `copyFloors([7875])` ۵۲۵ شد.
+- **اصلاح‌های بازبینی (`storage/app/step14_443_review.php`، `tinker … < /dev/null`، با `BACKUP=<path>` برای پشتیبان پیش از اجرا):** هر تغییر یک لاگ `verify` با `corpus_fix` «step 14.443: review of copy years far before their work» دارد. هر بخش وضع پیشین را می‌سنجد و اگر عوض شده باشد ردیف را رد می‌کند، پس اجرای دوم صفر است.
+  - `copy_date_raw` با پسوند «که صحیح آن 939ق است»، «… شاید 1068-1118ق باشد (زمان اورنگ زیب)»، «… شاید 1239-1242ق باشد (تاریخ رساله‌های دیگر مجلد)»، «… شاید 1338-1339ق باشد (…)» یا «که صحیح آن معلوم نیست». `HijriYear::all` سالِ پیش از «که صحیح آن» را کنار می‌گذارد (گام ۱۴.۱۸۶). اسکریپت بازۀ هر نسخه را با بازۀ مورد انتظار می‌سنجد.
+    - #۳۹۷۴۷، #۴۲۶۹۹، #۵۱۵۶۶، #۲۶۵۹۰۷ ← ۹۳۹
+    - #۲۱۴۹۰۸ ← ۱۰۶۸–۱۱۱۸
+    - #۱۳۲۰۰۵، #۳۱۲۰۹۷ ← ۱۲۳۹–۱۲۴۲
+    - #۱۷۰۱۶۴ ← ۱۳۳۸–۱۳۳۹
+    - #۱۵۱۰۵۶، #۳۰۹۸۲۷، #۱۶۲۱۵۳، #۲۵۱۲۸۰، #۲۴۱۷۹۴، #۱۶۴۷۱۵، #۵۷۲۱۲، #۱۷۸۶۲۸ ← بی‌بازه
+  - `work_id`: #۹۵۶۲۰ ۱۹۵۷۸ ← ۱۹۵۷۷، #۱۸۹۳۳۷ ۴۰۴۳۲ ← ۴۰۴۴۴، #۹۰۱۹۹ ۱۸۴۸۴ ← ۱۸۴۸۵، #۳۳۳۴۴۲ ۷۱۴۴۲ ← ۷۱۴۶۱ (یوسف و زلیخای فارسیِ بی‌مؤلف)، #۳۳۲۴۶۹ ۷۱۱۱۴ ← ۷۱۱۱۹. `manuscripts_count` هر دو اثر از نو شمرده می‌شود.
+  - `people`:
+    - #۱۶۳۵۳ «-984؟ قمری» ← «ق8 قمری»، با وفات و سال میلادی تهی و سدۀ ۸.
+    - #۹۲۳۲ «-1025 قمری» ← «ق9 قمری»، با وفات تهی و سدۀ ۹.
+    - #۱۶۳۲۲ «ق13» ← «ق11».
+    - #۴۶۱۲۲ و #۱۴۹۳۷ سده و `life_dates_raw` تهی.
+  - `works.author_id` تهی برای #۲۰۲۲۴، #۳۵۸۷۷، #۴۲۱۷۲ و #۷۰۴۹۲. ردیف مؤلف `work_people` حذف می‌شود و همۀ ردیف در `removed_person_role` لاگ می‌ماند. `recountContributions` شخص اجرا می‌شود.
+  - `composition_date_raw` «1053ق» (#۳۶۶۹۵) و «1396ق» (#۴۲۲۱۱) با پسوند «که صحیح آن معلوم نیست» بی‌بازه شدند.
+  - سپس `DerivedData::syncCopies` روی ۲۶۲ نسخۀ اثرهای این اشخاص و آثار اجرا شد. روی رونوشت `collections 2` گزارش شد، که رانش پیشین `collection_key` بود. در اجرای دوم صفر بود.
+- **تمرین (`fahares_prod`):** پشتیبان `step14_443_review_before_local.json`. شمارش: `dates 16, moves 5, people 5, unlinked 4, compositions 2`. اجرای دوم همه را رد کرد. «still far» تهی بود.
+- **برای پروداکشن، پس از انتشار:**
+  1. پشتیبان.
+  2. ادغام سنایی.
+  3. `DerivedData::syncCopies([54587, 331392])`.
+  4. `step14_443_review.php` با `BACKUP`.
+  5. `fahares:estimate-dates --apply`.
+
 ### گام ۱۴.۴۴۴: `fahares:fix-copy-side-findings`
 - **فایل تصمیم:** `database/data/step14_444_copy_side_fixes.json`.
   - `dates` و `scribe_names`: هر نسخه با شهر، کتابخانه، شمارۀ نسخه و slug اثر شناخته می‌شود و فقط وقتی تغییر می‌کند که فیلدش هنوز `from` باشد.

@@ -39,8 +39,8 @@ class FillCopyDateRangesCommand extends Command
 
         // A copy's date, or with --works a work's date of composition: the table, its date text and how its columns are made
         [$table, $prefix, $columns] = $this->option('works')
-            ? ['works', 'composition_date', fn ($raw, $death, $floor, $shared) => Work::compositionDateColumns($raw)]
-            : ['manuscripts', 'copy_date', fn ($raw, $death, $floor, $shared) => Manuscript::copyDateColumns($raw, $death, $floor, $shared)];
+            ? ['works', 'composition_date', fn ($raw, $death, $floor, $shared, $years) => Work::compositionDateColumns($raw)]
+            : ['manuscripts', 'copy_date', fn ($raw, $death, $floor, $shared, $years) => Manuscript::copyDateColumns($raw, $death, $floor, $shared, $years)];
         $raw = $table === 'works' ? 'composition_date_raw' : 'copy_date_raw';
         DB::table($table)->whereNotNull($raw)->where($raw, '<>', '')
             ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", ($table === 'works' ? 'composition_year_hijri' : 'copy_date_hijri_year') . ' as sort_year', "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge", "{$prefix}_kind as kind",
@@ -56,7 +56,8 @@ class FillCopyDateRangesCommand extends Command
                 foreach ($rows as $row) {
                     $counts['dated']++;
                     $cols = $columns($row->raw, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null,
-                        $table !== 'works' && isset($shared[Manuscript::volumeDateKey($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, $row->raw)]));
+                        $table !== 'works' && isset($shared[Manuscript::volumeDateKey($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, $row->raw)]),
+                        $table === 'works' ? null : Manuscript::volumeYears($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, (int) $row->id));
                     $counts['kind_' . ($cols["{$prefix}_kind"] ?? 'none')] = ($counts['kind_' . ($cols["{$prefix}_kind"] ?? 'none')] ?? 0) + 1;
                     if ($cols["{$prefix}_from"] === null && $cols["{$prefix}_to"] === null) {
                         $pattern = preg_replace('/[0-9۰-۹]+/u', 'N', mb_substr($row->raw, 0, 40));

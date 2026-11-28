@@ -124,6 +124,22 @@ class DerivedDataTest extends TestCase
         $this->get(route('manuscripts.show', Manuscript::find($unread)))->assertOk()->assertSee('سال کتابت نامعلوم گرفته شد');
     }
 
+    public function test_a_copy_year_with_swapped_digits_is_read_as_another_treatise_of_its_volume_has_it()
+    {
+        $work = $this->work(['composition_date_raw' => '911ق', 'composition_date_from' => 911, 'composition_date_to' => 911]);
+        $other = $this->work();
+        // two treatises of one volume: shelfmarks N/1 and N/2 are one collection key
+        $volume = (string) random_int(900000, 999999);
+        $this->copy($other, ['copy_date_raw' => 'جمعه 17 شوال967ق', 'copy_date_from' => 967, 'copy_date_to' => 967, 'shelfmark' => "{$volume}/1", 'collection_key' => $volume]);
+        $copy = $this->copy($work, ['copy_date_raw' => '17 شوال 697ق', 'copy_date_from' => 697, 'copy_date_to' => 697, 'shelfmark' => "{$volume}/2", 'collection_key' => $volume]);
+        $alone = $this->copy($work, ['copy_date_raw' => '17 شوال 697ق', 'copy_date_from' => 697, 'copy_date_to' => 697]);
+        $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500])->assertSuccessful();
+        $row = DB::table('manuscripts')->where('id', $copy)->first();
+        $this->assertSame([967, 967, 'جابه‌جایی 697', $volume], [(int) $row->copy_date_from, (int) $row->copy_date_to, $row->copy_date_hedge_raw, $row->collection_key]);
+        $this->assertSame(697, (int) DB::table('manuscripts')->where('id', $alone)->value('copy_date_from'));
+        $this->get(route('manuscripts.show', Manuscript::find($copy)))->assertOk()->assertSee('با فرض جابه‌جا شدن رقم‌ها');
+    }
+
     public function test_rebuild_copies_brings_the_date_range_extent_and_excerpt_pointer_in_step()
     {
         $work = $this->work();
