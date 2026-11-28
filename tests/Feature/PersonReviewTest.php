@@ -143,6 +143,52 @@ class PersonReviewTest extends TestCase
         $this->assertNotNull(AuditLog::where('auditable_id', $p->id)->where('action', 'split')->first(), 'the split can be rolled back');
     }
 
+    public function test_records_split_from_one_another_are_not_asked_again_as_namesakes()
+    {
+        // step 14.441: after a split the old and the new record share the name; the refresh queued them as «تکراری؟»
+        $p = $this->person('محمد تقی بن محمد کاظم');
+        $this->copyBy($p, 1253);
+        $moved = $this->copyBy($p, 1260);
+        $result = app(\App\Suggestions\RecordSplitter::class)->splitPerson($p, ['name' => $p->name], ['manuscripts' => [$moved->id]]);
+        $this->peopleIds[] = $result['created_id'];
+        AuditLog::create(['user_id' => $this->admin->id, 'auditable_type' => Person::class, 'auditable_id' => $p->id, 'action' => 'split',
+            'old_values' => $result, 'new_values' => ['created_id' => $result['created_id']]]);
+        $key = DuplicatePeopleFinder::key($p->name);
+
+        app(PersonReviewQueue::class)->refresh();
+        $review = PersonReview::where('type', 'duplicate')->where('key', $key)->firstOrFail();
+        $this->assertSame(['distinct', [$p->id, $result['created_id']]], [$review->status, $review->person_ids]);
+
+        // a namesake that was not split from them is a question again
+        $other = $this->person('محمد تقی بن محمد کاظم');
+        $this->copyBy($other, 1255);
+        app(PersonReviewQueue::class)->refresh();
+        $this->assertSame('open', $review->fresh()->status);
+        $this->assertContains($other->id, $review->fresh()->person_ids);
+    }
+
+    public function test_a_closed_group_is_not_reopened_by_a_record_split_from_one_of_it()
+    {
+        $a = $this->person('محمد تقی بن محمد کاظم');
+        $b = $this->person('محمد تقی ابن محمد کاظم');
+        $this->copyBy($a, 1253);
+        $this->copyBy($b, 1258);
+        $moved = $this->copyBy($b, 1260);
+        $key = DuplicatePeopleFinder::key($a->name);
+        app(PersonReviewQueue::class)->refresh();
+        PersonReview::where('type', 'duplicate')->where('key', $key)->firstOrFail()->update(['status' => 'distinct']);
+
+        $result = app(\App\Suggestions\RecordSplitter::class)->splitPerson($b, ['name' => $b->name], ['manuscripts' => [$moved->id]]);
+        $this->peopleIds[] = $result['created_id'];
+        AuditLog::create(['user_id' => $this->admin->id, 'auditable_type' => Person::class, 'auditable_id' => $b->id, 'action' => 'split',
+            'old_values' => $result, 'new_values' => ['created_id' => $result['created_id']]]);
+
+        app(PersonReviewQueue::class)->refresh();
+        $review = PersonReview::where('type', 'duplicate')->where('key', $key)->firstOrFail();
+        $this->assertSame('distinct', $review->status);
+        $this->assertContains($result['created_id'], $review->person_ids);
+    }
+
     public function test_the_queue_needs_its_permission()
     {
         $user = User::firstOrCreate(['email' => 'test-user@fahares.net'], ['name' => 'Normal User', 'password' => 'password123', 'role' => 'user']);
