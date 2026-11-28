@@ -14820,3 +14820,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین روی fahares_prod:** `sources:import-pages fankha storage/app/fankha-pages-step14_449/NN.jsonl.gz --volume=N` برای ۳۴ جلد، سپس `differ 0`.
   - **اجرای تولید:** فایل‌ها به `/tmp/step14_449_pages/` (`MD5SUMS` برابر)، یک `prod-run --wait fankha-pdf-ocr` با ۳۴ `sources:import-pages` (۲۰:۳۲ تا ۲۰:۳۳، exit 0).
   - **وارسی:** صفحه‌های تولید دوباره بیرون آمد: ۳۳٬۵۱۸ صفحه، `differ 0`، `missing 0`. `/sources/fankha/34/page/710` پاسخ 200 و «لاتمییز» دارد. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۴۵۰: `SourceEntry::ORIGIN_CATALOGUE`
+- **چرا:** `ORIGIN_MATCH` یعنی «یافته با تطبیق شمارۀ نسخه در چاپی دیگر» (`catalogs:match-edition`). مأخذ `match` و `unverified` در `isAwaitingReview()` نشان ⓘ می‌گیرد و در `CatalogMatchQueue` و `CatalogReferenceController` به صف داوری می‌رود. ۳۷۴ مأخذ گام ۱۴.۴۴۷ چنین بودند، در حالی که نسخه از همان مدخل ساخته شده است.
+- **کد:** ثابت `ORIGIN_CATALOGUE = 'catalogue'` (ستون `origin` از نوع `varchar(30)` است و migration لازم نیست). `ImportCatalogueCopiesCommand` مأخذ تازه را با `origin = catalogue`، `status = verified` و `reviewed_at` می‌نویسد. برای نسخه‌ای که از پیش هست، مأخذ همان جلد را که `match`، `unverified` و `reviewed_by` تهی است به `catalogue` و `verified` می‌برد و شمار آن را «N entries settled as the catalogue's own» گزارش می‌کند؛ مأخذ ردشده یا داوری‌شده دست نمی‌خورد. جاهای دیگری که `origin` را می‌سنجند (`SourceEntrySync::matched`، `CatalogerController`، `RecordSources`، `SuggestionRegistry`) با مقدار تازه رفتار پیشین را دارند.
+- **آزمون:** `test_a_run_again_settles_the_entries_step_14_447_left_awaiting_review_but_not_a_reviewed_one`؛ و در آزمون نخست، `origin` و `status` تازه و `isAwaitingReview()` نادرست.
+- **تمرین (`fahares_prod`):** خشک «374 unchanged, 374 entries settled as the catalogue's own (dry run)»، سپس همان بی خشک، و اجرای سوم «374 unchanged».
+- **اجرا در تولید، پس از انتشار:** با `prod-run`: `php artisan catalogs:import-copies database/data/catalogue_copies/eshkevari-v01.json --dry-run` و سپس بی آن. فقط ستون‌های `origin`، `status` و `updated_at` همین ۳۷۴ ردیف عوض می‌شوند.

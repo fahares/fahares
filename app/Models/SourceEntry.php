@@ -49,6 +49,12 @@ class SourceEntry extends Model
 
     public const ORIGIN_MANUAL = 'manual';
 
+    /**
+     * A printed catalogue's own entry of a copy made from that entry (catalogs:import-copies, step 14.450): the copy
+     * comes from the page, so its place there is not in doubt and the entry is verified as made.
+     */
+    public const ORIGIN_CATALOGUE = 'catalogue';
+
     public const TEXT_NONE = 'none';
 
     public const TEXT_AUTO = 'auto';
