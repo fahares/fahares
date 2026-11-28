@@ -14880,3 +14880,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پس از نوشتن:** لاگ `update` با `command` و `step`؛ `DerivedData::syncCopies` و `syncWorks`.
 - **تمرین روی fahares_prod:** ۴۶ ثانیه، patched ۹٬۴۵۷، «Updated 7293 records». اجرای دوم: already ۹٬۴۵۷. دو بار پیش از آن، «already» شمار یک‌بارۀ تکۀ تازه را می‌خواست و ۸۷ فیلد که واژۀ تازه‌شان جای دیگری از همان فیلد هم آمده بود («المعلول») ناسازگار دیده می‌شد. اکنون بودن تکۀ تازه بس است.
 - **اجرا در تولید (پس از انتشار و تأیید کاربر):** پشتیبان ستون‌های همین رکوردها، سپس `prod-run … php -d memory_limit=2G artisan fahares:patch-text-words` (اجرای آزمایشی)، و سپس با `--apply`.
+
+### گام ۱۴.۴۵۱: `fahares:fix-person-names`
+- **پروندۀ تصمیم:** `database/data/fankha_ocr_names_step14_451.json`؛ هر کنش `action` (`record`، `rename`، `variant`)، رکورد (`table`: `work` یا `copy`، `id`)، و واژۀ `old` و `new`. `rename` نام شخص را که داوری دید (`person_name`) و نام تازه (`new_name`) دارد؛ `variant` نام دیگر (`alias`).
+- **ترتیب:** نخست شخص‌ها: نام تازه، `normalized_name` بی حرکت (چون فرم شخص در پنل)، و نام پیشین در `wrong_names`. `Person::updated` با `PersonNames::follow` اثرها و نسخه‌هایی را که همان نام را داشتند پیش می‌برد. سپس نام خود رکورد (`works.author_name`، `manuscripts.scribe_name`) و ردیف نام (`work_people`/`manuscript_people`، نقش مؤلف یا کاتب؛ بیشترشان نام ندارند): واژه باید کامل و تنها یک بار آمده باشد.
+- **نگهبان‌ها:** `ProtectedColumns` شخص (`name`، `aliases`)، اثر (`author_name`) و نسخه (`scribe_name`). لاگ `update` با `command` و `step`. سپس `DerivedData::syncCopies` و `syncWorks`.
+- **تمرین روی fahares_prod:** «renamed 91»، «alias added 90»، «record patched 141»؛ اجرای دوم همه «already» و یک «rename conflict» (شخص ۱۰۵۵۱).
+- **وصله‌ها:** `fankha_ocr_patches_step14_449.json` پس از بیرون رفتن ۱۰ وصلۀ «قزنچائی/فرنچائی» ۹٬۴۴۷ فیلد دارد.
+- **اجرا در تولید (پس از انتشار و تأیید کاربر):** پشتیبان، سپس `fahares:patch-text-words` و `fahares:fix-person-names` (هر کدام اجرای آزمایشی و سپس `--apply`)، و وارد کردن دوبارۀ صفحه‌های ج ۱ ص ۵۱۱، ج ۸ ص ۳۴۶، ج ۱۲ ص ۸۱۲، ج ۱۹ ص ۵۲۰ و ج ۳۲ ص ۴۰۴.
