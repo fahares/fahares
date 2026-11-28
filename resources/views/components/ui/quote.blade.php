@@ -1,7 +1,7 @@
 @props(['label' => null, 'field' => null])
 
 {{-- Incipit or explicit: catalog text in Naskh with the gold double rule, never slanted --}}
-<figure {{ $attributes->merge(['class' => 'suggest-row m-0 border-s-4 border-double border-gold ps-4']) }}>
+<figure {{ $attributes->merge(['class' => 'suggest-row m-0 border-s-4 border-double border-gold ps-4']) }} @if($field) data-edit-block @endif>
     @if($label || $field)
         <figcaption class="text-xs font-bold text-cinnabar mb-1">
             {{ $label }}

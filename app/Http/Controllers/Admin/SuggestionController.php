@@ -27,6 +27,9 @@ use InvalidArgumentException;
 
 class SuggestionController extends Controller
 {
+    /** How long the edit mode offers to take back one's own direct edit (backlog item 67). */
+    public const UNDO_MINUTES = 15;
+
     public function index(Request $request)
     {
         $status = $request->query('status', 'pending');
@@ -532,11 +535,12 @@ class SuggestionController extends Controller
             $input += ! empty($validated['person_id']) ? ['person_action' => 'link', 'person_id' => $validated['person_id']] : ['person_action' => 'text'];
         }
 
+        $log = null;
         try {
-            DB::transaction(function () use ($record, $field, $input, $value, $applier, $request) {
+            DB::transaction(function () use ($record, $field, $input, $value, $applier, $request, &$log) {
                 $result = $applier->apply($record, $field, $input);
                 $extra = self::editAdoptedReading($record::class, $record->id, $field['name'], $value);
-                AuditLog::create([
+                $log = AuditLog::create([
                     'user_id' => auth()->id(),
                     'auditable_type' => $record::class,
                     'auditable_id' => $record->id,
@@ -550,7 +554,48 @@ class SuggestionController extends Controller
             throw ValidationException::withMessages(['suggested_value' => $e->getMessage()]);
         }
 
-        return response()->json(['message' => 'ویرایش اعمال شد.']);
+        // The edit mode of the record page (backlog item 67) puts the new value in place and offers to take the edit back
+        $fresh = $record->fresh();
+        $after = $fresh ? SuggestionRegistry::fieldOf($fresh, $field['name']) : null;
+
+        return response()->json([
+            'message' => 'ویرایش اعمال شد.',
+            // nothing changed: no log to take back
+            'log_id' => $log && $log->old_values ? $log->id : null,
+            'field' => $after ? self::editState($fresh, $after) : null,
+        ]);
+    }
+
+    /** What the record page's form starts from for a field: its value now, as <x-suggest.desk> gives it. */
+    public static function editState(Model $record, array $field): array
+    {
+        $current = SuggestionRegistry::currentValue($record, $field);
+
+        return [
+            'current' => $current,
+            // Start the edit from the stored text, never from display stand-ins like «بی‌تاریخ»
+            'prefill' => $field['input'] === 'boolean' || (! empty($field['bit_column']) && $record->{$field['name']} === null) ? '' : ($current ?? ''),
+            'pair' => isset($field['pair']) ? SuggestionRegistry::pairCurrent($record, $field) : null,
+        ];
+    }
+
+    /**
+     * Takes back one's own direct edit from the record page's edit mode (backlog item 67): within a quarter of an
+     * hour, and only while no later change touched the same fields. Older edits are undone from the audit log.
+     */
+    public function undoDirectEdit(Request $request, AuditLog $log, AuditLogController $audit)
+    {
+        abort_unless($log->user_id === auth()->id() && $log->action === 'verify' && ! empty($log->new_values['direct_edit']), 403);
+        if ($log->created_at->lt(now()->subMinutes(self::UNDO_MINUTES))) {
+            return response()->json(['message' => 'زمان بازگردانی گذشته است؛ از لاگ ممیزی بازگردانید.'], 422);
+        }
+        try {
+            DB::transaction(fn () => $audit->undo($log, $request));
+        } catch (\Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['message' => 'ویرایش بازگردانده شد.']);
     }
 
     /**

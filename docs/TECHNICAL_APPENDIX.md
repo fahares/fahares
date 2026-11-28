@@ -14949,3 +14949,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **زمان روی fahares_prod محلی (buffer pool ۱۲۸ MB، اسکن کامل جدول):** مؤلف ۱۱۱۰، ۰٫۵ ثانیه؛ اثر ۵۰۹۳۳ (۲٬۵۹۸ نسخه)، ۰٫۳ ثانیه؛ موضوع ۲ (۲۹٬۶۷۶ نسخه)، ۴ ثانیه؛ کتابخانۀ ۴ (۴۴٬۷۳۹ نسخه)، ۱۳ ثانیه. از همین رو صفحه خلاصه را تنها از cache می‌کشد و در غیر آن، پس از نمایش، آن را از مسیر `list-stats` می‌گیرد.
 - **صفحۀ اثر:** ستون سده به `works.show?century=N#manuscripts` و «خط مؤلف» به `?autograph=1` می‌رود (`WorkCopyFilters`).
 - **آزمون:** `tests/Feature/ListStatsTest.php`.
+### گام ۱۴.۴۵۴: حالت ویرایش درجا (مورد ۶۷، فاز ۱)
+- **سرور:** `SuggestionController::directEdit` اکنون `log_id` (اگر چیزی تغییر نکرده باشد، تهی) و `field` (`current`، `prefill` و `pair` پس از ذخیره، از `editState`) را برمی‌گرداند. مسیر تازۀ `admin.suggestions.direct-edit.undo` (`POST /admin/suggestions/direct-edit/{log}/undo`، با مجوز `suggestions.direct_edit`) برای `undoDirectEdit` است. این متد فقط لاگ `verify` با `direct_edit` را برمی‌گرداند که از خود کاربر باشد، و حداکثر `UNDO_MINUTES = 15` دقیقه از آن گذشته باشد. بازگرداندن از همان `AuditLogController::undo` می‌گذرد، که لاگ بازگردانده‌شده و تغییر بعدی همان ستون‌ها را رد می‌کند (۴۲۲).
+- **مرورگر:** store تازۀ `edit` در `app.js`. این store فقط وقتی روشن می‌شود که صفحه `<meta name="edit-mode">` داشته باشد؛ آن تگ با `@can('suggestions.direct_edit')` در `layouts/app` آمده است. وضعیت در `localStorage['edit-mode']` می‌ماند. store همراه خودش `suggest.on` و `html[data-edit-mode]` را هم روشن می‌کند (✎ سبز در `app.css`).
+- **`suggest-desk.js`:**
+  - `start()` در حالت ویرایش، برای ورودی‌های `INLINE_INPUTS`، به‌جای فرم، کادر `[data-inline-editor]` را باز می‌کند. این کادر با teleport به body می‌رود و زیر بلوک فیلد جا می‌گیرد.
+  - `submitDirect()` مقدار `config.fields` را به‌روز می‌کند و `refreshField()` را صدا می‌زند. این تابع همان نشانی را دوباره می‌گیرد و درون هر `closest('[data-edit-block]') ?? parentElement` از ✎ های همان فیلد را جایگزین می‌کند؛ اگر شمار ✎ ها فرق کند، صفحه دوباره بار می‌شود.
+  - `takeBack()` مسیر بازگردانی را صدا می‌زند و مقدار پیشین `config.fields` را برمی‌گرداند.
+  - `data-edit-block` روی `x-ui.section`، `x-ui.quote` و `x-suggest.centered` گذاشته شد، که ✎ آن‌ها بیرون از عنصر مقدار است.
+- **آزمون:** `tests/Feature/EditModeTest.php` (کلید فقط برای داور، پاسخ ذخیره و محافظت `ProtectedColumns`، بازگرداندن یک‌باره، کاربر دیگر ۴۰۳، تغییر بعدی ۴۲۲، و گذشتن ۱۵ دقیقه).
+

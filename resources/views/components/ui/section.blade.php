@@ -2,7 +2,8 @@
 
 {{-- A page section with a rubric heading; optional suggestion button and actions on the other side --}}
 {{-- .suggest-section: the heading's ✎ comes forward with the pointer anywhere on the section, not only on its heading --}}
-<section {{ $attributes->merge(['class' => 'scroll-mt-24' . ($field ? ' suggest-section' : '')]) }}>
+{{-- data-edit-block: the part the edit mode puts back in place after an edit of the heading's field (backlog item 67) --}}
+<section {{ $attributes->merge(['class' => 'scroll-mt-24' . ($field ? ' suggest-section' : '')]) }} @if($field) data-edit-block @endif>
     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
         <h2 class="rubric text-lg">
             <span>{{ $title }}</span>

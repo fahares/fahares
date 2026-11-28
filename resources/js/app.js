@@ -24,6 +24,31 @@ Alpine.store('suggest', {
     on: false,
     toggle() {
         this.on = !this.on;
+        // ending the suggestion mode ends the edit mode it carries
+        if (!this.on && Alpine.store('edit').on) Alpine.store('edit').toggle();
+    },
+});
+// The edit mode of reviewers (backlog item 67): every ✎ opens an editor in place that applies the value at once
+// (admin.suggestions.direct-edit). Kept on across pages in localStorage; only for users the page marks as allowed.
+const EDIT_MODE_KEY = 'edit-mode';
+const editAllowed = document.querySelector('meta[name="edit-mode"]') !== null;
+Alpine.store('edit', {
+    allowed: editAllowed,
+    on: false,
+    init() {
+        let saved = false;
+        try { saved = localStorage.getItem(EDIT_MODE_KEY) === '1'; } catch (e) { /* storage blocked */ }
+        if (this.allowed && saved) this.set(true);
+    },
+    set(on) {
+        this.on = on && this.allowed;
+        document.documentElement.toggleAttribute('data-edit-mode', this.on);
+        // the strong ✎ and the empty fields of the suggestion mode come with it
+        Alpine.store('suggest').on = this.on;
+        try { this.on ? localStorage.setItem(EDIT_MODE_KEY, '1') : localStorage.removeItem(EDIT_MODE_KEY); } catch (e) { /* storage blocked */ }
+    },
+    toggle() {
+        this.set(!this.on);
     },
 });
 // The «پیشنهاد اصلاح» button of a record page (backlog item 92): a one-time hint, and a floating copy once it scrolls away
