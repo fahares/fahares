@@ -14785,6 +14785,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `DerivedData::syncCopies([54587, 331392])`.
   4. `step14_443_review.php` با `BACKUP`.
   5. `fahares:estimate-dates --apply`.
+- **اجرا در پروداکشن (۷ آذر ۱۴۰۵، انتشار ۳۱۶ با `199317f6`):**
+  1. `DRY=1 tinker /tmp/step14_443_review.php` (بی `prod-run`؛ تراکنش برگردانده شد): `dates 16, moves 5, people 5, unlinked 4, compositions 2`، و `syncCopies` با `collections 0`.
+  2. `prod-run dates-128-134`: `tinker /tmp/p14443a.php`. این اسکریپت پشتیبان را می‌گیرد و `sanai.php` و `syncCopies([54587, 331392])` را اجرا می‌کند.
+     - لاگ ادغام ۱۸۶۴۵۴ است. `works_count` #۱۳۷۱۷ ۱۳ شد و `copyFloors([7875])` ۵۲۵.
+     - `syncCopies` خروجی `dates 2` داد: #۵۴۵۸۷ ۹۶۷ و #۳۳۱۳۹۲ ۹۰۷، هر دو با `hedge` «جابه‌جایی …».
+  3. `prod-run`: `BACKUP=… tinker /tmp/step14_443_review.php`. شمارش‌ها همان تمرین بود و `skipped` و «still far» تهی بودند. md5 پشتیبان (`8b408648…`) با پشتیبان رونوشت یکی است.
+  4. پشتیبان‌ها و اسکریپت‌ها در `../fahares-sources/backups/step13/` است: `step14_443_before.json` (md5 `69d3b783…`)، `step14_443_review_before.json`، `step14_443_review.php` و `sanai.php`. فایل‌های `/tmp` کانتینر پاک شد.
+  5. `prod-run`: `fahares:estimate-dates --apply` ۲۲۵٬۴۳۳ تخمین و ۱۲٬۱۷۱ ناسازگاری نوشت.
+  6. `/m/54587` «با فرض جابه‌جا شدن رقم‌ها … ۹۶۷ ق خوانده شد» را نشان می‌دهد. `/m/39747`، `/m/214908` و `/m/151056` متن افزوده را دارند.
 
 ### گام ۱۴.۴۴۴: `fahares:fix-copy-side-findings`
 - **فایل تصمیم:** `database/data/step14_444_copy_side_fixes.json`.
