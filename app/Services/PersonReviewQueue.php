@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\DB;
  * Namesake groups queued from a model review (key «judged:…», step 14.124) are kept until fewer than two of their
  * records are left.
  * Decisions stay with the key: a group judged «چند نفرند» is reopened only when a record it did not
- * have joins it; items whose records are gone are closed as «gone».
+ * have joins it; items whose records are gone are closed as «gone». Records split from one another (splitFamilies,
+ * step 14.441) were judged several people: a group of them alone is queued as «چند نفرند», and one joining a group
+ * that had its family reopens nothing.
  */
 class PersonReviewQueue
 {
@@ -31,6 +33,7 @@ class PersonReviewQueue
     {
         $stats = ['created' => 0, 'updated' => 0, 'reopened' => 0, 'gone' => 0];
         $seen = ['duplicate' => [], 'mixed' => []];
+        $family = self::splitFamilies();
 
         foreach (DuplicatePeopleFinder::groups()['groups'] as $group) {
             if ($group['tier'] === 'conflict') {
@@ -40,7 +43,7 @@ class PersonReviewQueue
             sort($ids);
             $seen['duplicate'][] = $group['key'];
             $this->upsert('duplicate', $group['key'], $ids, $group['tier'], $group['reason'], $seed[$group['key']] ?? null, $stats,
-                $group['tier'] === 'likely' ? ['merge_ids' => $ids, 'target_id' => $group['target_id'], 'source' => 'finder'] : null);
+                $group['tier'] === 'likely' ? ['merge_ids' => $ids, 'target_id' => $group['target_id'], 'source' => 'finder'] : null, $family);
         }
 
         // As Person::scribeFacts' gap: the earliest end and the latest start of the copies with both bounds
@@ -78,14 +81,50 @@ class PersonReviewQueue
     }
 
     /**
-     * @param  array|null  $seed  a recorded judgement for a new item: decision (merge|skip|unsure), merge_ids, target_id, comment, source
+     * The record each person was split from, followed back to the first (AuditLog «split» of a person, whose
+     * old_values.created_id is the new record): the people of one family were judged several people, so the
+     * namesake group they make is not a question again (step 14.441).
+     *
+     * @return array<int, int> person id => the id of the record its family began with
      */
-    protected function upsert(string $type, string $key, array $ids, ?string $tier, string $reason, ?array $seed, array &$stats, ?array $suggestion = null): void
+    public static function splitFamilies(): array
+    {
+        $parent = [];
+        \App\Models\AuditLog::where('action', 'split')->where('auditable_type', Person::class)
+            ->get(['auditable_id', 'old_values'])
+            ->each(function ($log) use (&$parent) {
+                if ($created = (int) ($log->old_values['created_id'] ?? 0)) {
+                    $parent[$created] = (int) $log->auditable_id;
+                }
+            });
+        $root = [];
+        foreach (array_keys($parent) as $id) {
+            $r = $id;
+            for ($guard = 0; isset($parent[$r]) && $guard < 50; $guard++) {
+                $r = $parent[$r];
+            }
+            $root[$id] = $r;
+        }
+
+        return $root;
+    }
+
+    /**
+     * @param  array|null  $seed  a recorded judgement for a new item: decision (merge|skip|unsure), merge_ids, target_id, comment, source
+     * @param  array<int, int>  $family  splitFamilies(): records split from one another make no question
+     */
+    protected function upsert(string $type, string $key, array $ids, ?string $tier, string $reason, ?array $seed, array &$stats, ?array $suggestion = null, array $family = []): void
     {
         $review = PersonReview::where('type', $type)->where('key', $key)->first();
+        $root = fn (int $id) => $family[$id] ?? $id;
 
         if (! $review) {
             $status = 'open';
+            // Records split from one another (step 14.441) were judged several people: such a group is no new question
+            if ($family && count(array_unique(array_map($root, $ids))) === 1) {
+                $status = 'distinct';
+                $reason .= '; split from one another';
+            }
             if ($seed) {
                 $suggestion = array_filter([
                     'decision' => $seed['decision'] ?? null,
@@ -107,6 +146,9 @@ class PersonReviewQueue
 
         $known = (array) $review->person_ids;
         $newcomers = array_diff($ids, $known);
+        // a record split from one the group had is no newcomer to judge
+        $families = array_map($root, $known);
+        $newcomers = array_filter($newcomers, fn ($id) => ! in_array($root($id), $families, true));
         $values = ['person_ids' => $ids, 'tier' => $tier, 'reason' => $reason];
         if (! $review->isOpen() && $newcomers && in_array($review->status, ['distinct', 'dismissed', 'merged', 'split'], true)) {
             $values['status'] = 'open';
